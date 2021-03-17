@@ -2,29 +2,29 @@ name: Deploy to production
 on: push
 
 jobs:
-  test:
-    runs-on: ubuntu-18.04
-    steps:
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install pipenv
-        pipenv install -d
+  # test:
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #   - name: Install python dependencies
+  #     run: |
+  #       python3 -m venv venv
+  #       source venv/bin/activate
+  #       pip install --upgrade pip
+  #       pip install pipenv
+  #       pipenv install -d
 
-    - name: Run python tests
-      run: echo "Runs tests!"
+  #   - name: Run python tests
+  #     run: echo "Runs tests!"
 
   deploy:
     runs-on: ubuntu-18.04
-    needs: test
+    # needs: test
     steps:
     - name: Create static files
       run: |
         npm i
-        npm install -g gulp
-        gulp build
+        npm link
+        npx gulp build
 
     - name: Installing cloud foundry
       run: |
