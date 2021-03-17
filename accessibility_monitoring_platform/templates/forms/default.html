@@ -1,0 +1,24 @@
+<div class="form_default">
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-group form-field-default" errorid="loginStatusUsername">
+        <label class="govuk-label govuk-label--m" for="{{field.name}}">{{ field.label }}</label>
+        <span class="govuk-label">{{field.help_text}}</span>
+        {{field}}
+      </div>
+
+      {% if field.errors %}
+        <span class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{field.errors}}
+        </span>
+      {% endif %}
+
+      {% if field.name in form_groups %}
+          <div class="form-space"> </div>
+      {% endif %}
+    {% endfor %}
+
+    <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+  </form>
+</div>

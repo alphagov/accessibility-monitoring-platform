@@ -1,0 +1,44 @@
+# .coveragerc to control coverage.py
+[run]
+branch = True
+omit =
+        *Test*
+        */tests/*
+        */venv/*
+        */__init__.py
+        */accessibility_monitoring_platform/asgi.py
+        */accessibility_monitoring_platform/settings.py
+        */accessibility_monitoring_platform/urls.py
+        */accessibility_monitoring_platform/wsgi.py
+        manage.py
+        */apps.py
+        */migrations/*
+        */admin.py
+
+
+[report]
+omit =
+        *Test*
+        */usr/local/lib*
+        */__init__.py
+
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+    if self\.debug
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
+
+ignore_errors = True
+
+[html]

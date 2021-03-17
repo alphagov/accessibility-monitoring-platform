@@ -1,0 +1,21 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "javascript.validate.enable": false,
+  "standard.enable": true,
+  "standard.options": {
+    "globals": ["$", "jQuery", "fetch"],
+    "ignore": [
+      "node_modules/**"
+    ],
+    "plugins": ["html"],
+    "parser": "@babel/eslint-parser",
+    "envs": ["jest"]
+  },
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4  
+  },
+  "python.pythonPath": "venv/bin/python"
+}

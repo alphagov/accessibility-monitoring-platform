@@ -1,0 +1,15 @@
+<!--users/templates/users/dashboard.html-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper">
+    <h1 class="govuk-heading-l"> Query Domain Register </h1>
+    {% include "query_local_website_registry/form.html" %}
+    {% include "query_local_website_registry/table.html" %}
+  </main>
+</div>
+
+{% endblock %}

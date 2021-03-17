@@ -1,0 +1,62 @@
+{
+  "name": "demo-app-django",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --mode production",
+    "start": "webpack --watch --config webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "core-js": "^3.9.1",
+    "del": "^6.0.0",
+    "eslint-plugin-html": "^6.1.1",
+    "glob": "^7.1.6",
+    "govuk-frontend": "^3.10.2",
+    "gulp-autoprefixer": "^7.0.1",
+    "gulp-csso": "^4.0.1",
+    "gulp-modify-css-urls": "^2.0.0",
+    "sass": "^1.32.6",
+    "standard": "^16.0.3"
+  },
+  "standard": {
+    "plugins": [
+      "html"
+    ],
+    "parser": "@babel/eslint-parser",
+    "ignore": [
+      "node_modules/**",
+      "venv/**"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@babel/eslint-parser": "^7.13.10",
+    "@babel/preset-env": "^7.12.13",
+    "@babel/register": "^7.13.8",
+    "babel-loader": "^8.2.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babelify": "^10.0.0",
+    "browser-sync": "^2.26.14",
+    "browser-sync-webpack-plugin": "^2.3.0",
+    "browserify": "^17.0.0",
+    "css-loader": "^5.0.2",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-sass": "^4.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-uglify": "^3.0.2",
+    "html-webpack-plugin": "^5.0.0",
+    "htmlhint": "^0.14.2",
+    "mini-css-extract-plugin": "^1.3.9",
+    "node-sass": "^5.0.0",
+    "uglify-js": "^3.13.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
+}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="govuk-main-wrapper">
+    <h1 class="govuk-heading-l">Register</h1>
+    <p class="govuk-body-l">Fill in the form below to create an account</p>
+    <br />
+    {% include "forms/default.html" %}
+    <p class="govuk-body"><a href="{% url 'login' %}">Back to login</a></p>
+</div>
+{% endblock %}

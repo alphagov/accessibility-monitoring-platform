@@ -1,0 +1,1 @@
+web: python manage.py collectstatic --noinput && python manage.py migrate query_local_website_registry --database=accessibility_domain_db && python manage.py migrate && waitress-serve --port=$PORT accessibility_monitoring_platform.wsgi:application

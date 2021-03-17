@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="govuk-main-wrapper">
+  <div class="region login">
+    <h1 class="govuk-heading-l">Login</h1>
+    {% if next %}
+      {% if user.is_authenticated %}
+        <p>
+          Your account doesn't have access to this page. To proceed,
+          please login with an account that has access.
+        </p>
+          
+        {% endif %}
+      {% endif %}
+
+      {% if form.errors %}
+        <p class="govuk-body">Your username and password didn't match. Please try again.</p>
+      {% endif %}
+
+      <div class="form_default">
+        <form id="fm1" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+            <div id="gds-login_cred" class="form-group" errorid="loginStatus">
+                <div class="form-group form-field-default" errorid="loginStatusUsername">
+                  <label class="govuk-label govuk-label--m" for="{{form.username.name}}">Email</label>
+                  <span class="govuk-label">{{form.username.help_text}}</span>
+                  {{form.username}}
+                </div>
+    
+                {% if field.errors %}
+                  <span class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> {{form.username.errors}}
+                  </span>
+                {% endif %}
+
+                <div class="form-group form-field-default" errorid="loginStatusUsername">
+                  <label class="govuk-label govuk-label--m" for="{{form.password.name}}">{{ form.password.label }}</label>
+                  <span class="govuk-label">{{form.password.help_text}}</span>
+                  {{form.password}}
+                </div>
+    
+                {% if form.password.errors %}
+                  <span class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> {{form.password.errors}}
+                  </span>
+                {% endif %}
+
+                <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+                <input type="hidden" name="next" value="{{ next }}" />
+          </div>
+        </form>
+      </div>
+    {# Assumes you setup the password_reset view in your URLconf #}
+
+    <p class="govuk-body"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+    <p class="govuk-body"><a href="{% url 'users:register' %}">Register</a></p>
+  </div>
+</div>
+{% endblock %}

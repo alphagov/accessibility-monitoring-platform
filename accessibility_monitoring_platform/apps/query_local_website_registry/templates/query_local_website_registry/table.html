@@ -1,0 +1,57 @@
+
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    {% if number_of_results %}
+      <h2 class="govuk-heading-l">{{number_of_results}} domains found</h2>
+    {% elif parameters %}
+      <h2 class="govuk-heading-l">0 domains found</h2>
+    {% endif %}
+  </div>
+  <div class="govuk-grid-column-one-half">
+    {% if number_of_results %}
+      <p class="govuk-body download-as-csv">
+        <a 
+          class="govuk-link"
+          href="{{request.get_full_path }}&format=csv"
+        >
+          Download results as CSV
+        </a>
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+{% if page_obj %}
+  {% include "query_local_website_registry/pagination_controls.html" %}
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        {% for value in table_headers %}
+          <th scope="col" class="govuk-table__header">{{value}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for website in page_obj %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">{{website.service|truncatechars:30}}</td>
+          <td class="govuk-table__cell">{{website.sector.sector_name|truncatechars:30}}</td>
+          <td class="govuk-table__cell">{{website.last_updated|date:'d/m/Y'}}</td>
+          <td class="govuk-table__cell">
+            <a href="{{website.url}}" >
+              Link
+            </a>
+          </td>
+          <td class="govuk-table__cell">
+            <a href="{{website.original_domain}}">
+              Link
+            </a>
+          </td>
+          <td class="govuk-table__cell"> {{website.htmlhead_title|truncatechars:20}} </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "query_local_website_registry/pagination_controls.html" %}
+{% endif %}

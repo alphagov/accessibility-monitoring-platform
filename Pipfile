@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-compressor = "*"
+django-libsass = "*"
+python-dotenv = "*"
+psycopg2 = "*"
+notifications-python-client = "*"
+whitenoise = "*"
+dj-database-url = "*"
+waitress = "*"
+
+[dev-packages]
+flake8 = "*"
+pylint = "*"
+coverage = "*"
+
+[requires]
+python_version = "3.8"

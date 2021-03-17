@@ -1,0 +1,15 @@
+---
+applications:
+- name: accessiblity-monitoring-platform-test
+  memory: 4GB
+  disk_quota: 2048M
+  instances: 1
+  buildpacks:
+    - python_buildpack
+  services:
+    - monitoring-platform-default-db
+    - to-remove-testing-purposes
+  env:
+    DEBUG: FALSE
+    ALLOWED_HOSTS: 'accessiblity-monitoring-platform-test.london.cloudapps.digital'
+    DISABLE_COLLECTSTATIC: 1
