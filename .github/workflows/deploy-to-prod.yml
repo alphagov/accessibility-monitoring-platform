@@ -36,16 +36,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install cf7-cli
 
-    - name: Setup python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-        node-version: 14.x
-
     - name: Install python dependencies
       run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
         pip install pipenv
         pipenv install -d
 
-    - name: Run python tests
-      run: coverage run --source='.' manage.py test
+    - name: Push to cf
+      run: |
+        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE }}
+        cf push -f manifest-prod.yml
+
