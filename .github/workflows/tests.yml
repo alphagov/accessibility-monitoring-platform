@@ -14,9 +14,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: |
-        pip install pipenv
-        pipenv install -d
-        coverage run --source='.' manage.py test
+          pip install pipenv
+          pipenv install -d
+          coverage run --source='.' manage.py test
 
 
     # runs-on: ubuntu-latest
