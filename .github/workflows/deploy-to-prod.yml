@@ -23,7 +23,6 @@ jobs:
     - name: Create static files
       run: |
         npm i
-        npm link
         npx gulp build
 
     - name: Installing cloud foundry
