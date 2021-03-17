@@ -14,6 +14,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
           pip install pipenv
           pipenv install -d
           coverage run --source='.' manage.py test
