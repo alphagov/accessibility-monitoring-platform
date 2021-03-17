@@ -4,7 +4,6 @@ applications:
   memory: 1GB
   instances: 1
   buildpacks:
-    - nodejs_buildpack
     - python_buildpack
   services:
     - monitoring-platform-default-db
