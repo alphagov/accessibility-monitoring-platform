@@ -19,9 +19,9 @@ jobs:
   deploy:
     # needs: test
     name: Deploy to production
+    runs-on: ubuntu-18.04
     environment:
       name: production_environment
-    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Create static files
