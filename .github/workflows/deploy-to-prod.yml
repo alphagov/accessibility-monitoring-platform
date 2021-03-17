@@ -18,7 +18,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-18.04
-    needs: build
+    needs: test
     steps:
     - name: Create static files
       run: |
