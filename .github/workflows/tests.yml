@@ -13,6 +13,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+        env:
+          DEBUG: TRUE
+          SECRET_KEY: 1234
+          ALLOWED_HOSTS: 'localhost 127.0.0.1 0.0.0.0'
+          EMAIL_BACKEND: default
       - run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -20,18 +25,3 @@ jobs:
           pip install pipenv
           pipenv install -d
           coverage run --source='.' manage.py test
-
-
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/setup-python@v2
-    # - name: Set up Python
-    #   uses: actions/setup-python@v2
-    #   with:
-    #     python-version: '3.x' 
-    #   run: |
-    #     pip install pipenv
-    #     pipenv install -d
-
-    # - name: Run python tests
-    #   run: coverage run --source='.' manage.py test
