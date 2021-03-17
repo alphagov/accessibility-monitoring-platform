@@ -25,7 +25,9 @@ jobs:
         npm i
         npm install --only=dev
         npm link gulp
-        npx gulp build
+        pwd
+        ls
+        gulp build
 
     - name: Installing cloud foundry
       run: |
