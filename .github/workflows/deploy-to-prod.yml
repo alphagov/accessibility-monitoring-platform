@@ -20,35 +20,36 @@ jobs:
     runs-on: ubuntu-18.04
     # needs: test
     steps:
-    - name: Create static files
-      run: |
-        npm i
-        npm install --only=dev
-        npm link gulp
-        pwd
-        ls
-        gulp build
+      - uses: actions/checkout@v2
+      - name: Create static files
+        run: |
+          npm i
+          npm install --only=dev
+          npm link gulp
+          pwd
+          ls
+          gulp build
 
-    - name: Installing cloud foundry
-      run: |
-        sudo apt-get update
-        sudo apt install wget -y
-        sudo apt-get install gnupg2 -y
-        wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-        echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-        sudo apt-get update
-        sudo apt-get install cf7-cli
+      - name: Installing cloud foundry
+        run: |
+          sudo apt-get update
+          sudo apt install wget -y
+          sudo apt-get install gnupg2 -y
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+          echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          sudo apt-get update
+          sudo apt-get install cf7-cli
 
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install pipenv
-        pipenv install -d
+      - name: Install python dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install pipenv
+          pipenv install -d
 
-    - name: Push to cf
-      run: |
-        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE }}
-        cf push -f manifest-prod.yml
+      - name: Push to cf
+        run: |
+          cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE }}
+          cf push -f manifest-prod.yml
 
