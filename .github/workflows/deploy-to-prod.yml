@@ -17,6 +17,7 @@ jobs:
   #     run: echo "Runs tests!"
 
   deploy:
+    environment: production_environment
     runs-on: ubuntu-18.04
     # needs: test
     steps:
@@ -52,4 +53,3 @@ jobs:
         run: |
           cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE }}
           cf push -f manifest-prod.yml
-
