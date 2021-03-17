@@ -3,15 +3,32 @@ on: [pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.8' ]
+    name: Python ${{ matrix.python-version }} sample
     steps:
-    - uses: actions/setup-python@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x' 
-      run: |
+      - uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
         pip install pipenv
         pipenv install -d
+        coverage run --source='.' manage.py test
 
-    - name: Run python tests
-      run: coverage run --source='.' manage.py test
+
+    # runs-on: ubuntu-latest
+    # steps:
+    # - uses: actions/setup-python@v2
+    # - name: Set up Python
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: '3.x' 
+    #   run: |
+    #     pip install pipenv
+    #     pipenv install -d
+
+    # - name: Run python tests
+    #   run: coverage run --source='.' manage.py test
