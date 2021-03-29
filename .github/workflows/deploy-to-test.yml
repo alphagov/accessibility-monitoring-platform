@@ -17,7 +17,7 @@ jobs:
         pipenv install -d
 
     - name: Run python tests
-      run: echo "Runs tests!"
+      run: python3 manage.py test
 
   deploy:
     needs: test
