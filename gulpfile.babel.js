@@ -126,8 +126,18 @@ gulp.task('copy-assets', (done) => {
   try {
     const sourceDir = 'node_modules/govuk-frontend/govuk/assets'
     const destDir = 'accessibility_monitoring_platform/static/compiled/assets'
-    if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled')
-    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir)
+    try {
+      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled')
+    } catch {
+      console.log('dir already exists')
+    }
+
+    try {
+      if (!fs.existsSync(destDir)) fs.mkdirSync(destDir)
+    } catch {
+      console.log('dir already exists')
+    }
+
     const sourceFilePaths = _getAllFilesFromFolder(sourceDir)
     const destFilePaths = _getAllFilesFromFolder(destDir)
 
