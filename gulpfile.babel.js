@@ -9,7 +9,7 @@ const fs = require('fs')
 const gulp = require('gulp')
 const gulpif = require('gulp-if')
 const modifyCssUrls = require('gulp-modify-css-urls')
-const replace = require('gulp-replace');
+const replace = require('gulp-replace')
 const sass = require('gulp-sass')
 const source = require('vinyl-source-stream')
 const sourcemaps = require('gulp-sourcemaps')
@@ -128,6 +128,12 @@ gulp.task('copy-assets', (done) => {
     const destDir = 'accessibility_monitoring_platform/static/compiled/assets'
     try {
       if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled')
+    } catch {
+      console.log('dir already exists')
+    }
+
+    try {
+      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled/images')
     } catch {
       console.log('dir already exists')
     }
