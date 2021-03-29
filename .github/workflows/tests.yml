@@ -13,11 +13,11 @@ jobs:
           pip install --upgrade pip
           pip install pipenv
           pipenv install -d
-          python manage.py collectstatic
-          export DEBUG=TRUE
+          export VCAP_SERVICES="{'postgres':[{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app' }},{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/domain_register' }}]}"
           export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
           export SECRET_KEY=1234
-          export VCAP_SERVICES="{'postgres':[{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app' }},{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/domain_register' }}]}"
+          export DEBUG=TRUE
+          python manage.py collectstatic
           python3 manage.py test
         env:
           DEBUG: TRUE
