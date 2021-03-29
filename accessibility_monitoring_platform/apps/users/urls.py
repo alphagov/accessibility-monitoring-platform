@@ -1,4 +1,8 @@
-from django.conf.urls import include, url
+"""
+URLs - users
+"""
+
+from django.conf.urls import url
 from accessibility_monitoring_platform.apps.users.views import register, account_details
 
 

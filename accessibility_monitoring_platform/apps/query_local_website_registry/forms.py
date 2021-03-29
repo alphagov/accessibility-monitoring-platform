@@ -1,7 +1,16 @@
+"""
+Forms - query_local_website_registry
+"""
+
 from django import forms
+import datetime
+from django.core.exceptions import ValidationError
 
 
 class SearchForm(forms.Form):
+    """
+    Forms for query_local_website_registry
+    """
     service = forms.CharField(
         label='Service',
         max_length=100,
@@ -30,7 +39,7 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-2',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
@@ -45,7 +54,7 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-2',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
@@ -58,13 +67,35 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-4',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
         ),
         required=False,
     )
+
+    def clean_start_date_year(self):
+        start_date_day_clean: str = self.cleaned_data.get('start_date_day')
+        start_date_month_clean: str = self.cleaned_data.get('start_date_month')
+        start_date_year_clean: str = self.cleaned_data.get('start_date_year')
+        if (
+            start_date_day_clean is not None
+            and start_date_month_clean is not None
+            and start_date_year_clean is not None
+        ):
+            try:
+                datetime.datetime(
+                    day=int(start_date_day_clean),
+                    month=int(start_date_month_clean),
+                    year=int(start_date_year_clean)
+                )
+            except Exception as e:
+                raise ValidationError(
+                    'This date is invalid',
+                    code='email_is_not_permitted',
+                ) from e
+        return self.cleaned_data.get('start_date_year')
 
     end_date_day = forms.IntegerField(
         label='Last Updated End Date',
@@ -73,7 +104,7 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-2',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
@@ -88,7 +119,7 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-2',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
@@ -101,10 +132,32 @@ class SearchForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-4',
-                'type': 'text',
+                'type': 'number',
                 'pattern': '[0-9]*',
                 'inputmode': 'numeric',
             }
         ),
         required=False,
     )
+
+    def clean_end_date_year(self):
+        end_date_day_clean: str = self.cleaned_data.get('end_date_day')
+        end_date_month_clean: str = self.cleaned_data.get('end_date_month')
+        end_date_year_clean: str = self.cleaned_data.get('end_date_year')
+        if (
+            end_date_day_clean is not None
+            and end_date_month_clean is not None
+            and end_date_year_clean is not None
+        ):
+            try:
+                datetime.datetime(
+                    day=int(end_date_day_clean),
+                    month=int(end_date_month_clean),
+                    year=int(end_date_year_clean)
+                )
+            except Exception as e:
+                raise ValidationError(
+                    'This date is invalid',
+                    code='email_is_not_permitted',
+                ) from e
+        return self.cleaned_data.get('end_date_year')

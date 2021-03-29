@@ -1,3 +1,7 @@
+"""
+models - query_local_website_registry
+"""
+
 # This is an auto-generated Django model module.
 # You'll have to do the following manually to clean this up:
 #   * Rearrange models' order
@@ -10,6 +14,7 @@ from django.db import models
 
 
 class DomainRegister(models.Model):
+    """ DomainRegister Model """
     domain_id = models.IntegerField(primary_key=True)
     domain_name = models.CharField(unique=True, max_length=1000)
     organisation_id = models.IntegerField(blank=True, null=True)
@@ -22,8 +27,22 @@ class DomainRegister(models.Model):
     registrant_postcode = models.CharField(max_length=1000, blank=True, null=True)
     nuts3 = models.CharField(max_length=5, blank=True, null=True)
     alexa_ranking = models.IntegerField(blank=True, null=True)
-    http_status_code = models.ForeignKey('HttpStatusCodes', models.DO_NOTHING, db_column='http_status_code', blank=True, null=True, related_name='http')
-    https_status_code = models.ForeignKey('HttpStatusCodes', models.DO_NOTHING, db_column='https_status_code', blank=True, null=True, related_name='https')
+    http_status_code = models.ForeignKey(
+        'HttpStatusCodes',
+        models.DO_NOTHING,
+        db_column='http_status_code',
+        blank=True,
+        null=True,
+        related_name='http'
+    )
+    https_status_code = models.ForeignKey(
+        'HttpStatusCodes',
+        models.DO_NOTHING,
+        db_column='https_status_code',
+        blank=True,
+        null=True,
+        related_name='https'
+    )
     requires_authentication = models.BooleanField(blank=True, null=True)
     data_source = models.CharField(max_length=1000, blank=True, null=True)
     is_a_website = models.BooleanField(blank=True, null=True)
@@ -37,6 +56,7 @@ class DomainRegister(models.Model):
 
 
 class DomainsOrgs(models.Model):
+    """ DomainsOrgs Model """
     domain = models.OneToOneField(DomainRegister, models.DO_NOTHING, primary_key=True)
     organisation = models.ForeignKey('Organisation', models.DO_NOTHING)
 
@@ -47,6 +67,7 @@ class DomainsOrgs(models.Model):
 
 
 class HttpStatusCodes(models.Model):
+    """ HttpStatusCodes Model """
     status = models.CharField(primary_key=True, max_length=3)
     status_description = models.CharField(max_length=1000)
     status_type = models.CharField(max_length=1000, blank=True, null=True)
@@ -57,6 +78,7 @@ class HttpStatusCodes(models.Model):
 
 
 class NutsArea(models.Model):
+    """ NutsArea Model """
     area_code = models.CharField(primary_key=True, max_length=1000)
     area_name = models.CharField(max_length=1000)
     parent = models.CharField(max_length=1000, blank=True, null=True)
@@ -68,6 +90,7 @@ class NutsArea(models.Model):
 
 
 class OrgOrgtype(models.Model):
+    """ OrgOrgtype Model """
     organisation = models.OneToOneField('Organisation', models.DO_NOTHING, primary_key=True)
     organisation_type = models.ForeignKey('OrganisationType', models.DO_NOTHING)
 
@@ -78,6 +101,7 @@ class OrgOrgtype(models.Model):
 
 
 class Organisation(models.Model):
+    """ Organisation Model """
     organisation_id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=1000)
     abbreviation = models.CharField(max_length=1000, blank=True, null=True)
@@ -96,6 +120,7 @@ class Organisation(models.Model):
 
 
 class OrganisationType(models.Model):
+    """ OrganisationType Model """
     organisation_type_id = models.IntegerField(primary_key=True)
     type_name = models.CharField(max_length=1000)
     group_name = models.CharField(max_length=1000, blank=True, null=True)
@@ -106,6 +131,7 @@ class OrganisationType(models.Model):
 
 
 class Sector(models.Model):
+    """ Sector Model """
     sector_id = models.IntegerField(primary_key=True)
     sector_name = models.CharField(max_length=1000)
 
@@ -115,8 +141,9 @@ class Sector(models.Model):
 
 
 class WebsiteRegister(models.Model):
-    website_id = models.IntegerField(primary_key=True)
-    url = models.CharField(unique=True, max_length=1000)
+    """ WebsiteRegister Model """
+    website_id = models.IntegerField(primary_key=True, unique=True)
+    url = models.CharField(max_length=1000)
     service = models.CharField(max_length=1000, blank=True, null=True)
     htmlhead_title = models.CharField(max_length=1000, blank=True, null=True)
     htmlmeta_description = models.CharField(max_length=1000, blank=True, null=True)
@@ -133,6 +160,7 @@ class WebsiteRegister(models.Model):
 
 
 class WebsitesOrgs(models.Model):
+    """ WebsitesOrgs Model """
     website = models.OneToOneField(WebsiteRegister, models.DO_NOTHING, primary_key=True)
     organisation = models.ForeignKey(Organisation, models.DO_NOTHING)
 
@@ -143,6 +171,7 @@ class WebsitesOrgs(models.Model):
 
 
 class NutsConversion(models.Model):
+    """ NutsConversion Model """
     lad18cd = models.CharField(db_column='LAD18CD', max_length=200, blank=True, null=True)
     lad18nm = models.CharField(db_column='LAD18NM', max_length=200, blank=True, null=True)
     lau118cd = models.CharField(db_column='LAU118CD', max_length=200, blank=True, null=True)
@@ -156,5 +185,5 @@ class NutsConversion(models.Model):
     fid = models.IntegerField(primary_key=True, db_column='FID')
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'nuts_conversion'

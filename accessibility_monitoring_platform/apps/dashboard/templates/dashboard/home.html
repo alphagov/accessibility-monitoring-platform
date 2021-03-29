@@ -1,37 +1,26 @@
+<!DOCTYPE html>
+
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper">
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-          <h1 class="govuk-heading-xl">Dashboard</h1>
-        </div>
+
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper dashboard">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">Dashboard</h1>
       </div>
-      <div class="govuk-grid-row dashboard">
-        <div class="govuk-grid-column-one-third">
-          <a href="{% url 'query_local_website_registry:home' %}"> 
-            <div class="app-selection">
-              <p class='govuk-body-l'>Query Domains</p>
-            </div>
-          </a>
-        </div>
-        <div class="govuk-grid-column-one-third">
-          <a href='/'> 
-            <div class="app-selection">
-              <p class='govuk-body-l'>App 2</p>
-            </div>
-          </a>
-        </div>
-        <div class="govuk-grid-column-one-third">
-          <a href='/'>
-            <div class="app-selection">
-              <p class='govuk-body-l'>App 3</p>
-            </div>
-          </a>
-        </div>
+    </div>
+    <div class="govuk-grid-row dashboard">
+      <div class="govuk-grid-column-full">
+        <a href="{% url 'query_local_website_registry:home' %}"> 
+          <div class="app-selection">
+            <p class="govuk-body-l">Query Domains</p>
+          </div>
+        </a>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
+</div>
 
 {% endblock %}

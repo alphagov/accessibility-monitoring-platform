@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 {% if user.is_authenticated %}
   <div class="topnavmenu">
     <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>

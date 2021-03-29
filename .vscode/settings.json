@@ -3,7 +3,9 @@
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
   "javascript.validate.enable": false,
+  "stylelint.enable": true,
   "standard.enable": true,
+  "python.analysis.typeCheckingMode": "basic",
   "standard.options": {
     "globals": ["$", "jQuery", "fetch"],
     "ignore": [
@@ -17,5 +19,5 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 4  
   },
-  "python.pythonPath": "venv/bin/python"
+  "python.pythonPath": "venv/bin/python3"
 }

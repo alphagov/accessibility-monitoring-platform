@@ -1,0 +1,72 @@
+[
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 1,
+    "fields": {
+        "sector_name": "Health organisation"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 2,
+    "fields": {
+        "sector_name": "Other"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 3,
+    "fields": {
+        "sector_name": "Fire and rescue"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 4,
+    "fields": {
+        "sector_name": "Police"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 5,
+    "fields": {
+        "sector_name": "Parish, community or town council"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 6,
+    "fields": {
+        "sector_name": "Local authority"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 7,
+    "fields": {
+        "sector_name": "Central government"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 8,
+    "fields": {
+        "sector_name": "Parliament"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 9,
+    "fields": {
+        "sector_name": "Education"
+    }
+},
+{
+    "model": "query_local_website_registry.sector",
+    "pk": 10,
+    "fields": {
+        "sector_name": "Unclassified"
+    }
+}
+]

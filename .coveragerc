@@ -10,6 +10,8 @@ omit =
         */accessibility_monitoring_platform/settings.py
         */accessibility_monitoring_platform/urls.py
         */accessibility_monitoring_platform/wsgi.py
+        */accessibility_monitoring_platform/email.py
+        */accessibility_monitoring_platform/settings/*
         manage.py
         */apps.py
         */migrations/*

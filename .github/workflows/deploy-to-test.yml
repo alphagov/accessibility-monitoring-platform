@@ -1,9 +1,8 @@
 name: Deploy to test
-on: push
-# on: 
-#   pull_request:
-#     branches:
-#       - main
+on: 
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -52,8 +51,10 @@ jobs:
           pip install --upgrade pip
           pip install pipenv
           pipenv install -d
+          pipenv lock -r > requirements.txt
 
       - name: Push to cf
         run: |
+          pwd
           cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE_PRODUCTION }}
           cf push -f manifest-prod.yml

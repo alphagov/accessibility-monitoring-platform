@@ -1,19 +1,21 @@
-const gulp = require('gulp')
-const babel = require('gulp-babel')
-const sass = require('gulp-sass')
-const del = require('del')
-const browserSync = require('browser-sync')
-const uglify = require('gulp-uglify')
-const browserify = require('browserify')
-const babelify = require('babelify')
-const plumber = require('gulp-plumber')
-const source = require('vinyl-source-stream')
-const buffer = require('vinyl-buffer')
-const sourcemaps = require('gulp-sourcemaps')
-const csso = require('gulp-csso')
 const autoprefixer = require('gulp-autoprefixer')
+const browserify = require('browserify')
+const browserSync = require('browser-sync')
+const buffer = require('vinyl-buffer')
+const csso = require('gulp-csso')
+const del = require('del')
+const dotenv = require('dotenv')
+const fs = require('fs')
+const gulp = require('gulp')
+const gulpif = require('gulp-if')
 const modifyCssUrls = require('gulp-modify-css-urls')
+const replace = require('gulp-replace');
+const sass = require('gulp-sass')
+const source = require('vinyl-source-stream')
+const sourcemaps = require('gulp-sourcemaps')
+const uglify = require('gulp-uglify')
 
+dotenv.config()
 
 const paths = {
   javascript: {
@@ -26,39 +28,38 @@ const paths = {
     dist: 'accessibility_monitoring_platform/static/compiled/css'
   },
   static: 'accessibility_monitoring_platform/static/compiled/',
-  dist: 'dist',
   ignore: '!accessibility_monitoring_platform/static/compiled'
 }
 
+// Gulp task to transpile javascript code to static
 gulp.task('javascripts', function () {
   const b = browserify({
     entries: paths.javascript.manifest,
-    debug: true,
-  });
+    debug: true
+  })
 
   return b
-    .transform("babelify", {presets: ["@babel/preset-env"]})
+    .transform('babelify', { presets: ['@babel/preset-env'] })
     .bundle()
-    .pipe(source("app.js"))
+    .pipe(source('app.js'))
     .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(uglify())
-    .pipe(sourcemaps.write("./"))
-    .pipe(gulp.dest(paths.javascript.dist));
+    .pipe(gulpif(process.env.DEBUG === 'TRUE', sourcemaps.write('./')))
+    .pipe(gulp.dest(paths.javascript.dist))
 })
 
-const sassOpts = {
-  outputStyle: 'extended',
-  errLogToConsole: true,
-  includePaths: 'node_modules'
-}
-
+// Gulp task to compile SCSS to CSS
 gulp.task('stylesheets', () => {
   return gulp.src(paths.stylesheets.src)
-    .pipe(sass(sassOpts))
+    .pipe(sass({
+      outputStyle: 'extended',
+      errLogToConsole: true,
+      includePaths: 'node_modules'
+    }))
     .pipe(modifyCssUrls({
-      modify(url, filePath) {
-        return `..${url}`;
+      modify (url, filePath) {
+        return `..${url}`
       }
     }))
     .pipe(autoprefixer('last 2 versions'))
@@ -67,16 +68,19 @@ gulp.task('stylesheets', () => {
       sourceMap: true,
       debug: true
     }))
-    .pipe(sourcemaps.write('.'))
+    .pipe(replace('::-webkit-details-marker', '::marker'))
+    .pipe(gulpif(process.env.DEBUG === 'TRUE', sourcemaps.write('.')))
     .pipe(gulp.dest(paths.stylesheets.dist))
 })
 
+// Deletes old javascript and CSS files
 gulp.task('clean', () =>
-  del([`${paths.javascript.dist}/*.*`, `${paths.stylesheets.dist}/*.*`]).then(dirs =>
-    console.log(`Deleted files and folders:\n ${dirs.join('\n')}`)
+  del([`${paths.javascript.dist}/*.*`, `${paths.stylesheets.dist}/*.*`]).then(
+    dirs => console.log(`Deleted files and folders:\n ${dirs.join('\n')}`)
   )
 )
 
+// Starts Browsersync
 gulp.task('browserSync', function () {
   browserSync.init({
     notify: false,
@@ -84,12 +88,15 @@ gulp.task('browserSync', function () {
   })
 })
 
+// Watches for changes in Python, HTML, Javascript and SCSS files
 gulp.task('watch', (done) => {
   gulp.watch(
     [
       'accessibility_monitoring_platform/**/*.{scss,css,html,py,js}',
       '!node_modules/**',
-      '!accessibility_monitoring_platform/static/dist/**'
+      '!accessibility_monitoring_platform/static/dist/**',
+      '!accessibility_monitoring_platform/static/compiled/assets/**',
+      '!accessibility_monitoring_platform/static/compiled/js/*.js'
     ]
   ).on(
     'change',
@@ -98,45 +105,64 @@ gulp.task('watch', (done) => {
   done()
 })
 
-var _getAllFilesFromFolder = function(dir) {
-  var filesystem = require("fs");
-  var results = [];
-  filesystem.readdirSync(dir).forEach(function(file) {
-      file = dir+'/'+file;
-      var stat = filesystem.statSync(file);
-      if (stat && stat.isDirectory()) {
-          results = results.concat(_getAllFilesFromFolder(file))
-      } else results.push(file);
-  });
-  return results;
-};
+// Gets all files and sub directories within directory
+const _getAllFilesFromFolder = function (dir) {
+  let results = []
+  fs.readdirSync(dir).forEach(function (file) {
+    file = dir + '/' + file
+    const stat = fs.statSync(file)
+    if (stat && stat.isDirectory()) {
+      results = results.concat(_getAllFilesFromFolder(file))
+    } else results.push(file)
+  })
+  return results
+}
 
-const getFilename = (v, i, a) => v.split("/").slice(-1)[0]
+// Gets file name from directory string
+const getFilename = (v, i, a) => v.split('/').slice(-1)[0]
 
-const arraysEqual = (a1, a2) => JSON.stringify(a1)==JSON.stringify(a2)
-
+// Copies assets from Gov UK front end library to local static directory.
 gulp.task('copy-assets', (done) => {
   try {
     const sourceDir = 'node_modules/govuk-frontend/govuk/assets'
     const destDir = 'accessibility_monitoring_platform/static/compiled/assets'
     const sourceFilePaths = _getAllFilesFromFolder(sourceDir)
     const destFilePaths = _getAllFilesFromFolder(destDir)
-  
+
     const sourceFiles = sourceFilePaths.map(getFilename)
     const destFiles = destFilePaths.map(getFilename)
-  
-    if (arraysEqual(sourceFiles, destFiles)) {
-      console.log('No change in assets')
-      done()
-    } 
-  }
-  catch(err) {
+
+    const missingFiles = sourceFiles.filter(function (v) {
+      return !destFiles.includes(v)
+    })
+
+    missingFiles.forEach(filename => {
+      const index = sourceFiles.findIndex(x => x === filename)
+      const copySource = sourceFilePaths[index]
+      const ext = copySource.replace(sourceDir, '')
+      const copyDest = `${destDir}${ext}`
+      const subDir = copyDest.replace(filename, '')
+
+      fs.mkdir(subDir, { recursive: true }, (err) => { if (err) throw err });
+
+      fs.copyFile(
+        copySource,
+        copyDest,
+        (err) => {
+          if (err) throw err
+          console.log('File was copied to destination')
+        }
+      )
+    })
+
+    done()
+  } catch (err) {
     console.log(err.message)
   }
-  console.log('Change in assets')
-  return gulp.src(['node_modules/govuk-frontend/govuk/assets*/**/*']).pipe(gulp.dest('accessibility_monitoring_platform/static/compiled'));
 })
 
+// Builds the assets, Javascript, and CSS files
 gulp.task('build', gulp.series('clean', 'javascripts', 'stylesheets', 'copy-assets'))
 
+// Starts browsersync and will recompile the files when it detects a change
 gulp.task('serve', gulp.series('build', gulp.parallel('browserSync', 'watch')))
