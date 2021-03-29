@@ -31,5 +31,5 @@ jobs:
         gulp clean
         gulp javascripts
         gulp stylesheets
-        python manage.py collectstatic
+        python manage.py collectstatic --noinput
         python3 manage.py test
