@@ -73,7 +73,13 @@ adr new -s 9 Use Rust for performance-critical functionality
 ---
 ## Testing
 
-There is currently two types of automated testing, unit testing and accessibility testing.
+There is currently two types of automated testing, unit testing and accessibility testing. 
+
+Static files need to be collected by Django before starting unit tests. The tests will fail unless this step is completed. This can be executed with
+
+```
+python manage.py collectstatic
+```
 
 Unit testing is started with
 

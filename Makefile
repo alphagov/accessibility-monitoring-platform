@@ -2,9 +2,9 @@ init:
 	pip install --upgrade pip \
 		&& pip install pipenv \
 		&& pipenv install -d \
-		&& npm link gulp \
 		&& npm i \
 		&& npm install --only=dev \
+		&& npm link gulp \
 		&& gulp build \
 		&& docker-compose up -d \
 		&& sleep 20 \

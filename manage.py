@@ -2,15 +2,18 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 
 local = True if os.getenv('DEBUG') == 'TRUE' else False
+
 
 def main():
     """Run administrative tasks."""
     if local:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'accessibility_monitoring_platform.settings.deploy')
-    else:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'accessibility_monitoring_platform.settings.local')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'accessibility_monitoring_platform.settings.deploy')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
