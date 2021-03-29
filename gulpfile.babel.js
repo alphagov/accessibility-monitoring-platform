@@ -126,6 +126,7 @@ gulp.task('copy-assets', (done) => {
   try {
     const sourceDir = 'node_modules/govuk-frontend/govuk/assets'
     const destDir = 'accessibility_monitoring_platform/static/compiled/assets'
+    if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled')
     if (!fs.existsSync(destDir)) fs.mkdirSync(destDir)
     const sourceFilePaths = _getAllFilesFromFolder(sourceDir)
     const destFilePaths = _getAllFilesFromFolder(destDir)
@@ -133,9 +134,7 @@ gulp.task('copy-assets', (done) => {
     const sourceFiles = sourceFilePaths.map(getFilename)
     const destFiles = destFilePaths.map(getFilename)
 
-    const missingFiles = sourceFiles.filter(function (v) {
-      return !destFiles.includes(v)
-    })
+    const missingFiles = sourceFiles.filter(v => !destFiles.includes(v))
 
     missingFiles.forEach(filename => {
       const index = sourceFiles.findIndex(x => x === filename)
@@ -144,7 +143,7 @@ gulp.task('copy-assets', (done) => {
       const copyDest = `${destDir}${ext}`
       const subDir = copyDest.replace(filename, '')
 
-      fs.mkdir(subDir, { recursive: true }, (err) => { if (err) throw err });
+      fs.mkdir(subDir, { recursive: true }, (err) => { if (err) throw err })
 
       fs.copyFile(
         copySource,

@@ -20,8 +20,6 @@ jobs:
           npm i
           npm install --only=dev
           npm link gulp
-          pwd
-          ls
           gulp build
           python manage.py collectstatic
           python3 manage.py test
