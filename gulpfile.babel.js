@@ -126,6 +126,7 @@ gulp.task('copy-assets', (done) => {
   try {
     const sourceDir = 'node_modules/govuk-frontend/govuk/assets'
     const destDir = 'accessibility_monitoring_platform/static/compiled/assets'
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir)
     const sourceFilePaths = _getAllFilesFromFolder(sourceDir)
     const destFilePaths = _getAllFilesFromFolder(destDir)
 
