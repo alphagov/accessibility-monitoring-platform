@@ -38,12 +38,23 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
-    - name: Create static files
+    - name: Install python dependencies and create static files
       run: |
+        export VCAP_SERVICES="{'postgres':[{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app' }},{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/domain_register' }}]}"
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=TRUE
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pipenv
+        pipenv install -d
+        pipenv lock -r > requirements.txt
         npm i
         npm install --only=dev
         npm link gulp
         gulp build
+        python manage.py collectstatic --noinput
 
     - name: Installing cloud foundry
       run: |
@@ -54,15 +65,6 @@ jobs:
         echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
         sudo apt-get update
         sudo apt-get install cf7-cli
-
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install pipenv
-        pipenv install -d
-        pipenv lock -r > requirements.txt
 
     - name: Push to cf
       run: |

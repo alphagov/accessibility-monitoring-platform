@@ -133,7 +133,19 @@ gulp.task('copy-assets', (done) => {
     }
 
     try {
-      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled/images')
+      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled/assets/')
+    } catch {
+      console.log('dir already exists')
+    }
+
+    try {
+      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled/assets/images')
+    } catch {
+      console.log('dir already exists')
+    }
+
+    try {
+      if (!fs.existsSync(destDir)) fs.mkdirSync('accessibility_monitoring_platform/static/compiled/assets/fonts')
     } catch {
       console.log('dir already exists')
     }
