@@ -30,15 +30,23 @@ jobs:
 
   deploy:
     needs: test
-    name: Deploy to test
+    name: Deploy to production
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
       - name: Create static files
         run: |
+          pwd
+          ls
           npm i
           npm install --only=dev
           npm link gulp
+          pwd
+          ls
           gulp build
 
       - name: Installing cloud foundry
