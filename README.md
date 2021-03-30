@@ -6,17 +6,17 @@ It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
 ## Index    
 
-- [Requirements](##-Requirements)
+- [Requirements](#Requirements)
 
-- [How to get started](##-How-to-get-started)
+- [How to get started](#How-to-get-started)
 
-- [Start local development environment](##-Start-local-development-environment)
+- [Start local development environment](#Start-local-development-environment)
 
-- [ADR Records](##A-DR-Records)
+- [ADR Records](#ADR-Records)
 
-- [Testing](##-Testing)
+- [Testing](#Testing)
 
-- [Root dir files explainer](##-Root-dir-files-explainer)
+- [Root dir files explainer](#Root-dir-files-explainer)
 
 ---
 ## Requirements
