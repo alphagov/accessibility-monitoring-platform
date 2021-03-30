@@ -68,5 +68,5 @@ jobs:
 
     - name: Push to cf
       run: |
-        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s ${{ secrets.CF_SPACE_PRODUCTION }}
+        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
         cf push -f manifest-test.yml
