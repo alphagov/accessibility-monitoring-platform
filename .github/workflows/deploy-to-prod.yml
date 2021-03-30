@@ -30,7 +30,7 @@ jobs:
 
 
   deploy:
-    needs: test
+    # needs: test
     name: Deploy to production
     runs-on: ubuntu-18.04
     steps:
