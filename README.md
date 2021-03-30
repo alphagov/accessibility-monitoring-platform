@@ -4,6 +4,20 @@ The accessibility monitoring platform is to support the accessibility auditing p
 
 It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
+## Index    
+
+- [Requirements](##Requirements)
+
+- [How to get started](##How-to-get-started)
+
+- [Start local development environment](##Start-local-development-environment)
+
+- [ADR Records](##ADR-Records)
+
+- [Testing](##Testing)
+
+- [Root dir files explainer](##Root-dir-files-explainer)
+
 ---
 ## Requirements
 
@@ -100,3 +114,28 @@ This will crawl the web app with and without authentication, compile a list of w
 Individual pages can be added to `lighthouse-tests/specific-domains.txt`.
 
 Lighthouse won't catch all issues but will ensure a consistent level of quality.
+
+---
+
+## Root dir files explainer
+
+- `.adir-dir` : Shows the adr where to write the new records
+- `.cfignore` : Ignores files for Cloud Foundry
+- `.coveragerc` : Settings for Coverage
+- `.env.example` : Example settings for .env
+- `.flake8` : Lints Python code to PEP8 standard
+- `.gitignore` : Ignores files for git
+- `.pylintrc` : Lints Python code to Google's style guide
+- `.stylelintrc.json` : Contains the lint settings for stylelint - mostly used for linting SASS
+- `docker-compose.yml` : Contains the dockerised setup for PostgreSQL and PGAdmin
+- `Makefile` : Automation tool for the repo
+- `manage.py` : Root access for Django
+- `manifest-prod.yml` : Cloud Foundry deployment settings for production environment
+- `manifest-test.yml` : Cloud Foundry deployment settings for test environment
+- `package-lock.json` : Locked dependencies for NPM
+- `package.json` : Tracks developer and production dependencies for Javascript
+- `Pipfile` : Tracks developer dependencies and production dependencies for Python
+- `Pipfile.lock` : Locked dependencies for Pipenv. Can be used with pipenv sync
+- `Procfile` : Boot command for Cloud Foundry instance
+- `README.md` : Documentation for the repo
+- `runtime.txt` : Used for setting up environment for Cloud Foundry deployment
