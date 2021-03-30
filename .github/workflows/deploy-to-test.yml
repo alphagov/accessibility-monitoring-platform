@@ -8,6 +8,12 @@ jobs:
   test:
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install python dependencies
     - name: Install python dependencies
       run: |
         python3 -m venv venv
