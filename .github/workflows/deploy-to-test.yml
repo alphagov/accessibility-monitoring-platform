@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     needs: test
-    name: Deploy to production
+    name: Deploy to test
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
-    - name: Install python dependencies
+    - name: Install python dependencies and create static files
       run: |
         python3 -m venv venv
         source venv/bin/activate
@@ -49,9 +49,6 @@ jobs:
         pip install pipenv
         pipenv install -d
         pipenv lock -r > requirements.txt
-
-    - name: Create static files
-      run: |
         npm i
         npm install --only=dev
         npm link gulp
