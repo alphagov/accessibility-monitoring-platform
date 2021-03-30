@@ -4,35 +4,35 @@ on:
     branches:
       - main
 jobs:
-  # test:
-  #   name: Unit tests
-  #   runs-on: ubuntu-18.04
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.x
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.8'
-  #   - name: Unit tests
-  #     run: |
-  #       python3 -m venv venv
-  #       source venv/bin/activate
-  #       pip install --upgrade pip
-  #       pip install pipenv
-  #       pipenv install -d
-  #       export VCAP_SERVICES="{'postgres':[{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app' }},{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/domain_register' }}]}"
-  #       export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-  #       export SECRET_KEY=1234
-  #       export DEBUG=TRUE
-  #       npm i
-  #       npm install --only=dev
-  #       npm link gulp
-  #       gulp build
-  #       python manage.py collectstatic --noinput
-  #       python3 manage.py test
+  test:
+    name: Unit tests
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Unit tests
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pipenv
+        pipenv install -d
+        export VCAP_SERVICES="{'postgres':[{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app' }},{'credentials': { 'uri': 'postgres://admin:secret@localhost:5432/domain_register' }}]}"
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=TRUE
+        npm i
+        npm install --only=dev
+        npm link gulp
+        gulp build
+        python manage.py collectstatic --noinput
+        python3 manage.py test
 
   deploy:
-    # needs: test
+    needs: test
     name: Deploy to production
     runs-on: ubuntu-18.04
     steps:
