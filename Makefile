@@ -15,7 +15,7 @@ init:
 		&& ./manage.py migrate query_local_website_registry --database=accessibility_domain_db \
 		&& ./manage.py migrate \
 		&& python3 manage.py loaddata ./data/auth_data.json \
-		&& psql -Atx postgres://admin:secret@localhost:5432/domain_register -c "\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;"
+		&& psql -Atx postgres://admin:secret@localhost:5432/domain_register -c "\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;" \
 		&& echo "email is admin@email.com and password is secret"
 
 start:
