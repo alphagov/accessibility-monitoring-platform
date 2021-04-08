@@ -88,9 +88,18 @@ if UNDER_TEST:
     DATABASES['accessibility_domain_db'] = {'NAME': 'domain_register', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
-    d = json.loads(json_acceptable_string)
-    DATABASES['default'] = dj_database_url.parse(d['postgres'][0]['credentials']['uri'])
-    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['postgres'][1]['credentials']['uri'])
+    db = json.loads(json_acceptable_string)
+
+    d = {
+        'monitoring-platform-default-db': None,
+        'a11ymon-postgres': None
+    }
+
+    for i in db['postgres']:
+        d[i['name']] = i['credentials']['uri'] if i['name'] in d.keys() else None
+
+    DATABASES['default'] = dj_database_url.parse(d['monitoring-platform-default-db'])
+    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['a11ymon-postgres'])
     DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
 
 
