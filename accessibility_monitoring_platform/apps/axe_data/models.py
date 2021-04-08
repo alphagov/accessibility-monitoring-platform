@@ -6,6 +6,7 @@ from django.db import models
 
 class AxeRule(models.Model):
     """ AxeRule Model """
+
     rule_id = models.IntegerField(primary_key=True)
     name = models.TextField()
     description = models.TextField(null=True)
@@ -24,6 +25,7 @@ class AxeRule(models.Model):
 
 class AxeWcag(models.Model):
     """ AxeWcag Model """
+
     axe_rule_id = models.IntegerField(primary_key=True)
     wcag_criterion_number = models.CharField(max_length=9)
 
@@ -37,6 +39,7 @@ class AxeWcag(models.Model):
 
 class TestresultAxeData(models.Model):
     """ TestresultAxeData Model """
+
     test_data_id = models.IntegerField(primary_key=True)
     test_id = models.IntegerField()
     rule_name = models.TextField()
@@ -53,6 +56,7 @@ class TestresultAxeData(models.Model):
 
 class TestresultAxeHeader(models.Model):
     """ TestresultAxeHeader Model """
+
     test_id = models.IntegerField(primary_key=True)
     test_timestamp = models.DateTimeField(blank=True, null=True)
     url = models.TextField(null=True)
@@ -74,6 +78,7 @@ class TestresultAxeHeader(models.Model):
 
 class WcagCriteria(models.Model):
     """ WcagCriteria Model """
+
     criterion_number = models.CharField(max_length=9, primary_key=True)
     description = models.TextField(null=True)
     wcag_version = models.CharField(max_length=4, null=True)
@@ -89,6 +94,7 @@ class WcagCriteria(models.Model):
 
 class WcagRecommendation(models.Model):
     """ WcagRecommendation Model """
+
     recommendation_id = models.IntegerField(primary_key=True)
     criterion_number = models.CharField(max_length=9)
     recommendation = models.TextField(null=True)

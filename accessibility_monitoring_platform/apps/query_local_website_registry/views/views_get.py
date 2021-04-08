@@ -44,6 +44,7 @@ def read_get(request: HttpRequest):
     Returns:
         [type]: [description]
     """
+
     search_form_fields: List[str] = list(SearchForm.declared_fields.keys())
 
     # Parse query parametres
