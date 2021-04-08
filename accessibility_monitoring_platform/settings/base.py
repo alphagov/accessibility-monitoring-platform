@@ -40,6 +40,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
+    'accessibility_monitoring_platform.apps.axe_data',
     'accessibility_monitoring_platform.apps.dashboard',
     'accessibility_monitoring_platform.apps.query_local_website_registry',
     'accessibility_monitoring_platform.apps.users',
@@ -86,12 +87,15 @@ DATABASES = {}
 if UNDER_TEST:
     DATABASES['default'] = {'NAME': 'accessibility_monitoring_app', 'ENGINE': 'django.db.backends.sqlite3'}
     DATABASES['accessibility_domain_db'] = {'NAME': 'domain_register', 'ENGINE': 'django.db.backends.sqlite3'}
+    DATABASES['axe_data'] = {'NAME': 'axe_data', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
     d = json.loads(json_acceptable_string)
     DATABASES['default'] = dj_database_url.parse(d['postgres'][0]['credentials']['uri'])
     DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['postgres'][1]['credentials']['uri'])
     DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
+    DATABASES['axe_data'] = dj_database_url.parse(d['postgres'][2]['credentials']['uri'])
+    DATABASES['axe_data']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
 # Password validation

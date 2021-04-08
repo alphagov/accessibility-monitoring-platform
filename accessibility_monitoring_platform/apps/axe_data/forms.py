@@ -1,39 +1,34 @@
-"""
-Forms - query_local_website_registry
-"""
-
-from django import forms
 import datetime
+import pytz
+from django import forms
 from django.core.exceptions import ValidationError
 
+DEFAULT_START_DATE = datetime.datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
+DEFAULT_END_DATE = datetime.datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
-class SearchForm(forms.Form):
-    """
-    Forms for query_local_website_registry
-    """
-    service = forms.CharField(
-        label='Service',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'govuk-input govuk-input--width-10'}),
-        required=False,
-    )
 
-    sector_name = forms.CharField(
-        label='Sector Name',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'govuk-input govuk-input--width-10'}),
-        required=False,
-    )
+def check_date_valid_or_none(day, month, year):
+    if year is not None or month is not None or day is not None:
+        try:
+            datetime.datetime(day=int(day), month=int(month), year=int(year))
+        except Exception as e:
+            raise ValidationError('This date is invalid', code='invalid_date') from e
 
-    location = forms.CharField(
-        label='Town/City',
+
+def convert_day_month_year_to_date(day: str, month: str, year: str) -> datetime.datetime:
+    return datetime.datetime(year=int(year), month=int(month), day=int(day), tzinfo=pytz.UTC)
+
+
+class AxeDataSearchForm(forms.Form):
+    domain_name = forms.CharField(
+        label='Domain',
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'govuk-input govuk-input--width-10'}),
         required=False,
     )
 
     start_date_day = forms.IntegerField(
-        label='Last Updated Start Date',
+        label='Tested Start Date',
         min_value=1,
         max_value=31,
         widget=forms.NumberInput(
@@ -48,7 +43,7 @@ class SearchForm(forms.Form):
     )
 
     start_date_month = forms.IntegerField(
-        label='Last Updated Start Date',
+        label='Tested Start Date',
         min_value=1,
         max_value=12,
         widget=forms.NumberInput(
@@ -63,7 +58,7 @@ class SearchForm(forms.Form):
     )
 
     start_date_year = forms.IntegerField(
-        label='Last Updated Start Date',
+        label='Tested Start Date',
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-4',
@@ -79,26 +74,11 @@ class SearchForm(forms.Form):
         start_date_day_clean: str = self.cleaned_data.get('start_date_day')
         start_date_month_clean: str = self.cleaned_data.get('start_date_month')
         start_date_year_clean: str = self.cleaned_data.get('start_date_year')
-        if (
-            start_date_day_clean is not None
-            or start_date_month_clean is not None
-            or start_date_year_clean is not None
-        ):
-            try:
-                datetime.datetime(
-                    day=int(start_date_day_clean),
-                    month=int(start_date_month_clean),
-                    year=int(start_date_year_clean)
-                )
-            except Exception as e:
-                raise ValidationError(
-                    'This date is invalid',
-                    code='email_is_not_permitted',
-                ) from e
+        check_date_valid_or_none(start_date_day_clean, start_date_month_clean, start_date_year_clean)
         return self.cleaned_data.get('start_date_year')
 
     end_date_day = forms.IntegerField(
-        label='Last Updated End Date',
+        label='Tested End Date',
         min_value=1,
         max_value=31,
         widget=forms.NumberInput(
@@ -113,7 +93,7 @@ class SearchForm(forms.Form):
     )
 
     end_date_month = forms.IntegerField(
-        label='Last Updated End Date',
+        label='Tested End Date',
         min_value=1,
         max_value=12,
         widget=forms.NumberInput(
@@ -128,7 +108,7 @@ class SearchForm(forms.Form):
     )
 
     end_date_year = forms.IntegerField(
-        label='Last Updated End Date',
+        label='Tested End Date',
         widget=forms.NumberInput(
             attrs={
                 'class': 'govuk-input govuk-date-input__input govuk-input--width-4',
@@ -144,20 +124,25 @@ class SearchForm(forms.Form):
         end_date_day_clean: str = self.cleaned_data.get('end_date_day')
         end_date_month_clean: str = self.cleaned_data.get('end_date_month')
         end_date_year_clean: str = self.cleaned_data.get('end_date_year')
-        if (
-            end_date_day_clean is not None
-            or end_date_month_clean is not None
-            or end_date_year_clean is not None
-        ):
-            try:
-                datetime.datetime(
-                    day=int(end_date_day_clean),
-                    month=int(end_date_month_clean),
-                    year=int(end_date_year_clean)
-                )
-            except Exception as e:
-                raise ValidationError(
-                    'This date is invalid',
-                    code='email_is_not_permitted',
-                ) from e
+        check_date_valid_or_none(end_date_day_clean, end_date_month_clean, end_date_year_clean)
         return self.cleaned_data.get('end_date_year')
+
+    @property
+    def start_date(self):
+        try:
+            day: str = self.cleaned_data.get('start_date_day')
+            month: str = self.cleaned_data.get('start_date_month')
+            year: str = self.cleaned_data.get('start_date_year')
+            return convert_day_month_year_to_date(day, month, year)
+        except (ValueError, TypeError):
+            return DEFAULT_START_DATE
+    
+    @property
+    def end_date(self):
+        try:
+            day: str = self.cleaned_data.get('end_date_day')
+            month: str = self.cleaned_data.get('end_date_month')
+            year: str = self.cleaned_data.get('end_date_year')
+            return convert_day_month_year_to_date(day, month, year)
+        except (ValueError, TypeError):
+            return DEFAULT_END_DATE

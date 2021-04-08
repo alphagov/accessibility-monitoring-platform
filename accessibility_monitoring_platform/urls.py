@@ -32,6 +32,7 @@ urlpatterns = [
             )
         )
     ),
+    url('axe-data/', include('accessibility_monitoring_platform.apps.axe_data.urls')),
     url('', include('accessibility_monitoring_platform.apps.users.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
