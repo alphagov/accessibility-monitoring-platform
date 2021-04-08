@@ -1,3 +1,6 @@
+"""
+Models for Axe test results.
+"""
 from django.db import models
 
 
@@ -23,7 +26,7 @@ class AxeWcag(models.Model):
     """ AxeWcag Model """
     axe_rule_id = models.IntegerField(primary_key=True)
     wcag_criterion_number = models.CharField(max_length=9)
-  
+
     def __str__(self):
         return f"#{self.axe_rule_id}: {self.wcag_criterion_number}"
 

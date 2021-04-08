@@ -1,15 +1,20 @@
+"""
+Views of Axe test results
+"""
 import urllib
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, Page
 from django.shortcuts import render
 from .forms import AxeDataSearchForm, DEFAULT_START_DATE, DEFAULT_END_DATE
 from .models import TestresultAxeHeader
+from typing import Union
 
-PAGE_SIZE = 5
+PAGE_SIZE = 25
+
 
 @login_required
 def home(request):
-    """ View of Axe data """
+    """ Filter of Axe test results """
     context = {}
     parameters = ''
     domain_name = None

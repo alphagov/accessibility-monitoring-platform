@@ -1,3 +1,6 @@
+"""
+Forms for querying Axe test results.
+"""
 import datetime
 import pytz
 from django import forms
@@ -20,6 +23,11 @@ def convert_day_month_year_to_date(day: str, month: str, year: str) -> datetime.
 
 
 class AxeDataSearchForm(forms.Form):
+    """
+    Form used to filter Axe test results.
+
+    Start and end dates default to span entire period.
+    """
     domain_name = forms.CharField(
         label='Domain',
         max_length=100,
@@ -136,7 +144,7 @@ class AxeDataSearchForm(forms.Form):
             return convert_day_month_year_to_date(day, month, year)
         except (ValueError, TypeError):
             return DEFAULT_START_DATE
-    
+
     @property
     def end_date(self):
         try:
