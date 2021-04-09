@@ -89,23 +89,20 @@ if UNDER_TEST:
     DATABASES['accessibility_domain_db'] = {'NAME': 'domain_register', 'ENGINE': 'django.db.backends.sqlite3'}
     DATABASES['axe_data'] = {'NAME': 'axe_data', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
+    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'a11ymon-postgres', 'axeresults-postgres']
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
-    db = json.loads(json_acceptable_string)
+    vcap_services = json.loads(json_acceptable_string)
 
-    d = {
-        'monitoring-platform-default-db': None,
-        'a11ymon-postgres': None,
-        'axeresults-postgres': None,
+    database_credentials = {
+        database_service['name']: database_service['credentials']['uri']
+        for database_service in vcap_services['postgres']
+        if database_service['name'] in DATABASE_SERVICE_NAMES
     }
-    # DATABASE_NAMES = []
 
-    for i in db['postgres']:
-        d[i['name']] = i['credentials']['uri'] if i['name'] in d.keys() else None
-
-    DATABASES['default'] = dj_database_url.parse(d['monitoring-platform-default-db'])
-    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['a11ymon-postgres'])
+    DATABASES['default'] = dj_database_url.parse(database_credentials['monitoring-platform-default-db'])
+    DATABASES['accessibility_domain_db'] = dj_database_url.parse(database_credentials['a11ymon-postgres'])
     DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
-    DATABASES['axe_data'] = dj_database_url.parse(d['axeresults-postgres'])
+    DATABASES['axe_data'] = dj_database_url.parse(database_credentials['axeresults-postgres'])
     DATABASES['axe_data']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
