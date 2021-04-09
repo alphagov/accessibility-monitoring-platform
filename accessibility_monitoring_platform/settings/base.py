@@ -90,11 +90,22 @@ if UNDER_TEST:
     DATABASES['axe_data'] = {'NAME': 'axe_data', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
-    d = json.loads(json_acceptable_string)
-    DATABASES['default'] = dj_database_url.parse(d['postgres'][0]['credentials']['uri'])
-    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['postgres'][1]['credentials']['uri'])
+    db = json.loads(json_acceptable_string)
+
+    d = {
+        'monitoring-platform-default-db': None,
+        'a11ymon-postgres': None,
+        'axeresults-postgres': None,
+    }
+    # DATABASE_NAMES = []
+
+    for i in db['postgres']:
+        d[i['name']] = i['credentials']['uri'] if i['name'] in d.keys() else None
+
+    DATABASES['default'] = dj_database_url.parse(d['monitoring-platform-default-db'])
+    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['a11ymon-postgres'])
     DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
-    DATABASES['axe_data'] = dj_database_url.parse(d['postgres'][2]['credentials']['uri'])
+    DATABASES['axe_data'] = dj_database_url.parse(d['axeresults-postgres'])
     DATABASES['axe_data']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
