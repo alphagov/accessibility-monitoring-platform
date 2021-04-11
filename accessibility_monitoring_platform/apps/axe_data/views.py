@@ -22,6 +22,12 @@ def home(request):
     end_date = DEFAULT_END_DATE
     filter_params: dict = {}
 
+    def get_filters_from_form():
+        domain_name = form.cleaned_data.get("domain_name")
+        start_date = form.start_date
+        end_date = form.end_date
+        return domain_name, start_date, end_date
+
     if request.POST:
         form = AxeDataSearchForm(request.POST)
         if form.is_valid():
@@ -31,19 +37,15 @@ def home(request):
                 if value is not None and value != ""
             }
             parameters = urllib.parse.urlencode(populated_fields)
-            domain_name = form.cleaned_data.get("domain_name")
-            start_date = form.start_date
-            end_date = form.end_date
+            domain_name, start_date, end_date = get_filters_from_form()
     else:
         get_without_page = {
             key: value for (key, value) in request.GET.items() if key != "page"
         }
         form = AxeDataSearchForm(get_without_page)
-        parameters = urllib.parse.urlencode(get_without_page)
-        domain_name = request.GET.get("domain_name")
-        form.is_valid()
-        start_date = form.start_date
-        end_date = form.end_date
+        if form.is_valid():
+            parameters = urllib.parse.urlencode(get_without_page)
+            domain_name, start_date, end_date = get_filters_from_form()
 
     context["form"] = form
     context["parameters"] = parameters

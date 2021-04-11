@@ -10,7 +10,7 @@ DEFAULT_START_DATE = datetime.datetime(year=1900, month=1, day=1, tzinfo=pytz.UT
 DEFAULT_END_DATE = datetime.datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
 
-def check_date_valid_or_none(day, month, year):
+def check_date_valid_or_none(day: str, month: str, year: str) -> None:
     if year is not None or month is not None or day is not None:
         try:
             datetime.datetime(day=int(day), month=int(month), year=int(year))
