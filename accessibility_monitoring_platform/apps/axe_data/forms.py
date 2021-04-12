@@ -83,7 +83,8 @@ class AxeDataSearchForm(forms.Form):
         required=False,
     )
 
-    def clean_start_date_year(self):
+    def clean_start_date_year(self) -> str:
+        """ Check day, month and year values make a valid date """
         start_date_day_clean: str = self.cleaned_data.get("start_date_day")
         start_date_month_clean: str = self.cleaned_data.get("start_date_month")
         start_date_year_clean: str = self.cleaned_data.get("start_date_year")
@@ -135,7 +136,8 @@ class AxeDataSearchForm(forms.Form):
         required=False,
     )
 
-    def clean_end_date_year(self):
+    def clean_end_date_year(self) -> str:
+        """ Check day, month and year values make a valid date """
         end_date_day_clean: str = self.cleaned_data.get("end_date_day")
         end_date_month_clean: str = self.cleaned_data.get("end_date_month")
         end_date_year_clean: str = self.cleaned_data.get("end_date_year")
@@ -145,7 +147,12 @@ class AxeDataSearchForm(forms.Form):
         return self.cleaned_data.get("end_date_year")
 
     @property
-    def start_date(self):
+    def start_date(self) -> datetime.datetime:
+        """
+        Build start_date timestamp from entered day, month and year.
+
+        Return default start_date if no valid date was entered.
+        """
         try:
             day: str = self.cleaned_data.get("start_date_day")
             month: str = self.cleaned_data.get("start_date_month")
@@ -155,7 +162,12 @@ class AxeDataSearchForm(forms.Form):
             return DEFAULT_START_DATE
 
     @property
-    def end_date(self):
+    def end_date(self) -> datetime.datetime:
+        """
+        Build end_date timestamp from entered day, month and year.
+
+        Return default end_date if not valid date was entered.
+        """
         try:
             day: str = self.cleaned_data.get("end_date_day")
             month: str = self.cleaned_data.get("end_date_month")
