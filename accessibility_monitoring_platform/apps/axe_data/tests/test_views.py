@@ -105,7 +105,9 @@ class AxeResultsHomeViewTests(TestCase):
         """ Get populates form from url parameters """
         response: HttpResponse = self.client.get(
             reverse("axe_data:home")
-            + "?page=2&domain_name=bristol&start_date_day=1&start_date_month=2&start_date_year=2000&end_date_day=3&end_date_month=4&end_date_year=2100",
+            + "?page=2&domain_name=bristol"
+            + "&start_date_day=1&start_date_month=2&start_date_year=2000"
+            + "&end_date_day=3&end_date_month=4&end_date_year=2100",
         )
 
         self.assertEqual(response.status_code, 200)
