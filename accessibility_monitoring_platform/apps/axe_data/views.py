@@ -36,6 +36,7 @@ def home(request: HttpRequest) -> HttpResponse:
     filter_params: dict = {}
 
     def get_filters_from_form() -> Tuple[str, datetime, datetime]:
+        """ Get values to filter TestresultAxeHeader objects from form """
         domain_name: str = form.cleaned_data.get("domain_name")
         start_date: datetime = form.start_date
         end_date: datetime = form.end_date
