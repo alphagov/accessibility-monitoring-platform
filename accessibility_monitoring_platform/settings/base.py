@@ -89,7 +89,7 @@ if UNDER_TEST:
     DATABASES['accessibility_domain_db'] = {'NAME': 'domain_register', 'ENGINE': 'django.db.backends.sqlite3'}
     DATABASES['axe_data'] = {'NAME': 'axe_data', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
-    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'a11ymon-postgres', 'axeresults-postgres']
+    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'pubsecweb-db', 'a11ymon-db']
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
     vcap_services = json.loads(json_acceptable_string)
 
@@ -100,9 +100,9 @@ else:
     }
 
     DATABASES['default'] = dj_database_url.parse(database_credentials['monitoring-platform-default-db'])
-    DATABASES['accessibility_domain_db'] = dj_database_url.parse(database_credentials['a11ymon-postgres'])
+    DATABASES['accessibility_domain_db'] = dj_database_url.parse(database_credentials['pubsecweb-db'])
     DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
-    DATABASES['axe_data'] = dj_database_url.parse(database_credentials['axeresults-postgres'])
+    DATABASES['axe_data'] = dj_database_url.parse(database_credentials['a11ymon-db'])
     DATABASES['axe_data']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
