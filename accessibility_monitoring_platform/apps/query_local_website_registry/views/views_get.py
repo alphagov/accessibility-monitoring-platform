@@ -54,7 +54,7 @@ def read_get(request: HttpRequest):
     if all(value is None for value in prefill_form.values()):
         return render(request, 'query_local_website_registry/home.html', {'form': SearchForm()})
 
-    website_register: QuerySet = WebsiteRegister.objects.using('accessibility_domain_db').order_by('website_id').all()
+    website_register: QuerySet = WebsiteRegister.objects.using('pubsecweb_db').order_by('website_id').all()
 
     if prefill_form['location']:
         unique_nuts118: Any = get_list_of_nuts118(str(prefill_form['location']))

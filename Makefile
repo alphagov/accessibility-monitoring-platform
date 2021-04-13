@@ -9,15 +9,14 @@ init:
 		&& docker-compose up -d \
 		&& sleep 20 \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
-		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database domain_register;" \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database a11ymon;" \
 		&& echo "password is secret" \
-		&& pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d domain_register -1 ./data/pubsecweb_210216.pgadmin-backup \
+		&& pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/pubsecweb_210216.pgadmin-backup \
 		&& pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/a11ymon_210408.pgadmin-backup \
-		&& ./manage.py migrate query_local_website_registry --database=accessibility_domain_db \
+		&& ./manage.py migrate query_local_website_registry --database=pubsecweb_db \
 		&& ./manage.py migrate \
 		&& python3 manage.py loaddata ./data/auth_data.json \
-		&& psql -Atx postgres://admin:secret@localhost:5432/domain_register -c "\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;" \
+		&& psql -Atx postgres://admin:secret@localhost:5432/a11ymon -c "\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;" \
 		&& echo "email is admin@email.com and password is secret"
 
 start:

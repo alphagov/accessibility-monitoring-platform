@@ -23,16 +23,16 @@ def get_list_of_nuts118(location: str) -> Any:
     Returns:
         Any: A list of nuts118 codes
     """
-    lad18: QuerySet = NutsConversion.objects.using('accessibility_domain_db') \
+    lad18: QuerySet = NutsConversion.objects.using('pubsecweb_db') \
         .filter(lad18nm__icontains=location)
 
-    lau118: QuerySet = NutsConversion.objects.using('accessibility_domain_db') \
+    lau118: QuerySet = NutsConversion.objects.using('pubsecweb_db') \
         .filter(lau118nm__icontains=location)
 
-    nuts318: QuerySet = NutsConversion.objects.using('accessibility_domain_db'). \
+    nuts318: QuerySet = NutsConversion.objects.using('pubsecweb_db'). \
         filter(nuts318nm__icontains=location)
 
-    nuts218: QuerySet = NutsConversion.objects.using('accessibility_domain_db'). \
+    nuts218: QuerySet = NutsConversion.objects.using('pubsecweb_db'). \
         filter(nuts218nm__icontains=location)
 
     nuts_code: QuerySet = lad18 | lau118 | nuts318 | nuts218

@@ -70,7 +70,7 @@ def home(request: HttpRequest) -> HttpResponse:
         filter_params["test_timestamp__gte"]: datetime = start_date
         filter_params["test_timestamp__lte"]: datetime = end_date
         testresult_axe_headers: QuerySet = TestresultAxeHeader.objects.using(
-            "axe_data"
+            "a11ymon_db"
         ).filter(**filter_params)
         context["number_of_results"]: int = len(testresult_axe_headers)
         paginator: Paginator = Paginator(testresult_axe_headers, PAGE_SIZE)
