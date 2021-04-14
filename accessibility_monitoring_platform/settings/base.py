@@ -40,6 +40,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
+    'accessibility_monitoring_platform.apps.axe_data',
     'accessibility_monitoring_platform.apps.dashboard',
     'accessibility_monitoring_platform.apps.query_local_website_registry',
     'accessibility_monitoring_platform.apps.users',
@@ -85,22 +86,24 @@ DATABASES = {}
 
 if UNDER_TEST:
     DATABASES['default'] = {'NAME': 'accessibility_monitoring_app', 'ENGINE': 'django.db.backends.sqlite3'}
-    DATABASES['accessibility_domain_db'] = {'NAME': 'domain_register', 'ENGINE': 'django.db.backends.sqlite3'}
+    DATABASES['pubsecweb_db'] = {'NAME': 'pubsecweb_db', 'ENGINE': 'django.db.backends.sqlite3'}
+    DATABASES['a11ymon_db'] = {'NAME': 'a11ymon_db', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
+    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'a11ymon-db']
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
-    db = json.loads(json_acceptable_string)
+    vcap_services = json.loads(json_acceptable_string)
 
-    d = {
-        'monitoring-platform-default-db': None,
-        'a11ymon-postgres': None
+    database_credentials = {
+        database_service['name']: database_service['credentials']['uri']
+        for database_service in vcap_services['postgres']
+        if database_service['name'] in DATABASE_SERVICE_NAMES
     }
 
-    for i in db['postgres']:
-        d[i['name']] = i['credentials']['uri'] if i['name'] in d.keys() else None
-
-    DATABASES['default'] = dj_database_url.parse(d['monitoring-platform-default-db'])
-    DATABASES['accessibility_domain_db'] = dj_database_url.parse(d['a11ymon-postgres'])
-    DATABASES['accessibility_domain_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
+    DATABASES['default'] = dj_database_url.parse(database_credentials['monitoring-platform-default-db'])
+    DATABASES['pubsecweb_db'] = dj_database_url.parse(database_credentials['a11ymon-db'])
+    DATABASES['pubsecweb_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
+    DATABASES['a11ymon_db'] = dj_database_url.parse(database_credentials['a11ymon-db'])
+    DATABASES['a11ymon_db']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
 # Password validation

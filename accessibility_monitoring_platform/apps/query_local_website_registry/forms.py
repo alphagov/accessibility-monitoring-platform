@@ -81,8 +81,8 @@ class SearchForm(forms.Form):
         start_date_year_clean: str = self.cleaned_data.get('start_date_year')
         if (
             start_date_day_clean is not None
-            and start_date_month_clean is not None
-            and start_date_year_clean is not None
+            or start_date_month_clean is not None
+            or start_date_year_clean is not None
         ):
             try:
                 datetime.datetime(
@@ -146,8 +146,8 @@ class SearchForm(forms.Form):
         end_date_year_clean: str = self.cleaned_data.get('end_date_year')
         if (
             end_date_day_clean is not None
-            and end_date_month_clean is not None
-            and end_date_year_clean is not None
+            or end_date_month_clean is not None
+            or end_date_year_clean is not None
         ):
             try:
                 datetime.datetime(

@@ -1,5 +1,5 @@
 name: Deploy to test
-on: 
+on:
   push:
     branches:
       - main
@@ -15,7 +15,7 @@ jobs:
         python-version: '3.8'
     - name: Unit tests
       run: |
-        export VCAP_SERVICES="{'postgres':[{'credentials': {'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name': 'monitoring-platform-default-db'},{'credentials': {'uri': 'postgres://admin:secret@localhost:5432/domain_register'},'name': 'a11ymon-postgres'}]}"
+        export VCAP_SERVICES="{'postgres':[{'credentials': {'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name': 'monitoring-platform-default-db'},{'credentials': {'uri': 'postgres://admin:secret@localhost:5432/a11ymon'},'name': 'a11ymon-db'}]}"
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE

@@ -3,6 +3,10 @@
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
   "javascript.validate.enable": false,
+  "workbench.colorCustomizations": {
+    "editorBracketMatch.background": "#f008",
+    "editorBracketMatch.border": "#f00"
+  },
   "stylelint.enable": true,
   "standard.enable": true,
   "python.analysis.typeCheckingMode": "basic",
