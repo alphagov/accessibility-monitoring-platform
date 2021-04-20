@@ -89,7 +89,7 @@ if UNDER_TEST:
     DATABASES['pubsecweb_db'] = {'NAME': 'pubsecweb_db', 'ENGINE': 'django.db.backends.sqlite3'}
     DATABASES['a11ymon_db'] = {'NAME': 'a11ymon_db', 'ENGINE': 'django.db.backends.sqlite3'}
 else:
-    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'a11ymon-db']
+    DATABASE_SERVICE_NAMES = ['monitoring-platform-default-db', 'a11ymon-postgres']
     json_acceptable_string = os.getenv('VCAP_SERVICES').replace('\'', '\"')
     vcap_services = json.loads(json_acceptable_string)
 
@@ -100,9 +100,9 @@ else:
     }
 
     DATABASES['default'] = dj_database_url.parse(database_credentials['monitoring-platform-default-db'])
-    DATABASES['pubsecweb_db'] = dj_database_url.parse(database_credentials['a11ymon-db'])
+    DATABASES['pubsecweb_db'] = dj_database_url.parse(database_credentials['a11ymon-postgres'])
     DATABASES['pubsecweb_db']['OPTIONS'] = {'options': '-c search_path=pubsecweb,public'}
-    DATABASES['a11ymon_db'] = dj_database_url.parse(database_credentials['a11ymon-db'])
+    DATABASES['a11ymon_db'] = dj_database_url.parse(database_credentials['a11ymon-postgres'])
     DATABASES['a11ymon_db']['OPTIONS'] = {'options': '-c search_path=a11ymon,public'}
 
 
