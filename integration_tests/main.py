@@ -5,13 +5,16 @@ Python script to orchestrate the integration tests
 import os
 import sys
 import time
-import unittest
 import platform
 import shutil
 import socket
+from typing import Any, Union
+import unittest
+from unittest.runner import TextTestRunner
+from unittest.result import TestResult
+from unittest.suite import TestSuite
 from urllib.request import urlopen
 import zipfile
-from typing import Any, Union
 
 
 def ping(host: str) -> bool:
@@ -22,17 +25,24 @@ def ping(host: str) -> bool:
     try:
         urlopen(host)
     except Exception:
-        print('>>> Server is not ready')
+        print(">>> Server is not ready")
         return False
     else:
         return True
 
 
 def download_file(url: str, file_name: Union[str, None] = None) -> None:
+    """ Downloads file to local dir
+
+    Args:
+        url (str): endpoint for the file you are downloading
+
+        file_name (Union[str, None], optional): Path for file name. Defaults to None.
+    """
     file_name = file_name if file_name else url.split("/")[-1]
     print(">>> Downloading webdriver")
-    with urlopen(url) as u:
-        with open(file_name, "wb") as f:
+    with urlopen(url=url) as u:
+        with open(file=file_name, mode="wb") as f:
             file_size: int = int(u.info()["Content-Length"])
             file_size_dl: int = 0
             block_sz: int = 8192
@@ -41,13 +51,16 @@ def download_file(url: str, file_name: Union[str, None] = None) -> None:
                 if not buffer:
                     break
                 file_size_dl: int = file_size_dl + len(buffer)
-                f.write(buffer)
+                f.write(__buffer=buffer)
                 if file_size_dl % 500 == 0:
-                    percentage_complete: float = round((file_size_dl / file_size) * 100, 1)
+                    percentage_complete: float = round(
+                        (file_size_dl / file_size) * 100, 1
+                    )
                     print(percentage_complete, "% complete", sep="")
 
 
 def download_selenium() -> None:
+    """ Downloads and prepares the selenium driver """
     webdriver_path: str = "integration_tests/chromedriver"
     if os.path.isfile(webdriver_path):
         return
@@ -55,18 +68,24 @@ def download_selenium() -> None:
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
     webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_{library}.zip"
     target_path: str = "./integration_tests/chromedriver.zip"
-    download_file(webdriver_zip, target_path)
+    download_file(url=webdriver_zip, file_name=target_path)
 
     target_path_unzip: str = "./integration_tests/chromedriver"
     with zipfile.ZipFile(target_path, "r") as zip_ref:
         zip_ref.extractall(target_path_unzip)
 
-    os.rename("integration_tests/chromedriver/chromedriver", "integration_tests/chromedriver2")
-    shutil.rmtree("integration_tests/chromedriver")
-    os.rename("integration_tests/chromedriver2", "integration_tests/chromedriver")
-    os.remove("integration_tests/chromedriver.zip")
+    os.rename(
+        src="integration_tests/chromedriver/chromedriver",
+        dst="integration_tests/chromedriver2"
+    )
+    shutil.rmtree(path="integration_tests/chromedriver")
+    os.rename(
+        src="integration_tests/chromedriver2",
+        dst="integration_tests/chromedriver"
+    )
+    os.remove(path="integration_tests/chromedriver.zip")
 
-    os.system("chmod 755 integration_tests/chromedriver")
+    os.system(command="chmod 755 integration_tests/chromedriver")
 
     print(">>> chromedriver now ready")
 
@@ -74,14 +93,16 @@ def download_selenium() -> None:
 if __name__ == "__main__":
     start = time.time()
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
-    os.system("docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile")
+    os.system(
+        "docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile"
+    )
     os.system("docker-compose -f docker/int_tests.docker-compose.yml up -d")
 
     download_selenium()
 
     attempts: int = 0
     while True:
-        if ping("http://0.0.0.0:8000/"):
+        if ping(host="http://0.0.0.0:8000/"):
             break
         attempts: int = attempts + 1
         if attempts > 30:
@@ -89,9 +110,9 @@ if __name__ == "__main__":
         time.sleep(1)
 
     tests_failed: bool = False
-    test_suite = unittest.defaultTestLoader.discover("integration_tests/", "test_*.py")
-    test_runner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
-    result = test_runner.run(test_suite)
+    test_suite: TestSuite = unittest.defaultTestLoader.discover(start_dir="integration_tests/", pattern="test_*.py")
+    test_runner: TextTestRunner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
+    res: TestResult = test_runner.run(test=test_suite)
 
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
@@ -99,7 +120,7 @@ if __name__ == "__main__":
     end: float = time.time()
     print("Testing took", end - start, "seconds")
 
-    if result.wasSuccessful():
+    if res.wasSuccessful():
         sys.exit(0)
 
     sys.exit(1)
