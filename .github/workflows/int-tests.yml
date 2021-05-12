@@ -13,4 +13,5 @@ jobs:
         pip install --upgrade pip
         pip install pipenv
         pipenv install -d
+        pipenv lock -r > requirements.txt
         python3 integration_tests/main.py

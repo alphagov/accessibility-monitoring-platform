@@ -78,6 +78,8 @@ def download_selenium() -> None:
     if library == "mac64":
         os.system("chmod 755 integration_tests/chromedriver")
 
+    print(">>> chromedriver now ready")
+
 
 if __name__ == "__main__":
     start = time.time()
