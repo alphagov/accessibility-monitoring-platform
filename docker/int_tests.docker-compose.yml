@@ -12,7 +12,7 @@ services:
             - "5432:5432"
 
     web:
-        image: django_amp
+        image: "django_amp_two:latest"
         command: >
             bash -c "
             sleep 5;

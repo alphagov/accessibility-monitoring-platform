@@ -27,11 +27,8 @@ def ping(host: str) -> bool:
     socket.setdefaulttimeout(23)  # timeout in seconds
     try:
         urlopen(host)
-    except HTTPError:
-        return False
-    except URLError:
-        return False
-    except RemoteDisconnected:
+    except Exception:
+        print('>>> Server is not ready')
         return False
     else:
         return True
@@ -84,7 +81,7 @@ def download_selenium() -> None:
 if __name__ == "__main__":
     start = time.time()
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
-    os.system("docker build -t django_amp -f - . < ./docker/django_app.Dockerfile")
+    os.system("docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile")
     os.system("docker-compose -f docker/int_tests.docker-compose.yml up -d")
 
     download_selenium()

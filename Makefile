@@ -44,7 +44,7 @@ local_deploy:
 perm_for_chrome:
 	chmod 755 integration_tests/chromedriver
 
-integration_tests:
+int_test:
 	python3 integration_tests/main.py
 
 dockerstack:
