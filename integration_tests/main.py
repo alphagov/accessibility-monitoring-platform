@@ -72,8 +72,7 @@ def download_selenium() -> None:
     os.rename("integration_tests/chromedriver2", "integration_tests/chromedriver")
     os.remove("integration_tests/chromedriver.zip")
 
-    if library == "mac64":
-        os.system("chmod 755 integration_tests/chromedriver")
+    os.system("chmod 755 integration_tests/chromedriver")
 
     print(">>> chromedriver now ready")
 
