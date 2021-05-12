@@ -40,3 +40,26 @@ load_data:
 local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
+
+perm_for_chrome:
+	chmod 755 integration_tests/chromedriver
+
+integration_tests:
+	python3 integration_tests/main.py
+
+dockerstack:
+	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
+	docker-compose -f docker/int_tests.docker-compose.yml up
+
+dockerstack_stop:
+	docker-compose -f docker/int_tests.docker-compose.yml down
+	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
+
+dockeramp:
+	docker build -t django_amp -f - . < docker/Dockerfile &&  docker run django_amp
+
+dockerrun:
+	docker run  --env ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0' --env SECRET_KEY='123456789' --env VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}" django_amp
+
+postgres:
+	docker run -p 5432:5432 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=admin -e POSTGRES_DB=postgres -d postgres:12.2
