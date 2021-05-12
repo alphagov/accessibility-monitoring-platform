@@ -2,20 +2,14 @@
 Python script to orchestrate the integration tests
 """
 
-from http.client import RemoteDisconnected
 import os
 import sys
 import time
 import unittest
 import platform
-from test1 import TestSum
 import shutil
 import socket
-from urllib.request import (
-    HTTPError,
-    urlopen,
-    URLError
-)
+from urllib.request import urlopen
 import zipfile
 from typing import Any, Union
 
@@ -95,11 +89,9 @@ if __name__ == "__main__":
         time.sleep(1)
 
     tests_failed: bool = False
-    try:
-        unittest.main()
-    except:
-        tests_failed = True
-        pass
+    test_suite = unittest.defaultTestLoader.discover("integration_tests/", "test_*.py")
+    test_runner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
+    result = test_runner.run(test_suite)
 
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
     os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
@@ -107,5 +99,7 @@ if __name__ == "__main__":
     end: float = time.time()
     print("Testing took", end - start, "seconds")
 
-    if tests_failed:
-        sys.exit(1)
+    if result.wasSuccessful():
+        sys.exit(0)
+
+    sys.exit(1)

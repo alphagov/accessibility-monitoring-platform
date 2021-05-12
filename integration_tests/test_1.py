@@ -11,4 +11,5 @@ class TestSum(unittest.TestCase):
         options.add_argument("--disable-gpu")
         driver = webdriver.Chrome("./integration_tests/chromedriver", chrome_options=options)
         driver.get("http://localhost:8000/accounts/login/?next=/")
+
         self.assertEqual("Accessiblity Monitoring Platform" in driver.page_source, True)
