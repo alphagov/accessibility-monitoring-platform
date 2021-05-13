@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true")
     options = parser.parse_args()
-
+    os.system("pipenv lock -r > requirements.txt")
     if options.ignore_docker:
         print("Skipping docker")
     else:
