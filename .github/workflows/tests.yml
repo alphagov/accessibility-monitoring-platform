@@ -33,3 +33,19 @@ jobs:
         gulp build
         python manage.py collectstatic --noinput
         python3 manage.py test
+
+  int-test:
+    needs: test
+    name: Integration tests
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Integration tests
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pipenv
+        pipenv install -d
+        pipenv lock -r > requirements.txt
+        python3 integration_tests/main.py

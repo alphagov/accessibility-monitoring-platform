@@ -1,7 +1,7 @@
 """
 Python script to orchestrate the integration tests
 """
-
+import argparse
 import os
 import sys
 import time
@@ -25,7 +25,7 @@ def ping(host: str) -> bool:
     try:
         urlopen(host)
     except Exception:
-        print(">>> Server is not ready")
+        print(">>> Server did not respond")
         return False
     else:
         return True
@@ -92,11 +92,19 @@ def download_selenium() -> None:
 
 if __name__ == "__main__":
     start = time.time()
-    os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
-    os.system(
-        "docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile"
-    )
-    os.system("docker-compose -f docker/int_tests.docker-compose.yml up -d")
+    parser = argparse.ArgumentParser(description="Starts integration tests")
+
+    parser.add_argument("-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true")
+    options = parser.parse_args()
+
+    if options.ignore_docker:
+        print("Skipping docker")
+    else:
+        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+        os.system(
+            "docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile"
+        )
+        os.system("docker-compose -f docker/int_tests.docker-compose.yml up -d")
 
     download_selenium()
 
@@ -114,8 +122,9 @@ if __name__ == "__main__":
     test_runner: TextTestRunner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
     res: TestResult = test_runner.run(test=test_suite)
 
-    os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
-    os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+    if not options.ignore_docker:
+        os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
+        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
 
     end: float = time.time()
     print("Testing took", end - start, "seconds")

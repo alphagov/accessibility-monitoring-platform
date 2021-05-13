@@ -47,19 +47,14 @@ perm_for_chrome:
 int_test:
 	python3 integration_tests/main.py
 
+int_test_no_docker:
+	python3 integration_tests/main.py --ignore-docker
+
 dockerstack:
 	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
+	docker build -t django_amp -f - . < docker/django_app.Dockerfile
 	docker-compose -f docker/int_tests.docker-compose.yml up
 
 dockerstack_stop:
 	docker-compose -f docker/int_tests.docker-compose.yml down
 	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
-
-dockeramp:
-	docker build -t django_amp -f - . < docker/Dockerfile &&  docker run django_amp
-
-dockerrun:
-	docker run  --env ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0' --env SECRET_KEY='123456789' --env VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}" django_amp
-
-postgres:
-	docker run -p 5432:5432 -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=admin -e POSTGRES_DB=postgres -d postgres:12.2
