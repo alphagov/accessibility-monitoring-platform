@@ -51,7 +51,7 @@ def download_file(url: str, file_name: Union[str, None] = None) -> None:
                 if not buffer:
                     break
                 file_size_dl: int = file_size_dl + len(buffer)
-                f.write(__buffer=buffer)
+                f.write(buffer)
                 if file_size_dl % 500 == 0:
                     percentage_complete: float = round(
                         (file_size_dl / file_size) * 100, 1
@@ -59,7 +59,7 @@ def download_file(url: str, file_name: Union[str, None] = None) -> None:
                     print(percentage_complete, "% complete", sep="")
 
 
-def download_selenium() -> None:
+def download_webdriver() -> None:
     """ Downloads and prepares the selenium driver """
     webdriver_path: str = "integration_tests/chromedriver"
     if os.path.isfile(webdriver_path):
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         )
         os.system("docker-compose -f docker/int_tests.docker-compose.yml up -d")
 
-    download_selenium()
+    download_webdriver()
 
     attempts: int = 0
     while True:
