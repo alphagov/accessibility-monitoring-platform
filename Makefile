@@ -40,3 +40,21 @@ load_data:
 local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
+
+perm_for_chrome:
+	chmod 755 integration_tests/chromedriver
+
+int_test:
+	python3 integration_tests/main.py
+
+int_test_no_docker:
+	python3 integration_tests/main.py --ignore-docker
+
+dockerstack:
+	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
+	docker build -t django_amp -f - . < docker/django_app.Dockerfile
+	docker-compose -f docker/int_tests.docker-compose.yml up
+
+dockerstack_stop:
+	docker-compose -f docker/int_tests.docker-compose.yml down
+	docker-compose -f docker/int_tests.docker-compose.yml down --volumes

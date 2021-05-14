@@ -87,7 +87,7 @@ adr new -s 9 Use Rust for performance-critical functionality
 ---
 ## Testing
 
-There is currently two types of automated testing, unit testing and accessibility testing. 
+There is currently three types of automated testing; unit, integration and lighthouse testing. 
 
 Static files need to be collected by Django before starting unit tests. The tests will fail unless this step is completed. This can be executed with
 
@@ -103,7 +103,15 @@ make test
 
 The make command will start the test suite in coverage and show how much the tests cover the code. It is best to aim for 90% coverage.
 
-Accessibility testing can be started with
+Integration can be started with 
+
+```
+make int_test
+```
+
+The make command will start a docker-compose stack and execute python unit tests located in integration tests. If you are writing integration tests, the stack can be started with `make dockerstack`, and starting the tests with `int_test_no_docker`.
+
+Lighthouse testing can be started with
 
 ```
 make lighthouse_audit

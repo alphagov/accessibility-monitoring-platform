@@ -2,7 +2,7 @@
 .pytest_cache/
 data/pgadmin-data/*
 data/postgres-data/*
-data/pubsecweb_210216.pgadmin-backup
+# data/pubsecweb_210216.pgadmin-backup
 db.sqlite3
 /accessibility_monitoring_platform/static/CACHE/
 /accessibility_monitoring_platform/static/compiled/*
@@ -10,6 +10,8 @@ lighthouse-tests/results_noAuth.json
 lighthouse-tests/results_auth.json
 *.pyc
 requirements.txt
+./docker/data/
+chromedriver
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
