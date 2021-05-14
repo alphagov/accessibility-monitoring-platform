@@ -2,13 +2,15 @@ FROM ubuntu:focal
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
-RUN apt-get install -y python3
-RUN apt install -y python3-pip
-RUN apt-get install -y nodejs
-RUN apt-get install -y npm
-RUN apt-get install -y libpq-dev python-dev
-RUN apt-get install -y python3-psycopg2
-RUN apt-get install -y postgresql postgresql-contrib
+RUN apt-get install -y python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    libpq-dev \
+    python-dev \
+    python3-psycopg2 \
+    postgresql \
+    postgresql-contrib
 WORKDIR /code
 COPY requirements.txt /code/
 COPY ./data/auth_data.json /code/data/

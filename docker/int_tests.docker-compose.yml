@@ -9,18 +9,19 @@ services:
             POSTGRES_PASSWORD: secret
             PGDATA: /var/lib/postgresql/data
         ports:
-            - "5432:5432"
+            - "5433:5433"
+        command: -p 5433
 
     web:
         image: "django_amp_two:latest"
         command: >
             bash -c "
             sleep 5;
-            psql postgres://admin:secret@db:5432/postgres -c \"create database accessibility_monitoring_app;\";
-            psql postgres://admin:secret@db:5432/postgres -c \"create database a11ymon;\";
-            export PGPASSWORD='secret'; pg_restore --no-privileges --no-owner -h db -p 5432 -U admin -d a11ymon -1 ./data/pubsecweb_210216.pgadmin-backup;
-            export PGPASSWORD='secret'; psql -h db -p 5432 -U admin -d a11ymon -1 -f ./data/a11ymon_mini_2021-05-04.sql;
-            psql -h db -p 5432 -U admin -d a11ymon -c \"CREATE VIEW website_plus_axe_view AS
+            psql postgres://admin:secret@db:5433/postgres -c \"create database accessibility_monitoring_app;\";
+            psql postgres://admin:secret@db:5433/postgres -c \"create database a11ymon;\";
+            export PGPASSWORD='secret'; pg_restore --no-privileges --no-owner -h db -p 5433 -U admin -d a11ymon -1 ./data/pubsecweb_210216.pgadmin-backup;
+            export PGPASSWORD='secret'; psql -h db -p 5433 -U admin -d a11ymon -1 -f ./data/a11ymon_mini_2021-05-04.sql;
+            psql -h db -p 5433 -U admin -d a11ymon -c \"CREATE VIEW website_plus_axe_view AS
                 SELECT \"website_register\".\"website_id\",
                 \"website_register\".\"url\",
                 \"website_register\".\"service\",
@@ -41,19 +42,19 @@ services:
                 FROM pubsecweb.\"website_register\"
                 LEFT OUTER JOIN a11ymon.\"testresult_axe_header\" ON pubsecweb.\"website_register\".\"url\" = a11ymon.\"testresult_axe_header\".\"domain_name\"
             INNER JOIN pubsecweb.\"sector\" ON (pubsecweb.\"website_register\".\"sector_id\" = \"sector\".\"sector_id\");\";
-            psql -Atx postgres://admin:secret@db:5432/a11ymon -c \"\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;\";
+            psql -Atx postgres://admin:secret@db:5433/a11ymon -c \"\COPY pubsecweb.nuts_conversion FROM './data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;\";
             python3 manage.py migrate query_local_website_registry --database=pubsecweb_db;
             python3 manage.py migrate;
             python3 manage.py loaddata ./data/auth_data.json;
-            python3 manage.py runserver 0.0.0.0:8000;
+            python3 manage.py runserver 0.0.0.0:8001;
             "
         ports:
-            - "8000:8000"
+            - "8001:8001"
         depends_on:
             - db
         environment:
-            - VCAP_SERVICES={'postgres':[{'credentials':{'uri':'postgres://admin:secret@db:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@db:5432/a11ymon'},'name':'a11ymon-postgres'}]}
-            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8000'
+            - VCAP_SERVICES={'postgres':[{'credentials':{'uri':'postgres://admin:secret@db:5433/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@db:5433/a11ymon'},'name':'a11ymon-postgres'}]}
+            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
             - SECRET_KEY='123456789'
             - DEBUG=TRUE
         links:

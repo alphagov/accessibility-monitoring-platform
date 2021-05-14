@@ -27,6 +27,6 @@ class TestSum(unittest.TestCase):
             executable_path="./integration_tests/chromedriver",
             chrome_options=options
         )
-        driver.get(url="http://localhost:8000/accounts/login/?next=/")
+        driver.get(url="http://localhost:8001/accounts/login/?next=/")
 
         self.assertEqual("Accessiblity Monitoring Platform" in driver.page_source, True)

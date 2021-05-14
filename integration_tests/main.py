@@ -39,6 +39,8 @@ def download_file(url: str, file_name: Union[str, None] = None) -> None:
 
         file_name (Union[str, None], optional): Path for file name. Defaults to None.
     """
+    if url[-1] == "/":
+        raise Exception("URL has a trailing slash and is not a file")
     file_name = file_name if file_name else url.split("/")[-1]
     print(">>> Downloading webdriver")
     with urlopen(url=url) as u:
@@ -61,12 +63,15 @@ def download_file(url: str, file_name: Union[str, None] = None) -> None:
 
 def download_webdriver() -> None:
     """ Downloads and prepares the selenium driver """
+
     webdriver_path: str = "integration_tests/chromedriver"
     if os.path.isfile(webdriver_path):
         return
 
+    page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+    chrome_version: str = page.read().decode("utf-8")
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
-    webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_{library}.zip"
+    webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/{chrome_version}/chromedriver_{library}.zip"
     target_path: str = "./integration_tests/chromedriver.zip"
     download_file(url=webdriver_zip, file_name=target_path)
 
@@ -110,7 +115,7 @@ if __name__ == "__main__":
 
     attempts: int = 0
     while True:
-        if ping(host="http://0.0.0.0:8000/"):
+        if ping(host="http://0.0.0.0:8001/"):
             break
         attempts: int = attempts + 1
         if attempts > 30:
