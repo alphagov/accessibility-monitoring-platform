@@ -12,6 +12,7 @@ lighthouse-tests/results_auth.json
 requirements.txt
 ./docker/data/
 chromedriver
+.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
