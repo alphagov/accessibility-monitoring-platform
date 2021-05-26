@@ -7,7 +7,7 @@ from .models import Case
 
 
 class CaseAdmin(admin.ModelAdmin):
-    readonly_fields = ["created"]
+    readonly_fields = ["simplified_test_filename", "created"]
     search_fields = ["website_name"]
     list_display = ["website_name", "auditor", "created"]
     list_filter = ["auditor"]
