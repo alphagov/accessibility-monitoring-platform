@@ -5,49 +5,53 @@
 {% block content %}
 
 <div class="govuk-width-container">
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">Cases and reports</h1>
-        <p class="govuk-body-m">We've found {{ page_obj.paginator.count }} cases</p>
-      </div>
-    </div>
-    {% include "query_local_website_registry/pagination_controls.html" %}
-    {% for case in object_list %}
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
+    <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
-          <div class="govuk-grid-column-full">
-            <a href="{{ case.home_page_url }}" class="govuk-link" rel="noreferrer noopener" target="_blank">
-              {{ case.home_page_url }}</a>
-            <h3 class="govuk-heading-s cases-sub-heading">{{ case.website_name }}</h3>
-            <p class="govuk-body-m">Case # {{ case.id }}</p>
-          </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Cases and reports</h1>
+            </div>
         </div>
         <div class="govuk-grid-row">
-          <div class="govuk-grid-column-one-third">
-            <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
-            <p class="govuk-body-m">{{ case.auditor }}</p>
-          </div>
-          <div class="govuk-grid-column-one-third">
-            <h3 class="govuk-heading-s cases-sub-heading">Date</h3>
-            <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
-          </div>
-          <div class="govuk-grid-column-one-third">
-            <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
-            <p class="govuk-body-m"></p>
-          </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body-m">We've found {{ page_obj.paginator.count }} cases</p>
+                {% include "cases/pagination_controls.html" %}
+                {% for case in object_list %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <a href="{{ case.home_page_url }}" class="govuk-link cases-bigger-link" rel="noreferrer noopener" target="_blank">
+                                {{ case.home_page_url }}</a>
+                            <h3 class="govuk-heading-s cases-sub-heading">{{ case.website_name }}</h3>
+                            <p class="govuk-body-m">Case # {{ case.id }}</p>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-third">
+                            <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
+                            <p class="govuk-body-m">{{ case.auditor }}</p>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <h3 class="govuk-heading-s cases-sub-heading">Date</h3>
+                            <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
+                            <p class="govuk-body-m"></p>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full cases-summary-bottom">
+                            <h3 class="govuk-heading-s cases-sub-heading">Test results file</h3>
+                            <p class="govuk-body-m">{{ case.simplified_test_filename }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="govuk-grid-column-one-third cases-search-background">
+                <h2 class="govuk-heading-m">Edit Search</h2>
+                <p class="govuk-body">Search form fields</p>
+            </div>
         </div>
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-full">
-            <h3 class="govuk-heading-s cases-sub-heading">Test results file</h3>
-            <p class="govuk-body-m">{{ case.simplified_test_filename }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </main>
+    </main>
 </div>
 
 {% endblock %}
