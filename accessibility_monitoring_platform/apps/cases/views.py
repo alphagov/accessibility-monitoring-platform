@@ -8,3 +8,4 @@ from .models import Case
 
 class CaseListView(ListView):
     model = Case
+    paginate_by = 10
