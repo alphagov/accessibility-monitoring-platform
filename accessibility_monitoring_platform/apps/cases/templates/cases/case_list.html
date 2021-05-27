@@ -17,7 +17,7 @@
                 {% include "cases/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
-                {% for case in object_list %}
+                {% for case in cases %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">
                                 <div class="govuk-grid-row">
@@ -35,12 +35,12 @@
                                         <p class="govuk-body-m">{{ case.auditor }}</p>
                                     </div>
                                     <div class="govuk-grid-column-one-third">
-                                        <h3 class="govuk-heading-s cases-sub-heading">Date</h3>
+                                        <h3 class="govuk-heading-s cases-sub-heading">Date created</h3>
                                         <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
                                     </div>
                                     <div class="govuk-grid-column-one-third">
                                         <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
-                                        <p class="govuk-body-m"></p>
+                                        <p class="govuk-body-m">{{ case.get_status_display }}</p>
                                     </div>
                                 </div>
                                 <div class="govuk-grid-row">
@@ -76,6 +76,10 @@
                         <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label" for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
                             {{form.auditor}}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
+                            {{form.status}}
                         </div>
                         <div class="govuk-grid-column-full">
                             <label class="govuk-label">

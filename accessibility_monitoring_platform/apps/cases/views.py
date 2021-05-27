@@ -11,6 +11,7 @@ from .forms import SearchForm
 
 class CaseListView(ListView):
     model = Case
+    context_object_name = "cases"
     paginate_by = 10
 
     def get_queryset(self):
@@ -30,6 +31,9 @@ class CaseListView(ListView):
         auditor = form.cleaned_data.get("auditor")
         if auditor:
             filters["auditor"] = auditor
+        status = form.cleaned_data.get("status")
+        if status:
+            filters["status"] = status
         filters["created__gte"] = form.start_date
         filters["created__lte"] = form.end_date
         return Case.objects.filter(**filters)

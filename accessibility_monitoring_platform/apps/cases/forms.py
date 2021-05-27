@@ -7,6 +7,8 @@ import pytz
 from django import forms
 from django.core.exceptions import ValidationError
 
+from .models import STATUS_CHOICES
+
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
@@ -19,6 +21,8 @@ AUDITOR_CHOICES = [
     ("Nesha Russo", "Nesha Russo"),
 ]
 
+status_choices = STATUS_CHOICES
+status_choices.insert(0, ("", "All"))
 
 def convert_day_month_year_to_date(day: str, month: str, year: str) -> datetime:
     """ Convert given day, month and year to a datetime """
@@ -56,6 +60,13 @@ class SearchForm(forms.Form):
         widget=forms.Select(attrs={"class": "govuk-select"}),
         required=False,
         choices=AUDITOR_CHOICES,
+    )
+
+    status = forms.ChoiceField(
+        label="Status",
+        widget=forms.Select(attrs={"class": "govuk-select"}),
+        required=False,
+        choices=status_choices,
     )
 
     start_date_day = forms.IntegerField(

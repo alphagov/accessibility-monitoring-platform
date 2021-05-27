@@ -8,7 +8,7 @@ import pytz
 
 from django.core.management.base import BaseCommand
 
-from ...models import Case
+from ...models import Case, STATUS_CHOICES
 
 INPUT_FILE_NAME = "home_page_urls.csv"
 AUDITORS = {
@@ -42,6 +42,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         verbose = options["verbose"]
         initial = options["initial"]
+
+        number_of_statuses = len(STATUS_CHOICES)
 
         if initial:
             if verbose:
@@ -82,6 +84,7 @@ class Command(BaseCommand):
                         simplified_test_filename=row["Filename"],
                         created=datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC),
                         created_by=AUDITORS[auditor_initials],
+                        status=STATUS_CHOICES[count % number_of_statuses][0],
                     )
                     case.save()
                 except Exception as e:
