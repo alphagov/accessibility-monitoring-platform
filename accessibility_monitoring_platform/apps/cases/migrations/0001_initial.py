@@ -7,20 +7,27 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Case',
+            name="Case",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('website_name', models.CharField(max_length=200)),
-                ('home_page_url', models.CharField(max_length=200)),
-                ('auditor', models.CharField(max_length=200)),
-                ('simplified_test_filename', models.CharField(max_length=200)),
-                ('created', models.DateTimeField()),
-                ('created_by', models.CharField(max_length=200)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("website_name", models.CharField(max_length=200)),
+                ("home_page_url", models.CharField(max_length=200)),
+                ("auditor", models.CharField(max_length=200)),
+                ("simplified_test_filename", models.CharField(max_length=200)),
+                ("created", models.DateTimeField()),
+                ("created_by", models.CharField(max_length=200)),
             ],
         ),
     ]

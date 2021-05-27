@@ -3,6 +3,7 @@ This command adds historic case data.
 """
 import csv
 from datetime import datetime
+import re
 import pytz
 
 from django.core.management.base import BaseCommand
@@ -54,16 +55,29 @@ class Command(BaseCommand):
                     simplified_test_filename = row["Filename"].replace("_", "")
                     if verbose:
                         print(f"{count} {simplified_test_filename}")
-                    if row["Created date"] == "Unused" or row["Created date"] == "Missing":
+                    if (
+                        row["Created date"] == "Unused"
+                        or row["Created date"] == "Missing"
+                    ):
                         continue
                     words = simplified_test_filename.split(".")[0].split()
                     auditor_initials = words[-1]
-                    website_name = " ".join(words[2:-1])
+                    website_name = (
+                        " ".join(words[2:-1])
+                        .replace(" Simplified", "")
+                        .replace(" Test", "")
+                    )
                     yyyy, mm, dd = row["Created date"].split("-")
+                    home_page_url = row["URL"]
+                    domain_match = re.search(
+                        "https?://([A-Za-z_0-9.-]+).*", home_page_url
+                    )
+                    domain = domain_match.group(1) if domain_match else ""
                     case = Case(
                         id=int(row["Case number"]),
                         website_name=website_name,
-                        home_page_url=row["URL"],
+                        home_page_url=home_page_url,
+                        domain=domain,
                         auditor=AUDITORS[auditor_initials],
                         simplified_test_filename=row["Filename"],
                         created=datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC),

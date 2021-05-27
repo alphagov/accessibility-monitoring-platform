@@ -16,53 +16,131 @@
                 <p class="govuk-body-m">We've found {{ page_obj.paginator.count }} cases</p>
                 {% include "cases/pagination_controls.html" %}
                 {% for case in object_list %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <a href="{{ case.home_page_url }}" class="govuk-link cases-bigger-link" rel="noreferrer noopener" target="_blank">
-                                {{ case.home_page_url }}</a>
-                            <h3 class="govuk-heading-s cases-sub-heading">{{ case.website_name }}</h3>
-                            <p class="govuk-body-m">Case # {{ case.id }}</p>
-                        </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <a href="{{ case.home_page_url }}" class="govuk-link cases-bigger-link"
+                            rel="noreferrer noopener" target="_blank">
+                            {{ case.domain }}</a>
+                        <h3 class="govuk-heading-s cases-sub-heading">{{ case.website_name }}</h3>
+                        <p class="govuk-body-m">Case # {{ case.id }}</p>
                     </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-third">
-                            <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
-                            <p class="govuk-body-m">{{ case.auditor }}</p>
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            <h3 class="govuk-heading-s cases-sub-heading">Date</h3>
-                            <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
-                            <p class="govuk-body-m"></p>
-                        </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-third">
+                        <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
+                        <p class="govuk-body-m">{{ case.auditor }}</p>
                     </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full cases-summary-bottom">
-                            <h3 class="govuk-heading-s cases-sub-heading">Test results file</h3>
-                            <p class="govuk-body-m">{{ case.simplified_test_filename }}</p>
-                        </div>
+                    <div class="govuk-grid-column-one-third">
+                        <h3 class="govuk-heading-s cases-sub-heading">Date</h3>
+                        <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
                     </div>
+                    <div class="govuk-grid-column-one-third">
+                        <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
+                        <p class="govuk-body-m"></p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full cases-summary-bottom">
+                        <h3 class="govuk-heading-s cases-sub-heading">Test results file</h3>
+                        <p class="govuk-body-m">{{ case.simplified_test_filename }}</p>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
             <div class="govuk-grid-column-one-third cases-search-background">
                 <form method="get" action="{% url 'cases:cases' %}">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Edit Search</h2>
+                            <h2 class="govuk-heading-m cases-margin-top">Edit Search</h2>
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="case-number"><b>Case number:</b></label>
-                            <input type="text" value="{{ case_number }}" name="case-number" />
+                            <label class="govuk-label" for="{{ form.case_number.auto_id }}"><b>{{form.case_number.label}}</b></label>
+                            {{form.case_number}}
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="auditor"><b>Auditor:</b></label>
-                            <input type="text" value="{{ auditor }}" name="auditor" />
+                            <label class="govuk-label" for="{{ form.domain.auto_id }}"><b>{{form.domain.label}}</b></label>
+                            {{form.domain}}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.organisation.auto_id }}"><b>{{form.organisation.label}}</b></label>
+                            {{form.organisation}}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
+                            {{form.auditor}}
+                        </div>
+                        <div class="govuk-grid-column-full">
+                            <label class="govuk-label">
+                                <b>{{form.start_date_day.label}}</b>
+                            </label>
+                            {% if form.start_date_year.errors %}
+                            <span class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> {{form.start_date_year.errors}}
+                            </span>
+                            {% endif %}
+
+                            <div class="govuk-date-input">
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.start_date_day.auto_id }}"> Day </label>
+                                        {{form.start_date_day}}
+                                    </div>
+                                </div>
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.start_date_month.auto_id }}"> Month </label>
+                                        {{form.start_date_month}}
+                                    </div>
+                                </div>
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.start_date_year.auto_id }}"> Year </label>
+                                        {{form.start_date_year}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-column-full">
+                            <label class="govuk-label">
+                                <b>{{form.end_date_day.label}}</b>
+                            </label>
+
+                            {% if form.end_date_year.errors %}
+                            <span class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> {{form.end_date_year.errors}}
+                            </span>
+                            {% endif %}
+
+                            <div class="govuk-date-input">
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.end_date_day.auto_id }}"> Day </label>
+                                        {{form.end_date_day}}
+                                    </div>
+                                </div>
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.end_date_month.auto_id }}"> Month </label>
+                                        {{form.end_date_month}}
+                                    </div>
+                                </div>
+                                <div class="govuk-date-input__item">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label govuk-date-input__label"
+                                            for="{{ form.end_date_year.auto_id }}"> Year </label>
+                                        {{form.end_date_year}}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Search" class="govuk-button" data-module="govuk-button"/>
+                        <input type="submit" value="Search" class="govuk-button" data-module="govuk-button" />
                     </div>
                 </form>
             </div>

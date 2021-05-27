@@ -3,12 +3,15 @@ Models - cases
 """
 from django.db import models
 
+
 class Case(models.Model):
     """
-    Model for Case.
+    Model for Case
     """
+
     website_name = models.CharField(max_length=200)
     home_page_url = models.CharField(max_length=200)
+    domain = models.CharField(max_length=200)
     auditor = models.CharField(max_length=200)
     simplified_test_filename = models.CharField(max_length=200)
     created = models.DateTimeField()
