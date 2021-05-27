@@ -47,8 +47,24 @@
                 {% endfor %}
             </div>
             <div class="govuk-grid-column-one-third cases-search-background">
-                <h2 class="govuk-heading-m">Edit Search</h2>
-                <p class="govuk-body">Search form fields</p>
+                <form method="get" action="{% url 'cases:cases' %}">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Edit Search</h2>
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="case-number"><b>Case number:</b></label>
+                            <input type="text" value="{{ case_number }}" name="case-number" />
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="auditor"><b>Auditor:</b></label>
+                            <input type="text" value="{{ auditor }}" name="auditor" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Search" class="govuk-button" data-module="govuk-button"/>
+                    </div>
+                </form>
             </div>
         </div>
     </main>
