@@ -53,7 +53,7 @@ class SearchForm(forms.Form):
 
     auditor = forms.ChoiceField(
         label="Auditor",
-        widget=forms.Select(attrs={"class": "govuk-input govuk-input--width-10"}),
+        widget=forms.Select(attrs={"class": "govuk-select"}),
         required=False,
         choices=AUDITOR_CHOICES,
     )

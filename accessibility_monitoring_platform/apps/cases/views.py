@@ -1,6 +1,8 @@
 """
 Views for cases
 """
+import urllib
+
 from django.views.generic.list import ListView
 
 from .models import Case
@@ -36,6 +38,10 @@ class CaseListView(ListView):
         """ Add field values into contex """
         context = super().get_context_data(**kwargs)
         context["form"] = SearchForm(self.request.GET)
+        get_without_page: dict = {
+            key: value for (key, value) in self.request.GET.items() if key != "page"
+        }
+        context["parameters"] = urllib.parse.urlencode(get_without_page)
         context["case_number"] = self.request.GET.get("case-number", "")
         context["auditor"] = self.request.GET.get("auditor", "")
         return context
