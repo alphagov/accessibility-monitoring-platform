@@ -21,7 +21,7 @@ class CaseListView(ListView):
         filters = {}
         form = SearchForm(self.request.GET)
         form.is_valid()
-        case_number = form.cleaned_data.get("case-number")
+        case_number = form.cleaned_data.get("case_number")
         if case_number:
             filters["id"] = case_number
         domain = form.cleaned_data.get("domain")
