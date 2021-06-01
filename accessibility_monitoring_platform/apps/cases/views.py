@@ -3,12 +3,18 @@ Views for cases
 """
 import urllib
 
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import Case
 from .forms import SearchForm
 
 DEFAULT_SORT = "-id"
+
+
+class CaseDetailView(DetailView):
+    model = Case
+    context_object_name = "case"
 
 
 class CaseListView(ListView):
@@ -29,7 +35,7 @@ class CaseListView(ListView):
             filters["domain__icontains"] = domain
         organisation = form.cleaned_data.get("organisation")
         if organisation:
-            filters["website_name__icontains"] = organisation
+            filters["organisation_name__icontains"] = organisation
         auditor = form.cleaned_data.get("auditor")
         if auditor:
             filters["auditor"] = auditor

@@ -65,7 +65,7 @@ class Command(BaseCommand):
                         continue
                     words = simplified_test_filename.split(".")[0].split()
                     auditor_initials = words[-1]
-                    website_name = (
+                    organisation_name = (
                         " ".join(words[2:-1])
                         .replace(" Simplified", "")
                         .replace(" Test", "")
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                     domain = domain_match.group(1) if domain_match else ""
                     case = Case(
                         id=int(row["Case number"]),
-                        website_name=website_name,
+                        organisation_name=organisation_name,
                         home_page_url=home_page_url,
                         domain=domain,
                         auditor=AUDITORS[auditor_initials],
