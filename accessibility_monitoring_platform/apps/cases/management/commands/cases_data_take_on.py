@@ -15,6 +15,7 @@ AUDITORS = {
     "AH": "Andrew Hick",
     "JE": "Jessica Eley",
     "KB": "Katherine Badger",
+    "KC": "Kelly Clarkson",
     "KR": "Keeley Robertson",
     "NR": "Nesha Russo",
 }
@@ -70,7 +71,7 @@ class Command(BaseCommand):
                         .replace(" Test", "")
                     )
                     yyyy, mm, dd = row["Created date"].split("-")
-                    home_page_url = row["URL"]
+                    home_page_url = row["Home page URL"]
                     domain_match = re.search(
                         "https?://([A-Za-z_0-9.-]+).*", home_page_url
                     )

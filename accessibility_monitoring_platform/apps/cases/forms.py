@@ -17,6 +17,7 @@ AUDITOR_CHOICES = [
     ("Andrew Hick", "Andrew Hick"),
     ("Jessica Eley", "Jessica Eley"),
     ("Katherine Badger", "Katherine Badger"),
+    ("Kelly Clarkson", "Kelly Clarkson"),
     ("Keeley Robertson", "Keeley Robertson"),
     ("Nesha Russo", "Nesha Russo"),
 ]
