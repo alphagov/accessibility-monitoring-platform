@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% load l10n %}
+
 {% block content %}
 
 <div class="govuk-width-container">
@@ -13,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body-m">We've found {{ page_obj.paginator.count }} cases</p>
+                <p class="govuk-body-m">{{ page_obj.paginator.count|localize }} cases found</p>
                 {% include "cases/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
@@ -60,6 +62,10 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m cases-margin-top">Edit Search</h2>
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{form.sort_by.label}}</b></label>
+                            {{form.sort_by}}
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label" for="{{ form.case_number.auto_id }}"><b>{{form.case_number.label}}</b></label>

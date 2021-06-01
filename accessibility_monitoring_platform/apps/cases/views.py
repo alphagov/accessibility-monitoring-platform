@@ -8,6 +8,8 @@ from django.views.generic.list import ListView
 from .models import Case
 from .forms import SearchForm
 
+DEFAULT_SORT = "-id"
+
 
 class CaseListView(ListView):
     model = Case
@@ -36,7 +38,10 @@ class CaseListView(ListView):
             filters["status"] = status
         filters["created__gte"] = form.start_date
         filters["created__lte"] = form.end_date
-        return Case.objects.filter(**filters)
+        sort_by = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        if not sort_by:
+            sort_by = DEFAULT_SORT
+        return Case.objects.filter(**filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs):
         """ Add field values into contex """

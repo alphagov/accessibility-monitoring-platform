@@ -15,6 +15,8 @@ STATUS_CHOICES = [
     ("archived", "Archived"),
     ("not-a-psb", "Not a public sector body"),
 ]
+
+
 class Case(models.Model):
     """
     Model for Case

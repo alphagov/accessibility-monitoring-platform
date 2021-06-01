@@ -24,6 +24,12 @@ AUDITOR_CHOICES = [
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
+SORT_CHOICES = [
+    ("-id", "Newest"),
+    ("id", "Oldest"),
+]
+
+
 def convert_day_month_year_to_date(day: str, month: str, year: str) -> datetime:
     """ Convert given day, month and year to a datetime """
     return datetime(year=int(year), month=int(month), day=int(day), tzinfo=pytz.UTC)
@@ -33,6 +39,13 @@ class SearchForm(forms.Form):
     """
     Form for searching for cases
     """
+
+    sort_by = forms.ChoiceField(
+        label="Sort by",
+        widget=forms.Select(attrs={"class": "govuk-select"}),
+        required=False,
+        choices=SORT_CHOICES,
+    )
 
     case_number = forms.CharField(
         label="Case number",

@@ -6,14 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0002_case_domain'),
+        ("cases", "0002_case_domain"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='status',
-            field=models.CharField(choices=[('new-case', 'New case'), ('test-in-progress', 'Test in progress'), ('report-in-progress', 'Report in progress'), ('awaiting-response', 'Awaiting response to report'), ('12w-due', '12 Week review due'), ('12w-sent', '12 Week review sent'), ('escalated', 'Case sent to supporting bodies'), ('complete', 'Complete'), ('archived', 'Archived'), ('not-a-psb', 'Not a public sector body')], default='', max_length=50),
+            model_name="case",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("new-case", "New case"),
+                    ("test-in-progress", "Test in progress"),
+                    ("report-in-progress", "Report in progress"),
+                    ("awaiting-response", "Awaiting response to report"),
+                    ("12w-due", "12 Week review due"),
+                    ("12w-sent", "12 Week review sent"),
+                    ("escalated", "Case sent to supporting bodies"),
+                    ("complete", "Complete"),
+                    ("archived", "Archived"),
+                    ("not-a-psb", "Not a public sector body"),
+                ],
+                default="",
+                max_length=50,
+            ),
             preserve_default=False,
         ),
     ]
