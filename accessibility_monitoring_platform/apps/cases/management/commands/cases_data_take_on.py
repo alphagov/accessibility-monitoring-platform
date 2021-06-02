@@ -80,7 +80,9 @@ class Command(BaseCommand):
                     status = STATUS_CHOICES[count % number_of_statuses][0]
                     if not status:
                         status = "test-in-progress"
-                    created_time = datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC)
+                    created_time = datetime(
+                        int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC
+                    )
                     case = Case(
                         id=int(row["Case number"]),
                         organisation_name=organisation_name,

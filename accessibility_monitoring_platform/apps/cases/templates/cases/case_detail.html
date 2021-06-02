@@ -65,7 +65,7 @@
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Case origin</th>
-                            <td class="govuk-table__cell">{{ case.case_origin }}</td>
+                            <td class="govuk-table__cell">{{ case.get_case_origin_display }}</td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Zendesk link</th>
@@ -148,7 +148,11 @@
                 <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
             </div>
             <div class="govuk-grid-column-one-third">
+                <a href="{% url 'cases:edit-website-details' case.id %}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+                    Edit case
+                </a>
                 <nav role="navigation">
+                    <h2 id="website-details" class="govuk-heading-m">Contents</h2>
                     <ul class="govuk-list">
                         <li><a href="#website-details" class="govuk-link">Website details</a></li>
                         <li><a href="#contact-details" class="govuk-link">Contact details</a></li>

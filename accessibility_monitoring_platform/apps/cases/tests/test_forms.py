@@ -129,7 +129,9 @@ class SearchFormTestCase(TestCase):
             ' maxlength="100" id="id_domain">',
             rendered_form,
         )
-        self.assertIn('<label for="id_organisation">Organisation:</label>', rendered_form)
+        self.assertIn(
+            '<label for="id_organisation">Organisation:</label>', rendered_form
+        )
         self.assertIn(
             '<input type="text" name="organisation" class="govuk-input govuk-input--width-10"'
             ' maxlength="100" id="id_organisation">',

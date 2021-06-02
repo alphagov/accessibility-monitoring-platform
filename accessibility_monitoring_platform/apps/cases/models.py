@@ -3,6 +3,7 @@ Models - cases
 """
 from django.db import models
 from django.db.models.deletion import CASCADE
+from django.urls import reverse
 
 STATUS_CHOICES = [
     ("new-case", "New case"),
@@ -24,9 +25,16 @@ TEST_TYPE_CHOICES = [
 
 WEBSITE_TYPE_CHOICES = [
     ("public", "Public website"),
-    ("intranet", "Intranet"),
+    ("int-extranet", "Intranet/Extranet"),
+    ("other", "Other"),
+    ("unknown", "Unknown"),
 ]
 
+CASE_ORIGIN_CHOICES = [
+    ("org", "Organisation"),
+    ("list", "Website list"),
+    ("complaint", "Complaint"),
+]
 
 
 class Case(models.Model):
@@ -37,26 +45,32 @@ class Case(models.Model):
     created = models.DateTimeField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     auditor = models.CharField(max_length=200)
-    test_type = models.CharField(max_length=10, choices=TEST_TYPE_CHOICES, default="simple")
+    test_type = models.CharField(
+        max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
+    )
     home_page_url = models.CharField(max_length=200)
+    domain = models.CharField(max_length=200)
     application = models.CharField(max_length=200, default="N/A")
     organisation_name = models.CharField(max_length=200)
-    website_type = models.CharField(max_length=10, choices=WEBSITE_TYPE_CHOICES, default="public")
+    website_type = models.CharField(
+        max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
+    )
     sector = models.CharField(max_length=200, default="Sector")
     region = models.CharField(max_length=200, default="London")
-    case_origin = models.CharField(max_length=200, default="Organisation")
+    case_origin = models.CharField(max_length=200, choices=CASE_ORIGIN_CHOICES, default="org")
     zendesk_url = models.CharField(max_length=200, default="")
     trello_url = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
     is_public_sector_body = models.BooleanField(default=True)
 
-
-    domain = models.CharField(max_length=200)
     simplified_test_filename = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)
 
     def __str__(self):
         return str(f"#{self.id} {self.organisation_name}")
+
+    def get_absolute_url(self):
+        return reverse("cases:case-detail", kwargs={"pk" : self.pk})
 
 
 class Contact(models.Model):

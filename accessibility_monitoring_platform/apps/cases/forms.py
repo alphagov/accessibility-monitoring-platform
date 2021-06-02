@@ -8,7 +8,7 @@ from typing import Tuple, Union
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import STATUS_CHOICES
+from .models import Case, CASE_ORIGIN_CHOICES, STATUS_CHOICES, TEST_TYPE_CHOICES, WEBSITE_TYPE_CHOICES
 
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
@@ -63,6 +63,17 @@ class AMPCharField(forms.CharField):
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
 
+class AMPCharFieldWide(forms.CharField):
+    """ Adds default widget to Django forms CharField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.TextInput(
+                attrs={"class": "govuk-input"}
+            ),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
 
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
@@ -74,6 +85,16 @@ class AMPChoiceField(forms.ChoiceField):
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
 
+
+class AMPBooleanField(forms.BooleanField):
+    """ Adds default widget to Django forms BooleanField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
 
 class DateRangeForm(forms.Form):
     """
@@ -227,3 +248,28 @@ class SearchForm(DateRangeForm):
     organisation = AMPCharField(label="Organisation", required=False)
     auditor = AMPChoiceField(label="Auditor", choices=AUDITOR_CHOICES, required=False)
     status = AMPChoiceField(label="Status", choices=status_choices, required=False)
+
+
+class CaseWebsiteDetailUpdateForm(forms.ModelForm):
+    """
+    Form for updating website details fields of cases
+    """
+
+    auditor = AMPCharFieldWide(label="Auditor", required=False)
+    test_type = AMPChoiceField(label="Test type", choices=TEST_TYPE_CHOICES, required=False)
+    home_page_url = AMPCharFieldWide(label="Full URL", required=False)
+    organisation_name = AMPCharFieldWide(label="Organisation name", required=False)
+    website_type = AMPChoiceField(label="Type of site", choices=WEBSITE_TYPE_CHOICES, required=False)
+    sector = AMPCharFieldWide(label="Sector", required=False)
+    region = AMPCharFieldWide(label="Region", required=False)
+    case_origin = AMPChoiceField(label="Case origin", choices=CASE_ORIGIN_CHOICES)
+    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL", required=False)
+    trello_url = AMPCharFieldWide(label="Trello ticket URL", required=False)
+    notes = AMPCharFieldWide(label="Notes", required=False)
+    is_public_sector_body = AMPBooleanField(label="Public sector body?")
+
+    class Meta:
+        model = Case
+        fields = ["auditor", "test_type", "home_page_url", "organisation_name",
+            "website_type", "sector", "region", "case_origin", "zendesk_url",
+            "trello_url", "notes", "is_public_sector_body"]

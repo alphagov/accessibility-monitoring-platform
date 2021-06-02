@@ -3,13 +3,21 @@ Views for cases
 """
 import urllib
 
+from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import Case
-from .forms import SearchForm
+from .forms import CaseWebsiteDetailUpdateForm, SearchForm
 
 DEFAULT_SORT = "-id"
+
+
+class CaseWebsiteDetailUpdateView(UpdateView):
+    model = Case
+    form_class = CaseWebsiteDetailUpdateForm
+    context_object_name = "case"
+    template_name_suffix = "_website_details_update_form"
 
 
 class CaseDetailView(DetailView):

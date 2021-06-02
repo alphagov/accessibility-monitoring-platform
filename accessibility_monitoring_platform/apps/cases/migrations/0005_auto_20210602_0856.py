@@ -7,26 +7,43 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0004_auto_20210601_1346'),
+        ("cases", "0004_auto_20210601_1346"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='website_type',
-            field=models.CharField(choices=[('public', 'Public website'), ('intranet', 'Intranet')], default='public', max_length=10),
+            model_name="case",
+            name="website_type",
+            field=models.CharField(
+                choices=[("public", "Public website"), ("intranet", "Intranet")],
+                default="public",
+                max_length=10,
+            ),
         ),
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('job_title', models.CharField(default='', max_length=200)),
-                ('preferred', models.BooleanField(default=False)),
-                ('notes', models.TextField(default='')),
-                ('created', models.DateTimeField()),
-                ('created_by', models.CharField(max_length=200)),
-                ('case', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cases.case')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("job_title", models.CharField(default="", max_length=200)),
+                ("preferred", models.BooleanField(default=False)),
+                ("notes", models.TextField(default="")),
+                ("created", models.DateTimeField()),
+                ("created_by", models.CharField(max_length=200)),
+                (
+                    "case",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cases.case"
+                    ),
+                ),
             ],
         ),
     ]

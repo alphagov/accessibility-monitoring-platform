@@ -18,5 +18,6 @@ class ContactAdmin(admin.ModelAdmin):
     list_display = ["name", "job_title", "detail", "case"]
     autocomplete_fields = ["case"]
 
+
 admin.site.register(Case, CaseAdmin)
 admin.site.register(Contact, ContactAdmin)
