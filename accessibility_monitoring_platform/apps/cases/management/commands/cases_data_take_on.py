@@ -3,14 +3,14 @@ This command adds historic case data.
 """
 import csv
 from datetime import datetime
-import re
+from os.path import expanduser
 import pytz
+import re
 
 from django.core.management.base import BaseCommand
 
 from ...models import Case, Contact, STATUS_CHOICES
 
-INPUT_FILE_NAME = "home_page_urls.csv"
 AUDITORS = {
     "AH": "Andrew Hick",
     "JE": "Jessica Eley",
@@ -20,6 +20,8 @@ AUDITORS = {
     "NR": "Nesha Russo",
 }
 
+HOME_PATH = expanduser("~")
+INPUT_FILE_NAME = f"{HOME_PATH}/home_page_urls.csv"
 
 class Command(BaseCommand):
     help = "Add historic case data to database."
