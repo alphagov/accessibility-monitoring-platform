@@ -5,13 +5,16 @@
 {% block content %}
 
 <div class="govuk-width-container">
+    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">View case #{{ object.id }}</h1>
             </div>
+        </div>
+        <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Website details</h2>
+                <h2 id="website-details" class="govuk-heading-m">Website details</h2>
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                         <tr class="govuk-table__row">
@@ -66,11 +69,19 @@
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Zendesk link</th>
-                            <td class="govuk-table__cell">{{ case.zendesk_url }}</td>
+                            <td class="govuk-table__cell">
+                                {% if case.zendesk_url %}
+                                    <a href="{{ case.zendesk_url }}" class="govuk-link">{{ case.zendesk_url }}</a>
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Trello ticket</th>
-                            <td class="govuk-table__cell">{{ case.trello_url }}</td>
+                            <td class="govuk-table__cell">
+                                {% if case.trello_url %}
+                                    <a href="{{ case.trello_url }}" class="govuk-link">{{ case.trello_url }}</a>
+                                {% endif %}
+                            </td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Notes</th>
@@ -82,22 +93,71 @@
                         </tr>
                     </tbody>
                 </table>
-                <h2 class="govuk-heading-m">Contact details</h2>
-                <h2 class="govuk-heading-m">Testing details</h2>
-                <h2 class="govuk-heading-m">Report details</h2>
-                <h2 class="govuk-heading-m">Post report</h2>
-                <h2 class="govuk-heading-m">Unlist case</h2>
+                <h2 id="contact-details" class="govuk-heading-m">Contact details</h2>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        {% for contact in case.contact_set.all %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <h3 class="govuk-heading-s cases-sub-heading">Contact name</h3>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <p class="govuk-body-m">{{ contact.name }}</p>
+                                    </div>
+                                </div>
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <h3 class="govuk-heading-s cases-sub-heading">Job title</h3>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <p class="govuk-body-m">{{ contact.job_title }}</p>
+                                    </div>
+                                </div>
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <h3 class="govuk-heading-s cases-sub-heading">Contact detail</h3>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <p class="govuk-body-m">{{ contact.detail }}</p>
+                                    </div>
+                                </div>
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <h3 class="govuk-heading-s cases-sub-heading">Preferred contact</h3>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <p class="govuk-body-m">{{ contact.preferred }}</p>
+                                    </div>
+                                </div>
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-full">
+                                        <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+                                        <pre class="govuk-body-m">{{ contact.notes }}</pre>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2 id="testing-details" class="govuk-heading-m">Testing details</h2>
+                <h2 id="report-details" class="govuk-heading-m">Report details</h2>
+                <h2 id="post-report" class="govuk-heading-m">Post report</h2>
+                <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
             </div>
-            <div class="govuk-grid-column-one-third"></div>
+            <div class="govuk-grid-column-one-third">
                 <nav role="navigation">
                     <ul class="govuk-list">
-                        <li><a href="{{ case.home_page_url }}" class="govuk-link">Website details</a></li>
-                        <li>Testing details</li>
-                        <li>Report details</li>
-                        <li>Post report</li>
-                        <li>Unlist case</li>
+                        <li><a href="#website-details" class="govuk-link">Website details</a></li>
+                        <li><a href="#contact-details" class="govuk-link">Contact details</a></li>
+                        <li><a href="#testing-details" class="govuk-link">Testing details</a></li>
+                        <li><a href="#report-details" class="govuk-link">Report details</a></li>
+                        <li><a href="#post-report" class="govuk-link">Post report</a></li>
+                        <li><a href="#unlist-case" class="govuk-link">Unlist case</a></li>
                     </ul>
-              </nav>
+                </nav>
             </div>
         </div>
     </main>

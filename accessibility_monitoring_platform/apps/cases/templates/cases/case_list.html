@@ -55,6 +55,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% include "cases/pagination_controls.html" %}
             </div>
             <div class="govuk-grid-column-one-third cases-search-background">
                 <form method="get" action="{% url 'cases:case-list' %}">

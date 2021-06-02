@@ -8,7 +8,7 @@ import pytz
 
 from django.core.management.base import BaseCommand
 
-from ...models import Case, STATUS_CHOICES
+from ...models import Case, Contact, STATUS_CHOICES
 
 INPUT_FILE_NAME = "home_page_urls.csv"
 AUDITORS = {
@@ -50,6 +50,7 @@ class Command(BaseCommand):
             if verbose:
                 print("Deleting all existing cases from database")
             Case.objects.all().delete()
+            Contact.objects.all().delete()
 
         with open(INPUT_FILE_NAME) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -67,7 +68,7 @@ class Command(BaseCommand):
                     auditor_initials = words[-1]
                     organisation_name = (
                         " ".join(words[2:-1])
-                        .replace(" Simplified", "")
+                        .replace("Simplified Test", "")
                         .replace(" Test", "")
                     )
                     yyyy, mm, dd = row["Created date"].split("-")
@@ -76,6 +77,10 @@ class Command(BaseCommand):
                         "https?://([A-Za-z_0-9.-]+).*", home_page_url
                     )
                     domain = domain_match.group(1) if domain_match else ""
+                    status = STATUS_CHOICES[count % number_of_statuses][0]
+                    if not status:
+                        status = "test-in-progress"
+                    created_time = datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC)
                     case = Case(
                         id=int(row["Case number"]),
                         organisation_name=organisation_name,
@@ -83,10 +88,22 @@ class Command(BaseCommand):
                         domain=domain,
                         auditor=AUDITORS[auditor_initials],
                         simplified_test_filename=row["Filename"],
-                        created=datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC),
+                        created=created_time,
                         created_by=AUDITORS[auditor_initials],
-                        status=STATUS_CHOICES[count % number_of_statuses][0],
+                        status=status,
                     )
                     case.save()
+
+                    if "Contact name" in row and row["Contact name"]:
+                        contact = Contact(
+                            case=case,
+                            name=row["Contact name"],
+                            job_title=row["Job title"],
+                            detail=row["Contact detail"].split("\n")[0],
+                            notes=row["Contact detail"],
+                            created=created_time,
+                            created_by=AUDITORS[auditor_initials],
+                        )
+                        contact.save()
                 except Exception as e:
                     print(f"{count} {simplified_test_filename} issue: {str(e)}")

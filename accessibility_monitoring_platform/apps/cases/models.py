@@ -2,6 +2,7 @@
 Models - cases
 """
 from django.db import models
+from django.db.models.deletion import CASCADE
 
 STATUS_CHOICES = [
     ("new-case", "New case"),
@@ -56,3 +57,21 @@ class Case(models.Model):
 
     def __str__(self):
         return str(f"#{self.id} {self.organisation_name}")
+
+
+class Contact(models.Model):
+    """
+    Model for cases Contact
+    """
+
+    case = models.ForeignKey(Case, on_delete=CASCADE)
+    name = models.CharField(max_length=200)
+    job_title = models.CharField(max_length=200, default="")
+    detail = models.CharField(max_length=200, default="")
+    preferred = models.BooleanField(default=False)
+    notes = models.TextField(default="")
+    created = models.DateTimeField()
+    created_by = models.CharField(max_length=200)
+
+    def __str__(self):
+        return str(f"Case #{self.case.id}: {self.job_title} {self.name}")
