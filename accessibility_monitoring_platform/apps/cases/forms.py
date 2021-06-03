@@ -34,6 +34,14 @@ SORT_CHOICES = [
 StringOrNone = Union[str, None]
 
 
+from django.template import loader
+from django.utils.safestring import mark_safe
+
+
+class AMPRadioSelectWidget(forms.RadioSelect):
+    template_name = "cases/amp_radio_select_widget_template.html"
+
+
 def check_date_valid_or_none(
     day: StringOrNone, month: StringOrNone, year: StringOrNone
 ) -> None:
@@ -256,13 +264,13 @@ class CaseWebsiteDetailUpdateForm(forms.ModelForm):
     """
 
     auditor = AMPCharFieldWide(label="Auditor", required=False)
-    test_type = AMPChoiceField(label="Test type", choices=TEST_TYPE_CHOICES, required=False)
+    test_type = AMPChoiceField(label="Test type", choices=TEST_TYPE_CHOICES, required=False, widget=AMPRadioSelectWidget)
     home_page_url = AMPCharFieldWide(label="Full URL", required=False)
     organisation_name = AMPCharFieldWide(label="Organisation name", required=False)
-    website_type = AMPChoiceField(label="Type of site", choices=WEBSITE_TYPE_CHOICES, required=False)
+    website_type = AMPChoiceField(label="Type of site", choices=WEBSITE_TYPE_CHOICES, required=False, widget=AMPRadioSelectWidget)
     sector = AMPCharFieldWide(label="Sector", required=False)
     region = AMPCharFieldWide(label="Region", required=False)
-    case_origin = AMPChoiceField(label="Case origin", choices=CASE_ORIGIN_CHOICES)
+    case_origin = AMPChoiceField(label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget)
     zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL", required=False)
     trello_url = AMPCharFieldWide(label="Trello ticket URL", required=False)
     notes = AMPCharFieldWide(label="Notes", required=False)

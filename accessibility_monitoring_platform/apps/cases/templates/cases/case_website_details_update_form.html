@@ -16,13 +16,14 @@
             <div class="govuk-grid-column-two-thirds">
                 <form method="post" action="{% url 'cases:edit-website-details' case.id %}">
                     {% csrf_token %}
-                    {% if form.errors %}
-                        <ul>
-                            {% for error in form.errors %}
-                                <li class="govuk-error-message">{{ error.message }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+
+                    {{ form.non_field_errors }}
+
+                    {% for hidden_field in form.hidden_fields %}
+                      {{ hidden_field.errors }}
+                      {{ hidden_field }}
+                    {% endfor %}
+
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label"><b>Date created</b></label>
@@ -33,155 +34,23 @@
                             <p class="govuk-body-m">The status can not be edited manually</p>
                             <p class="govuk-body-m">{{ case.get_status_display}}</p>
                         </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
-                            {{ form.auditor }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.test_type.auto_id }}"><b>{{form.test_type.label}}</b></label>
-                            <div class="govuk-radios">
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.test_type.auto_id }}-1"
-                                        name="{{ form.test_type.auto_id }}" type="radio" value="simple"
-                                        {% if form.test_type.value == "simple" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label" for="{{ form.test_type.auto_id }}-1">
-                                        Simple
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.test_type.auto_id }}-2"
-                                        name="{{ form.test_type.auto_id }}" type="radio" value="complex"
-                                        {% if form.test_type.value == "complex" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label" for="{{ form.test_type.auto_id }}-2">
-                                        Complex
-                                    </label>
-                                </div>
+                        {% for field in form.visible_fields %}
+                            <div class="govuk-grid-column-full govuk-form-group">
+                                <label class="govuk-label"
+                                    for="{{ form.field.auto_id }}"><b>{{ field.label }}</b>
+                                </label>
+                                {{ field.errors }}
+                                {{ field }}
+                                {{ field.help_text }}
                             </div>
+                        {% endfor %}
+                        <div class="form-group">
+                            <input type="submit" value="Save and continue" name="save_continue" class="govuk-button" data-module="govuk-button" />
+                            <input type="submit" value="Save and exit" name="save_exit" class="govuk-button govuk-button--secondary" data-module="govuk-button" />
+                            <a href="{% url 'cases:case-detail' case.id %}" role="button" draggable="false" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                                Cancel
+                            </a>
                         </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.status.auto_id }}"><b>{{form.home_page_url.label}}</b></label>
-                            {{ form.home_page_url }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.organisation.auto_id }}"><b>{{form.organisation_name.label}}</b></label>
-                            {{ form.organisation_name }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.website_type.auto_id }}"><b>{{form.website_type.label}}</b></label>
-                            <div class="govuk-radios">
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.website_type.auto_id }}-1"
-                                        name="{{ form.website_type.auto_id }}" type="radio" value="public"
-                                        {% if form.website_type.value == "public" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.website_type.auto_id }}-1">
-                                        Public website
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.website_type.auto_id }}-2"
-                                        name="{{ form.website_type.auto_id }}" type="radio" value="int-extranet"
-                                        {% if form.website_type.value == "int-extranet" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.website_type.auto_id }}-2">
-                                        Intranet/Extranet
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.website_type.auto_id }}-3"
-                                        name="{{ form.website_type.auto_id }}" type="radio" value="other"
-                                        {% if form.website_type.value == "other" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.website_type.auto_id }}-3">
-                                        Other
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.website_type.auto_id }}-4"
-                                        name="{{ form.website_type.auto_id }}" type="radio" value="unknown"
-                                        {% if form.website_type.value == "unknown" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.website_type.auto_id }}-4">
-                                        Unknown
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.sector.auto_id }}"><b>{{form.sector.label}}</b></label>
-                            {{ form.sector }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.region.auto_id }}"><b>{{form.region.label}}</b></label>
-                            {{ form.region }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.case_origin.auto_id }}"><b>{{form.case_origin.label}}</b></label>
-                            <div class="govuk-radios">
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.case_origin.auto_id }}-1"
-                                        name="case_origin" type="radio" value="org"
-                                        {% if form.case_origin.value == "org" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.case_origin.auto_id }}-1">
-                                        Organisation
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.case_origin.auto_id }}-2"
-                                        name="case_origin" type="radio" value="list"
-                                        {% if form.case_origin.value == "list" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.case_origin.auto_id }}-2">
-                                        Website list
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="{{ form.case_origin.auto_id }}-3"
-                                        name="case_origin" type="radio" value="complaint"
-                                        {% if form.case_origin.value == "complaint" %} checked {% endif %}>
-                                    <label class="govuk-label govuk-radios__label"
-                                        for="{{ form.case_origin.auto_id }}-3">
-                                        Complaint
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.zendesk_url.auto_id }}"><b>{{form.zendesk_url.label}}</b></label>
-                            {{ form.zendesk_url }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.trello_url.auto_id }}"><b>{{form.trello_url.label}}</b></label>
-                            {{ form.trello_url }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.notes.auto_id }}"><b>{{form.notes.label}}</b></label>
-                            {{ form.notes }}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"
-                                for="{{ form.is_public_sector_body.auto_id }}"><b>{{form.is_public_sector_body.label}}</b></label>
-                            {{ form.is_public_sector_body }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Save and continue" name="save_continue" class="govuk-button" data-module="govuk-button" />
-                        <input type="submit" value="Save and exit" name="save_exit" class="govuk-button" data-module="govuk-button" />
-                        <a href="{% url 'cases:case-detail' case.id %}" role="button" draggable="false" class="govuk-button govuk-button--warning" data-module="govuk-button">
-                            Cancel
-                        </a>
                     </div>
                 </form>
             </div>
