@@ -37,11 +37,11 @@
                         {% for field in form.visible_fields %}
                             <div class="govuk-grid-column-full govuk-form-group">
                                 <label class="govuk-label"
-                                    for="{{ form.field.auto_id }}"><b>{{ field.label }}</b>
+                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
                                 </label>
                                 {{ field.errors }}
+                                <p class="govuk-body-m">{{ field.help_text }}</p>
                                 {{ field }}
-                                {{ field.help_text }}
                             </div>
                         {% endfor %}
                         <div class="form-group">
