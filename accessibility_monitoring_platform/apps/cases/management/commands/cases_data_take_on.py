@@ -23,6 +23,7 @@ AUDITORS = {
 HOME_PATH = expanduser("~")
 INPUT_FILE_NAME = f"{HOME_PATH}/home_page_urls.csv"
 
+
 class Command(BaseCommand):
     help = "Add historic case data to database."
 
@@ -99,9 +100,11 @@ class Command(BaseCommand):
                     case.save()
 
                     if "Contact name" in row and row["Contact name"]:
+                        name_words = row["Contact name"].split()
                         contact = Contact(
                             case=case,
-                            name=row["Contact name"],
+                            first_name=name_words[0],
+                            last_name=" ".join(name_words[1:]),
                             job_title=row["Job title"],
                             detail=row["Contact detail"].split("\n")[0],
                             notes=row["Contact detail"],

@@ -8,7 +8,14 @@ from typing import Tuple, Union
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Case, CASE_ORIGIN_CHOICES, STATUS_CHOICES, TEST_TYPE_CHOICES, WEBSITE_TYPE_CHOICES
+from .models import (
+    Case,
+    Contact,
+    CASE_ORIGIN_CHOICES,
+    STATUS_CHOICES,
+    TEST_TYPE_CHOICES,
+    WEBSITE_TYPE_CHOICES,
+)
 
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
@@ -75,17 +82,17 @@ class AMPCharField(forms.CharField):
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
 
+
 class AMPCharFieldWide(forms.CharField):
     """ Adds default widget to Django forms CharField """
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
-            "widget": forms.TextInput(
-                attrs={"class": "govuk-input"}
-            ),
+            "widget": forms.TextInput(attrs={"class": "govuk-input"}),
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
+
 
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
@@ -107,6 +114,7 @@ class AMPBooleanField(forms.BooleanField):
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
+
 
 class DateRangeForm(forms.Form):
     """
@@ -268,27 +276,82 @@ class CaseWebsiteDetailUpdateForm(forms.ModelForm):
     """
 
     auditor = AMPCharFieldWide(label="Auditor", required=False)
-    test_type = AMPChoiceField(label="Test type", choices=TEST_TYPE_CHOICES, required=False, widget=AMPRadioSelectWidget)
-    home_page_url = AMPCharFieldWide(label="Full URL", required=False, help_text="Enter a domain if test type is simple or complex")
+    test_type = AMPChoiceField(
+        label="Test type",
+        choices=TEST_TYPE_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    home_page_url = AMPCharFieldWide(
+        label="Full URL",
+        required=False,
+        help_text="Enter a domain if test type is simple or complex",
+    )
     organisation_name = AMPCharFieldWide(label="Organisation name", required=False)
-    website_type = AMPChoiceField(label="Type of site", choices=WEBSITE_TYPE_CHOICES, required=False, widget=AMPRadioSelectWidget)
+    website_type = AMPChoiceField(
+        label="Type of site",
+        choices=WEBSITE_TYPE_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
     sector = AMPCharFieldWide(label="Sector", required=False)
     region = AMPCharFieldWide(label="Region", required=False)
-    case_origin = AMPChoiceField(label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget)
+    case_origin = AMPChoiceField(
+        label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
+    )
     zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL", required=False)
     trello_url = AMPCharFieldWide(label="Trello ticket URL", required=False)
     notes = AMPCharFieldWide(label="Notes", required=False)
     is_public_sector_body = AMPBooleanField(
         label="Public sector body?",
         help_text="If you later find out the organisation is not a public sector body, unmark the checkbox, then save and exit to unlist the case.",
-        widget=AMPCheckboxWidget(attrs={
-            "label": "Untick this box to unlist the case",
+        widget=AMPCheckboxWidget(
+            attrs={
+                "label": "Untick this box to unlist the case",
             }
-        )
+        ),
+        required=False,
     )
 
     class Meta:
         model = Case
-        fields = ["auditor", "test_type", "home_page_url", "organisation_name",
-            "website_type", "sector", "region", "case_origin", "zendesk_url",
-            "trello_url", "notes", "is_public_sector_body"]
+        fields = [
+            "auditor",
+            "test_type",
+            "home_page_url",
+            "organisation_name",
+            "website_type",
+            "sector",
+            "region",
+            "case_origin",
+            "zendesk_url",
+            "trello_url",
+            "notes",
+            "is_public_sector_body",
+        ]
+
+
+class ContactUpdateForm(forms.ModelForm):
+    """
+    Form for updating a contact
+    """
+
+    first_name = AMPCharFieldWide(label="First name", required=False)
+    last_name = AMPCharFieldWide(label="Last name", required=False)
+    job_title = AMPCharFieldWide(label="Job title", required=False)
+    detail = AMPCharFieldWide(label="Detail", required=False)
+    preferred = AMPBooleanField(
+        label="Preferred contact?", widget=AMPCheckboxWidget(), required=False
+    )
+    notes = AMPCharFieldWide(label="Notes", required=False)
+
+    class Meta:
+        model = Case
+        fields = [
+            "first_name",
+            "last_name",
+            "job_title",
+            "detail",
+            "preferred",
+            "notes",
+        ]

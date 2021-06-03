@@ -1,36 +1,40 @@
 """
 Views for cases
 """
+import re
 import urllib
 
+from django.forms import modelformset_factory
 from django.urls import reverse_lazy
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .models import Case
-from .forms import CaseWebsiteDetailUpdateForm, SearchForm
+from .models import Case, Contact
+from .forms import CaseWebsiteDetailUpdateForm, ContactUpdateForm, SearchForm
 
 DEFAULT_SORT = "-id"
 
 
-class CaseWebsiteDetailUpdateView(UpdateView):
-    model = Case
-    form_class = CaseWebsiteDetailUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_website_details_update_form"
+def get_id_from_button_name(button_name_prefix, post):
+    encoded_url = urllib.parse.urlencode(post)
+    match_obj = re.search(r"" + button_name_prefix + "\d+", encoded_url)
+    id = None
+    if match_obj is not None:
+        button_name = match_obj.group()
+        id = int(button_name.replace(button_name_prefix, ""))
+    return id
 
-    def get_success_url(self):
-            """ Detect the submit button used and act accordingly """
-            if "save_exit" in self.request.POST:
-                url = reverse_lazy("cases:case-detail", kwargs={"pk" : self.object.id})
-            else:
-                url = reverse_lazy("cases:edit-contact-details", kwargs={"pk" : self.object.id})
-            return url
 
 class CaseDetailView(DetailView):
     model = Case
     context_object_name = "case"
+
+    def get_context_data(self, **kwargs):
+        """ Add unarchived contacts context """
+        context = super().get_context_data(**kwargs)
+        context["contacts"] = self.object.contact_set.filter(archived=False)
+        return context
 
 
 class CaseListView(ListView):
@@ -66,7 +70,7 @@ class CaseListView(ListView):
         return Case.objects.filter(**filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs):
-        """ Add field values into contex """
+        """ Add field values into context """
         context = super().get_context_data(**kwargs)
         context["form"] = SearchForm(self.request.GET)
         get_without_page: dict = {
@@ -76,3 +80,76 @@ class CaseListView(ListView):
         context["case_number"] = self.request.GET.get("case-number", "")
         context["auditor"] = self.request.GET.get("auditor", "")
         return context
+
+
+class CaseWebsiteDetailUpdateView(UpdateView):
+    model = Case
+    form_class = CaseWebsiteDetailUpdateForm
+    context_object_name = "case"
+    template_name_suffix = "_website_details_update_form"
+
+    def get_success_url(self):
+        """ Detect the submit button used and act accordingly """
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-contact-details", kwargs={"pk": self.object.id}
+            )
+        return url
+
+
+class CaseContactFormsetUpdateView(UpdateView):
+    model = Case
+    fields = []
+    context_object_name = "case"
+    template_name = "cases/case_contact_formset.html"
+
+    def post(self, request, *args, **kwargs):
+        if "add_contact" in self.request.POST:
+            super().post(request, *args, **kwargs)
+            return self.render_to_response(self.get_context_data(**kwargs))
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        extra = 1 if "add_contact" in self.request.POST else 0
+        ContactFormset = modelformset_factory(Contact, ContactUpdateForm, extra=extra)
+        if self.request.POST:
+            contacts_formset = ContactFormset(self.request.POST)
+        else:
+            contacts_formset = ContactFormset(
+                queryset=self.object.contact_set.filter(archived=False)
+            )
+        context["contacts_formset"] = contacts_formset
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        contact_formset = context["contacts_formset"]
+        case = form.save()
+        if contact_formset.is_valid():
+            contact_formset.instance = case
+            contact_formset.save()
+        contact_id_to_archive = get_id_from_button_name(
+            "remove_contact_", self.request.POST
+        )
+        if contact_id_to_archive is not None:
+            contact_to_archive = Contact.objects.get(id=contact_id_to_archive)
+            contact_to_archive.archived = True
+            contact_to_archive.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        """ Detect the submit button used and act accordingly """
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy(
+                "cases:edit-website-details", kwargs={"pk": self.object.id}
+            )
+        elif "save_continue" in self.request.POST:
+            url = reverse_lazy(
+                "cases:edit-contact-details", kwargs={"pk": self.object.id}
+            )
+        else:
+            url = reverse_lazy("cases:case-list")
+        return url

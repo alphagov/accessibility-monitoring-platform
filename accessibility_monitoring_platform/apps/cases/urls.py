@@ -4,6 +4,7 @@ URLS for dashboard
 
 from django.urls import path
 from accessibility_monitoring_platform.apps.cases.views import (
+    CaseContactFormsetUpdateView,
     CaseDetailView,
     CaseListView,
     CaseWebsiteDetailUpdateView,
@@ -20,7 +21,7 @@ urlpatterns = [
     ),
     path(
         "<int:pk>/edit-contact-details",
-        CaseWebsiteDetailUpdateView.as_view(),
+        CaseContactFormsetUpdateView.as_view(),
         name="edit-contact-details",
     ),
 ]

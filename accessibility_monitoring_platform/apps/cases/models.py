@@ -57,7 +57,9 @@ class Case(models.Model):
     )
     sector = models.CharField(max_length=200, default="Sector")
     region = models.CharField(max_length=200, default="London")
-    case_origin = models.CharField(max_length=200, choices=CASE_ORIGIN_CHOICES, default="org")
+    case_origin = models.CharField(
+        max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"
+    )
     zendesk_url = models.CharField(max_length=200, default="")
     trello_url = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
@@ -70,7 +72,7 @@ class Case(models.Model):
         return str(f"#{self.id} {self.organisation_name}")
 
     def get_absolute_url(self):
-        return reverse("cases:case-detail", kwargs={"pk" : self.pk})
+        return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
 
 class Contact(models.Model):
@@ -79,13 +81,19 @@ class Contact(models.Model):
     """
 
     case = models.ForeignKey(Case, on_delete=CASCADE)
-    name = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=200, default="")
+    last_name = models.CharField(max_length=200, default="")
     job_title = models.CharField(max_length=200, default="")
     detail = models.CharField(max_length=200, default="")
     preferred = models.BooleanField(default=False)
     notes = models.TextField(default="")
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200)
+    archived = models.BooleanField(default=False)
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return str(f"Case #{self.case.id}: {self.job_title} {self.name}")
