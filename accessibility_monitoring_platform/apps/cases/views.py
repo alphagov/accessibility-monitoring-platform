@@ -3,6 +3,7 @@ Views for cases
 """
 import urllib
 
+from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -19,6 +20,13 @@ class CaseWebsiteDetailUpdateView(UpdateView):
     context_object_name = "case"
     template_name_suffix = "_website_details_update_form"
 
+    def get_success_url(self):
+            """ Detect the submit button used and act accordingly """
+            if "save_exit" in self.request.POST:
+                url = reverse_lazy("cases:case-detail", kwargs={"pk" : self.object.id})
+            else:
+                url = reverse_lazy("cases:edit-contact-details", kwargs={"pk" : self.object.id})
+            return url
 
 class CaseDetailView(DetailView):
     model = Case

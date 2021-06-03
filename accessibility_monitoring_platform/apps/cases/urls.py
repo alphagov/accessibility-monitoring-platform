@@ -18,4 +18,9 @@ urlpatterns = [
         CaseWebsiteDetailUpdateView.as_view(),
         name="edit-website-details",
     ),
+    path(
+        "<int:pk>/edit-contact-details",
+        CaseWebsiteDetailUpdateView.as_view(),
+        name="edit-contact-details",
+    ),
 ]
