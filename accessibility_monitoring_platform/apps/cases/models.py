@@ -72,7 +72,9 @@ class Case(models.Model):
     notes = models.TextField(default="")
     is_public_sector_body = models.BooleanField(default=True)
     test_results_url = models.CharField(max_length=200, default="")
-    test_status = models.CharField(max_length=200, choices=TEST_STATUS_CHOICES, default="not-started")
+    test_status = models.CharField(
+        max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
+    )
     is_website_compliant = models.BooleanField(default=False)
     test_notes = models.TextField(default="")
 

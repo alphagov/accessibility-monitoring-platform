@@ -357,6 +357,7 @@ class ContactUpdateForm(forms.ModelForm):
             "notes",
         ]
 
+
 ContactFormset = forms.modelformset_factory(Contact, ContactUpdateForm, extra=0)
 ContactFormsetOneExtra = forms.modelformset_factory(Contact, ContactUpdateForm, extra=1)
 

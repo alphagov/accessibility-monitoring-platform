@@ -2,6 +2,7 @@
 URLS for dashboard
 """
 
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 from accessibility_monitoring_platform.apps.cases.views import (
     CaseContactFormsetUpdateView,
@@ -13,21 +14,21 @@ from accessibility_monitoring_platform.apps.cases.views import (
 
 app_name = "cases"
 urlpatterns = [
-    path("", CaseListView.as_view(), name="case-list"),
-    path("<int:pk>/view", CaseDetailView.as_view(), name="case-detail"),
+    path("", login_required(CaseListView.as_view()), name="case-list"),
+    path("<int:pk>/view", login_required(CaseDetailView.as_view()), name="case-detail"),
     path(
         "<int:pk>/edit-website-details",
-        CaseWebsiteDetailUpdateView.as_view(),
+        login_required(CaseWebsiteDetailUpdateView.as_view()),
         name="edit-website-details",
     ),
     path(
         "<int:pk>/edit-contact-details",
-        CaseContactFormsetUpdateView.as_view(),
+        login_required(CaseContactFormsetUpdateView.as_view()),
         name="edit-contact-details",
     ),
     path(
         "<int:pk>/edit-test-results",
-        CaseTestResultsUpdateView.as_view(),
+        login_required(CaseTestResultsUpdateView.as_view()),
         name="edit-test-results",
     ),
 ]

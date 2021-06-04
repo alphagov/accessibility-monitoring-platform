@@ -11,7 +11,13 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import Case, Contact
-from .forms import CaseWebsiteDetailUpdateForm, ContactFormset, ContactFormsetOneExtra, SearchForm, TestResultsUpdateForm
+from .forms import (
+    CaseWebsiteDetailUpdateForm,
+    ContactFormset,
+    ContactFormsetOneExtra,
+    SearchForm,
+    TestResultsUpdateForm,
+)
 
 DEFAULT_SORT = "-id"
 
@@ -140,13 +146,9 @@ class CaseContactFormsetUpdateView(UpdateView):
     def get_success_url(self):
         """ Detect the submit button used and act accordingly """
         if "save_exit" in self.request.POST:
-            url = reverse_lazy(
-                "cases:case-detail", kwargs={"pk": self.object.id}
-            )
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
-            url = reverse_lazy(
-                "cases:edit-test-results", kwargs={"pk": self.object.id}
-            )
+            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy("cases:case-list")
         return url
@@ -163,7 +165,5 @@ class CaseTestResultsUpdateView(UpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
-            url = reverse_lazy(
-                "cases:edit-test-results", kwargs={"pk": self.object.id}
-            )
+            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         return url

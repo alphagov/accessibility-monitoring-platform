@@ -14,7 +14,13 @@ class CaseAdmin(admin.ModelAdmin):
 
 
 class ContactAdmin(admin.ModelAdmin):
-    search_fields = ["first_name", "last_name", "job_title", "detail", "case__organisation_name"]
+    search_fields = [
+        "first_name",
+        "last_name",
+        "job_title",
+        "detail",
+        "case__organisation_name",
+    ]
     list_display = ["first_name", "last_name", "job_title", "detail", "case"]
     autocomplete_fields = ["case"]
 
