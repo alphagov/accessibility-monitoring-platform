@@ -180,7 +180,7 @@ class CaseReportDetailsUpdateView(UpdateView):
     model = Case
     form_class = ReportDetailsUpdateForm
     context_object_name = "case"
-    template_name_suffix = "_post_report_details_update_form"
+    template_name_suffix = "_report_details_update_form"
 
     def get_success_url(self):
         """ Detect the submit button used and act accordingly """
