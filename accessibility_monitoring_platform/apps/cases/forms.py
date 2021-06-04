@@ -18,6 +18,8 @@ from .models import (
     TEST_STATUS_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
+    ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    COMPLIANCE_DECISION_CHOICES,
 )
 
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
@@ -56,18 +58,24 @@ class AMPDateWidget(forms.MultiWidget):
     template_name = "cases/amp_date_widget_template.html"
 
     def __init__(self, attrs=None):
-        day_month_widget_attrs = {
+        day_widget_attrs = {
+            "label": "Day",
             "class": "govuk-input govuk-date-input__input govuk-input--width-2",
             "type": "number",
             "pattern": "[0-9]*",
             "inputmode": "numeric",
         }
-        year_specific_attrs = {"class": "govuk-input govuk-date-input__input govuk-input--width-4"}
-        year_widget_attrs: dict = {**day_month_widget_attrs, **year_specific_attrs}
+        month_specific_attrs = {
+            "label": "Month",
+        }
+        year_specific_attrs = {
+            "label": "Year",
+            "class": "govuk-input govuk-date-input__input govuk-input--width-4",
+        }
         widgets = [
-            forms.NumberInput(attrs=day_month_widget_attrs),
-            forms.NumberInput(attrs=day_month_widget_attrs),
-            forms.NumberInput(attrs=year_widget_attrs),
+            forms.NumberInput(attrs=day_widget_attrs),
+            forms.NumberInput(attrs={**day_widget_attrs, **month_specific_attrs}),
+            forms.NumberInput(attrs={**day_widget_attrs, **year_specific_attrs}),
         ]
         super().__init__(widgets, attrs)
 
@@ -75,7 +83,7 @@ class AMPDateWidget(forms.MultiWidget):
         if isinstance(value, date):
             return [value.day, value.month, value.year]
         elif isinstance(value, str):
-            year, month, day = value.split('-')
+            year, month, day = value.split("-")
             return [day, month, year]
         return [None, None, None]
 
@@ -83,7 +91,7 @@ class AMPDateWidget(forms.MultiWidget):
         day, month, year = super().value_from_datadict(data, files, name)
         if day == "" and month == "" and year == "":
             return ""
-        return '{}-{}-{}'.format(year, month, day)
+        return "{}-{}-{}".format(year, month, day)
 
 
 def check_date_valid_or_none(
@@ -151,6 +159,7 @@ class AMPBooleanField(forms.BooleanField):
 
 class AMPDateField(forms.DateField):
     """ Adds default widget to Django forms DateField """
+
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": AMPDateWidget(),
@@ -466,4 +475,84 @@ class ReportDetailsUpdateForm(forms.ModelForm):
             "report_final_url",
             "report_sent_date",
             "report_acknowledged_date",
+        ]
+
+
+class PostReportUpdateForm(forms.ModelForm):
+    """
+    Form for updating post report details
+    """
+
+    week_12_followup_date = AMPDateField(label="12 week followup date", required=False)
+    psb_progress_notes = AMPCharFieldWide(
+        label="Summary of progress made from public sector body", required=False
+    )
+    week_12_followup_email_sent_date = AMPDateField(
+        label="12 week followup email sent", required=False
+    )
+    week_12_followup_email_acknowledgement_date = AMPDateField(
+        label="12 week followup acknowledge", required=False
+    )
+    is_website_retested = AMPBooleanField(
+        label="Retested website?", widget=AMPCheckboxWidget(), required=False
+    )
+    is_disproportionate_claimed = AMPBooleanField(
+        label="Disproportionate burden claimed?",
+        widget=AMPCheckboxWidget(),
+        required=False,
+    )
+    disproportionate_notes = AMPCharFieldWide(
+        label="Disproportionate burden notes", required=False
+    )
+    accessibility_statement_decison = AMPChoiceField(
+        label="Accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    accessibility_statement_url = AMPCharFieldWide(
+        label="Link to new accessibility statement", required=False
+    )
+    accessibility_statement_notes = AMPCharFieldWide(
+        label="Accessibility statement notes", required=False
+    )
+    compliance_decision = AMPChoiceField(
+        label="Compliance decision",
+        choices=COMPLIANCE_DECISION_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    compliance_decision_notes = AMPCharFieldWide(
+        label="Compliance decision notes", required=False
+    )
+    compliance_email_sent_date = AMPDateField(
+        label="Compliance email sent?", required=False
+    )
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to enforcement body",
+        help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
+        required=False,
+    )
+    is_case_completed = AMPBooleanField(
+        label="Case completed?", widget=AMPCheckboxWidget(), required=False
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "week_12_followup_date",
+            "psb_progress_notes",
+            "week_12_followup_email_sent_date",
+            "week_12_followup_email_acknowledgement_date",
+            "is_website_retested",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_decison",
+            "accessibility_statement_url",
+            "accessibility_statement_notes",
+            "compliance_decision",
+            "compliance_decision_notes",
+            "compliance_email_sent_date",
+            "sent_to_enforcement_body_sent_date",
+            "is_case_completed",
         ]

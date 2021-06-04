@@ -54,6 +54,19 @@ REPORT_APPROVED_STATUS_CHOICES = [
     ("no", "Further work is needed"),
 ]
 
+ACCESSIBILITY_STATEMENT_DECISION_CHOICES = [
+    ("compliant", "Compliant"),
+    ("partially", "Partially compliant"),
+    ("not-compliant", "Not compliant"),
+    ("other", "Other"),
+]
+
+COMPLIANCE_DECISION_CHOICES = [
+    ("inaction", "No further action"),
+    ("other", "Other"),
+    ("unknown", "Unknown"),
+]
+
 
 class Case(models.Model):
     """
@@ -100,8 +113,28 @@ class Case(models.Model):
     report_final_url = models.CharField(max_length=200, default="")
     report_sent_date = models.DateField(null=True)
     report_acknowledged_date = models.DateField(null=True)
-
-    # completed = models.DateTimeField()
+    week_12_followup_date = models.DateField(null=True)
+    psb_progress_notes = models.TextField(default="")
+    week_12_followup_email_sent_date = models.DateField(null=True)
+    week_12_followup_email_acknowledgement_date = models.DateField(null=True)
+    is_website_retested = models.BooleanField(default=False)
+    is_disproportionate_claimed = models.BooleanField(default=False)
+    disproportionate_notes = models.TextField(default="")
+    accessibility_statement_decison = models.CharField(
+        max_length=200,
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        default="not-compliant",
+    )
+    accessibility_statement_url = models.CharField(max_length=200, default="")
+    accessibility_statement_notes = models.TextField(default="")
+    compliance_decision = models.CharField(
+        max_length=200, choices=COMPLIANCE_DECISION_CHOICES, default="unknown"
+    )
+    compliance_decision_notes = models.TextField(default="")
+    compliance_email_sent_date = models.DateField(null=True)
+    sent_to_enforcement_body_sent_date = models.DateField(null=True)
+    is_case_completed = models.BooleanField(default=False)
+    completed = models.DateTimeField(null=True)
 
     simplified_test_filename = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)

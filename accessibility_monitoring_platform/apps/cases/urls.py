@@ -11,6 +11,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseWebsiteDetailUpdateView,
     CaseTestResultsUpdateView,
     CaseReportDetailsUpdateView,
+    CasePostReportDetailsUpdateView,
 )
 
 app_name = "cases"
@@ -36,5 +37,10 @@ urlpatterns = [
         "<int:pk>/edit-report-details",
         login_required(CaseReportDetailsUpdateView.as_view()),
         name="edit-report-details",
+    ),
+    path(
+        "<int:pk>/edit-post-report-details",
+        login_required(CasePostReportDetailsUpdateView.as_view()),
+        name="edit-post-report-details",
     ),
 ]

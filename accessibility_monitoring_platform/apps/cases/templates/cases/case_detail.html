@@ -223,6 +223,86 @@
                     </tbody>
                 </table>
                 <h2 id="post-report" class="govuk-heading-m">Post report</h2>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Followup date</th>
+                            <td class="govuk-table__cell">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Summary of progress made from public sector body</h3>
+                                {% if case.psb_progress_notes %}<pre class="govuk-body-m">{{ case.psb_progress_notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Followup email sent</th>
+                            <td class="govuk-table__cell">{{ case.week_12_followup_email_sent_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Followup email acknowledged</th>
+                            <td class="govuk-table__cell">{{ case.week_12_followup_email_acknowledgement_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Website retested?</th>
+                            <td class="govuk-table__cell">{{ case.is_website_retested }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>
+                            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Disproportionate burden notes</h3>
+                                {% if case.disproportionate_notes %}<pre class="govuk-body-m">{{ case.disproportionate_notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Accessibility statement decision</th>
+                            <td class="govuk-table__cell">{{ case.get_accessibility_statement_decison_display }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Accessibility statement notes</h3>
+                                {% if case.accessibility_statement_notes %}<pre class="govuk-body-m">{{ case.accessibility_statement_notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">New accessibility statement</th>
+                            <td class="govuk-table__cell">
+                                {% if case.accessibility_statement_url %}
+                                    <a href="{{ case.accessibility_statement_url }}">Accessibility statement</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Compliance decision</th>
+                            <td class="govuk-table__cell">{{ case.get_compliance_decision_display }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Compliance decision notes</h3>
+                                {% if case.compliance_decision_notes %}<pre class="govuk-body-m">{{ case.compliance_decision_notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Compliance email sent?</th>
+                            <td class="govuk-table__cell">{{ case.compliance_email_sent_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Date sent to enforcement body</th>
+                            <td class="govuk-table__cell">{{ case.sent_to_enforcement_body_sent_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Case complete</th>
+                            <td class="govuk-table__cell">{{ case.is_case_completed }}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
             </div>
             <div class="govuk-grid-column-one-third">
