@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import Case, Contact
-from .forms import CaseWebsiteDetailUpdateForm, ContactUpdateForm, SearchForm
+from .forms import CaseWebsiteDetailUpdateForm, ContactFormset, ContactFormsetOneExtra, SearchForm
 
 DEFAULT_SORT = "-id"
 
@@ -105,22 +105,16 @@ class CaseContactFormsetUpdateView(UpdateView):
     context_object_name = "case"
     template_name = "cases/case_contact_formset.html"
 
-    def post(self, request, *args, **kwargs):
-        if "add_contact" in self.request.POST:
-            super().post(request, *args, **kwargs)
-            return self.render_to_response(self.get_context_data(**kwargs))
-        return super().post(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        extra = 1 if "add_contact" in self.request.POST else 0
-        ContactFormset = modelformset_factory(Contact, ContactUpdateForm, extra=extra)
         if self.request.POST:
             contacts_formset = ContactFormset(self.request.POST)
         else:
-            contacts_formset = ContactFormset(
-                queryset=self.object.contact_set.filter(archived=False)
-            )
+            contacts = self.object.contact_set.filter(archived=False)
+            if "add_extra" in self.request.GET:
+                contacts_formset = ContactFormsetOneExtra(queryset=contacts)
+            else:
+                contacts_formset = ContactFormset(queryset=contacts)
         context["contacts_formset"] = contacts_formset
         return context
 
@@ -144,7 +138,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         """ Detect the submit button used and act accordingly """
         if "save_exit" in self.request.POST:
             url = reverse_lazy(
-                "cases:edit-website-details", kwargs={"pk": self.object.id}
+                "cases:case-detail", kwargs={"pk": self.object.id}
             )
         elif "save_continue" in self.request.POST:
             url = reverse_lazy(
