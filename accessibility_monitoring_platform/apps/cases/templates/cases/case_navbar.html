@@ -1,6 +1,6 @@
 <nav role="navigation">
     {% if current_page == 'view-details' %}
-        <h2 id="website-details" class="govuk-heading-m">Contents</h2>
+        <h2 class="govuk-heading-m">Contents</h2>
         <ul class="govuk-list">
             <li><a href="#website-details" class="govuk-link">Website details</a></li>
             <li><a href="#contact-details" class="govuk-link">Contact details</a></li>
@@ -10,7 +10,7 @@
             <li><a href="#unlist-case" class="govuk-link">Unlist case</a></li>
         </ul>
     {% else %}
-        <h2 id="website-details" class="govuk-heading-m">Case steps</h2>
+        <h2 class="govuk-heading-m">Case steps</h2>
         <ul class="govuk-list">
             {% if current_page == 'edit-website' %}
                 <li>Website details</li>
@@ -22,7 +22,11 @@
             {% else %}
                 <li><a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link">Contact details</a></li>
             {% endif %}
-            <li><a href="#" class="govuk-link">Testing details</a></li>
+            {% if current_page == 'edit-test-results' %}
+                <li>Testing details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link">Testing details</a></li>
+            {% endif %}
             <li><a href="#" class="govuk-link">Report details</a></li>
             <li><a href="#" class="govuk-link">Post report</a></li>
             <li><a href="#" class="govuk-link">Unlist case</a></li>

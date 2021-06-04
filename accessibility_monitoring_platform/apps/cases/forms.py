@@ -15,6 +15,7 @@ from .models import (
     STATUS_CHOICES,
     TEST_TYPE_CHOICES,
     WEBSITE_TYPE_CHOICES,
+    TEST_STATUS_CHOICES,
 )
 
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
@@ -358,3 +359,30 @@ class ContactUpdateForm(forms.ModelForm):
 
 ContactFormset = forms.modelformset_factory(Contact, ContactUpdateForm, extra=0)
 ContactFormsetOneExtra = forms.modelformset_factory(Contact, ContactUpdateForm, extra=1)
+
+
+class TestResultsUpdateForm(forms.ModelForm):
+    """
+    Form for updating test results
+    """
+
+    test_results_url = AMPCharFieldWide(label="Link to test results", required=False)
+    test_status = AMPChoiceField(
+        label="Test status",
+        choices=TEST_STATUS_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    is_website_compliant = AMPBooleanField(
+        label="Is the website compliant?", widget=AMPCheckboxWidget(), required=False
+    )
+    test_notes = AMPCharFieldWide(label="Compliance notes", required=False)
+
+    class Meta:
+        model = Case
+        fields = [
+            "test_results_url",
+            "test_status",
+            "is_website_compliant",
+            "test_notes",
+        ]

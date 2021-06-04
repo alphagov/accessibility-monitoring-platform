@@ -37,6 +37,12 @@ CASE_ORIGIN_CHOICES = [
     ("complaint", "Complaint"),
 ]
 
+TEST_STATUS_CHOICES = [
+    ("complete", "Complete"),
+    ("in-progress", "In progress"),
+    ("not-started", "Not started"),
+]
+
 
 class Case(models.Model):
     """
@@ -44,15 +50,15 @@ class Case(models.Model):
     """
 
     created = models.DateTimeField()
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=200, choices=STATUS_CHOICES)
     auditor = models.CharField(max_length=200)
     test_type = models.CharField(
         max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
     )
-    home_page_url = models.CharField(max_length=200)
-    domain = models.CharField(max_length=200)
+    home_page_url = models.TextField(default="")
+    domain = models.TextField(default="")
     application = models.CharField(max_length=200, default="N/A")
-    organisation_name = models.CharField(max_length=200)
+    organisation_name = models.TextField(default="")
     website_type = models.CharField(
         max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
     )
@@ -65,6 +71,10 @@ class Case(models.Model):
     trello_url = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
     is_public_sector_body = models.BooleanField(default=True)
+    test_results_url = models.CharField(max_length=200, default="")
+    test_status = models.CharField(max_length=200, choices=TEST_STATUS_CHOICES, default="not-started")
+    is_website_compliant = models.BooleanField(default=False)
+    test_notes = models.TextField(default="")
 
     simplified_test_filename = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)

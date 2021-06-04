@@ -84,8 +84,11 @@
                             </td>
                         </tr>
                         <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Notes</th>
-                            <td class="govuk-table__cell">{{ case.notes }}</td>
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+                                {% if case.notes %}<pre class="govuk-body-m">{{ case.notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
                         </tr>
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Public sector body?</th>
@@ -134,7 +137,7 @@
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-full">
                                         <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
-                                        <pre class="govuk-body-m">{{ contact.notes }}</pre>
+                                        {% if contact.notes %}<pre class="govuk-body-m">{{ contact.notes }}</pre>{% endif %}
                                     </div>
                                 </div>
                             </td>
@@ -143,6 +146,33 @@
                     </tbody>
                 </table>
                 <h2 id="testing-details" class="govuk-heading-m">Testing details</h2>
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Link to test spreadsheet</th>
+                            <td class="govuk-table__cell">
+                                {% if case.test_results_url %}
+                                    <a href="{{ case.test_results_url }}" >Monitor document</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Test status</th>
+                            <td class="govuk-table__cell">{{ case.get_test_status_display }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Is the website compliant?</th>
+                            <td class="govuk-table__cell">{{ case.is_website_compliant }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td colspan="2" class="govuk-table__cell">
+                                <h3 class="govuk-heading-s cases-sub-heading">Compliance notes</h3>
+                                {% if case.test_notes %}<pre class="govuk-body-m">{{ case.test_notes }}</pre>{% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                    </tbody>
+                </table>
                 <h2 id="report-details" class="govuk-heading-m">Report details</h2>
                 <h2 id="post-report" class="govuk-heading-m">Post report</h2>
                 <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
