@@ -27,7 +27,11 @@
             {% else %}
                 <li><a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link">Testing details</a></li>
             {% endif %}
-            <li><a href="#" class="govuk-link">Report details</a></li>
+            {% if current_page == 'edit-report-details' %}
+                <li>Report details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link">Report details</a></li>
+            {% endif %}
             <li><a href="#" class="govuk-link">Post report</a></li>
         </ul>
     {% endif %}

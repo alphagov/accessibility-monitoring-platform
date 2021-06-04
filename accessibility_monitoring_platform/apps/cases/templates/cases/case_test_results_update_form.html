@@ -18,11 +18,11 @@
                 <form method="post" action="{% url 'cases:edit-test-results' case.id %}">
                     {% csrf_token %}
 
-                    {{ form.non_field_errors }}
+                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
 
                     {% for hidden_field in form.hidden_fields %}
-                      {{ hidden_field.errors }}
-                      {{ hidden_field }}
+                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                        {{ hidden_field }}
                     {% endfor %}
 
                     <div class="govuk-grid-row">
@@ -31,7 +31,7 @@
                                 <label class="govuk-label"
                                     for="{{ field.auto_id }}"><b>{{ field.label }}</b>
                                 </label>
-                                {{ field.errors }}
+                                <div class="govuk-error-message">{{ field.errors }}</div>
                                 <p class="govuk-body-m">{{ field.help_text }}</p>
                                 {{ field }}
                             </div>

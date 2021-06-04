@@ -1,7 +1,7 @@
 """
 Forms - cases
 """
-from datetime import datetime
+from datetime import date, datetime
 import pytz
 from typing import Tuple, Union
 
@@ -16,6 +16,8 @@ from .models import (
     TEST_TYPE_CHOICES,
     WEBSITE_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
+    REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_APPROVED_STATUS_CHOICES,
 )
 
 DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
@@ -42,16 +44,46 @@ SORT_CHOICES = [
 StringOrNone = Union[str, None]
 
 
-from django.template import loader
-from django.utils.safestring import mark_safe
-
-
 class AMPRadioSelectWidget(forms.RadioSelect):
     template_name = "cases/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
     template_name = "cases/amp_checkbox_widget_template.html"
+
+
+class AMPDateWidget(forms.MultiWidget):
+    template_name = "cases/amp_date_widget_template.html"
+
+    def __init__(self, attrs=None):
+        day_month_widget_attrs = {
+            "class": "govuk-input govuk-date-input__input govuk-input--width-2",
+            "type": "number",
+            "pattern": "[0-9]*",
+            "inputmode": "numeric",
+        }
+        year_specific_attrs = {"class": "govuk-input govuk-date-input__input govuk-input--width-4"}
+        year_widget_attrs: dict = {**day_month_widget_attrs, **year_specific_attrs}
+        widgets = [
+            forms.NumberInput(attrs=day_month_widget_attrs),
+            forms.NumberInput(attrs=day_month_widget_attrs),
+            forms.NumberInput(attrs=year_widget_attrs),
+        ]
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if isinstance(value, date):
+            return [value.day, value.month, value.year]
+        elif isinstance(value, str):
+            year, month, day = value.split('-')
+            return [day, month, year]
+        return [None, None, None]
+
+    def value_from_datadict(self, data, files, name):
+        day, month, year = super().value_from_datadict(data, files, name)
+        if day == "" and month == "" and year == "":
+            return ""
+        return '{}-{}-{}'.format(year, month, day)
 
 
 def check_date_valid_or_none(
@@ -112,6 +144,16 @@ class AMPBooleanField(forms.BooleanField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+
+class AMPDateField(forms.DateField):
+    """ Adds default widget to Django forms DateField """
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": AMPDateWidget(),
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -386,4 +428,42 @@ class TestResultsUpdateForm(forms.ModelForm):
             "test_status",
             "is_website_compliant",
             "test_notes",
+        ]
+
+
+class ReportDetailsUpdateForm(forms.ModelForm):
+    """
+    Form for updating report details
+    """
+
+    report_draft_url = AMPCharFieldWide(label="Link to report draft", required=False)
+    report_review_status = AMPChoiceField(
+        label="Report ready to be reviewed?",
+        choices=REPORT_REVIEW_STATUS_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    reviewer = AMPCharFieldWide(label="QA auditor", required=False)
+    report_approved_status = AMPChoiceField(
+        label="Report approved?",
+        choices=REPORT_APPROVED_STATUS_CHOICES,
+        required=False,
+        widget=AMPRadioSelectWidget,
+    )
+    reviewer_notes = AMPCharFieldWide(label="QA notes", required=False)
+    report_final_url = AMPCharFieldWide(label="Link to final report", required=False)
+    report_sent_date = AMPDateField(label="Report sent on", required=False)
+    report_acknowledged_date = AMPDateField(label="Report acknowledged", required=False)
+
+    class Meta:
+        model = Case
+        fields = [
+            "report_draft_url",
+            "report_review_status",
+            "reviewer",
+            "report_approved_status",
+            "reviewer_notes",
+            "report_final_url",
+            "report_sent_date",
+            "report_acknowledged_date",
         ]

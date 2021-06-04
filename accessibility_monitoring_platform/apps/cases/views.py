@@ -17,6 +17,7 @@ from .forms import (
     ContactFormsetOneExtra,
     SearchForm,
     TestResultsUpdateForm,
+    ReportDetailsUpdateForm,
 )
 
 DEFAULT_SORT = "-id"
@@ -165,5 +166,20 @@ class CaseTestResultsUpdateView(UpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
-            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:edit-report-details", kwargs={"pk": self.object.id})
+        return url
+
+
+class CaseReportDetailsUpdateView(UpdateView):
+    model = Case
+    form_class = ReportDetailsUpdateForm
+    context_object_name = "case"
+    template_name_suffix = "_test_report_details_update_form"
+
+    def get_success_url(self):
+        """ Detect the submit button used and act accordingly """
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy("cases:edit-report-details", kwargs={"pk": self.object.id})
         return url

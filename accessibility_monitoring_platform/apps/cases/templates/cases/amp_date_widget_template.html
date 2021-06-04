@@ -1,0 +1,22 @@
+<div class="govuk-date-input">
+    {% for subwidget in widget.subwidgets %}
+        <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label"{% if subwidget.attrs.id %} for="{{ subwidget.attrs.id }}"{% endif %}>
+                    {{ subwidget.attrs.label }}
+                </label>
+                <input
+                    class="{{ subwidget.attrs.class }}"
+                    type="{{ subwidget.type }}"
+                    name="{{ subwidget.name }}"
+                    {% if subwidget.value != None %}
+                        value="{{ subwidget.value|stringformat:'s' }}"
+                    {% endif %}
+                    {% for name, value in subwidget.attrs.items %}
+                        {% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
+                    {% endfor %}
+                >
+            </div>
+        </div>
+    {% endfor %}
+</div>

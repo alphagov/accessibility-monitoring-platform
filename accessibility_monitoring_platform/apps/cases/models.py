@@ -43,6 +43,17 @@ TEST_STATUS_CHOICES = [
     ("not-started", "Not started"),
 ]
 
+REPORT_REVIEW_STATUS_CHOICES = [
+    ("ready-to-review", "Yes"),
+    ("in-progress", "In progress"),
+    ("not-started", "Not started"),
+]
+
+REPORT_APPROVED_STATUS_CHOICES = [
+    ("yes", "Yes"),
+    ("no", "Further work is needed"),
+]
+
 
 class Case(models.Model):
     """
@@ -77,6 +88,20 @@ class Case(models.Model):
     )
     is_website_compliant = models.BooleanField(default=False)
     test_notes = models.TextField(default="")
+    report_draft_url = models.CharField(max_length=200, default="")
+    report_review_status = models.CharField(
+        max_length=200, choices=REPORT_REVIEW_STATUS_CHOICES, default="not-started"
+    )
+    reviewer = models.CharField(max_length=200, default="")
+    report_approved_status = models.CharField(
+        max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
+    )
+    reviewer_notes = models.TextField(default="")
+    report_final_url = models.CharField(max_length=200, default="")
+    report_sent_date = models.DateField(null=True)
+    report_acknowledged_date = models.DateField(null=True)
+
+    # completed = models.DateTimeField()
 
     simplified_test_filename = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)
