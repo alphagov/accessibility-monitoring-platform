@@ -135,6 +135,17 @@ class AMPCharFieldWide(forms.CharField):
         super().__init__(*args, **overridden_default_kwargs)
 
 
+class AMPTextField(forms.CharField):
+    """ Adds default widget to Django forms TextField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": 2}),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
 
@@ -353,7 +364,7 @@ class CaseWebsiteDetailUpdateForm(forms.ModelForm):
     )
     zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL", required=False)
     trello_url = AMPCharFieldWide(label="Trello ticket URL", required=False)
-    notes = AMPCharFieldWide(label="Notes", required=False)
+    notes = AMPTextField(label="Notes", required=False)
     is_public_sector_body = AMPBooleanField(
         label="Public sector body?",
         help_text="If you later find out the organisation is not a public sector body, unmark the checkbox, then save and exit to unlist the case.",
@@ -395,7 +406,7 @@ class ContactUpdateForm(forms.ModelForm):
     preferred = AMPBooleanField(
         label="Preferred contact?", widget=AMPCheckboxWidget(), required=False
     )
-    notes = AMPCharFieldWide(label="Notes", required=False)
+    notes = AMPTextField(label="Notes", required=False)
 
     class Meta:
         model = Case
@@ -428,7 +439,7 @@ class TestResultsUpdateForm(forms.ModelForm):
     is_website_compliant = AMPBooleanField(
         label="Is the website compliant?", widget=AMPCheckboxWidget(), required=False
     )
-    test_notes = AMPCharFieldWide(label="Compliance notes", required=False)
+    test_notes = AMPTextField(label="Compliance notes", required=False)
 
     class Meta:
         model = Case
@@ -459,7 +470,7 @@ class ReportDetailsUpdateForm(forms.ModelForm):
         required=False,
         widget=AMPRadioSelectWidget,
     )
-    reviewer_notes = AMPCharFieldWide(label="QA notes", required=False)
+    reviewer_notes = AMPTextField(label="QA notes", required=False)
     report_final_url = AMPCharFieldWide(label="Link to final report", required=False)
     report_sent_date = AMPDateField(label="Report sent on", required=False)
     report_acknowledged_date = AMPDateField(label="Report acknowledged", required=False)
@@ -484,7 +495,7 @@ class PostReportUpdateForm(forms.ModelForm):
     """
 
     week_12_followup_date = AMPDateField(label="12 week followup date", required=False)
-    psb_progress_notes = AMPCharFieldWide(
+    psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body", required=False
     )
     week_12_followup_email_sent_date = AMPDateField(
@@ -501,7 +512,7 @@ class PostReportUpdateForm(forms.ModelForm):
         widget=AMPCheckboxWidget(),
         required=False,
     )
-    disproportionate_notes = AMPCharFieldWide(
+    disproportionate_notes = AMPTextField(
         label="Disproportionate burden notes", required=False
     )
     accessibility_statement_decison = AMPChoiceField(
@@ -513,7 +524,7 @@ class PostReportUpdateForm(forms.ModelForm):
     accessibility_statement_url = AMPCharFieldWide(
         label="Link to new accessibility statement", required=False
     )
-    accessibility_statement_notes = AMPCharFieldWide(
+    accessibility_statement_notes = AMPTextField(
         label="Accessibility statement notes", required=False
     )
     compliance_decision = AMPChoiceField(
@@ -522,7 +533,7 @@ class PostReportUpdateForm(forms.ModelForm):
         required=False,
         widget=AMPRadioSelectWidget,
     )
-    compliance_decision_notes = AMPCharFieldWide(
+    compliance_decision_notes = AMPTextField(
         label="Compliance decision notes", required=False
     )
     compliance_email_sent_date = AMPDateField(
