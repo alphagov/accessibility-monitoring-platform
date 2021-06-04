@@ -304,6 +304,13 @@
                     </tbody>
                 </table>
                 <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
+                <p class="govuk-body-m">
+                    Unlist the case removes the case from your home view and from general case search,
+                    essentially acting as a delete option. This can be undone by contacting an admin.
+                </p>
+                <a href="{% url 'cases:archive-case' case.id %}" role="button" draggable="false" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                    Remove
+                </a>
             </div>
             <div class="govuk-grid-column-one-third">
                 <a href="{% url 'cases:edit-website-details' case.id %}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

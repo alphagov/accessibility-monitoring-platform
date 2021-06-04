@@ -4,9 +4,11 @@ Views for cases
 import re
 import urllib
 
-from django.forms import modelformset_factory
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
@@ -72,6 +74,7 @@ class CaseListView(ListView):
             filters["status"] = status
         filters["created__gte"] = form.start_date
         filters["created__lte"] = form.end_date
+        filters["archived"] = False
         sort_by = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by = DEFAULT_SORT
@@ -198,3 +201,21 @@ class CasePostReportDetailsUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+
+
+@login_required
+def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    View to archive case
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk: int
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case = get_object_or_404(Case, pk=pk)
+    case.archived = True
+    case.save()
+    return redirect(reverse_lazy("cases:case-list"))

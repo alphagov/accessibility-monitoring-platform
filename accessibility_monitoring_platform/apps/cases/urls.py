@@ -5,6 +5,7 @@ URLS for dashboard
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from accessibility_monitoring_platform.apps.cases.views import (
+    archive_case,
     CaseContactFormsetUpdateView,
     CaseDetailView,
     CaseListView,
@@ -43,4 +44,5 @@ urlpatterns = [
         login_required(CasePostReportDetailsUpdateView.as_view()),
         name="edit-post-report-details",
     ),
+    path('<int:pk>/archive-case', archive_case, name='archive-case'),
 ]

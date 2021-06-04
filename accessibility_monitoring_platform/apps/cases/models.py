@@ -135,6 +135,7 @@ class Case(models.Model):
     sent_to_enforcement_body_sent_date = models.DateField(null=True)
     is_case_completed = models.BooleanField(default=False)
     completed = models.DateTimeField(null=True)
+    archived = models.BooleanField(default=False)
 
     simplified_test_filename = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)
@@ -145,7 +146,10 @@ class Case(models.Model):
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
-
+    def save(self, *args, **kwargs):
+        if self.is_case_completed and not self.completed:
+            self.completed = timezone.now()
+        super().save(*args, **kwargs)
 class Contact(models.Model):
     """
     Model for cases Contact
