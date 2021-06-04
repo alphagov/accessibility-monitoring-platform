@@ -4,6 +4,7 @@ Models - cases
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.urls import reverse
+from django.utils import timezone
 
 STATUS_CHOICES = [
     ("new-case", "New case"),
@@ -97,3 +98,8 @@ class Contact(models.Model):
 
     def __str__(self):
         return str(f"Case #{self.case.id}: {self.job_title} {self.name}")
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created = timezone.now()
+        super().save(*args, **kwargs)

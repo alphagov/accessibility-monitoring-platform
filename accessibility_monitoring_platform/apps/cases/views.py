@@ -123,8 +123,11 @@ class CaseContactFormsetUpdateView(UpdateView):
         contact_formset = context["contacts_formset"]
         case = form.save()
         if contact_formset.is_valid():
-            contact_formset.instance = case
-            contact_formset.save()
+            contacts = contact_formset.save(commit=False)
+            for contact in contacts:
+                if not contact.case_id:
+                    contact.case_id = case.id
+                contact.save()
         contact_id_to_archive = get_id_from_button_name(
             "remove_contact_", self.request.POST
         )
