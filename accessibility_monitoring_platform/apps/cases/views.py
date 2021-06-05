@@ -3,6 +3,7 @@ Views for cases
 """
 import re
 import urllib
+from typing import Any, Dict, List, Match, Tuple, Union
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
@@ -15,25 +16,49 @@ from django.views.generic.list import ListView
 from .models import Case, Contact
 from .forms import (
     CaseWebsiteDetailUpdateForm,
-    ContactFormset,
-    ContactFormsetOneExtra,
-    SearchForm,
-    TestResultsUpdateForm,
-    ReportDetailsUpdateForm,
-    PostReportUpdateForm,
+    CaseContactFormset,
+    CaseContactFormsetOneExtra,
+    CaseSearchForm,
+    CaseTestResultsUpdateForm,
+    CaseReportDetailsUpdateForm,
+    CasePostReportUpdateForm,
 )
 
-DEFAULT_SORT = "-id"
+DEFAULT_SORT: str = "-id"
+CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
+    ("case_number", "id"),
+    ("domain", "domain__icontains"),
+    ("organisation", "organisation_name__icontains"),
+    ("auditor", "auditor"),
+    ("status", "status"),
+    ("start_date", "created__gte"),
+    ("end_date", "created__lte"),
+]
 
-
-def get_id_from_button_name(button_name_prefix, post):
-    encoded_url = urllib.parse.urlencode(post)
-    match_obj = re.search(r"" + button_name_prefix + "\d+", encoded_url)
-    id = None
+def get_id_from_button_name(button_name_prefix: str, post: Dict) -> int | None:
+    """
+    Given a button name in the form: prefix_[id] extract and return the id value.
+    """
+    encoded_url: str = urllib.parse.urlencode(post)
+    match_obj: Match | None = re.search(r"" + button_name_prefix + "\d+", encoded_url)
+    id: int | None = None
     if match_obj is not None:
-        button_name = match_obj.group()
-        id = int(button_name.replace(button_name_prefix, ""))
+        button_name: str = match_obj.group()
+        id: int = int(button_name.replace(button_name_prefix, ""))
     return id
+
+
+def build_filters(cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]) -> Dict:
+    """
+    Given the form cleaned_data, work through a list of field and filter names
+    to build up a dictionary of filters to apply in a queryset.
+    """
+    filters: Dict = {}
+    for field_name, filter_name in field_and_filter_names:
+        value: Union[str, None] = cleaned_data.get(field_name)
+        if value:
+            filters[filter_name] = value
+    return filters
 
 
 class CaseDetailView(DetailView):
@@ -41,7 +66,7 @@ class CaseDetailView(DetailView):
     context_object_name = "case"
 
     def get_context_data(self, **kwargs):
-        """ Add unarchived contacts context """
+        """ Add unarchived contacts to context """
         context = super().get_context_data(**kwargs)
         context["contacts"] = self.object.contact_set.filter(archived=False)
         return context
@@ -54,39 +79,30 @@ class CaseListView(ListView):
 
     def get_queryset(self):
         """ Add filters to queryset """
-        filters = {}
-        form = SearchForm(self.request.GET)
+        form: CaseSearchForm = CaseSearchForm(self.request.GET)
         form.is_valid()
-        case_number = form.cleaned_data.get("case_number")
-        if case_number:
-            filters["id"] = case_number
-        domain = form.cleaned_data.get("domain")
-        if domain:
-            filters["domain__icontains"] = domain
-        organisation = form.cleaned_data.get("organisation")
-        if organisation:
-            filters["organisation_name__icontains"] = organisation
-        auditor = form.cleaned_data.get("auditor")
-        if auditor:
-            filters["auditor"] = auditor
-        status = form.cleaned_data.get("status")
-        if status:
-            filters["status"] = status
-        filters["created__gte"] = form.start_date
-        filters["created__lte"] = form.end_date
+
+        filters: dict = build_filters(
+            cleaned_data=form.cleaned_data,
+            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES
+        )
         filters["archived"] = False
-        sort_by = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+
+        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by = DEFAULT_SORT
+
         return Case.objects.filter(**filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs):
         """ Add field values into context """
-        context = super().get_context_data(**kwargs)
-        context["form"] = SearchForm(self.request.GET)
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
         get_without_page: dict = {
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
+
+        context["form"] = CaseSearchForm(self.request.GET)
         context["parameters"] = urllib.parse.urlencode(get_without_page)
         context["case_number"] = self.request.GET.get("case-number", "")
         context["auditor"] = self.request.GET.get("auditor", "")
@@ -110,7 +126,7 @@ class CaseWebsiteDetailUpdateView(UpdateView):
         return url
 
 
-class CaseContactFormsetUpdateView(UpdateView):
+class CaseCaseContactFormsetUpdateView(UpdateView):
     model = Case
     fields = []
     context_object_name = "case"
@@ -119,13 +135,13 @@ class CaseContactFormsetUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            contacts_formset = ContactFormset(self.request.POST)
+            contacts_formset = CaseContactFormset(self.request.POST)
         else:
             contacts = self.object.contact_set.filter(archived=False)
             if "add_extra" in self.request.GET:
-                contacts_formset = ContactFormsetOneExtra(queryset=contacts)
+                contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
-                contacts_formset = ContactFormset(queryset=contacts)
+                contacts_formset = CaseContactFormset(queryset=contacts)
         context["contacts_formset"] = contacts_formset
         return context
 
@@ -161,7 +177,7 @@ class CaseContactFormsetUpdateView(UpdateView):
 
 class CaseTestResultsUpdateView(UpdateView):
     model = Case
-    form_class = TestResultsUpdateForm
+    form_class = CaseTestResultsUpdateForm
     context_object_name = "case"
     template_name_suffix = "_test_results_update_form"
 
@@ -178,7 +194,7 @@ class CaseTestResultsUpdateView(UpdateView):
 
 class CaseReportDetailsUpdateView(UpdateView):
     model = Case
-    form_class = ReportDetailsUpdateForm
+    form_class = CaseReportDetailsUpdateForm
     context_object_name = "case"
     template_name_suffix = "_report_details_update_form"
 
@@ -195,7 +211,7 @@ class CaseReportDetailsUpdateView(UpdateView):
 
 class CasePostReportDetailsUpdateView(UpdateView):
     model = Case
-    form_class = PostReportUpdateForm
+    form_class = CasePostReportUpdateForm
     context_object_name = "case"
     template_name_suffix = "_post_report_details_update_form"
 

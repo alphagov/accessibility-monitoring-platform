@@ -1,0 +1,82 @@
+<h2 id="website-details" class="govuk-heading-m">Website details</h2>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Date created</th>
+            <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Status</th>
+            <td class="govuk-table__cell">{{ case.get_status_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"">Auditor</th>
+            <td class="govuk-table__cell">{{ case.auditor }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"">Test type</th>
+            <td class="govuk-table__cell">{{ case.get_test_type_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Full url</th>
+            <td class="govuk-table__cell">
+                <a href="{{ case.home_page_url }}" class="govuk-link">{{ case.home_page_url }}</a>
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Domain</th>
+            <td class="govuk-table__cell">{{ case.domain }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Application</th>
+            <td class="govuk-table__cell">{{ case.application }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Organisation name</th>
+            <td class="govuk-table__cell">{{ case.organisation_name }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Type of site</th>
+            <td class="govuk-table__cell">{{ case.get_website_type_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Sector</th>
+            <td class="govuk-table__cell">{{ case.sector }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Region</th>
+            <td class="govuk-table__cell">{{ case.region }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Case origin</th>
+            <td class="govuk-table__cell">{{ case.get_case_origin_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Zendesk link</th>
+            <td class="govuk-table__cell">
+                {% if case.zendesk_url %}
+                    <a href="{{ case.zendesk_url }}" class="govuk-link">{{ case.zendesk_url }}</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Trello ticket</th>
+            <td class="govuk-table__cell">
+                {% if case.trello_url %}
+                    <a href="{{ case.trello_url }}" class="govuk-link">{{ case.trello_url }}</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell">
+                <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+                {% if case.notes %}<pre class="govuk-body-m">{{ case.notes }}</pre>{% endif %}
+            </td>
+            <td class="govuk-table__cell"></td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Public sector body?</th>
+            <td class="govuk-table__cell">{{ case.is_public_sector_body }}</td>
+        </tr>
+    </tbody>
+</table>

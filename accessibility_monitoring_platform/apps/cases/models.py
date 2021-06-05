@@ -150,6 +150,8 @@ class Case(models.Model):
         if self.is_case_completed and not self.completed:
             self.completed = timezone.now()
         super().save(*args, **kwargs)
+
+
 class Contact(models.Model):
     """
     Model for cases Contact
