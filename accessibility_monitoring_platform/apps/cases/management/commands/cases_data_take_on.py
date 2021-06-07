@@ -13,15 +13,6 @@ from django.core.management.base import BaseCommand
 
 from ...models import Case, Contact, STATUS_CHOICES
 
-AUDITORS = {
-    "AH": "Andrew Hick",
-    "JE": "Jessica Eley",
-    "KB": "Katherine Badger",
-    "KC": "Kelly Clarkson",
-    "KR": "Keeley Robertson",
-    "NR": "Nesha Russo",
-}
-
 HOME_PATH = expanduser("~")
 INPUT_FILE_NAME = f"{HOME_PATH}/historic_cases.csv"
 
@@ -34,12 +25,11 @@ def extract_data_from_simplified_test_filename(filename: str) -> Tuple[str, str]
 
     words: List[str] = simplified_test_filename.split(".")[0].split()
 
-    auditor_initials = words[-1]
     organisation_name = (
         " ".join(words[2:-1]).replace("Simplified Test", "").replace(" Test", "")
     )
 
-    return (auditor_initials, organisation_name)
+    return organisation_name
 
 
 def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
@@ -56,7 +46,9 @@ def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
     if not status:
         status = "test-in-progress"
 
-    return (created_time, home_page_url, domain, status)
+    auditor = row["Monitored by"]
+
+    return (created_time, home_page_url, domain, status, auditor)
 
 
 class Command(BaseCommand):
@@ -107,13 +99,10 @@ class Command(BaseCommand):
                     ):
                         continue
 
-                    (
-                        auditor_initials,
-                        organisation_name,
-                    ) = extract_data_from_simplified_test_filename(
+                    organisation_name = extract_data_from_simplified_test_filename(
                         simplified_test_filename
                     )
-                    created_time, home_page_url, domain, status = extract_data_from_row(
+                    created_time, home_page_url, domain, status, auditor = extract_data_from_row(
                         row
                     )
 
@@ -122,10 +111,10 @@ class Command(BaseCommand):
                         organisation_name=organisation_name,
                         home_page_url=home_page_url,
                         domain=domain,
-                        auditor=AUDITORS[auditor_initials],
+                        auditor=auditor,
                         simplified_test_filename=row["Filename"],
                         created=created_time,
-                        created_by=AUDITORS[auditor_initials],
+                        created_by=auditor,
                         status=status,
                     )
                     case.save()
@@ -140,7 +129,7 @@ class Command(BaseCommand):
                             detail=row["Contact detail"].split("\n")[0],
                             notes=row["Contact detail"],
                             created=created_time,
-                            created_by=AUDITORS[auditor_initials],
+                            created_by=auditor,
                         )
                         contact.save()
 
