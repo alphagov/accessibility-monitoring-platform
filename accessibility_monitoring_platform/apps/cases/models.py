@@ -2,13 +2,14 @@
 Models - cases
 """
 import re
+from typing import List, Tuple
 
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.urls import reverse
 from django.utils import timezone
 
-STATUS_CHOICES = [
+STATUS_CHOICES: List[Tuple[str, str]] = [
     ("new-case", "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
@@ -21,49 +22,49 @@ STATUS_CHOICES = [
     ("not-a-psb", "Not a public sector body"),
 ]
 
-TEST_TYPE_CHOICES = [
+TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("simple", "Simple"),
     ("detailed", "Detailed"),
 ]
 
-WEBSITE_TYPE_CHOICES = [
+WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("public", "Public website"),
     ("int-extranet", "Intranet/Extranet"),
     ("other", "Other"),
     ("unknown", "Unknown"),
 ]
 
-CASE_ORIGIN_CHOICES = [
+CASE_ORIGIN_CHOICES: List[Tuple[str, str]] = [
     ("org", "Organisation"),
     ("list", "Website list"),
     ("complaint", "Complaint"),
 ]
 
-TEST_STATUS_CHOICES = [
+TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("complete", "Complete"),
     ("in-progress", "In progress"),
     ("not-started", "Not started"),
 ]
 
-REPORT_REVIEW_STATUS_CHOICES = [
+REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("ready-to-review", "Yes"),
     ("in-progress", "In progress"),
     ("not-started", "Not started"),
 ]
 
-REPORT_APPROVED_STATUS_CHOICES = [
+REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "Further work is needed"),
 ]
 
-ACCESSIBILITY_STATEMENT_DECISION_CHOICES = [
+ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("partially", "Partially compliant"),
     ("not-compliant", "Not compliant"),
     ("other", "Other"),
 ]
 
-COMPLIANCE_DECISION_CHOICES = [
+COMPLIANCE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("inaction", "No further action"),
     ("other", "Other"),
     ("unknown", "Unknown"),

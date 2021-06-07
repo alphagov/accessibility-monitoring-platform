@@ -3,7 +3,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="govuk-width-container">
     <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper">
@@ -36,9 +35,27 @@
                             </div>
                         {% endfor %}
                         <div class="govuk-button-group">
-                            <input type="submit" value="Save and continue" name="save_continue" class="govuk-button" data-module="govuk-button" />
-                            <input type="submit" value="Save and exit" name="save_exit" class="govuk-button govuk-button--secondary" data-module="govuk-button" />
-                            <a href="{% url 'cases:case-list' %}" role="button" draggable="false" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:case-list' %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--warning"
+                                data-module="govuk-button"
+                            >
                                 Cancel
                             </a>
                         </div>
@@ -50,5 +67,4 @@
         </div>
     </main>
 </div>
-
 {% endblock %}

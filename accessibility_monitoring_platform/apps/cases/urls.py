@@ -1,9 +1,11 @@
 """
 URLS for dashboard
 """
+from typing import List
 
 from django.contrib.auth.decorators import login_required
 from django.urls import path
+from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.cases.views import (
     archive_case,
     export_cases,
@@ -18,8 +20,8 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CasePostReportDetailsUpdateView,
 )
 
-app_name = "cases"
-urlpatterns = [
+app_name: str = "cases"
+urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path("export-as-csv", login_required(export_cases), name="case-export-list"),
     path(

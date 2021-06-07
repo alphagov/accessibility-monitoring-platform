@@ -3,7 +3,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="govuk-width-container">
     <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper">
@@ -25,7 +24,13 @@
                     Unlist the case removes the case from your home view and from general case search,
                     essentially acting as a delete option. This can be undone by contacting an admin.
                 </p>
-                <a href="{% url 'cases:archive-case' case.id %}" role="button" draggable="false" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                <a
+                    href="{% url 'cases:archive-case' case.id %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button govuk-button--warning"
+                    data-module="govuk-button"
+                >
                     Remove
                 </a>
             </div>
@@ -54,5 +59,4 @@
         </div>
     </main>
 </div>
-
 {% endblock %}

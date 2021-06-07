@@ -1,9 +1,7 @@
 """
 Forms - cases
 """
-from datetime import datetime
-import pytz
-from typing import Union
+from typing import Any
 
 from django import forms
 
@@ -49,8 +47,6 @@ SORT_CHOICES = [
     ("-id", "Newest"),
     ("id", "Oldest"),
 ]
-
-StringOrNone = Union[str, None]
 
 
 class CaseSearchForm(AMPDateRangeForm):
@@ -100,7 +96,8 @@ class CaseCreateForm(forms.ModelForm):
     notes = AMPTextField(label="Notes", required=False)
     is_public_sector_body = AMPBooleanField(
         label="Public sector body?",
-        help_text="If you later find out the organisation is not a public sector body, unmark the checkbox, then save and exit to unlist the case.",
+        help_text="If you later find out the organisation is not a public sector body,"
+        " unmark the checkbox, then save and exit to unlist the case.",
         widget=AMPCheckboxWidget(
             attrs={
                 "label": "Untick this box to unlist the case",
@@ -182,8 +179,8 @@ class CaseContactUpdateForm(forms.ModelForm):
         ]
 
 
-CaseContactFormset = forms.modelformset_factory(Contact, CaseContactUpdateForm, extra=0)
-CaseContactFormsetOneExtra = forms.modelformset_factory(
+CaseContactFormset: Any = forms.modelformset_factory(Contact, CaseContactUpdateForm, extra=0)
+CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
     Contact, CaseContactUpdateForm, extra=1
 )
 
