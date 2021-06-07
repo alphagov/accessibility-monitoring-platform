@@ -87,74 +87,13 @@
                             <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
                             {{form.status}}
                         </div>
-                        <div class="govuk-grid-column-full">
-                            <label class="govuk-label">
-                                <b>{{form.start_date_day.label}}</b>
-                            </label>
-                            {% if form.start_date_year.errors %}
-                            <span class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> {{form.start_date_year.errors}}
-                            </span>
-                            {% endif %}
-
-                            <div class="govuk-date-input">
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.start_date_day.auto_id }}"> Day </label>
-                                        {{form.start_date_day}}
-                                    </div>
-                                </div>
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.start_date_month.auto_id }}"> Month </label>
-                                        {{form.start_date_month}}
-                                    </div>
-                                </div>
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.start_date_year.auto_id }}"> Year </label>
-                                        {{form.start_date_year}}
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.start_date.label}}</b></label>
+                            {{form.start_date}}
                         </div>
-                        <div class="govuk-grid-column-full">
-                            <label class="govuk-label">
-                                <b>{{form.end_date_day.label}}</b>
-                            </label>
-
-                            {% if form.end_date_year.errors %}
-                            <span class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> {{form.end_date_year.errors}}
-                            </span>
-                            {% endif %}
-
-                            <div class="govuk-date-input">
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.end_date_day.auto_id }}"> Day </label>
-                                        {{form.end_date_day}}
-                                    </div>
-                                </div>
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.end_date_month.auto_id }}"> Month </label>
-                                        {{form.end_date_month}}
-                                    </div>
-                                </div>
-                                <div class="govuk-date-input__item">
-                                    <div class="govuk-form-group">
-                                        <label class="govuk-label govuk-date-input__label"
-                                            for="{{ form.end_date_year.auto_id }}"> Year </label>
-                                        {{form.end_date_year}}
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.end_date.label}}</b></label>
+                            {{form.end_date}}
                         </div>
                     </div>
                     <div class="form-group">

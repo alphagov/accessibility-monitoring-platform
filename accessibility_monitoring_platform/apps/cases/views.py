@@ -35,13 +35,13 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("end_date", "created__lte"),
 ]
 
-def get_id_from_button_name(button_name_prefix: str, post: Dict) -> int | None:
+def get_id_from_button_name(button_name_prefix: str, post: Dict) -> Union[int, None]:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
     encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Match | None = re.search(r"" + button_name_prefix + "\d+", encoded_url)
-    id: int | None = None
+    match_obj: Union[Match, None] = re.search(r"" + button_name_prefix + "\d+", encoded_url)
+    id: Union[int, None] = None
     if match_obj is not None:
         button_name: str = match_obj.group()
         id: int = int(button_name.replace(button_name_prefix, ""))
@@ -126,7 +126,7 @@ class CaseWebsiteDetailUpdateView(UpdateView):
         return url
 
 
-class CaseCaseContactFormsetUpdateView(UpdateView):
+class CaseContactFormsetUpdateView(UpdateView):
     model = Case
     fields = []
     context_object_name = "case"

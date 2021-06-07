@@ -56,7 +56,7 @@ SORT_CHOICES = [
 StringOrNone = Union[str, None]
 
 
-class CaseSearchForm(DateRangeForm):
+class CaseSearchForm(AMPDateRangeForm):
     """
     Form for searching for cases
     """

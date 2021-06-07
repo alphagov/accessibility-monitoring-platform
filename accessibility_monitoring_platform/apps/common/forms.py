@@ -47,7 +47,7 @@ class AMPDateWidget(forms.MultiWidget):
     def decompress(self, value):
         if isinstance(value, date):
             return [value.day, value.month, value.year]
-        elif isinstance(value, str):
+        elif isinstance(value, str) and value != "":
             year, month, day = value.split("-")
             return [day, month, year]
         return [None, None, None]
@@ -68,7 +68,7 @@ class AMPCharField(forms.CharField):
             "widget": forms.TextInput(
                 attrs={"class": "govuk-input govuk-input--width-10"}
             ),
-            "default": False,
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -80,7 +80,7 @@ class AMPCharFieldWide(forms.CharField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": forms.TextInput(attrs={"class": "govuk-input"}),
-            "default": False,
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -92,7 +92,7 @@ class AMPTextField(forms.CharField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": 2}),
-            "default": False,
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -104,7 +104,7 @@ class AMPChoiceField(forms.ChoiceField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": forms.Select(attrs={"class": "govuk-select"}),
-            "default": False,
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -116,7 +116,7 @@ class AMPBooleanField(forms.BooleanField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
-            "default": False,
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
@@ -144,8 +144,8 @@ class AMPDateRangeForm(forms.Form):
 
     def clean(self):
         cleaned_data: dict = super().clean()
-        if not cleaned_data["start_date"]:
+        if "start_date" not in cleaned_data or not cleaned_data["start_date"]:
             cleaned_data["start_date"] = DEFAULT_START_DATE
-        if not cleaned_data["end_date"]:
+        if "end_date" not in cleaned_data or not cleaned_data["end_date"]:
             cleaned_data["end_date"] = DEFAULT_END_DATE
         return cleaned_data
