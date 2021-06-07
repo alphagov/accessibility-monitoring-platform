@@ -13,10 +13,10 @@ init:
 			export AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" \
 			export AWS_ACCESS_KEY_ID="$${AWS_ACCESS_KEY_ID}" \
 			export AWS_SECRET_ACCESS_KEY="$${AWS_SECRET_ACCESS_KEY}" \
-		&& aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/20210604_auth_data.json ./data/s3_files/20210604_auth_data.json \
-		&& aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/extra/Local_Authority_District_\(December_2018\)_to_NUTS3_to_NUTS2_to_NUTS1_\(January_2018\)_Lookup_in_United_Kingdom.csv "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" \
-		&& aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/pubsecweb/pubsecweb_210216.pgadmin-backup ./data/s3_files/pubsecweb_210216.pgadmin-backup \
-		&& aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql ./data/s3_files/a11ymon_mini_20210527.sql \
+		&& [ -f "./data/s3_files/20210604_auth_data.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/20210604_auth_data.json ./data/s3_files/20210604_auth_data.json \
+		&& [ -f "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/extra/Local_Authority_District_\(December_2018\)_to_NUTS3_to_NUTS2_to_NUTS1_\(January_2018\)_Lookup_in_United_Kingdom.csv "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" \
+		&& [ -f "./data/s3_files/pubsecweb_210216.pgadmin-backup" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/pubsecweb/pubsecweb_210216.pgadmin-backup ./data/s3_files/pubsecweb_210216.pgadmin-backup \
+		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql ./data/s3_files/a11ymon_mini_20210527.sql \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database a11ymon;" \
 		&& export PGPASSWORD=secret; pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_210216.pgadmin-backup \

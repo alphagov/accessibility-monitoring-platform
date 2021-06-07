@@ -55,7 +55,7 @@
     "gulp-babel": "^8.0.0",
     "gulp-plumber": "^1.2.1",
     "gulp-sass": "^4.1.0",
-    "gulp-sourcemaps": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
     "hosted-git-info": "^4.0.2",
     "html-webpack-plugin": "^5.3.1",
