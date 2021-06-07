@@ -246,7 +246,13 @@ class CaseContactFormsetUpdateView(UpdateView):
         elif "save_continue" in self.request.POST:
             url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         else:
-            url = reverse_lazy("cases:case-list")
+            contact_id_to_archive: IntOrNone = get_id_from_button_name(
+                "remove_contact_", self.request.POST
+            )
+            if contact_id_to_archive is not None:
+                url = reverse_lazy("cases:edit-contact-details", kwargs={"pk": self.object.id})
+            else:
+                url = reverse_lazy("cases:case-list")
         return url
 
 
