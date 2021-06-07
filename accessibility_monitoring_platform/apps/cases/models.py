@@ -1,6 +1,8 @@
 """
 Models - cases
 """
+import re
+
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.urls import reverse
@@ -73,72 +75,78 @@ class Case(models.Model):
     Model for Case
     """
 
-    created = models.DateTimeField()
-    status = models.CharField(max_length=200, choices=STATUS_CHOICES)
-    auditor = models.CharField(max_length=200)
+    created = models.DateTimeField(blank=True)
+    status = models.CharField(
+        max_length=200, choices=STATUS_CHOICES, default="new-case"
+    )
+    auditor = models.CharField(max_length=200, default="", blank=True)
     test_type = models.CharField(
         max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
     )
-    home_page_url = models.TextField(default="")
-    domain = models.TextField(default="")
+    home_page_url = models.TextField(default="", blank=True)
+    domain = models.TextField(default="", blank=True)
     application = models.CharField(max_length=200, default="N/A")
-    organisation_name = models.TextField(default="")
+    organisation_name = models.TextField(default="", blank=True)
     website_type = models.CharField(
         max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
     )
-    sector = models.CharField(max_length=200, default="Sector")
-    region = models.CharField(max_length=200, default="London")
+    sector = models.CharField(max_length=200, default="Sector", blank=True)
+    region = models.CharField(max_length=200, default="London", blank=True)
     case_origin = models.CharField(
         max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"
     )
-    zendesk_url = models.CharField(max_length=200, default="")
-    trello_url = models.CharField(max_length=200, default="")
-    notes = models.TextField(default="")
+    zendesk_url = models.CharField(max_length=200, default="", blank=True)
+    trello_url = models.CharField(max_length=200, default="", blank=True)
+    notes = models.TextField(default="", blank=True)
     is_public_sector_body = models.BooleanField(default=True)
-    test_results_url = models.CharField(max_length=200, default="")
+    test_results_url = models.CharField(max_length=200, default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
     )
     is_website_compliant = models.BooleanField(default=False)
-    test_notes = models.TextField(default="")
-    report_draft_url = models.CharField(max_length=200, default="")
+    test_notes = models.TextField(default="", blank=True)
+    report_draft_url = models.CharField(max_length=200, default="", blank=True)
     report_review_status = models.CharField(
         max_length=200, choices=REPORT_REVIEW_STATUS_CHOICES, default="not-started"
     )
-    reviewer = models.CharField(max_length=200, default="")
+    reviewer = models.CharField(max_length=200, default="", blank=True)
     report_approved_status = models.CharField(
         max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
     )
-    reviewer_notes = models.TextField(default="")
-    report_final_url = models.CharField(max_length=200, default="")
-    report_sent_date = models.DateField(null=True)
-    report_acknowledged_date = models.DateField(null=True)
-    week_12_followup_date = models.DateField(null=True)
-    psb_progress_notes = models.TextField(default="")
-    week_12_followup_email_sent_date = models.DateField(null=True)
-    week_12_followup_email_acknowledgement_date = models.DateField(null=True)
+    reviewer_notes = models.TextField(default="", blank=True)
+    report_final_url = models.CharField(max_length=200, default="", blank=True)
+    report_sent_date = models.DateField(null=True, blank=True)
+    report_acknowledged_date = models.DateField(null=True, blank=True)
+    week_12_followup_date = models.DateField(null=True, blank=True)
+    psb_progress_notes = models.TextField(default="", blank=True)
+    week_12_followup_email_sent_date = models.DateField(null=True, blank=True)
+    week_12_followup_email_acknowledgement_date = models.DateField(
+        null=True, blank=True
+    )
     is_website_retested = models.BooleanField(default=False)
     is_disproportionate_claimed = models.BooleanField(default=False)
-    disproportionate_notes = models.TextField(default="")
+    disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_decison = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default="not-compliant",
     )
-    accessibility_statement_url = models.CharField(max_length=200, default="")
-    accessibility_statement_notes = models.TextField(default="")
+    accessibility_statement_url = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    accessibility_statement_notes = models.TextField(default="", blank=True)
     compliance_decision = models.CharField(
         max_length=200, choices=COMPLIANCE_DECISION_CHOICES, default="unknown"
     )
-    compliance_decision_notes = models.TextField(default="")
-    compliance_email_sent_date = models.DateField(null=True)
-    sent_to_enforcement_body_sent_date = models.DateField(null=True)
+    compliance_decision_notes = models.TextField(default="", blank=True)
+    compliance_email_sent_date = models.DateField(null=True, blank=True)
+    sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     is_case_completed = models.BooleanField(default=False)
-    completed = models.DateTimeField(null=True)
+    completed = models.DateTimeField(null=True, blank=True)
     archived = models.BooleanField(default=False)
 
-    simplified_test_filename = models.CharField(max_length=200)
-    created_by = models.CharField(max_length=200)
+    simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
+    created_by = models.CharField(max_length=200, default="", blank=True)
 
     def __str__(self):
         return str(f"#{self.id} {self.organisation_name}")
@@ -147,8 +155,13 @@ class Case(models.Model):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs):
+        now = timezone.now()
+        if not self.created:
+            self.created = now
+            domain_match = re.search("https?://([A-Za-z_0-9.-]+).*", self.home_page_url)
+            self.domain = domain_match.group(1) if domain_match else ""
         if self.is_case_completed and not self.completed:
-            self.completed = timezone.now()
+            self.completed = now
         super().save(*args, **kwargs)
 
 
@@ -158,14 +171,14 @@ class Contact(models.Model):
     """
 
     case = models.ForeignKey(Case, on_delete=CASCADE)
-    first_name = models.CharField(max_length=200, default="")
-    last_name = models.CharField(max_length=200, default="")
-    job_title = models.CharField(max_length=200, default="")
-    detail = models.CharField(max_length=200, default="")
+    first_name = models.CharField(max_length=200, default="", blank=True)
+    last_name = models.CharField(max_length=200, default="", blank=True)
+    job_title = models.CharField(max_length=200, default="", blank=True)
+    detail = models.CharField(max_length=200, default="", blank=True)
     preferred = models.BooleanField(default=False)
-    notes = models.TextField(default="")
+    notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
-    created_by = models.CharField(max_length=200)
+    created_by = models.CharField(max_length=200, default="", blank=True)
     archived = models.BooleanField(default=False)
 
     @property

@@ -3,7 +3,7 @@ Forms - cases
 """
 from datetime import datetime
 import pytz
-from typing import  Union
+from typing import Union
 
 from django import forms
 
@@ -69,9 +69,9 @@ class CaseSearchForm(AMPDateRangeForm):
     status = AMPChoiceField(label="Status", choices=status_choices, required=False)
 
 
-class CaseWebsiteDetailUpdateForm(forms.ModelForm):
+class CaseCreateForm(forms.ModelForm):
     """
-    Form for updating website details fields of cases
+    Form for creating a case
     """
 
     auditor = AMPCharFieldWide(label="Auditor", required=False)
@@ -130,6 +130,35 @@ class CaseWebsiteDetailUpdateForm(forms.ModelForm):
         ]
 
 
+class CaseWebsiteDetailUpdateForm(CaseCreateForm):
+    """
+    Form for updating website details fields of cases
+    """
+
+    domain = AMPCharFieldWide(
+        label="Domain",
+        required=False,
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "auditor",
+            "test_type",
+            "home_page_url",
+            "organisation_name",
+            "domain",
+            "website_type",
+            "sector",
+            "region",
+            "case_origin",
+            "zendesk_url",
+            "trello_url",
+            "notes",
+            "is_public_sector_body",
+        ]
+
+
 class CaseContactUpdateForm(forms.ModelForm):
     """
     Form for updating a contact
@@ -157,7 +186,9 @@ class CaseContactUpdateForm(forms.ModelForm):
 
 
 CaseContactFormset = forms.modelformset_factory(Contact, CaseContactUpdateForm, extra=0)
-CaseContactFormsetOneExtra = forms.modelformset_factory(Contact, CaseContactUpdateForm, extra=1)
+CaseContactFormsetOneExtra = forms.modelformset_factory(
+    Contact, CaseContactUpdateForm, extra=1
+)
 
 
 class CaseTestResultsUpdateForm(forms.ModelForm):

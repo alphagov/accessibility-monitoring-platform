@@ -9,12 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import Case, Contact
 from .forms import (
+    CaseCreateForm,
     CaseWebsiteDetailUpdateForm,
     CaseContactFormset,
     CaseContactFormsetOneExtra,
@@ -35,12 +36,15 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("end_date", "created__lte"),
 ]
 
+
 def get_id_from_button_name(button_name_prefix: str, post: Dict) -> Union[int, None]:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
     encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Union[Match, None] = re.search(r"" + button_name_prefix + "\d+", encoded_url)
+    match_obj: Union[Match, None] = re.search(
+        r"" + button_name_prefix + "\d+", encoded_url
+    )
     id: Union[int, None] = None
     if match_obj is not None:
         button_name: str = match_obj.group()
@@ -48,7 +52,9 @@ def get_id_from_button_name(button_name_prefix: str, post: Dict) -> Union[int, N
     return id
 
 
-def build_filters(cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]) -> Dict:
+def build_filters(
+    cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]
+) -> Dict:
     """
     Given the form cleaned_data, work through a list of field and filter names
     to build up a dictionary of filters to apply in a queryset.
@@ -84,7 +90,7 @@ class CaseListView(ListView):
 
         filters: dict = build_filters(
             cleaned_data=form.cleaned_data,
-            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES
+            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
         )
         filters["archived"] = False
 
@@ -107,6 +113,23 @@ class CaseListView(ListView):
         context["case_number"] = self.request.GET.get("case-number", "")
         context["auditor"] = self.request.GET.get("auditor", "")
         return context
+
+
+class CaseCreateView(CreateView):
+    model = Case
+    form_class = CaseCreateForm
+    context_object_name = "case"
+    template_name_suffix = "_create_form"
+
+    def get_success_url(self):
+        """ Detect the submit button used and act accordingly """
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-contact-details", kwargs={"pk": self.object.id}
+            )
+        return url
 
 
 class CaseWebsiteDetailUpdateView(UpdateView):
