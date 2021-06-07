@@ -30,9 +30,25 @@
                 </a>
             </div>
             <div class="govuk-grid-column-one-third">
-                <a href="{% url 'cases:edit-website-details' case.id %}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-                    Edit case
-                </a>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'cases:case-export-single' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Export to CSV
+                    </a>
+                    <a href="{% url 'cases:edit-website-details' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Edit case
+                    </a>
+                </div>
                 {% include 'cases/case_navbar.html' with current_page='view-details' %}
             </div>
         </div>
