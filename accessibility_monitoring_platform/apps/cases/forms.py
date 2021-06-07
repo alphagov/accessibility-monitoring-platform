@@ -32,9 +32,6 @@ from .models import (
     COMPLIANCE_DECISION_CHOICES,
 )
 
-DEFAULT_START_DATE = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
-DEFAULT_END_DATE = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
-
 AUDITOR_CHOICES = [
     ("", ""),
     ("Andrew Hick", "Andrew Hick"),

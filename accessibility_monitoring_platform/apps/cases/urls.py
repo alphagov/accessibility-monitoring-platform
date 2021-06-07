@@ -22,7 +22,11 @@ app_name = "cases"
 urlpatterns = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path("export-as-csv", login_required(export_cases), name="case-export-list"),
-    path("<int:pk>/export-as-csv", login_required(export_single_case), name="case-export-single"),
+    path(
+        "<int:pk>/export-as-csv",
+        login_required(export_single_case),
+        name="case-export-single",
+    ),
     path("create", login_required(CaseCreateView.as_view()), name="case-create"),
     path("<int:pk>/view", login_required(CaseDetailView.as_view()), name="case-detail"),
     path(

@@ -83,6 +83,7 @@ CASE_FIELDS_TO_EXPORT = [
     "archived",
 ]
 
+
 def get_id_from_button_name(button_name_prefix: str, post: Dict) -> Union[int, None]:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
@@ -298,8 +299,14 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
+    case_search_form = CaseSearchForm(request.GET)
+    case_search_form.is_valid()
+    filters: dict = build_filters(
+        cleaned_data=case_search_form.cleaned_data,
+        field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+    )
     return download_as_csv(
-        queryset=Case.objects.all(),
+        queryset=Case.objects.filter(**filters),
         field_names=CASE_FIELDS_TO_EXPORT,
         filename="cases.csv",
     )
