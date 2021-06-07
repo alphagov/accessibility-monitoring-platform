@@ -16,9 +16,26 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
-                <a href="{% url 'cases:case-create' %}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-                    Create case
-                </a>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'cases:case-create' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Create case
+                    </a>
+                    <a
+                        href="{% url 'cases:case-export-cases' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Export to CSV
+                    </a>
+                </div>
                 {% include "cases/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">

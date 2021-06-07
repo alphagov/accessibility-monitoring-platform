@@ -139,7 +139,9 @@ class AMPDateRangeForm(forms.Form):
     Start and end dates default to span entire period.
     """
 
-    start_date = forms.DateField(label="Start date", widget=AMPDateWidget(), required=False)
+    start_date = forms.DateField(
+        label="Start date", widget=AMPDateWidget(), required=False
+    )
     end_date = forms.DateField(label="End date", widget=AMPDateWidget(), required=False)
 
     def clean(self):

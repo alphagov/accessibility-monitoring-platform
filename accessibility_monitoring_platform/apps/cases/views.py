@@ -5,7 +5,6 @@ import re
 import urllib
 from typing import Any, Dict, List, Match, Tuple, Union
 
-from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -13,6 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
+from ..common.utils import download_as_csv
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
@@ -242,7 +242,23 @@ class CasePostReportDetailsUpdateView(UpdateView):
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
-@login_required
+def export_cases(request: HttpRequest) -> HttpResponse:
+    """
+    View to export cases
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    return download_as_csv(
+        queryset=Case.objects.all(),
+        field_names=["home_page_url", "auditor"],
+        filename="cases.csv",
+    )
+
+
 def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
     """
     View to archive case
