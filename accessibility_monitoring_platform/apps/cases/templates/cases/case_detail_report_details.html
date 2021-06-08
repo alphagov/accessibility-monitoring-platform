@@ -1,0 +1,48 @@
+<h2 id="report-details" class="govuk-heading-m">Report details</h2>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Link to report draft</th>
+            <td class="govuk-table__cell">
+                {% if case.report_draft_url %}
+                    <a href="{{ case.report_draft_url }}">Report draft</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report ready to be reviewed</th>
+            <td class="govuk-table__cell">{{ case.get_report_review_status_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">QA auditor</th>
+            <td class="govuk-table__cell">{{ case.reviewer }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report approved</th>
+            <td class="govuk-table__cell">{{ case.get_report_approved_status_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell">
+                <h3 class="govuk-heading-s cases-sub-heading">QA notes</h3>
+                {% if case.reviewer_notes %}<pre class="govuk-body-m">{{ case.reviewer_notes }}</pre>{% endif %}
+            </td>
+            <td class="govuk-table__cell"></td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Link to final report</th>
+            <td class="govuk-table__cell">
+                {% if case.report_final_url %}
+                    <a href="{{ case.report_final_url }}">Final draft</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report sent on</th>
+            <td class="govuk-table__cell">{{ case.report_sent_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report acknowledged</th>
+            <td class="govuk-table__cell">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
+        </tr>
+    </tbody>
+</table>

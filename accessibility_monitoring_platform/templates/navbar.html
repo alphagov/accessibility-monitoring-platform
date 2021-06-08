@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 
 {% if user.is_authenticated %}
-  <div class="topnavmenu">
+<div class="topnavmenu">
     <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
     <ul class="govuk-list nav-menu-list">
-      <li> <a class="govuk-link" href="{% url 'dashboard:home' %}"> Home </a></li>
-      <li> <a class="govuk-link" href="{% url 'users:account_details' %}"> Account details </a></li>
-      <li> <a class="govuk-link" href="{% url 'logout' %}"> Sign out </a></li>
+        <li> <a class="govuk-link" href="{% url 'dashboard:home' %}"> Home </a></li>
+        <li> <a class="govuk-link" href="{% url 'cases:case-list' %}"> Search cases </a></li>
+        <li> <a class="govuk-link" href="{% url 'query_local_website_registry:home' %}"> Query domain </a></li>
+        <li> <a class="govuk-link" href="{% url 'users:account_details' %}"> Account details </a></li>
+        <li> <a class="govuk-link" href="{% url 'logout' %}"> Sign out </a></li>
     </ul>
-  </div>
+</div>
 {% else %}
-  <div class="topnavmenu">
+<div class="topnavmenu">
     <ul class="govuk-list nav-menu-list">
-      <li> <a class="govuk-link" href="{% url 'dashboard:home' %}"> Home </a></li>
-      <li> <a class="govuk-link" href="{% url 'login' %}"> Sign in </a></li>
+        <li> <a class="govuk-link" href="{% url 'dashboard:home' %}"> Home </a></li>
+        <li> <a class="govuk-link" href="{% url 'login' %}"> Sign in </a></li>
     </ul>
-  </div>
+</div>
 {% endif %}

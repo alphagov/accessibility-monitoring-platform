@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">View case #{{ object.id }}</h1>
+                <p class="govuk-body-l">{{ case.domain }}</p>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'cases/case_detail_website_details.html' %}
+                {% include 'cases/case_detail_contact_details.html' %}
+                {% include 'cases/case_detail_testing_details.html' %}
+                {% include 'cases/case_detail_report_details.html' %}
+                {% include 'cases/case_detail_post_report.html' %}
+                <h2 id="unlist-case" class="govuk-heading-m">Unlist case</h2>
+                <p class="govuk-body-m">
+                    Unlist the case removes the case from your home view and from general case search,
+                    essentially acting as a delete option. This can be undone by contacting an admin.
+                </p>
+                <a
+                    href="{% url 'cases:archive-case' case.id %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button govuk-button--warning"
+                    data-module="govuk-button"
+                >
+                    Remove
+                </a>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'cases:case-export-single' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Export to CSV
+                    </a>
+                    <a href="{% url 'cases:edit-website-details' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Edit case
+                    </a>
+                </div>
+                {% include 'cases/case_navbar.html' with current_page='view-details' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

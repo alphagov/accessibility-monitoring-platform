@@ -1,0 +1,42 @@
+<nav role="navigation">
+    {% if current_page == 'view-details' %}
+        <h2 class="govuk-heading-m">Contents</h2>
+        <ul class="govuk-list">
+            <li><a href="#website-details" class="govuk-link">Website details</a></li>
+            <li><a href="#contact-details" class="govuk-link">Contact details</a></li>
+            <li><a href="#testing-details" class="govuk-link">Testing details</a></li>
+            <li><a href="#report-details" class="govuk-link">Report details</a></li>
+            <li><a href="#post-report" class="govuk-link">Post report</a></li>
+            <li><a href="#unlist-case" class="govuk-link">Unlist case</a></li>
+        </ul>
+    {% else %}
+        <h2 class="govuk-heading-m">Case steps</h2>
+        <ul class="govuk-list">
+            {% if current_page == 'edit-website' %}
+                <li>Website details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-website-details' case.id %}" class="govuk-link">Website details</a></li>
+            {% endif %}
+            {% if current_page == 'edit-contacts' %}
+                <li>Contact details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link">Contact details</a></li>
+            {% endif %}
+            {% if current_page == 'edit-test-results' %}
+                <li>Testing details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link">Testing details</a></li>
+            {% endif %}
+            {% if current_page == 'edit-report-details' %}
+                <li>Report details</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link">Report details</a></li>
+            {% endif %}
+            {% if current_page == 'edit-post-report-details' %}
+                <li>Post report</li>
+            {% else %}
+                <li><a href="{% url 'cases:edit-post-report-details' case.id %}" class="govuk-link">Post report</a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</nav>

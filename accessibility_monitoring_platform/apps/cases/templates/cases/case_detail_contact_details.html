@@ -1,0 +1,49 @@
+<h2 id="contact-details" class="govuk-heading-m">Contact details</h2>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        {% for contact in contacts %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s cases-sub-heading">Contact name</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half">
+                        <p class="govuk-body-m">{{ contact.name }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s cases-sub-heading">Job title</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half">
+                        <p class="govuk-body-m">{{ contact.job_title }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s cases-sub-heading">Contact detail</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half">
+                        <p class="govuk-body-m">{{ contact.detail }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s cases-sub-heading">Preferred contact</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half">
+                        <p class="govuk-body-m">{{ contact.preferred }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+                        {% if contact.notes %}<pre class="govuk-body-m">{{ contact.notes }}</pre>{% endif %}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -13,16 +13,23 @@
     </div>
     <div class="govuk-grid-row dashboard">
       <div class="govuk-grid-column-full">
-        <a href="{% url 'query_local_website_registry:home' %}"> 
+        <a href="{% url 'query_local_website_registry:home' %}">
           <div class="app-selection">
             <p class="govuk-body-l">Query Domains</p>
           </div>
         </a>
       </div>
       <div class="govuk-grid-column-full">
-        <a href="{% url 'axe_data:home' %}"> 
+        <a href="{% url 'axe_data:home' %}">
           <div class="app-selection">
             <p class="govuk-body-l">Query Axe Data</p>
+          </div>
+        </a>
+      </div>
+      <div class="govuk-grid-column-full">
+        <a href="{% url 'cases:case-list' %}">
+          <div class="app-selection">
+            <p class="govuk-body-l">Cases</p>
           </div>
         </a>
       </div>

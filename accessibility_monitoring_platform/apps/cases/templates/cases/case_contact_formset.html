@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'cases:edit-website-details' case.id %}" class="govuk-back-link">Back</a>
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">Edit case #{{ case.id }}</h1>
+                <p class="govuk-body-l">{{ case.domain }}</p>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
+                    {% csrf_token %}
+                    {{ contacts_formset.management_form }}
+                    <div class="govuk-error-message">{{ contacts_formset.non_form_errors }}</div>
+
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                        {% for contact_form in contacts_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <h2 class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
+                                        <div class="govuk-error-message">{{ contact_form.non_field_errors }}</div>
+
+                                        {% for hidden_field in contact_form.hidden_fields %}
+                                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                                            {{ hidden_field }}
+                                        {% endfor %}
+                                        {% for field in contact_form.visible_fields %}
+                                            <div class="govuk-grid-column-full govuk-form-group">
+                                                <label class="govuk-label"
+                                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                                                </label>
+                                                <div class="govuk-error-message">{{ field.errors }}</div>
+                                                <p class="govuk-body-m">{{ field.help_text }}</p>
+                                                {{ field }}
+                                            </div>
+                                        {% endfor %}
+                                        <div class="govuk-grid-column-full">
+                                            <input
+                                                type="submit"
+                                                value="Remove contact"
+                                                name="remove_contact_{{ contact_form.instance.id }}"
+                                                class="govuk-button govuk-button--secondary"
+                                                data-module="govuk-button" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <a
+                        href="{% url 'cases:edit-contact-details' case.id %}?add_extra=true"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Add contact
+                    </a>
+                    <div class="govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Save and continue"
+                            name="save_continue"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        />
+                        <input
+                            type="submit"
+                            value="Save and exit"
+                            name="save_exit"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        />
+                        <a
+                            href="{% url 'cases:case-detail' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--warning"
+                            data-module="govuk-button"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/case_navbar.html' with current_page='edit-contacts' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
