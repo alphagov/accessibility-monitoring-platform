@@ -1,11 +1,13 @@
 """ Common utility functions """
-from django.db.models import QuerySet
-from django.http import HttpResponse
+import re
 import csv
 from typing import (
     Any,
     List,
 )
+
+from django.db.models import QuerySet
+from django.http import HttpResponse
 
 
 def download_as_csv(
@@ -25,3 +27,8 @@ def download_as_csv(
     writer.writerows(output)
 
     return response
+
+
+def extract_domain_from_url(url):
+    domain_match = re.search("https?://([A-Za-z_0-9.-]+).*", url)
+    return domain_match.group(1) if domain_match else ""

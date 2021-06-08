@@ -1,7 +1,6 @@
 """
 Views for cases
 """
-from datetime import datetime
 import re
 import urllib
 from typing import Any, Dict, List, Match, Tuple, Union
