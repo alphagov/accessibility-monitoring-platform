@@ -94,9 +94,7 @@ def get_id_from_button_name(button_name_prefix: str, post: QueryDict) -> IntOrNo
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
     encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Union[Match, None] = re.search(
-        f"{button_name_prefix}\d+", encoded_url
-    )
+    match_obj: Union[Match, None] = re.search(f"{button_name_prefix}\d+", encoded_url)
     id: IntOrNone = None
     if match_obj is not None:
         button_name: str = match_obj.group()
@@ -250,7 +248,9 @@ class CaseContactFormsetUpdateView(UpdateView):
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_archive is not None:
-                url = reverse_lazy("cases:edit-contact-details", kwargs={"pk": self.object.id})
+                url = reverse_lazy(
+                    "cases:edit-contact-details", kwargs={"pk": self.object.id}
+                )
             else:
                 url = reverse_lazy("cases:case-list")
         return url

@@ -55,11 +55,11 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    case_number = AMPCharField(label="Case number", required=False)
-    domain = AMPCharField(label="Domain", required=False)
-    organisation = AMPCharField(label="Organisation", required=False)
-    auditor = AMPChoiceField(label="Auditor", choices=AUDITOR_CHOICES, required=False)
-    status = AMPChoiceField(label="Status", choices=status_choices, required=False)
+    case_number = AMPCharField(label="Case number")
+    domain = AMPCharField(label="Domain")
+    organisation = AMPCharField(label="Organisation")
+    auditor = AMPChoiceField(label="Auditor", choices=AUDITOR_CHOICES)
+    status = AMPChoiceField(label="Status", choices=status_choices)
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -67,33 +67,30 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = AMPCharFieldWide(label="Auditor", required=False)
+    auditor = AMPCharFieldWide(label="Auditor")
     test_type = AMPChoiceField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
     home_page_url = AMPCharFieldWide(
         label="Full URL",
-        required=False,
         help_text="Enter a domain if test type is simple or complex",
     )
-    organisation_name = AMPCharFieldWide(label="Organisation name", required=False)
+    organisation_name = AMPCharFieldWide(label="Organisation name")
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
-    sector = AMPCharFieldWide(label="Sector", required=False)
-    region = AMPCharFieldWide(label="Region", required=False)
+    sector = AMPCharFieldWide(label="Sector")
+    region = AMPCharFieldWide(label="Region")
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
-    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL", required=False)
-    trello_url = AMPCharFieldWide(label="Trello ticket URL", required=False)
-    notes = AMPTextField(label="Notes", required=False)
+    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
+    trello_url = AMPCharFieldWide(label="Trello ticket URL")
+    notes = AMPTextField(label="Notes")
     is_public_sector_body = AMPBooleanField(
         label="Public sector body?",
         help_text="If you later find out the organisation is not a public sector body,"
@@ -103,7 +100,7 @@ class CaseCreateForm(forms.ModelForm):
                 "label": "Untick this box to unlist the case",
             }
         ),
-        required=False,
+        initial=True,
     )
 
     class Meta:
@@ -129,10 +126,7 @@ class CaseWebsiteDetailUpdateForm(CaseCreateForm):
     Form for updating website details fields of cases
     """
 
-    domain = AMPCharFieldWide(
-        label="Domain",
-        required=False,
-    )
+    domain = AMPCharFieldWide(label="Domain")
 
     class Meta:
         model = Case
@@ -158,14 +152,12 @@ class CaseContactUpdateForm(forms.ModelForm):
     Form for updating a contact
     """
 
-    first_name = AMPCharFieldWide(label="First name", required=False)
-    last_name = AMPCharFieldWide(label="Last name", required=False)
-    job_title = AMPCharFieldWide(label="Job title", required=False)
-    detail = AMPCharFieldWide(label="Detail", required=False)
-    preferred = AMPBooleanField(
-        label="Preferred contact?", widget=AMPCheckboxWidget(), required=False
-    )
-    notes = AMPTextField(label="Notes", required=False)
+    first_name = AMPCharFieldWide(label="First name")
+    last_name = AMPCharFieldWide(label="Last name")
+    job_title = AMPCharFieldWide(label="Job title")
+    detail = AMPCharFieldWide(label="Detail")
+    preferred = AMPBooleanField(label="Preferred contact?", widget=AMPCheckboxWidget())
+    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -179,7 +171,9 @@ class CaseContactUpdateForm(forms.ModelForm):
         ]
 
 
-CaseContactFormset: Any = forms.modelformset_factory(Contact, CaseContactUpdateForm, extra=0)
+CaseContactFormset: Any = forms.modelformset_factory(
+    Contact, CaseContactUpdateForm, extra=0
+)
 CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
     Contact, CaseContactUpdateForm, extra=1
 )
@@ -190,17 +184,16 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     Form for updating test results
     """
 
-    test_results_url = AMPCharFieldWide(label="Link to test results", required=False)
+    test_results_url = AMPCharFieldWide(label="Link to test results")
     test_status = AMPChoiceField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
     is_website_compliant = AMPBooleanField(
-        label="Is the website compliant?", widget=AMPCheckboxWidget(), required=False
+        label="Is the website compliant?", widget=AMPCheckboxWidget()
     )
-    test_notes = AMPTextField(label="Compliance notes", required=False)
+    test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
         model = Case
@@ -217,24 +210,22 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     Form for updating report details
     """
 
-    report_draft_url = AMPCharFieldWide(label="Link to report draft", required=False)
+    report_draft_url = AMPCharFieldWide(label="Link to report draft")
     report_review_status = AMPChoiceField(
         label="Report ready to be reviewed?",
         choices=REPORT_REVIEW_STATUS_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
-    reviewer = AMPCharFieldWide(label="QA auditor", required=False)
+    reviewer = AMPCharFieldWide(label="QA auditor")
     report_approved_status = AMPChoiceField(
         label="Report approved?",
         choices=REPORT_APPROVED_STATUS_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
-    reviewer_notes = AMPTextField(label="QA notes", required=False)
-    report_final_url = AMPCharFieldWide(label="Link to final report", required=False)
-    report_sent_date = AMPDateField(label="Report sent on", required=False)
-    report_acknowledged_date = AMPDateField(label="Report acknowledged", required=False)
+    reviewer_notes = AMPTextField(label="QA notes")
+    report_final_url = AMPCharFieldWide(label="Link to final report")
+    report_sent_date = AMPDateField(label="Report sent on")
+    report_acknowledged_date = AMPDateField(label="Report acknowledged")
 
     class Meta:
         model = Case
@@ -255,58 +246,44 @@ class CasePostReportUpdateForm(forms.ModelForm):
     Form for updating post report details
     """
 
-    week_12_followup_date = AMPDateField(label="12 week followup date", required=False)
+    week_12_followup_date = AMPDateField(label="12 week followup date")
     psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body", required=False
+        label="Summary of progress made from public sector body"
     )
-    week_12_followup_email_sent_date = AMPDateField(
-        label="12 week followup email sent", required=False
-    )
+    week_12_followup_email_sent_date = AMPDateField(label="12 week followup email sent")
     week_12_followup_email_acknowledgement_date = AMPDateField(
-        label="12 week followup acknowledge", required=False
+        label="12 week followup acknowledge"
     )
     is_website_retested = AMPBooleanField(
-        label="Retested website?", widget=AMPCheckboxWidget(), required=False
+        label="Retested website?", widget=AMPCheckboxWidget()
     )
     is_disproportionate_claimed = AMPBooleanField(
         label="Disproportionate burden claimed?",
         widget=AMPCheckboxWidget(),
-        required=False,
     )
-    disproportionate_notes = AMPTextField(
-        label="Disproportionate burden notes", required=False
-    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
     accessibility_statement_decison = AMPChoiceField(
         label="Accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
     accessibility_statement_url = AMPCharFieldWide(
-        label="Link to new accessibility statement", required=False
+        label="Link to new accessibility statement"
     )
-    accessibility_statement_notes = AMPTextField(
-        label="Accessibility statement notes", required=False
-    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     compliance_decision = AMPChoiceField(
         label="Compliance decision",
         choices=COMPLIANCE_DECISION_CHOICES,
-        required=False,
         widget=AMPRadioSelectWidget,
     )
-    compliance_decision_notes = AMPTextField(
-        label="Compliance decision notes", required=False
-    )
-    compliance_email_sent_date = AMPDateField(
-        label="Compliance email sent?", required=False
-    )
+    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_email_sent_date = AMPDateField(label="Compliance email sent?")
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to enforcement body",
         help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
-        required=False,
     )
     is_case_completed = AMPBooleanField(
-        label="Case completed?", widget=AMPCheckboxWidget(), required=False
+        label="Case completed?", widget=AMPCheckboxWidget()
     )
 
     class Meta:

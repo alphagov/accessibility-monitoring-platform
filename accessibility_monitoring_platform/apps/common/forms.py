@@ -91,7 +91,7 @@ class AMPTextField(forms.CharField):
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
-            "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": 2}),
+            "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
             "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
@@ -128,6 +128,7 @@ class AMPDateField(forms.DateField):
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
             "widget": AMPDateWidget(),
+            "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)

@@ -102,9 +102,13 @@ class Command(BaseCommand):
                     organisation_name = extract_data_from_simplified_test_filename(
                         simplified_test_filename
                     )
-                    created_time, home_page_url, domain, status, auditor = extract_data_from_row(
-                        row
-                    )
+                    (
+                        created_time,
+                        home_page_url,
+                        domain,
+                        status,
+                        auditor,
+                    ) = extract_data_from_row(row)
 
                     case = Case(
                         id=int(row["Case number"]),
