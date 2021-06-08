@@ -42,7 +42,7 @@ applications:
   echo "Login into Python shell with /tmp/lifecycle/shell"
   echo "Create superuser with:"
   echo "echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin@email.com', 'admin@email.com', '${RANDOM_PASSWORD}')\" | python manage.py shell"
- echo "email is admin@email.com and password is ${RANDOM_PASSWORD}" 
+  echo "email is admin@email.com and password is ${RANDOM_PASSWORD}" 
 else
   echo "Tearing down testing environment"
   cf delete-space -f "$CF_SPACE_NAME" 

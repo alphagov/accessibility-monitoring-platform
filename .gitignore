@@ -15,6 +15,7 @@ requirements.txt
 chromedriver
 .vscode/settings.json
 data/s3_files/*
+data/localstack-data/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

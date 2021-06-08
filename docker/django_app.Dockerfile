@@ -13,11 +13,9 @@ RUN apt-get install -y python3 \
     postgresql-contrib
 WORKDIR /code
 COPY requirements.txt /code/
-COPY ./data/auth_data.json /code/data/
-COPY ./data/pubsecweb_210216.pgadmin-backup /code/data/
-COPY ./data/a11ymon210408.pgadmin-backup /code/data/
-COPY data/a11ymon_mini_2021-05-04.sql /code/data/
-COPY ./data/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv /code/data/
+COPY ./data/s3_files/20210604_auth_data.json /code/data/s3_files/
+COPY ./data/s3_files/pubsecweb_210216.pgadmin-backup /code/data/s3_files/
+COPY ./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv /code/data/s3_files/
 RUN pip3 install -r requirements.txt
 COPY gulpfile.babel.js /code/
 COPY manage.py /code/

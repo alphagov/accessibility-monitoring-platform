@@ -27,6 +27,19 @@ services:
     links:
       - "db:pgsql-server"
 
+  localstack:
+    image: localstack/localstack
+    network_mode: bridge
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "./data/localstack-data:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
 volumes:
   db-data:
   pgadmin-data:
