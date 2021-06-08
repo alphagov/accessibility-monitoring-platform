@@ -42,8 +42,8 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-18.04
     steps:
-    - name: Integration tests
     - uses: actions/checkout@v2
+    - name: Integration tests
       run: |
         python3 -m venv venv
         source venv/bin/activate
