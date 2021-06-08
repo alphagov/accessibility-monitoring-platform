@@ -5,9 +5,10 @@ import argparse
 import boto3
 from dotenv import load_dotenv
 import os
+from pathlib import Path
+import platform
 import sys
 import time
-import platform
 import shutil
 import socket
 from typing import Any, Union
@@ -99,6 +100,8 @@ def download_webdriver() -> None:
 
 def download_s3_object(s3_path: str, local_path: str) -> None:
     if os.path.exists(local_path) is False:
+        temp = "/".join(local_path.split("/")[:-1])
+        Path(temp).mkdir(parents=True, exist_ok=True)
         s3_client.download_file(bucket, s3_path, local_path)
     else:
         print(">>>> file already exists")
