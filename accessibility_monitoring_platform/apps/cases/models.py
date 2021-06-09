@@ -1,13 +1,14 @@
 """
 Models - cases
 """
-import re
 from typing import List, Tuple
 
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.urls import reverse
 from django.utils import timezone
+
+from ..common.utils import extract_domain_from_url
 
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("new-case", "New case"),
@@ -159,8 +160,7 @@ class Case(models.Model):
         now = timezone.now()
         if not self.created:
             self.created = now
-            domain_match = re.search("https?://([A-Za-z_0-9.-]+).*", self.home_page_url)
-            self.domain = domain_match.group(1) if domain_match else ""
+            self.domain = extract_domain_from_url(self.home_page_url)
         if self.is_case_completed and not self.completed:
             self.completed = now
         super().save(*args, **kwargs)

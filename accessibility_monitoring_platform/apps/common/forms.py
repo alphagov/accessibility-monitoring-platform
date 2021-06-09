@@ -52,7 +52,9 @@ class AMPDateWidget(forms.MultiWidget):
             return [day, month, year]
         return [None, None, None]
 
-    def value_from_datadict(self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str) -> str:
+    def value_from_datadict(
+        self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
+    ) -> str:
         day, month, year = super().value_from_datadict(data, files, name)
         if day == "" and month == "" and year == "":
             return ""

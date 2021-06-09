@@ -1,11 +1,21 @@
 """ Common utility functions """
-from django.db.models import QuerySet
-from django.http import HttpResponse
+import re
 import csv
 from typing import (
     Any,
+    Dict,
     List,
+    Match,
+    Union,
+    Tuple,
 )
+import urllib
+
+from django.db.models import QuerySet
+from django.http import HttpResponse
+from django.http.request import QueryDict
+
+from .typing import IntOrNone, StringOrNone
 
 
 def download_as_csv(
@@ -25,3 +35,36 @@ def download_as_csv(
     writer.writerows(output)
 
     return response
+
+
+def extract_domain_from_url(url):
+    domain_match = re.search("https?://([A-Za-z_0-9.-]+).*", url)
+    return domain_match.group(1) if domain_match else ""
+
+
+def get_id_from_button_name(button_name_prefix: str, post: QueryDict) -> IntOrNone:
+    """
+    Given a button name in the form: prefix_[id] extract and return the id value.
+    """
+    encoded_url: str = urllib.parse.urlencode(post)
+    match_obj: Union[Match, None] = re.search(f"^{button_name_prefix}\d+", encoded_url)
+    id: IntOrNone = None
+    if match_obj is not None:
+        button_name: str = match_obj.group()
+        id = int(button_name.replace(button_name_prefix, ""))
+    return id
+
+
+def build_filters(
+    cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]
+) -> Dict[str, Any]:
+    """
+    Given the form cleaned_data, work through a list of field and filter names
+    to build up a dictionary of filters to apply in a queryset.
+    """
+    filters: Dict[str, Any] = {}
+    for field_name, filter_name in field_and_filter_names:
+        value: StringOrNone = cleaned_data.get(field_name)
+        if value:
+            filters[filter_name] = value
+    return filters
