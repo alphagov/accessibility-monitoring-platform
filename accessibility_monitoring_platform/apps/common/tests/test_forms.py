@@ -78,14 +78,20 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 
 class AMPRadioSelectWidgetTestCase(TestCase):
     """ Test output of AMPRadioSelectWidget """
+
     def test_html_uses_govuk_classes(self):
         """ Check AMPRadioSelectWidget renders the expected HTML """
-        widget: AMPRadioSelectWidget = AMPRadioSelectWidget(choices=[("val1", "Label1")])
-        self.assertHTMLEqual(widget.render("name", None), EXPECTED_RADIO_SELECT_WIDGET_HTML)
+        widget: AMPRadioSelectWidget = AMPRadioSelectWidget(
+            choices=[("val1", "Label1")]
+        )
+        self.assertHTMLEqual(
+            widget.render("name", None), EXPECTED_RADIO_SELECT_WIDGET_HTML
+        )
 
 
 class AMPCheckboxWidgetWidgetTestCase(TestCase):
     """ Test output of AMPCheckboxWidget """
+
     def test_html_uses_govuk_classes(self):
         """ Check AMPCheckboxWidget renders the expected HTML """
         widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
@@ -94,6 +100,7 @@ class AMPCheckboxWidgetWidgetTestCase(TestCase):
 
 class AMPDateWidgetTestCase(TestCase):
     """ Test output of AMPDateWidget """
+
     def test_html_uses_govuk_classes(self):
         """ Check AMPDateWidget renders the expected HTML """
         widget: AMPDateWidget = AMPDateWidget()
@@ -102,6 +109,7 @@ class AMPDateWidgetTestCase(TestCase):
 
 class AMPCharFieldTestCase(TestCase):
     """ Test AMPCharField """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPCharField = AMPCharField(label="Label text")
@@ -126,12 +134,13 @@ class AMPCharFieldTestCase(TestCase):
         """ Check AMPCharField widget attr defaults """
         self.assertEqual(
             self.field.widget.attrs,
-            {"class": "govuk-input govuk-input--width-10", "maxlength": "100"}
+            {"class": "govuk-input govuk-input--width-10", "maxlength": "100"},
         )
 
 
 class AMPCharFieldWideTestCase(AMPCharFieldTestCase):
     """ Test AMPCharFieldWide """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
@@ -142,14 +151,12 @@ class AMPCharFieldWideTestCase(AMPCharFieldTestCase):
 
     def test_field_widget_attrs(self):
         """ Check AMPCharFieldWide widget attr defaults """
-        self.assertEqual(
-            self.field.widget.attrs,
-            {"class": "govuk-input"}
-        )
+        self.assertEqual(self.field.widget.attrs, {"class": "govuk-input"})
 
 
 class AMPTextFieldTestCase(TestCase):
     """ Test AMPTextField """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPTextField = AMPTextField(label="Label text")
@@ -170,12 +177,13 @@ class AMPTextFieldTestCase(TestCase):
         """ Check AMPTextField widget attr defaults """
         self.assertEqual(
             self.field.widget.attrs,
-            {"class": "govuk-textarea", "cols": "40", "rows": "2"}
+            {"class": "govuk-textarea", "cols": "40", "rows": "2"},
         )
 
 
 class AMPChoiceFieldTestCase(TestCase):
     """ Test AMPChoiceField """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPChoiceField = AMPChoiceField(label="Label text")
@@ -194,14 +202,12 @@ class AMPChoiceFieldTestCase(TestCase):
 
     def test_field_widget_attrs(self):
         """ Check AMPTextField widget attr defaults """
-        self.assertEqual(
-            self.field.widget.attrs,
-            {"class": "govuk-select"}
-        )
+        self.assertEqual(self.field.widget.attrs, {"class": "govuk-select"})
 
 
 class AMPBooleanFieldTestCase(TestCase):
     """ Test AMPBooleanField """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPBooleanField = AMPBooleanField(label="Label text")
@@ -220,14 +226,12 @@ class AMPBooleanFieldTestCase(TestCase):
 
     def test_field_widget_attrs(self):
         """ Check AMPBooleanField widget attr defaults """
-        self.assertEqual(
-            self.field.widget.attrs,
-            {"class": "govuk-checkboxes__input"}
-        )
+        self.assertEqual(self.field.widget.attrs, {"class": "govuk-checkboxes__input"})
 
 
 class AMPDateFieldTestCase(TestCase):
     """ Test AMPDateField """
+
     def setUp(self):
         """ Sets up the test environment with a field """
         self.field: AMPDateField = AMPDateField(label="Label text")
@@ -267,6 +271,7 @@ class AMPDateRangeFormTestCase(TestCase):
     test_form_fails_clean_end_date()
         Form fails if end date is invalid
     """
+
     def setUp(self):
         """ Sets up the test environment with a request factory """
         self.factory: RequestFactory = RequestFactory()
@@ -275,12 +280,12 @@ class AMPDateRangeFormTestCase(TestCase):
         """ Tests if form.is_valid() is true for valid dates """
         form: AMPDateRangeForm = AMPDateRangeForm(
             data={
-                'start_date_0': '1',
-                'start_date_1': '1',
-                'start_date_2': '1900',
-                'end_date_0': '1',
-                'end_date_1': '1',
-                'end_date_2': '2100'
+                "start_date_0": "1",
+                "start_date_1": "1",
+                "start_date_2": "1900",
+                "end_date_0": "1",
+                "end_date_1": "1",
+                "end_date_2": "2100",
             }
         )
         self.assertTrue(form.is_valid())
@@ -289,12 +294,12 @@ class AMPDateRangeFormTestCase(TestCase):
         """ Tests if form.is_valid() is false if start date is invalid """
         form: AMPDateRangeForm = AMPDateRangeForm(
             data={
-                'start_date_0': '31',
-                'start_date_1': '2',
-                'start_date_2': '1900',
-                'end_date_0': '1',
-                'end_date_1': '1',
-                'end_date_2': '2100'
+                "start_date_0": "31",
+                "start_date_1": "2",
+                "start_date_2": "1900",
+                "end_date_0": "1",
+                "end_date_1": "1",
+                "end_date_2": "2100",
             }
         )
         self.assertFalse(form.is_valid())
@@ -303,12 +308,12 @@ class AMPDateRangeFormTestCase(TestCase):
         """ Tests if form.is_valid() is false if end date is invalid """
         form: AMPDateRangeForm = AMPDateRangeForm(
             data={
-                'start_date_0': '1',
-                'start_date_1': '1',
-                'start_date_2': '1900',
-                'end_date_0': '31',
-                'end_date_1': '2',
-                'end_date_2': '2100'
+                "start_date_0": "1",
+                "start_date_1": "1",
+                "start_date_2": "1900",
+                "end_date_0": "31",
+                "end_date_1": "2",
+                "end_date_2": "2100",
             }
         )
         self.assertFalse(form.is_valid())

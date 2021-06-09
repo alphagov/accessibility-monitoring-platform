@@ -7,6 +7,7 @@ from ..models import Case, Contact
 DOMAIN = "example.com"
 HOME_PAGE_URL = f"https://{DOMAIN}/index.html"
 
+
 class CaseTestCase(TestCase):
     """
     Tests for Case model
@@ -22,16 +23,15 @@ class CaseTestCase(TestCase):
     test_case_created_timestamp_is_not_updated()
         Test the created field is not updated on subsequent saves
     """
+
     def setUp(self):
         self.case = Case.objects.create(home_page_url=HOME_PAGE_URL)
         self.case_from_db = Case.objects.get(pk=self.case.id)
-
 
     def test_case_created_timestamp_is_populated(self):
         """ Test the Case created field is populated the first time the Case is saved """
         self.assertTrue(self.case_from_db.created is not None)
         self.assertTrue(isinstance(self.case_from_db.created, datetime))
-
 
     def test_case_created_timestamp_is_not_updated(self):
         """ Test the Case created field is not updated on subsequent saves """
@@ -75,6 +75,7 @@ class ContactTestCase(TestCase):
     test_contact_created_timestamp_is_not_updated()
         Test the created field is not updated on subsequent save
     """
+
     def setUp(self):
         case = Case.objects.create()
         self.contact = Contact.objects.create(
@@ -92,7 +93,6 @@ class ContactTestCase(TestCase):
         """ Test the created field is populated the first time the Contact is saved """
         self.assertTrue(self.contact_from_db.created != None)
         self.assertTrue(isinstance(self.contact_from_db.created, datetime))
-
 
     def test_contact_created_timestamp_is_not_updated(self):
         """ Test the created field is not updated on subsequent save """

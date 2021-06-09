@@ -1,22 +1,20 @@
 """
 Views for cases
 """
-import re
 import urllib
-from typing import Any, Dict, List, Match, Tuple, Union
+from typing import Any, Dict, List, Tuple
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 
 from django.http import HttpRequest, HttpResponse
-from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..common.typing import IntOrNone, StringOrNone
-from ..common.utils import download_as_csv
+from ..common.typing import IntOrNone
+from ..common.utils import build_filters, download_as_csv, get_id_from_button_name
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
@@ -86,34 +84,6 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "completed",
     "archived",
 ]
-
-
-def get_id_from_button_name(button_name_prefix: str, post: QueryDict) -> IntOrNone:
-    """
-    Given a button name in the form: prefix_[id] extract and return the id value.
-    """
-    encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Union[Match, None] = re.search(f"{button_name_prefix}\d+", encoded_url)
-    id: IntOrNone = None
-    if match_obj is not None:
-        button_name: str = match_obj.group()
-        id = int(button_name.replace(button_name_prefix, ""))
-    return id
-
-
-def build_filters(
-    cleaned_data: Dict, field_and_filter_names: List[Tuple[str, str]]
-) -> Dict[str, Any]:
-    """
-    Given the form cleaned_data, work through a list of field and filter names
-    to build up a dictionary of filters to apply in a queryset.
-    """
-    filters: Dict[str, Any] = {}
-    for field_name, filter_name in field_and_filter_names:
-        value: StringOrNone = cleaned_data.get(field_name)
-        if value:
-            filters[filter_name] = value
-    return filters
 
 
 class CaseDetailView(DetailView):

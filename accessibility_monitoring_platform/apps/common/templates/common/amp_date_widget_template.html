@@ -9,7 +9,7 @@
                     class="{{ subwidget.attrs.class }}"
                     type="{{ subwidget.type }}"
                     name="{{ subwidget.name }}"
-                    {% if subwidget.value != None %}
+                    {% if subwidget.value is not None %}
                         value="{{ subwidget.value|stringformat:'s' }}"
                     {% endif %}
                     {% for name, value in subwidget.attrs.items %}
