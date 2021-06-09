@@ -2,10 +2,13 @@
 Python script to orchestrate the integration tests
 """
 import argparse
+import boto3
+from dotenv import load_dotenv
 import os
+from pathlib import Path
+import platform
 import sys
 import time
-import platform
 import shutil
 import socket
 from typing import Any, Union
@@ -95,9 +98,46 @@ def download_webdriver() -> None:
     print(">>> chromedriver now ready")
 
 
+def download_s3_object(s3_path: str, local_path: str) -> None:
+    if os.path.exists(local_path) is False:
+        temp = "/".join(local_path.split("/")[:-1])
+        Path(temp).mkdir(parents=True, exist_ok=True)
+        s3_client.download_file(bucket, s3_path, local_path)
+    else:
+        print(">>>> file already exists")
+
+
 if __name__ == "__main__":
     start = time.time()
     parser = argparse.ArgumentParser(description="Starts integration tests")
+    load_dotenv()
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID_S3_STORE"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY_S3_STORE"),
+        region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE")
+    )
+    bucket: str = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
+
+    download_s3_object(
+        s3_path="fixtures/20210604_auth_data.json",
+        local_path="./data/s3_files/20210604_auth_data.json"
+    )
+
+    download_s3_object(
+        s3_path=(
+            "extra/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_"
+            "Lookup_in_United_Kingdom.csv"
+        ),
+        local_path=(
+            "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_"
+            "(January_2018)_Lookup_in_United_Kingdom.csv")
+    )
+
+    download_s3_object(
+        s3_path="pubsecweb/pubsecweb_210216.pgadmin-backup",
+        local_path="./data/s3_files/pubsecweb_210216.pgadmin-backup"
+    )
 
     parser.add_argument("-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true")
     options = parser.parse_args()

@@ -11,6 +11,8 @@ notifications-python-client = "*"
 whitenoise = "*"
 dj-database-url = "*"
 waitress = "*"
+boto3 = "*"
+selenium = "~=3.141.0"
 
 [dev-packages]
 flake8 = "*"
