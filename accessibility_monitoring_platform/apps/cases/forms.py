@@ -38,6 +38,7 @@ AUDITOR_CHOICES = [
     ("Kelly Clarkson", "Kelly Clarkson"),
     ("Keeley Robertson", "Keeley Robertson"),
     ("Nesha Russo", "Nesha Russo"),
+    ("Paul Ahern", "Paul Ahern"),
 ]
 
 status_choices = STATUS_CHOICES

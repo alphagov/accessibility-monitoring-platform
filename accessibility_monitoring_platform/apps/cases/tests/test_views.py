@@ -1,43 +1,52 @@
 """
 Tests for cases views
 """
-from django.contrib.auth.models import User
+import pytest
+
 from django.urls import reverse
-from django.test import TestCase
 
 from ..models import Case, Contact
+from ..views import CaseListView
 
 
-class CaseDetailViewTestCase(TestCase):
-    """
-    Tests for CaseDetailView
+@pytest.mark.django_db
+def test_case_detail_view(admin_client):
+    """ Test that archived Contacts are not included in context """
+    case = Case.objects.create()
+    unarchived_contact = Contact.objects.create(
+        case=case,
+        first_name="Unarchived",
+        last_name="Contact",
+    )
+    Contact.objects.create(
+        case=case,
+        first_name="Archived",
+        last_name="Contact",
+        archived=True,
+    )
 
-    Methods
-    -------
-    setUp()
-        Sets up the test environment with a case with archived and unarchived contacts
+    response = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))
 
-    test_archived_contact_not_included_in_context()
-        Tests that case detail includes only unarchived contact
-    """
+    assert response.status_code == 200
+    assert set(response.context["contacts"]) == set([unarchived_contact])
+    assert b"Unarchived Contact" in response.content
+    assert b"Archived Contact" not in response.content
 
-    def setUp(self):
-        """ Create case with archived and unarchived contacts """
-        user: User = User.objects.create(username="testuser")
-        user.set_password("12345")
-        user.save()
-        self.case = Case.objects.create()
-        Contact.objects.create(case=self.case)
-        Contact.objects.create(case=self.case, archived=True)
 
-    def test_archived_contact_not_included_in_context(self):
-        """ Tests that case detail includes only unarchived contact """
-        self.client.login(username="testuser", password="12345")
-        response = self.client.get(
-            reverse("cases:case-detail", kwargs={"pk": self.case.id})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
-            response.context["contacts"],
-            Contact.objects.filter(case=self.case, archived=False),
-        )
+@pytest.mark.parametrize("url_param,sql_clause", [
+    ("case_number=42", '"cases_case"."id" = 42'),
+    ("domain=domain+name", 'UPPER("cases_case"."domain"::text) LIKE UPPER(%domain name%))'),
+    ("organisation=Organisation+Name", 'UPPER("cases_case"."organisation_name"::text) LIKE UPPER(%Organisation Name%))'),
+    ("auditor=Paul+Ahern", '"cases_case"."auditor" = Paul Ahern'),
+    ("status=new-case", '"cases_case"."status" = new-case'),
+    ("start_date_0=1&start_date_1=1&start_date_2=1800", '"cases_case"."created" >= 1800-01-01 00:00:00+00:00'),
+    ("end_date_0=1&end_date_1=1&end_date_2=2200", '"cases_case"."created" <= 2200-01-01 00:00:00+00:00'),
+])
+def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
+    request = rf.get(f"{reverse('cases:case-list')}?{url_param}")
+    view = CaseListView()
+    view.request = request
+
+    queryset = view.get_queryset()
+
+    assert sql_clause in str(queryset.query)

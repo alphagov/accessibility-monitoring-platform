@@ -1,14 +1,15 @@
 """
 Common widgets and form fields
 """
-from datetime import date
+from datetime import datetime
+import pytz
 from typing import Any, Dict, Iterable, List, Mapping, Union
 
 from django import forms
 
 
-DEFAULT_START_DATE: date = date(year=1900, month=1, day=1)
-DEFAULT_END_DATE: date = date(year=2100, month=1, day=1)
+DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
+DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -44,8 +45,8 @@ class AMPDateWidget(forms.MultiWidget):
         ]
         super().__init__(widgets, attrs)
 
-    def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
-        if isinstance(value, date):
+    def decompress(self, value: Union[datetime, str]) -> List[Union[int, str, None]]:
+        if isinstance(value, datetime):
             return [value.day, value.month, value.year]
         elif isinstance(value, str) and value != "":
             year, month, day = value.split("-")
