@@ -12,7 +12,7 @@ jobs:
         python-version: '3.8'
     - uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -24,14 +24,9 @@ jobs:
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
-        rm -rf npm-shrinkwrap.json
-        npm cache clean --force
-        npm cache verify
         npm i
-        npm install --only=dev
-        npm link gulp
-        gulp build
-        python manage.py collectstatic --noinput
+        python3 pulp/__init__.py
+        python3 manage.py collectstatic --noinput
         python3 manage.py test
 
   int-test:
