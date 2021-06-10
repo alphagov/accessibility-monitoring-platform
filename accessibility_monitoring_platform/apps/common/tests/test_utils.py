@@ -1,8 +1,12 @@
 """
 Test - common utility functions
 """
+# import pytest
+
 import csv
+from datetime import date, datetime
 import io
+import pytz
 from typing import Any, List
 
 from django.db import models
@@ -15,6 +19,7 @@ from ..utils import (
     download_as_csv,
     extract_domain_from_url,
     get_id_from_button_name,
+    convert_date_to_datetime,
 )
 
 
@@ -186,3 +191,10 @@ class BuildFiltersTestCase(TestCase):
             ),
             expected_filters,
         )
+
+
+def test_convert_date_to_datetime():
+    """ Test date is converted to datetime correctly """
+    input_date = date(year=2021, month=6, day=10)
+    expected_datetime = datetime(year=2021, month=6, day=10, tzinfo=pytz.UTC)
+    assert convert_date_to_datetime(input_date) == expected_datetime

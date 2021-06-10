@@ -1,6 +1,8 @@
 """ Common utility functions """
+from datetime import datetime
 import re
 import csv
+import pytz
 from typing import (
     Any,
     Dict,
@@ -68,3 +70,16 @@ def build_filters(
         if value:
             filters[filter_name] = value
     return filters
+
+
+def convert_date_to_datetime(input_date):
+    """
+    Python dates are not timezone-aware. This function converts a date into a timezone-aware
+    datetime with a time of midnight UTC
+    """
+    return datetime(
+        year=input_date.year,
+        month=input_date.month,
+        day=input_date.day,
+        tzinfo=pytz.UTC,
+    )
