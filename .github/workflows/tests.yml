@@ -25,9 +25,10 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         npm i
-        python3 pulp/__init__.py
+        python3 -c 'from pulp import *; pulp()'
         python3 manage.py collectstatic --noinput
         python3 manage.py test
+        pytest
 
   int-test:
     needs: test

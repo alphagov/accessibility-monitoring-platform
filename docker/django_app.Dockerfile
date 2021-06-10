@@ -22,6 +22,6 @@ COPY manage.py /code/
 COPY package.json /code/
 COPY accessibility_monitoring_platform/ /code/accessibility_monitoring_platform/
 RUN npm i
-RUN python3 pulp/__init__.py
+RUN python3 -c 'from pulp import *; pulp()'
 ARG PGPASSWORD=secret
 ENV PGPASSWORD=secret

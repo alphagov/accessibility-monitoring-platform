@@ -50,7 +50,12 @@ mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
 
 test:
-	coverage run --source='.' manage.py test accessibility_monitoring_platform.apps.axe_data accessibility_monitoring_platform.apps.query_local_website_registry && pytest && coverage report --skip-covered && coverage erase
+	python manage.py collectstatic --noinput \
+		&& coverage run --source='.' -p manage.py test \
+		&& coverage run -m -p pytest \
+		&& coverage combine \
+		&& coverage report --skip-covered \
+		&& coverage erase
 
 # Currently out of use
 # lighthouse_audit:
