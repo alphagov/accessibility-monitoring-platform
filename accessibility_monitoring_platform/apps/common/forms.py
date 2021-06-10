@@ -1,14 +1,16 @@
 """
 Common widgets and form fields
 """
-from datetime import date
+from datetime import datetime
+import pytz
 from typing import Any, Dict, Iterable, List, Mapping, Union
 
 from django import forms
 
+from .utils import convert_date_to_datetime
 
-DEFAULT_START_DATE: date = date(year=1900, month=1, day=1)
-DEFAULT_END_DATE: date = date(year=2100, month=1, day=1)
+DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
+DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -44,8 +46,8 @@ class AMPDateWidget(forms.MultiWidget):
         ]
         super().__init__(widgets, attrs)
 
-    def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
-        if isinstance(value, date):
+    def decompress(self, value: Union[datetime, str]) -> List[Union[int, str, None]]:
+        if isinstance(value, datetime):
             return [value.day, value.month, value.year]
         elif isinstance(value, str) and value != "":
             year, month, day = value.split("-")
@@ -149,8 +151,16 @@ class AMPDateRangeForm(forms.Form):
 
     def clean(self) -> Dict[str, Any]:
         cleaned_data: dict = super().clean()
+        if "start_date" in cleaned_data and cleaned_data["start_date"]:
+            cleaned_data["start_date"] = convert_date_to_datetime(
+                cleaned_data["start_date"]
+            )
         if "start_date" not in cleaned_data or not cleaned_data["start_date"]:
             cleaned_data["start_date"] = DEFAULT_START_DATE
+        if "end_date" in cleaned_data and cleaned_data["end_date"]:
+            cleaned_data["end_date"] = convert_date_to_datetime(
+                cleaned_data["end_date"]
+            )
         if "end_date" not in cleaned_data or not cleaned_data["end_date"]:
             cleaned_data["end_date"] = DEFAULT_END_DATE
         return cleaned_data

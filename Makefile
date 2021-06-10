@@ -38,7 +38,7 @@ mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
 
 test:
-	coverage run --source='.' manage.py test && coverage report --skip-covered && coverage erase
+	coverage run --source='.' manage.py test accessibility_monitoring_platform.apps.axe_data accessibility_monitoring_platform.apps.query_local_website_registry && pytest && coverage report --skip-covered && coverage erase
 
 lighthouse_audit:
 	node lighthouse-tests/lighthouse-test.js
