@@ -19,7 +19,6 @@ flake8 = "*"
 pylint = "*"
 coverage = "*"
 selenium = "*"
-pytest-django = "*"
 
 [requires]
 python_version = "3.8"
