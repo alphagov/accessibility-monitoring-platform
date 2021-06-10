@@ -5,7 +5,6 @@ import csv
 import io
 from typing import Any, List
 
-from django.db import models
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.test import TestCase
@@ -18,10 +17,11 @@ from ..utils import (
 )
 
 
-class MockModel(models.Model):
-    integer_field = models.IntegerField()
-    char_field = models.CharField(max_length=9)
-    field_not_in_csv = models.IntegerField(null=True)
+class MockModel():
+    def __init__(self, integer_field, char_field):
+        self.integer_field = integer_field
+        self.char_field = char_field
+        self.field_not_in_csv = "field_not_in_csv"
 
 
 MOCK_MODEL_FIELDS = ["integer_field", "char_field"]

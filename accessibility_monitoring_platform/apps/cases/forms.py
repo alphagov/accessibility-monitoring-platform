@@ -4,14 +4,18 @@ Forms - cases
 from typing import Any
 
 from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from ..common.forms import (
+    AMPSelectWidget,
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
+    AMPModelMultipleChoiceField,
     AMPBooleanField,
     AMPDateField,
     AMPDateRangeForm,
@@ -29,6 +33,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
 )
+from ..common.models import Region
 
 AUDITOR_CHOICES = [
     ("", ""),
@@ -67,24 +72,32 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = AMPCharFieldWide(label="Auditor")
+    auditor = forms.ModelChoiceField(
+        label="Auditor", widget=AMPSelectWidget, queryset=User.objects.all()
+    )
     test_type = AMPChoiceField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
+        initial="simple",
     )
     home_page_url = AMPCharFieldWide(
         label="Full URL",
-        help_text="Enter a domain if test type is simple or complex",
+        help_text="E.g. https://example.com",
+        required=True,
     )
     organisation_name = AMPCharFieldWide(label="Organisation name")
+    service_name = AMPCharFieldWide(label="Service name")
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
     )
     sector = AMPCharFieldWide(label="Sector")
-    region = AMPCharFieldWide(label="Region")
+    region = AMPModelMultipleChoiceField(
+        label="Region",
+        queryset=Region.objects.all(),
+    )
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
@@ -110,6 +123,7 @@ class CaseCreateForm(forms.ModelForm):
             "test_type",
             "home_page_url",
             "organisation_name",
+            "service_name",
             "website_type",
             "sector",
             "region",
@@ -120,6 +134,11 @@ class CaseCreateForm(forms.ModelForm):
             "is_public_sector_body",
         ]
 
+    def clean_home_page_url(self):
+        data = self.cleaned_data["home_page_url"]
+        if not data.startswith("http://") and not data.startswith("https://"):
+            raise ValidationError("URL must start with http:// or https://")
+        return data
 
 class CaseWebsiteDetailUpdateForm(CaseCreateForm):
     """
@@ -134,8 +153,9 @@ class CaseWebsiteDetailUpdateForm(CaseCreateForm):
             "auditor",
             "test_type",
             "home_page_url",
-            "organisation_name",
             "domain",
+            "organisation_name",
+            "service_name",
             "website_type",
             "sector",
             "region",

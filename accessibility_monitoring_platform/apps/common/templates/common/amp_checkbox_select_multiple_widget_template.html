@@ -1,0 +1,24 @@
+{% with id=widget.attrs.id %}
+    <div class="govuk-checkboxes">
+        {% for group, options, index in widget.optgroups %}
+            {% for option in options %}
+                <div class="govuk-checkboxes__item">
+                    <input
+                        class="govuk-checkboxes__input"
+                        type="checkbox"
+                        name="{{ option.name }}"
+                        {% if option.value != None %}
+                            value="{{ option.value|stringformat:'s' }}"
+                        {% endif %}
+                        {% for name, value in option.attrs.items %}
+                            {% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
+                        {% endfor %}
+                    >
+                    <label class="govuk-label govuk-checkboxes__label"{% if option.attrs.id %} for="{{ option.attrs.id }}"{% endif %}>
+                        {{ option.label }}
+                    </label>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endwith %}

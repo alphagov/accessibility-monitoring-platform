@@ -1,0 +1,9 @@
+{% with id=widget.attrs.id %}
+    <select class="govuk-select" id="{{ id }}" name="{{ widget.name}}">
+        {% for group, options, index in widget.optgroups %}
+            {% for option in options %}
+                <option value="{{ option.value }}">{{ option.label }}</option>
+            {% endfor %}
+        {% endfor %}
+    </select>
+{% endwith %}

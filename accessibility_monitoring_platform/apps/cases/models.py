@@ -3,12 +3,14 @@ Models - cases
 """
 from typing import List, Tuple
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
+from ..common.models import Region
 
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("new-case", "New case"),
@@ -81,7 +83,13 @@ class Case(models.Model):
     status = models.CharField(
         max_length=200, choices=STATUS_CHOICES, default="new-case"
     )
-    auditor = models.CharField(max_length=200, default="", blank=True)
+    auditor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="case_auditor_user",
+        blank=True,
+        null=True,
+    )
     test_type = models.CharField(
         max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
     )
@@ -89,11 +97,12 @@ class Case(models.Model):
     domain = models.TextField(default="", blank=True)
     application = models.CharField(max_length=200, default="N/A")
     organisation_name = models.TextField(default="", blank=True)
+    service_name = models.TextField(default="", blank=True)
     website_type = models.CharField(
         max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
     )
     sector = models.CharField(max_length=200, default="Sector", blank=True)
-    region = models.CharField(max_length=200, default="London", blank=True)
+    region = models.ManyToManyField(Region, null=True, blank=True)
     case_origin = models.CharField(
         max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"
     )
@@ -111,7 +120,13 @@ class Case(models.Model):
     report_review_status = models.CharField(
         max_length=200, choices=REPORT_REVIEW_STATUS_CHOICES, default="not-started"
     )
-    reviewer = models.CharField(max_length=200, default="", blank=True)
+    reviewer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="case_reviewer_user",
+        blank=True,
+        null=True,
+    )
     report_approved_status = models.CharField(
         max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
     )
@@ -145,10 +160,16 @@ class Case(models.Model):
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     is_case_completed = models.BooleanField(default=False)
     completed = models.DateTimeField(null=True, blank=True)
-    archived = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.CharField(max_length=200, default="", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="case_created_by_user",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return str(f"#{self.id} {self.organisation_name}")
@@ -180,7 +201,7 @@ class Contact(models.Model):
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
-    archived = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
 
     @property
     def name(self):

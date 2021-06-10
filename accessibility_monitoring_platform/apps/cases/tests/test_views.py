@@ -28,7 +28,7 @@ class CaseDetailViewTestCase(TestCase):
         user.save()
         self.case = Case.objects.create()
         Contact.objects.create(case=self.case)
-        Contact.objects.create(case=self.case, archived=True)
+        Contact.objects.create(case=self.case, is_archived=True)
 
     def test_archived_contact_not_included_in_context(self):
         """ Tests that case detail includes only unarchived contact """
@@ -39,5 +39,5 @@ class CaseDetailViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(
             response.context["contacts"],
-            Contact.objects.filter(case=self.case, archived=False),
+            Contact.objects.filter(case=self.case, is_archived=False),
         )
