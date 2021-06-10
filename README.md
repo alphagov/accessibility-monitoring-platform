@@ -134,7 +134,7 @@ Lighthouse won't catch all issues but will ensure a consistent level of quality.
 
 Pulp is our proprietary Python replacement for Gulp and handles the deployment of JS, SCSS, and static files. 
 
-Gulp and Node were causing dependency issues, so we removed as much from the Node environment as possible. It still uses Node to process the JS code, but Python manages the rest.
+Gulp and Node were causing dependency issues, so we removed as much from the Node environment as could. It still uses Node to process the JS code, but Python manages the rest.
 
 It currently
 - Transpiles SCSS to CSS
