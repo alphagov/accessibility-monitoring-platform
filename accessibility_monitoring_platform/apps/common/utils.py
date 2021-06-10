@@ -1,5 +1,5 @@
 """ Common utility functions """
-from datetime import datetime
+from datetime import date, datetime
 import re
 import csv
 import pytz
@@ -72,7 +72,7 @@ def build_filters(
     return filters
 
 
-def convert_date_to_datetime(input_date):
+def convert_date_to_datetime(input_date: date) -> datetime:
     """
     Python dates are not timezone-aware. This function converts a date into a timezone-aware
     datetime with a time of midnight UTC

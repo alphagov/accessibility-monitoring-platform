@@ -3,6 +3,8 @@ Tests for cases views
 """
 import pytest
 
+from django.db.models import QuerySet
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 
 from ..models import Case, Contact
@@ -11,8 +13,10 @@ from ..views import CaseListView
 
 @pytest.mark.django_db
 def test_case_detail_view(admin_client):
-    case = Case.objects.create()
-    response = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))
+    case: Case = Case.objects.create()
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
     assert response.status_code == 200
     assert (
         bytes(f'<h1 class="govuk-heading-xl">View case #{case.id}</h1>', "utf-8")
@@ -23,8 +27,8 @@ def test_case_detail_view(admin_client):
 @pytest.mark.django_db
 def test_case_detail_view_leaves_out_archived_contact(admin_client):
     """ Test that archived Contacts are not included in context """
-    case = Case.objects.create()
-    unarchived_contact = Contact.objects.create(
+    case: Case = Case.objects.create()
+    unarchived_contact: Contact = Contact.objects.create(
         case=case,
         first_name="Unarchived",
         last_name="Contact",
@@ -36,7 +40,9 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
         archived=True,
     )
 
-    response = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([unarchived_contact])
@@ -46,7 +52,7 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
 
 @pytest.mark.django_db
 def test_case_list_view(admin_client):
-    response = admin_client.get(reverse("cases:case-list"))
+    response: HttpResponse = admin_client.get(reverse("cases:case-list"))
     assert response.status_code == 200
     assert b'<h1 class="govuk-heading-xl">Cases and reports</h1>' in response.content
 
@@ -76,10 +82,10 @@ def test_case_list_view(admin_client):
     ],
 )
 def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
-    request = rf.get(f"{reverse('cases:case-list')}?{url_param}")
-    view = CaseListView()
+    request: HttpRequest = rf.get(f"{reverse('cases:case-list')}?{url_param}")
+    view: CaseListView = CaseListView()
     view.request = request
 
-    queryset = view.get_queryset()
+    queryset: QuerySet = view.get_queryset()
 
     assert sql_clause in str(queryset.query)
