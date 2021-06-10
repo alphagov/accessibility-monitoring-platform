@@ -7,16 +7,16 @@ import os
 
 paths = {
     "static": {
-        "src" : f"{os.getcwd()}/node_modules/govuk-frontend/govuk/assets",
-        "dest" : f"{os.getcwd()}/accessibility_monitoring_platform/static/compiled/assets"
+        "src" : "./node_modules/govuk-frontend/govuk/assets",
+        "dest" : "./accessibility_monitoring_platform/static/compiled/assets"
     },
     "css": {
-        "src" : f"{os.getcwd()}/accessibility_monitoring_platform/static/scss/init.scss",
-        "dest" : f"{os.getcwd()}/accessibility_monitoring_platform/static/compiled/css/init.css"
+        "src" : "./accessibility_monitoring_platform/static/scss/init.scss",
+        "dest" : "./accessibility_monitoring_platform/static/compiled/css/init.css"
     },
     "js": {
-        "src" : f"{os.getcwd()}/accessibility_monitoring_platform/static/js",
-        "dest" : f"{os.getcwd()}/accessibility_monitoring_platform/static/compiled/js"
+        "src" : "./accessibility_monitoring_platform/static/js",
+        "dest" : "./accessibility_monitoring_platform/static/compiled/js"
     }
 }
 

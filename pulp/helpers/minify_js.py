@@ -1,6 +1,4 @@
-from typing import Any
 import glob
-# import rjsmin
 import os
 import subprocess
 import pathlib
@@ -19,6 +17,11 @@ def minify_javascript(src: str, dest: str) -> None:
             js_code,
             shell=True
         ).decode("utf-8")
+
+        try:
+            os.makedirs("/".join(f"{dest}{file_path}".split("/")[:-1]))
+        except:
+            pass
 
         with open(f"{dest}{file_path}", "w") as outfile:
             outfile.write(output)
