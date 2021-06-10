@@ -15,13 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import include
+from django.conf.urls import include, url
 from django.views.generic import RedirectView
 
 
 urlpatterns = [
-    path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
-    path(
+    url("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
+    url(
         "query-domains/",
         include(
             (
@@ -32,10 +32,10 @@ urlpatterns = [
             )
         ),
     ),
-    path("axe-data/", include("accessibility_monitoring_platform.apps.axe_data.urls")),
-    path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
-    path("", include("accessibility_monitoring_platform.apps.users.urls")),
+    url("axe-data/", include("accessibility_monitoring_platform.apps.axe_data.urls")),
+    url("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
+    url("", include("accessibility_monitoring_platform.apps.users.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path(r"^admin/", admin.site.urls),
-    path(r"^favicon\.ico$", RedirectView.as_view(url="/static/images/favicon.ico")),
+    url(r"^admin/", admin.site.urls),
+    url(r"^favicon\.ico$", RedirectView.as_view(url="/static/images/favicon.ico")),
 ]
