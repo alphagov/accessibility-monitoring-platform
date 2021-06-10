@@ -20,7 +20,6 @@ rcssmin = "*"
 flake8 = "*"
 pylint = "*"
 coverage = "*"
-pytest-django = "*"
 
 [requires]
 python_version = "3.8"
