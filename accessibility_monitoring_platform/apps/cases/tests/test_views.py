@@ -13,6 +13,7 @@ from ..views import CaseListView
 
 @pytest.mark.django_db
 def test_case_detail_view(admin_client):
+    """ Test that the case detail view page loads """
     case: Case = Case.objects.create()
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id})
@@ -52,6 +53,7 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
 
 @pytest.mark.django_db
 def test_case_list_view(admin_client):
+    """ Test that the case list view page loads """
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
     assert response.status_code == 200
     assert b'<h1 class="govuk-heading-xl">Cases and reports</h1>' in response.content
@@ -82,6 +84,7 @@ def test_case_list_view(admin_client):
     ],
 )
 def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
+    """ Test that filters in the url parameters are applied in the sql """
     request: HttpRequest = rf.get(f"{reverse('cases:case-list')}?{url_param}")
     view: CaseListView = CaseListView()
     view.request = request
