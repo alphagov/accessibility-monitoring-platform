@@ -7,7 +7,6 @@
     "editorBracketMatch.background": "#f008",
     "editorBracketMatch.border": "#f00"
   },
-  "stylelint.enable": true,
   "standard.enable": true,
   "python.analysis.typeCheckingMode": "basic",
   "standard.options": {
@@ -23,5 +22,5 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 4  
   },
-  "python.pythonPath": "venv/bin/python3"
+  "python.pythonPath": "/Users/richardboard/Documents/GDS/python/a11y-auditing-platform/venv/bin/python3"
 }

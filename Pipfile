@@ -13,12 +13,14 @@ dj-database-url = "*"
 waitress = "*"
 boto3 = "*"
 selenium = "~=3.141.0"
+libsass = "*"
+rcssmin = "*"
 
 [dev-packages]
 flake8 = "*"
 pylint = "*"
 coverage = "*"
-selenium = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.8"

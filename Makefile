@@ -5,7 +5,7 @@ init:
 		&& pip install pipenv \
 		&& pipenv install -d \
 		&& npm i \
-		&& npx gulp build \
+		&& python3 pulp/__init__.py \
 		&& mkdir -p data \
 		&& docker-compose up -d \
 		&& source .env \
@@ -31,20 +31,35 @@ init:
 start:
 	python manage.py runserver 8081
 
+static_files_process:
+	python3 -c 'from pulp import *; pulp()'
+
+watch:
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()'"
+
 sync:
-	npx gulp serve
+	npx browser-sync start -p http://127.0.0.1:8081/ \
+		--files "./accessibility_monitoring_platform/**/*.py" \
+		--files "./accessibility_monitoring_platform/**/*.html" \
+		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
+		--files "./accessibility_monitoring_platform/static/compiled/**" \
+		--watchEvents change --watchEvents add \ 
+		--reload-delay 500
 
 mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
 
 test:
-	coverage run --source='.' manage.py test && coverage report --skip-covered && coverage erase
+	python manage.py collectstatic --noinput \
+		&& coverage run --source='.' -p manage.py test \
+		&& coverage run -m -p pytest \
+		&& coverage combine \
+		&& coverage report --skip-covered \
+		&& coverage erase
 
-lighthouse_audit:
-	node lighthouse-tests/lighthouse-test.js
-
-load_data:
-	python3 manage.py loaddata $(value db_data)
+# Currently out of use
+# lighthouse_audit:
+# 	node lighthouse-tests/lighthouse-test.js
 
 local_deploy:
 	pipenv lock -r > requirements.txt

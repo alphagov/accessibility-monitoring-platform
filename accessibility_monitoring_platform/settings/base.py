@@ -19,6 +19,9 @@ from dotenv import load_dotenv
 
 UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == 'test')
 
+if "pytest" in sys.modules:
+    UNDER_TEST = True
+
 load_dotenv()
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))

@@ -37,6 +37,7 @@ applications:
     DISABLE_COLLECTSTATIC: 1
     SECRET_KEY: '${SECRET_KEY}'
 " > "${DIR}/manifest.yml"
+  pipenv lock -r > requirements.txt
   cf push -f "${DIR}/manifest.yml"
   echo "SSH into instance with cf ssh amp-rich_int_new_a11ymon_data"
   echo "Login into Python shell with /tmp/lifecycle/shell"
