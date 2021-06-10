@@ -32,10 +32,10 @@ start:
 	python manage.py runserver 8081
 
 static_files_process:
-	python3 pulp/__init__.py
+	python3 -c 'from pulp import *; pulp()'
 
 watch:
-	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 pulp/__init__.py"
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()'"
 
 sync:
 	npx browser-sync start -p http://127.0.0.1:8081/ \
@@ -50,7 +50,7 @@ mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
 
 test:
-	coverage run --source='.' manage.py test && coverage report --skip-covered && coverage erase
+	python3 manage.py collectstatic --noinput && coverage run --source='.' manage.py test && coverage report --skip-covered && coverage erase
 
 # Currently out of use
 # lighthouse_audit:

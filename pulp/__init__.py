@@ -1,4 +1,4 @@
-from helpers import (
+from .helpers import (
     compile_sass_to_css,
     minify_javascript,
     recursive_copy,
@@ -20,8 +20,7 @@ paths = {
     }
 }
 
-
-if __name__ == "__main__":
+def pulp():
     minify_javascript(
         src=paths["js"]["src"],
         dest=paths["js"]["dest"]
