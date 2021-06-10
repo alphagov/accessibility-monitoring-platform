@@ -31,7 +31,6 @@ jobs:
         python3 -c 'from pulp import *; pulp()'
         python manage.py collectstatic --noinput
         python3 manage.py test
-        pytest
 
   int-test:
     needs: test
