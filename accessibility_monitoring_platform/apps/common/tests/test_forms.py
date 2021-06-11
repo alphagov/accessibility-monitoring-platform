@@ -89,7 +89,7 @@ class AMPRadioSelectWidgetTestCase(TestCase):
         )
 
 
-class AMPCheckboxWidgetWidgetTestCase(TestCase):
+class AMPCheckboxWidgetTestCase(TestCase):
     """ Test output of AMPCheckboxWidget """
 
     def test_html_uses_govuk_classes(self):
@@ -221,12 +221,8 @@ class AMPBooleanFieldTestCase(TestCase):
         self.assertEqual(self.field.required, False)
 
     def test_field_widget(self):
-        """ Check AMPBooleanField uses widget forms.CheckboxInput """
-        self.assertEqual(type(self.field.widget), forms.CheckboxInput)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPBooleanField widget attr defaults """
-        self.assertEqual(self.field.widget.attrs, {"class": "govuk-checkboxes__input"})
+        """ Check AMPBooleanField uses widget AMPCheckboxWidget """
+        self.assertEqual(type(self.field.widget), AMPCheckboxWidget)
 
 
 class AMPDateFieldTestCase(TestCase):
