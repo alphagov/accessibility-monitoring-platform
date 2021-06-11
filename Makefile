@@ -14,6 +14,7 @@ init:
 			export AWS_ACCESS_KEY_ID="$${AWS_ACCESS_KEY_ID_S3_STORE}" \
 			export AWS_SECRET_ACCESS_KEY="$${AWS_SECRET_ACCESS_KEY_S3_STORE}" \
 		&& [ -f "./data/s3_files/20210604_auth_data.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/20210604_auth_data.json ./data/s3_files/20210604_auth_data.json \
+		&& [ -f "./data/s3_files/region_and_sector.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/region_and_sector.json ./data/s3_files/region_and_sector.json \
 		&& [ -f "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/extra/Local_Authority_District_\(December_2018\)_to_NUTS3_to_NUTS2_to_NUTS1_\(January_2018\)_Lookup_in_United_Kingdom.csv "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" \
 		&& [ -f "./data/s3_files/pubsecweb_210216.pgadmin-backup" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/pubsecweb/pubsecweb_210216.pgadmin-backup ./data/s3_files/pubsecweb_210216.pgadmin-backup \
 		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql.zip" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql.zip ./data/s3_files/a11ymon_mini_20210527.sql.zip \
@@ -26,6 +27,7 @@ init:
 		&& ./manage.py migrate query_local_website_registry --database=pubsecweb_db \
 		&& ./manage.py migrate \
 		&& python3 manage.py loaddata ./data/s3_files/20210604_auth_data.json \
+		&& python3 manage.py loaddata ./data/s3_files/region_and_sector.json \
 		&& psql -Atx postgres://admin:secret@localhost:5432/a11ymon -c "\COPY pubsecweb.nuts_conversion FROM './data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;" \
 		&& echo "email is admin@email.com and password is secret"
 
@@ -44,7 +46,7 @@ sync:
 		--files "./accessibility_monitoring_platform/**/*.html" \
 		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
 		--files "./accessibility_monitoring_platform/static/compiled/**" \
-		--watchEvents change --watchEvents add \ 
+		--watchEvents change --watchEvents add \
 		--reload-delay 500
 
 mail_server:

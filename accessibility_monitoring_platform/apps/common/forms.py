@@ -4,11 +4,16 @@ Common widgets and form fields
 from datetime import date
 from typing import Any, Dict, Iterable, List, Mapping, Union
 
+from django.contrib.auth.models import User
 from django import forms
 
 
 DEFAULT_START_DATE: date = date(year=1900, month=1, day=1)
 DEFAULT_END_DATE: date = date(year=2100, month=1, day=1)
+
+
+class AMPSelectWidget(forms.RadioSelect):
+    template_name = "common/amp_select_widget_template.html"
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -17,6 +22,10 @@ class AMPRadioSelectWidget(forms.RadioSelect):
 
 class AMPCheckboxWidget(forms.CheckboxInput):
     template_name = "common/amp_checkbox_widget_template.html"
+
+
+class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
+    template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
 class AMPDateWidget(forms.MultiWidget):
@@ -59,6 +68,26 @@ class AMPDateWidget(forms.MultiWidget):
         if day == "" and month == "" and year == "":
             return ""
         return "{}-{}-{}".format(year, month, day)
+
+
+class AMPUserModelChoiceField(forms.ModelChoiceField):
+    """
+    Adds default widget to Django forms ModelChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": AMPSelectWidget,
+            "required": False,
+            "queryset": User.objects.all(),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+    def label_from_instance(self, user):
+        return user.get_full_name()
 
 
 class AMPCharField(forms.CharField):
@@ -112,12 +141,36 @@ class AMPChoiceField(forms.ChoiceField):
         super().__init__(*args, **overridden_default_kwargs)
 
 
+class AMPModelChoiceField(forms.ModelChoiceField):
+    """ Adds default widget to Django forms ModelChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.Select(attrs={"class": "govuk-select"}),
+            "required": False,
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+
+class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """ Adds default widget to Django forms ModelMultipleChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": AMPCheckboxSelectMultipleWidget(),
+            "required": False,
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+
 class AMPBooleanField(forms.BooleanField):
     """ Adds default widget to Django forms BooleanField """
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
-            "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
+            "widget": AMPCheckboxWidget(),
             "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}

@@ -4,14 +4,18 @@ Forms - cases
 from typing import Any
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
+    AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
+    AMPModelChoiceField,
+    AMPModelMultipleChoiceField,
     AMPBooleanField,
     AMPDateField,
     AMPDateRangeForm,
@@ -29,16 +33,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
 )
-
-AUDITOR_CHOICES = [
-    ("", ""),
-    ("Andrew Hick", "Andrew Hick"),
-    ("Jessica Eley", "Jessica Eley"),
-    ("Katherine Badger", "Katherine Badger"),
-    ("Kelly Clarkson", "Kelly Clarkson"),
-    ("Keeley Robertson", "Keeley Robertson"),
-    ("Nesha Russo", "Nesha Russo"),
-]
+from ..common.models import Region, Sector
 
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
@@ -58,7 +53,7 @@ class CaseSearchForm(AMPDateRangeForm):
     case_number = AMPCharField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
-    auditor = AMPChoiceField(label="Auditor", choices=AUDITOR_CHOICES)
+    auditor = AMPUserModelChoiceField(label="Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
 
 
@@ -67,24 +62,30 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = AMPCharFieldWide(label="Auditor")
+    auditor = AMPUserModelChoiceField(label="Auditor")
     test_type = AMPChoiceField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
+        initial="simple",
     )
     home_page_url = AMPCharFieldWide(
         label="Full URL",
-        help_text="Enter a domain if test type is simple or complex",
+        help_text="E.g. https://example.com",
+        required=True,
     )
     organisation_name = AMPCharFieldWide(label="Organisation name")
+    service_name = AMPCharFieldWide(label="Service name")
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    sector = AMPCharFieldWide(label="Sector")
-    region = AMPCharFieldWide(label="Region")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    region = AMPModelMultipleChoiceField(
+        label="Region",
+        queryset=Region.objects.all(),
+    )
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
@@ -110,6 +111,7 @@ class CaseCreateForm(forms.ModelForm):
             "test_type",
             "home_page_url",
             "organisation_name",
+            "service_name",
             "website_type",
             "sector",
             "region",
@@ -119,6 +121,12 @@ class CaseCreateForm(forms.ModelForm):
             "notes",
             "is_public_sector_body",
         ]
+
+    def clean_home_page_url(self):
+        data = self.cleaned_data["home_page_url"]
+        if not (data.startswith("http://") or data.startswith("https://")):
+            raise ValidationError("URL must start with http:// or https://")
+        return data
 
 
 class CaseWebsiteDetailUpdateForm(CaseCreateForm):
@@ -134,8 +142,9 @@ class CaseWebsiteDetailUpdateForm(CaseCreateForm):
             "auditor",
             "test_type",
             "home_page_url",
-            "organisation_name",
             "domain",
+            "organisation_name",
+            "service_name",
             "website_type",
             "sector",
             "region",
@@ -156,7 +165,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
     detail = AMPCharFieldWide(label="Detail")
-    preferred = AMPBooleanField(label="Preferred contact?", widget=AMPCheckboxWidget())
+    preferred = AMPBooleanField(label="Preferred contact?")
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -190,9 +199,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=TEST_STATUS_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    is_website_compliant = AMPBooleanField(
-        label="Is the website compliant?", widget=AMPCheckboxWidget()
-    )
+    is_website_compliant = AMPBooleanField(label="Is the website compliant?")
     test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
@@ -254,12 +261,9 @@ class CasePostReportUpdateForm(forms.ModelForm):
     week_12_followup_email_acknowledgement_date = AMPDateField(
         label="12 week followup acknowledge"
     )
-    is_website_retested = AMPBooleanField(
-        label="Retested website?", widget=AMPCheckboxWidget()
-    )
+    is_website_retested = AMPBooleanField(label="Retested website?")
     is_disproportionate_claimed = AMPBooleanField(
-        label="Disproportionate burden claimed?",
-        widget=AMPCheckboxWidget(),
+        label="Disproportionate burden claimed?"
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
     accessibility_statement_decison = AMPChoiceField(
@@ -282,9 +286,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="Date sent to enforcement body",
         help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
     )
-    is_case_completed = AMPBooleanField(
-        label="Case completed?", widget=AMPCheckboxWidget()
-    )
+    is_case_completed = AMPBooleanField(label="Case completed?")
 
     class Meta:
         model = Case

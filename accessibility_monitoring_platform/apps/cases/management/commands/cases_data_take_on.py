@@ -9,6 +9,7 @@ import random
 import re
 from typing import Any, List, Tuple
 
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from ...models import Case, Contact, STATUS_CHOICES
@@ -85,6 +86,9 @@ class Command(BaseCommand):
             Case.objects.all().delete()
             Contact.objects.all().delete()
 
+        users = [user for user in User.objects.all()]
+        number_of_users = len(users)
+
         with open(INPUT_FILE_NAME) as csvfile:
             reader: Any = csv.DictReader(csvfile)
             for count, row in enumerate(reader, start=1):
@@ -109,6 +113,8 @@ class Command(BaseCommand):
                         status,
                         auditor,
                     ) = extract_data_from_row(row)
+
+                    auditor = users[count % number_of_users]
 
                     case = Case(
                         id=int(row["Case number"]),

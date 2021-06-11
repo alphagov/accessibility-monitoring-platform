@@ -4,7 +4,7 @@ The accessibility monitoring platform is to support the accessibility auditing p
 
 It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
-## Index    
+## Index
 
 - [Requirements](#Requirements)
 
@@ -26,8 +26,9 @@ It uses Django, PostgreSQL, and the Gov UK frontend design system.
 - Docker
 - Python 3.8
 - PostgreSQL
-- Node & NPM
+- Node and NPM
 - Standard JS Globally installed (if using VSCode)
+- AWS CLI version 2
 
 ---
 ## How to get started
@@ -90,7 +91,7 @@ adr new -s 9 Use Rust for performance-critical functionality
 ---
 ## Testing
 
-There is currently three types of automated testing; unit, integration and lighthouse testing. 
+There is currently three types of automated testing; unit, integration and lighthouse testing.
 
 Static files need to be collected by Django before starting unit tests. The tests will fail unless this step is completed. This can be executed with
 
@@ -106,7 +107,7 @@ make test
 
 The make command will start the test suite in coverage and show how much the tests cover the code. It is best to aim for 90% coverage.
 
-Integration can be started with 
+Integration can be started with
 
 ```
 make int_test
@@ -132,7 +133,7 @@ Lighthouse won't catch all issues but will ensure a consistent level of quality.
 
 ## Pulp
 
-Pulp is our proprietary Python replacement for Gulp and handles the deployment of JS, SCSS, and static files. 
+Pulp is our proprietary Python replacement for Gulp and handles the deployment of JS, SCSS, and static files.
 
 Gulp and Node were causing dependency issues, so we removed as much from the Node environment as could. It still uses Node to process the JS code, but Python manages the rest.
 
