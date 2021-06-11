@@ -170,7 +170,7 @@ class AMPBooleanField(forms.BooleanField):
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
-            "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
+            "widget": AMPCheckboxWidget(),
             "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}

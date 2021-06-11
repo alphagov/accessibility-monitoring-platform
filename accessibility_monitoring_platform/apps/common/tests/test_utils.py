@@ -17,7 +17,7 @@ from ..utils import (
 )
 
 
-class MockModel():
+class MockModel:
     def __init__(self, integer_field, char_field):
         self.integer_field = integer_field
         self.char_field = char_field

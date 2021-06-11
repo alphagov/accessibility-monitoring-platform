@@ -62,9 +62,7 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = AMPUserModelChoiceField(
-        label="Auditor"
-    )
+    auditor = AMPUserModelChoiceField(label="Auditor")
     test_type = AMPChoiceField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
@@ -130,6 +128,7 @@ class CaseCreateForm(forms.ModelForm):
             raise ValidationError("URL must start with http:// or https://")
         return data
 
+
 class CaseWebsiteDetailUpdateForm(CaseCreateForm):
     """
     Form for updating website details fields of cases
@@ -166,7 +165,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
     detail = AMPCharFieldWide(label="Detail")
-    preferred = AMPBooleanField(label="Preferred contact?", widget=AMPCheckboxWidget())
+    preferred = AMPBooleanField(label="Preferred contact?")
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -200,9 +199,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=TEST_STATUS_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    is_website_compliant = AMPBooleanField(
-        label="Is the website compliant?", widget=AMPCheckboxWidget()
-    )
+    is_website_compliant = AMPBooleanField(label="Is the website compliant?")
     test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
@@ -264,12 +261,9 @@ class CasePostReportUpdateForm(forms.ModelForm):
     week_12_followup_email_acknowledgement_date = AMPDateField(
         label="12 week followup acknowledge"
     )
-    is_website_retested = AMPBooleanField(
-        label="Retested website?", widget=AMPCheckboxWidget()
-    )
+    is_website_retested = AMPBooleanField(label="Retested website?")
     is_disproportionate_claimed = AMPBooleanField(
-        label="Disproportionate burden claimed?",
-        widget=AMPCheckboxWidget(),
+        label="Disproportionate burden claimed?"
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
     accessibility_statement_decison = AMPChoiceField(
@@ -292,9 +286,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="Date sent to enforcement body",
         help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
     )
-    is_case_completed = AMPBooleanField(
-        label="Case completed?", widget=AMPCheckboxWidget()
-    )
+    is_case_completed = AMPBooleanField(label="Case completed?")
 
     class Meta:
         model = Case
