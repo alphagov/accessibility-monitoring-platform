@@ -44,8 +44,8 @@ sync:
 		--files "./accessibility_monitoring_platform/**/*.html" \
 		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
 		--files "./accessibility_monitoring_platform/static/compiled/**" \
-		--watchEvents change --watchEvents add \ 
-		--reload-delay 500
+		--watchEvents change --watchEvents add \
+		--reload-delay 1000
 
 mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
