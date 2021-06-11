@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Region
+from ..common.models import Region, Sector
 
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("new-case", "New case"),
@@ -101,7 +101,7 @@ class Case(models.Model):
     website_type = models.CharField(
         max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
     )
-    sector = models.CharField(max_length=200, default="Sector", blank=True)
+    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
     region = models.ManyToManyField(Region, null=True, blank=True)
     case_origin = models.CharField(
         max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"

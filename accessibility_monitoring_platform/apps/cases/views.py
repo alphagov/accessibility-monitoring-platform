@@ -32,7 +32,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("case_number", "id"),
     ("domain", "domain__icontains"),
     ("organisation", "organisation_name__icontains"),
-    ("auditor", "auditor"),
+    ("auditor", "auditor_id"),
     ("status", "status"),
     ("start_date", "created__gte"),
     ("end_date", "created__lte"),
@@ -156,11 +156,6 @@ class CaseWebsiteDetailUpdateView(UpdateView):
     form_class = CaseWebsiteDetailUpdateForm
     context_object_name = "case"
     template_name_suffix = "_website_details_update_form"
-
-    # def post(self, request, *args, **kwargs):
-    #     form = self.form_class(request.POST)
-    #     import pdb; pdb.set_trace() # Start debugging
-    #     form.is_valid()
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """

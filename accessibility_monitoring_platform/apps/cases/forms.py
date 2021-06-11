@@ -4,17 +4,17 @@ Forms - cases
 from typing import Any
 
 from django import forms
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
-    AMPSelectWidget,
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
+    AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
+    AMPModelChoiceField,
     AMPModelMultipleChoiceField,
     AMPBooleanField,
     AMPDateField,
@@ -33,17 +33,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
 )
-from ..common.models import Region
-
-AUDITOR_CHOICES = [
-    ("", ""),
-    ("Andrew Hick", "Andrew Hick"),
-    ("Jessica Eley", "Jessica Eley"),
-    ("Katherine Badger", "Katherine Badger"),
-    ("Kelly Clarkson", "Kelly Clarkson"),
-    ("Keeley Robertson", "Keeley Robertson"),
-    ("Nesha Russo", "Nesha Russo"),
-]
+from ..common.models import Region, Sector
 
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
@@ -63,7 +53,7 @@ class CaseSearchForm(AMPDateRangeForm):
     case_number = AMPCharField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
-    auditor = AMPChoiceField(label="Auditor", choices=AUDITOR_CHOICES)
+    auditor = AMPUserModelChoiceField(label="Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
 
 
@@ -72,8 +62,8 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = forms.ModelChoiceField(
-        label="Auditor", widget=AMPSelectWidget, queryset=User.objects.all()
+    auditor = AMPUserModelChoiceField(
+        label="Auditor"
     )
     test_type = AMPChoiceField(
         label="Test type",
@@ -93,7 +83,7 @@ class CaseCreateForm(forms.ModelForm):
         choices=WEBSITE_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    sector = AMPCharFieldWide(label="Sector")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     region = AMPModelMultipleChoiceField(
         label="Region",
         queryset=Region.objects.all(),
@@ -136,7 +126,7 @@ class CaseCreateForm(forms.ModelForm):
 
     def clean_home_page_url(self):
         data = self.cleaned_data["home_page_url"]
-        if not data.startswith("http://") and not data.startswith("https://"):
+        if not (data.startswith("http://") or data.startswith("https://")):
             raise ValidationError("URL must start with http:// or https://")
         return data
 

@@ -4,6 +4,7 @@ Common widgets and form fields
 from datetime import date
 from typing import Any, Dict, Iterable, List, Mapping, Union
 
+from django.contrib.auth.models import User
 from django import forms
 
 
@@ -69,6 +70,26 @@ class AMPDateWidget(forms.MultiWidget):
         return "{}-{}-{}".format(year, month, day)
 
 
+class AMPUserModelChoiceField(forms.ModelChoiceField):
+    """
+    Adds default widget to Django forms ModelChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": AMPSelectWidget,
+            "required": False,
+            "queryset": User.objects.all(),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+    def label_from_instance(self, user):
+        return user.get_full_name()
+
+
 class AMPCharField(forms.CharField):
     """ Adds default max_length and widget to Django forms CharField """
 
@@ -110,6 +131,18 @@ class AMPTextField(forms.CharField):
 
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.Select(attrs={"class": "govuk-select"}),
+            "required": False,
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+
+class AMPModelChoiceField(forms.ModelChoiceField):
+    """ Adds default widget to Django forms ModelChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
