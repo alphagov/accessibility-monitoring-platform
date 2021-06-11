@@ -5,7 +5,7 @@ init:
 		&& pip install pipenv \
 		&& pipenv install -d \
 		&& npm i \
-		&& npx gulp build \
+		&& python3 -c 'from pulp import *; pulp()' \
 		&& mkdir -p data \
 		&& docker-compose up -d \
 		&& source .env \
@@ -16,7 +16,8 @@ init:
 		&& [ -f "./data/s3_files/20210604_auth_data.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/20210604_auth_data.json ./data/s3_files/20210604_auth_data.json \
 		&& [ -f "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/extra/Local_Authority_District_\(December_2018\)_to_NUTS3_to_NUTS2_to_NUTS1_\(January_2018\)_Lookup_in_United_Kingdom.csv "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv" \
 		&& [ -f "./data/s3_files/pubsecweb_210216.pgadmin-backup" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/pubsecweb/pubsecweb_210216.pgadmin-backup ./data/s3_files/pubsecweb_210216.pgadmin-backup \
-		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql ./data/s3_files/a11ymon_mini_20210527.sql \
+		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql.zip" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql.zip ./data/s3_files/a11ymon_mini_20210527.sql.zip \
+		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql" ] && echo "file exists" || unzip -o ./data/s3_files/a11ymon_mini_20210527.sql.zip \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database a11ymon;" \
 		&& export PGPASSWORD=secret; pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_210216.pgadmin-backup \
@@ -31,20 +32,35 @@ init:
 start:
 	python manage.py runserver 8081
 
+static_files_process:
+	python3 -c 'from pulp import *; pulp()'
+
+watch:
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()'"
+
 sync:
-	npx gulp serve
+	npx browser-sync start -p http://127.0.0.1:8081/ \
+		--files "./accessibility_monitoring_platform/**/*.py" \
+		--files "./accessibility_monitoring_platform/**/*.html" \
+		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
+		--files "./accessibility_monitoring_platform/static/compiled/**" \
+		--watchEvents change --watchEvents add \ 
+		--reload-delay 500
 
 mail_server:
 	python -m smtpd -n -c DebuggingServer localhost:1025
 
 test:
-	coverage run --source='.' manage.py test && coverage report --skip-covered && coverage erase
+	python manage.py collectstatic --noinput \
+		&& coverage run --source='.' -p manage.py test \
+		&& coverage run -m -p pytest \
+		&& coverage combine \
+		&& coverage report --skip-covered \
+		&& coverage erase
 
-lighthouse_audit:
-	node lighthouse-tests/lighthouse-test.js
-
-load_data:
-	python3 manage.py loaddata $(value db_data)
+# Currently out of use
+# lighthouse_audit:
+# 	node lighthouse-tests/lighthouse-test.js
 
 local_deploy:
 	pipenv lock -r > requirements.txt

@@ -17,13 +17,11 @@ COPY ./data/s3_files/20210604_auth_data.json /code/data/s3_files/
 COPY ./data/s3_files/pubsecweb_210216.pgadmin-backup /code/data/s3_files/
 COPY ./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv /code/data/s3_files/
 RUN pip3 install -r requirements.txt
-COPY gulpfile.babel.js /code/
+COPY pulp/ /code/pulp/
 COPY manage.py /code/
 COPY package.json /code/
 COPY accessibility_monitoring_platform/ /code/accessibility_monitoring_platform/
 RUN npm i
-RUN npm install --only=dev
-RUN npm link gulp
-RUN gulp build
+RUN python3 -c 'from pulp import *; pulp()'
 ARG PGPASSWORD=secret
 ENV PGPASSWORD=secret
