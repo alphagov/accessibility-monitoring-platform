@@ -12,10 +12,6 @@ DEFAULT_START_DATE: date = date(year=1900, month=1, day=1)
 DEFAULT_END_DATE: date = date(year=2100, month=1, day=1)
 
 
-class AMPSelectWidget(forms.RadioSelect):
-    template_name = "common/amp_select_widget_template.html"
-
-
 class AMPRadioSelectWidget(forms.RadioSelect):
     template_name = "common/amp_radio_select_widget_template.html"
 
@@ -68,26 +64,6 @@ class AMPDateWidget(forms.MultiWidget):
         if day == "" and month == "" and year == "":
             return ""
         return "{}-{}-{}".format(year, month, day)
-
-
-class AMPUserModelChoiceField(forms.ModelChoiceField):
-    """
-    Adds default widget to Django forms ModelChoiceField
-
-    Uses user's full name as label
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPSelectWidget,
-            "required": False,
-            "queryset": User.objects.all(),
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
-
-    def label_from_instance(self, user):
-        return user.get_full_name()
 
 
 class AMPCharField(forms.CharField):
@@ -151,6 +127,26 @@ class AMPModelChoiceField(forms.ModelChoiceField):
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
+
+
+class AMPUserModelChoiceField(forms.ModelChoiceField):
+    """
+    Adds default widget to Django forms ModelChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": forms.Select(attrs={"class": "govuk-select"}),
+            "required": False,
+            "queryset": User.objects.all(),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+    def label_from_instance(self, user):
+        return user.get_full_name()
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):

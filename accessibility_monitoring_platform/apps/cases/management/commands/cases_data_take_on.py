@@ -47,9 +47,9 @@ def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
     if not status:
         status = "test-in-progress"
 
-    auditor = row["Monitored by"]
+    auditor_name = row["Monitored by"]
 
-    return (created_time, home_page_url, domain, status, auditor)
+    return (created_time, home_page_url, domain, status, auditor_name)
 
 
 class Command(BaseCommand):
@@ -86,8 +86,8 @@ class Command(BaseCommand):
             Case.objects.all().delete()
             Contact.objects.all().delete()
 
-        users = [user for user in User.objects.all()]
-        number_of_users = len(users)
+        users = {f"{user.first_name} {user.last_name}": user for user in User.objects.all()}
+        default_user = User.objects.get(pk=1)
 
         with open(INPUT_FILE_NAME) as csvfile:
             reader: Any = csv.DictReader(csvfile)
@@ -111,10 +111,10 @@ class Command(BaseCommand):
                         home_page_url,
                         domain,
                         status,
-                        auditor,
+                        auditor_name,
                     ) = extract_data_from_row(row)
 
-                    auditor = users[count % number_of_users]
+                    auditor = users.get(auditor_name, default_user)
 
                     case = Case(
                         id=int(row["Case number"]),
