@@ -223,7 +223,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    reviewer = AMPCharFieldWide(label="QA auditor")
+    reviewer = AMPUserModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceField(
         label="Report approved?",
         choices=REPORT_APPROVED_STATUS_CHOICES,
