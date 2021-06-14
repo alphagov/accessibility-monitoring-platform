@@ -72,63 +72,63 @@ class AMPCharField(forms.CharField):
     """ Adds default max_length and widget to Django forms CharField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "max_length": 100,
-            "widget": forms.TextInput(
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("max_length", 100)
+        kwargs.setdefault(
+            "widget",
+            forms.TextInput(
                 attrs={"class": "govuk-input govuk-input--width-10"}
             ),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPCharFieldWide(forms.CharField):
     """ Adds default widget to Django forms CharField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.TextInput(attrs={"class": "govuk-input"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.TextInput(attrs={"class": "govuk-input"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPTextField(forms.CharField):
     """ Adds default widget to Django forms TextField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Select(attrs={"class": "govuk-select"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPModelChoiceField(forms.ModelChoiceField):
     """ Adds default widget to Django forms ModelChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Select(attrs={"class": "govuk-select"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPUserModelChoiceField(forms.ModelChoiceField):
@@ -139,13 +139,13 @@ class AMPUserModelChoiceField(forms.ModelChoiceField):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Select(attrs={"class": "govuk-select"}),
-            "required": False,
-            "queryset": User.objects.all(),
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        kwargs.setdefault("queryset", User.objects.all())
+        super().__init__(*args, **kwargs)
 
     def label_from_instance(self, user):
         return user.get_full_name()
@@ -155,36 +155,27 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """ Adds default widget to Django forms ModelMultipleChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPCheckboxSelectMultipleWidget(),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPCheckboxSelectMultipleWidget())
+        super().__init__(*args, **kwargs)
 
 
 class AMPBooleanField(forms.BooleanField):
     """ Adds default widget to Django forms BooleanField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPCheckboxWidget(),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPCheckboxWidget())
+        super().__init__(*args, **kwargs)
 
 
 class AMPDateField(forms.DateField):
     """ Adds default widget to Django forms DateField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPDateWidget(),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPDateWidget())
+        super().__init__(*args, **kwargs)
 
 
 class AMPDateRangeForm(forms.Form):
