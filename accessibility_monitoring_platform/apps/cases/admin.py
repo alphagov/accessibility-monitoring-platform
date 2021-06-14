@@ -13,6 +13,7 @@ class CaseAdmin(admin.ModelAdmin):
     search_fields = ["organisation_name"]
     list_display = ["organisation_name", "domain", "auditor", "created"]
     list_filter = ["auditor"]
+    filter_horizontal = ["region"]
 
 
 class ContactAdmin(admin.ModelAdmin):

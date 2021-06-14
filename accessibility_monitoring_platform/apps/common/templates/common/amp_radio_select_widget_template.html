@@ -9,6 +9,9 @@
                         name="{{ option.name }}"
                         {% if option.value != None %}
                             value="{{ option.value|stringformat:'s' }}"
+                            {% if option.value == widget.value %}
+                                selected
+                            {% endif %}
                         {% endif %}
                         {% for name, value in option.attrs.items %}
                             {% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
