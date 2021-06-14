@@ -36,6 +36,6 @@ urlpatterns = [
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
     path("", include("accessibility_monitoring_platform.apps.users.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path(r"^admin/", admin.site.urls),
-    path(r"^favicon\.ico$", RedirectView.as_view(url="/static/images/favicon.ico")),
+    path(r"admin/", admin.site.urls),
+    path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
 ]

@@ -2,7 +2,9 @@
 Test - common utility functions
 """
 import csv
+from datetime import date, datetime
 import io
+import pytz
 from typing import Any, List
 
 from django.http import HttpResponse
@@ -14,6 +16,7 @@ from ..utils import (
     download_as_csv,
     extract_domain_from_url,
     get_id_from_button_name,
+    convert_date_to_datetime,
 )
 
 
@@ -24,13 +27,13 @@ class MockModel:
         self.field_not_in_csv = "field_not_in_csv"
 
 
-MOCK_MODEL_FIELDS = ["integer_field", "char_field"]
-MOCK_MODEL_DATA = [["1", "char1"], ["2", "char2"]]
-MOCK_QUERYSET = [
+MOCK_MODEL_FIELDS: List[str] = ["integer_field", "char_field"]
+MOCK_MODEL_DATA: List[List[str]] = [["1", "char1"], ["2", "char2"]]
+MOCK_QUERYSET: List[MockModel] = [
     MockModel(integer_field=1, char_field="char1"),
     MockModel(integer_field=2, char_field="char2"),
 ]
-CSV_FILENAME = "filename.csv"
+CSV_FILENAME: str = "filename.csv"
 
 
 class DownloadAsCsvTests(TestCase):
@@ -129,13 +132,13 @@ class GetIdFromButtonName(TestCase):
         Tests that no id is extracted from a button name with wrong prefix
     """
 
-    button_name_prefix = "prefix_"
-    button_id = 0
+    button_name_prefix: str = "prefix_"
+    button_id: int = 0
 
     def test_get_id_from_button_name(self):
         """ Tests that the id is extracted from a button name with known prefix """
-        button_name = f"{self.button_name_prefix}{self.button_id}"
-        querydict = QueryDict(f"{button_name}=1&a=2&c=3")
+        button_name: str = f"{self.button_name_prefix}{self.button_id}"
+        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
         self.assertEqual(
             get_id_from_button_name(
                 button_name_prefix=self.button_name_prefix, post=querydict
@@ -145,8 +148,8 @@ class GetIdFromButtonName(TestCase):
 
     def test_get_no_id_from_button_name_with_wrong_prefix(self):
         """ Tests that no id is extracted from a button name with wrong prefix """
-        button_name = f"wrong_prefix_{self.button_name_prefix}{self.button_id}"
-        querydict = QueryDict(f"{button_name}=1&a=2&c=3")
+        button_name: str = f"wrong_prefix_{self.button_name_prefix}{self.button_id}"
+        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
         self.assertEqual(
             get_id_from_button_name(
                 button_name_prefix=self.button_name_prefix, post=querydict
@@ -176,7 +179,7 @@ class BuildFiltersTestCase(TestCase):
             "domain": "domain name",
             "unused_field": "unused value",
         }
-        expected_filters = {
+        expected_filters: Dict[str, str] = {
             "id": "42",
             "domain__icontains": "domain name",
         }
@@ -186,3 +189,10 @@ class BuildFiltersTestCase(TestCase):
             ),
             expected_filters,
         )
+
+
+def test_convert_date_to_datetime():
+    """ Test date is converted to datetime correctly """
+    input_date: date = date(year=2021, month=6, day=10)
+    expected_datetime: datetime = datetime(year=2021, month=6, day=10, tzinfo=pytz.UTC)
+    assert convert_date_to_datetime(input_date) == expected_datetime
