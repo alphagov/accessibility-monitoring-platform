@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "~=3.2.4"
 python-dotenv = "*"
 psycopg2 = "*"
 notifications-python-client = "*"

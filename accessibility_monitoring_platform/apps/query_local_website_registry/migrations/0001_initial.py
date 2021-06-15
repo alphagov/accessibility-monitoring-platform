@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'nuts_conversion',
-                'managed': True,
+                'managed': UNDER_TEST,
             },
         ),
         migrations.CreateModel(
