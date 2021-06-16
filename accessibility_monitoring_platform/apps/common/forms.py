@@ -1,14 +1,21 @@
 """
 Common widgets and form fields
 """
-from datetime import date
+from datetime import date, datetime
+import pytz
 from typing import Any, Dict, Iterable, List, Mapping, Union
 
+from django.contrib.auth.models import User
 from django import forms
 
+from .utils import convert_date_to_datetime
 
-DEFAULT_START_DATE: date = date(year=1900, month=1, day=1)
-DEFAULT_END_DATE: date = date(year=2100, month=1, day=1)
+DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
+DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
+
+
+class AMPSelectWidget(forms.RadioSelect):
+    template_name = "common/amp_select_widget_template.html"
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -17,6 +24,10 @@ class AMPRadioSelectWidget(forms.RadioSelect):
 
 class AMPCheckboxWidget(forms.CheckboxInput):
     template_name = "common/amp_checkbox_widget_template.html"
+
+
+class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
+    template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
 class AMPDateWidget(forms.MultiWidget):
@@ -61,47 +72,120 @@ class AMPDateWidget(forms.MultiWidget):
         return "{}-{}-{}".format(year, month, day)
 
 
+class AMPUserModelChoiceField(forms.ModelChoiceField):
+    """
+    Adds default widget to Django forms ModelChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        default_kwargs: dict = {
+            "widget": AMPSelectWidget,
+            "required": False,
+            "queryset": User.objects.all(),
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
+
+    def label_from_instance(self, user):
+        return user.get_full_name()
+
+
 class AMPCharField(forms.CharField):
     """ Adds default max_length and widget to Django forms CharField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "max_length": 100,
-            "widget": forms.TextInput(
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("max_length", 100)
+        kwargs.setdefault(
+            "widget",
+            forms.TextInput(
                 attrs={"class": "govuk-input govuk-input--width-10"}
             ),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPCharFieldWide(forms.CharField):
     """ Adds default widget to Django forms CharField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.TextInput(attrs={"class": "govuk-input"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.TextInput(attrs={"class": "govuk-input"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPTextField(forms.CharField):
     """ Adds default widget to Django forms TextField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPChoiceField(forms.ChoiceField):
     """ Adds default widget to Django forms ChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        super().__init__(*args, **kwargs)
+
+
+class AMPModelChoiceField(forms.ModelChoiceField):
+    """ Adds default widget to Django forms ModelChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        super().__init__(*args, **kwargs)
+
+
+class AMPUserModelChoiceField(forms.ModelChoiceField):
+    """
+    Adds default widget to Django forms ModelChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        kwargs.setdefault("queryset", User.objects.all())
+        super().__init__(*args, **kwargs)
+
+    def label_from_instance(self, user):
+        return user.get_full_name()
+
+
+class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """ Adds default widget to Django forms ModelMultipleChoiceField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPCheckboxSelectMultipleWidget())
+        super().__init__(*args, **kwargs)
+
+
+class AMPModelChoiceField(forms.ModelChoiceField):
+    """ Adds default widget to Django forms ModelChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
@@ -112,28 +196,34 @@ class AMPChoiceField(forms.ChoiceField):
         super().__init__(*args, **overridden_default_kwargs)
 
 
-class AMPBooleanField(forms.BooleanField):
-    """ Adds default widget to Django forms BooleanField """
+class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """ Adds default widget to Django forms ModelMultipleChoiceField """
 
     def __init__(self, *args, **kwargs) -> None:
         default_kwargs: dict = {
-            "widget": forms.CheckboxInput(attrs={"class": "govuk-checkboxes__input"}),
+            "widget": AMPCheckboxSelectMultipleWidget(),
             "required": False,
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
+
+
+class AMPBooleanField(forms.BooleanField):
+    """ Adds default widget to Django forms BooleanField """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPCheckboxWidget())
+        super().__init__(*args, **kwargs)
 
 
 class AMPDateField(forms.DateField):
     """ Adds default widget to Django forms DateField """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPDateWidget(),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPDateWidget())
+        super().__init__(*args, **kwargs)
 
 
 class AMPDateRangeForm(forms.Form):
@@ -149,8 +239,16 @@ class AMPDateRangeForm(forms.Form):
 
     def clean(self) -> Dict[str, Any]:
         cleaned_data: dict = super().clean()
+        if "start_date" in cleaned_data and cleaned_data["start_date"]:
+            cleaned_data["start_date"] = convert_date_to_datetime(
+                cleaned_data["start_date"]
+            )
         if "start_date" not in cleaned_data or not cleaned_data["start_date"]:
             cleaned_data["start_date"] = DEFAULT_START_DATE
+        if "end_date" in cleaned_data and cleaned_data["end_date"]:
+            cleaned_data["end_date"] = convert_date_to_datetime(
+                cleaned_data["end_date"]
+            )
         if "end_date" not in cleaned_data or not cleaned_data["end_date"]:
             cleaned_data["end_date"] = DEFAULT_END_DATE
         return cleaned_data

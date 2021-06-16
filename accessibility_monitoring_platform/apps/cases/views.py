@@ -32,7 +32,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("case_number", "id"),
     ("domain", "domain__icontains"),
     ("organisation", "organisation_name__icontains"),
-    ("auditor", "auditor"),
+    ("auditor", "auditor_id"),
     ("status", "status"),
     ("start_date", "created__gte"),
     ("end_date", "created__lte"),
@@ -82,7 +82,7 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "sent_to_enforcement_body_sent_date",
     "is_case_completed",
     "completed",
-    "archived",
+    "is_archived",
 ]
 
 
@@ -93,7 +93,7 @@ class CaseDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """ Add unarchived contacts to context """
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["contacts"] = self.object.contact_set.filter(archived=False)
+        context["contacts"] = self.object.contact_set.filter(is_archived=False)
         return context
 
 
@@ -111,7 +111,7 @@ class CaseListView(ListView):
             cleaned_data=form.cleaned_data,
             field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
         )
-        filters["archived"] = False
+        filters["is_archived"] = False
 
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
@@ -179,7 +179,9 @@ class CaseContactFormsetUpdateView(UpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(archived=False)
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(
+                is_archived=False
+            )
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:

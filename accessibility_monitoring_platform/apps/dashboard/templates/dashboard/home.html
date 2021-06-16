@@ -1,39 +1,44 @@
 <!DOCTYPE html>
 
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
 
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper dashboard">
     <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">Dashboard</h1>
+      <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">Home</h1>
       </div>
     </div>
-    <div class="govuk-grid-row dashboard">
+    <div class="govuk-grid-row">
       <div class="govuk-grid-column-full">
-        <a href="{% url 'query_local_website_registry:home' %}">
-          <div class="app-selection">
-            <p class="govuk-body-l">Query Domains</p>
-          </div>
-        </a>
-      </div>
-      <div class="govuk-grid-column-full">
-        <a href="{% url 'axe_data:home' %}">
-          <div class="app-selection">
-            <p class="govuk-body-l">Query Axe Data</p>
-          </div>
-        </a>
-      </div>
-      <div class="govuk-grid-column-full">
-        <a href="{% url 'cases:case-list' %}">
-          <div class="app-selection">
-            <p class="govuk-body-l">Cases</p>
-          </div>
-        </a>
+        <h1 class="govuk-body-l">There are {{total_cases}} total active cases. {{your_cases}} are assigned to you </h1>
       </div>
     </div>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+      <h1 class="govuk-body-l">
+        {% if unassigned_cases == 1 %}
+          There is 1 unassigned case
+        {% else %}
+          There are {{unassigned_cases}} unassigned cases
+        {% endif %}
+      </h1>
+    </div>
+    </div>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h1 class="govuk-body-l">
+          {% if unassigned_qa_cases == 1 %}
+            There is 1 case that has not been assigned to a reviewer in QA
+          {% else %}
+            There are {{unassigned_qa_cases}} cases that have not been assigned reviewers in QA
+          {% endif %}
+        </h1>
+      </div>
+    </div>
+    {% include "./list_view.html" %}
   </main>
 </div>
 

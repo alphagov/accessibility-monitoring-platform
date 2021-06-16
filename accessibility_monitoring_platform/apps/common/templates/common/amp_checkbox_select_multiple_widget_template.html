@@ -1,27 +1,22 @@
 {% with id=widget.attrs.id %}
-    <div class="govuk-radios">
+    <div class="govuk-checkboxes">
         {% for group, options, index in widget.optgroups %}
             {% for option in options %}
-                <div class="govuk-radios__item">
+                <div class="govuk-checkboxes__item">
                     <input
-                        class="govuk-radios__input"
+                        class="govuk-checkboxes__input"
                         type="{{ option.type }}"
                         name="{{ option.name }}"
                         {% if option.value != None %}
                             value="{{ option.value|stringformat:'s' }}"
-                            {% if option.value == widget.value %}
-                                selected
-                            {% endif %}
                         {% endif %}
                         {% for name, value in option.attrs.items %}
                             {% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
                         {% endfor %}
                     >
-                    {% if option.wrap_label %}
-                    <label class="govuk-label govuk-radios__label"{% if option.attrs.id %} for="{{ option.attrs.id }}"{% endif %}>
+                    <label class="govuk-label govuk-checkboxes__label"{% if option.attrs.id %} for="{{ option.attrs.id }}"{% endif %}>
                         {{ option.label }}
                     </label>
-                    {% endif %}
                 </div>
             {% endfor %}
         {% endfor %}

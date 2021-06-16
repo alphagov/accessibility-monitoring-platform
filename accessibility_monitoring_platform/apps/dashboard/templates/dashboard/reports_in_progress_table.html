@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+
+{% if table_data.count == 0 %}
+   <p class="govuk-body"> There are currently no reports in progress </p>
+{% else %}
+    <table class="govuk-table case-dashboard">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                {% for item in table_header %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">{{item}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for item in table_data %}
+                <tr class="govuk-table__row ">
+                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.created|date:"d/m/Y"}}</th>
+                    <td class="govuk-table__cell govuk-!-width-one-quarter">
+                        <a href="{% url 'cases:case-detail' item.id %}"> {{item.domain}} </a>
+                    </td>
+                    <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name}}</td>
+                    <td class="govuk-table__cell govuk-!-width-one-quarter">
+                        <a href="{% url 'cases:edit-report-details' item.id %}"> Report details </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

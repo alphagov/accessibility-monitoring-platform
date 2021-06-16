@@ -29,4 +29,4 @@ class TestSum(unittest.TestCase):
         )
         driver.get(url="http://localhost:8001/accounts/login/?next=/")
 
-        self.assertEqual("Accessiblity Monitoring Platform" in driver.page_source, True)
+        self.assertEqual("Accessibility Monitoring Platform" in driver.page_source, True)

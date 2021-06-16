@@ -11,7 +11,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"">Auditor</th>
-            <td class="govuk-table__cell">{{ case.auditor }}</td>
+            <td class="govuk-table__cell">{{ case.auditor.get_full_name }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"">Test type</th>
@@ -36,6 +36,10 @@
             <td class="govuk-table__cell">{{ case.organisation_name }}</td>
         </tr>
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Service name</th>
+            <td class="govuk-table__cell">{{ case.service_name }}</td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Type of site</th>
             <td class="govuk-table__cell">{{ case.get_website_type_display }}</td>
         </tr>
@@ -45,7 +49,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Region</th>
-            <td class="govuk-table__cell">{{ case.region }}</td>
+            <td class="govuk-table__cell">{{ case.region.all|join:", " }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Case origin</th>
