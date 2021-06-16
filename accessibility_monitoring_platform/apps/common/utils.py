@@ -48,12 +48,10 @@ def get_id_from_button_name(button_name_prefix: str, post: QueryDict) -> IntOrNo
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
-    encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Union[Match, None] = re.search(f"^{button_name_prefix}\d+", encoded_url)
+    key_names = [key for key in post.keys() if key.startswith(button_name_prefix)]
     id: IntOrNone = None
-    if match_obj is not None:
-        button_name: str = match_obj.group()
-        id = int(button_name.replace(button_name_prefix, ""))
+    if len(key_names) == 1:
+        id = int(key_names[0].replace(button_name_prefix, ""))
     return id
 
 

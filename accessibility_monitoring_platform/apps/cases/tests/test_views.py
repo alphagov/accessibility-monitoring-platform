@@ -90,3 +90,29 @@ def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
     queryset: QuerySet = view.get_queryset()
 
     assert sql_clause in str(queryset.query)
+
+
+@pytest.mark.django_db
+def test_case_is_archived(admin_client):
+    """ Test case is archived on request """
+    case: Case = Case.objects.create()
+    response: HttpResponse = admin_client.get(
+        reverse("cases:archive-case", kwargs={"pk": case.id})
+    )
+    assert response.status_code == 302
+    case_on_database = Case.objects.get(pk=case.id)
+    assert case_on_database.is_archived == True
+
+
+@pytest.mark.django_db
+def test_contact_is_archived(admin_client):
+    """ Test contact is archived on request """
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        {f"remove_contact_{contact.id}": "Remove contact"},
+    )
+    assert response.status_code == 302
+    contact_on_database = Contact.objects.get(pk=contact.id)
+    assert contact_on_database.is_archived == True

@@ -33,6 +33,7 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("domain", "domain__icontains"),
     ("organisation", "organisation_name__icontains"),
     ("auditor", "auditor_id"),
+    ("reviewer", "reviewer_id"),
     ("status", "status"),
     ("start_date", "created__gte"),
     ("end_date", "created__lte"),
@@ -204,7 +205,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         )
         if contact_id_to_archive is not None:
             contact_to_archive: Contact = Contact.objects.get(id=contact_id_to_archive)
-            contact_to_archive.archived = True
+            contact_to_archive.is_archived = True
             contact_to_archive.save()
         return super().form_valid(form)
 
@@ -324,6 +325,6 @@ def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     case = get_object_or_404(Case, pk=pk)
-    case.archived = True
+    case.is_archived = True
     case.save()
     return redirect(reverse_lazy("cases:case-list"))
