@@ -81,7 +81,7 @@
                 <form method="get" action="{% url 'cases:case-list' %}">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m cases-margin-top">Edit Search</h2>
+                            <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{form.sort_by.label}}</b></label>
@@ -104,8 +104,15 @@
                             {{form.auditor}}
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label" for="{{ form.reviewer.auto_id }}"><b>{{form.reviewer.label}}</b></label>
+                            {{form.reviewer}}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
                             {{form.status}}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <h3 class="govuk-heading-s cases-sub-heading">Date created filter</h3>
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
                             <label class="govuk-label" for="{{ form.start_date.auto_id }}"><b>{{form.start_date.label}}</b></label>

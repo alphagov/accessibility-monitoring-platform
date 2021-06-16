@@ -119,76 +119,54 @@ class ExtractDomainFromUrlTests(TestCase):
         self.assertEqual(extract_domain_from_url(url="example.com"), "")
 
 
-class GetIdFromButtonName(TestCase):
-    """
-    Tests for get_id_from_button_name
-
-    Methods
-    -------
-    test_get_id_from_button_name()
-        Tests that the id is extracted from a button name with known prefix
-
-    test_get_no_id_from_button_name_with_wrong_prefix()
-        Tests that no id is extracted from a button name with wrong prefix
-    """
-
+def test_get_id_from_button_name():
+    """ Tests that the id is extracted from a button name with known prefix """
     button_name_prefix: str = "prefix_"
-    button_id: int = 0
-
-    def test_get_id_from_button_name(self):
-        """ Tests that the id is extracted from a button name with known prefix """
-        button_name: str = f"{self.button_name_prefix}{self.button_id}"
-        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
-        self.assertEqual(
-            get_id_from_button_name(
-                button_name_prefix=self.button_name_prefix, post=querydict
-            ),
-            self.button_id,
+    button_id: int = 1
+    button_name: str = f"{button_name_prefix}{button_id}"
+    querydict: QueryDict = QueryDict(f"meh=val&{button_name}=1&a=2&c=3")
+    assert (
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
         )
+        == button_id
+    )
 
-    def test_get_no_id_from_button_name_with_wrong_prefix(self):
-        """ Tests that no id is extracted from a button name with wrong prefix """
-        button_name: str = f"wrong_prefix_{self.button_name_prefix}{self.button_id}"
-        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
-        self.assertEqual(
-            get_id_from_button_name(
-                button_name_prefix=self.button_name_prefix, post=querydict
-            ),
-            None,
+
+def test_get_no_id_from_button_name_with_wrong_prefix():
+    """ Tests that no id is extracted from a button name with wrong prefix """
+    button_name_prefix: str = "prefix_"
+    button_name: str = f"wrong_prefix_{button_name_prefix}1"
+    querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
+    assert (
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
         )
+        is None
+    )
 
 
-class BuildFiltersTestCase(TestCase):
-    """
-    Tests for build_filters
-
-    Methods
-    -------
-    test_build_filters_from_field_values()
-        Tests that filter dictionary is build from field values
-    """
-
-    def test_build_filters_from_field_values(self):
-        """ Tests that filter dictionary is build from field values """
-        field_and_filter_names: List[Tuple[str, str]] = [
-            ("case_number", "id"),
-            ("domain", "domain__icontains"),
-        ]
-        fields_data: Dict[str, Any] = {
-            "case_number": "42",
-            "domain": "domain name",
-            "unused_field": "unused value",
-        }
-        expected_filters: Dict[str, str] = {
-            "id": "42",
-            "domain__icontains": "domain name",
-        }
-        self.assertEqual(
-            build_filters(
-                cleaned_data=fields_data, field_and_filter_names=field_and_filter_names
-            ),
-            expected_filters,
+def test_build_filters_from_field_values():
+    """ Tests that filter dictionary is build from field values """
+    field_and_filter_names: List[Tuple[str, str]] = [
+        ("case_number", "id"),
+        ("domain", "domain__icontains"),
+    ]
+    fields_data: Dict[str, Any] = {
+        "case_number": "42",
+        "domain": "domain name",
+        "unused_field": "unused value",
+    }
+    expected_filters: Dict[str, str] = {
+        "id": "42",
+        "domain__icontains": "domain name",
+    }
+    assert (
+        build_filters(
+            cleaned_data=fields_data, field_and_filter_names=field_and_filter_names
         )
+        == expected_filters
+    )
 
 
 def test_convert_date_to_datetime():
