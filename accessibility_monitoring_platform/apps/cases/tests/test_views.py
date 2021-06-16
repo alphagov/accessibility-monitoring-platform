@@ -100,7 +100,7 @@ def test_case_is_archived(admin_client):
         reverse("cases:archive-case", kwargs={"pk": case.id})
     )
     assert response.status_code == 302
-    case_on_database = Case.objects.get(pk=case.id)
+    case_on_database: Case = Case.objects.get(pk=case.id)
     assert case_on_database.is_archived == True
 
 
@@ -114,5 +114,5 @@ def test_contact_is_archived(admin_client):
         {f"remove_contact_{contact.id}": "Remove contact"},
     )
     assert response.status_code == 302
-    contact_on_database = Contact.objects.get(pk=contact.id)
+    contact_on_database: Contact = Contact.objects.get(pk=contact.id)
     assert contact_on_database.is_archived == True

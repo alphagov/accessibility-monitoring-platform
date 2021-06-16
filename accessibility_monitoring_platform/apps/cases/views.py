@@ -201,7 +201,8 @@ class CaseContactFormsetUpdateView(UpdateView):
                     contact.case_id = case.id
                 contact.save()
         contact_id_to_archive: IntOrNone = get_id_from_button_name(
-            "remove_contact_", self.request.POST
+            button_name_prefix="remove_contact_",
+            querydict=self.request.POST,
         )
         if contact_id_to_archive is not None:
             contact_to_archive: Contact = Contact.objects.get(id=contact_id_to_archive)

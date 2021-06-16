@@ -126,7 +126,9 @@ def test_get_id_from_button_name():
     button_name: str = f"{button_name_prefix}{button_id}"
     querydict: QueryDict = QueryDict(f"meh=val&{button_name}=1&a=2&c=3")
     assert (
-        get_id_from_button_name(button_name_prefix=button_name_prefix, post=querydict)
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
+        )
         == button_id
     )
 
@@ -137,7 +139,9 @@ def test_get_no_id_from_button_name_with_wrong_prefix():
     button_name: str = f"wrong_prefix_{button_name_prefix}1"
     querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
     assert (
-        get_id_from_button_name(button_name_prefix=button_name_prefix, post=querydict)
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
+        )
         is None
     )
 
