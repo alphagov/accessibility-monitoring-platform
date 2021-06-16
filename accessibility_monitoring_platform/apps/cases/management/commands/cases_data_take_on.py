@@ -86,7 +86,9 @@ class Command(BaseCommand):
             Case.objects.all().delete()
             Contact.objects.all().delete()
 
-        users = {f"{user.first_name} {user.last_name}": user for user in User.objects.all()}
+        users = {
+            f"{user.first_name} {user.last_name}": user for user in User.objects.all()
+        }
         default_user = User.objects.get(pk=1)
 
         with open(INPUT_FILE_NAME) as csvfile:

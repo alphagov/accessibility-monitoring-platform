@@ -76,9 +76,7 @@ class AMPCharField(forms.CharField):
         kwargs.setdefault("max_length", 100)
         kwargs.setdefault(
             "widget",
-            forms.TextInput(
-                attrs={"class": "govuk-input govuk-input--width-10"}
-            ),
+            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
         )
         super().__init__(*args, **kwargs)
 
@@ -144,7 +142,9 @@ class AMPUserModelChoiceField(forms.ModelChoiceField):
             "widget",
             forms.Select(attrs={"class": "govuk-select"}),
         )
-        kwargs.setdefault("queryset", User.objects.all())
+        kwargs.setdefault(
+            "queryset", User.objects.all().order_by("first_name", "last_name")
+        )
         super().__init__(*args, **kwargs)
 
     def label_from_instance(self, user):
