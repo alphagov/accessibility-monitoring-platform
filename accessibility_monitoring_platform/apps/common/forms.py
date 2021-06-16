@@ -54,7 +54,9 @@ class AMPDateWidget(forms.MultiWidget):
     def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
         if isinstance(value, date):
             return [value.day, value.month, value.year]
-        elif isinstance(value, str) and value != "":
+        elif isinstance(value, str):
+            if value == "" or value == "None-None-None":
+                return [None, None, None]
             year, month, day = value.split("-")
             return [day, month, year]
         return [None, None, None]
@@ -76,9 +78,7 @@ class AMPCharField(forms.CharField):
         kwargs.setdefault("max_length", 100)
         kwargs.setdefault(
             "widget",
-            forms.TextInput(
-                attrs={"class": "govuk-input govuk-input--width-10"}
-            ),
+            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
         )
         super().__init__(*args, **kwargs)
 
@@ -189,18 +189,14 @@ class AMPDateRangeForm(forms.Form):
     )
     end_date = forms.DateField(label="End date", widget=AMPDateWidget(), required=False)
 
-    def clean(self) -> Dict[str, Any]:
-        cleaned_data: dict = super().clean()
-        if "start_date" in cleaned_data and cleaned_data["start_date"]:
-            cleaned_data["start_date"] = convert_date_to_datetime(
-                cleaned_data["start_date"]
-            )
-        if "start_date" not in cleaned_data or not cleaned_data["start_date"]:
-            cleaned_data["start_date"] = DEFAULT_START_DATE
-        if "end_date" in cleaned_data and cleaned_data["end_date"]:
-            cleaned_data["end_date"] = convert_date_to_datetime(
-                cleaned_data["end_date"]
-            )
-        if "end_date" not in cleaned_data or not cleaned_data["end_date"]:
-            cleaned_data["end_date"] = DEFAULT_END_DATE
-        return cleaned_data
+    def clean_start_date(self) -> datetime:
+        start_date = self.cleaned_data["start_date"]
+        if start_date:
+            return convert_date_to_datetime(start_date)
+        return DEFAULT_START_DATE
+
+    def clean_end_date(self) -> datetime:
+        end_date = self.cleaned_data["end_date"]
+        if end_date:
+            return convert_date_to_datetime(end_date)
+        return DEFAULT_END_DATE

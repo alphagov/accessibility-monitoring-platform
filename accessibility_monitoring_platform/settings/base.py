@@ -43,15 +43,15 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
-    'accessibility_monitoring_platform.apps.axe_data',
     'accessibility_monitoring_platform.apps.cases',
     'accessibility_monitoring_platform.apps.common',
     'accessibility_monitoring_platform.apps.dashboard',
-    'accessibility_monitoring_platform.apps.query_local_website_registry',
     'accessibility_monitoring_platform.apps.users',
+    'accessibility_monitoring_platform.apps.websites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',

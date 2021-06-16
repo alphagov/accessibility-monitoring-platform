@@ -1,5 +1,5 @@
 """
-Views for cases
+Views for cases app
 """
 import urllib
 from typing import Any, Dict, List, Tuple
@@ -128,9 +128,7 @@ class CaseListView(ListView):
         }
 
         context["form"] = CaseSearchForm(self.request.GET)
-        context["parameters"] = urllib.parse.urlencode(get_without_page)
-        context["case_number"] = self.request.GET.get("case-number", "")
-        context["auditor"] = self.request.GET.get("auditor", "")
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
 

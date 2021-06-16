@@ -2,7 +2,7 @@
 
 {% extends 'base.html' %}
 
-{% load l10n %}
+{% load humanize %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,7 +14,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
+                <h2 class="govuk-heading-m">{{ page_obj.paginator.count|intcomma }} cases found</h2>
                 <div class="govuk-button-group">
                     <a
                         href="{% url 'cases:case-create' %}"
@@ -26,7 +26,7 @@
                         Create case
                     </a>
                     <a
-                        href="{% url 'cases:case-export-list' %}{% if parameters %}?{{ parameters }}{% endif %}"
+                        href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"
@@ -35,7 +35,7 @@
                         Export to CSV
                     </a>
                 </div>
-                {% include "cases/pagination_controls.html" %}
+                {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                     {% for case in cases %}
@@ -75,7 +75,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {% include "cases/pagination_controls.html" %}
+                {% include "common/pagination_controls.html" %}
             </div>
             <div class="govuk-grid-column-one-third cases-search-background">
                 <form method="get" action="{% url 'cases:case-list' %}">
@@ -108,11 +108,11 @@
                             {{form.status}}
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.start_date.label}}</b></label>
+                            <label class="govuk-label" for="{{ form.start_date.auto_id }}"><b>{{form.start_date.label}}</b></label>
                             {{form.start_date}}
                         </div>
                         <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.end_date.label}}</b></label>
+                            <label class="govuk-label" for="{{ form.end_date.auto_id }}"><b>{{form.end_date.label}}</b></label>
                             {{form.end_date}}
                         </div>
                     </div>
