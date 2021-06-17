@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-half">
+                <div class="govuk-grid-column-one-third">
                     <label class="govuk-label" for="{{ form.start_date.auto_id }}"><b>{{form.start_date.label}}</b></label>
                     {% if form.start_date.errors %}
                         <span class="govuk-error-message">
@@ -33,7 +33,7 @@
                     {% endif %}
                     {{form.start_date}}
                 </div>
-                <div class="govuk-grid-column-one-half">
+                <div class="govuk-grid-column-one-third">
                     <label class="govuk-label" for="{{ form.end_date.auto_id }}"><b>{{form.end_date.label}}</b></label>
                     {% if form.end_date.errors %}
                         <span class="govuk-error-message">
@@ -42,8 +42,6 @@
                     {% endif %}
                     {{form.end_date}}
                 </div>
-            </div>
-            <div class="govuk-grid-row query-form">
                 <div class="govuk-grid-column-one-third">
                     <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{ form.sort_by.label }}</b></label>
                     {{form.sort_by}}

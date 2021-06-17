@@ -2,15 +2,27 @@
 Forms for websites app
 """
 
+from typing import List, Tuple
+
 from django import forms
 
 from ..common.forms import (
     AMPCharField,
+    AMPChoiceField,
     AMPDateWidget,
     AMPDateRangeForm,
     AMPModelChoiceField,
 )
 from .models import Sector
+
+DEFAULT_SORT: str = "-website_id"
+SORT_CHOICES: List[Tuple[str, str]] = (
+    (DEFAULT_SORT, "Most recently created"),
+    # ("error_count", "Fewest Errors"),
+    # ("-error_count", "Most Errors"),
+    ("-last_updated", "Most recently updated"),
+    ("last_updated", "First updated"),
+)
 
 
 class WebsiteSearchForm(AMPDateRangeForm):
@@ -30,3 +42,4 @@ class WebsiteSearchForm(AMPDateRangeForm):
     end_date = forms.DateField(
         label="Last Updated End date", widget=AMPDateWidget(), required=False
     )
+    sort_by = AMPChoiceField(choices=SORT_CHOICES)

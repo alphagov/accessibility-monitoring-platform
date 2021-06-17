@@ -6,6 +6,7 @@ from typing import (
     Dict,
     List,
     Tuple,
+    Union,
 )
 import urllib
 
@@ -15,11 +16,10 @@ from django.views.generic.list import ListView
 
 from ..common.utils import build_filters, download_as_csv
 from .models import WebsiteRegister
-from .forms import WebsiteSearchForm
-from .utils import get_list_of_nuts118
+from .forms import DEFAULT_SORT, WebsiteSearchForm
+from .utils import get_list_of_nuts318_codes
 
 
-DEFAULT_SORT: str = "-last_updated"
 WEBSITE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("service", "service__icontains"),
     ("sector", "sector_id"),
@@ -46,20 +46,33 @@ class WebsiteListView(ListView):
     context_object_name = "websites"
     paginate_by = 25
 
+    def get(self, request, *args, **kwargs):
+        """ Populate filter form """
+        if self.request.GET:
+            self.form: WebsiteSearchForm = WebsiteSearchForm(self.request.GET)
+            self.form.is_valid()
+        else:
+            self.form = WebsiteSearchForm()
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self) -> QuerySet[WebsiteRegister]:
         """ Add filters to queryset """
-        if not self.request.GET:
+        if not self.request.GET or self.form.errors:
             return WebsiteRegister.objects.none()
 
-        form: WebsiteSearchForm = WebsiteSearchForm(self.request.GET)
-        form.is_valid()
-
         filters: Dict[str, Any] = build_filters(
-            cleaned_data=form.cleaned_data,
+            cleaned_data=self.form.cleaned_data,
             field_and_filter_names=WEBSITE_FIELD_AND_FILTER_NAMES,
         )
 
-        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        location: str = self.form.cleaned_data.get("location")
+        nuts318_codes: Union[QuerySet[NutsConversion], List] = (
+            get_list_of_nuts318_codes(location) if location else []
+        )
+        if nuts318_codes:
+            filters["nuts3__in"] = nuts318_codes
+
+        sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by = DEFAULT_SORT
 
@@ -77,11 +90,7 @@ class WebsiteListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
-        context["form"] = (
-            WebsiteSearchForm(self.request.GET)
-            if self.request.GET
-            else WebsiteSearchForm()
-        )
+        context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
