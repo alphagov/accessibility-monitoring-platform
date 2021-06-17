@@ -58,7 +58,9 @@ class QueryLocalViewTests(TestCase):
 
     def test_query_loads_table(self):
         """ String query loads table correctly """
-        url_req: str = f"{reverse('websites:website-list')}?sector=9&sort_by={DEFAULT_SORT}"
+        url_req: str = (
+            f"{reverse('websites:website-list')}?sector=9&sort_by={DEFAULT_SORT}"
+        )
         response: HttpResponse = self.client.get(url_req, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "http://www.webite.co.uk/")
