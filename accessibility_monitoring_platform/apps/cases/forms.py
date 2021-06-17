@@ -54,6 +54,7 @@ class CaseSearchForm(AMPDateRangeForm):
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
     auditor = AMPUserModelChoiceField(label="Auditor")
+    reviewer = AMPUserModelChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
 
 
