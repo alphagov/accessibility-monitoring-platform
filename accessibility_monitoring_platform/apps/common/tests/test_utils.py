@@ -5,7 +5,7 @@ import csv
 from datetime import date, datetime
 import io
 import pytz
-from typing import Any, List
+from typing import Any, Dict, List, Tuple
 
 from django.http import HttpResponse
 from django.http.request import QueryDict

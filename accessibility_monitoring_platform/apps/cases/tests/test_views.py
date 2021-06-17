@@ -68,8 +68,8 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
     assert response.status_code == 200
     assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b'Not Archived' in response.content
-    assert b'Is Archived' not in response.content
+    assert b"Not Archived" in response.content
+    assert b"Is Archived" not in response.content
 
 
 @pytest.mark.django_db
@@ -77,11 +77,13 @@ def test_case_list_view_filters_by_case_number(admin_client):
     """ Test that the case list view page can be filtered by case number """
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?case_number={included_case.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?case_number={included_case.id}"
+    )
     assert response.status_code == 200
     assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b'Included' in response.content
-    assert b'Excluded' not in response.content
+    assert b"Included" in response.content
+    assert b"Excluded" not in response.content
 
 
 @pytest.mark.parametrize(
@@ -93,7 +95,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
     ],
 )
 @pytest.mark.django_db
-def test_case_list_view_string_filters(field_name, value, url_parameter_name, admin_client):
+def test_case_list_view_string_filters(
+    field_name, value, url_parameter_name, admin_client
+):
     """ Test that the case list view page can be filtered by string """
     included_case: Case = Case.objects.create(organisation_name="Included")
     setattr(included_case, field_name, value)
@@ -101,12 +105,14 @@ def test_case_list_view_string_filters(field_name, value, url_parameter_name, ad
 
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?{url_parameter_name}={value}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameter_name}={value}"
+    )
 
     assert response.status_code == 200
     assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b'Included' in response.content
-    assert b'Excluded' not in response.content
+    assert b"Included" in response.content
+    assert b"Excluded" not in response.content
 
 
 @pytest.mark.parametrize(
@@ -126,26 +132,34 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
 
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}"
+    )
 
     assert response.status_code == 200
     assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b'Included' in response.content
-    assert b'Excluded' not in response.content
+    assert b"Included" in response.content
+    assert b"Excluded" not in response.content
 
 
 @pytest.mark.django_db
 def test_case_list_view_date_range_filters(admin_client):
     """ Test that the case list view page can be filtered by date range """
-    included_created_date: datetime = datetime(year=2021, month=6, day=5, tzinfo=pytz.UTC)
-    excluded_created_date: datetime = datetime(year=2021, month=5, day=5, tzinfo=pytz.UTC)
+    included_created_date: datetime = datetime(
+        year=2021, month=6, day=5, tzinfo=pytz.UTC
+    )
+    excluded_created_date: datetime = datetime(
+        year=2021, month=5, day=5, tzinfo=pytz.UTC
+    )
     Case.objects.create(organisation_name="Included", created=included_created_date)
     Case.objects.create(organisation_name="Excluded", created=excluded_created_date)
 
     url_parameters = "start_date_0=1&start_date_1=6&start_date_2=2021&end_date_0=10&end_date_1=6&end_date_2=2021"
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?{url_parameters}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameters}"
+    )
 
     assert response.status_code == 200
     assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b'Included' in response.content
-    assert b'Excluded' not in response.content
+    assert b"Included" in response.content
+    assert b"Excluded" not in response.content

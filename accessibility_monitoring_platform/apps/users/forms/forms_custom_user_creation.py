@@ -2,7 +2,6 @@
 Form - CustomUserCreationForm for users
 """
 
-
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
@@ -43,7 +42,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         self.request: HttpRequest = kwargs.pop("request")
-        super(CustomUserCreationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields.pop("username")
 
     def clean_email_confirm(self):

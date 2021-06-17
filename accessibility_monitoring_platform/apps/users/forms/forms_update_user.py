@@ -36,7 +36,7 @@ class UpdateUserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request: HttpRequest = kwargs.pop("request")
-        super(UpdateUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = User
@@ -81,7 +81,7 @@ class UpdateUserForm(forms.ModelForm):
         return email_confirm
 
     def clean_password(self):
-        cleaned_data: Any = super(UpdateUserForm, self).clean()
+        cleaned_data: Any = super().clean()
         password: Any = cleaned_data.get("password")
         if self.request.user.check_password(password) is False:
             raise forms.ValidationError("Password is incorrect")

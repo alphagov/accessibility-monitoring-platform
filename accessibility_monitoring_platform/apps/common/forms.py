@@ -15,18 +15,26 @@ DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
+    """ Override widget template for forms.RadioSelect """
+
     template_name = "common/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
+    """ Override widget template for forms.CheckboxInput """
+
     template_name = "common/amp_checkbox_widget_template.html"
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
+    """ Override widget template for forms.CheckboxSelectMultiple """
+
     template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
 class AMPDateWidget(forms.MultiWidget):
+    """ Widget for GDS design system date fields """
+
     template_name = "common/amp_date_widget_template.html"
 
     def __init__(self, attrs=None) -> None:
@@ -52,6 +60,11 @@ class AMPDateWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
+        """
+        Break date or hyphen-delimited string into into day, month and year integer values.
+
+        If no values are found then return three Nones.
+        """
         if isinstance(value, date):
             return [value.day, value.month, value.year]
         elif isinstance(value, str):
@@ -64,6 +77,12 @@ class AMPDateWidget(forms.MultiWidget):
     def value_from_datadict(
         self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
     ) -> str:
+        """
+        Return day, month and year integer values and return as
+        hyphen-delimited string.
+
+        If no values are found return empty string.
+        """
         day, month, year = super().value_from_datadict(data, files, name)
         if day is None and month is None and year is None:
             return ""
@@ -135,9 +154,9 @@ class AMPModelChoiceField(forms.ModelChoiceField):
 
 class AMPUserModelChoiceField(forms.ModelChoiceField):
     """
-    Adds default widget to Django forms ModelChoiceField
+    Adds default widget to Django forms ModelChoiceField for use with User model.
 
-    Uses user's full name as label
+    Uses user's full name as label.
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -152,6 +171,7 @@ class AMPUserModelChoiceField(forms.ModelChoiceField):
         super().__init__(*args, **kwargs)
 
     def label_from_instance(self, user):
+        """ Return full name from user """
         return user.get_full_name()
 
 
@@ -194,12 +214,14 @@ class AMPDateRangeForm(forms.Form):
     end_date = forms.DateField(label="End date", widget=AMPDateWidget(), required=False)
 
     def clean_start_date(self) -> datetime:
+        """ Returns default start date or converts entered date to datetime """
         start_date = self.cleaned_data["start_date"]
         if start_date:
             return convert_date_to_datetime(start_date)
         return DEFAULT_START_DATE
 
     def clean_end_date(self) -> datetime:
+        """ Returns default end date or converts entered date to datetime """
         end_date = self.cleaned_data["end_date"]
         if end_date:
             return convert_date_to_datetime(end_date)

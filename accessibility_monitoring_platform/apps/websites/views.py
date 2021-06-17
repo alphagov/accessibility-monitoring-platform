@@ -42,6 +42,10 @@ WEBSITE_FIELDS_TO_EXPORT: List[str] = [
 
 
 class WebsiteListView(ListView):
+    """
+    View of list of cases
+    """
+
     model = WebsiteRegister
     context_object_name = "websites"
     paginate_by = 25

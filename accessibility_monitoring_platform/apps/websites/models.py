@@ -144,7 +144,7 @@ class Sector(models.Model):
         db_table = "sector"
 
     def __str__(self):
-        return self.sector_name
+        return f"{self.sector_name}"
 
 
 class WebsiteRegister(models.Model):

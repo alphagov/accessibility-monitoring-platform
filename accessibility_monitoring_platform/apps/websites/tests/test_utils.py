@@ -1,3 +1,6 @@
+"""
+Tests for utility functions in websites app
+"""
 from django.test import TestCase
 
 from django.contrib.auth.models import User
@@ -36,6 +39,6 @@ class WebsitesUtilsTests(TestCase):
 
     def test_get_list_of_nuts318_codes(self):
         """ Tests whether search query returns a list of nuts118 codes """
-        res: List[str] = [code for code in get_list_of_nuts318_codes("Lewisham")]
+        res: List[str] = list(get_list_of_nuts318_codes("Lewisham"))
         expected_result: List[str] = ["UKI44"]
         self.assertEqual(res, expected_result)

@@ -1,3 +1,6 @@
+"""
+Tests for cases models
+"""
 from datetime import datetime
 
 from django.test import TestCase
@@ -91,7 +94,7 @@ class ContactTestCase(TestCase):
 
     def test_contact_created_timestamp_is_populated(self):
         """ Test the created field is populated the first time the Contact is saved """
-        self.assertTrue(self.contact_from_db.created != None)
+        self.assertTrue(self.contact_from_db.created is not None)
         self.assertTrue(isinstance(self.contact_from_db.created, datetime))
 
     def test_contact_created_timestamp_is_not_updated(self):

@@ -53,6 +53,10 @@ def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
 
 
 class Command(BaseCommand):
+    """
+    Command to load historic case data
+    """
+
     help = "Add historic case data to database."
 
     def add_arguments(self, parser):

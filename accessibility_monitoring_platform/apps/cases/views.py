@@ -88,6 +88,10 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
 
 
 class CaseDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
     model = Case
     context_object_name = "case"
 
@@ -99,6 +103,10 @@ class CaseDetailView(DetailView):
 
 
 class CaseListView(ListView):
+    """
+    View of list of cases
+    """
+
     model = Case
     context_object_name = "cases"
     paginate_by = 10
@@ -147,6 +155,10 @@ class CaseListView(ListView):
 
 
 class CaseCreateView(CreateView):
+    """
+    View to create a case
+    """
+
     model = Case
     form_class = CaseCreateForm
     context_object_name = "case"
@@ -164,6 +176,10 @@ class CaseCreateView(CreateView):
 
 
 class CaseWebsiteDetailUpdateView(UpdateView):
+    """
+    View to update case details
+    """
+
     model = Case
     form_class = CaseWebsiteDetailUpdateForm
     context_object_name = "case"
@@ -181,12 +197,17 @@ class CaseWebsiteDetailUpdateView(UpdateView):
 
 
 class CaseContactFormsetUpdateView(UpdateView):
+    """
+    View to update case contacts
+    """
+
     model = Case
     fields = []
     context_object_name = "case"
     template_name_suffix = "_contact_formset"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """ Get context data for template rendering """
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
@@ -202,6 +223,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         return context
 
     def form_valid(self, form: ModelForm):
+        """ Process contents of valid form """
         context: Dict[str, Any] = self.get_context_data()
         contact_formset = context["contacts_formset"]
         case: Case = form.save()
@@ -241,6 +263,10 @@ class CaseContactFormsetUpdateView(UpdateView):
 
 
 class CaseTestResultsUpdateView(UpdateView):
+    """
+    View to update case test results
+    """
+
     model = Case
     form_class = CaseTestResultsUpdateForm
     context_object_name = "case"
@@ -258,6 +284,10 @@ class CaseTestResultsUpdateView(UpdateView):
 
 
 class CaseReportDetailsUpdateView(UpdateView):
+    """
+    View to update case report details
+    """
+
     model = Case
     form_class = CaseReportDetailsUpdateForm
     context_object_name = "case"
@@ -275,12 +305,17 @@ class CaseReportDetailsUpdateView(UpdateView):
 
 
 class CasePostReportDetailsUpdateView(UpdateView):
+    """
+    View to update case post report details
+    """
+
     model = Case
     form_class = CasePostReportUpdateForm
     context_object_name = "case"
     template_name_suffix = "_post_report_details_update_form"
 
     def get_success_url(self) -> str:
+        """ Work out url to redirect to on success """
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
