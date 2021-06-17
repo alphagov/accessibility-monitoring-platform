@@ -1,0 +1,6402 @@
+[
+{
+    "model": "websites.nutsconversion",
+    "pk": 1,
+    "fields": {
+        "lad18cd": "E09000023",
+        "lad18nm": "Lewisham",
+        "lau118cd": "E09000023",
+        "lau118nm": "Lewisham",
+        "nuts318cd": "UKI44",
+        "nuts318nm": "Lewisham and Southwark",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 2,
+    "fields": {
+        "lad18cd": "E09000028",
+        "lad18nm": "Southwark",
+        "lau118cd": "E09000028",
+        "lau118nm": "Southwark",
+        "nuts318cd": "UKI44",
+        "nuts318nm": "Lewisham and Southwark",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 3,
+    "fields": {
+        "lad18cd": "E09000022",
+        "lad18nm": "Lambeth",
+        "lau118cd": "E09000022",
+        "lau118nm": "Lambeth",
+        "nuts318cd": "UKI45",
+        "nuts318nm": "Lambeth",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 4,
+    "fields": {
+        "lad18cd": "E09000004",
+        "lad18nm": "Bexley",
+        "lau118cd": "E09000004",
+        "lau118nm": "Bexley",
+        "nuts318cd": "UKI51",
+        "nuts318nm": "Bexley and Greenwich",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 5,
+    "fields": {
+        "lad18cd": "E09000011",
+        "lad18nm": "Greenwich",
+        "lau118cd": "E09000011",
+        "lau118nm": "Greenwich",
+        "nuts318cd": "UKI51",
+        "nuts318nm": "Bexley and Greenwich",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 6,
+    "fields": {
+        "lad18cd": "E09000016",
+        "lad18nm": "Havering",
+        "lau118cd": "E09000016",
+        "lau118nm": "Havering",
+        "nuts318cd": "UKI52",
+        "nuts318nm": "Barking & Dagenham and Havering",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 7,
+    "fields": {
+        "lad18cd": "E09000002",
+        "lad18nm": "Barking and Dagenham",
+        "lau118cd": "E09000002",
+        "lau118nm": "Barking and Dagenham",
+        "nuts318cd": "UKI52",
+        "nuts318nm": "Barking & Dagenham and Havering",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 8,
+    "fields": {
+        "lad18cd": "E09000026",
+        "lad18nm": "Redbridge",
+        "lau118cd": "E09000026",
+        "lau118nm": "Redbridge",
+        "nuts318cd": "UKI53",
+        "nuts318nm": "Redbridge and Waltham Forest",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 9,
+    "fields": {
+        "lad18cd": "E09000031",
+        "lad18nm": "Waltham Forest",
+        "lau118cd": "E09000031",
+        "lau118nm": "Waltham Forest",
+        "nuts318cd": "UKI53",
+        "nuts318nm": "Redbridge and Waltham Forest",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 10,
+    "fields": {
+        "lad18cd": "E09000010",
+        "lad18nm": "Enfield",
+        "lau118cd": "E09000010",
+        "lau118nm": "Enfield",
+        "nuts318cd": "UKI54",
+        "nuts318nm": "Enfield",
+        "nuts218cd": "UKI5",
+        "nuts218nm": "Outer London - East and North East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 11,
+    "fields": {
+        "lad18cd": "E09000006",
+        "lad18nm": "Bromley",
+        "lau118cd": "E09000006",
+        "lau118nm": "Bromley",
+        "nuts318cd": "UKI61",
+        "nuts318nm": "Bromley",
+        "nuts218cd": "UKI6",
+        "nuts218nm": "Outer London - South",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 12,
+    "fields": {
+        "lad18cd": "E09000008",
+        "lad18nm": "Croydon",
+        "lau118cd": "E09000008",
+        "lau118nm": "Croydon",
+        "nuts318cd": "UKI62",
+        "nuts318nm": "Croydon",
+        "nuts218cd": "UKI6",
+        "nuts218nm": "Outer London - South",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 13,
+    "fields": {
+        "lad18cd": "E09000024",
+        "lad18nm": "Merton",
+        "lau118cd": "E09000024",
+        "lau118nm": "Merton",
+        "nuts318cd": "UKI63",
+        "nuts318nm": "Merton, Kingston upon Thames and Sutton",
+        "nuts218cd": "UKI6",
+        "nuts218nm": "Outer London - South",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 14,
+    "fields": {
+        "lad18cd": "E09000029",
+        "lad18nm": "Sutton",
+        "lau118cd": "E09000029",
+        "lau118nm": "Sutton",
+        "nuts318cd": "UKI63",
+        "nuts318nm": "Merton, Kingston upon Thames and Sutton",
+        "nuts218cd": "UKI6",
+        "nuts218nm": "Outer London - South",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 15,
+    "fields": {
+        "lad18cd": "E09000021",
+        "lad18nm": "Kingston upon Thames",
+        "lau118cd": "E09000021",
+        "lau118nm": "Kingston upon Thames",
+        "nuts318cd": "UKI63",
+        "nuts318nm": "Merton, Kingston upon Thames and Sutton",
+        "nuts218cd": "UKI6",
+        "nuts218nm": "Outer London - South",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 16,
+    "fields": {
+        "lad18cd": "E09000003",
+        "lad18nm": "Barnet",
+        "lau118cd": "E09000003",
+        "lau118nm": "Barnet",
+        "nuts318cd": "UKI71",
+        "nuts318nm": "Barnet",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 17,
+    "fields": {
+        "lad18cd": "E09000005",
+        "lad18nm": "Brent",
+        "lau118cd": "E09000005",
+        "lau118nm": "Brent",
+        "nuts318cd": "UKI72",
+        "nuts318nm": "Brent",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 18,
+    "fields": {
+        "lad18cd": "E09000009",
+        "lad18nm": "Ealing",
+        "lau118cd": "E09000009",
+        "lau118nm": "Ealing",
+        "nuts318cd": "UKI73",
+        "nuts318nm": "Ealing",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 19,
+    "fields": {
+        "lad18cd": "E09000015",
+        "lad18nm": "Harrow",
+        "lau118cd": "E09000015",
+        "lau118nm": "Harrow",
+        "nuts318cd": "UKI74",
+        "nuts318nm": "Harrow and Hillingdon",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 20,
+    "fields": {
+        "lad18cd": "E09000017",
+        "lad18nm": "Hillingdon",
+        "lau118cd": "E09000017",
+        "lau118nm": "Hillingdon",
+        "nuts318cd": "UKI74",
+        "nuts318nm": "Harrow and Hillingdon",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 21,
+    "fields": {
+        "lad18cd": "E09000018",
+        "lad18nm": "Hounslow",
+        "lau118cd": "E09000018",
+        "lau118nm": "Hounslow",
+        "nuts318cd": "UKI75",
+        "nuts318nm": "Hounslow and Richmond upon Thames",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 22,
+    "fields": {
+        "lad18cd": "E09000027",
+        "lad18nm": "Richmond upon Thames",
+        "lau118cd": "E09000027",
+        "lau118nm": "Richmond upon Thames",
+        "nuts318cd": "UKI75",
+        "nuts318nm": "Hounslow and Richmond upon Thames",
+        "nuts218cd": "UKI7",
+        "nuts218nm": "Outer London - West and North West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 23,
+    "fields": {
+        "lad18cd": "E06000039",
+        "lad18nm": "Slough",
+        "lau118cd": "E06000039",
+        "lau118nm": "Slough",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 24,
+    "fields": {
+        "lad18cd": "E06000038",
+        "lad18nm": "Reading",
+        "lau118cd": "E06000038",
+        "lau118nm": "Reading",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 25,
+    "fields": {
+        "lad18cd": "E06000041",
+        "lad18nm": "Wokingham",
+        "lau118cd": "E06000041",
+        "lau118nm": "Wokingham",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 26,
+    "fields": {
+        "lad18cd": "E06000037",
+        "lad18nm": "West Berkshire",
+        "lau118cd": "E06000037",
+        "lau118nm": "West Berkshire",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 27,
+    "fields": {
+        "lad18cd": "E06000036",
+        "lad18nm": "Bracknell Forest",
+        "lau118cd": "E06000036",
+        "lau118nm": "Bracknell Forest",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 28,
+    "fields": {
+        "lad18cd": "E06000040",
+        "lad18nm": "Windsor and Maidenhead",
+        "lau118cd": "E06000040",
+        "lau118nm": "Windsor and Maidenhead",
+        "nuts318cd": "UKJ11",
+        "nuts318nm": "Berkshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 29,
+    "fields": {
+        "lad18cd": "E06000042",
+        "lad18nm": "Milton Keynes",
+        "lau118cd": "E06000042",
+        "lau118nm": "Milton Keynes",
+        "nuts318cd": "UKJ12",
+        "nuts318nm": "Milton Keynes",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 30,
+    "fields": {
+        "lad18cd": "E07000007",
+        "lad18nm": "Wycombe",
+        "lau118cd": "E07000007",
+        "lau118nm": "Wycombe",
+        "nuts318cd": "UKJ13",
+        "nuts318nm": "Buckinghamshire CC",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 31,
+    "fields": {
+        "lad18cd": "E07000155",
+        "lad18nm": "South Northamptonshire",
+        "lau118cd": "E07000155",
+        "lau118nm": "South Northamptonshire",
+        "nuts318cd": "UKF24",
+        "nuts318nm": "West Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 32,
+    "fields": {
+        "lad18cd": "E07000005",
+        "lad18nm": "Chiltern",
+        "lau118cd": "E07000005",
+        "lau118nm": "Chiltern",
+        "nuts318cd": "UKJ13",
+        "nuts318nm": "Buckinghamshire CC",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 33,
+    "fields": {
+        "lad18cd": "E07000006",
+        "lad18nm": "South Bucks",
+        "lau118cd": "E07000006",
+        "lau118nm": "South Bucks",
+        "nuts318cd": "UKJ13",
+        "nuts318nm": "Buckinghamshire CC",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 34,
+    "fields": {
+        "lad18cd": "E07000004",
+        "lad18nm": "Aylesbury Vale",
+        "lau118cd": "E07000004",
+        "lau118nm": "Aylesbury Vale",
+        "nuts318cd": "UKJ13",
+        "nuts318nm": "Buckinghamshire CC",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 35,
+    "fields": {
+        "lad18cd": "E07000178",
+        "lad18nm": "Oxford",
+        "lau118cd": "E07000178",
+        "lau118nm": "Oxford",
+        "nuts318cd": "UKJ14",
+        "nuts318nm": "Oxfordshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 36,
+    "fields": {
+        "lad18cd": "E07000177",
+        "lad18nm": "Cherwell",
+        "lau118cd": "E07000177",
+        "lau118nm": "Cherwell",
+        "nuts318cd": "UKJ14",
+        "nuts318nm": "Oxfordshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 37,
+    "fields": {
+        "lad18cd": "E07000181",
+        "lad18nm": "West Oxfordshire",
+        "lau118cd": "E07000181",
+        "lau118nm": "West Oxfordshire",
+        "nuts318cd": "UKJ14",
+        "nuts318nm": "Oxfordshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 38,
+    "fields": {
+        "lad18cd": "E07000179",
+        "lad18nm": "South Oxfordshire",
+        "lau118cd": "E07000179",
+        "lau118nm": "South Oxfordshire",
+        "nuts318cd": "UKJ14",
+        "nuts318nm": "Oxfordshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 39,
+    "fields": {
+        "lad18cd": "E07000180",
+        "lad18nm": "Vale of White Horse",
+        "lau118cd": "E07000180",
+        "lau118nm": "Vale of White Horse",
+        "nuts318cd": "UKJ14",
+        "nuts318nm": "Oxfordshire",
+        "nuts218cd": "UKJ1",
+        "nuts218nm": "Berkshire, Buckinghamshire and Oxfordshire",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 40,
+    "fields": {
+        "lad18cd": "E06000043",
+        "lad18nm": "Brighton and Hove",
+        "lau118cd": "E06000043",
+        "lau118nm": "Brighton and Hove",
+        "nuts318cd": "UKJ21",
+        "nuts318nm": "Brighton and Hove",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 41,
+    "fields": {
+        "lad18cd": "E07000063",
+        "lad18nm": "Lewes",
+        "lau118cd": "E07000063",
+        "lau118nm": "Lewes",
+        "nuts318cd": "UKJ22",
+        "nuts318nm": "East Sussex CC",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 42,
+    "fields": {
+        "lad18cd": "E07000064",
+        "lad18nm": "Rother",
+        "lau118cd": "E07000064",
+        "lau118nm": "Rother",
+        "nuts318cd": "UKJ22",
+        "nuts318nm": "East Sussex CC",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 43,
+    "fields": {
+        "lad18cd": "E07000065",
+        "lad18nm": "Wealden",
+        "lau118cd": "E07000065",
+        "lau118nm": "Wealden",
+        "nuts318cd": "UKJ22",
+        "nuts318nm": "East Sussex CC",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 44,
+    "fields": {
+        "lad18cd": "E07000062",
+        "lad18nm": "Hastings",
+        "lau118cd": "E07000062",
+        "lau118nm": "Hastings",
+        "nuts318cd": "UKJ22",
+        "nuts318nm": "East Sussex CC",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 45,
+    "fields": {
+        "lad18cd": "E07000061",
+        "lad18nm": "Eastbourne",
+        "lau118cd": "E07000061",
+        "lau118nm": "Eastbourne",
+        "nuts318cd": "UKJ22",
+        "nuts318nm": "East Sussex CC",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 46,
+    "fields": {
+        "lad18cd": "E07000217",
+        "lad18nm": "Woking",
+        "lau118cd": "E07000217",
+        "lau118nm": "Woking",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 47,
+    "fields": {
+        "lad18cd": "E07000216",
+        "lad18nm": "Waverley",
+        "lau118cd": "E07000216",
+        "lau118nm": "Waverley",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 48,
+    "fields": {
+        "lad18cd": "E07000207",
+        "lad18nm": "Elmbridge",
+        "lau118cd": "E07000207",
+        "lau118nm": "Elmbridge",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 49,
+    "fields": {
+        "lad18cd": "E07000209",
+        "lad18nm": "Guildford",
+        "lau118cd": "E07000209",
+        "lau118nm": "Guildford",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 50,
+    "fields": {
+        "lad18cd": "E07000212",
+        "lad18nm": "Runnymede",
+        "lau118cd": "E07000212",
+        "lau118nm": "Runnymede",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 51,
+    "fields": {
+        "lad18cd": "E07000213",
+        "lad18nm": "Spelthorne",
+        "lau118cd": "E07000213",
+        "lau118nm": "Spelthorne",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 52,
+    "fields": {
+        "lad18cd": "E07000150",
+        "lad18nm": "Corby",
+        "lau118cd": "E07000150",
+        "lau118nm": "Corby",
+        "nuts318cd": "UKF25",
+        "nuts318nm": "North Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 53,
+    "fields": {
+        "lad18cd": "E07000153",
+        "lad18nm": "Kettering",
+        "lau118cd": "E07000153",
+        "lau118nm": "Kettering",
+        "nuts318cd": "UKF25",
+        "nuts318nm": "North Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 54,
+    "fields": {
+        "lad18cd": "E07000156",
+        "lad18nm": "Wellingborough",
+        "lau118cd": "E07000156",
+        "lau118nm": "Wellingborough",
+        "nuts318cd": "UKF25",
+        "nuts318nm": "North Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 55,
+    "fields": {
+        "lad18cd": "E07000152",
+        "lad18nm": "East Northamptonshire",
+        "lau118cd": "E07000152",
+        "lau118nm": "East Northamptonshire",
+        "nuts318cd": "UKF25",
+        "nuts318nm": "North Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 56,
+    "fields": {
+        "lad18cd": "E07000136",
+        "lad18nm": "Boston",
+        "lau118cd": "E07000136",
+        "lau118nm": "Boston",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 57,
+    "fields": {
+        "lad18cd": "E07000138",
+        "lad18nm": "Lincoln",
+        "lau118cd": "E07000138",
+        "lau118nm": "Lincoln",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 58,
+    "fields": {
+        "lad18cd": "E07000137",
+        "lad18nm": "East Lindsey",
+        "lau118cd": "E07000137",
+        "lau118nm": "East Lindsey",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 59,
+    "fields": {
+        "lad18cd": "E07000142",
+        "lad18nm": "West Lindsey",
+        "lau118cd": "E07000142",
+        "lau118nm": "West Lindsey",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 60,
+    "fields": {
+        "lad18cd": "E07000140",
+        "lad18nm": "South Holland",
+        "lau118cd": "E07000140",
+        "lau118nm": "South Holland",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 61,
+    "fields": {
+        "lad18cd": "E07000139",
+        "lad18nm": "North Kesteven",
+        "lau118cd": "E07000139",
+        "lau118nm": "North Kesteven",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 62,
+    "fields": {
+        "lad18cd": "E07000141",
+        "lad18nm": "South Kesteven",
+        "lau118cd": "E07000141",
+        "lau118nm": "South Kesteven",
+        "nuts318cd": "UKF30",
+        "nuts318nm": "Lincolnshire",
+        "nuts218cd": "UKF3",
+        "nuts218nm": "Lincolnshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 63,
+    "fields": {
+        "lad18cd": "E06000019",
+        "lad18nm": "Herefordshire, County of",
+        "lau118cd": "E06000019",
+        "lau118nm": "Herefordshire, County of",
+        "nuts318cd": "UKG11",
+        "nuts318nm": "Herefordshire, County of",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 64,
+    "fields": {
+        "lad18cd": "E07000236",
+        "lad18nm": "Redditch",
+        "lau118cd": "E07000236",
+        "lau118nm": "Redditch",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 65,
+    "fields": {
+        "lad18cd": "E07000238",
+        "lad18nm": "Wychavon",
+        "lau118cd": "E07000238",
+        "lau118nm": "Wychavon",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 66,
+    "fields": {
+        "lad18cd": "E07000237",
+        "lad18nm": "Worcester",
+        "lau118cd": "E07000237",
+        "lau118nm": "Worcester",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 67,
+    "fields": {
+        "lad18cd": "E07000234",
+        "lad18nm": "Bromsgrove",
+        "lau118cd": "E07000234",
+        "lau118nm": "Bromsgrove",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 68,
+    "fields": {
+        "lad18cd": "E07000239",
+        "lad18nm": "Wyre Forest",
+        "lau118cd": "E07000239",
+        "lau118nm": "Wyre Forest",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 69,
+    "fields": {
+        "lad18cd": "E07000235",
+        "lad18nm": "Malvern Hills",
+        "lau118cd": "E07000235",
+        "lau118nm": "Malvern Hills",
+        "nuts318cd": "UKG12",
+        "nuts318nm": "Worcestershire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 70,
+    "fields": {
+        "lad18cd": "E07000220",
+        "lad18nm": "Rugby",
+        "lau118cd": "E07000220",
+        "lau118nm": "Rugby",
+        "nuts318cd": "UKG13",
+        "nuts318nm": "Warwickshire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 71,
+    "fields": {
+        "lad18cd": "E07000222",
+        "lad18nm": "Warwick",
+        "lau118cd": "E07000222",
+        "lau118nm": "Warwick",
+        "nuts318cd": "UKG13",
+        "nuts318nm": "Warwickshire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 72,
+    "fields": {
+        "lad18cd": "E07000221",
+        "lad18nm": "Stratford-on-Avon",
+        "lau118cd": "E07000221",
+        "lau118nm": "Stratford-on-Avon",
+        "nuts318cd": "UKG13",
+        "nuts318nm": "Warwickshire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 73,
+    "fields": {
+        "lad18cd": "E07000218",
+        "lad18nm": "North Warwickshire",
+        "lau118cd": "E07000218",
+        "lau118nm": "North Warwickshire",
+        "nuts318cd": "UKG13",
+        "nuts318nm": "Warwickshire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 74,
+    "fields": {
+        "lad18cd": "E07000219",
+        "lad18nm": "Nuneaton and Bedworth",
+        "lau118cd": "E07000219",
+        "lau118nm": "Nuneaton and Bedworth",
+        "nuts318cd": "UKG13",
+        "nuts318nm": "Warwickshire",
+        "nuts218cd": "UKG1",
+        "nuts218nm": "Herefordshire, Worcestershire and Warwickshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 75,
+    "fields": {
+        "lad18cd": "E06000020",
+        "lad18nm": "Telford and Wrekin",
+        "lau118cd": "E06000020",
+        "lau118nm": "Telford and Wrekin",
+        "nuts318cd": "UKG21",
+        "nuts318nm": "Telford and Wrekin",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 76,
+    "fields": {
+        "lad18cd": "E06000051",
+        "lad18nm": "Shropshire",
+        "lau118cd": "E06000051",
+        "lau118nm": "Shropshire",
+        "nuts318cd": "UKG22",
+        "nuts318nm": "Shropshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 77,
+    "fields": {
+        "lad18cd": "E06000021",
+        "lad18nm": "Stoke-on-Trent",
+        "lau118cd": "E06000021",
+        "lau118nm": "Stoke-on-Trent",
+        "nuts318cd": "UKG23",
+        "nuts318nm": "Stoke-on-Trent",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 78,
+    "fields": {
+        "lad18cd": "E07000197",
+        "lad18nm": "Stafford",
+        "lau118cd": "E07000197",
+        "lau118nm": "Stafford",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 79,
+    "fields": {
+        "lad18cd": "E07000199",
+        "lad18nm": "Tamworth",
+        "lau118cd": "E07000199",
+        "lau118nm": "Tamworth",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 80,
+    "fields": {
+        "lad18cd": "E07000194",
+        "lad18nm": "Lichfield",
+        "lau118cd": "E07000194",
+        "lau118nm": "Lichfield",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 81,
+    "fields": {
+        "lad18cd": "E07000192",
+        "lad18nm": "Cannock Chase",
+        "lau118cd": "E07000192",
+        "lau118nm": "Cannock Chase",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 82,
+    "fields": {
+        "lad18cd": "E07000193",
+        "lad18nm": "East Staffordshire",
+        "lau118cd": "E07000193",
+        "lau118nm": "East Staffordshire",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 83,
+    "fields": {
+        "lad18cd": "E07000196",
+        "lad18nm": "South Staffordshire",
+        "lau118cd": "E07000196",
+        "lau118nm": "South Staffordshire",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 84,
+    "fields": {
+        "lad18cd": "E07000195",
+        "lad18nm": "Newcastle-under-Lyme",
+        "lau118cd": "E07000195",
+        "lau118nm": "Newcastle-under-Lyme",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 85,
+    "fields": {
+        "lad18cd": "E07000198",
+        "lad18nm": "Staffordshire Moorlands",
+        "lau118cd": "E07000198",
+        "lau118nm": "Staffordshire Moorlands",
+        "nuts318cd": "UKG24",
+        "nuts318nm": "Staffordshire CC",
+        "nuts218cd": "UKG2",
+        "nuts218nm": "Shropshire and Staffordshire",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 86,
+    "fields": {
+        "lad18cd": "E08000025",
+        "lad18nm": "Birmingham",
+        "lau118cd": "E08000025",
+        "lau118nm": "Birmingham",
+        "nuts318cd": "UKG31",
+        "nuts318nm": "Birmingham",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 87,
+    "fields": {
+        "lad18cd": "E08000029",
+        "lad18nm": "Solihull",
+        "lau118cd": "E08000029",
+        "lau118nm": "Solihull",
+        "nuts318cd": "UKG32",
+        "nuts318nm": "Solihull",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 88,
+    "fields": {
+        "lad18cd": "E08000026",
+        "lad18nm": "Coventry",
+        "lau118cd": "E08000026",
+        "lau118nm": "Coventry",
+        "nuts318cd": "UKG33",
+        "nuts318nm": "Coventry",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 89,
+    "fields": {
+        "lad18cd": "E08000027",
+        "lad18nm": "Dudley",
+        "lau118cd": "E08000027",
+        "lau118nm": "Dudley",
+        "nuts318cd": "UKG36",
+        "nuts318nm": "Dudley",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 90,
+    "fields": {
+        "lad18cd": "E08000028",
+        "lad18nm": "Sandwell",
+        "lau118cd": "E08000028",
+        "lau118nm": "Sandwell",
+        "nuts318cd": "UKG37",
+        "nuts318nm": "Sandwell",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 91,
+    "fields": {
+        "lad18cd": "E08000030",
+        "lad18nm": "Walsall",
+        "lau118cd": "E08000030",
+        "lau118nm": "Walsall",
+        "nuts318cd": "UKG38",
+        "nuts318nm": "Walsall",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 92,
+    "fields": {
+        "lad18cd": "E08000031",
+        "lad18nm": "Wolverhampton",
+        "lau118cd": "E08000031",
+        "lau118nm": "Wolverhampton",
+        "nuts318cd": "UKG39",
+        "nuts318nm": "Wolverhampton",
+        "nuts218cd": "UKG3",
+        "nuts218nm": "West Midlands",
+        "nuts118cd": "UKG",
+        "nuts118nm": "West Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 93,
+    "fields": {
+        "lad18cd": "E06000031",
+        "lad18nm": "Peterborough",
+        "lau118cd": "E06000031",
+        "lau118nm": "Peterborough",
+        "nuts318cd": "UKH11",
+        "nuts318nm": "Peterborough",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 94,
+    "fields": {
+        "lad18cd": "E07000010",
+        "lad18nm": "Fenland",
+        "lau118cd": "E07000010",
+        "lau118nm": "Fenland",
+        "nuts318cd": "UKH12",
+        "nuts318nm": "Cambridgeshire CC",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 95,
+    "fields": {
+        "lad18cd": "E07000008",
+        "lad18nm": "Cambridge",
+        "lau118cd": "E07000008",
+        "lau118nm": "Cambridge",
+        "nuts318cd": "UKH12",
+        "nuts318nm": "Cambridgeshire CC",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 96,
+    "fields": {
+        "lad18cd": "E07000011",
+        "lad18nm": "Huntingdonshire",
+        "lau118cd": "E07000011",
+        "lau118nm": "Huntingdonshire",
+        "nuts318cd": "UKH12",
+        "nuts318nm": "Cambridgeshire CC",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 97,
+    "fields": {
+        "lad18cd": "E07000009",
+        "lad18nm": "East Cambridgeshire",
+        "lau118cd": "E07000009",
+        "lau118nm": "East Cambridgeshire",
+        "nuts318cd": "UKH12",
+        "nuts318nm": "Cambridgeshire CC",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 98,
+    "fields": {
+        "lad18cd": "E07000012",
+        "lad18nm": "South Cambridgeshire",
+        "lau118cd": "E07000012",
+        "lau118nm": "South Cambridgeshire",
+        "nuts318cd": "UKH12",
+        "nuts318nm": "Cambridgeshire CC",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 99,
+    "fields": {
+        "lad18cd": "E07000200",
+        "lad18nm": "Babergh",
+        "lau118cd": "E07000200",
+        "lau118nm": "Babergh",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 100,
+    "fields": {
+        "lad18cd": "E07000202",
+        "lad18nm": "Ipswich",
+        "lau118cd": "E07000202",
+        "lau118nm": "Ipswich",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 101,
+    "fields": {
+        "lad18cd": "E07000214",
+        "lad18nm": "Surrey Heath",
+        "lau118cd": "E07000214",
+        "lau118nm": "Surrey Heath",
+        "nuts318cd": "UKJ25",
+        "nuts318nm": "West Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 102,
+    "fields": {
+        "lad18cd": "E07000215",
+        "lad18nm": "Tandridge",
+        "lau118cd": "E07000215",
+        "lau118nm": "Tandridge",
+        "nuts318cd": "UKJ26",
+        "nuts318nm": "East Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 103,
+    "fields": {
+        "lad18cd": "E07000210",
+        "lad18nm": "Mole Valley",
+        "lau118cd": "E07000210",
+        "lau118nm": "Mole Valley",
+        "nuts318cd": "UKJ26",
+        "nuts318nm": "East Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 104,
+    "fields": {
+        "lad18cd": "E07000208",
+        "lad18nm": "Epsom and Ewell",
+        "lau118cd": "E07000208",
+        "lau118nm": "Epsom and Ewell",
+        "nuts318cd": "UKJ26",
+        "nuts318nm": "East Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 105,
+    "fields": {
+        "lad18cd": "E07000211",
+        "lad18nm": "Reigate and Banstead",
+        "lau118cd": "E07000211",
+        "lau118nm": "Reigate and Banstead",
+        "nuts318cd": "UKJ26",
+        "nuts318nm": "East Surrey",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 106,
+    "fields": {
+        "lad18cd": "E07000223",
+        "lad18nm": "Adur",
+        "lau118cd": "E07000223",
+        "lau118nm": "Adur",
+        "nuts318cd": "UKJ27",
+        "nuts318nm": "West Sussex (South West)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 107,
+    "fields": {
+        "lad18cd": "E07000224",
+        "lad18nm": "Arun",
+        "lau118cd": "E07000224",
+        "lau118nm": "Arun",
+        "nuts318cd": "UKJ27",
+        "nuts318nm": "West Sussex (South West)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 108,
+    "fields": {
+        "lad18cd": "E07000229",
+        "lad18nm": "Worthing",
+        "lau118cd": "E07000229",
+        "lau118nm": "Worthing",
+        "nuts318cd": "UKJ27",
+        "nuts318nm": "West Sussex (South West)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 109,
+    "fields": {
+        "lad18cd": "E07000225",
+        "lad18nm": "Chichester",
+        "lau118cd": "E07000225",
+        "lau118nm": "Chichester",
+        "nuts318cd": "UKJ27",
+        "nuts318nm": "West Sussex (South West)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 110,
+    "fields": {
+        "lad18cd": "E07000226",
+        "lad18nm": "Crawley",
+        "lau118cd": "E07000226",
+        "lau118nm": "Crawley",
+        "nuts318cd": "UKJ28",
+        "nuts318nm": "West Sussex (North East)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 111,
+    "fields": {
+        "lad18cd": "E07000227",
+        "lad18nm": "Horsham",
+        "lau118cd": "E07000227",
+        "lau118nm": "Horsham",
+        "nuts318cd": "UKJ28",
+        "nuts318nm": "West Sussex (North East)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 112,
+    "fields": {
+        "lad18cd": "E07000228",
+        "lad18nm": "Mid Sussex",
+        "lau118cd": "E07000228",
+        "lau118nm": "Mid Sussex",
+        "nuts318cd": "UKJ28",
+        "nuts318nm": "West Sussex (North East)",
+        "nuts218cd": "UKJ2",
+        "nuts218nm": "Surrey, East and West Sussex",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 113,
+    "fields": {
+        "lad18cd": "E06000044",
+        "lad18nm": "Portsmouth",
+        "lau118cd": "E06000044",
+        "lau118nm": "Portsmouth",
+        "nuts318cd": "UKJ31",
+        "nuts318nm": "Portsmouth",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 114,
+    "fields": {
+        "lad18cd": "E06000045",
+        "lad18nm": "Southampton",
+        "lau118cd": "E06000045",
+        "lau118nm": "Southampton",
+        "nuts318cd": "UKJ32",
+        "nuts318nm": "Southampton",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 115,
+    "fields": {
+        "lad18cd": "E06000001",
+        "lad18nm": "Hartlepool",
+        "lau118cd": "E06000001",
+        "lau118nm": "Hartlepool",
+        "nuts318cd": "UKC11",
+        "nuts318nm": "Hartlepool and Stockton-on-Tees",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 116,
+    "fields": {
+        "lad18cd": "E06000046",
+        "lad18nm": "Isle of Wight",
+        "lau118cd": "E06000046",
+        "lau118nm": "Isle of Wight",
+        "nuts318cd": "UKJ34",
+        "nuts318nm": "Isle of Wight",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 117,
+    "fields": {
+        "lad18cd": "E07000090",
+        "lad18nm": "Havant",
+        "lau118cd": "E07000090",
+        "lau118nm": "Havant",
+        "nuts318cd": "UKJ35",
+        "nuts318nm": "South Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 118,
+    "fields": {
+        "lad18cd": "E07000087",
+        "lad18nm": "Fareham",
+        "lau118cd": "E07000087",
+        "lau118nm": "Fareham",
+        "nuts318cd": "UKJ35",
+        "nuts318nm": "South Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 119,
+    "fields": {
+        "lad18cd": "E07000088",
+        "lad18nm": "Gosport",
+        "lau118cd": "E07000088",
+        "lau118nm": "Gosport",
+        "nuts318cd": "UKJ35",
+        "nuts318nm": "South Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 120,
+    "fields": {
+        "lad18cd": "E07000086",
+        "lad18nm": "Eastleigh",
+        "lau118cd": "E07000086",
+        "lau118nm": "Eastleigh",
+        "nuts318cd": "UKJ35",
+        "nuts318nm": "South Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 121,
+    "fields": {
+        "lad18cd": "E07000091",
+        "lad18nm": "New Forest",
+        "lau118cd": "E07000091",
+        "lau118nm": "New Forest",
+        "nuts318cd": "UKJ36",
+        "nuts318nm": "Central Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 122,
+    "fields": {
+        "lad18cd": "E07000094",
+        "lad18nm": "Winchester",
+        "lau118cd": "E07000094",
+        "lau118nm": "Winchester",
+        "nuts318cd": "UKJ36",
+        "nuts318nm": "Central Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 123,
+    "fields": {
+        "lad18cd": "E07000093",
+        "lad18nm": "Test Valley",
+        "lau118cd": "E07000093",
+        "lau118nm": "Test Valley",
+        "nuts318cd": "UKJ36",
+        "nuts318nm": "Central Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 124,
+    "fields": {
+        "lad18cd": "E07000085",
+        "lad18nm": "East Hampshire",
+        "lau118cd": "E07000085",
+        "lau118nm": "East Hampshire",
+        "nuts318cd": "UKJ36",
+        "nuts318nm": "Central Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 125,
+    "fields": {
+        "lad18cd": "E07000089",
+        "lad18nm": "Hart",
+        "lau118cd": "E07000089",
+        "lau118nm": "Hart",
+        "nuts318cd": "UKJ37",
+        "nuts318nm": "North Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 126,
+    "fields": {
+        "lad18cd": "E07000092",
+        "lad18nm": "Rushmoor",
+        "lau118cd": "E07000092",
+        "lau118nm": "Rushmoor",
+        "nuts318cd": "UKJ37",
+        "nuts318nm": "North Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 127,
+    "fields": {
+        "lad18cd": "E07000084",
+        "lad18nm": "Basingstoke and Deane",
+        "lau118cd": "E07000084",
+        "lau118nm": "Basingstoke and Deane",
+        "nuts318cd": "UKJ37",
+        "nuts318nm": "North Hampshire",
+        "nuts218cd": "UKJ3",
+        "nuts218nm": "Hampshire and Isle of Wight",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 128,
+    "fields": {
+        "lad18cd": "E06000035",
+        "lad18nm": "Medway",
+        "lau118cd": "E06000035",
+        "lau118nm": "Medway",
+        "nuts318cd": "UKJ41",
+        "nuts318nm": "Medway",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 129,
+    "fields": {
+        "lad18cd": "E07000113",
+        "lad18nm": "Swale",
+        "lau118cd": "E07000113",
+        "lau118nm": "Swale",
+        "nuts318cd": "UKJ43",
+        "nuts318nm": "Kent Thames Gateway",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 130,
+    "fields": {
+        "lad18cd": "E07000107",
+        "lad18nm": "Dartford",
+        "lau118cd": "E07000107",
+        "lau118nm": "Dartford",
+        "nuts318cd": "UKJ43",
+        "nuts318nm": "Kent Thames Gateway",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 131,
+    "fields": {
+        "lad18cd": "E07000109",
+        "lad18nm": "Gravesham",
+        "lau118cd": "E07000109",
+        "lau118nm": "Gravesham",
+        "nuts318cd": "UKJ43",
+        "nuts318nm": "Kent Thames Gateway",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 132,
+    "fields": {
+        "lad18cd": "E07000108",
+        "lad18nm": "Dover",
+        "lau118cd": "E07000108",
+        "lau118nm": "Dover",
+        "nuts318cd": "UKJ44",
+        "nuts318nm": "East Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 133,
+    "fields": {
+        "lad18cd": "E07000114",
+        "lad18nm": "Thanet",
+        "lau118cd": "E07000114",
+        "lau118nm": "Thanet",
+        "nuts318cd": "UKJ44",
+        "nuts318nm": "East Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 134,
+    "fields": {
+        "lad18cd": "E07000106",
+        "lad18nm": "Canterbury",
+        "lau118cd": "E07000106",
+        "lau118nm": "Canterbury",
+        "nuts318cd": "UKJ44",
+        "nuts318nm": "East Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 135,
+    "fields": {
+        "lad18cd": "E07000112",
+        "lad18nm": "Folkestone and Hythe",
+        "lau118cd": "E07000112",
+        "lau118nm": "Folkestone and Hythe",
+        "nuts318cd": "UKJ44",
+        "nuts318nm": "East Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 136,
+    "fields": {
+        "lad18cd": "E07000105",
+        "lad18nm": "Ashford",
+        "lau118cd": "E07000105",
+        "lau118nm": "Ashford",
+        "nuts318cd": "UKJ45",
+        "nuts318nm": "Mid Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 137,
+    "fields": {
+        "lad18cd": "E07000110",
+        "lad18nm": "Maidstone",
+        "lau118cd": "E07000110",
+        "lau118nm": "Maidstone",
+        "nuts318cd": "UKJ45",
+        "nuts318nm": "Mid Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 138,
+    "fields": {
+        "lad18cd": "E07000111",
+        "lad18nm": "Sevenoaks",
+        "lau118cd": "E07000111",
+        "lau118nm": "Sevenoaks",
+        "nuts318cd": "UKJ46",
+        "nuts318nm": "West Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 139,
+    "fields": {
+        "lad18cd": "E07000116",
+        "lad18nm": "Tunbridge Wells",
+        "lau118cd": "E07000116",
+        "lau118nm": "Tunbridge Wells",
+        "nuts318cd": "UKJ46",
+        "nuts318nm": "West Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 140,
+    "fields": {
+        "lad18cd": "E07000115",
+        "lad18nm": "Tonbridge and Malling",
+        "lau118cd": "E07000115",
+        "lau118nm": "Tonbridge and Malling",
+        "nuts318cd": "UKJ46",
+        "nuts318nm": "West Kent",
+        "nuts218cd": "UKJ4",
+        "nuts218nm": "Kent",
+        "nuts118cd": "UKJ",
+        "nuts118nm": "South East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 141,
+    "fields": {
+        "lad18cd": "E06000023",
+        "lad18nm": "Bristol, City of",
+        "lau118cd": "E06000023",
+        "lau118nm": "Bristol, City of",
+        "nuts318cd": "UKK11",
+        "nuts318nm": "Bristol, City of",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 142,
+    "fields": {
+        "lad18cd": "E06000024",
+        "lad18nm": "North Somerset",
+        "lau118cd": "E06000024",
+        "lau118nm": "North Somerset",
+        "nuts318cd": "UKK12",
+        "nuts318nm": "Bath and North East Somerset, North Somerset and South Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 143,
+    "fields": {
+        "lad18cd": "E06000025",
+        "lad18nm": "South Gloucestershire",
+        "lau118cd": "E06000025",
+        "lau118nm": "South Gloucestershire",
+        "nuts318cd": "UKK12",
+        "nuts318nm": "Bath and North East Somerset, North Somerset and South Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 144,
+    "fields": {
+        "lad18cd": "E06000022",
+        "lad18nm": "Bath and North East Somerset",
+        "lau118cd": "E06000022",
+        "lau118nm": "Bath and North East Somerset",
+        "nuts318cd": "UKK12",
+        "nuts318nm": "Bath and North East Somerset, North Somerset and South Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 145,
+    "fields": {
+        "lad18cd": "E07000082",
+        "lad18nm": "Stroud",
+        "lau118cd": "E07000082",
+        "lau118nm": "Stroud",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 146,
+    "fields": {
+        "lad18cd": "E07000079",
+        "lad18nm": "Cotswold",
+        "lau118cd": "E07000079",
+        "lau118nm": "Cotswold",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 147,
+    "fields": {
+        "lad18cd": "E07000078",
+        "lad18nm": "Cheltenham",
+        "lau118cd": "E07000078",
+        "lau118nm": "Cheltenham",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 148,
+    "fields": {
+        "lad18cd": "E07000081",
+        "lad18nm": "Gloucester",
+        "lau118cd": "E07000081",
+        "lau118nm": "Gloucester",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 149,
+    "fields": {
+        "lad18cd": "E07000083",
+        "lad18nm": "Tewkesbury",
+        "lau118cd": "E07000083",
+        "lau118nm": "Tewkesbury",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 150,
+    "fields": {
+        "lad18cd": "E07000080",
+        "lad18nm": "Forest of Dean",
+        "lau118cd": "E07000080",
+        "lau118nm": "Forest of Dean",
+        "nuts318cd": "UKK13",
+        "nuts318nm": "Gloucestershire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 151,
+    "fields": {
+        "lad18cd": "E06000030",
+        "lad18nm": "Swindon",
+        "lau118cd": "E06000030",
+        "lau118nm": "Swindon",
+        "nuts318cd": "UKK14",
+        "nuts318nm": "Swindon",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 152,
+    "fields": {
+        "lad18cd": "E06000004",
+        "lad18nm": "Stockton-on-Tees",
+        "lau118cd": "E06000004",
+        "lau118nm": "Stockton-on-Tees",
+        "nuts318cd": "UKC11",
+        "nuts318nm": "Hartlepool and Stockton-on-Tees",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 153,
+    "fields": {
+        "lad18cd": "E06000002",
+        "lad18nm": "Middlesbrough",
+        "lau118cd": "E06000002",
+        "lau118nm": "Middlesbrough",
+        "nuts318cd": "UKC12",
+        "nuts318nm": "South Teesside",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 154,
+    "fields": {
+        "lad18cd": "E06000003",
+        "lad18nm": "Redcar and Cleveland",
+        "lau118cd": "E06000003",
+        "lau118nm": "Redcar and Cleveland",
+        "nuts318cd": "UKC12",
+        "nuts318nm": "South Teesside",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 155,
+    "fields": {
+        "lad18cd": "E06000005",
+        "lad18nm": "Darlington",
+        "lau118cd": "E06000005",
+        "lau118nm": "Darlington",
+        "nuts318cd": "UKC13",
+        "nuts318nm": "Darlington",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 156,
+    "fields": {
+        "lad18cd": "E06000047",
+        "lad18nm": "County Durham",
+        "lau118cd": "E06000047",
+        "lau118nm": "County Durham",
+        "nuts318cd": "UKC14",
+        "nuts318nm": "Durham CC",
+        "nuts218cd": "UKC1",
+        "nuts218nm": "Tees Valley and Durham",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 157,
+    "fields": {
+        "lad18cd": "E06000057",
+        "lad18nm": "Northumberland",
+        "lau118cd": "E06000057",
+        "lau118nm": "Northumberland",
+        "nuts318cd": "UKC21",
+        "nuts318nm": "Northumberland",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 158,
+    "fields": {
+        "lad18cd": "E08000037",
+        "lad18nm": "Gateshead",
+        "lau118cd": "E08000037",
+        "lau118nm": "Gateshead",
+        "nuts318cd": "UKC22",
+        "nuts318nm": "Tyneside",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 159,
+    "fields": {
+        "lad18cd": "E08000022",
+        "lad18nm": "North Tyneside",
+        "lau118cd": "E08000022",
+        "lau118nm": "North Tyneside",
+        "nuts318cd": "UKC22",
+        "nuts318nm": "Tyneside",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 160,
+    "fields": {
+        "lad18cd": "E08000023",
+        "lad18nm": "South Tyneside",
+        "lau118cd": "E08000023",
+        "lau118nm": "South Tyneside",
+        "nuts318cd": "UKC22",
+        "nuts318nm": "Tyneside",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 161,
+    "fields": {
+        "lad18cd": "E08000021",
+        "lad18nm": "Newcastle upon Tyne",
+        "lau118cd": "E08000021",
+        "lau118nm": "Newcastle upon Tyne",
+        "nuts318cd": "UKC22",
+        "nuts318nm": "Tyneside",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 162,
+    "fields": {
+        "lad18cd": "E08000024",
+        "lad18nm": "Sunderland",
+        "lau118cd": "E08000024",
+        "lau118nm": "Sunderland",
+        "nuts318cd": "UKC23",
+        "nuts318nm": "Sunderland",
+        "nuts218cd": "UKC2",
+        "nuts218nm": "Northumberland and Tyne and Wear",
+        "nuts118cd": "UKC",
+        "nuts118nm": "North East (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 163,
+    "fields": {
+        "lad18cd": "E07000029",
+        "lad18nm": "Copeland",
+        "lau118cd": "E07000029",
+        "lau118nm": "Copeland",
+        "nuts318cd": "UKD11",
+        "nuts318nm": "West Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 164,
+    "fields": {
+        "lad18cd": "E07000026",
+        "lad18nm": "Allerdale",
+        "lau118cd": "E07000026",
+        "lau118nm": "Allerdale",
+        "nuts318cd": "UKD11",
+        "nuts318nm": "West Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 165,
+    "fields": {
+        "lad18cd": "E07000027",
+        "lad18nm": "Barrow-in-Furness",
+        "lau118cd": "E07000027",
+        "lau118nm": "Barrow-in-Furness",
+        "nuts318cd": "UKD11",
+        "nuts318nm": "West Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 166,
+    "fields": {
+        "lad18cd": "E07000030",
+        "lad18nm": "Eden",
+        "lau118cd": "E07000030",
+        "lau118nm": "Eden",
+        "nuts318cd": "UKD12",
+        "nuts318nm": "East Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 167,
+    "fields": {
+        "lad18cd": "E07000028",
+        "lad18nm": "Carlisle",
+        "lau118cd": "E07000028",
+        "lau118nm": "Carlisle",
+        "nuts318cd": "UKD12",
+        "nuts318nm": "East Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 168,
+    "fields": {
+        "lad18cd": "E07000031",
+        "lad18nm": "South Lakeland",
+        "lau118cd": "E07000031",
+        "lau118nm": "South Lakeland",
+        "nuts318cd": "UKD12",
+        "nuts318nm": "East Cumbria",
+        "nuts218cd": "UKD1",
+        "nuts218nm": "Cumbria",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 169,
+    "fields": {
+        "lad18cd": "E08000003",
+        "lad18nm": "Manchester",
+        "lau118cd": "E08000003",
+        "lau118nm": "Manchester",
+        "nuts318cd": "UKD33",
+        "nuts318nm": "Manchester",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 170,
+    "fields": {
+        "lad18cd": "E08000006",
+        "lad18nm": "Salford",
+        "lau118cd": "E08000006",
+        "lau118nm": "Salford",
+        "nuts318cd": "UKD34",
+        "nuts318nm": "Greater Manchester South West",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 171,
+    "fields": {
+        "lad18cd": "E08000009",
+        "lad18nm": "Trafford",
+        "lau118cd": "E08000009",
+        "lau118nm": "Trafford",
+        "nuts318cd": "UKD34",
+        "nuts318nm": "Greater Manchester South West",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 172,
+    "fields": {
+        "lad18cd": "E08000008",
+        "lad18nm": "Tameside",
+        "lau118cd": "E08000008",
+        "lau118nm": "Tameside",
+        "nuts318cd": "UKD35",
+        "nuts318nm": "Greater Manchester South East",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 173,
+    "fields": {
+        "lad18cd": "E08000007",
+        "lad18nm": "Stockport",
+        "lau118cd": "E08000007",
+        "lau118nm": "Stockport",
+        "nuts318cd": "UKD35",
+        "nuts318nm": "Greater Manchester South East",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 174,
+    "fields": {
+        "lad18cd": "E08000010",
+        "lad18nm": "Wigan",
+        "lau118cd": "E08000010",
+        "lau118nm": "Wigan",
+        "nuts318cd": "UKD36",
+        "nuts318nm": "Greater Manchester North West",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 175,
+    "fields": {
+        "lad18cd": "E08000001",
+        "lad18nm": "Bolton",
+        "lau118cd": "E08000001",
+        "lau118nm": "Bolton",
+        "nuts318cd": "UKD36",
+        "nuts318nm": "Greater Manchester North West",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 176,
+    "fields": {
+        "lad18cd": "E08000002",
+        "lad18nm": "Bury",
+        "lau118cd": "E08000002",
+        "lau118nm": "Bury",
+        "nuts318cd": "UKD37",
+        "nuts318nm": "Greater Manchester North East",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 177,
+    "fields": {
+        "lad18cd": "E08000004",
+        "lad18nm": "Oldham",
+        "lau118cd": "E08000004",
+        "lau118nm": "Oldham",
+        "nuts318cd": "UKD37",
+        "nuts318nm": "Greater Manchester North East",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 178,
+    "fields": {
+        "lad18cd": "E08000005",
+        "lad18nm": "Rochdale",
+        "lau118cd": "E08000005",
+        "lau118nm": "Rochdale",
+        "nuts318cd": "UKD37",
+        "nuts318nm": "Greater Manchester North East",
+        "nuts218cd": "UKD3",
+        "nuts218nm": "Greater Manchester",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 179,
+    "fields": {
+        "lad18cd": "E06000008",
+        "lad18nm": "Blackburn with Darwen",
+        "lau118cd": "E06000008",
+        "lau118nm": "Blackburn with Darwen",
+        "nuts318cd": "UKD41",
+        "nuts318nm": "Blackburn with Darwen",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 180,
+    "fields": {
+        "lad18cd": "E06000009",
+        "lad18nm": "Blackpool",
+        "lau118cd": "E06000009",
+        "lau118nm": "Blackpool",
+        "nuts318cd": "UKD42",
+        "nuts318nm": "Blackpool",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 181,
+    "fields": {
+        "lad18cd": "E07000128",
+        "lad18nm": "Wyre",
+        "lau118cd": "E07000128",
+        "lau118nm": "Wyre",
+        "nuts318cd": "UKD44",
+        "nuts318nm": "Lancaster and Wyre",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 182,
+    "fields": {
+        "lad18cd": "E07000121",
+        "lad18nm": "Lancaster",
+        "lau118cd": "E07000121",
+        "lau118nm": "Lancaster",
+        "nuts318cd": "UKD44",
+        "nuts318nm": "Lancaster and Wyre",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 183,
+    "fields": {
+        "lad18cd": "E07000119",
+        "lad18nm": "Fylde",
+        "lau118cd": "E07000119",
+        "lau118nm": "Fylde",
+        "nuts318cd": "UKD45",
+        "nuts318nm": "Mid Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 184,
+    "fields": {
+        "lad18cd": "E07000123",
+        "lad18nm": "Preston",
+        "lau118cd": "E07000123",
+        "lau118nm": "Preston",
+        "nuts318cd": "UKD45",
+        "nuts318nm": "Mid Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 185,
+    "fields": {
+        "lad18cd": "E07000126",
+        "lad18nm": "South Ribble",
+        "lau118cd": "E07000126",
+        "lau118nm": "South Ribble",
+        "nuts318cd": "UKD45",
+        "nuts318nm": "Mid Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 186,
+    "fields": {
+        "lad18cd": "E07000124",
+        "lad18nm": "Ribble Valley",
+        "lau118cd": "E07000124",
+        "lau118nm": "Ribble Valley",
+        "nuts318cd": "UKD45",
+        "nuts318nm": "Mid Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 187,
+    "fields": {
+        "lad18cd": "E07000122",
+        "lad18nm": "Pendle",
+        "lau118cd": "E07000122",
+        "lau118nm": "Pendle",
+        "nuts318cd": "UKD46",
+        "nuts318nm": "East Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 188,
+    "fields": {
+        "lad18cd": "E07000117",
+        "lad18nm": "Burnley",
+        "lau118cd": "E07000117",
+        "lau118nm": "Burnley",
+        "nuts318cd": "UKD46",
+        "nuts318nm": "East Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 189,
+    "fields": {
+        "lad18cd": "E07000120",
+        "lad18nm": "Hyndburn",
+        "lau118cd": "E07000120",
+        "lau118nm": "Hyndburn",
+        "nuts318cd": "UKD46",
+        "nuts318nm": "East Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 190,
+    "fields": {
+        "lad18cd": "E07000125",
+        "lad18nm": "Rossendale",
+        "lau118cd": "E07000125",
+        "lau118nm": "Rossendale",
+        "nuts318cd": "UKD46",
+        "nuts318nm": "East Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 191,
+    "fields": {
+        "lad18cd": "E07000118",
+        "lad18nm": "Chorley",
+        "lau118cd": "E07000118",
+        "lau118nm": "Chorley",
+        "nuts318cd": "UKD47",
+        "nuts318nm": "Chorley and West Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 192,
+    "fields": {
+        "lad18cd": "E07000127",
+        "lad18nm": "West Lancashire",
+        "lau118cd": "E07000127",
+        "lau118nm": "West Lancashire",
+        "nuts318cd": "UKD47",
+        "nuts318nm": "Chorley and West Lancashire",
+        "nuts218cd": "UKD4",
+        "nuts218nm": "Lancashire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 193,
+    "fields": {
+        "lad18cd": "E06000007",
+        "lad18nm": "Warrington",
+        "lau118cd": "E06000007",
+        "lau118nm": "Warrington",
+        "nuts318cd": "UKD61",
+        "nuts318nm": "Warrington",
+        "nuts218cd": "UKD6",
+        "nuts218nm": "Cheshire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 194,
+    "fields": {
+        "lad18cd": "E06000049",
+        "lad18nm": "Cheshire East",
+        "lau118cd": "E06000049",
+        "lau118nm": "Cheshire East",
+        "nuts318cd": "UKD62",
+        "nuts318nm": "Cheshire East",
+        "nuts218cd": "UKD6",
+        "nuts218nm": "Cheshire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 195,
+    "fields": {
+        "lad18cd": "E06000050",
+        "lad18nm": "Cheshire West and Chester",
+        "lau118cd": "E06000050",
+        "lau118nm": "Cheshire West and Chester",
+        "nuts318cd": "UKD63",
+        "nuts318nm": "Cheshire West and Chester",
+        "nuts218cd": "UKD6",
+        "nuts218nm": "Cheshire",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 196,
+    "fields": {
+        "lad18cd": "E06000006",
+        "lad18nm": "Halton",
+        "lau118cd": "E06000006",
+        "lau118nm": "Halton",
+        "nuts318cd": "UKD71",
+        "nuts318nm": "East Merseyside",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 197,
+    "fields": {
+        "lad18cd": "E08000011",
+        "lad18nm": "Knowsley",
+        "lau118cd": "E08000011",
+        "lau118nm": "Knowsley",
+        "nuts318cd": "UKD71",
+        "nuts318nm": "East Merseyside",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 198,
+    "fields": {
+        "lad18cd": "E08000013",
+        "lad18nm": "St. Helens",
+        "lau118cd": "E08000013",
+        "lau118nm": "St. Helens",
+        "nuts318cd": "UKD71",
+        "nuts318nm": "East Merseyside",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 199,
+    "fields": {
+        "lad18cd": "E08000012",
+        "lad18nm": "Liverpool",
+        "lau118cd": "E08000012",
+        "lau118nm": "Liverpool",
+        "nuts318cd": "UKD72",
+        "nuts318nm": "Liverpool",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 200,
+    "fields": {
+        "lad18cd": "E08000014",
+        "lad18nm": "Sefton",
+        "lau118cd": "E08000014",
+        "lau118nm": "Sefton",
+        "nuts318cd": "UKD73",
+        "nuts318nm": "Sefton",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 201,
+    "fields": {
+        "lad18cd": "E07000206",
+        "lad18nm": "Waveney",
+        "lau118cd": "E07000206",
+        "lau118nm": "Waveney",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 202,
+    "fields": {
+        "lad18cd": "E07000203",
+        "lad18nm": "Mid Suffolk",
+        "lau118cd": "E07000203",
+        "lau118nm": "Mid Suffolk",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 203,
+    "fields": {
+        "lad18cd": "E07000201",
+        "lad18nm": "Forest Heath",
+        "lau118cd": "E07000201",
+        "lau118nm": "Forest Heath",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 204,
+    "fields": {
+        "lad18cd": "E07000204",
+        "lad18nm": "St Edmundsbury",
+        "lau118cd": "E07000204",
+        "lau118nm": "St Edmundsbury",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 205,
+    "fields": {
+        "lad18cd": "E07000205",
+        "lad18nm": "Suffolk Coastal",
+        "lau118cd": "E07000205",
+        "lau118nm": "Suffolk Coastal",
+        "nuts318cd": "UKH14",
+        "nuts318nm": "Suffolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 206,
+    "fields": {
+        "lad18cd": "E07000148",
+        "lad18nm": "Norwich",
+        "lau118cd": "E07000148",
+        "lau118nm": "Norwich",
+        "nuts318cd": "UKH15",
+        "nuts318nm": "Norwich and East Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 207,
+    "fields": {
+        "lad18cd": "E07000144",
+        "lad18nm": "Broadland",
+        "lau118cd": "E07000144",
+        "lau118nm": "Broadland",
+        "nuts318cd": "UKH15",
+        "nuts318nm": "Norwich and East Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 208,
+    "fields": {
+        "lad18cd": "E07000145",
+        "lad18nm": "Great Yarmouth",
+        "lau118cd": "E07000145",
+        "lau118nm": "Great Yarmouth",
+        "nuts318cd": "UKH15",
+        "nuts318nm": "Norwich and East Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 209,
+    "fields": {
+        "lad18cd": "E07000147",
+        "lad18nm": "North Norfolk",
+        "lau118cd": "E07000147",
+        "lau118nm": "North Norfolk",
+        "nuts318cd": "UKH16",
+        "nuts318nm": "North and West Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 210,
+    "fields": {
+        "lad18cd": "E07000146",
+        "lad18nm": "King's Lynn and West Norfolk",
+        "lau118cd": "E07000146",
+        "lau118nm": "King's Lynn and West Norfolk",
+        "nuts318cd": "UKH16",
+        "nuts318nm": "North and West Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 211,
+    "fields": {
+        "lad18cd": "E07000143",
+        "lad18nm": "Breckland",
+        "lau118cd": "E07000143",
+        "lau118nm": "Breckland",
+        "nuts318cd": "UKH17",
+        "nuts318nm": "Breckland and South Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 212,
+    "fields": {
+        "lad18cd": "E07000149",
+        "lad18nm": "South Norfolk",
+        "lau118cd": "E07000149",
+        "lau118nm": "South Norfolk",
+        "nuts318cd": "UKH17",
+        "nuts318nm": "Breckland and South Norfolk",
+        "nuts218cd": "UKH1",
+        "nuts218nm": "East Anglia",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 213,
+    "fields": {
+        "lad18cd": "E06000032",
+        "lad18nm": "Luton",
+        "lau118cd": "E06000032",
+        "lau118nm": "Luton",
+        "nuts318cd": "UKH21",
+        "nuts318nm": "Luton",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 214,
+    "fields": {
+        "lad18cd": "E07000096",
+        "lad18nm": "Dacorum",
+        "lau118cd": "E07000096",
+        "lau118nm": "Dacorum",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 215,
+    "fields": {
+        "lad18cd": "E07000103",
+        "lad18nm": "Watford",
+        "lau118cd": "E07000103",
+        "lau118nm": "Watford",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 216,
+    "fields": {
+        "lad18cd": "E07000098",
+        "lad18nm": "Hertsmere",
+        "lau118cd": "E07000098",
+        "lau118nm": "Hertsmere",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 217,
+    "fields": {
+        "lad18cd": "E07000240",
+        "lad18nm": "St Albans",
+        "lau118cd": "E07000240",
+        "lau118nm": "St Albans",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 218,
+    "fields": {
+        "lad18cd": "E07000243",
+        "lad18nm": "Stevenage",
+        "lau118cd": "E07000243",
+        "lau118nm": "Stevenage",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 219,
+    "fields": {
+        "lad18cd": "E07000095",
+        "lad18nm": "Broxbourne",
+        "lau118cd": "E07000095",
+        "lau118nm": "Broxbourne",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 220,
+    "fields": {
+        "lad18cd": "E07000102",
+        "lad18nm": "Three Rivers",
+        "lau118cd": "E07000102",
+        "lau118nm": "Three Rivers",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 221,
+    "fields": {
+        "lad18cd": "E07000241",
+        "lad18nm": "Welwyn Hatfield",
+        "lau118cd": "E07000241",
+        "lau118nm": "Welwyn Hatfield",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 222,
+    "fields": {
+        "lad18cd": "E07000242",
+        "lad18nm": "East Hertfordshire",
+        "lau118cd": "E07000242",
+        "lau118nm": "East Hertfordshire",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 223,
+    "fields": {
+        "lad18cd": "E07000099",
+        "lad18nm": "North Hertfordshire",
+        "lau118cd": "E07000099",
+        "lau118nm": "North Hertfordshire",
+        "nuts318cd": "UKH23",
+        "nuts318nm": "Hertfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 224,
+    "fields": {
+        "lad18cd": "E06000055",
+        "lad18nm": "Bedford",
+        "lau118cd": "E06000055",
+        "lau118nm": "Bedford",
+        "nuts318cd": "UKH24",
+        "nuts318nm": "Bedford",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 225,
+    "fields": {
+        "lad18cd": "E06000056",
+        "lad18nm": "Central Bedfordshire",
+        "lau118cd": "E06000056",
+        "lau118nm": "Central Bedfordshire",
+        "nuts318cd": "UKH25",
+        "nuts318nm": "Central Bedfordshire",
+        "nuts218cd": "UKH2",
+        "nuts218nm": "Bedfordshire and Hertfordshire",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 226,
+    "fields": {
+        "lad18cd": "E06000033",
+        "lad18nm": "Southend-on-Sea",
+        "lau118cd": "E06000033",
+        "lau118nm": "Southend-on-Sea",
+        "nuts318cd": "UKH31",
+        "nuts318nm": "Southend-on-Sea",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 227,
+    "fields": {
+        "lad18cd": "E06000034",
+        "lad18nm": "Thurrock",
+        "lau118cd": "E06000034",
+        "lau118nm": "Thurrock",
+        "nuts318cd": "UKH32",
+        "nuts318nm": "Thurrock",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 228,
+    "fields": {
+        "lad18cd": "E07000076",
+        "lad18nm": "Tendring",
+        "lau118cd": "E07000076",
+        "lau118nm": "Tendring",
+        "nuts318cd": "UKH34",
+        "nuts318nm": "Essex Haven Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 229,
+    "fields": {
+        "lad18cd": "E07000067",
+        "lad18nm": "Braintree",
+        "lau118cd": "E07000067",
+        "lau118nm": "Braintree",
+        "nuts318cd": "UKH34",
+        "nuts318nm": "Essex Haven Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 230,
+    "fields": {
+        "lad18cd": "E07000071",
+        "lad18nm": "Colchester",
+        "lau118cd": "E07000071",
+        "lau118nm": "Colchester",
+        "nuts318cd": "UKH34",
+        "nuts318nm": "Essex Haven Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 231,
+    "fields": {
+        "lad18cd": "E07000073",
+        "lad18nm": "Harlow",
+        "lau118cd": "E07000073",
+        "lau118nm": "Harlow",
+        "nuts318cd": "UKH35",
+        "nuts318nm": "West Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 232,
+    "fields": {
+        "lad18cd": "E07000077",
+        "lad18nm": "Uttlesford",
+        "lau118cd": "E07000077",
+        "lau118nm": "Uttlesford",
+        "nuts318cd": "UKH35",
+        "nuts318nm": "West Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 233,
+    "fields": {
+        "lad18cd": "E07000072",
+        "lad18nm": "Epping Forest",
+        "lau118cd": "E07000072",
+        "lau118nm": "Epping Forest",
+        "nuts318cd": "UKH35",
+        "nuts318nm": "West Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 234,
+    "fields": {
+        "lad18cd": "E07000074",
+        "lad18nm": "Maldon",
+        "lau118cd": "E07000074",
+        "lau118nm": "Maldon",
+        "nuts318cd": "UKH36",
+        "nuts318nm": "Heart of Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 235,
+    "fields": {
+        "lad18cd": "E07000068",
+        "lad18nm": "Brentwood",
+        "lau118cd": "E07000068",
+        "lau118nm": "Brentwood",
+        "nuts318cd": "UKH36",
+        "nuts318nm": "Heart of Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 236,
+    "fields": {
+        "lad18cd": "E07000070",
+        "lad18nm": "Chelmsford",
+        "lau118cd": "E07000070",
+        "lau118nm": "Chelmsford",
+        "nuts318cd": "UKH36",
+        "nuts318nm": "Heart of Essex",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 237,
+    "fields": {
+        "lad18cd": "E07000066",
+        "lad18nm": "Basildon",
+        "lau118cd": "E07000066",
+        "lau118nm": "Basildon",
+        "nuts318cd": "UKH37",
+        "nuts318nm": "Essex Thames Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 238,
+    "fields": {
+        "lad18cd": "E07000075",
+        "lad18nm": "Rochford",
+        "lau118cd": "E07000075",
+        "lau118nm": "Rochford",
+        "nuts318cd": "UKH37",
+        "nuts318nm": "Essex Thames Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 239,
+    "fields": {
+        "lad18cd": "E07000069",
+        "lad18nm": "Castle Point",
+        "lau118cd": "E07000069",
+        "lau118nm": "Castle Point",
+        "nuts318cd": "UKH37",
+        "nuts318nm": "Essex Thames Gateway",
+        "nuts218cd": "UKH3",
+        "nuts218nm": "Essex",
+        "nuts118cd": "UKH",
+        "nuts118nm": "East of England"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 240,
+    "fields": {
+        "lad18cd": "E09000007",
+        "lad18nm": "Camden",
+        "lau118cd": "E09000007",
+        "lau118nm": "Camden",
+        "nuts318cd": "UKI31",
+        "nuts318nm": "Camden and City of London",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 241,
+    "fields": {
+        "lad18cd": "E09000001",
+        "lad18nm": "City of London",
+        "lau118cd": "E09000001",
+        "lau118nm": "City of London",
+        "nuts318cd": "UKI31",
+        "nuts318nm": "Camden and City of London",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 242,
+    "fields": {
+        "lad18cd": "E09000033",
+        "lad18nm": "Westminster",
+        "lau118cd": "E09000033",
+        "lau118nm": "Westminster",
+        "nuts318cd": "UKI32",
+        "nuts318nm": "Westminster",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 243,
+    "fields": {
+        "lad18cd": "E09000013",
+        "lad18nm": "Hammersmith and Fulham",
+        "lau118cd": "E09000013",
+        "lau118nm": "Hammersmith and Fulham",
+        "nuts318cd": "UKI33",
+        "nuts318nm": "Kensington & Chelsea and Hammersmith & Fulham",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 244,
+    "fields": {
+        "lad18cd": "E09000020",
+        "lad18nm": "Kensington and Chelsea",
+        "lau118cd": "E09000020",
+        "lau118nm": "Kensington and Chelsea",
+        "nuts318cd": "UKI33",
+        "nuts318nm": "Kensington & Chelsea and Hammersmith & Fulham",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 245,
+    "fields": {
+        "lad18cd": "E09000032",
+        "lad18nm": "Wandsworth",
+        "lau118cd": "E09000032",
+        "lau118nm": "Wandsworth",
+        "nuts318cd": "UKI34",
+        "nuts318nm": "Wandsworth",
+        "nuts218cd": "UKI3",
+        "nuts218nm": "Inner London - West",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 246,
+    "fields": {
+        "lad18cd": "E09000025",
+        "lad18nm": "Newham",
+        "lau118cd": "E09000025",
+        "lau118nm": "Newham",
+        "nuts318cd": "UKI41",
+        "nuts318nm": "Hackney and Newham",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 247,
+    "fields": {
+        "lad18cd": "E09000012",
+        "lad18nm": "Hackney",
+        "lau118cd": "E09000012",
+        "lau118nm": "Hackney",
+        "nuts318cd": "UKI41",
+        "nuts318nm": "Hackney and Newham",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 248,
+    "fields": {
+        "lad18cd": "E09000030",
+        "lad18nm": "Tower Hamlets",
+        "lau118cd": "E09000030",
+        "lau118nm": "Tower Hamlets",
+        "nuts318cd": "UKI42",
+        "nuts318nm": "Tower Hamlets",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 249,
+    "fields": {
+        "lad18cd": "E09000014",
+        "lad18nm": "Haringey",
+        "lau118cd": "E09000014",
+        "lau118nm": "Haringey",
+        "nuts318cd": "UKI43",
+        "nuts318nm": "Haringey and Islington",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 250,
+    "fields": {
+        "lad18cd": "E09000019",
+        "lad18nm": "Islington",
+        "lau118cd": "E09000019",
+        "lau118nm": "Islington",
+        "nuts318cd": "UKI43",
+        "nuts318nm": "Haringey and Islington",
+        "nuts218cd": "UKI4",
+        "nuts218nm": "Inner London - East",
+        "nuts118cd": "UKI",
+        "nuts118nm": "London"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 251,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000028",
+        "lau118nm": "Ross and Cromarty",
+        "nuts318cd": "UKM61",
+        "nuts318nm": "Caithness and Sutherland and Ross and Cromarty",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 252,
+    "fields": {
+        "lad18cd": "E06000054",
+        "lad18nm": "Wiltshire",
+        "lau118cd": "E06000054",
+        "lau118nm": "Wiltshire",
+        "nuts318cd": "UKK15",
+        "nuts318nm": "Wiltshire",
+        "nuts218cd": "UKK1",
+        "nuts218nm": "Gloucestershire, Wiltshire and Bath/Bristol area",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 253,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000029",
+        "lau118nm": "Caithness and Sutherland",
+        "nuts318cd": "UKM61",
+        "nuts318nm": "Caithness and Sutherland and Ross and Cromarty",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 254,
+    "fields": {
+        "lad18cd": "S12000020",
+        "lad18nm": "Moray",
+        "lau118cd": "S30000032",
+        "lau118nm": "West Moray",
+        "nuts318cd": "UKM62",
+        "nuts318nm": "Inverness and Nairn and Moray, Badenoch and Strathspey",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 255,
+    "fields": {
+        "lad18cd": "S12000020",
+        "lad18nm": "Moray",
+        "lau118cd": "S30000033",
+        "lau118nm": "North East Moray",
+        "nuts318cd": "UKM62",
+        "nuts318nm": "Inverness and Nairn and Moray, Badenoch and Strathspey",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 256,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000030",
+        "lau118nm": "Inverness and Nairn",
+        "nuts318cd": "UKM62",
+        "nuts318nm": "Inverness and Nairn and Moray, Badenoch and Strathspey",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 257,
+    "fields": {
+        "lad18cd": "E06000029",
+        "lad18nm": "Poole",
+        "lau118cd": "E06000029",
+        "lau118nm": "Poole",
+        "nuts318cd": "UKK21",
+        "nuts318nm": "Bournemouth and Poole",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 258,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000031",
+        "lau118nm": "Badenoch and Strathspey",
+        "nuts318cd": "UKM62",
+        "nuts318nm": "Inverness and Nairn and Moray, Badenoch and Strathspey",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 259,
+    "fields": {
+        "lad18cd": "E06000028",
+        "lad18nm": "Bournemouth",
+        "lau118cd": "E06000028",
+        "lau118nm": "Bournemouth",
+        "nuts318cd": "UKK21",
+        "nuts318nm": "Bournemouth and Poole",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 260,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000037",
+        "lau118nm": "Lochaber",
+        "nuts318cd": "UKM63",
+        "nuts318nm": "Lochaber, Skye and Lochalsh, Arran and Cumbrae and Argyll and Bute",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 261,
+    "fields": {
+        "lad18cd": "E07000051",
+        "lad18nm": "Purbeck",
+        "lau118cd": "E07000051",
+        "lau118nm": "Purbeck",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 262,
+    "fields": {
+        "lad18cd": "S12000017",
+        "lad18nm": "Highland",
+        "lau118cd": "S30000038",
+        "lau118nm": "Skye and Lochalsh",
+        "nuts318cd": "UKM63",
+        "nuts318nm": "Lochaber, Skye and Lochalsh, Arran and Cumbrae and Argyll and Bute",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 263,
+    "fields": {
+        "lad18cd": "E07000049",
+        "lad18nm": "East Dorset",
+        "lau118cd": "E07000049",
+        "lau118nm": "East Dorset",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 264,
+    "fields": {
+        "lad18cd": "S12000021",
+        "lad18nm": "North Ayrshire",
+        "lau118cd": "S30000034",
+        "lau118nm": "Arran and Cumbrae",
+        "nuts318cd": "UKM63",
+        "nuts318nm": "Lochaber, Skye and Lochalsh, Arran and Cumbrae and Argyll and Bute",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 265,
+    "fields": {
+        "lad18cd": "E07000052",
+        "lad18nm": "West Dorset",
+        "lau118cd": "E07000052",
+        "lau118nm": "West Dorset",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 266,
+    "fields": {
+        "lad18cd": "S12000035",
+        "lad18nm": "Argyll and Bute",
+        "lau118cd": "S30000035",
+        "lau118nm": "Argyll and Bute Islands",
+        "nuts318cd": "UKM63",
+        "nuts318nm": "Lochaber, Skye and Lochalsh, Arran and Cumbrae and Argyll and Bute",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 267,
+    "fields": {
+        "lad18cd": "E07000048",
+        "lad18nm": "Christchurch",
+        "lau118cd": "E07000048",
+        "lau118nm": "Christchurch",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 268,
+    "fields": {
+        "lad18cd": "S12000035",
+        "lad18nm": "Argyll and Bute",
+        "lau118cd": "S30000036",
+        "lau118nm": "Argyll and Bute Mainland",
+        "nuts318cd": "UKM63",
+        "nuts318nm": "Lochaber, Skye and Lochalsh, Arran and Cumbrae and Argyll and Bute",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 269,
+    "fields": {
+        "lad18cd": "S12000013",
+        "lad18nm": "Na h-Eileanan Siar",
+        "lau118cd": "S30000039",
+        "lau118nm": "Na h-Eileanan Siar",
+        "nuts318cd": "UKM64",
+        "nuts318nm": "Na h-Eileanan Siar",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 270,
+    "fields": {
+        "lad18cd": "S12000023",
+        "lad18nm": "Orkney Islands",
+        "lau118cd": "S30000040",
+        "lau118nm": "Orkney Islands",
+        "nuts318cd": "UKM65",
+        "nuts318nm": "Orkney Islands",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 271,
+    "fields": {
+        "lad18cd": "S12000027",
+        "lad18nm": "Shetland Islands",
+        "lau118cd": "S30000041",
+        "lau118nm": "Shetland Islands",
+        "nuts318cd": "UKM66",
+        "nuts318nm": "Shetland Islands",
+        "nuts218cd": "UKM6",
+        "nuts218nm": "Highlands and Islands",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 272,
+    "fields": {
+        "lad18cd": "S12000041",
+        "lad18nm": "Angus",
+        "lau118cd": "S30000001",
+        "lau118nm": "Angus",
+        "nuts318cd": "UKM71",
+        "nuts318nm": "Angus and Dundee City",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 273,
+    "fields": {
+        "lad18cd": "S12000042",
+        "lad18nm": "Dundee City",
+        "lau118cd": "S30000002",
+        "lau118nm": "Dundee City",
+        "nuts318cd": "UKM71",
+        "nuts318nm": "Angus and Dundee City",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 274,
+    "fields": {
+        "lad18cd": "S12000047",
+        "lad18nm": "Fife",
+        "lau118cd": "S30000042",
+        "lau118nm": "Fife",
+        "nuts318cd": "UKM72",
+        "nuts318nm": "Clackmannanshire and Fife",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 275,
+    "fields": {
+        "lad18cd": "S12000005",
+        "lad18nm": "Clackmannanshire",
+        "lau118cd": "S30000003",
+        "lau118nm": "Clackmannanshire",
+        "nuts318cd": "UKM72",
+        "nuts318nm": "Clackmannanshire and Fife",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 276,
+    "fields": {
+        "lad18cd": "S12000019",
+        "lad18nm": "Midlothian",
+        "lau118cd": "S30000006",
+        "lau118nm": "Midlothian",
+        "nuts318cd": "UKM73",
+        "nuts318nm": "East Lothian and Midlothian",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 277,
+    "fields": {
+        "lad18cd": "S12000010",
+        "lad18nm": "East Lothian",
+        "lau118cd": "S30000005",
+        "lau118nm": "East Lothian",
+        "nuts318cd": "UKM73",
+        "nuts318nm": "East Lothian and Midlothian",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 278,
+    "fields": {
+        "lad18cd": "S12000036",
+        "lad18nm": "City of Edinburgh",
+        "lau118cd": "S30000008",
+        "lau118nm": "City of Edinburgh",
+        "nuts318cd": "UKM75",
+        "nuts318nm": "City of Edinburgh",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 279,
+    "fields": {
+        "lad18cd": "S12000014",
+        "lad18nm": "Falkirk",
+        "lau118cd": "S30000009",
+        "lau118nm": "Falkirk",
+        "nuts318cd": "UKM76",
+        "nuts318nm": "Falkirk",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 280,
+    "fields": {
+        "lad18cd": "S12000030",
+        "lad18nm": "Stirling",
+        "lau118cd": "S30000011",
+        "lau118nm": "Stirling",
+        "nuts318cd": "UKM77",
+        "nuts318nm": "Perth and Kinross and Stirling",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 281,
+    "fields": {
+        "lad18cd": "S12000048",
+        "lad18nm": "Perth and Kinross",
+        "lau118cd": "S30000043",
+        "lau118nm": "Perth and Kinross",
+        "nuts318cd": "UKM77",
+        "nuts318nm": "Perth and Kinross and Stirling",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 282,
+    "fields": {
+        "lad18cd": "S12000040",
+        "lad18nm": "West Lothian",
+        "lau118cd": "S30000012",
+        "lau118nm": "West Lothian",
+        "nuts318cd": "UKM78",
+        "nuts318nm": "West Lothian",
+        "nuts218cd": "UKM7",
+        "nuts218nm": "Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 283,
+    "fields": {
+        "lad18cd": "S12000039",
+        "lad18nm": "West Dunbartonshire",
+        "lau118cd": "S30000014",
+        "lau118nm": "West Dunbartonshire",
+        "nuts318cd": "UKM81",
+        "nuts318nm": "East Dunbartonshire, West Dunbartonshire and Helensburgh and Lomond",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 284,
+    "fields": {
+        "lad18cd": "S12000045",
+        "lad18nm": "East Dunbartonshire",
+        "lau118cd": "S30000015",
+        "lau118nm": "East Dunbartonshire",
+        "nuts318cd": "UKM81",
+        "nuts318nm": "East Dunbartonshire, West Dunbartonshire and Helensburgh and Lomond",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 285,
+    "fields": {
+        "lad18cd": "S12000035",
+        "lad18nm": "Argyll and Bute",
+        "lau118cd": "S30000013",
+        "lau118nm": "Helensburgh and Lomond",
+        "nuts318cd": "UKM81",
+        "nuts318nm": "East Dunbartonshire, West Dunbartonshire and Helensburgh and Lomond",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 286,
+    "fields": {
+        "lad18cd": "S12000046",
+        "lad18nm": "Glasgow City",
+        "lau118cd": "S30000019",
+        "lau118nm": "Glasgow City",
+        "nuts318cd": "UKM82",
+        "nuts318nm": "Glasgow City",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 287,
+    "fields": {
+        "lad18cd": "S12000018",
+        "lad18nm": "Inverclyde",
+        "lau118cd": "S30000022",
+        "lau118nm": "Inverclyde",
+        "nuts318cd": "UKM83",
+        "nuts318nm": "Inverclyde, East Renfrewshire and Renfrewshire",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 288,
+    "fields": {
+        "lad18cd": "S12000038",
+        "lad18nm": "Renfrewshire",
+        "lau118cd": "S30000021",
+        "lau118nm": "Renfrewshire",
+        "nuts318cd": "UKM83",
+        "nuts318nm": "Inverclyde, East Renfrewshire and Renfrewshire",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 289,
+    "fields": {
+        "lad18cd": "S12000011",
+        "lad18nm": "East Renfrewshire",
+        "lau118cd": "S30000020",
+        "lau118nm": "East Renfrewshire",
+        "nuts318cd": "UKM83",
+        "nuts318nm": "Inverclyde, East Renfrewshire and Renfrewshire",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 290,
+    "fields": {
+        "lad18cd": "S12000044",
+        "lad18nm": "North Lanarkshire",
+        "lau118cd": "S30000023",
+        "lau118nm": "North Lanarkshire",
+        "nuts318cd": "UKM84",
+        "nuts318nm": "North Lanarkshire",
+        "nuts218cd": "UKM8",
+        "nuts218nm": "West Central Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 291,
+    "fields": {
+        "lad18cd": "S12000026",
+        "lad18nm": "Scottish Borders",
+        "lau118cd": "S30000007",
+        "lau118nm": "Scottish Borders",
+        "nuts318cd": "UKM91",
+        "nuts318nm": "Scottish Borders",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 292,
+    "fields": {
+        "lad18cd": "S12000006",
+        "lad18nm": "Dumfries and Galloway",
+        "lau118cd": "S30000016",
+        "lau118nm": "Dumfries and Galloway",
+        "nuts318cd": "UKM92",
+        "nuts318nm": "Dumfries and Galloway",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 293,
+    "fields": {
+        "lad18cd": "S12000008",
+        "lad18nm": "East Ayrshire",
+        "lau118cd": "S30000017",
+        "lau118nm": "East Ayrshire",
+        "nuts318cd": "UKM93",
+        "nuts318nm": "East Ayrshire and North Ayrshire mainland",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 294,
+    "fields": {
+        "lad18cd": "S12000021",
+        "lad18nm": "North Ayrshire",
+        "lau118cd": "S30000018",
+        "lau118nm": "North Ayrshire mainland",
+        "nuts318cd": "UKM93",
+        "nuts318nm": "East Ayrshire and North Ayrshire mainland",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 295,
+    "fields": {
+        "lad18cd": "S12000028",
+        "lad18nm": "South Ayrshire",
+        "lau118cd": "S30000024",
+        "lau118nm": "South Ayrshire",
+        "nuts318cd": "UKM94",
+        "nuts318nm": "South Ayrshire",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 296,
+    "fields": {
+        "lad18cd": "S12000029",
+        "lad18nm": "South Lanarkshire",
+        "lau118cd": "S30000025",
+        "lau118nm": "South Lanarkshire",
+        "nuts318cd": "UKM95",
+        "nuts318nm": "South Lanarkshire",
+        "nuts218cd": "UKM9",
+        "nuts218nm": "Southern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 297,
+    "fields": {
+        "lad18cd": "N09000003",
+        "lad18nm": "Belfast",
+        "lau118cd": "N09000003",
+        "lau118nm": "Belfast",
+        "nuts318cd": "UKN06",
+        "nuts318nm": "Belfast",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 298,
+    "fields": {
+        "lad18cd": "N09000002",
+        "lad18nm": "Armagh City, Banbridge and Craigavon",
+        "lau118cd": "N09000002",
+        "lau118nm": "Armagh City, Banbridge and Craigavon",
+        "nuts318cd": "UKN07",
+        "nuts318nm": "Armagh City, Banbridge and Craigavon",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 299,
+    "fields": {
+        "lad18cd": "N09000010",
+        "lad18nm": "Newry, Mourne and Down",
+        "lau118cd": "N09000010",
+        "lau118nm": "Newry, Mourne and Down",
+        "nuts318cd": "UKN08",
+        "nuts318nm": "Newry, Mourne and Down",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 300,
+    "fields": {
+        "lad18cd": "N09000011",
+        "lad18nm": "Ards and North Down",
+        "lau118cd": "N09000011",
+        "lau118nm": "Ards and North Down",
+        "nuts318cd": "UKN09",
+        "nuts318nm": "Ards and North Down",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 301,
+    "fields": {
+        "lad18cd": "N09000005",
+        "lad18nm": "Derry City and Strabane",
+        "lau118cd": "N09000005",
+        "lau118nm": "Derry City and Strabane",
+        "nuts318cd": "UKN10",
+        "nuts318nm": "Derry City and Strabane",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 302,
+    "fields": {
+        "lad18cd": "N09000009",
+        "lad18nm": "Mid Ulster",
+        "lau118cd": "N09000009",
+        "lau118nm": "Mid Ulster",
+        "nuts318cd": "UKN11",
+        "nuts318nm": "Mid Ulster",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 303,
+    "fields": {
+        "lad18cd": "N09000004",
+        "lad18nm": "Causeway Coast and Glens",
+        "lau118cd": "N09000004",
+        "lau118nm": "Causeway Coast and Glens",
+        "nuts318cd": "UKN12",
+        "nuts318nm": "Causeway Coast and Glens",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 304,
+    "fields": {
+        "lad18cd": "N09000001",
+        "lad18nm": "Antrim and Newtownabbey",
+        "lau118cd": "N09000001",
+        "lau118nm": "Antrim and Newtownabbey",
+        "nuts318cd": "UKN13",
+        "nuts318nm": "Antrim and Newtownabbey",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 305,
+    "fields": {
+        "lad18cd": "N09000007",
+        "lad18nm": "Lisburn and Castlereagh",
+        "lau118cd": "N09000007",
+        "lau118nm": "Lisburn and Castlereagh",
+        "nuts318cd": "UKN14",
+        "nuts318nm": "Lisburn and Castlereagh",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 306,
+    "fields": {
+        "lad18cd": "N09000008",
+        "lad18nm": "Mid and East Antrim",
+        "lau118cd": "N09000008",
+        "lau118nm": "Mid and East Antrim",
+        "nuts318cd": "UKN15",
+        "nuts318nm": "Mid and East Antrim",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 307,
+    "fields": {
+        "lad18cd": "N09000006",
+        "lad18nm": "Fermanagh and Omagh",
+        "lau118cd": "N09000006",
+        "lau118nm": "Fermanagh and Omagh",
+        "nuts318cd": "UKN16",
+        "nuts318nm": "Fermanagh and Omagh",
+        "nuts218cd": "UKN0",
+        "nuts218nm": "Northern Ireland",
+        "nuts118cd": "UKN",
+        "nuts118nm": "Northern Ireland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 308,
+    "fields": {
+        "lad18cd": "E07000050",
+        "lad18nm": "North Dorset",
+        "lau118cd": "E07000050",
+        "lau118nm": "North Dorset",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 309,
+    "fields": {
+        "lad18cd": "E07000053",
+        "lad18nm": "Weymouth and Portland",
+        "lau118cd": "E07000053",
+        "lau118nm": "Weymouth and Portland",
+        "nuts318cd": "UKK22",
+        "nuts318nm": "Dorset CC",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 310,
+    "fields": {
+        "lad18cd": "E07000187",
+        "lad18nm": "Mendip",
+        "lau118cd": "E07000187",
+        "lau118nm": "Mendip",
+        "nuts318cd": "UKK23",
+        "nuts318nm": "Somerset",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 311,
+    "fields": {
+        "lad18cd": "E07000188",
+        "lad18nm": "Sedgemoor",
+        "lau118cd": "E07000188",
+        "lau118nm": "Sedgemoor",
+        "nuts318cd": "UKK23",
+        "nuts318nm": "Somerset",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 312,
+    "fields": {
+        "lad18cd": "E07000190",
+        "lad18nm": "Taunton Deane",
+        "lau118cd": "E07000190",
+        "lau118nm": "Taunton Deane",
+        "nuts318cd": "UKK23",
+        "nuts318nm": "Somerset",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 313,
+    "fields": {
+        "lad18cd": "E07000191",
+        "lad18nm": "West Somerset",
+        "lau118cd": "E07000191",
+        "lau118nm": "West Somerset",
+        "nuts318cd": "UKK23",
+        "nuts318nm": "Somerset",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 314,
+    "fields": {
+        "lad18cd": "E07000189",
+        "lad18nm": "South Somerset",
+        "lau118cd": "E07000189",
+        "lau118nm": "South Somerset",
+        "nuts318cd": "UKK23",
+        "nuts318nm": "Somerset",
+        "nuts218cd": "UKK2",
+        "nuts218nm": "Dorset and Somerset",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 315,
+    "fields": {
+        "lad18cd": "E06000052",
+        "lad18nm": "Cornwall",
+        "lau118cd": "E06000052",
+        "lau118nm": "Cornwall",
+        "nuts318cd": "UKK30",
+        "nuts318nm": "Cornwall and Isles of Scilly",
+        "nuts218cd": "UKK3",
+        "nuts218nm": "Cornwall and Isles of Scilly",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 316,
+    "fields": {
+        "lad18cd": "E06000053",
+        "lad18nm": "Isles of Scilly",
+        "lau118cd": "E06000053",
+        "lau118nm": "Isles of Scilly",
+        "nuts318cd": "UKK30",
+        "nuts318nm": "Cornwall and Isles of Scilly",
+        "nuts218cd": "UKK3",
+        "nuts218nm": "Cornwall and Isles of Scilly",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 317,
+    "fields": {
+        "lad18cd": "E06000026",
+        "lad18nm": "Plymouth",
+        "lau118cd": "E06000026",
+        "lau118nm": "Plymouth",
+        "nuts318cd": "UKK41",
+        "nuts318nm": "Plymouth",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 318,
+    "fields": {
+        "lad18cd": "E06000027",
+        "lad18nm": "Torbay",
+        "lau118cd": "E06000027",
+        "lau118nm": "Torbay",
+        "nuts318cd": "UKK42",
+        "nuts318nm": "Torbay",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 319,
+    "fields": {
+        "lad18cd": "E07000041",
+        "lad18nm": "Exeter",
+        "lau118cd": "E07000041",
+        "lau118nm": "Exeter",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 320,
+    "fields": {
+        "lad18cd": "E07000046",
+        "lad18nm": "Torridge",
+        "lau118cd": "E07000046",
+        "lau118nm": "Torridge",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 321,
+    "fields": {
+        "lad18cd": "E07000042",
+        "lad18nm": "Mid Devon",
+        "lau118cd": "E07000042",
+        "lau118nm": "Mid Devon",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 322,
+    "fields": {
+        "lad18cd": "E07000040",
+        "lad18nm": "East Devon",
+        "lau118cd": "E07000040",
+        "lau118nm": "East Devon",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 323,
+    "fields": {
+        "lad18cd": "E07000044",
+        "lad18nm": "South Hams",
+        "lau118cd": "E07000044",
+        "lau118nm": "South Hams",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 324,
+    "fields": {
+        "lad18cd": "E07000047",
+        "lad18nm": "West Devon",
+        "lau118cd": "E07000047",
+        "lau118nm": "West Devon",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 325,
+    "fields": {
+        "lad18cd": "E07000043",
+        "lad18nm": "North Devon",
+        "lau118cd": "E07000043",
+        "lau118nm": "North Devon",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 326,
+    "fields": {
+        "lad18cd": "E07000045",
+        "lad18nm": "Teignbridge",
+        "lau118cd": "E07000045",
+        "lau118nm": "Teignbridge",
+        "nuts318cd": "UKK43",
+        "nuts318nm": "Devon CC",
+        "nuts218cd": "UKK4",
+        "nuts218nm": "Devon",
+        "nuts118cd": "UKK",
+        "nuts118nm": "South West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 327,
+    "fields": {
+        "lad18cd": "W06000001",
+        "lad18nm": "Isle of Anglesey",
+        "lau118cd": "W06000001",
+        "lau118nm": "Isle of Anglesey",
+        "nuts318cd": "UKL11",
+        "nuts318nm": "Isle of Anglesey",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 328,
+    "fields": {
+        "lad18cd": "W06000002",
+        "lad18nm": "Gwynedd",
+        "lau118cd": "W06000002",
+        "lau118nm": "Gwynedd",
+        "nuts318cd": "UKL12",
+        "nuts318nm": "Gwynedd",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 329,
+    "fields": {
+        "lad18cd": "W06000003",
+        "lad18nm": "Conwy",
+        "lau118cd": "W06000003",
+        "lau118nm": "Conwy",
+        "nuts318cd": "UKL13",
+        "nuts318nm": "Conwy and Denbighshire",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 330,
+    "fields": {
+        "lad18cd": "W06000004",
+        "lad18nm": "Denbighshire",
+        "lau118cd": "W06000004",
+        "lau118nm": "Denbighshire",
+        "nuts318cd": "UKL13",
+        "nuts318nm": "Conwy and Denbighshire",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 331,
+    "fields": {
+        "lad18cd": "W06000008",
+        "lad18nm": "Ceredigion",
+        "lau118cd": "W06000008",
+        "lau118nm": "Ceredigion",
+        "nuts318cd": "UKL14",
+        "nuts318nm": "South West Wales",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 332,
+    "fields": {
+        "lad18cd": "W06000009",
+        "lad18nm": "Pembrokeshire",
+        "lau118cd": "W06000009",
+        "lau118nm": "Pembrokeshire",
+        "nuts318cd": "UKL14",
+        "nuts318nm": "South West Wales",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 333,
+    "fields": {
+        "lad18cd": "W06000010",
+        "lad18nm": "Carmarthenshire",
+        "lau118cd": "W06000010",
+        "lau118nm": "Carmarthenshire",
+        "nuts318cd": "UKL14",
+        "nuts318nm": "South West Wales",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 334,
+    "fields": {
+        "lad18cd": "W06000024",
+        "lad18nm": "Merthyr Tydfil",
+        "lau118cd": "W06000024",
+        "lau118nm": "Merthyr Tydfil",
+        "nuts318cd": "UKL15",
+        "nuts318nm": "Central Valleys",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 335,
+    "fields": {
+        "lad18cd": "W06000016",
+        "lad18nm": "Rhondda Cynon Taf",
+        "lau118cd": "W06000016",
+        "lau118nm": "Rhondda Cynon Taf",
+        "nuts318cd": "UKL15",
+        "nuts318nm": "Central Valleys",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 336,
+    "fields": {
+        "lad18cd": "W06000020",
+        "lad18nm": "Torfaen",
+        "lau118cd": "W06000020",
+        "lau118nm": "Torfaen",
+        "nuts318cd": "UKL16",
+        "nuts318nm": "Gwent Valleys",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 337,
+    "fields": {
+        "lad18cd": "W06000018",
+        "lad18nm": "Caerphilly",
+        "lau118cd": "W06000018",
+        "lau118nm": "Caerphilly",
+        "nuts318cd": "UKL16",
+        "nuts318nm": "Gwent Valleys",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 338,
+    "fields": {
+        "lad18cd": "W06000019",
+        "lad18nm": "Blaenau Gwent",
+        "lau118cd": "W06000019",
+        "lau118nm": "Blaenau Gwent",
+        "nuts318cd": "UKL16",
+        "nuts318nm": "Gwent Valleys",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 339,
+    "fields": {
+        "lad18cd": "W06000013",
+        "lad18nm": "Bridgend",
+        "lau118cd": "W06000013",
+        "lau118nm": "Bridgend",
+        "nuts318cd": "UKL17",
+        "nuts318nm": "Bridgend and Neath Port Talbot",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 340,
+    "fields": {
+        "lad18cd": "W06000012",
+        "lad18nm": "Neath Port Talbot",
+        "lau118cd": "W06000012",
+        "lau118nm": "Neath Port Talbot",
+        "nuts318cd": "UKL17",
+        "nuts318nm": "Bridgend and Neath Port Talbot",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 341,
+    "fields": {
+        "lad18cd": "W06000011",
+        "lad18nm": "Swansea",
+        "lau118cd": "W06000011",
+        "lau118nm": "Swansea",
+        "nuts318cd": "UKL18",
+        "nuts318nm": "Swansea",
+        "nuts218cd": "UKL1",
+        "nuts218nm": "West Wales and The Valleys",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 342,
+    "fields": {
+        "lad18cd": "W06000022",
+        "lad18nm": "Newport",
+        "lau118cd": "W06000022",
+        "lau118nm": "Newport",
+        "nuts318cd": "UKL21",
+        "nuts318nm": "Monmouthshire and Newport",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 343,
+    "fields": {
+        "lad18cd": "W06000021",
+        "lad18nm": "Monmouthshire",
+        "lau118cd": "W06000021",
+        "lau118nm": "Monmouthshire",
+        "nuts318cd": "UKL21",
+        "nuts318nm": "Monmouthshire and Newport",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 344,
+    "fields": {
+        "lad18cd": "W06000015",
+        "lad18nm": "Cardiff",
+        "lau118cd": "W06000015",
+        "lau118nm": "Cardiff",
+        "nuts318cd": "UKL22",
+        "nuts318nm": "Cardiff and Vale of Glamorgan",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 345,
+    "fields": {
+        "lad18cd": "W06000014",
+        "lad18nm": "Vale of Glamorgan",
+        "lau118cd": "W06000014",
+        "lau118nm": "Vale of Glamorgan",
+        "nuts318cd": "UKL22",
+        "nuts318nm": "Cardiff and Vale of Glamorgan",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 346,
+    "fields": {
+        "lad18cd": "W06000006",
+        "lad18nm": "Wrexham",
+        "lau118cd": "W06000006",
+        "lau118nm": "Wrexham",
+        "nuts318cd": "UKL23",
+        "nuts318nm": "Flintshire and Wrexham",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 347,
+    "fields": {
+        "lad18cd": "W06000005",
+        "lad18nm": "Flintshire",
+        "lau118cd": "W06000005",
+        "lau118nm": "Flintshire",
+        "nuts318cd": "UKL23",
+        "nuts318nm": "Flintshire and Wrexham",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 348,
+    "fields": {
+        "lad18cd": "W06000023",
+        "lad18nm": "Powys",
+        "lau118cd": "W06000023",
+        "lau118nm": "Powys",
+        "nuts318cd": "UKL24",
+        "nuts318nm": "Powys",
+        "nuts218cd": "UKL2",
+        "nuts218nm": "East Wales",
+        "nuts118cd": "UKL",
+        "nuts118nm": "Wales"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 349,
+    "fields": {
+        "lad18cd": "S12000033",
+        "lad18nm": "Aberdeen City",
+        "lau118cd": "S30000026",
+        "lau118nm": "Aberdeen City",
+        "nuts318cd": "UKM50",
+        "nuts318nm": "Aberdeen City and Aberdeenshire",
+        "nuts218cd": "UKM5",
+        "nuts218nm": "North Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 350,
+    "fields": {
+        "lad18cd": "S12000034",
+        "lad18nm": "Aberdeenshire",
+        "lau118cd": "S30000027",
+        "lau118nm": "Aberdeenshire",
+        "nuts318cd": "UKM50",
+        "nuts318nm": "Aberdeen City and Aberdeenshire",
+        "nuts218cd": "UKM5",
+        "nuts218nm": "North Eastern Scotland",
+        "nuts118cd": "UKM",
+        "nuts118nm": "Scotland"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 351,
+    "fields": {
+        "lad18cd": "E08000015",
+        "lad18nm": "Wirral",
+        "lau118cd": "E08000015",
+        "lau118nm": "Wirral",
+        "nuts318cd": "UKD74",
+        "nuts318nm": "Wirral",
+        "nuts218cd": "UKD7",
+        "nuts218nm": "Merseyside",
+        "nuts118cd": "UKD",
+        "nuts118nm": "North West (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 352,
+    "fields": {
+        "lad18cd": "E06000010",
+        "lad18nm": "Kingston upon Hull, City of",
+        "lau118cd": "E06000010",
+        "lau118nm": "Kingston upon Hull, City of",
+        "nuts318cd": "UKE11",
+        "nuts318nm": "Kingston upon Hull, City of",
+        "nuts218cd": "UKE1",
+        "nuts218nm": "East Yorkshire and Northern Lincolnshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 353,
+    "fields": {
+        "lad18cd": "E06000011",
+        "lad18nm": "East Riding of Yorkshire",
+        "lau118cd": "E06000011",
+        "lau118nm": "East Riding of Yorkshire",
+        "nuts318cd": "UKE12",
+        "nuts318nm": "East Riding of Yorkshire",
+        "nuts218cd": "UKE1",
+        "nuts218nm": "East Yorkshire and Northern Lincolnshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 354,
+    "fields": {
+        "lad18cd": "E06000013",
+        "lad18nm": "North Lincolnshire",
+        "lau118cd": "E06000013",
+        "lau118nm": "North Lincolnshire",
+        "nuts318cd": "UKE13",
+        "nuts318nm": "North and North East Lincolnshire",
+        "nuts218cd": "UKE1",
+        "nuts218nm": "East Yorkshire and Northern Lincolnshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 355,
+    "fields": {
+        "lad18cd": "E06000012",
+        "lad18nm": "North East Lincolnshire",
+        "lau118cd": "E06000012",
+        "lau118nm": "North East Lincolnshire",
+        "nuts318cd": "UKE13",
+        "nuts318nm": "North and North East Lincolnshire",
+        "nuts218cd": "UKE1",
+        "nuts218nm": "East Yorkshire and Northern Lincolnshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 356,
+    "fields": {
+        "lad18cd": "E06000014",
+        "lad18nm": "York",
+        "lau118cd": "E06000014",
+        "lau118nm": "York",
+        "nuts318cd": "UKE21",
+        "nuts318nm": "York",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 357,
+    "fields": {
+        "lad18cd": "E07000169",
+        "lad18nm": "Selby",
+        "lau118cd": "E07000169",
+        "lau118nm": "Selby",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 358,
+    "fields": {
+        "lad18cd": "E07000163",
+        "lad18nm": "Craven",
+        "lau118cd": "E07000163",
+        "lau118nm": "Craven",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 359,
+    "fields": {
+        "lad18cd": "E07000167",
+        "lad18nm": "Ryedale",
+        "lau118cd": "E07000167",
+        "lau118nm": "Ryedale",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 360,
+    "fields": {
+        "lad18cd": "E07000164",
+        "lad18nm": "Hambleton",
+        "lau118cd": "E07000164",
+        "lau118nm": "Hambleton",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 361,
+    "fields": {
+        "lad18cd": "E07000165",
+        "lad18nm": "Harrogate",
+        "lau118cd": "E07000165",
+        "lau118nm": "Harrogate",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 362,
+    "fields": {
+        "lad18cd": "E07000168",
+        "lad18nm": "Scarborough",
+        "lau118cd": "E07000168",
+        "lau118nm": "Scarborough",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 363,
+    "fields": {
+        "lad18cd": "E07000166",
+        "lad18nm": "Richmondshire",
+        "lau118cd": "E07000166",
+        "lau118nm": "Richmondshire",
+        "nuts318cd": "UKE22",
+        "nuts318nm": "North Yorkshire CC",
+        "nuts218cd": "UKE2",
+        "nuts218nm": "North Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 364,
+    "fields": {
+        "lad18cd": "E08000016",
+        "lad18nm": "Barnsley",
+        "lau118cd": "E08000016",
+        "lau118nm": "Barnsley",
+        "nuts318cd": "UKE31",
+        "nuts318nm": "Barnsley, Doncaster and Rotherham",
+        "nuts218cd": "UKE3",
+        "nuts218nm": "South Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 365,
+    "fields": {
+        "lad18cd": "E08000017",
+        "lad18nm": "Doncaster",
+        "lau118cd": "E08000017",
+        "lau118nm": "Doncaster",
+        "nuts318cd": "UKE31",
+        "nuts318nm": "Barnsley, Doncaster and Rotherham",
+        "nuts218cd": "UKE3",
+        "nuts218nm": "South Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 366,
+    "fields": {
+        "lad18cd": "E08000018",
+        "lad18nm": "Rotherham",
+        "lau118cd": "E08000018",
+        "lau118nm": "Rotherham",
+        "nuts318cd": "UKE31",
+        "nuts318nm": "Barnsley, Doncaster and Rotherham",
+        "nuts218cd": "UKE3",
+        "nuts218nm": "South Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 367,
+    "fields": {
+        "lad18cd": "E08000019",
+        "lad18nm": "Sheffield",
+        "lau118cd": "E08000019",
+        "lau118nm": "Sheffield",
+        "nuts318cd": "UKE32",
+        "nuts318nm": "Sheffield",
+        "nuts218cd": "UKE3",
+        "nuts218nm": "South Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 368,
+    "fields": {
+        "lad18cd": "E08000032",
+        "lad18nm": "Bradford",
+        "lau118cd": "E08000032",
+        "lau118nm": "Bradford",
+        "nuts318cd": "UKE41",
+        "nuts318nm": "Bradford",
+        "nuts218cd": "UKE4",
+        "nuts218nm": "West Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 369,
+    "fields": {
+        "lad18cd": "E08000035",
+        "lad18nm": "Leeds",
+        "lau118cd": "E08000035",
+        "lau118nm": "Leeds",
+        "nuts318cd": "UKE42",
+        "nuts318nm": "Leeds",
+        "nuts218cd": "UKE4",
+        "nuts218nm": "West Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 370,
+    "fields": {
+        "lad18cd": "E08000034",
+        "lad18nm": "Kirklees",
+        "lau118cd": "E08000034",
+        "lau118nm": "Kirklees",
+        "nuts318cd": "UKE44",
+        "nuts318nm": "Calderdale and Kirklees",
+        "nuts218cd": "UKE4",
+        "nuts218nm": "West Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 371,
+    "fields": {
+        "lad18cd": "E08000033",
+        "lad18nm": "Calderdale",
+        "lau118cd": "E08000033",
+        "lau118nm": "Calderdale",
+        "nuts318cd": "UKE44",
+        "nuts318nm": "Calderdale and Kirklees",
+        "nuts218cd": "UKE4",
+        "nuts218nm": "West Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 372,
+    "fields": {
+        "lad18cd": "E08000036",
+        "lad18nm": "Wakefield",
+        "lau118cd": "E08000036",
+        "lau118nm": "Wakefield",
+        "nuts318cd": "UKE45",
+        "nuts318nm": "Wakefield",
+        "nuts218cd": "UKE4",
+        "nuts218nm": "West Yorkshire",
+        "nuts118cd": "UKE",
+        "nuts118nm": "Yorkshire and The Humber"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 373,
+    "fields": {
+        "lad18cd": "E06000015",
+        "lad18nm": "Derby",
+        "lau118cd": "E06000015",
+        "lau118nm": "Derby",
+        "nuts318cd": "UKF11",
+        "nuts318nm": "Derby",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 374,
+    "fields": {
+        "lad18cd": "E07000033",
+        "lad18nm": "Bolsover",
+        "lau118cd": "E07000033",
+        "lau118nm": "Bolsover",
+        "nuts318cd": "UKF12",
+        "nuts318nm": "East Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 375,
+    "fields": {
+        "lad18cd": "E07000034",
+        "lad18nm": "Chesterfield",
+        "lau118cd": "E07000034",
+        "lau118nm": "Chesterfield",
+        "nuts318cd": "UKF12",
+        "nuts318nm": "East Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 376,
+    "fields": {
+        "lad18cd": "E07000038",
+        "lad18nm": "North East Derbyshire",
+        "lau118cd": "E07000038",
+        "lau118nm": "North East Derbyshire",
+        "nuts318cd": "UKF12",
+        "nuts318nm": "East Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 377,
+    "fields": {
+        "lad18cd": "E07000036",
+        "lad18nm": "Erewash",
+        "lau118cd": "E07000036",
+        "lau118nm": "Erewash",
+        "nuts318cd": "UKF13",
+        "nuts318nm": "South and West Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 378,
+    "fields": {
+        "lad18cd": "E07000037",
+        "lad18nm": "High Peak",
+        "lau118cd": "E07000037",
+        "lau118nm": "High Peak",
+        "nuts318cd": "UKF13",
+        "nuts318nm": "South and West Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 379,
+    "fields": {
+        "lad18cd": "E07000032",
+        "lad18nm": "Amber Valley",
+        "lau118cd": "E07000032",
+        "lau118nm": "Amber Valley",
+        "nuts318cd": "UKF13",
+        "nuts318nm": "South and West Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 380,
+    "fields": {
+        "lad18cd": "E07000035",
+        "lad18nm": "Derbyshire Dales",
+        "lau118cd": "E07000035",
+        "lau118nm": "Derbyshire Dales",
+        "nuts318cd": "UKF13",
+        "nuts318nm": "South and West Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 381,
+    "fields": {
+        "lad18cd": "E07000039",
+        "lad18nm": "South Derbyshire",
+        "lau118cd": "E07000039",
+        "lau118nm": "South Derbyshire",
+        "nuts318cd": "UKF13",
+        "nuts318nm": "South and West Derbyshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 382,
+    "fields": {
+        "lad18cd": "E06000018",
+        "lad18nm": "Nottingham",
+        "lau118cd": "E06000018",
+        "lau118nm": "Nottingham",
+        "nuts318cd": "UKF14",
+        "nuts318nm": "Nottingham",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 383,
+    "fields": {
+        "lad18cd": "E07000170",
+        "lad18nm": "Ashfield",
+        "lau118cd": "E07000170",
+        "lau118nm": "Ashfield",
+        "nuts318cd": "UKF15",
+        "nuts318nm": "North Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 384,
+    "fields": {
+        "lad18cd": "E07000171",
+        "lad18nm": "Bassetlaw",
+        "lau118cd": "E07000171",
+        "lau118nm": "Bassetlaw",
+        "nuts318cd": "UKF15",
+        "nuts318nm": "North Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 385,
+    "fields": {
+        "lad18cd": "E07000174",
+        "lad18nm": "Mansfield",
+        "lau118cd": "E07000174",
+        "lau118nm": "Mansfield",
+        "nuts318cd": "UKF15",
+        "nuts318nm": "North Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 386,
+    "fields": {
+        "lad18cd": "E07000175",
+        "lad18nm": "Newark and Sherwood",
+        "lau118cd": "E07000175",
+        "lau118nm": "Newark and Sherwood",
+        "nuts318cd": "UKF15",
+        "nuts318nm": "North Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 387,
+    "fields": {
+        "lad18cd": "E07000173",
+        "lad18nm": "Gedling",
+        "lau118cd": "E07000173",
+        "lau118nm": "Gedling",
+        "nuts318cd": "UKF16",
+        "nuts318nm": "South Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 388,
+    "fields": {
+        "lad18cd": "E07000172",
+        "lad18nm": "Broxtowe",
+        "lau118cd": "E07000172",
+        "lau118nm": "Broxtowe",
+        "nuts318cd": "UKF16",
+        "nuts318nm": "South Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 389,
+    "fields": {
+        "lad18cd": "E07000176",
+        "lad18nm": "Rushcliffe",
+        "lau118cd": "E07000176",
+        "lau118nm": "Rushcliffe",
+        "nuts318cd": "UKF16",
+        "nuts318nm": "South Nottinghamshire",
+        "nuts218cd": "UKF1",
+        "nuts218nm": "Derbyshire and Nottinghamshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 390,
+    "fields": {
+        "lad18cd": "E06000016",
+        "lad18nm": "Leicester",
+        "lau118cd": "E06000016",
+        "lau118nm": "Leicester",
+        "nuts318cd": "UKF21",
+        "nuts318nm": "Leicester",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 391,
+    "fields": {
+        "lad18cd": "E07000129",
+        "lad18nm": "Blaby",
+        "lau118cd": "E07000129",
+        "lau118nm": "Blaby",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 392,
+    "fields": {
+        "lad18cd": "E07000133",
+        "lad18nm": "Melton",
+        "lau118cd": "E07000133",
+        "lau118nm": "Melton",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 393,
+    "fields": {
+        "lad18cd": "E06000017",
+        "lad18nm": "Rutland",
+        "lau118cd": "E06000017",
+        "lau118nm": "Rutland",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 394,
+    "fields": {
+        "lad18cd": "E07000130",
+        "lad18nm": "Charnwood",
+        "lau118cd": "E07000130",
+        "lau118nm": "Charnwood",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 395,
+    "fields": {
+        "lad18cd": "E07000131",
+        "lad18nm": "Harborough",
+        "lau118cd": "E07000131",
+        "lau118nm": "Harborough",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 396,
+    "fields": {
+        "lad18cd": "E07000135",
+        "lad18nm": "Oadby and Wigston",
+        "lau118cd": "E07000135",
+        "lau118nm": "Oadby and Wigston",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 397,
+    "fields": {
+        "lad18cd": "E07000132",
+        "lad18nm": "Hinckley and Bosworth",
+        "lau118cd": "E07000132",
+        "lau118nm": "Hinckley and Bosworth",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 398,
+    "fields": {
+        "lad18cd": "E07000134",
+        "lad18nm": "North West Leicestershire",
+        "lau118cd": "E07000134",
+        "lau118nm": "North West Leicestershire",
+        "nuts318cd": "UKF22",
+        "nuts318nm": "Leicestershire CC and Rutland",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 399,
+    "fields": {
+        "lad18cd": "E07000151",
+        "lad18nm": "Daventry",
+        "lau118cd": "E07000151",
+        "lau118nm": "Daventry",
+        "nuts318cd": "UKF24",
+        "nuts318nm": "West Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+},
+{
+    "model": "websites.nutsconversion",
+    "pk": 400,
+    "fields": {
+        "lad18cd": "E07000154",
+        "lad18nm": "Northampton",
+        "lau118cd": "E07000154",
+        "lau118nm": "Northampton",
+        "nuts318cd": "UKF24",
+        "nuts318nm": "West Northamptonshire",
+        "nuts218cd": "UKF2",
+        "nuts218nm": "Leicestershire, Rutland and Northamptonshire",
+        "nuts118cd": "UKF",
+        "nuts118nm": "East Midlands (England)"
+    }
+}
+]

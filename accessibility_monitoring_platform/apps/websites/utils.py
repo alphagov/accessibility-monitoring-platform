@@ -7,7 +7,6 @@ from django.db.models import Q, QuerySet
 from .models import NutsConversion
 
 
-
 def get_list_of_nuts318_codes(location: str) -> QuerySet[NutsConversion]:
     """
     Filters town or city and returns a list of nuts318 area codes for filtering websites.

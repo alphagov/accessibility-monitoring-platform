@@ -1,0 +1,162 @@
+[
+    {
+        "model": "websites.websiteregister",
+        "pk": 1,
+        "fields": {
+            "url": "http://www.webite.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-13T12:02:55.303Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKH25",
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 2,
+        "fields": {
+            "url": "http://www.website1.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-09-10T00:54:30.901Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKJ13",
+            "requires_authentication": null,
+            "holding_page": true
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 3,
+        "fields": {
+            "url": "http://www.webite2.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-12T00:45:51.707Z",
+            "sector": 1,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": null,
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 4,
+        "fields": {
+            "url": "http://www.webite3.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-11T18:01:37.659Z",
+            "sector": 1,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": null,
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 5,
+        "fields": {
+            "url": "http://www.webite4.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-10T01:49:05.516Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKH23",
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 6,
+        "fields": {
+            "url": "http://www.webite5.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-14T06:00:14.572Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": null,
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 7,
+        "fields": {
+            "url": "http://www.webite6.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-11T20:56:42.983Z",
+            "sector": 7,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": null,
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 8,
+        "fields": {
+            "url": "http://www.webite7.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-09-13T16:36:23.893Z",
+            "sector": 7,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKI32",
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 9,
+        "fields": {
+            "url": "http://www.webite8.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-15T11:49:54.368Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKM50",
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    },
+    {
+        "model": "websites.websiteregister",
+        "pk": 10,
+        "fields": {
+            "url": "http://www.webite9.co.uk/",
+            "service": "Service description",
+            "htmlhead_title": "HTML Header",
+            "htmlmeta_description": "",
+            "last_updated": "2020-10-08T20:52:48.570Z",
+            "sector": 9,
+            "original_domain": "http://www.webite.co.uk/",
+            "nuts3": "UKC13",
+            "requires_authentication": null,
+            "holding_page": null
+        }
+    }
+]

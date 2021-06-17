@@ -248,6 +248,15 @@ class Migration(migrations.Migration):
                 ("nuts3", models.CharField(blank=True, max_length=5, null=True)),
                 ("requires_authentication", models.BooleanField(blank=True, null=True)),
                 ("holding_page", models.BooleanField(blank=True, null=True)),
+                (
+                    "sector",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="websites.sector",
+                    ),
+                ),
             ],
             options={
                 "db_table": "website_register",

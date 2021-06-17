@@ -55,7 +55,7 @@ class AMPDateWidget(forms.MultiWidget):
         if isinstance(value, date):
             return [value.day, value.month, value.year]
         elif isinstance(value, str):
-            if value == "" or value == "None-None-None":
+            if value == "":
                 return [None, None, None]
             year, month, day = value.split("-")
             return [day, month, year]
@@ -65,6 +65,8 @@ class AMPDateWidget(forms.MultiWidget):
         self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
     ) -> str:
         day, month, year = super().value_from_datadict(data, files, name)
+        if day is None and month is None and year is None:
+            return ""
         if day == "" and month == "" and year == "":
             return ""
         return "{}-{}-{}".format(year, month, day)

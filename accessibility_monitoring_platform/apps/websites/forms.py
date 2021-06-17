@@ -18,6 +18,7 @@ from .models import Sector
 DEFAULT_SORT: str = "-website_id"
 SORT_CHOICES: List[Tuple[str, str]] = (
     (DEFAULT_SORT, "Most recently created"),
+    # Todo: Add axe error count columns
     # ("error_count", "Fewest Errors"),
     # ("-error_count", "Most Errors"),
     ("-last_updated", "Most recently updated"),

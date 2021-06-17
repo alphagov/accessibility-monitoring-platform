@@ -15,7 +15,7 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic.list import ListView
 
 from ..common.utils import build_filters, download_as_csv
-from .models import WebsiteRegister
+from .models import NutsConversion, WebsiteRegister
 from .forms import DEFAULT_SORT, WebsiteSearchForm
 from .utils import get_list_of_nuts318_codes
 

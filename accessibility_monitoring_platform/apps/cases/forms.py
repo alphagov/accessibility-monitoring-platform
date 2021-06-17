@@ -38,8 +38,9 @@ from ..common.models import Region, Sector
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
+DEFAULT_SORT: str = "-id"
 SORT_CHOICES = [
-    ("-id", "Newest"),
+    (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
 ]
 

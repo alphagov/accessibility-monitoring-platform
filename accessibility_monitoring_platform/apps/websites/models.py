@@ -166,6 +166,9 @@ class WebsiteRegister(models.Model):
         managed = False
         db_table = "website_register"
 
+    def __str__(self):
+        return f"#{self.website_id}: {self.url}"
+
 
 class WebsitesOrgs(models.Model):
     """ WebsitesOrgs Model """

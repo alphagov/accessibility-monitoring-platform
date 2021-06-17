@@ -25,9 +25,9 @@ from .forms import (
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CasePostReportUpdateForm,
+    DEFAULT_SORT,
 )
 
-DEFAULT_SORT: str = "-id"
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("case_number", "id"),
     ("domain", "domain__icontains"),
@@ -103,18 +103,27 @@ class CaseListView(ListView):
     context_object_name = "cases"
     paginate_by = 10
 
+    def get(self, request, *args, **kwargs):
+        """ Populate filter form """
+        if self.request.GET:
+            self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
+            self.form.is_valid()
+        else:
+            self.form = CaseSearchForm()
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self) -> QuerySet[Case]:
         """ Add filters to queryset """
-        form: CaseSearchForm = CaseSearchForm(self.request.GET)
-        form.is_valid()
+        if self.form.errors:
+            return Case.objects.none()
 
         filters: Dict[str, Any] = build_filters(
-            cleaned_data=form.cleaned_data,
+            cleaned_data=self.form.cleaned_data,
             field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
         )
         filters["is_archived"] = False
 
-        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by = DEFAULT_SORT
 
@@ -128,7 +137,7 @@ class CaseListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
-        context["form"] = CaseSearchForm(self.request.GET)
+        context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
