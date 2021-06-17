@@ -5,8 +5,8 @@
     <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
     <ul class="govuk-list nav-menu-list">
         <li> <a class="govuk-link" href="{% url 'dashboard:home' %}">Home</a></li>
-        <li> <a class="govuk-link" href="{% url 'cases:case-list' %}">Search cases</a></li>
-        <li> <a class="govuk-link" href="{% url 'websites:website-list' %}">Search websites</a></li>
+        <li> <a class="govuk-link" href="{% url 'cases:case-list' %}">Cases</a></li>
+        <li> <a class="govuk-link" href="{% url 'websites:website-list' %}">Websites</a></li>
         <li> <a class="govuk-link" href="{% url 'users:account_details' %}">Account details</a></li>
         <li> <a class="govuk-link" href="{% url 'logout' %}">Sign out</a></li>
     </ul>
@@ -14,8 +14,8 @@
 {% else %}
 <div class="topnavmenu">
     <ul class="govuk-list nav-menu-list">
-        <li> <a class="govuk-link" href="{% url 'dashboard:home' %}"> Home </a></li>
-        <li> <a class="govuk-link" href="{% url 'login' %}"> Sign in </a></li>
+        <li> <a class="govuk-link" href="{% url 'dashboard:home' %}">Home</a></li>
+        <li> <a class="govuk-link" href="{% url 'login' %}">Sign in</a></li>
     </ul>
 </div>
 {% endif %}

@@ -15,20 +15,17 @@ DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
-    """ Override widget template for forms.RadioSelect """
-
+    """ Widget for GDS design system radio button fields """
     template_name = "common/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
-    """ Override widget template for forms.CheckboxInput """
-
+    """ Widget for GDS design system checkbox fields """
     template_name = "common/amp_checkbox_widget_template.html"
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
-    """ Override widget template for forms.CheckboxSelectMultiple """
-
+    """ Widget for GDS design system multi-select checkboxes fields """
     template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
@@ -92,7 +89,7 @@ class AMPDateWidget(forms.MultiWidget):
 
 
 class AMPCharField(forms.CharField):
-    """ Adds default max_length and widget to Django forms CharField """
+    """ Character input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -105,7 +102,7 @@ class AMPCharField(forms.CharField):
 
 
 class AMPCharFieldWide(forms.CharField):
-    """ Adds default widget to Django forms CharField """
+    """ Full width character input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -117,7 +114,7 @@ class AMPCharFieldWide(forms.CharField):
 
 
 class AMPTextField(forms.CharField):
-    """ Adds default widget to Django forms TextField """
+    """ Textarea input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -129,7 +126,7 @@ class AMPTextField(forms.CharField):
 
 
 class AMPChoiceField(forms.ChoiceField):
-    """ Adds default widget to Django forms ChoiceField """
+    """ Choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -141,7 +138,7 @@ class AMPChoiceField(forms.ChoiceField):
 
 
 class AMPModelChoiceField(forms.ModelChoiceField):
-    """ Adds default widget to Django forms ModelChoiceField """
+    """ Model choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -152,19 +149,14 @@ class AMPModelChoiceField(forms.ModelChoiceField):
         super().__init__(*args, **kwargs)
 
 
-class AMPUserModelChoiceField(forms.ModelChoiceField):
+class AMPUserModelChoiceField(AMPModelChoiceField):
     """
-    Adds default widget to Django forms ModelChoiceField for use with User model.
+    Model choice input field in the style of GDS design system.
 
-    Uses user's full name as label.
+    Uses User model. Uses user's full name as label.
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault(
-            "widget",
-            forms.Select(attrs={"class": "govuk-select"}),
-        )
         kwargs.setdefault(
             "queryset", User.objects.all().order_by("first_name", "last_name")
         )
@@ -176,7 +168,7 @@ class AMPUserModelChoiceField(forms.ModelChoiceField):
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """ Adds default widget to Django forms ModelMultipleChoiceField """
+    """ Model multi-choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -185,7 +177,7 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class AMPBooleanField(forms.BooleanField):
-    """ Adds default widget to Django forms BooleanField """
+    """ Checkbox input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -194,7 +186,7 @@ class AMPBooleanField(forms.BooleanField):
 
 
 class AMPDateField(forms.DateField):
-    """ Adds default widget to Django forms DateField """
+    """ Date input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)

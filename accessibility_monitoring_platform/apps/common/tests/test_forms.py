@@ -1,9 +1,9 @@
 """
 Test - common widgets and forms
 """
+from pytest_django.asserts import assertHTMLEqual
+
 from django import forms
-from django.test import TestCase
-from django.test.client import RequestFactory
 
 from ..forms import (
     AMPRadioSelectWidget,
@@ -76,240 +76,202 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 </div>"""
 
 
-class AMPRadioSelectWidgetTestCase(TestCase):
-    """ Test output of AMPRadioSelectWidget """
-
-    def test_html_uses_govuk_classes(self):
-        """ Check AMPRadioSelectWidget renders the expected HTML """
-        widget: AMPRadioSelectWidget = AMPRadioSelectWidget(
-            choices=[("val1", "Label1")]
-        )
-        self.assertHTMLEqual(
-            widget.render("name", None), EXPECTED_RADIO_SELECT_WIDGET_HTML
-        )
+def test_amp_radio_select_widget_html_uses_govuk_classes():
+    """ Check AMPRadioSelectWidget renders the expected HTML """
+    widget: AMPRadioSelectWidget = AMPRadioSelectWidget(choices=[("val1", "Label1")])
+    assertHTMLEqual(widget.render("name", None), EXPECTED_RADIO_SELECT_WIDGET_HTML)
 
 
-class AMPCheckboxWidgetTestCase(TestCase):
-    """ Test output of AMPCheckboxWidget """
-
-    def test_html_uses_govuk_classes(self):
-        """ Check AMPCheckboxWidget renders the expected HTML """
-        widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
-        self.assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
+def test_amp_checkbox_widget_html_uses_govuk_classes():
+    """ Check AMPCheckboxWidget renders the expected HTML """
+    widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
+    assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
 
 
-class AMPDateWidgetTestCase(TestCase):
-    """ Test output of AMPDateWidget """
-
-    def test_html_uses_govuk_classes(self):
-        """ Check AMPDateWidget renders the expected HTML """
-        widget: AMPDateWidget = AMPDateWidget()
-        self.assertHTMLEqual(widget.render("name", None), EXPECTED_DATE_WIDGET_HTML)
+def test_amp_date_widget_html_uses_govuk_classes():
+    """ Check AMPDateWidget renders the expected HTML """
+    widget: AMPDateWidget = AMPDateWidget()
+    assertHTMLEqual(widget.render("name", None), EXPECTED_DATE_WIDGET_HTML)
 
 
-class AMPCharFieldTestCase(TestCase):
-    """ Test AMPCharField """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPCharField = AMPCharField(label="Label text")
-
-    def test_field_class_is_a_subclass_of_charfield(self):
-        """ Check AMPCharField is a subclass of forms.CharField """
-        self.assertTrue(issubclass(AMPCharField, forms.CharField))
-
-    def test_field_is_not_required(self):
-        """ Check AMPCharField defaults to not being required """
-        self.assertEqual(self.field.required, False)
-
-    def test_field_max_length(self):
-        """ Check AMPCharField defaults a max_length of 100 """
-        self.assertEqual(self.field.max_length, 100)
-
-    def test_field_widget(self):
-        """ Check AMPCharField uses widget forms.TextInput """
-        self.assertEqual(type(self.field.widget), forms.TextInput)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPCharField widget attr defaults """
-        self.assertEqual(
-            self.field.widget.attrs,
-            {"class": "govuk-input govuk-input--width-10", "maxlength": "100"},
-        )
+def test_amp_char_field_class_is_a_subclass_of_charfield():
+    """ Check AMPCharField is a subclass of forms.CharField """
+    assert issubclass(AMPCharField, forms.CharField)
 
 
-class AMPCharFieldWideTestCase(AMPCharFieldTestCase):
-    """ Test AMPCharFieldWide """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
-
-    def test_field_max_length(self):
-        """ Check AMPCharFieldWide has no default max_length """
-        self.assertEqual(self.field.max_length, None)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPCharFieldWide widget attr defaults """
-        self.assertEqual(self.field.widget.attrs, {"class": "govuk-input"})
+def test_amp_char_field_is_not_required():
+    """ Check AMPCharField defaults to not being required """
+    field: AMPCharField = AMPCharField(label="Label text")
+    assert not field.required
 
 
-class AMPTextFieldTestCase(TestCase):
-    """ Test AMPTextField """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPTextField = AMPTextField(label="Label text")
-
-    def test_field_class_is_a_subclass_of_charfield(self):
-        """ Check AMPTextField is a subclass of forms.CharField """
-        self.assertTrue(issubclass(AMPTextField, forms.CharField))
-
-    def test_field_is_not_required(self):
-        """ Check AMPTextField defaults to not being required """
-        self.assertEqual(self.field.required, False)
-
-    def test_field_widget(self):
-        """ Check AMPTextField uses widget forms.Textarea """
-        self.assertEqual(type(self.field.widget), forms.Textarea)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPTextField widget attr defaults """
-        self.assertEqual(
-            self.field.widget.attrs,
-            {"class": "govuk-textarea", "cols": "40", "rows": "2"},
-        )
+def test_amp_char_field_max_length():
+    """ Check AMPCharField defaults a max_length of 100 """
+    field: AMPCharField = AMPCharField(label="Label text")
+    assert field.max_length == 100
 
 
-class AMPChoiceFieldTestCase(TestCase):
-    """ Test AMPChoiceField """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPChoiceField = AMPChoiceField(label="Label text")
-
-    def test_field_class_is_a_subclass_of_choicefield(self):
-        """ Check AMPChoiceField is a subclass of forms.ChoiceField """
-        self.assertTrue(issubclass(AMPChoiceField, forms.ChoiceField))
-
-    def test_field_is_not_required(self):
-        """ Check AMPChoiceField defaults to not being required """
-        self.assertEqual(self.field.required, False)
-
-    def test_field_widget(self):
-        """ Check AMPChoiceField uses widget forms.Select """
-        self.assertEqual(type(self.field.widget), forms.Select)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPTextField widget attr defaults """
-        self.assertEqual(self.field.widget.attrs, {"class": "govuk-select"})
+def test_amp_char_field_widget():
+    """ Check AMPCharField uses widget forms.TextInput """
+    field: AMPCharField = AMPCharField(label="Label text")
+    assert type(field.widget) == forms.TextInput
 
 
-class AMPBooleanFieldTestCase(TestCase):
-    """ Test AMPBooleanField """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPBooleanField = AMPBooleanField(label="Label text")
-
-    def test_field_class_is_a_subclass_of_booleanfield(self):
-        """ Check AMPBooleanField is a subclass of forms.BooleanField """
-        self.assertTrue(issubclass(AMPBooleanField, forms.BooleanField))
-
-    def test_field_is_not_required(self):
-        """ Check AMPBooleanField defaults to not being required """
-        self.assertEqual(self.field.required, False)
-
-    def test_field_widget(self):
-        """ Check AMPBooleanField uses widget AMPCheckboxWidget """
-        self.assertEqual(type(self.field.widget), AMPCheckboxWidget)
+def test_amp_char_field_widget_attrs():
+    """ Check AMPCharField widget attr defaults """
+    field: AMPCharField = AMPCharField(label="Label text")
+    assert field.widget.attrs == {"class": "govuk-input govuk-input--width-10", "maxlength": "100"}
 
 
-class AMPDateFieldTestCase(TestCase):
-    """ Test AMPDateField """
-
-    def setUp(self):
-        """ Sets up the test environment with a field """
-        self.field: AMPDateField = AMPDateField(label="Label text")
-
-    def test_field_class_is_a_subclass_of_datefield(self):
-        """ Check AMPDateField is a subclass of forms.DateField """
-        self.assertTrue(issubclass(AMPDateField, forms.DateField))
-
-    def test_field_is_not_required(self):
-        """ Check AMPDateField defaults to not being required """
-        self.assertEqual(self.field.required, False)
-
-    def test_field_widget(self):
-        """ Check AMPDateField uses widget AMPDateWidget """
-        self.assertEqual(type(self.field.widget), AMPDateWidget)
-
-    def test_field_widget_attrs(self):
-        """ Check AMPDateField widget has no default attrs """
-        self.assertEqual(self.field.widget.attrs, {})
+def test_amp_char_field_wide_class_is_a_subclass_of_charfield():
+    """ Check AMPCharFieldWide is a subclass of forms.CharField """
+    assert issubclass(AMPCharFieldWide, forms.CharField)
 
 
-class AMPDateRangeFormTestCase(TestCase):
-    """
-    Form AMPDateRangeForm tests
+def test_amp_char_field_wide_is_not_required():
+    """ Check AMPCharField defaults to not being required """
+    field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
+    assert not field.required
 
-    Methods
-    -------
-    setUp()
-        Sets up the test environment
 
-    test_form_is_valid()
-        Tests if form.is_valid() is true for valid dates
+def test_amp_char_field_wide_has_no_max_length():
+    """ Check AMPCharFieldWide has no default max_length """
+    field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
+    assert field.max_length is None
 
-    test_form_fails_clean_start_date()
-        Form fails if start date is invalid
 
-    test_form_fails_clean_end_date()
-        Form fails if end date is invalid
-    """
+def test_amp_char_field_wide_widget_attrs():
+    """ Check AMPCharFieldWide widget attr defaults """
+    field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
+    assert field.widget.attrs == {"class": "govuk-input"}
 
-    def setUp(self):
-        """ Sets up the test environment with a request factory """
-        self.factory: RequestFactory = RequestFactory()
 
-    def test_form_conforms(self):
-        """ Tests if form.is_valid() is true for valid dates """
-        form: AMPDateRangeForm = AMPDateRangeForm(
-            data={
-                "start_date_0": "1",
-                "start_date_1": "1",
-                "start_date_2": "1900",
-                "end_date_0": "1",
-                "end_date_1": "1",
-                "end_date_2": "2100",
-            }
-        )
-        self.assertTrue(form.is_valid())
+def test_amp_text_field_class_is_a_subclass_of_charfield():
+    """ Check AMPTextField is a subclass of forms.CharField """
+    assert issubclass(AMPTextField, forms.CharField)
 
-    def test_form_fails_clean_start_date(self):
-        """ Tests if form.is_valid() is false if start date is invalid """
-        form: AMPDateRangeForm = AMPDateRangeForm(
-            data={
-                "start_date_0": "31",
-                "start_date_1": "2",
-                "start_date_2": "1900",
-                "end_date_0": "1",
-                "end_date_1": "1",
-                "end_date_2": "2100",
-            }
-        )
-        self.assertFalse(form.is_valid())
 
-    def test_form_fails_clean_end_date_year(self):
-        """ Tests if form.is_valid() is false if end date is invalid """
-        form: AMPDateRangeForm = AMPDateRangeForm(
-            data={
-                "start_date_0": "1",
-                "start_date_1": "1",
-                "start_date_2": "1900",
-                "end_date_0": "31",
-                "end_date_1": "2",
-                "end_date_2": "2100",
-            }
-        )
-        self.assertFalse(form.is_valid())
+def test_amp_text_field_is_not_required():
+    """ Check AMPTextField defaults to not being required """
+    field: AMPTextField = AMPTextField(label="Label text")
+    assert not field.required
+
+
+def test_amp_text_field_widget():
+    """ Check AMPTextField uses widget forms.Textarea """
+    field: AMPTextField = AMPTextField(label="Label text")
+    assert type(field.widget) == forms.Textarea
+
+
+def test_amp_text_field_widget_attrs():
+    """ Check AMPTextField widget attr defaults """
+    field: AMPTextField = AMPTextField(label="Label text")
+    assert field.widget.attrs == {"class": "govuk-textarea", "cols": "40", "rows": "2"}
+
+
+def test_amp_choice_field_class_is_a_subclass_of_choicefield():
+    """ Check AMPChoiceField is a subclass of forms.ChoiceField """
+    assert issubclass(AMPChoiceField, forms.ChoiceField)
+
+
+def test_amp_choice_field_is_not_required():
+    """ Check AMPChoiceField defaults to not being required """
+    field: AMPChoiceField = AMPChoiceField(label="Label text")
+    assert not field.required
+
+
+def test_amp_choice_field_widget():
+    """ Check AMPChoiceField uses widget forms.Select """
+    field: AMPChoiceField = AMPChoiceField(label="Label text")
+    assert type(field.widget) == forms.Select
+
+
+def test_amp_choice_field_widget_attrs():
+    """ Check AMPChoiceField widget attr defaults """
+    field: AMPChoiceField = AMPChoiceField(label="Label text")
+    assert field.widget.attrs == {"class": "govuk-select"}
+
+
+def test_amp_boolean_field_class_is_a_subclass_of_booleanfield():
+    """ Check AMPBooleanField is a subclass of forms.BooleanField """
+    assert issubclass(AMPBooleanField, forms.BooleanField)
+
+
+def test_amp_boolean_field_is_not_required():
+    """ Check AMPBooleanField defaults to not being required """
+    field: AMPBooleanField = AMPBooleanField(label="Label text")
+    assert not field.required
+
+
+def test_amp_boolean_field_widget():
+    """ Check AMPBooleanField uses widget AMPCheckboxWidget """
+    field: AMPBooleanField = AMPBooleanField(label="Label text")
+    assert type(field.widget) == AMPCheckboxWidget
+
+
+def test_amp_date_field_class_is_a_subclass_of_datefield():
+    """ Check AMPDateField is a subclass of forms.DateField """
+    assert issubclass(AMPDateField, forms.DateField)
+
+
+def test_amp_date_field_is_not_required():
+    """ Check AMPDateField defaults to not being required """
+    field: AMPDateField = AMPDateField(label="Label text")
+    assert not field.required
+
+
+def test_amp_date_field_widget():
+    """ Check AMPDateField uses widget AMPDateWidget """
+    field: AMPDateField = AMPDateField(label="Label text")
+    assert type(field.widget) == AMPDateWidget
+
+
+def test_amp_date_field_widget_attrs():
+    """ Check AMPDateField widget has no default attrs """
+    field: AMPDateField = AMPDateField(label="Label text")
+    assert field.widget.attrs == {}
+
+
+def test_amp_date_range_form_valid_dates():
+    """ Tests if form.is_valid() is true for valid dates """
+    form: AMPDateRangeForm = AMPDateRangeForm(
+        data={
+            "start_date_0": "1",
+            "start_date_1": "1",
+            "start_date_2": "1900",
+            "end_date_0": "1",
+            "end_date_1": "1",
+            "end_date_2": "2100",
+        }
+    )
+    assert form.is_valid()
+
+
+def test_amp_date_range_form_fails_invalid_start_date():
+    """ Tests if form.is_valid() is false if start date is invalid """
+    form: AMPDateRangeForm = AMPDateRangeForm(
+        data={
+            "start_date_0": "31",
+            "start_date_1": "2",
+            "start_date_2": "1900",
+            "end_date_0": "1",
+            "end_date_1": "1",
+            "end_date_2": "2100",
+        }
+    )
+    assert not form.is_valid()
+
+
+def test_amp_date_range_form_fails_invalid_end_date_year():
+    """ Tests if form.is_valid() is false if end date is invalid """
+    form: AMPDateRangeForm = AMPDateRangeForm(
+        data={
+            "start_date_0": "1",
+            "start_date_1": "1",
+            "start_date_2": "1900",
+            "end_date_0": "31",
+            "end_date_1": "2",
+            "end_date_2": "2100",
+        }
+    )
+    assert not form.is_valid()

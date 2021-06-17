@@ -17,7 +17,7 @@ class CustomUserCreationForm(UserCreationForm):
     email: forms.CharField = forms.CharField(
         required=True,
         max_length=150,
-        help_text="""You'll need this email address to sign in to your account""",
+        help_text="You'll need this email address to sign in to your account",
     )
 
     email_confirm: forms.CharField = forms.CharField(
