@@ -117,15 +117,19 @@ class CaseListView(ListView):
         if self.form.errors:
             return Case.objects.none()
 
-        filters: Dict[str, Any] = build_filters(
-            cleaned_data=self.form.cleaned_data,
-            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
-        )
-        filters["is_archived"] = False
+        filters: Dict = {}
+        sort_by: str = DEFAULT_SORT
 
-        sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
-        if not sort_by:
-            sort_by = DEFAULT_SORT
+        if hasattr(self.form, "cleaned_data"):
+            filters: Dict[str, Any] = build_filters(
+                cleaned_data=self.form.cleaned_data,
+                field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+            )
+            sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
+            if not sort_by:
+                sort_by: str = DEFAULT_SORT
+
+        filters["is_archived"] = False
 
         return Case.objects.filter(**filters).order_by(sort_by)
 

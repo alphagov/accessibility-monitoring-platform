@@ -8,6 +8,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 
+from ..forms import CaseSearchForm
 from ..models import Case, Contact
 from ..views import CaseListView
 
@@ -58,35 +59,3 @@ def test_case_list_view(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
     assert response.status_code == 200
     assert b'<h1 class="govuk-heading-xl">Cases and reports</h1>' in response.content
-
-
-@pytest.mark.parametrize(
-    "url_param,sql_clause",
-    [
-        ("case_number=42", '"cases_case"."id" = 42'),
-        ("domain=domain+name", "domain name"),
-        ("organisation=Organisation+Name", "Organisation Name"),
-        ("auditor=1", '"cases_case"."auditor_id" = 1'),
-        ("status=new-case", "new-case"),
-        (
-            "start_date_0=1&start_date_1=1&start_date_2=1800",
-            ">= 1800-01-01 00:00:00",
-        ),
-        (
-            "end_date_0=1&end_date_1=1&end_date_2=2200",
-            "<= 2200-01-01 00:00:00",
-        ),
-    ],
-)
-@pytest.mark.django_db
-def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
-    """ Test that filters in the url parameters are applied in the sql """
-    if url_param == "auditor=1":
-        User.objects.create(pk=1)
-    request: HttpRequest = rf.get(f"{reverse('cases:case-list')}?{url_param}")
-    view: CaseListView = CaseListView()
-    view.request = request
-
-    queryset: QuerySet = view.get_queryset()
-
-    assert sql_clause in str(queryset.query)
