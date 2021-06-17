@@ -4,9 +4,8 @@ Views for dashboard.
 Home should be the only view for dashboard.
 """
 from datetime import date
-from django.shortcuts import render
 from ..cases.models import Case
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (
@@ -16,13 +15,13 @@ from django.http import (
 from typing import Any
 import datetime
 from django.db.models import Q
+from django.db.models import Count
 
 
 def sort_cases(query_set, status=None):
     if status == "new_case":
         return query_set.filter(
             Q(auditor__isnull=True) | Q(contact__case__isnull=True),
-            report_sent_date__isnull=True,
             is_case_completed=False,
             is_archived=False,
             is_public_sector_body=True
@@ -30,7 +29,8 @@ def sort_cases(query_set, status=None):
 
     if status == "test_in_progress":
         return query_set.filter(
-            Q(test_status="in-progress") | Q(test_status="not-started"),
+            # Q(test_status="in-progress") | Q(test_status="not-started"),
+            test_status="not-started",
             auditor__isnull=False,
             contact__case__isnull=False,
             report_sent_date__isnull=True,
@@ -58,8 +58,8 @@ def sort_cases(query_set, status=None):
         return query_set.filter(
             report_sent_date__isnull=False,
             report_acknowledged_date__isnull=True,
-            week_12_followup_date__isnull=True,
-            compliance_email_sent_date__isnull=True,
+            # week_12_followup_date__isnull=True,
+            # compliance_email_sent_date__isnull=True,
             is_case_completed=False,
             is_archived=False,
             is_public_sector_body=True
@@ -83,10 +83,9 @@ def sort_cases(query_set, status=None):
         )
 
     if status == "recently_completed":
-        date = datetime.datetime.now() - datetime.timedelta(30)
         return query_set.filter(
             is_case_completed=True,
-            completed__gte=date,
+            completed__gte=datetime.datetime.now() - datetime.timedelta(30),
             is_archived=False,
             is_public_sector_body=True
         )
@@ -100,11 +99,6 @@ def sort_cases(query_set, status=None):
         )
 
     return None
-
-
-# @property
-# def is_past_due(self):
-#     return date.today() > self.date
 
 
 @login_required

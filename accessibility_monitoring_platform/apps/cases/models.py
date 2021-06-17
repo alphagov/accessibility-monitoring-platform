@@ -1,6 +1,7 @@
 """
 Models - cases
 """
+from datetime import datetime, date
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
@@ -185,6 +186,109 @@ class Case(models.Model):
         if self.is_case_completed and not self.completed:
             self.completed = now
         super().save(*args, **kwargs)
+
+    @property
+    def new_case_progress(self):
+        to_check = [
+            "auditor",
+            "test_type",
+            "home_page_url",
+            "organisation_name",
+            "website_type",
+            "region",
+            "case_origin",
+        ]
+        percentage_increase = round(100 / (len(to_check) + 2) )
+        progress = 0
+        for field in to_check:
+            if getattr(self, field):
+                progress += percentage_increase
+
+        if self.region.values_list("name", flat=True).exists():
+            progress += percentage_increase
+
+        if Contact.objects.filter(case_id=self.id).exists():
+            progress += percentage_increase
+
+        return str(progress) + "%"
+
+    @property
+    def test_progress(self):
+        to_check = [
+            "test_results_url",
+        ]
+        percentage_increase = round(100 / (len(to_check) + 1) )
+        progress = 0
+        for field in to_check:
+            if getattr(self, field):
+                progress += percentage_increase
+        if self.test_status == "complete":
+            progress += percentage_increase
+        return str(progress) + "%"
+
+    @property
+    def report_progress(self):
+        if (
+            self.report_review_status == "ready-to-review"
+            and self.reviewer
+            and self.report_approved_status == "no"
+        ):
+            return "Being reviewed"
+
+        if (
+            self.report_review_status == "ready-to-review"
+            and self.reviewer
+            and self.report_approved_status == "yes"
+        ):
+            return "Ready to be sent"
+
+        to_check = [
+            "report_draft_url",
+            "reviewer",
+            "report_final_url",
+            "report_sent_date",
+            "report_acknowledged_date",
+        ]
+        percentage_increase = round(100 / (len(to_check) + 2) )
+        progress = 0
+        for field in to_check:
+            if getattr(self, field):
+                progress += percentage_increase
+
+        if self.report_review_status == "ready-to-review":
+            progress += percentage_increase
+
+        if self.report_approved_status == "yes":
+            progress += percentage_increase
+
+        return str(progress) + "%"
+
+
+    @property
+    def twelve_week_progress(self):
+        if (self.week_12_followup_email_sent_date == None):
+            return "Follow up email not sent"
+
+        if (
+            self.week_12_followup_email_sent_date
+            and self.week_12_followup_email_acknowledgement_date == None
+        ):
+            now = date.today()
+            return "No response - {} days".format((now - self.week_12_followup_email_sent_date).days)
+
+        to_check = [
+            "week_12_followup_date",
+            "week_12_followup_email_sent_date",
+            "week_12_followup_email_acknowledgement_date",
+            "compliance_email_sent_date"
+        ]
+        percentage_increase = round(100 / (len(to_check)) )
+        progress = 0
+        for field in to_check:
+            if getattr(self, field):
+                progress += percentage_increase
+
+        return str(progress) + "%"
 
 
 class Contact(models.Model):
