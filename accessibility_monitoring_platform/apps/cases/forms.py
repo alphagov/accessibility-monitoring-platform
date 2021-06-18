@@ -12,6 +12,7 @@ from ..common.forms import (
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
+    AMPIntegerField,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
@@ -51,7 +52,7 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    case_number = AMPCharField(label="Case number")
+    case_number = AMPIntegerField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
     auditor = AMPUserModelChoiceField(label="Auditor")
