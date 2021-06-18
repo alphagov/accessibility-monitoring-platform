@@ -12,19 +12,9 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ..models import Case, Contact
+from ..views import CASE_FIELDS_TO_EXPORT
 
-
-@pytest.mark.django_db
-def test_case_detail_view(admin_client):
-    """ Test that the case detail view page loads """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-    assertContains(response, f'<h1 class="govuk-heading-xl">View case #{case.id}</h1>')
+CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 
 
 @pytest.mark.django_db
@@ -51,15 +41,6 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
     assert set(response.context["contacts"]) == set([unarchived_contact])
     assertContains(response, "Unarchived Contact")
     assertNotContains(response, "Archived Contact")
-
-
-@pytest.mark.django_db
-def test_case_list_view(admin_client):
-    """ Test that the case list view page loads """
-    response: HttpResponse = admin_client.get(reverse("cases:case-list"))
-
-    assert response.status_code == 200
-    assertContains(response, '<h1 class="govuk-heading-xl">Cases and reports</h1>')
 
 
 @pytest.mark.django_db
@@ -169,3 +150,132 @@ def test_case_list_view_date_range_filters(admin_client):
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
+
+
+@pytest.mark.django_db
+def test_case_export_list_view(admin_client):
+    """ Test that the case export list view returns csv data """
+    response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
+
+    assert response.status_code == 200
+    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+
+
+@pytest.mark.django_db
+def test_case_export_single_view(admin_client):
+    """ Test that the case export single view returns csv data """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-export-single", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+
+
+@pytest.mark.django_db
+def test_archive_case_view(admin_client):
+    """ Test that archive case view archives case """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(reverse("cases:archive-case", kwargs={"pk": case.id}))
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-list")
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.is_archived
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("cases:case-list", '<h1 class="govuk-heading-xl">Cases and reports</h1>'),
+        ("cases:case-export-list", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
+    ],
+)
+@pytest.mark.django_db
+def test_non_case_specific_page_loads(path_name, expected_content, admin_client):
+    """ Test that the non-case-specific view page loads """
+    response: HttpResponse = admin_client.get(reverse(path_name))
+
+    assert response.status_code == 200
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-detail", '<h1 class="govuk-heading-xl">View case #'),
+        ("cases:edit-website-details", "<li>Website details</li>"),
+        ("cases:edit-contact-details", "<li>Contact details</li>"),
+        ("cases:edit-test-results", "<li>Testing details</li>"),
+        ("cases:edit-report-details", "<li>Report details</li>"),
+        ("cases:edit-post-report-details", "<li>Post report</li>"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_specific_page_loads(path_name, expected_content, admin_client):
+    """ Test that the case-specific view page loads """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))
+
+    assert response.status_code == 200
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "button_name, expected_redirect_path",
+    [
+        ("save_continue", "cases:edit-contact-details"),
+        ("save_exit", "cases:case-detail"),
+    ],
+)
+@pytest.mark.django_db
+def test_create_case_redirects_based_on_button_pressed(button_name, expected_redirect_path, admin_client):
+    """ Test that a successful case create redirects based on the button pressed """
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": "https://domain.com",
+            button_name: "Button value",
+        }
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(expected_redirect_path, kwargs={"pk": 1})
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, button_name, expected_redirect_path",
+    [
+        ("cases:edit-website-details", "save_continue", "cases:edit-contact-details"),
+        ("cases:edit-website-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-contact-details", "save_continue", "cases:edit-test-results"),
+        ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
+        ("cases:edit-test-results", "save_exit", "cases:case-detail"),
+        ("cases:edit-report-details", "save_continue", "cases:edit-post-report-details"),
+        ("cases:edit-report-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_edit_redirects_based_on_button_pressed(case_edit_path, button_name, expected_redirect_path, admin_client):
+    """ Test that a successful case update redirects based on the button pressed """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),
+        {
+            "home_page_url": "https://domain.com",
+            button_name: "Button value",
+        }
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})

@@ -63,7 +63,10 @@ def test_response_code_is_200():
 def test_response_headers_contains_filename():
     """ Tests that the response headers contains the requested file name """
     response: HttpResponse = get_csv_response()
-    assert response.headers["Content-Disposition"] == f"attachment; filename={CSV_FILENAME}"
+    assert (
+        response.headers["Content-Disposition"]
+        == f"attachment; filename={CSV_FILENAME}"
+    )
 
 
 def test_csv_header_is_as_expected():
@@ -80,7 +83,9 @@ def test_csv_body_is_as_expected():
 
 def test_extract_domain_from_url_https():
     """ Tests that the domain is extracted from a url with https protocol """
-    assert extract_domain_from_url(url="https://example.com/index.html") == "example.com"
+    assert (
+        extract_domain_from_url(url="https://example.com/index.html") == "example.com"
+    )
 
 
 def test_extract_domain_from_url_http():

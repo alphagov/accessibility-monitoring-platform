@@ -16,16 +16,19 @@ DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC
 
 class AMPRadioSelectWidget(forms.RadioSelect):
     """ Widget for GDS design system radio button fields """
+
     template_name = "common/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
     """ Widget for GDS design system checkbox fields """
+
     template_name = "common/amp_checkbox_widget_template.html"
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
     """ Widget for GDS design system multi-select checkboxes fields """
+
     template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 

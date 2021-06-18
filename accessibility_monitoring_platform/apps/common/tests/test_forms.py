@@ -114,13 +114,16 @@ def test_amp_char_field_max_length():
 def test_amp_char_field_widget():
     """ Check AMPCharField uses widget forms.TextInput """
     field: AMPCharField = AMPCharField(label="Label text")
-    assert type(field.widget) == forms.TextInput
+    assert isinstance(field.widget, forms.TextInput)
 
 
 def test_amp_char_field_widget_attrs():
     """ Check AMPCharField widget attr defaults """
     field: AMPCharField = AMPCharField(label="Label text")
-    assert field.widget.attrs == {"class": "govuk-input govuk-input--width-10", "maxlength": "100"}
+    assert field.widget.attrs == {
+        "class": "govuk-input govuk-input--width-10",
+        "maxlength": "100",
+    }
 
 
 def test_amp_char_field_wide_class_is_a_subclass_of_charfield():
@@ -160,7 +163,7 @@ def test_amp_text_field_is_not_required():
 def test_amp_text_field_widget():
     """ Check AMPTextField uses widget forms.Textarea """
     field: AMPTextField = AMPTextField(label="Label text")
-    assert type(field.widget) == forms.Textarea
+    assert isinstance(field.widget, forms.Textarea)
 
 
 def test_amp_text_field_widget_attrs():
@@ -183,7 +186,7 @@ def test_amp_choice_field_is_not_required():
 def test_amp_choice_field_widget():
     """ Check AMPChoiceField uses widget forms.Select """
     field: AMPChoiceField = AMPChoiceField(label="Label text")
-    assert type(field.widget) == forms.Select
+    assert isinstance(field.widget, forms.Select)
 
 
 def test_amp_choice_field_widget_attrs():
@@ -206,7 +209,7 @@ def test_amp_boolean_field_is_not_required():
 def test_amp_boolean_field_widget():
     """ Check AMPBooleanField uses widget AMPCheckboxWidget """
     field: AMPBooleanField = AMPBooleanField(label="Label text")
-    assert type(field.widget) == AMPCheckboxWidget
+    assert isinstance(field.widget, AMPCheckboxWidget)
 
 
 def test_amp_date_field_class_is_a_subclass_of_datefield():
@@ -223,7 +226,7 @@ def test_amp_date_field_is_not_required():
 def test_amp_date_field_widget():
     """ Check AMPDateField uses widget AMPDateWidget """
     field: AMPDateField = AMPDateField(label="Label text")
-    assert type(field.widget) == AMPDateWidget
+    assert isinstance(field.widget, AMPDateWidget)
 
 
 def test_amp_date_field_widget_attrs():
