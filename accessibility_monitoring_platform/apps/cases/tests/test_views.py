@@ -5,6 +5,8 @@ from datetime import datetime
 import pytest
 import pytz
 
+from pytest_django.asserts import assertContains, assertNotContains
+
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
@@ -16,14 +18,13 @@ from ..models import Case, Contact
 def test_case_detail_view(admin_client):
     """ Test that the case detail view page loads """
     case: Case = Case.objects.create()
+
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id})
     )
+
     assert response.status_code == 200
-    assert (
-        bytes(f'<h1 class="govuk-heading-xl">View case #{case.id}</h1>', "utf-8")
-        in response.content
-    )
+    assertContains(response, f'<h1 class="govuk-heading-xl">View case #{case.id}</h1>')
 
 
 @pytest.mark.django_db
@@ -48,16 +49,17 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([unarchived_contact])
-    assert b"Unarchived Contact" in response.content
-    assert b"Archived Contact" not in response.content
+    assertContains(response, "Unarchived Contact")
+    assertNotContains(response, "Archived Contact")
 
 
 @pytest.mark.django_db
 def test_case_list_view(admin_client):
     """ Test that the case list view page loads """
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
+
     assert response.status_code == 200
-    assert b'<h1 class="govuk-heading-xl">Cases and reports</h1>' in response.content
+    assertContains(response, '<h1 class="govuk-heading-xl">Cases and reports</h1>')
 
 
 @pytest.mark.django_db
@@ -65,11 +67,13 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
     """ Test that the case list view page does not include archived cases """
     Case.objects.create(organisation_name="Not Archived")
     Case.objects.create(organisation_name="Is Archived", is_archived=True)
+
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
+
     assert response.status_code == 200
-    assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b"Not Archived" in response.content
-    assert b"Is Archived" not in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Not Archived")
+    assertNotContains(response, "Is Archived")
 
 
 @pytest.mark.django_db
@@ -77,13 +81,15 @@ def test_case_list_view_filters_by_case_number(admin_client):
     """ Test that the case list view page can be filtered by case number """
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
+
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?case_number={included_case.id}"
     )
+
     assert response.status_code == 200
-    assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b"Included" in response.content
-    assert b"Excluded" not in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 @pytest.mark.parametrize(
@@ -110,9 +116,9 @@ def test_case_list_view_string_filters(
     )
 
     assert response.status_code == 200
-    assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b"Included" in response.content
-    assert b"Excluded" not in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 @pytest.mark.parametrize(
@@ -137,9 +143,9 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     )
 
     assert response.status_code == 200
-    assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b"Included" in response.content
-    assert b"Excluded" not in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 @pytest.mark.django_db
@@ -160,6 +166,6 @@ def test_case_list_view_date_range_filters(admin_client):
     )
 
     assert response.status_code == 200
-    assert b'<h2 class="govuk-heading-m">1 cases found</h2>' in response.content
-    assert b"Included" in response.content
-    assert b"Excluded" not in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
