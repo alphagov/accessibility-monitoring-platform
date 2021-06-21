@@ -15,26 +15,6 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
-                <div class="govuk-button-group">
-                    <a
-                        href="{% url 'cases:case-create' %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Create case
-                    </a>
-                    <a
-                        href="{% url 'cases:case-export-list' %}{% if parameters %}?{{ parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Export to CSV
-                    </a>
-                </div>
                 {% include "cases/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
@@ -77,61 +57,89 @@
                 </table>
                 {% include "cases/pagination_controls.html" %}
             </div>
-            <div class="govuk-grid-column-one-third cases-search-background">
-                <form method="get" action="{% url 'cases:case-list' %}">
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{form.sort_by.label}}</b></label>
-                            {{form.sort_by}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.case_number.auto_id }}"><b>{{form.case_number.label}}</b></label>
-                            {{form.case_number}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.domain.auto_id }}"><b>{{form.domain.label}}</b></label>
-                            {{form.domain}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.organisation.auto_id }}"><b>{{form.organisation.label}}</b></label>
-                            {{form.organisation}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
-                            {{form.auditor}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.reviewer.auto_id }}"><b>{{form.reviewer.label}}</b></label>
-                            {{form.reviewer}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
-                            {{form.status}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <h3 class="govuk-heading-s cases-sub-heading">Date created filter</h3>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}">{{form.start_date.label}}</label>
-                            {{form.start_date}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}">{{form.end_date.label}}</label>
-                            {{form.end_date}}
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <div class="govuk-button-group">
+                            <a
+                                href="{% url 'cases:case-create' %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            >
+                                Create case
+                            </a>
+                            <a
+                                href="{% url 'cases:case-export-list' %}{% if parameters %}?{{ parameters }}{% endif %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            >
+                                Export to CSV
+                            </a>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <input
-                            type="submit"
-                            value="Search"
-                            class="govuk-button"
-                            data-module="govuk-button"
-                        />
+                </div>
+                <div class="govuk-grid-row cases-search-background">
+                    <div class="govuk-grid-column-full">
+                        <form method="get" action="{% url 'cases:case-list' %}">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{form.sort_by.label}}</b></label>
+                                    {{form.sort_by}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.case_number.auto_id }}"><b>{{form.case_number.label}}</b></label>
+                                    {{form.case_number}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.domain.auto_id }}"><b>{{form.domain.label}}</b></label>
+                                    {{form.domain}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.organisation.auto_id }}"><b>{{form.organisation.label}}</b></label>
+                                    {{form.organisation}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
+                                    {{form.auditor}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.reviewer.auto_id }}"><b>{{form.reviewer.label}}</b></label>
+                                    {{form.reviewer}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
+                                    {{form.status}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <h3 class="govuk-heading-s cases-sub-heading">Date created filter</h3>
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.status.auto_id }}">{{form.start_date.label}}</label>
+                                    {{form.start_date}}
+                                </div>
+                                <div class="govuk-grid-column-full govuk-form-group">
+                                    <label class="govuk-label" for="{{ form.status.auto_id }}">{{form.end_date.label}}</label>
+                                    {{form.end_date}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input
+                                    type="submit"
+                                    value="Search"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </main>
