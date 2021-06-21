@@ -50,7 +50,8 @@ def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> In
     ]
     object_id: IntOrNone = None
     if len(key_names) == 1:
-        object_id = int(key_names[0].replace(button_name_prefix, ""))
+        id_string: str = key_names[0].replace(button_name_prefix, "")
+        object_id: IntOrNone = int(id_string) if id_string.isdigit() else None
     return object_id
 
 
