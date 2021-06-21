@@ -2,13 +2,13 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Followup date</th>
-            <td class="govuk-table__cell">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Followup date</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Summary of progress made from public sector body</h3>
-                {% if case.psb_progress_notes %}<pre class="govuk-body-m">{{ case.psb_progress_notes }}</pre>{% endif %}
+                {% if case.psb_progress_notes %}<p class="govuk-body-m">{{ case.psb_progress_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>
@@ -31,7 +31,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Disproportionate burden notes</h3>
-                {% if case.disproportionate_notes %}<pre class="govuk-body-m">{{ case.disproportionate_notes }}</pre>{% endif %}
+                {% if case.disproportionate_notes %}<p class="govuk-body-m">{{ case.disproportionate_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>
@@ -42,7 +42,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Accessibility statement notes</h3>
-                {% if case.accessibility_statement_notes %}<pre class="govuk-body-m">{{ case.accessibility_statement_notes }}</pre>{% endif %}
+                {% if case.accessibility_statement_notes %}<p class="govuk-body-m">{{ case.accessibility_statement_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>
@@ -61,7 +61,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Compliance decision notes</h3>
-                {% if case.compliance_decision_notes %}<pre class="govuk-body-m">{{ case.compliance_decision_notes }}</pre>{% endif %}
+                {% if case.compliance_decision_notes %}<p class="govuk-body-m">{{ case.compliance_decision_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>

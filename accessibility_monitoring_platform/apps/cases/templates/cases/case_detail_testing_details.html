@@ -2,8 +2,8 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Link to test spreadsheet</th>
-            <td class="govuk-table__cell">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Link to test spreadsheet</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">
                 {% if case.test_results_url %}
                     <a href="{{ case.test_results_url }}" >Monitor document</a>
                 {% endif %}
@@ -20,7 +20,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Compliance notes</h3>
-                {% if case.test_notes %}<pre class="govuk-body-m">{{ case.test_notes }}</pre>{% endif %}
+                {% if case.test_notes %}<p class="govuk-body-m">{{ case.test_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>

@@ -2,8 +2,8 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Date created</th>
-            <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Date created</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds govuk-!-width-two-thirds">{{ case.created|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Status</th>
@@ -74,7 +74,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
-                {% if case.notes %}<pre class="govuk-body-m">{{ case.notes }}</pre>{% endif %}
+                {% if case.notes %}<p class="govuk-body-m">{{ case.notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>
