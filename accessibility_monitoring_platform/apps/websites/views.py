@@ -46,9 +46,9 @@ class WebsiteListView(ListView):
     View of list of cases
     """
 
-    model = WebsiteRegister
-    context_object_name = "websites"
-    paginate_by = 25
+    model: WebsiteRegister = WebsiteRegister
+    context_object_name: str = "websites"
+    paginate_by: int = 25
 
     def get(self, request, *args, **kwargs):
         """ Populate filter form """

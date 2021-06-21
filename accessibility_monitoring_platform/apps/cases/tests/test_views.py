@@ -179,7 +179,9 @@ def test_archive_case_view(admin_client):
     """ Test that archive case view archives case """
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(reverse("cases:archive-case", kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse("cases:archive-case", kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 302
     assert response.url == reverse("cases:case-list")
@@ -223,7 +225,9 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """ Test that the case-specific view page loads """
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
     assertContains(response, expected_content)
@@ -237,14 +241,16 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     ],
 )
 @pytest.mark.django_db
-def test_create_case_redirects_based_on_button_pressed(button_name, expected_redirect_path, admin_client):
+def test_create_case_redirects_based_on_button_pressed(
+    button_name, expected_redirect_path, admin_client
+):
     """ Test that a successful case create redirects based on the button pressed """
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
         {
             "home_page_url": "https://domain.com",
             button_name: "Button value",
-        }
+        },
     )
 
     assert response.status_code == 302
@@ -260,13 +266,19 @@ def test_create_case_redirects_based_on_button_pressed(button_name, expected_red
         ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-test-results", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-details", "save_continue", "cases:edit-post-report-details"),
+        (
+            "cases:edit-report-details",
+            "save_continue",
+            "cases:edit-post-report-details",
+        ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
         ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
     ],
 )
 @pytest.mark.django_db
-def test_case_edit_redirects_based_on_button_pressed(case_edit_path, button_name, expected_redirect_path, admin_client):
+def test_case_edit_redirects_based_on_button_pressed(
+    case_edit_path, button_name, expected_redirect_path, admin_client
+):
     """ Test that a successful case update redirects based on the button pressed """
     case: Case = Case.objects.create()
 
@@ -275,7 +287,7 @@ def test_case_edit_redirects_based_on_button_pressed(case_edit_path, button_name
         {
             "home_page_url": "https://domain.com",
             button_name: "Button value",
-        }
+        },
     )
     assert response.status_code == 302
     assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})

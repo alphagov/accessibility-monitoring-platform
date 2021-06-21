@@ -92,8 +92,8 @@ class CaseDetailView(DetailView):
     View of details of a single case
     """
 
-    model = Case
-    context_object_name = "case"
+    model: Case = Case
+    context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """ Add unarchived contacts to context """
@@ -107,9 +107,9 @@ class CaseListView(ListView):
     View of list of cases
     """
 
-    model = Case
-    context_object_name = "cases"
-    paginate_by = 10
+    model: Case = Case
+    context_object_name: str = "cases"
+    paginate_by: int = 10
 
     def get(self, request, *args, **kwargs):
         """ Populate filter form """
@@ -159,10 +159,10 @@ class CaseCreateView(CreateView):
     View to create a case
     """
 
-    model = Case
-    form_class = CaseCreateForm
-    context_object_name = "case"
-    template_name_suffix = "_create_form"
+    model: Case = Case
+    form_class: CaseCreateForm = CaseCreateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_create_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -180,10 +180,10 @@ class CaseWebsiteDetailUpdateView(UpdateView):
     View to update case details
     """
 
-    model = Case
-    form_class = CaseWebsiteDetailUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_website_details_update_form"
+    model: Case = Case
+    form_class: CaseWebsiteDetailUpdateForm = CaseWebsiteDetailUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_website_details_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -201,10 +201,10 @@ class CaseContactFormsetUpdateView(UpdateView):
     View to update case contacts
     """
 
-    model = Case
-    fields = []
-    context_object_name = "case"
-    template_name_suffix = "_contact_formset"
+    model: Case = Case
+    fields: List[str] = []
+    context_object_name: str = "case"
+    template_name_suffix: str = "_contact_formset"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """ Get context data for template rendering """
@@ -267,10 +267,10 @@ class CaseTestResultsUpdateView(UpdateView):
     View to update case test results
     """
 
-    model = Case
-    form_class = CaseTestResultsUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_test_results_update_form"
+    model: Case = Case
+    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_test_results_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -288,10 +288,10 @@ class CaseReportDetailsUpdateView(UpdateView):
     View to update case report details
     """
 
-    model = Case
-    form_class = CaseReportDetailsUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_report_details_update_form"
+    model: Case = Case
+    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_report_details_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -309,10 +309,10 @@ class CasePostReportDetailsUpdateView(UpdateView):
     View to update case post report details
     """
 
-    model = Case
-    form_class = CasePostReportUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_post_report_details_update_form"
+    model: Case = Case
+    form_class: CasePostReportUpdateForm = CasePostReportUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_post_report_details_update_form"
 
     def get_success_url(self) -> str:
         """ Work out url to redirect to on success """
@@ -371,7 +371,7 @@ def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case = get_object_or_404(Case, pk=pk)
+    case: Case = get_object_or_404(Case, pk=pk)
     case.is_archived = True
     case.save()
     return redirect(reverse_lazy("cases:case-list"))
