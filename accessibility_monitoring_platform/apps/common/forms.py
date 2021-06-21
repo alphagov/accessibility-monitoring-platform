@@ -151,6 +151,31 @@ class AMPUserModelChoiceField(forms.ModelChoiceField):
         return user.get_full_name()
 
 
+class AMPUserOrNoneChoiceField(forms.ChoiceField):
+    """
+    Adds default widget to Django forms ChoiceField
+
+    Uses user's full name as label
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        choices = [
+            ("", "-----"),
+            ("none", "Unassigned"),
+        ]
+        for user in User.objects.all().order_by("first_name", "last_name"):
+            choices.append((user.id, user.get_full_name()))
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.Select(attrs={"class": "govuk-select"}),
+        )
+        kwargs.setdefault(
+            "choices", choices
+        )
+        super().__init__(*args, **kwargs)
+
+
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """ Adds default widget to Django forms ModelMultipleChoiceField """
 

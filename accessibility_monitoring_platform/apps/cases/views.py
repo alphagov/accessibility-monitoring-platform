@@ -112,6 +112,12 @@ class CaseListView(ListView):
             cleaned_data=form.cleaned_data,
             field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
         )
+
+        if "auditor_id" in filters and filters["auditor_id"] == "none":
+            filters["auditor_id"] = None
+        if "reviewer_id" in filters and filters["reviewer_id"] == "none":
+            filters["reviewer_id"] = None
+
         filters["is_archived"] = False
 
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)

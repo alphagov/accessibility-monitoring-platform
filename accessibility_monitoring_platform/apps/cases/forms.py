@@ -10,6 +10,7 @@ from ..common.forms import (
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
     AMPUserModelChoiceField,
+    AMPUserOrNoneChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
@@ -53,8 +54,8 @@ class CaseSearchForm(AMPDateRangeForm):
     case_number = AMPCharField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
-    auditor = AMPUserModelChoiceField(label="Auditor")
-    reviewer = AMPUserModelChoiceField(label="QA Auditor")
+    auditor = AMPUserOrNoneChoiceField(label="Auditor")
+    reviewer = AMPUserOrNoneChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
 
 
