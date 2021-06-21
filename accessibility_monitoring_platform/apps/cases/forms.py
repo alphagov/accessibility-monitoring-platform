@@ -92,20 +92,8 @@ class CaseCreateForm(forms.ModelForm):
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
-    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
     trello_url = AMPCharFieldWide(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
-    is_public_sector_body = AMPBooleanField(
-        label="Public sector body?",
-        help_text="If you later find out the organisation is not a public sector body,"
-        " unmark the checkbox, then save and exit to unlist the case.",
-        widget=AMPCheckboxWidget(
-            attrs={
-                "label": "Untick this box to unlist the case",
-            }
-        ),
-        initial=True,
-    )
 
     class Meta:
         model = Case
@@ -119,10 +107,8 @@ class CaseCreateForm(forms.ModelForm):
             "sector",
             "region",
             "case_origin",
-            "zendesk_url",
             "trello_url",
             "notes",
-            "is_public_sector_body",
         ]
 
     def clean_home_page_url(self):
@@ -138,6 +124,18 @@ class CaseWebsiteDetailUpdateForm(CaseCreateForm):
     """
 
     domain = AMPCharFieldWide(label="Domain")
+    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
+    is_public_sector_body = AMPBooleanField(
+        label="Public sector body?",
+        help_text="If you later find out the organisation is not a public sector body,"
+        " unmark the checkbox, then save and exit to unlist the case.",
+        widget=AMPCheckboxWidget(
+            attrs={
+                "label": "Untick this box to unlist the case",
+            }
+        ),
+        initial=True,
+    )
 
     class Meta:
         model = Case
