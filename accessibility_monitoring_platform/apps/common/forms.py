@@ -159,20 +159,12 @@ class AMPUserOrNoneChoiceField(forms.ChoiceField):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        choices = [
-            ("", "-----"),
-            ("none", "Unassigned"),
-        ]
-        for user in User.objects.all().order_by("first_name", "last_name"):
-            choices.append((user.id, user.get_full_name()))
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
             forms.Select(attrs={"class": "govuk-select"}),
         )
-        kwargs.setdefault(
-            "choices", choices
-        )
+        kwargs.setdefault("choices", [])
         super().__init__(*args, **kwargs)
 
 

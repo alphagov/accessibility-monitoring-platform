@@ -4,6 +4,7 @@ Forms - cases
 from typing import Any
 
 from django import forms
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
@@ -57,6 +58,19 @@ class CaseSearchForm(AMPDateRangeForm):
     auditor = AMPUserOrNoneChoiceField(label="Auditor")
     reviewer = AMPUserOrNoneChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        user_choices_with_none = [
+            ("", "-----"),
+            ("none", "Unassigned"),
+        ]
+        for user in User.objects.all().order_by("first_name", "last_name"):
+            user_choices_with_none.append((user.id, user.get_full_name()))
+
+        self.fields["auditor"].choices = user_choices_with_none
+        self.fields["reviewer"].choices = user_choices_with_none
 
 
 class CaseCreateForm(forms.ModelForm):
