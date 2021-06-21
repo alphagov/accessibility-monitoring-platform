@@ -165,7 +165,10 @@ class CaseContactUpdateForm(forms.ModelForm):
     first_name = AMPCharFieldWide(label="First name")
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
-    detail = AMPCharFieldWide(label="Detail")
+    detail = AMPCharFieldWide(
+        label="Detail",
+        help_text="E.g. email address or telephone number"
+    )
     preferred = AMPBooleanField(label="Preferred contact?")
     notes = AMPTextField(label="Notes")
 

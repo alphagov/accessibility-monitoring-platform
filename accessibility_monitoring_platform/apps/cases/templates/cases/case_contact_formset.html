@@ -14,13 +14,13 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
+                <form id="form-container" method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}
                     <div class="govuk-error-message">{{ contacts_formset.non_form_errors }}</div>
 
                     <table class="govuk-table">
-                        <tbody class="govuk-table__body">
+                        <tbody id="contact-formset" class="govuk-table__body">
                         {% for contact_form in contacts_formset %}
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">
@@ -57,17 +57,48 @@
                                 </td>
                             </tr>
                         {% endfor %}
+        <tr id="empty-contact-form" style="display:none" class="govuk-table__row">
+            <td class="govuk-table__cell">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <h2 class="govuk-heading-m">New Contact</h2>
+                        {% for hidden_field in contacts_formset.empty_form.hidden_fields %}
+                            {{ hidden_field }}
+                        {% endfor %}
+                    </div>
+
+                    {% for field in contacts_formset.empty_form.visible_fields %}
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            <label class="govuk-label"
+                                for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                            </label>
+                            <div class="govuk-error-message">{{ field.errors }}</div>
+                            <p class="govuk-body-m">{{ field.help_text }}</p>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <div class="govuk-grid-column-full">
+                        <input
+                            type="submit"
+                            value="Remove contact"
+                            name="remove_new_contact"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button" />
+                    </div>
+                </div>
+            </td>
+        </tr>
                         </tbody>
                     </table>
-                    <a
-                        href="{% url 'cases:edit-contact-details' case.id %}?add_extra=true"
+                    <button
+                        id="add-new-contact"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     >
-                        Add contact
-                    </a>
+                        Add new contact
+                    </button>
                     <div class="govuk-button-group">
                         <input
                             type="submit"
@@ -101,4 +132,28 @@
         </div>
     </main>
 </div>
+    <script>
+        let emptyContactForm = document.querySelector("#empty-contact-form");
+        let container = document.querySelector("#form-container");
+        let addButton = document.querySelector("#add-new-contact");
+        let totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+
+        let formNum = parseInt(document.querySelector("#id_form-TOTAL_FORMS").value);
+
+        addButton.addEventListener("click", addForm);
+
+        function addForm(e) {
+            e.preventDefault();
+
+            let newForm = emptyContactForm.cloneNode(true);
+            newForm.style.display = "table-row";
+            let formRegex = RegExp(`form-__prefix__-`,'g');
+
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`);
+            container.insertBefore(newForm, addButton);
+
+            formNum++;
+            totalForms.setAttribute('value', `${formNum}`);
+        }
+    </script>
 {% endblock %}
