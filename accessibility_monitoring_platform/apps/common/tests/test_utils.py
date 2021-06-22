@@ -5,11 +5,10 @@ import csv
 from datetime import date, datetime
 import io
 import pytz
-from typing import Any, List
+from typing import Any, Dict, List, Tuple
 
 from django.http import HttpResponse
 from django.http.request import QueryDict
-from django.test import TestCase
 
 from ..utils import (
     build_filters,
@@ -36,159 +35,131 @@ MOCK_QUERYSET: List[MockModel] = [
 CSV_FILENAME: str = "filename.csv"
 
 
-class DownloadAsCsvTests(TestCase):
-    """
-    Tests for download_as_csv
-
-    Methods
-    -------
-    setUp()
-        Sets up the test environment with a call to download_as_csv
-
-    test_response_code_is_200()
-        Tests whether the download function response has status code 200
-
-    test_csv_header_is_as_expected()
-        Tests that the csv header matches the list of fields
-
-    test_csv_body_is_as_expected()
-        Tests that the csv data matches that returned by the queryset
-    """
-
-    def setUp(self):
-        self.response: HttpResponse = download_as_csv(
-            queryset=MOCK_QUERYSET,
-            field_names=MOCK_MODEL_FIELDS,
-            filename=CSV_FILENAME,
-        )
-        content: str = self.response.content.decode("utf-8")
-        cvs_reader: Any = csv.reader(io.StringIO(content))
-        self.response_body: List[str] = list(cvs_reader)
-        self.response_header: str = self.response_body.pop(0)
-
-    def test_response_code_is_200(self):
-        """ Tests whether the download function response has status code 200 """
-        self.assertEqual(self.response.status_code, 200)
-
-    def test_response_headers_contains_filename(self):
-        """ Tests that the response headers contains the requested file name """
-        self.assertEqual(
-            self.response.headers["Content-Disposition"],
-            f"attachment; filename={CSV_FILENAME}",
-        )
-
-    def test_csv_header_is_as_expected(self):
-        """ Tests that the csv header matches the list of fields """
-        self.assertEqual(self.response_header, MOCK_MODEL_FIELDS)
-
-    def test_csv_body_is_as_expected(self):
-        """ Tests that the csv data matches that returned by the queryset """
-        self.assertEqual(self.response_body, MOCK_MODEL_DATA)
+def get_csv_response() -> HttpResponse:
+    """ Call download_as_csv and return response """
+    return download_as_csv(
+        queryset=MOCK_QUERYSET,
+        field_names=MOCK_MODEL_FIELDS,
+        filename=CSV_FILENAME,
+    )
 
 
-class ExtractDomainFromUrlTests(TestCase):
-    """
-    Tests for extract_domain_from_url
-
-    Methods
-    -------
-    test_extract_domain_from_url_https()
-        Tests that the domain is extracted from a url with https protocol
-
-    test_extract_domain_from_url_http()
-        Tests that the domain is extracted from a url with http protocol
-
-    test_extract_domain_from_url_no_protocol()
-        Tests that the domain is not extracted from a url with no protocol
-    """
-
-    def test_extract_domain_from_url_https(self):
-        """ Tests that the domain is extracted from a url with https protocol """
-        self.assertEqual(
-            extract_domain_from_url(url="https://example.com/index.html"), "example.com"
-        )
-
-    def test_extract_domain_from_url_http(self):
-        """ Tests that the domain is extracted from a url with http protocol """
-        self.assertEqual(
-            extract_domain_from_url(url="http://example.com"), "example.com"
-        )
-
-    def test_extract_domain_from_url_no_protocol(self):
-        """ Tests that the domain is not extracted from a url with no protocol """
-        self.assertEqual(extract_domain_from_url(url="example.com"), "")
+def get_csv_data_header_and_body() -> Tuple[List[str], List[List[str]]]:
+    """ Get the csv data and return the headers and body separately """
+    response: HttpResponse = get_csv_response()
+    content: str = response.content.decode("utf-8")
+    cvs_reader: Any = csv.reader(io.StringIO(content))
+    csv_body: List[List[str]] = list(cvs_reader)
+    csv_header: List[str] = csv_body.pop(0)
+    return csv_header, csv_body
 
 
-class GetIdFromButtonName(TestCase):
-    """
-    Tests for get_id_from_button_name
+def test_response_code_is_200():
+    """ Tests whether the download function response has status code 200 """
+    response: HttpResponse = get_csv_response()
+    assert response.status_code == 200
 
-    Methods
-    -------
-    test_get_id_from_button_name()
-        Tests that the id is extracted from a button name with known prefix
 
-    test_get_no_id_from_button_name_with_wrong_prefix()
-        Tests that no id is extracted from a button name with wrong prefix
-    """
+def test_response_headers_contains_filename():
+    """ Tests that the response headers contains the requested file name """
+    response: HttpResponse = get_csv_response()
+    assert (
+        response.headers["Content-Disposition"]
+        == f"attachment; filename={CSV_FILENAME}"
+    )
 
+
+def test_csv_header_is_as_expected():
+    """ Tests that the csv header matches the list of fields """
+    csv_header, _ = get_csv_data_header_and_body()
+    assert csv_header == MOCK_MODEL_FIELDS
+
+
+def test_csv_body_is_as_expected():
+    """ Tests that the csv data matches that returned by the queryset """
+    _, csv_body = get_csv_data_header_and_body()
+    assert csv_body == MOCK_MODEL_DATA
+
+
+def test_extract_domain_from_url_https():
+    """ Tests that the domain is extracted from a url with https protocol """
+    assert (
+        extract_domain_from_url(url="https://example.com/index.html") == "example.com"
+    )
+
+
+def test_extract_domain_from_url_http():
+    """ Tests that the domain is extracted from a url with http protocol """
+    assert extract_domain_from_url(url="http://example.com") == "example.com"
+
+
+def test_extract_domain_from_url_no_protocol():
+    """ Tests that the domain is not extracted from a url with no protocol """
+    assert extract_domain_from_url(url="example.com") == ""
+
+
+def test_get_id_from_button_name():
+    """ Tests that the id is extracted from a button name with known prefix """
     button_name_prefix: str = "prefix_"
-    button_id: int = 0
-
-    def test_get_id_from_button_name(self):
-        """ Tests that the id is extracted from a button name with known prefix """
-        button_name: str = f"{self.button_name_prefix}{self.button_id}"
-        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
-        self.assertEqual(
-            get_id_from_button_name(
-                button_name_prefix=self.button_name_prefix, post=querydict
-            ),
-            self.button_id,
+    button_id: int = 1
+    button_name: str = f"{button_name_prefix}{button_id}"
+    querydict: QueryDict = QueryDict(f"meh=val&{button_name}=1&a=2&c=3")
+    assert (
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
         )
+        == button_id
+    )
 
-    def test_get_no_id_from_button_name_with_wrong_prefix(self):
-        """ Tests that no id is extracted from a button name with wrong prefix """
-        button_name: str = f"wrong_prefix_{self.button_name_prefix}{self.button_id}"
-        querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
-        self.assertEqual(
-            get_id_from_button_name(
-                button_name_prefix=self.button_name_prefix, post=querydict
-            ),
-            None,
+
+def test_get_non_numeric_suffix_from_button_name():
+    """ Tests that the a non-integer button name suffix returns None """
+    button_name_prefix: str = "prefix_"
+    button_id: int = "not_a_number"
+    button_name: str = f"{button_name_prefix}{button_id}"
+    querydict: QueryDict = QueryDict(f"meh=val&{button_name}=1&a=2&c=3")
+    assert (
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
         )
+        == None
+    )
 
 
-class BuildFiltersTestCase(TestCase):
-    """
-    Tests for build_filters
-
-    Methods
-    -------
-    test_build_filters_from_field_values()
-        Tests that filter dictionary is build from field values
-    """
-
-    def test_build_filters_from_field_values(self):
-        """ Tests that filter dictionary is build from field values """
-        field_and_filter_names: List[Tuple[str, str]] = [
-            ("case_number", "id"),
-            ("domain", "domain__icontains"),
-        ]
-        fields_data: Dict[str, Any] = {
-            "case_number": "42",
-            "domain": "domain name",
-            "unused_field": "unused value",
-        }
-        expected_filters: Dict[str, str] = {
-            "id": "42",
-            "domain__icontains": "domain name",
-        }
-        self.assertEqual(
-            build_filters(
-                cleaned_data=fields_data, field_and_filter_names=field_and_filter_names
-            ),
-            expected_filters,
+def test_get_no_id_from_button_name_with_wrong_prefix():
+    """ Tests that no id is extracted from a button name with wrong prefix """
+    button_name_prefix: str = "prefix_"
+    button_name: str = f"wrong_prefix_{button_name_prefix}1"
+    querydict: QueryDict = QueryDict(f"{button_name}=1&a=2&c=3")
+    assert (
+        get_id_from_button_name(
+            button_name_prefix=button_name_prefix, querydict=querydict
         )
+        is None
+    )
+
+
+def test_build_filters_from_field_values():
+    """ Tests that filter dictionary is build from field values """
+    field_and_filter_names: List[Tuple[str, str]] = [
+        ("case_number", "id"),
+        ("domain", "domain__icontains"),
+    ]
+    fields_data: Dict[str, Any] = {
+        "case_number": "42",
+        "domain": "domain name",
+        "unused_field": "unused value",
+    }
+    expected_filters: Dict[str, str] = {
+        "id": "42",
+        "domain__icontains": "domain name",
+    }
+    assert (
+        build_filters(
+            cleaned_data=fields_data, field_and_filter_names=field_and_filter_names
+        )
+        == expected_filters
+    )
 
 
 def test_convert_date_to_datetime():

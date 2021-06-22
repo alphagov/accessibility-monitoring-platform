@@ -19,18 +19,26 @@ class AMPSelectWidget(forms.RadioSelect):
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
+    """ Widget for GDS design system radio button fields """
+
     template_name = "common/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
+    """ Widget for GDS design system checkbox fields """
+
     template_name = "common/amp_checkbox_widget_template.html"
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
+    """ Widget for GDS design system multi-select checkboxes fields """
+
     template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
 class AMPDateWidget(forms.MultiWidget):
+    """ Widget for GDS design system date fields """
+
     template_name = "common/amp_date_widget_template.html"
 
     def __init__(self, attrs=None) -> None:
@@ -56,9 +64,16 @@ class AMPDateWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value: Union[date, str]) -> List[Union[int, str, None]]:
+        """
+        Break date or hyphen-delimited string into into day, month and year integer values.
+
+        If no values are found then return three Nones.
+        """
         if isinstance(value, date):
             return [value.day, value.month, value.year]
-        elif isinstance(value, str) and value != "":
+        elif isinstance(value, str):
+            if value == "":
+                return [None, None, None]
             year, month, day = value.split("-")
             return [day, month, year]
         return [None, None, None]
@@ -66,49 +81,47 @@ class AMPDateWidget(forms.MultiWidget):
     def value_from_datadict(
         self, data: Dict[str, Any], files: Mapping[str, Iterable[Any]], name: str
     ) -> str:
+        """
+        Return day, month and year integer values and return as
+        hyphen-delimited string.
+
+        If no values are found return empty string.
+        """
         day, month, year = super().value_from_datadict(data, files, name)
+        if day is None and month is None and year is None:
+            return ""
         if day == "" and month == "" and year == "":
             return ""
         return "{}-{}-{}".format(year, month, day)
 
 
-class AMPUserModelChoiceField(forms.ModelChoiceField):
-    """
-    Adds default widget to Django forms ModelChoiceField
-
-    Uses user's full name as label
-    """
+class AMPIntegerField(forms.IntegerField):
+    """ Integer input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": AMPSelectWidget,
-            "required": False,
-            "queryset": User.objects.all(),
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
-
-    def label_from_instance(self, user):
-        return user.get_full_name()
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.NumberInput(attrs={"class": "govuk-input govuk-input--width-10"}),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPCharField(forms.CharField):
-    """ Adds default max_length and widget to Django forms CharField """
+    """ Character input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
         kwargs.setdefault("max_length", 100)
         kwargs.setdefault(
             "widget",
-            forms.TextInput(
-                attrs={"class": "govuk-input govuk-input--width-10"}
-            ),
+            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
         )
         super().__init__(*args, **kwargs)
 
 
 class AMPCharFieldWide(forms.CharField):
-    """ Adds default widget to Django forms CharField """
+    """ Full width character input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -120,7 +133,7 @@ class AMPCharFieldWide(forms.CharField):
 
 
 class AMPTextField(forms.CharField):
-    """ Adds default widget to Django forms TextField """
+    """ Textarea input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -132,7 +145,7 @@ class AMPTextField(forms.CharField):
 
 
 class AMPChoiceField(forms.ChoiceField):
-    """ Adds default widget to Django forms ChoiceField """
+    """ Choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -144,7 +157,7 @@ class AMPChoiceField(forms.ChoiceField):
 
 
 class AMPModelChoiceField(forms.ModelChoiceField):
-    """ Adds default widget to Django forms ModelChoiceField """
+    """ Model choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -155,28 +168,26 @@ class AMPModelChoiceField(forms.ModelChoiceField):
         super().__init__(*args, **kwargs)
 
 
-class AMPUserModelChoiceField(forms.ModelChoiceField):
+class AMPUserModelChoiceField(AMPModelChoiceField):
     """
-    Adds default widget to Django forms ModelChoiceField
+    Model choice input field in the style of GDS design system.
 
-    Uses user's full name as label
+    Uses User model. Uses user's full name as label.
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
         kwargs.setdefault(
-            "widget",
-            forms.Select(attrs={"class": "govuk-select"}),
+            "queryset", User.objects.all().order_by("first_name", "last_name")
         )
-        kwargs.setdefault("queryset", User.objects.all())
         super().__init__(*args, **kwargs)
 
     def label_from_instance(self, user):
+        """ Return full name from user """
         return user.get_full_name()
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """ Adds default widget to Django forms ModelMultipleChoiceField """
+    """ Model multi-choice input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -209,7 +220,7 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class AMPBooleanField(forms.BooleanField):
-    """ Adds default widget to Django forms BooleanField """
+    """ Checkbox input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -218,7 +229,7 @@ class AMPBooleanField(forms.BooleanField):
 
 
 class AMPDateField(forms.DateField):
-    """ Adds default widget to Django forms DateField """
+    """ Date input field in the style of GDS design system """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -237,18 +248,16 @@ class AMPDateRangeForm(forms.Form):
     )
     end_date = forms.DateField(label="End date", widget=AMPDateWidget(), required=False)
 
-    def clean(self) -> Dict[str, Any]:
-        cleaned_data: dict = super().clean()
-        if "start_date" in cleaned_data and cleaned_data["start_date"]:
-            cleaned_data["start_date"] = convert_date_to_datetime(
-                cleaned_data["start_date"]
-            )
-        if "start_date" not in cleaned_data or not cleaned_data["start_date"]:
-            cleaned_data["start_date"] = DEFAULT_START_DATE
-        if "end_date" in cleaned_data and cleaned_data["end_date"]:
-            cleaned_data["end_date"] = convert_date_to_datetime(
-                cleaned_data["end_date"]
-            )
-        if "end_date" not in cleaned_data or not cleaned_data["end_date"]:
-            cleaned_data["end_date"] = DEFAULT_END_DATE
-        return cleaned_data
+    def clean_start_date(self) -> datetime:
+        """ Returns default start date or converts entered date to datetime """
+        start_date = self.cleaned_data["start_date"]
+        if start_date:
+            return convert_date_to_datetime(start_date)
+        return DEFAULT_START_DATE
+
+    def clean_end_date(self) -> datetime:
+        """ Returns default end date or converts entered date to datetime """
+        end_date = self.cleaned_data["end_date"]
+        if end_date:
+            return convert_date_to_datetime(end_date)
+        return DEFAULT_END_DATE

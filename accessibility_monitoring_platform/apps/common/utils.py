@@ -7,11 +7,9 @@ from typing import (
     Any,
     Dict,
     List,
-    Match,
-    Union,
     Tuple,
+    Union
 )
-import urllib
 
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -44,17 +42,18 @@ def extract_domain_from_url(url):
     return domain_match.group(1) if domain_match else ""
 
 
-def get_id_from_button_name(button_name_prefix: str, post: QueryDict) -> IntOrNone:
+def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> IntOrNone:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
-    encoded_url: str = urllib.parse.urlencode(post)
-    match_obj: Union[Match, None] = re.search(f"^{button_name_prefix}\d+", encoded_url)
-    id: IntOrNone = None
-    if match_obj is not None:
-        button_name: str = match_obj.group()
-        id = int(button_name.replace(button_name_prefix, ""))
-    return id
+    key_names: Dict[str] = [
+        key for key in querydict.keys() if key.startswith(button_name_prefix)
+    ]
+    object_id: IntOrNone = None
+    if len(key_names) == 1:
+        id_string: str = key_names[0].replace(button_name_prefix, "")
+        object_id: IntOrNone = int(id_string) if id_string.isdigit() else None
+    return object_id
 
 
 def build_filters(

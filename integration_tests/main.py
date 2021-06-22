@@ -35,7 +35,7 @@ def ping(host: str) -> bool:
 
 
 def download_file(url: str, file_name: Union[str, None] = None) -> None:
-    """ Downloads file to local dir
+    """Downloads file to local dir
 
     Args:
         url (str): endpoint for the file you are downloading
@@ -84,12 +84,11 @@ def download_webdriver() -> None:
 
     os.rename(
         src="integration_tests/chromedriver/chromedriver",
-        dst="integration_tests/chromedriver2"
+        dst="integration_tests/chromedriver2",
     )
     shutil.rmtree(path="integration_tests/chromedriver")
     os.rename(
-        src="integration_tests/chromedriver2",
-        dst="integration_tests/chromedriver"
+        src="integration_tests/chromedriver2", dst="integration_tests/chromedriver"
     )
     os.remove(path="integration_tests/chromedriver.zip")
 
@@ -115,13 +114,13 @@ if __name__ == "__main__":
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID_S3_STORE"),
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY_S3_STORE"),
-        region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE")
+        region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE"),
     )
     bucket: str = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
 
     download_s3_object(
         s3_path="fixtures/20210604_auth_data.json",
-        local_path="./data/s3_files/20210604_auth_data.json"
+        local_path="./data/s3_files/20210604_auth_data.json",
     )
 
     download_s3_object(
@@ -131,21 +130,26 @@ if __name__ == "__main__":
         ),
         local_path=(
             "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_"
-            "(January_2018)_Lookup_in_United_Kingdom.csv")
+            "(January_2018)_Lookup_in_United_Kingdom.csv"
+        ),
     )
 
     download_s3_object(
         s3_path="pubsecweb/pubsecweb_210216.pgadmin-backup",
-        local_path="./data/s3_files/pubsecweb_210216.pgadmin-backup"
+        local_path="./data/s3_files/pubsecweb_210216.pgadmin-backup",
     )
 
-    parser.add_argument("-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true")
+    parser.add_argument(
+        "-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true"
+    )
     options = parser.parse_args()
     os.system("pipenv lock -r > requirements.txt")
     if options.ignore_docker:
         print("Skipping docker")
     else:
-        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+        os.system(
+            "docker-compose -f docker/int_tests.docker-compose.yml down --volumes"
+        )
         os.system(
             "docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile"
         )
@@ -163,13 +167,19 @@ if __name__ == "__main__":
         time.sleep(1)
 
     tests_failed: bool = False
-    test_suite: TestSuite = unittest.defaultTestLoader.discover(start_dir="integration_tests/", pattern="test_*.py")
-    test_runner: TextTestRunner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
+    test_suite: TestSuite = unittest.defaultTestLoader.discover(
+        start_dir="integration_tests/", pattern="test_*.py"
+    )
+    test_runner: TextTestRunner = unittest.TextTestRunner(
+        resultclass=unittest.TextTestResult
+    )
     res: TestResult = test_runner.run(test=test_suite)
 
     if not options.ignore_docker:
         os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
-        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+        os.system(
+            "docker-compose -f docker/int_tests.docker-compose.yml down --volumes"
+        )
 
     end: float = time.time()
     print("Testing took", end - start, "seconds")

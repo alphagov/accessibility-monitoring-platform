@@ -6,8 +6,12 @@ import pathlib
 
 def minify_javascript(src: str, dest: str) -> None:
     print(">>> Processing JS")
-    src_files = [f for f in glob.iglob(src + "**/**", recursive=True) if os.path.isfile(f)]
-    dest_files = [f for f in glob.iglob(dest + "**/**", recursive=True) if os.path.isfile(f)]
+    src_files = [
+        f for f in glob.iglob(src + "**/**", recursive=True) if os.path.isfile(f)
+    ]
+    dest_files = [
+        f for f in glob.iglob(dest + "**/**", recursive=True) if os.path.isfile(f)
+    ]
     [os.remove(path) for path in dest_files]
 
     for file in src_files:

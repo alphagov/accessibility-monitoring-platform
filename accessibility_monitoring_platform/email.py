@@ -1,17 +1,20 @@
+"""
+Custom email backend for sending messages using GOV.UK Notify
+"""
 from django.core.mail.backends.base import BaseEmailBackend
 from django.conf import settings
 from notifications_python_client import NotificationsAPIClient
 
 
 class NotifyEmailBackend(BaseEmailBackend):
-    """ Custom email backend for sending messages using GOV.UK Notify
+    """Custom email backend for sending messages using GOV.UK Notify
 
     https://docs.djangoproject.com/en/3.1/topics/email/#defining-a-custom-email-backend
 
     Copied from https://github.com/alphagov/digital-buying-guide/blob/master/ictcg/email.py
     """
 
-    _base_url = 'https://api.notifications.service.gov.uk'
+    _base_url = "https://api.notifications.service.gov.uk"
     _client_class = NotificationsAPIClient
     _api_key = None
     client = None
@@ -29,8 +32,8 @@ class NotifyEmailBackend(BaseEmailBackend):
                     recipient,
                     settings.EMAIL_NOTIFY_BASIC_TEMPLATE,
                     personalisation={
-                        'subject': email_message.subject,
-                        'body': email_message.body,
+                        "subject": email_message.subject,
+                        "body": email_message.body,
                     },
                 )
             count += 1

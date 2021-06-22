@@ -1,29 +1,20 @@
 """
 Tests for cases views
 """
+from datetime import datetime
 import pytest
+import pytz
+
+from pytest_django.asserts import assertContains, assertNotContains
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.urls import reverse
 
 from ..models import Case, Contact
-from ..views import CaseListView
+from ..views import CASE_FIELDS_TO_EXPORT
 
-
-@pytest.mark.django_db
-def test_case_detail_view(admin_client):
-    """ Test that the case detail view page loads """
-    case: Case = Case.objects.create()
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})
-    )
-    assert response.status_code == 200
-    assert (
-        bytes(f'<h1 class="govuk-heading-xl">View case #{case.id}</h1>', "utf-8")
-        in response.content
-    )
+CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 
 
 @pytest.mark.django_db
@@ -48,45 +39,259 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([unarchived_contact])
-    assert b"Unarchived Contact" in response.content
-    assert b"Archived Contact" not in response.content
+    assertContains(response, "Unarchived Contact")
+    assertNotContains(response, "Archived Contact")
 
 
 @pytest.mark.django_db
-def test_case_list_view(admin_client):
-    """ Test that the case list view page loads """
+def test_case_list_view_leaves_out_archived_case(admin_client):
+    """ Test that the case list view page does not include archived cases """
+    Case.objects.create(organisation_name="Not Archived")
+    Case.objects.create(organisation_name="Is Archived", is_archived=True)
+
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
+
     assert response.status_code == 200
-    assert b'<h1 class="govuk-heading-xl">Cases and reports</h1>' in response.content
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Not Archived")
+    assertNotContains(response, "Is Archived")
+
+
+@pytest.mark.django_db
+def test_case_list_view_filters_by_case_number(admin_client):
+    """ Test that the case list view page can be filtered by case number """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?case_number={included_case.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 @pytest.mark.parametrize(
-    "url_param,sql_clause",
+    "field_name,value,url_parameter_name",
     [
-        ("case_number=42", '"cases_case"."id" = 42'),
-        ("domain=domain+name", "domain name"),
-        ("organisation=Organisation+Name", "Organisation Name"),
-        ("auditor=1", '"cases_case"."auditor_id" = 1'),
-        ("status=new-case", "new-case"),
-        (
-            "start_date_0=1&start_date_1=1&start_date_2=1800",
-            ">= 1800-01-01 00:00:00",
-        ),
-        (
-            "end_date_0=1&end_date_1=1&end_date_2=2200",
-            "<= 2200-01-01 00:00:00",
-        ),
+        ("domain", "included.com", "domain"),
+        ("organisation_name", "IncludedOrg", "organisation"),
+        ("status", "complete", "status"),
     ],
 )
 @pytest.mark.django_db
-def test_case_list_view_applies_filters_to_queryset(url_param, sql_clause, rf):
-    """ Test that filters in the url parameters are applied in the sql """
-    if url_param == "auditor=1":
-        User.objects.create(pk=1)
-    request: HttpRequest = rf.get(f"{reverse('cases:case-list')}?{url_param}")
-    view: CaseListView = CaseListView()
-    view.request = request
+def test_case_list_view_string_filters(
+    field_name, value, url_parameter_name, admin_client
+):
+    """ Test that the case list view page can be filtered by string """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(included_case, field_name, value)
+    included_case.save()
 
-    queryset: QuerySet = view.get_queryset()
+    Case.objects.create(organisation_name="Excluded")
 
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameter_name}={value}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+@pytest.mark.parametrize(
+    "field_name,url_parameter_name",
+    [
+        ("auditor", "auditor"),
+        ("reviewer", "reviewer"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
+    """ Test that the case list view page can be filtered by user """
+    user = User.objects.create()
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(included_case, field_name, user)
+    included_case.save()
+
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+@pytest.mark.django_db
+def test_case_list_view_date_range_filters(admin_client):
+    """ Test that the case list view page can be filtered by date range """
+    included_created_date: datetime = datetime(
+        year=2021, month=6, day=5, tzinfo=pytz.UTC
+    )
+    excluded_created_date: datetime = datetime(
+        year=2021, month=5, day=5, tzinfo=pytz.UTC
+    )
+    Case.objects.create(organisation_name="Included", created=included_created_date)
+    Case.objects.create(organisation_name="Excluded", created=excluded_created_date)
+
+    url_parameters = "start_date_0=1&start_date_1=6&start_date_2=2021&end_date_0=10&end_date_1=6&end_date_2=2021"
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+@pytest.mark.django_db
+def test_case_export_list_view(admin_client):
+    """ Test that the case export list view returns csv data """
+    response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
+
+    assert response.status_code == 200
+    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+
+
+@pytest.mark.django_db
+def test_case_export_single_view(admin_client):
+    """ Test that the case export single view returns csv data """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-export-single", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+
+
+@pytest.mark.django_db
+def test_archive_case_view(admin_client):
+    """ Test that archive case view archives case """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:archive-case", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-list")
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.is_archived
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("cases:case-list", '<h1 class="govuk-heading-xl">Cases and reports</h1>'),
+        ("cases:case-export-list", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
+    ],
+)
+@pytest.mark.django_db
+def test_non_case_specific_page_loads(path_name, expected_content, admin_client):
+    """ Test that the non-case-specific view page loads """
+    response: HttpResponse = admin_client.get(reverse(path_name))
+
+    assert response.status_code == 200
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-detail", '<h1 class="govuk-heading-xl">View case #'),
+        ("cases:edit-website-details", "<li>Website details</li>"),
+        ("cases:edit-contact-details", "<li>Contact details</li>"),
+        ("cases:edit-test-results", "<li>Testing details</li>"),
+        ("cases:edit-report-details", "<li>Report details</li>"),
+        ("cases:edit-post-report-details", "<li>Post report</li>"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_specific_page_loads(path_name, expected_content, admin_client):
+    """ Test that the case-specific view page loads """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "button_name, expected_redirect_path",
+    [
+        ("save_continue", "cases:edit-contact-details"),
+        ("save_exit", "cases:case-detail"),
+    ],
+)
+@pytest.mark.django_db
+def test_create_case_redirects_based_on_button_pressed(
+    button_name, expected_redirect_path, admin_client
+):
+    """ Test that a successful case create redirects based on the button pressed """
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": "https://domain.com",
+            button_name: "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(expected_redirect_path, kwargs={"pk": 1})
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, button_name, expected_redirect_path",
+    [
+        ("cases:edit-website-details", "save_continue", "cases:edit-contact-details"),
+        ("cases:edit-website-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-contact-details", "save_continue", "cases:edit-test-results"),
+        ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
+        ("cases:edit-test-results", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-report-details",
+            "save_continue",
+            "cases:edit-post-report-details",
+        ),
+        ("cases:edit-report-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_edit_redirects_based_on_button_pressed(
+    case_edit_path, button_name, expected_redirect_path, admin_client
+):
+    """ Test that a successful case update redirects based on the button pressed """
+    case: Case = Case.objects.create()
+
+<<<<<<< HEAD
     assert sql_clause in str(queryset.query)
+=======
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),
+        {
+            "home_page_url": "https://domain.com",
+            button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})
+>>>>>>> dev
