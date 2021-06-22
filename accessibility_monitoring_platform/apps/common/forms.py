@@ -182,23 +182,6 @@ class AMPUserModelChoiceField(AMPModelChoiceField):
         return user.get_full_name()
 
 
-class AMPUserOrNoneChoiceField(forms.ChoiceField):
-    """
-    Adds default widget to Django forms ChoiceField
-
-    Uses user's full name as label
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault(
-            "widget",
-            forms.Select(attrs={"class": "govuk-select"}),
-        )
-        kwargs.setdefault("choices", [])
-        super().__init__(*args, **kwargs)
-
-
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """ Model multi-choice input field in the style of GDS design system """
 

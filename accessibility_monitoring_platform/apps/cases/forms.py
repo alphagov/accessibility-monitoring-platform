@@ -11,7 +11,6 @@ from ..common.forms import (
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
     AMPUserModelChoiceField,
-    AMPUserOrNoneChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPIntegerField,
@@ -57,8 +56,8 @@ class CaseSearchForm(AMPDateRangeForm):
     case_number = AMPIntegerField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
-    auditor = AMPUserOrNoneChoiceField(label="Auditor")
-    reviewer = AMPUserOrNoneChoiceField(label="QA Auditor")
+    auditor = AMPChoiceField(label="Auditor")
+    reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
 
     def __init__(self, *args, **kwargs):
