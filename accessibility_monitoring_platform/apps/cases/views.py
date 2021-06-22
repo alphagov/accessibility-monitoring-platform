@@ -1,5 +1,5 @@
 """
-Views for cases
+Views for cases app
 """
 import urllib
 from typing import Any, Dict, List, Tuple
@@ -25,9 +25,9 @@ from .forms import (
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CasePostReportUpdateForm,
+    DEFAULT_SORT,
 )
 
-DEFAULT_SORT: str = "-id"
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("case_number", "id"),
     ("domain", "domain__icontains"),
@@ -88,8 +88,12 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
 
 
 class CaseDetailView(DetailView):
-    model = Case
-    context_object_name = "case"
+    """
+    View of details of a single case
+    """
+
+    model: Case = Case
+    context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """ Add unarchived contacts to context """
@@ -99,24 +103,41 @@ class CaseDetailView(DetailView):
 
 
 class CaseListView(ListView):
-    model = Case
-    context_object_name = "cases"
-    paginate_by = 10
+    """
+    View of list of cases
+    """
+
+    model: Case = Case
+    context_object_name: str = "cases"
+    paginate_by: int = 10
+
+    def get(self, request, *args, **kwargs):
+        """ Populate filter form """
+        if self.request.GET:
+            self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
+            self.form.is_valid()
+        else:
+            self.form = CaseSearchForm()
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[Case]:
         """ Add filters to queryset """
-        form: CaseSearchForm = CaseSearchForm(self.request.GET)
-        form.is_valid()
+        if self.form.errors:
+            return Case.objects.none()
 
-        filters: Dict[str, Any] = build_filters(
-            cleaned_data=form.cleaned_data,
-            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
-        )
+        filters: Dict = {}
+        sort_by: str = DEFAULT_SORT
+
+        if hasattr(self.form, "cleaned_data"):
+            filters: Dict[str, Any] = build_filters(
+                cleaned_data=self.form.cleaned_data,
+                field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+            )
+            sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
+            if not sort_by:
+                sort_by: str = DEFAULT_SORT
+
         filters["is_archived"] = False
-
-        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
-        if not sort_by:
-            sort_by = DEFAULT_SORT
 
         return Case.objects.filter(**filters).order_by(sort_by)
 
@@ -128,18 +149,20 @@ class CaseListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
-        context["form"] = CaseSearchForm(self.request.GET)
-        context["parameters"] = urllib.parse.urlencode(get_without_page)
-        context["case_number"] = self.request.GET.get("case-number", "")
-        context["auditor"] = self.request.GET.get("auditor", "")
+        context["form"] = self.form
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
 
 class CaseCreateView(CreateView):
-    model = Case
-    form_class = CaseCreateForm
-    context_object_name = "case"
-    template_name_suffix = "_create_form"
+    """
+    View to create a case
+    """
+
+    model: Case = Case
+    form_class: CaseCreateForm = CaseCreateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_create_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -153,10 +176,14 @@ class CaseCreateView(CreateView):
 
 
 class CaseWebsiteDetailUpdateView(UpdateView):
-    model = Case
-    form_class = CaseWebsiteDetailUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_website_details_update_form"
+    """
+    View to update case details
+    """
+
+    model: Case = Case
+    form_class: CaseWebsiteDetailUpdateForm = CaseWebsiteDetailUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_website_details_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -170,12 +197,17 @@ class CaseWebsiteDetailUpdateView(UpdateView):
 
 
 class CaseContactFormsetUpdateView(UpdateView):
-    model = Case
-    fields = []
-    context_object_name = "case"
-    template_name_suffix = "_contact_formset"
+    """
+    View to update case contacts
+    """
+
+    model: Case = Case
+    fields: List[str] = []
+    context_object_name: str = "case"
+    template_name_suffix: str = "_contact_formset"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """ Get context data for template rendering """
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
@@ -191,6 +223,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         return context
 
     def form_valid(self, form: ModelForm):
+        """ Process contents of valid form """
         context: Dict[str, Any] = self.get_context_data()
         contact_formset = context["contacts_formset"]
         case: Case = form.save()
@@ -216,6 +249,8 @@ class CaseContactFormsetUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
             url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
+        elif "add_contact" in self.request.POST:
+            url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:
             contact_id_to_archive: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
@@ -225,15 +260,19 @@ class CaseContactFormsetUpdateView(UpdateView):
                     "cases:edit-contact-details", kwargs={"pk": self.object.id}
                 )
             else:
-                url = reverse_lazy("cases:case-list")
+                url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         return url
 
 
 class CaseTestResultsUpdateView(UpdateView):
-    model = Case
-    form_class = CaseTestResultsUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_test_results_update_form"
+    """
+    View to update case test results
+    """
+
+    model: Case = Case
+    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_test_results_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -247,10 +286,14 @@ class CaseTestResultsUpdateView(UpdateView):
 
 
 class CaseReportDetailsUpdateView(UpdateView):
-    model = Case
-    form_class = CaseReportDetailsUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_report_details_update_form"
+    """
+    View to update case report details
+    """
+
+    model: Case = Case
+    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_report_details_update_form"
 
     def get_success_url(self) -> str:
         """ Detect the submit button used and act accordingly """
@@ -264,12 +307,17 @@ class CaseReportDetailsUpdateView(UpdateView):
 
 
 class CasePostReportDetailsUpdateView(UpdateView):
-    model = Case
-    form_class = CasePostReportUpdateForm
-    context_object_name = "case"
-    template_name_suffix = "_post_report_details_update_form"
+    """
+    View to update case post report details
+    """
+
+    model: Case = Case
+    form_class: CasePostReportUpdateForm = CasePostReportUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_post_report_details_update_form"
 
     def get_success_url(self) -> str:
+        """ Work out url to redirect to on success """
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
@@ -325,7 +373,7 @@ def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case = get_object_or_404(Case, pk=pk)
+    case: Case = get_object_or_404(Case, pk=pk)
     case.is_archived = True
     case.save()
     return redirect(reverse_lazy("cases:case-list"))

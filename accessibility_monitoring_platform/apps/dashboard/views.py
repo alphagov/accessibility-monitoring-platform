@@ -6,10 +6,7 @@ Home should be the only view for dashboard.
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpRequest,
-    HttpResponse
-)
+from django.http import HttpRequest, HttpResponse
 
 
 @login_required
@@ -23,4 +20,4 @@ def home(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django http response
     """
-    return render(request, 'dashboard/home.html')
+    return render(request, "dashboard/home.html")

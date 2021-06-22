@@ -34,7 +34,6 @@
                                                 {{ hidden_field }}
                                             {% endfor %}
                                         </div>
-
                                         {% for field in contact_form.visible_fields %}
                                             <div class="govuk-grid-column-full govuk-form-group">
                                                 <label class="govuk-label"
@@ -45,29 +44,29 @@
                                                 {{ field }}
                                             </div>
                                         {% endfor %}
-                                        <div class="govuk-grid-column-full">
-                                            <input
-                                                type="submit"
-                                                value="Remove contact"
-                                                name="remove_contact_{{ contact_form.instance.id }}"
-                                                class="govuk-button govuk-button--secondary"
-                                                data-module="govuk-button" />
-                                        </div>
+                                        {% if contact_form.instance.id %}
+                                            <div class="govuk-grid-column-full">
+                                                <input
+                                                    type="submit"
+                                                    value="Remove contact"
+                                                    name="remove_contact_{{ contact_form.instance.id }}"
+                                                    class="govuk-button govuk-button--secondary"
+                                                    data-module="govuk-button" />
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                    <a
-                        href="{% url 'cases:edit-contact-details' case.id %}?add_extra=true"
-                        role="button"
-                        draggable="false"
+                    <input
+                        type="submit"
+                        value="Add new contact"
+                        name="add_contact"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
-                    >
-                        Add contact
-                    </a>
+                    />
                     <div class="govuk-button-group">
                         <input
                             type="submit"
