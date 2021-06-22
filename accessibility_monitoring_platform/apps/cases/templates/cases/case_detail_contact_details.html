@@ -45,5 +45,8 @@
             </td>
         </tr>
         {% endfor %}
+        {% if not contacts %}
+            <p class="govuk-body-l">No contacts have been entered</p>
+        {% endif %}
     </tbody>
 </table>
