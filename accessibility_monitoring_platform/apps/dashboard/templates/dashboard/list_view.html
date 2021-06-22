@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+    {% if macro_view %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-0">
+                    Unassigned cases - {{ sorted_cases.unassigned_cases.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-0 table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-0">
+            {% include "./new_cases_table.html" with table_data=sorted_cases.unassigned_cases table_header=headers.new_case %}
+        </div>
+    </div>
+    {% endif %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
@@ -46,10 +60,26 @@
             </h2>
         </div>
         <div id="accordion-default-content-4" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-4">
-            <p class="govuk-body-m"> Cases where you have been assigned as a QA will be shown here </p> 
+            {% if macro_view == None %}
+                <p class="govuk-body-m"> Cases where you have been assigned as a QA will be shown here </p> 
+            {% endif %}
             {% include "./qa_cases_table.html" with table_data=sorted_cases.qa_cases table_header=headers.qa_cases %}
         </div>
     </div>
+    {% if macro_view %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-0">
+                    Unassigned QA cases - {{ sorted_cases.unassigned_qa_cases.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-0 table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-0">
+            {% include "./qa_cases_table.html" with table_data=sorted_cases.unassigned_qa_cases table_header=headers.unassigned_qa_cases %}
+        </div>
+    </div>
+    {% endif %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">

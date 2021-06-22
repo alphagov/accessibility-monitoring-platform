@@ -240,7 +240,7 @@ class Case(models.Model):
             and self.reviewer
             and self.report_approved_status == "yes"
         ):
-            return "Ready to be sent"
+            return "Ready to send"
 
         to_check = [
             "report_draft_url",

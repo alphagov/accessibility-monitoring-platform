@@ -6,11 +6,3 @@
 @import 'pagination';
 @import 'forms';
 @import 'cases';
-
-
-.case-dashboard > tbody > tr:last-child {
-    // background:#ff0000;
-    th, td {
-        border-bottom: none;
-    }
-}
