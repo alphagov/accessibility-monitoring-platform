@@ -249,6 +249,8 @@ class CaseContactFormsetUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
             url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
+        elif "add_contact" in self.request.POST:
+            url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:
             contact_id_to_archive: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
@@ -258,7 +260,7 @@ class CaseContactFormsetUpdateView(UpdateView):
                     "cases:edit-contact-details", kwargs={"pk": self.object.id}
                 )
             else:
-                url = reverse_lazy("cases:case-list")
+                url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         return url
 
 
