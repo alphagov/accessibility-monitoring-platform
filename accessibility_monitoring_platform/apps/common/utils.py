@@ -7,11 +7,8 @@ from typing import (
     Any,
     Dict,
     List,
-    Match,
-    Union,
     Tuple,
 )
-import urllib
 
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -51,10 +48,11 @@ def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> In
     key_names: Dict[str] = [
         key for key in querydict.keys() if key.startswith(button_name_prefix)
     ]
-    id: IntOrNone = None
+    object_id: IntOrNone = None
     if len(key_names) == 1:
-        id = int(key_names[0].replace(button_name_prefix, ""))
-    return id
+        id_string: str = key_names[0].replace(button_name_prefix, "")
+        object_id: IntOrNone = int(id_string) if id_string.isdigit() else None
+    return object_id
 
 
 def build_filters(

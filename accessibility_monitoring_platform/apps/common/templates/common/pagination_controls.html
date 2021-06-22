@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+{% load humanize %}
+
+<div class="govuk-body">
+  <span class="step-links">
+      {% if page_obj.has_previous %}
+          <a class="govuk-link" href="?page=1&{{ url_parameters }}">&laquo; First</a>
+          <a class="govuk-link" href="?page={{ page_obj.previous_page_number }}&{{ url_parameters }}">Previous</a>
+      {% endif %}
+
+      <span class="current">
+          Page {{ page_obj.number|intcomma }} of {{ page_obj.paginator.num_pages|intcomma }}.
+      </span>
+
+      {% if page_obj.has_next %}
+          <a class="govuk-link" href="?page={{ page_obj.next_page_number }}&{{ url_parameters }}">Next</a>
+          <a class="govuk-link" href="?page={{ page_obj.paginator.num_pages }}&{{ url_parameters }}">Last &raquo;</a>
+      {% endif %}
+  </span>
+</div>

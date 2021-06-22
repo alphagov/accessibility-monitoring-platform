@@ -21,20 +21,9 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
-    path(
-        "query-domains/",
-        include(
-            (
-                "accessibility_monitoring_platform"
-                ".apps"
-                ".query_local_website_registry"
-                ".urls"
-            )
-        ),
-    ),
-    path("axe-data/", include("accessibility_monitoring_platform.apps.axe_data.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
-    path("", include("accessibility_monitoring_platform.apps.users.urls")),
+    path("websites/", include("accessibility_monitoring_platform.apps.websites.urls")),
+    path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path(r"admin/", admin.site.urls),
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),

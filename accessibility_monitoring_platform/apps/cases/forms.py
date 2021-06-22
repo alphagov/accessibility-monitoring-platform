@@ -14,6 +14,7 @@ from ..common.forms import (
     AMPUserOrNoneChoiceField,
     AMPCharField,
     AMPCharFieldWide,
+    AMPIntegerField,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
@@ -40,8 +41,9 @@ from ..common.models import Region, Sector
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
+DEFAULT_SORT: str = "-id"
 SORT_CHOICES = [
-    ("-id", "Newest"),
+    (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
 ]
 
@@ -52,7 +54,7 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    case_number = AMPCharField(label="Case number")
+    case_number = AMPIntegerField(label="Case number")
     domain = AMPCharField(label="Domain")
     organisation = AMPCharField(label="Organisation")
     auditor = AMPUserOrNoneChoiceField(label="Auditor")
@@ -105,20 +107,8 @@ class CaseCreateForm(forms.ModelForm):
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
-    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
     trello_url = AMPCharFieldWide(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
-    is_public_sector_body = AMPBooleanField(
-        label="Public sector body?",
-        help_text="If you later find out the organisation is not a public sector body,"
-        " unmark the checkbox, then save and exit to unlist the case.",
-        widget=AMPCheckboxWidget(
-            attrs={
-                "label": "Untick this box to unlist the case",
-            }
-        ),
-        initial=True,
-    )
 
     class Meta:
         model = Case
@@ -132,10 +122,8 @@ class CaseCreateForm(forms.ModelForm):
             "sector",
             "region",
             "case_origin",
-            "zendesk_url",
             "trello_url",
             "notes",
-            "is_public_sector_body",
         ]
 
     def clean_home_page_url(self):
@@ -151,6 +139,18 @@ class CaseWebsiteDetailUpdateForm(CaseCreateForm):
     """
 
     domain = AMPCharFieldWide(label="Domain")
+    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
+    is_public_sector_body = AMPBooleanField(
+        label="Public sector body?",
+        help_text="If you later find out the organisation is not a public sector body,"
+        " unmark the checkbox, then save and exit to unlist the case.",
+        widget=AMPCheckboxWidget(
+            attrs={
+                "label": "Untick this box to unlist the case",
+            }
+        ),
+        initial=True,
+    )
 
     class Meta:
         model = Case
@@ -180,7 +180,9 @@ class CaseContactUpdateForm(forms.ModelForm):
     first_name = AMPCharFieldWide(label="First name")
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
-    detail = AMPCharFieldWide(label="Detail")
+    detail = AMPCharFieldWide(
+        label="Detail", help_text="E.g. email address or telephone number"
+    )
     preferred = AMPBooleanField(label="Preferred contact?")
     notes = AMPTextField(label="Notes")
 

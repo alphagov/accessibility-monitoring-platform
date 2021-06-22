@@ -23,7 +23,7 @@ init:
 		&& export PGPASSWORD=secret; pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_20210615.pgadmin-backup \
 		&& psql -h localhost -p 5432 -U admin -d a11ymon < ./data/s3_files/a11ymon_mini_20210527.sql \
 		&& psql -h localhost -p 5432 -U admin -d a11ymon -c "ALTER SCHEMA a11ymon_mini RENAME TO a11ymon" \
-		&& ./manage.py migrate query_local_website_registry --database=pubsecweb_db \
+		&& ./manage.py migrate websites --database=pubsecweb_db \
 		&& ./manage.py migrate \
 		&& python3 manage.py loaddata ./data/s3_files/20210604_auth_data.json \
 		&& python3 manage.py loaddata ./data/s3_files/region_and_sector.json \

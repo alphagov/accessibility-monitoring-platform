@@ -15,7 +15,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
-                {% include "cases/pagination_controls.html" %}
+                {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                     {% for case in cases %}
@@ -55,7 +55,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {% include "cases/pagination_controls.html" %}
+                {% include "common/pagination_controls.html" %}
             </div>
             <div class="govuk-grid-column-one-third">
                 <div class="govuk-grid-row">

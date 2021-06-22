@@ -8,10 +8,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import (
-    HttpRequest,
-    HttpResponse
-)
+from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import UpdateUserForm
 from typing import TypedDict, List, Any
 
@@ -36,31 +33,26 @@ def account_details(request: HttpRequest) -> HttpResponse:
     user: User = get_object_or_404(User, id=request_temp.user.id)
 
     initial = model_to_dict(user)
-    initial['email_confirm'] = initial['email']
+    initial["email_confirm"] = initial["email"]
     form: UpdateUserForm = UpdateUserForm(
-        data=request.POST or None,
-        request=request,
-        initial=initial
+        data=request.POST or None, request=request, initial=initial
     )
 
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.is_valid():
-            user.username = form.cleaned_data['email']
-            user.email = form.cleaned_data['email']
-            user.first_name = form.cleaned_data['first_name']
-            user.last_name = form.cleaned_data['last_name']
+            user.username = form.cleaned_data["email"]
+            user.email = form.cleaned_data["email"]
+            user.first_name = form.cleaned_data["first_name"]
+            user.last_name = form.cleaned_data["last_name"]
             user.save()
             login(request, user)
-            messages.success(request, 'Successfully saved details!')
-            return redirect('users:account_details')
-        messages.error(request, 'There were errors in the form')
+            messages.success(request, "Successfully saved details!")
+            return redirect("users:account_details")
+        messages.error(request, "There were errors in the form")
 
     context: AccountDetailsContext = {
-        'form': form,
-        'form_groups': [
-            'last_name',
-            'email_confirm'
-        ]
+        "form": form,
+        "form_groups": ["last_name", "email_confirm"],
     }
 
-    return render(request, 'users/account_details.html', context)
+    return render(request, "users/account_details.html", context)
