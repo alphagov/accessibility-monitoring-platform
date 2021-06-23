@@ -24,26 +24,22 @@
                     {% endfor %}
 
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"><b>Date created</b></label>
-                            <p class="govuk-body-m">{{ case.created|date:"d/m/Y"}}</p>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label"><b>Status</b></label>
-                            <p class="govuk-body-m">The status can not be edited manually</p>
-                            <p class="govuk-body-m">{{ case.get_status_display}}</p>
-                        </div>
-
-                        {% for field in form.visible_fields %}
-                            <div class="govuk-grid-column-full govuk-form-group">
-                                <label class="govuk-label"
-                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                </label>
-                                <div class="govuk-error-message">{{ field.errors }}</div>
-                                <p class="govuk-body-m">{{ field.help_text }}</p>
-                                {{ field }}
+                        <div class="govuk-grid-column-full">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Date created</b></label>
+                                <p class="govuk-body-m">{{ case.created|date:"d/m/Y"}}</p>
                             </div>
-                        {% endfor %}
+
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Status</b></label>
+                                <p class="govuk-body-m">The status can not be edited manually</p>
+                                <p class="govuk-body-m">{{ case.get_status_display}}</p>
+                            </div>
+
+                            {% for field in form.visible_fields %}
+                                {% include 'common/amp_field.html' %}
+                            {% endfor %}
+                        </div>
 
                         <div class="govuk-button-group">
                             <input
