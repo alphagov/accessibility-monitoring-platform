@@ -3,3 +3,7 @@ body {
     word-wrap: break-word;
     word-break: break-word;
 }
+
+.govuk-form-group--error input {
+    border: 2px solid #d4351c;
+}
