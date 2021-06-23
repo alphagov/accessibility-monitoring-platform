@@ -198,7 +198,7 @@ class Case(models.Model):
             "region",
             "case_origin",
         ]
-        percentage_increase = round(100 / (len(to_check) + 2) )
+        percentage_increase = round(100 / (len(to_check) + 2))
         progress = 0
         for field in to_check:
             if getattr(self, field):
@@ -217,7 +217,7 @@ class Case(models.Model):
         to_check = [
             "test_results_url",
         ]
-        percentage_increase = round(100 / (len(to_check) + 1) )
+        percentage_increase = round(100 / (len(to_check) + 1))
         progress = 0
         for field in to_check:
             if getattr(self, field):
@@ -249,7 +249,7 @@ class Case(models.Model):
             "report_sent_date",
             "report_acknowledged_date",
         ]
-        percentage_increase = round(100 / (len(to_check) + 2) )
+        percentage_increase = round(100 / (len(to_check) + 2))
         progress = 0
         for field in to_check:
             if getattr(self, field):
@@ -263,26 +263,27 @@ class Case(models.Model):
 
         return str(progress) + "%"
 
-
     @property
     def twelve_week_progress(self):
-        if (self.week_12_followup_email_sent_date == None):
+        if self.week_12_followup_email_sent_date is None:
             return "Follow up email not sent"
 
         if (
             self.week_12_followup_email_sent_date
-            and self.week_12_followup_email_acknowledgement_date == None
+            and self.week_12_followup_email_acknowledgement_date is None
         ):
             now = date.today()
-            return "No response - {} days".format((now - self.week_12_followup_email_sent_date).days)
+            return "No response - {} days".format(
+                (now - self.week_12_followup_email_sent_date).days
+            )
 
         to_check = [
             "week_12_followup_date",
             "week_12_followup_email_sent_date",
             "week_12_followup_email_acknowledgement_date",
-            "compliance_email_sent_date"
+            "compliance_email_sent_date",
         ]
-        percentage_increase = round(100 / (len(to_check)) )
+        percentage_increase = round(100 / (len(to_check)))
         progress = 0
         for field in to_check:
             if getattr(self, field):
