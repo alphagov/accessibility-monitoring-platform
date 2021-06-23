@@ -5,13 +5,8 @@
     {{ hidden_field }}
 {% endfor %}
 
-{% for field in form.visible_fields %}
-    <div class="govuk-grid-column-full govuk-form-group">
-        <label class="govuk-label"
-            for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-        </label>
-        <div class="govuk-error-message">{{ field.errors }}</div>
-        <p class="govuk-body-m">{{ field.help_text }}</p>
-        {{ field }}
-    </div>
-{% endfor %}
+<div class="govuk-grid-column-full">
+    {% for field in form.visible_fields %}
+        {% include 'common/amp_field.html' %}
+    {% endfor %}
+</div>

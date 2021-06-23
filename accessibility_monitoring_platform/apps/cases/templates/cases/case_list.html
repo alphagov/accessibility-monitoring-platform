@@ -2,7 +2,7 @@
 
 {% extends 'base.html' %}
 
-{% load humanize %}
+{% load l10n %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,143 +14,116 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">{{ page_obj.paginator.count|intcomma }} cases found</h2>
                 {% if form.errors %}
-                    <span class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> Fix errors in search form
-                    </span>
-                {% endif %}
-                <div class="govuk-button-group">
-                    <a
-                        href="{% url 'cases:case-create' %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Create case
-                    </a>
+                    <div class="govuk-form-group govuk-form-group--error">
+                        <span id="event-name-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> Fix errors in edit search
+                        </span>
+                    </div>
+                {% else %}
+                    <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
                     {% if cases %}
-                        <a
-                            href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        >
-                            Export to CSV
-                        </a>
+                        {% include "common/pagination_controls.html" %}
+                        <table class="govuk-table">
+                            <tbody class="govuk-table__body">
+                            {% for case in cases %}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-full">
+                                                <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link cases-bigger-link"
+                                                    rel="noreferrer noopener">
+                                                    Case #{{ case.id }}</a>
+                                                <h3 class="govuk-heading-s cases-sub-heading">{{ case.organisation_name }}</h3>
+                                                <p class="govuk-body-m">{{ case.domain }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-one-half">
+                                                <h3 class="govuk-heading-s cases-sub-heading">Date created</h3>
+                                                <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
+                                            </div>
+                                            <div class="govuk-grid-column-one-half">
+                                                <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
+                                                <p class="govuk-body-m">{{ case.auditor.get_full_name }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-one-half">
+                                                <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
+                                                <p class="govuk-body-m">{{ case.get_status_display }}</p>
+                                            </div>
+                                            <div class="govuk-grid-column-one-half">
+                                                <h3 class="govuk-heading-s cases-sub-heading">QA Auditor</h3>
+                                                <p class="govuk-body-m">{{ case.reviewer.get_full_name }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% include "common/pagination_controls.html" %}
                     {% endif %}
-                </div>
-                {% if cases %}
-                    {% include "common/pagination_controls.html" %}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% for case in cases %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-full">
-                                            <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link cases-bigger-link"
-                                                rel="noreferrer noopener">
-                                                Case #{{ case.id }}</a>
-                                            <h3 class="govuk-heading-s cases-sub-heading">{{ case.organisation_name }}</h3>
-                                            <p class="govuk-body-m">{{ case.domain }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-one-half">
-                                            <h3 class="govuk-heading-s cases-sub-heading">Date created</h3>
-                                            <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
-                                        </div>
-                                        <div class="govuk-grid-column-one-half">
-                                            <h3 class="govuk-heading-s cases-sub-heading">Auditor</h3>
-                                            <p class="govuk-body-m">{{ case.auditor.get_full_name }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-one-half">
-                                            <h3 class="govuk-heading-s cases-sub-heading">Status</h3>
-                                            <p class="govuk-body-m">{{ case.get_status_display }}</p>
-                                        </div>
-                                        <div class="govuk-grid-column-one-half">
-                                            <h3 class="govuk-heading-s cases-sub-heading">QA Auditor</h3>
-                                            <p class="govuk-body-m">{{ case.reviewer.get_full_name }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% include "common/pagination_controls.html" %}
                 {% endif %}
             </div>
-            <div class="govuk-grid-column-one-third cases-search-background">
-                <form method="get" action="{% url 'cases:case-list' %}">
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.sort_by.auto_id }}"><b>{{form.sort_by.label}}</b></label>
-                            {{form.sort_by}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.case_number.auto_id }}"><b>{{form.case_number.label}}</b></label>
-                            {{form.case_number}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.domain.auto_id }}"><b>{{form.domain.label}}</b></label>
-                            {{form.domain}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.organisation.auto_id }}"><b>{{form.organisation.label}}</b></label>
-                            {{form.organisation}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.auditor.auto_id }}"><b>{{form.auditor.label}}</b></label>
-                            {{form.auditor}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.reviewer.auto_id }}"><b>{{form.reviewer.label}}</b></label>
-                            {{form.reviewer}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.status.auto_id }}"><b>{{form.status.label}}</b></label>
-                            {{form.status}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <h3 class="govuk-heading-s cases-sub-heading">Date created filter</h3>
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.start_date.auto_id }}"><b>{{form.start_date.label}}</b></label>
-                            {% if form.start_date.errors %}
-                                <span class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> {{form.start_date.errors}}
-                                </span>
-                            {% endif %}
-                            {{form.start_date}}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-form-group">
-                            <label class="govuk-label" for="{{ form.end_date.auto_id }}"><b>{{form.end_date.label}}</b></label>
-                            {% if form.end_date.errors %}
-                                <span class="govuk-error-message">
-                                    <span class="govuk-visually-hidden">Error:</span> {{form.end_date.errors}}
-                                </span>
-                            {% endif %}
-                            {{form.end_date}}
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <div class="govuk-button-group">
+                            <a
+                                href="{% url 'cases:case-create' %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            >
+                                Create case
+                            </a>
+                            <a
+                                href="{% url 'cases:case-export-list' %}{% if parameters %}?{{ parameters }}{% endif %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            >
+                                Export to CSV
+                            </a>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <input
-                            type="submit"
-                            value="Search"
-                            class="govuk-button"
-                            data-module="govuk-button"
-                        />
+                </div>
+                <div class="govuk-grid-row cases-search-background">
+                    <div class="govuk-grid-column-full">
+                        <form method="get" action="{% url 'cases:case-list' %}">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
+                                    {% include 'common/amp_field.html' with field=form.sort_by %}
+                                    {% include 'common/amp_field.html' with field=form.case_number %}
+                                    {% include 'common/amp_field.html' with field=form.domain %}
+                                    {% include 'common/amp_field.html' with field=form.organisation %}
+                                    {% include 'common/amp_field.html' with field=form.auditor %}
+                                    {% include 'common/amp_field.html' with field=form.reviewer %}
+                                    {% include 'common/amp_field.html' with field=form.status %}
+                                    <h3 class="govuk-heading-s">Date created filter</h3>
+                                    {% include 'common/amp_field.html' with field=form.start_date %}
+                                    {% include 'common/amp_field.html' with field=form.end_date %}
+                                </div>
+                            </div>
+                            <div class="govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Search"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
+                                    Clear
+                                </a>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </main>

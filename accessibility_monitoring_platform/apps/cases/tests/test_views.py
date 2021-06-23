@@ -129,6 +129,33 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     assertNotContains(response, "Excluded")
 
 
+@pytest.mark.parametrize(
+    "field_name,url_parameter_name",
+    [
+        ("auditor", "auditor"),
+        ("reviewer", "reviewer"),
+    ],
+)
+@pytest.mark.django_db
+def test_case_list_view_user_unassigned_filters(field_name, url_parameter_name, admin_client):
+    """ Test that the case list view page can be filtered by unassigned user values """
+    Case.objects.create(organisation_name="Included")
+
+    user = User.objects.create()
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    setattr(excluded_case, field_name, user)
+    excluded_case.save()
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameter_name}=none"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
 @pytest.mark.django_db
 def test_case_list_view_date_range_filters(admin_client):
     """Test that the case list view page can be filtered by date range"""

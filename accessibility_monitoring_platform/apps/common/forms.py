@@ -102,7 +102,7 @@ class AMPIntegerField(forms.IntegerField):
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
-            forms.NumberInput(attrs={"class": "govuk-input govuk-input--width-10"}),
+            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
         )
         super().__init__(*args, **kwargs)
 
