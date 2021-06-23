@@ -2,8 +2,8 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Date created</th>
-            <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Date created</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds govuk-!-width-two-thirds">{{ case.created|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Status</th>
@@ -20,16 +20,12 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Full url</th>
             <td class="govuk-table__cell">
-                <a href="{{ case.home_page_url }}" class="govuk-link">{{ case.home_page_url }}</a>
+                <a href="{{ case.home_page_url }}" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
             </td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Domain</th>
             <td class="govuk-table__cell">{{ case.domain }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Application</th>
-            <td class="govuk-table__cell">{{ case.application }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Organisation name</th>
@@ -59,7 +55,7 @@
             <th scope="row" class="govuk-table__header">Zendesk link</th>
             <td class="govuk-table__cell">
                 {% if case.zendesk_url %}
-                    <a href="{{ case.zendesk_url }}" class="govuk-link">{{ case.zendesk_url }}</a>
+                    <a href="{{ case.zendesk_url }}" target="_blank" class="govuk-link">{{ case.zendesk_url }}</a>
                 {% endif %}
             </td>
         </tr>
@@ -67,14 +63,14 @@
             <th scope="row" class="govuk-table__header">Trello ticket</th>
             <td class="govuk-table__cell">
                 {% if case.trello_url %}
-                    <a href="{{ case.trello_url }}" class="govuk-link">{{ case.trello_url }}</a>
+                    <a href="{{ case.trello_url }}" target="_blank" class="govuk-link">{{ case.trello_url }}</a>
                 {% endif %}
             </td>
         </tr>
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
-                {% if case.notes %}<pre class="govuk-body-m">{{ case.notes }}</pre>{% endif %}
+                {% if case.notes %}<p class="govuk-body-m cases-notes">{{ case.notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>

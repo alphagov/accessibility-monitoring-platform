@@ -139,6 +139,11 @@ class CaseListView(ListView):
 
         filters["is_archived"] = False
 
+        if "auditor_id" in filters and filters["auditor_id"] == "none":
+            filters["auditor_id"] = None
+        if "reviewer_id" in filters and filters["reviewer_id"] == "none":
+            filters["reviewer_id"] = None
+
         return Case.objects.filter(**filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:

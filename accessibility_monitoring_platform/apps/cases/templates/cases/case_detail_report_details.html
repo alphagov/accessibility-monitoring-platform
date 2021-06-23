@@ -2,10 +2,10 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Link to report draft</th>
-            <td class="govuk-table__cell">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Link to report draft</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">
                 {% if case.report_draft_url %}
-                    <a href="{{ case.report_draft_url }}">Report draft</a>
+                    <a href="{{ case.report_draft_url }}" target="_blank">Report draft</a>
                 {% endif %}
             </td>
         </tr>
@@ -24,7 +24,7 @@
         <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell">
                 <h3 class="govuk-heading-s cases-sub-heading">QA notes</h3>
-                {% if case.reviewer_notes %}<pre class="govuk-body-m">{{ case.reviewer_notes }}</pre>{% endif %}
+                {% if case.reviewer_notes %}<p class="govuk-body-m cases-notes">{{ case.reviewer_notes }}</p>{% endif %}
             </td>
             <td class="govuk-table__cell"></td>
         </tr>
