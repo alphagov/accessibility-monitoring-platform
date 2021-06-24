@@ -27,7 +27,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
 ]
 
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("simple", "Simple"),
+    ("simple", "Simplified"),
     ("detailed", "Detailed"),
 ]
 

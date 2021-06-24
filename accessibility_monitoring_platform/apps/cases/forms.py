@@ -92,7 +92,7 @@ class CaseCreateForm(forms.ModelForm):
         required=True,
     )
     organisation_name = AMPCharFieldWide(label="Organisation name")
-    service_name = AMPCharFieldWide(label="Service name")
+    service_name = AMPCharFieldWide(label="Website, App or Service name")
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
