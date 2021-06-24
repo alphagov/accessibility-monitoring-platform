@@ -46,9 +46,9 @@ def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
 
     auditor_name = row["Monitored by"]
     test_results_url = row["Link to monitor doc"]
-    report_draft_url = row["Link to report"]
+    report_final_url = row["Link to report"]
 
-    return (created_time, home_page_url, domain, auditor_name, test_results_url, report_draft_url)
+    return (created_time, home_page_url, domain, auditor_name, test_results_url, report_final_url)
 
 
 class Command(BaseCommand):
@@ -122,7 +122,7 @@ class Command(BaseCommand):
                         domain,
                         auditor_name,
                         test_results_url,
-                        report_draft_url,
+                        report_final_url,
                     ) = extract_data_from_row(row)
 
                     auditor = users.get(auditor_name, default_user)
@@ -201,7 +201,7 @@ class Command(BaseCommand):
                         completed=completed,
                         is_public_sector_body=is_public_sector_body,
                         test_results_url=test_results_url,
-                        report_draft_url=report_draft_url,
+                        report_final_url=report_final_url,
                     )
                     case.save()
 
