@@ -115,7 +115,7 @@ class Case(models.Model):
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
     )
-    is_website_compliant = models.BooleanField(default=False)
+    is_website_compliant = models.BooleanField(null=True, blank=True)
     test_notes = models.TextField(default="", blank=True)
     report_draft_url = models.CharField(max_length=200, default="", blank=True)
     report_review_status = models.CharField(
@@ -142,7 +142,7 @@ class Case(models.Model):
         null=True, blank=True
     )
     is_website_retested = models.BooleanField(default=False)
-    is_disproportionate_claimed = models.BooleanField(default=False)
+    is_disproportionate_claimed = models.BooleanField(null=True, blank=True)
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_decison = models.CharField(
         max_length=200,
@@ -159,7 +159,7 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
-    is_case_completed = models.BooleanField(default=False)
+    is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
 
@@ -200,7 +200,7 @@ class Contact(models.Model):
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     detail = models.CharField(max_length=200, default="", blank=True)
-    preferred = models.BooleanField(default=False)
+    preferred = models.BooleanField(null=True, blank=True)
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
