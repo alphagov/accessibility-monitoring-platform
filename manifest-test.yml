@@ -1,6 +1,6 @@
 ---
 applications:
-- name: accessiblity-monitoring-platform-test
+- name: accessibility-monitoring-platform-test
   memory: 512M
   instances: 1
   buildpacks:
@@ -10,5 +10,5 @@ applications:
     - a11ymon-postgres
   env:
     DEBUG: FALSE
-    ALLOWED_HOSTS: 'accessiblity-monitoring-platform-test.london.cloudapps.digital'
+    ALLOWED_HOSTS: 'accessibility-monitoring-platform-test.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
