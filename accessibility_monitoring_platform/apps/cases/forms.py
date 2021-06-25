@@ -249,7 +249,6 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_url = AMPCharFieldWide(label="Link to final report")
     report_sent_date = AMPDateField(label="Report sent on")
-    report_acknowledged_date = AMPDateField(label="Report acknowledged")
 
     class Meta:
         model = Case
@@ -261,7 +260,6 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
             "reviewer_notes",
             "report_final_url",
             "report_sent_date",
-            "report_acknowledged_date",
         ]
 
 
@@ -270,6 +268,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
     Form for updating post report details
     """
 
+    report_acknowledged_date = AMPDateField(label="Report acknowledged")
     week_12_followup_date = AMPDateField(label="12 week followup date")
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
@@ -308,6 +307,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "report_acknowledged_date",
             "week_12_followup_date",
             "psb_progress_notes",
             "week_12_followup_email_sent_date",

@@ -2,6 +2,10 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report acknowledged</th>
+            <td class="govuk-table__cell">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-third">Followup date</th>
             <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
         </tr>
