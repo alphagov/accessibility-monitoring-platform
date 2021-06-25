@@ -26,16 +26,17 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("not-a-psb", "Not a public sector body"),
 ]
 
+DEFAULT_TEST_TYPE = "simple"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("simple", "Simplified"),
+    (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
 ]
 
+DEFAULT_WEBSITE_TYPE = "public"
 WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("public", "Public website"),
+    (DEFAULT_WEBSITE_TYPE, "Public website"),
     ("int-extranet", "Intranet/Extranet"),
-    ("other", "Other"),
-    ("unknown", "Unknown"),
+    ("n/a", "N/A"),
 ]
 
 CASE_ORIGIN_CHOICES: List[Tuple[str, str]] = [
@@ -92,7 +93,7 @@ class Case(models.Model):
         null=True,
     )
     test_type = models.CharField(
-        max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
+        max_length=10, choices=TEST_TYPE_CHOICES, default=DEFAULT_TEST_TYPE
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
@@ -100,7 +101,7 @@ class Case(models.Model):
     organisation_name = models.TextField(default="", blank=True)
     service_name = models.TextField(default="", blank=True)
     website_type = models.CharField(
-        max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
+        max_length=100, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
     )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
     region = models.ManyToManyField(Region, null=True, blank=True)

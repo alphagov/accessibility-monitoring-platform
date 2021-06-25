@@ -27,7 +27,9 @@ from .models import (
     Contact,
     CASE_ORIGIN_CHOICES,
     STATUS_CHOICES,
+    DEFAULT_TEST_TYPE,
     TEST_TYPE_CHOICES,
+    DEFAULT_WEBSITE_TYPE,
     WEBSITE_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
@@ -84,7 +86,7 @@ class CaseCreateForm(forms.ModelForm):
         label="Test type",
         choices=TEST_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
-        initial="simple",
+        initial=DEFAULT_TEST_TYPE,
     )
     home_page_url = AMPURLField(
         label="Full URL",
@@ -96,6 +98,7 @@ class CaseCreateForm(forms.ModelForm):
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
+        initial=DEFAULT_WEBSITE_TYPE,
         widget=AMPRadioSelectWidget,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
