@@ -23,7 +23,7 @@
         <form class="login-form" id="fm1" method="post" action="{% url 'login' %}">
           {% csrf_token %}
           <div class="form-group form-field-default" errorid="loginStatusUsername">
-            <label class="govuk-label govuk-label--m" for="{{form.username.auto_id}}">E-Mail</label>
+            <label class="govuk-label govuk-label--m" for="{{form.username.auto_id}}">Email</label>
             {{form.username}}
             <span class="govuk-label">{{form.username.help_text}}</span>
 
