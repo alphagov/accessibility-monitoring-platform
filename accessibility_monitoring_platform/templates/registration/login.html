@@ -5,12 +5,12 @@
 {% block content %}
 <div class="govuk-main-wrapper">
   <div class="region login">
-    <h1 class="govuk-heading-l">Login</h1>
+    <h1 class="govuk-heading-l">Sign in</h1>
     {% if next %}
       {% if user.is_authenticated %}
         <p>
           Your account doesn't have access to this page. To proceed,
-          please login with an account that has access.
+          please sign in with an account that has access.
         </p>
         {% endif %}
       {% endif %}
