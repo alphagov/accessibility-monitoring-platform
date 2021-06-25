@@ -14,7 +14,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'cases/case_detail_website_details.html' %}
+                {% include 'cases/case_detail_case_details.html' %}
                 {% include 'cases/case_detail_contact_details.html' %}
                 {% include 'cases/case_detail_testing_details.html' %}
                 {% include 'cases/case_detail_report_details.html' %}
@@ -45,7 +45,7 @@
                     >
                         Export to CSV
                     </a>
-                    <a href="{% url 'cases:edit-website-details' case.id %}"
+                    <a href="{% url 'cases:edit-case-details' case.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"

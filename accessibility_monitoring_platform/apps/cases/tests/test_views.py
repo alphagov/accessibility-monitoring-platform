@@ -240,7 +240,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
         ("cases:case-detail", '<h1 class="govuk-heading-xl">View case #'),
-        ("cases:edit-website-details", "<li>Website details</li>"),
+        ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
@@ -287,8 +287,8 @@ def test_create_case_redirects_based_on_button_pressed(
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
-        ("cases:edit-website-details", "save_continue", "cases:edit-contact-details"),
-        ("cases:edit-website-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-case-details", "save_continue", "cases:edit-contact-details"),
+        ("cases:edit-case-details", "save_exit", "cases:case-detail"),
         ("cases:edit-contact-details", "save_continue", "cases:edit-test-results"),
         ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),

@@ -14,7 +14,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'cases:edit-website-details' case.id %}">
+                <form method="post" action="{% url 'cases:edit-case-details' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-error-message">{{ form.non_field_errors }}</div>
 
@@ -70,7 +70,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/case_navbar.html' with current_page='edit-website' %}
+                {% include 'cases/case_navbar.html' with current_page='edit-case-details' %}
             </div>
         </div>
     </main>

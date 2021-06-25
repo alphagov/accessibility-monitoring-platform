@@ -2,7 +2,7 @@
     {% if current_page == 'view-details' %}
         <h2 class="govuk-heading-m">Contents</h2>
         <ul class="govuk-list">
-            <li><a href="#website-details" class="govuk-link">Website details</a></li>
+            <li><a href="#case-details" class="govuk-link">Case details</a></li>
             <li><a href="#contact-details" class="govuk-link">Contact details</a></li>
             <li><a href="#testing-details" class="govuk-link">Testing details</a></li>
             <li><a href="#report-details" class="govuk-link">Report details</a></li>
@@ -12,10 +12,10 @@
     {% else %}
         <h2 class="govuk-heading-m">Case steps</h2>
         <ul class="govuk-list">
-            {% if current_page == 'edit-website' %}
-                <li>Website details</li>
+            {% if current_page == 'edit-case-details' %}
+                <li>Case details</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-website-details' case.id %}" class="govuk-link">Website details</a></li>
+                <li><a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link">Case details</a></li>
             {% endif %}
             {% if current_page == 'edit-contacts' %}
                 <li>Contact details</li>
