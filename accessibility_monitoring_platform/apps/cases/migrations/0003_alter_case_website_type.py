@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0002_auto_20210624_1348'),
+        ("cases", "0002_auto_20210624_1348"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='website_type',
-            field=models.CharField(choices=[('public', 'Public website'), ('int-extranet', 'Intranet/Extranet'), ('n/a', 'N/A')], default='public', max_length=100),
+            model_name="case",
+            name="website_type",
+            field=models.CharField(
+                choices=[
+                    ("public", "Public website"),
+                    ("int-extranet", "Intranet/Extranet"),
+                    ("n/a", "N/A"),
+                ],
+                default="public",
+                max_length=100,
+            ),
         ),
     ]

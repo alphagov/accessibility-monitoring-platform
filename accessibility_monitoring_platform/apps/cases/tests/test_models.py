@@ -12,7 +12,7 @@ HOME_PAGE_URL = f"https://{DOMAIN}/index.html"
 
 @pytest.mark.django_db
 def test_case_created_timestamp_is_populated():
-    """ Test the Case created field is populated the first time the Case is saved """
+    """Test the Case created field is populated the first time the Case is saved"""
     case = Case.objects.create()
 
     assert case.created is not None
@@ -21,7 +21,7 @@ def test_case_created_timestamp_is_populated():
 
 @pytest.mark.django_db
 def test_case_created_timestamp_is_not_updated():
-    """ Test the Case created field is not updated on subsequent saves """
+    """Test the Case created field is not updated on subsequent saves"""
     case = Case.objects.create()
 
     original_created_timestamp = case.created
@@ -36,7 +36,7 @@ def test_case_created_timestamp_is_not_updated():
 
 @pytest.mark.django_db
 def test_case_domain_is_populated_from_home_page_url():
-    """ Test the Case domain field is populated from the home_page_url """
+    """Test the Case domain field is populated from the home_page_url"""
     case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
     assert case.domain == DOMAIN
@@ -44,7 +44,7 @@ def test_case_domain_is_populated_from_home_page_url():
 
 @pytest.mark.django_db
 def test_case_completed_timestamp_is_updated_on_completion():
-    """ Test the Case completed field is updated when is_case_completed flag is set """
+    """Test the Case completed field is updated when is_case_completed flag is set"""
     case = Case.objects.create()
 
     assert case.completed is None
@@ -59,7 +59,7 @@ def test_case_completed_timestamp_is_updated_on_completion():
 
 @pytest.mark.django_db
 def test_contact_name_is_as_expected():
-    """ Test that name is a combination of first_name and last_name """
+    """Test that name is a combination of first_name and last_name"""
     case = Case.objects.create()
     contact = Contact.objects.create(
         case=case,
@@ -72,7 +72,7 @@ def test_contact_name_is_as_expected():
 
 @pytest.mark.django_db
 def test_contact_created_timestamp_is_populated():
-    """ Test the created field is populated the first time the Contact is saved """
+    """Test the created field is populated the first time the Contact is saved"""
     case = Case.objects.create()
     contact = Contact.objects.create(case=case)
 
@@ -82,7 +82,7 @@ def test_contact_created_timestamp_is_populated():
 
 @pytest.mark.django_db
 def test_contact_created_timestamp_is_not_updated():
-    """ Test the created field is not updated on subsequent save """
+    """Test the created field is not updated on subsequent save"""
     case = Case.objects.create()
     contact = Contact.objects.create(case=case)
 

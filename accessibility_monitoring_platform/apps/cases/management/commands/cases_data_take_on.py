@@ -22,7 +22,7 @@ NUMBER_OF_STATUSES: int = len(STATUS_CHOICES)
 
 
 def extract_data_from_simplified_test_filename(filename: str) -> Tuple[str, str]:
-    """ Extract Case data from simplified test filename """
+    """Extract Case data from simplified test filename"""
     simplified_test_filename: str = filename.replace("_", "")
 
     words: List[str] = simplified_test_filename.split(".")[0].split()
@@ -35,7 +35,7 @@ def extract_data_from_simplified_test_filename(filename: str) -> Tuple[str, str]
 
 
 def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
-    """ Extract Case data from csv row """
+    """Extract Case data from csv row"""
     yyyy, mm, dd = row["Created date"].split("-")
     created_time = datetime(int(yyyy), int(mm), int(dd), tzinfo=pytz.UTC)
 
@@ -48,7 +48,14 @@ def extract_data_from_row(row: List[str]) -> Tuple[datetime, str, str, str]:
     test_results_url = row["Link to monitor doc"]
     report_final_url = row["Link to report"]
 
-    return (created_time, home_page_url, domain, auditor_name, test_results_url, report_final_url)
+    return (
+        created_time,
+        home_page_url,
+        domain,
+        auditor_name,
+        test_results_url,
+        report_final_url,
+    )
 
 
 class Command(BaseCommand):

@@ -6,33 +6,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0001_initial'),
+        ("cases", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='is_case_completed',
+            model_name="case",
+            name="is_case_completed",
             field=models.BooleanField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='is_disproportionate_claimed',
+            model_name="case",
+            name="is_disproportionate_claimed",
             field=models.BooleanField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='is_website_compliant',
+            model_name="case",
+            name="is_website_compliant",
             field=models.BooleanField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='test_type',
-            field=models.CharField(choices=[('simple', 'Simplified'), ('detailed', 'Detailed')], default='simple', max_length=10),
+            model_name="case",
+            name="test_type",
+            field=models.CharField(
+                choices=[("simple", "Simplified"), ("detailed", "Detailed")],
+                default="simple",
+                max_length=10,
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='preferred',
+            model_name="contact",
+            name="preferred",
             field=models.BooleanField(blank=True, null=True),
         ),
     ]
