@@ -17,7 +17,7 @@ INPUT_FILE_NAME = (
 )
 
 
-def delete_existing_data(verbose) -> None:
+def delete_existing_data(verbose: bool = False) -> None:
     if verbose:
         print("Deleting all existing cases and contacts from database")
     Case.objects.all().delete()
@@ -36,21 +36,21 @@ def get_sectors() -> Dict[str, Sector]:
     return {sector.name: sector for sector in Sector.objects.all()}
 
 
-def get_boolean_from_row(row: List[str], column_name: str) -> Union[bool, None]:
+def get_boolean_from_row(row: Dict[str, str], column_name: str) -> Union[bool, None]:
     string = row.get(column_name, "")
     return string == "True" if string else None
 
 
-def get_string_from_row(row: List[str], column_name: str, default: str = "") -> str:
+def get_string_from_row(row: Dict[str, str], column_name: str, default: str = "") -> str:
     return row.get(column_name, default)
 
 
-def get_integer_from_row(row: List[str], column_name: str = "id") -> int:
-    id = row.get(column_name)
+def get_integer_from_row(row: Dict[str, str], column_name: str = "id") -> int:
+    id: str = row.get(column_name)
     return int(id)
 
 
-def get_date_from_row(row: List[str], column_name: str) -> Union[date, None]:
+def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None]:
     date_string: Union[str, None] = row.get(column_name)
     if date_string:
         yyyy, mm, dd = date_string.split("-")
@@ -58,25 +58,25 @@ def get_date_from_row(row: List[str], column_name: str) -> Union[date, None]:
     return None
 
 
-def get_datetime_from_row(row: List[str], column_name: str) -> Union[datetime, None]:
+def get_datetime_from_row(row: Dict[str, str], column_name: str) -> Union[datetime, None]:
     datetime_string: Union[str, None] = row.get(column_name)
     if datetime_string:
         try:
-            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S.%f%z")
+            timestamp: datetime = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S.%f%z")
         except ValueError:
-            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S%z")
+            timestamp: datetime = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S%z")
         return timestamp
     return None
 
 
 def get_or_create_user_from_row(
-    row: List[str], users: List[User], column_name: str
+    row: Dict[str, str], users: List[User], column_name: str
 ) -> Union[User, None]:
-    user_email = row.get(column_name)
+    user_email: Union[str, None] = row.get(column_name)
     if user_email and user_email not in users:
         name, _ = user_email.split("@")
         first_name, last_name = name.split(".")
-        user = User.objects.create(
+        user: User = User.objects.create(
             first_name=first_name,
             last_name=last_name,
             username=user_email,
@@ -88,11 +88,11 @@ def get_or_create_user_from_row(
 
 
 def get_or_create_sector_from_row(
-    row: List[str], sectors: Dict[str, Sector]
+    row: Dict[str, str], sectors: Dict[str, Sector]
 ) -> Union[Sector, None]:
-    sector_name = row.get("sector")
+    sector_name: Union[Sector, None] = row.get("sector")
     if sector_name and sector_name not in sectors:
-        sector = Sector.objects.create(name=sector_name)
+        sector: Sector = Sector.objects.create(name=sector_name)
         sectors[sector_name] = sector
         return sector
     else:
@@ -101,13 +101,13 @@ def get_or_create_sector_from_row(
 
 
 def get_data_from_row(
-    row: List[str],
+    row: Dict[str, str],
     users: List[User],
     sectors: List[Sector],
     column_name: str,
     column_type: str = "string",
     default: Any = "",
-) -> str:
+) -> Union[str, bool, int, date, datetime, User, Sector]:
     if column_type == "string":
         return get_string_from_row(row=row, column_name=column_name, default=default)
     if column_type == "boolean":
@@ -119,7 +119,9 @@ def get_data_from_row(
     if column_type == "datetime":
         return get_datetime_from_row(row=row, column_name=column_name)
     if column_type == "user":
-        return get_or_create_user_from_row(row=row, users=users, column_name=column_name)
+        return get_or_create_user_from_row(
+            row=row, users=users, column_name=column_name
+        )
     if column_type == "sector":
         return get_or_create_sector_from_row(row=row, sectors=sectors)
 
@@ -212,16 +214,16 @@ def create_case(get_data: Callable) -> Case:
     )
 
 
-def get_or_create_regions_from_row(row: List[str], regions) -> List[Region]:
-    region = row.get("region", None)
+def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]:
+    region: Union[Region, None] = row.get("region", None)
     if region:
-        region_names = region.split(",")
-        region_objects = []
+        region_names: List[str] = region.split(",")
+        region_objects: List[Region] = []
         for region_name in region_names:
             if region_name in regions:
                 region_objects.append(regions[region_name])
             else:
-                new_region = Region.objects.create(name=region_name)
+                new_region: Region = Region.objects.create(name=region_name)
                 regions[region_name] = new_region
                 region_objects.append(new_region)
         return region_objects
@@ -273,10 +275,14 @@ class Command(BaseCommand):
                 if verbose:
                     print(f"{count} #{row['id']} {row['organisation_name']}")
 
-                get_data = partial(get_data_from_row, row=row, users=users, sectors=sectors)
-                case = create_case(get_data)
+                get_data: Callable = partial(
+                    get_data_from_row, row=row, users=users, sectors=sectors
+                )
+                case: Case = create_case(get_data)
 
-                regions_for_case: List[Region] = get_or_create_regions_from_row(row, regions)
+                regions_for_case: List[Region] = get_or_create_regions_from_row(
+                    row, regions
+                )
 
                 if regions_for_case:
                     case.region.add(*regions_for_case)
