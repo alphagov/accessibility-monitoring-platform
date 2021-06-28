@@ -29,7 +29,15 @@ def download_as_csv(
 
     output: List[List[str]] = []
     for item in queryset:
-        output.append([getattr(item, field_name) for field_name in field_names])
+        row = []
+        for field_name in field_names:
+            item_attr = getattr(item, field_name)
+            if hasattr(item_attr, "all"):
+                value = ",".join([str(related_item) for related_item in item_attr.all()])
+            else:
+                value = item_attr
+            row.append(value)
+        output.append(row)
 
     writer.writerows(output)
 

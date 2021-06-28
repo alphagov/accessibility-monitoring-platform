@@ -186,7 +186,9 @@ class Case(models.Model):
         if self.is_case_completed and not self.completed:
             self.completed = now
         if self.report_acknowledged_date and not self.week_12_followup_date:
-            self.week_12_followup_date = self.report_acknowledged_date + timedelta(weeks=12)
+            self.week_12_followup_date = self.report_acknowledged_date + timedelta(
+                weeks=12
+            )
         super().save(*args, **kwargs)
 
 

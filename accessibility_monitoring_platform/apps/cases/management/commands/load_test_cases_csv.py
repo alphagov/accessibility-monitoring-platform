@@ -3,6 +3,7 @@ This command adds historic case data.
 """
 import csv
 from datetime import date, datetime
+from functools import partial
 from typing import Any, Dict, List, Union
 
 from django.contrib.auth.models import User
@@ -35,172 +36,203 @@ def get_sectors() -> Dict[str, Sector]:
     return {sector.name: sector for sector in Sector.objects.all()}
 
 
-def get_boolean_from_row(row: List[str], fieldname: str) -> str:
-    string = row.get(fieldname, "")
-    if string == "":
-        return None
-    return string == "True"
+def get_boolean_from_row(row: List[str], column_name: str) -> Union[bool, None]:
+    string = row.get(column_name, "")
+    return string == "True" if string else None
 
 
-def get_string_from_row(row: List[str], fieldname: str) -> str:
-    return row.get(fieldname, "")
+def get_string_from_row(row: List[str], column_name: str, default: str = "") -> str:
+    return row.get(column_name, default)
 
 
-def get_id_from_row(row: List[str]) -> int:
-    id = row.get("id")
+def get_integer_from_row(row: List[str], column_name: str = "id") -> int:
+    id = row.get(column_name)
     return int(id)
 
 
-def get_user_from_row(
-    row: List[str], users: List[User], fieldname: str
-) -> Union[User, None]:
-    user_email = row.get(fieldname)
-    return users.get(user_email) if user_email is not None else None
-
-
-def get_date_from_row(row: List[str], fieldname: str) -> Union[date, None]:
-    date_string: Union[str, None] = row.get(fieldname)
+def get_date_from_row(row: List[str], column_name: str) -> Union[date, None]:
+    date_string: Union[str, None] = row.get(column_name)
     if date_string:
         yyyy, mm, dd = date_string.split("-")
         return date(int(yyyy), int(mm), int(dd))
     return None
 
 
-def get_datetime_from_row(row: List[str], fieldname: str) -> Union[datetime, None]:
-    datetime_string: Union[str, None] = row.get(fieldname)
+def get_datetime_from_row(row: List[str], column_name: str) -> Union[datetime, None]:
+    datetime_string: Union[str, None] = row.get(column_name)
     if datetime_string:
         try:
-            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S.%f+00:00")
+            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S.%f%z")
         except ValueError:
-            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S+00:00")
+            timestamp = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S%z")
         return timestamp
     return None
 
 
-def get_status_from_row(row: List[str]) -> str:
-    return row.get("status", "new-case")
+def get_or_create_user_from_row(
+    row: List[str], users: List[User], column_name: str
+) -> Union[User, None]:
+    user_email = row.get(column_name)
+    if user_email and user_email not in users:
+        name, _ = user_email.split("@")
+        first_name, last_name = name.split(".")
+        user = User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            username=user_email,
+            email=user_email,
+        )
+        users[user_email] = user
+        return user
+    return users.get(user_email) if user_email is not None else None
 
 
-def get_test_type_from_row(row: List[str]) -> str:
-    return row.get("test_type", "simple")
-
-
-def get_website_type_from_row(row: List[str]) -> str:
-    return row.get("website_type", "public")
-
-
-def get_sector_from_row(
+def get_or_create_sector_from_row(
     row: List[str], sectors: Dict[str, Sector]
 ) -> Union[Sector, None]:
     sector_name = row.get("sector")
-    if sector_name:
+    if sector_name and sector_name not in sectors:
+        sector = Sector.objects.create(name=sector_name)
+        sectors[sector_name] = sector
+        return sector
+    else:
         return sectors.get(sector_name)
     return None
 
 
-def get_regions_from_row(row: List[str], regions) -> List[Region]:
-    region = row.get("region", None)
-    if region is not None:
-        region_names = region.split(",")
-        return [
-            regions[region_name]
-            for region_name in region_names
-            if region_name in regions
-        ]
-    return []
-
-
-def get_case_origin_from_row(row: List[str]) -> str:
-    return row.get("case_origin", "org")
-
-
-def get_test_status_from_row(row: List[str]) -> str:
-    return row.get("test_status", "not-started")
-
-
-def get_report_review_status_from_row(row: List[str]) -> str:
-    return row.get("report_review_status", "not-started")
-
-
-def get_report_approved_status_from_row(row: List[str]) -> str:
-    return row.get("report_approved_status", "not-started")
-
-
-def get_accessibility_statement_decison_from_row(row: List[str]) -> str:
-    return row.get("accessibility_statement_decison", "not-compliant")
-
-
-def get_compliance_decision_from_row(row: List[str]) -> str:
-    return row.get("compliance_decision", "unknown")
+def get_data_from_row(
+    row: List[str],
+    users: List[User],
+    sectors: List[Sector],
+    column_name: str,
+    column_type: str = "string",
+    default: Any = "",
+) -> str:
+    if column_type == "string":
+        return get_string_from_row(row=row, column_name=column_name, default=default)
+    if column_type == "boolean":
+        return get_boolean_from_row(row=row, column_name=column_name)
+    if column_type == "integer":
+        return get_integer_from_row(row=row, column_name=column_name)
+    if column_type == "date":
+        return get_date_from_row(row=row, column_name=column_name)
+    if column_type == "datetime":
+        return get_datetime_from_row(row=row, column_name=column_name)
+    if column_type == "user":
+        return get_or_create_user_from_row(row=row, users=users, column_name=column_name)
+    if column_type == "sector":
+        return get_or_create_sector_from_row(row=row, sectors=sectors)
 
 
 def create_case(
     row: List[str],
     users: Dict[str, User],
-    regions: Dict[str, Region],
     sectors: Dict[str, Sector],
 ) -> Case:
-    return Case.objects.create(
-        id=get_id_from_row(row),
-        status=get_status_from_row(row),
-        created=get_datetime_from_row(row, "created"),
-        auditor=get_user_from_row(row, users, "auditor"),
-        test_type=get_test_type_from_row(row),
-        home_page_url=get_string_from_row(row, "home_page_url"),
-        domain=get_string_from_row(row, "domain"),
-        application=get_string_from_row(row, "application"),
-        organisation_name=get_string_from_row(row, "organisation_name"),
-        website_type=get_website_type_from_row(row),
-        sector=get_sector_from_row(row, sectors),
-        case_origin=get_case_origin_from_row(row),
-        zendesk_url=get_string_from_row(row, "zendesk_url"),
-        trello_url=get_string_from_row(row, "trello_url"),
-        notes=get_string_from_row(row, "notes"),
-        is_public_sector_body=get_boolean_from_row(row, "is_public_sector_body"),
-        test_results_url=get_string_from_row(row, "test_results_url"),
-        test_status=get_test_status_from_row(row),
-        is_website_compliant=get_boolean_from_row(row, "is_website_compliant"),
-        test_notes=get_string_from_row(row, "test_notes"),
-        report_draft_url=get_string_from_row(row, "report_draft_url"),
-        report_review_status=get_report_review_status_from_row(row),
-        reviewer=get_user_from_row(row, users, "reviewer"),
-        report_approved_status=get_report_approved_status_from_row(row),
-        reviewer_notes=get_string_from_row(row, "reviewer_notes"),
-        report_final_url=get_string_from_row(row, "report_final_url"),
-        report_sent_date=get_date_from_row(row, "report_sent_date"),
-        report_acknowledged_date=get_date_from_row(row, "report_acknowledged_date"),
-        week_12_followup_date=get_date_from_row(row, "week_12_followup_date"),
-        psb_progress_notes=get_string_from_row(row, "psb_progress_notes"),
-        week_12_followup_email_sent_date=get_date_from_row(
-            row, "week_12_followup_email_sent_date"
-        ),
-        week_12_followup_email_acknowledgement_date=get_date_from_row(
-            row, "week_12_followup_email_acknowledgement_date"
-        ),
-        is_website_retested=get_boolean_from_row(row, "is_website_retested"),
-        is_disproportionate_claimed=get_boolean_from_row(
-            row, "is_disproportionate_claimed"
-        ),
-        disproportionate_notes=get_string_from_row(row, "disproportionate_notes"),
-        accessibility_statement_decison=get_accessibility_statement_decison_from_row(
-            row
-        ),
-        accessibility_statement_url=get_string_from_row(
-            row, "accessibility_statement_url"
-        ),
-        accessibility_statement_notes=get_string_from_row(
-            row, "accessibility_statement_notes"
-        ),
-        compliance_decision=get_compliance_decision_from_row(row),
-        compliance_decision_notes=get_string_from_row(row, "compliance_decision_notes"),
-        compliance_email_sent_date=get_date_from_row(row, "compliance_email_sent_date"),
-        sent_to_enforcement_body_sent_date=get_date_from_row(
-            row, "sent_to_enforcement_body_sent_date"
-        ),
-        is_case_completed=get_boolean_from_row(row, "is_case_completed"),
-        completed=get_datetime_from_row(row, "completed"),
-        is_archived=get_boolean_from_row(row, "is_archived"),
+    get_data = partial(
+        get_data_from_row, row=row, users=users, sectors=sectors
     )
+    return Case.objects.create(
+        id=get_data(column_name="id", column_type="integer"),
+        status=get_data(column_name="status", default="new-case"),
+        created=get_data(column_name="created", column_type="datetime"),
+        auditor=get_data(column_name="auditor", column_type="user"),
+        test_type=get_data(column_name="test_type", default="simple"),
+        home_page_url=get_data(column_name="home_page_url"),
+        domain=get_data(column_name="domain"),
+        application=get_data(column_name="application"),
+        organisation_name=get_data(column_name="organisation_name"),
+        website_type=get_data(column_name="website_type", default="public"),
+        sector=get_data(column_name="sector", column_type="sector"),
+        case_origin=get_data(column_name="case_origin", default="org"),
+        zendesk_url=get_data(column_name="zendesk_url"),
+        trello_url=get_data(column_name="trello_url"),
+        notes=get_data(column_name="notes"),
+        is_public_sector_body=get_data(
+            column_name="is_public_sector_body", column_type="boolean"
+        ),
+        test_results_url=get_data(column_name="test_results_url"),
+        test_status=get_data(column_name="test_status", default="not-started"),
+        is_website_compliant=get_data(
+            column_name="is_website_compliant", column_type="boolean"
+        ),
+        test_notes=get_data(column_name="test_notes"),
+        report_draft_url=get_data(column_name="report_draft_url"),
+        report_review_status=get_data(
+            column_name="report_review_status", default="not-started"
+        ),
+        reviewer=get_data(column_name="reviewer", column_type="user"),
+        report_approved_status=get_data(
+            column_name="report_approved_status", default="not-started"
+        ),
+        reviewer_notes=get_data(column_name="reviewer_notes"),
+        report_final_url=get_data(column_name="report_final_url"),
+        report_sent_date=get_data(column_name="report_sent_date", column_type="date"),
+        report_acknowledged_date=get_data(
+            column_name="report_acknowledged_date", column_type="date"
+        ),
+        week_12_followup_date=get_data(
+            column_name="week_12_followup_date", column_type="date"
+        ),
+        psb_progress_notes=get_data(column_name="psb_progress_notes"),
+        week_12_followup_email_sent_date=get_data(
+            column_name="week_12_followup_email_sent_date",
+            column_type="date",
+        ),
+        week_12_followup_email_acknowledgement_date=get_data(
+            column_name="week_12_followup_email_acknowledgement_date",
+            column_type="date",
+        ),
+        is_website_retested=get_data(
+            column_name="is_website_retested", column_type="boolean"
+        ),
+        is_disproportionate_claimed=get_data(
+            column_name="is_disproportionate_claimed",
+            column_type="boolean",
+        ),
+        disproportionate_notes=get_data(column_name="disproportionate_notes"),
+        accessibility_statement_decison=get_data(
+            column_name="accessibility_statement_decison",
+            default="not-compliant",
+        ),
+        accessibility_statement_url=get_data(column_name="accessibility_statement_url"),
+        accessibility_statement_notes=get_data(
+            column_name="accessibility_statement_notes"
+        ),
+        compliance_decision=get_data(
+            column_name="compliance_decision", default="unknown"
+        ),
+        compliance_decision_notes=get_data(column_name="compliance_decision_notes"),
+        compliance_email_sent_date=get_data(
+            column_name="compliance_email_sent_date",
+            column_type="date",
+        ),
+        sent_to_enforcement_body_sent_date=get_data(
+            column_name="sent_to_enforcement_body_sent_date",
+            column_type="date",
+        ),
+        is_case_completed=get_data(
+            column_name="is_case_completed", column_type="boolean"
+        ),
+        completed=get_data(column_name="completed", column_type="datetime"),
+        is_archived=get_data(column_name="is_archived", column_type="boolean"),
+    )
+
+
+def get_or_create_regions_from_row(row: List[str], regions) -> List[Region]:
+    region = row.get("region", None)
+    if region:
+        region_names = region.split(",")
+        region_objects = []
+        for region_name in region_names:
+            if region_name in regions:
+                region_objects.append(regions[region_name])
+            else:
+                new_region = Region.objects.create(name=region_name)
+                regions[region_name] = new_region
+                region_objects.append(new_region)
+        return region_objects
+    return []
 
 
 class Command(BaseCommand):
@@ -250,14 +282,14 @@ class Command(BaseCommand):
 
                 case = create_case(
                     row=row,
-                    regions=regions,
                     sectors=sectors,
                     users=users,
                 )
 
-                regions: List[Region] = get_regions_from_row(row, regions)
-                if regions:
-                    case.region.add(regions)
+                regions_for_case: List[Region] = get_or_create_regions_from_row(row, regions)
+
+                if regions_for_case:
+                    case.region.add(*regions_for_case)
 
                 # if "Contact name" in row and row["Contact name"]:
                 #     name_words = row["Contact name"].split()
