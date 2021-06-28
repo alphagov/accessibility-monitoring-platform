@@ -4,7 +4,7 @@ This command adds historic case data.
 import csv
 from datetime import date, datetime
 from functools import partial
-from typing import Any, Dict, List, Union
+from typing import Any, Callable, Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -124,14 +124,7 @@ def get_data_from_row(
         return get_or_create_sector_from_row(row=row, sectors=sectors)
 
 
-def create_case(
-    row: List[str],
-    users: Dict[str, User],
-    sectors: Dict[str, Sector],
-) -> Case:
-    get_data = partial(
-        get_data_from_row, row=row, users=users, sectors=sectors
-    )
+def create_case(get_data: Callable) -> Case:
     return Case.objects.create(
         id=get_data(column_name="id", column_type="integer"),
         status=get_data(column_name="status", default="new-case"),
@@ -280,27 +273,20 @@ class Command(BaseCommand):
                 if verbose:
                     print(f"{count} #{row['id']} {row['organisation_name']}")
 
-                case = create_case(
-                    row=row,
-                    sectors=sectors,
-                    users=users,
-                )
+                get_data = partial(get_data_from_row, row=row, users=users, sectors=sectors)
+                case = create_case(get_data)
 
                 regions_for_case: List[Region] = get_or_create_regions_from_row(row, regions)
 
                 if regions_for_case:
                     case.region.add(*regions_for_case)
 
-                # if "Contact name" in row and row["Contact name"]:
-                #     name_words = row["Contact name"].split()
-                #     contact = Contact(
-                #         case=case,
-                #         first_name=name_words[0],
-                #         last_name=" ".join(name_words[1:]),
-                #         job_title=row["Job title"],
-                #         detail=row["Contact detail"].split("\n")[0],
-                #         notes=row["Contact detail"],
-                #         created=created_time,
-                #         created_by=auditor,
-                #     )
-                #     contact.save()
+                if "contact_email" in row and row["contact_email"]:
+                    contact: Contact = Contact(
+                        case=case,
+                        detail=get_data(column_name="contact_email"),
+                        notes=get_data(column_name="contact_notes"),
+                        created=get_data(column_name="created", column_type="datetime"),
+                        created_by=get_data(column_name="auditor", column_type="user"),
+                    )
+                    contact.save()

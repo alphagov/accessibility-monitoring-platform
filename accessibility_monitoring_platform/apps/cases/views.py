@@ -347,6 +347,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
         queryset=Case.objects.filter(**filters),
         field_names=CASE_FIELDS_TO_EXPORT,
         filename="cases.csv",
+        include_contact=True,
     )
 
 
@@ -365,6 +366,7 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         queryset=Case.objects.filter(id=pk),
         field_names=CASE_FIELDS_TO_EXPORT,
         filename=f"case_#{pk}.csv",
+        include_contact=True,
     )
 
 
