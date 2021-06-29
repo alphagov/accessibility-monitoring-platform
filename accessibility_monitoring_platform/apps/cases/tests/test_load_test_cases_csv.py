@@ -300,12 +300,10 @@ def test_get_or_create_regions_from_row_creates_regions():
     assert regions[1].name == SECOND_REGION_NAME
 
 
-# Todo: Enable this test when the outstanding branches which make some boolean columns nullable have
-# been deployed and merged into this one.
-# @pytest.mark.django_db
-# def test_load_test_cases_csv_command():
-#     """Test load_test_cases_csv populates the database"""
-#     call_command("load_test_cases_csv", "--initial")
+@pytest.mark.django_db
+def test_load_test_cases_csv_command():
+    """Test load_test_cases_csv populates the database"""
+    call_command("load_test_cases_csv", "--initial")
 
-#     assert Case.objects.count() == 21
-#     assert Contact.objects.count() == 7
+    assert Case.objects.count() == 21
+    assert Contact.objects.count() == 7
