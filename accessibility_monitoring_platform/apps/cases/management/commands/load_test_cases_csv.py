@@ -41,7 +41,9 @@ def get_boolean_from_row(row: Dict[str, str], column_name: str) -> Union[bool, N
     return string == "True" if string else None
 
 
-def get_string_from_row(row: Dict[str, str], column_name: str, default: str = "") -> str:
+def get_string_from_row(
+    row: Dict[str, str], column_name: str, default: str = ""
+) -> str:
     return row.get(column_name, default)
 
 
@@ -58,13 +60,19 @@ def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None
     return None
 
 
-def get_datetime_from_row(row: Dict[str, str], column_name: str) -> Union[datetime, None]:
+def get_datetime_from_row(
+    row: Dict[str, str], column_name: str
+) -> Union[datetime, None]:
     datetime_string: Union[str, None] = row.get(column_name)
     if datetime_string:
         try:
-            timestamp: datetime = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S.%f%z")
+            timestamp: datetime = datetime.strptime(
+                datetime_string, "%Y-%m-%d %H:%M:%S.%f%z"
+            )
         except ValueError:
-            timestamp: datetime = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S%z")
+            timestamp: datetime = datetime.strptime(
+                datetime_string, "%Y-%m-%d %H:%M:%S%z"
+            )
         return timestamp
     return None
 
