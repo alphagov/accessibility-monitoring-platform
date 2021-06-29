@@ -129,9 +129,9 @@ class CaseCreateForm(forms.ModelForm):
         ]
 
 
-class CaseWebsiteDetailUpdateForm(CaseCreateForm):
+class CaseDetailUpdateForm(CaseCreateForm):
     """
-    Form for updating website details fields of cases
+    Form for updating case details fields
     """
 
     domain = AMPCharFieldWide(label="Domain")

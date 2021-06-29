@@ -18,7 +18,7 @@ from ..common.utils import build_filters, download_as_csv, get_id_from_button_na
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
-    CaseWebsiteDetailUpdateForm,
+    CaseDetailUpdateForm,
     CaseContactFormset,
     CaseContactFormsetOneExtra,
     CaseSearchForm,
@@ -94,6 +94,7 @@ class CaseDetailView(DetailView):
 
     model: Case = Case
     context_object_name: str = "case"
+    template_name_suffix: str = "_detail"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add unarchived contacts to context"""
@@ -180,15 +181,15 @@ class CaseCreateView(CreateView):
         return url
 
 
-class CaseWebsiteDetailUpdateView(UpdateView):
+class CaseDetailUpdateView(UpdateView):
     """
     View to update case details
     """
 
     model: Case = Case
-    form_class: CaseWebsiteDetailUpdateForm = CaseWebsiteDetailUpdateForm
+    form_class: CaseDetailUpdateForm = CaseDetailUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_website_details_update_form"
+    template_name_suffix: str = "_details_update_form"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
