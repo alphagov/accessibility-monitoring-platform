@@ -19,7 +19,7 @@ CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 
 @pytest.mark.django_db
 def test_case_detail_view_leaves_out_archived_contact(admin_client):
-    """ Test that archived Contacts are not included in context """
+    """Test that archived Contacts are not included in context"""
     case: Case = Case.objects.create()
     unarchived_contact: Contact = Contact.objects.create(
         case=case,
@@ -45,7 +45,7 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
 
 @pytest.mark.django_db
 def test_case_list_view_leaves_out_archived_case(admin_client):
-    """ Test that the case list view page does not include archived cases """
+    """Test that the case list view page does not include archived cases"""
     Case.objects.create(organisation_name="Not Archived")
     Case.objects.create(organisation_name="Is Archived", is_archived=True)
 
@@ -59,7 +59,7 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
 
 @pytest.mark.django_db
 def test_case_list_view_filters_by_case_number(admin_client):
-    """ Test that the case list view page can be filtered by case number """
+    """Test that the case list view page can be filtered by case number"""
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
@@ -85,7 +85,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
 def test_case_list_view_string_filters(
     field_name, value, url_parameter_name, admin_client
 ):
-    """ Test that the case list view page can be filtered by string """
+    """Test that the case list view page can be filtered by string"""
     included_case: Case = Case.objects.create(organisation_name="Included")
     setattr(included_case, field_name, value)
     included_case.save()
@@ -111,7 +111,7 @@ def test_case_list_view_string_filters(
 )
 @pytest.mark.django_db
 def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
-    """ Test that the case list view page can be filtered by user """
+    """Test that the case list view page can be filtered by user"""
     user = User.objects.create()
     included_case: Case = Case.objects.create(organisation_name="Included")
     setattr(included_case, field_name, user)
@@ -137,8 +137,10 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     ],
 )
 @pytest.mark.django_db
-def test_case_list_view_user_unassigned_filters(field_name, url_parameter_name, admin_client):
-    """ Test that the case list view page can be filtered by unassigned user values """
+def test_case_list_view_user_unassigned_filters(
+    field_name, url_parameter_name, admin_client
+):
+    """Test that the case list view page can be filtered by unassigned user values"""
     Case.objects.create(organisation_name="Included")
 
     user = User.objects.create()
@@ -158,7 +160,7 @@ def test_case_list_view_user_unassigned_filters(field_name, url_parameter_name, 
 
 @pytest.mark.django_db
 def test_case_list_view_date_range_filters(admin_client):
-    """ Test that the case list view page can be filtered by date range """
+    """Test that the case list view page can be filtered by date range"""
     included_created_date: datetime = datetime(
         year=2021, month=6, day=5, tzinfo=pytz.UTC
     )
@@ -181,7 +183,7 @@ def test_case_list_view_date_range_filters(admin_client):
 
 @pytest.mark.django_db
 def test_case_export_list_view(admin_client):
-    """ Test that the case export list view returns csv data """
+    """Test that the case export list view returns csv data"""
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
@@ -190,7 +192,7 @@ def test_case_export_list_view(admin_client):
 
 @pytest.mark.django_db
 def test_case_export_single_view(admin_client):
-    """ Test that the case export single view returns csv data """
+    """Test that the case export single view returns csv data"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
@@ -203,7 +205,7 @@ def test_case_export_single_view(admin_client):
 
 @pytest.mark.django_db
 def test_archive_case_view(admin_client):
-    """ Test that archive case view archives case """
+    """Test that archive case view archives case"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
@@ -228,7 +230,7 @@ def test_archive_case_view(admin_client):
 )
 @pytest.mark.django_db
 def test_non_case_specific_page_loads(path_name, expected_content, admin_client):
-    """ Test that the non-case-specific view page loads """
+    """Test that the non-case-specific view page loads"""
     response: HttpResponse = admin_client.get(reverse(path_name))
 
     assert response.status_code == 200
@@ -249,7 +251,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 )
 @pytest.mark.django_db
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
-    """ Test that the case-specific view page loads """
+    """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
@@ -271,7 +273,7 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
 def test_create_case_redirects_based_on_button_pressed(
     button_name, expected_redirect_path, admin_client
 ):
-    """ Test that a successful case create redirects based on the button pressed """
+    """Test that a successful case create redirects based on the button pressed"""
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
         {
@@ -306,7 +308,7 @@ def test_create_case_redirects_based_on_button_pressed(
 def test_case_edit_redirects_based_on_button_pressed(
     case_edit_path, button_name, expected_redirect_path, admin_client
 ):
-    """ Test that a successful case update redirects based on the button pressed """
+    """Test that a successful case update redirects based on the button pressed"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(

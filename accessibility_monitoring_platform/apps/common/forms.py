@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Union
 from django.contrib.auth.models import User
 from django import forms
 
-from .utils import convert_date_to_datetime
+from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
@@ -125,6 +125,19 @@ class AMPCharFieldWide(forms.CharField):
             "widget",
             forms.TextInput(attrs={"class": "govuk-input"}),
         )
+        super().__init__(*args, **kwargs)
+
+
+class AMPURLField(forms.CharField):
+    """ Character input field with url validation in the style of GDS design system """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "widget",
+            forms.TextInput(attrs={"class": "govuk-input"}),
+        )
+        kwargs.setdefault("validators", [validate_url])
         super().__init__(*args, **kwargs)
 
 

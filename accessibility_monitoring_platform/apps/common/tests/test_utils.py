@@ -1,12 +1,14 @@
 """
 Test - common utility functions
 """
+import pytest
 import csv
 from datetime import date, datetime
 import io
 import pytz
 from typing import Any, Dict, List, Tuple
 
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
@@ -16,6 +18,7 @@ from ..utils import (
     extract_domain_from_url,
     get_id_from_button_name,
     convert_date_to_datetime,
+    validate_url,
 )
 
 
@@ -122,7 +125,7 @@ def test_get_non_numeric_suffix_from_button_name():
         get_id_from_button_name(
             button_name_prefix=button_name_prefix, querydict=querydict
         )
-        == None
+        is None
     )
 
 
@@ -167,3 +170,19 @@ def test_convert_date_to_datetime():
     input_date: date = date(year=2021, month=6, day=10)
     expected_datetime: datetime = datetime(year=2021, month=6, day=10, tzinfo=pytz.UTC)
     assert convert_date_to_datetime(input_date) == expected_datetime
+
+
+@pytest.mark.parametrize("url", ["https://gov.uk", "http://example.com"])
+def test_validate_url_raises_no_error(url):
+    """ Test url_validation raises no error for a valid url """
+    validation_result = validate_url(url)
+
+    assert validation_result is None
+
+
+def test_validate_url_raises_validation_error():
+    """ Test url_validation raises validation error for invalid url """
+    with pytest.raises(ValidationError) as excinfo:
+        validate_url("no protocol")
+
+    assert "URL must start with http:// or https://" in str(excinfo.value)
