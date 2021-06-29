@@ -97,7 +97,7 @@ class CaseDetailView(DetailView):
     template_name_suffix: str = "_detail"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """ Add unarchived contacts to context """
+        """Add unarchived contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["contacts"] = self.object.contact_set.filter(is_archived=False)
         return context
@@ -113,7 +113,7 @@ class CaseListView(ListView):
     paginate_by: int = 10
 
     def get(self, request, *args, **kwargs):
-        """ Populate filter form """
+        """Populate filter form"""
         if self.request.GET:
             self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
             self.form.is_valid()
@@ -122,7 +122,7 @@ class CaseListView(ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[Case]:
-        """ Add filters to queryset """
+        """Add filters to queryset"""
         if self.form.errors:
             return Case.objects.none()
 
@@ -148,7 +148,7 @@ class CaseListView(ListView):
         return Case.objects.filter(**filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """ Add field values into context """
+        """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         get_without_page: Dict[str, str] = {
@@ -171,7 +171,7 @@ class CaseCreateView(CreateView):
     template_name_suffix: str = "_create_form"
 
     def get_success_url(self) -> str:
-        """ Detect the submit button used and act accordingly """
+        """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
@@ -192,7 +192,7 @@ class CaseDetailUpdateView(UpdateView):
     template_name_suffix: str = "_details_update_form"
 
     def get_success_url(self) -> str:
-        """ Detect the submit button used and act accordingly """
+        """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
@@ -213,7 +213,7 @@ class CaseContactFormsetUpdateView(UpdateView):
     template_name_suffix: str = "_contact_formset"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """ Get context data for template rendering """
+        """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
@@ -229,7 +229,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         return context
 
     def form_valid(self, form: ModelForm):
-        """ Process contents of valid form """
+        """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
         contact_formset = context["contacts_formset"]
         case: Case = form.save()
@@ -250,7 +250,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """ Detect the submit button used and act accordingly """
+        """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
@@ -281,7 +281,7 @@ class CaseTestResultsUpdateView(UpdateView):
     template_name_suffix: str = "_test_results_update_form"
 
     def get_success_url(self) -> str:
-        """ Detect the submit button used and act accordingly """
+        """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
@@ -302,7 +302,7 @@ class CaseReportDetailsUpdateView(UpdateView):
     template_name_suffix: str = "_report_details_update_form"
 
     def get_success_url(self) -> str:
-        """ Detect the submit button used and act accordingly """
+        """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
@@ -323,7 +323,7 @@ class CasePostReportDetailsUpdateView(UpdateView):
     template_name_suffix: str = "_post_report_details_update_form"
 
     def get_success_url(self) -> str:
-        """ Work out url to redirect to on success """
+        """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 

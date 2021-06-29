@@ -5,7 +5,6 @@ from typing import Any
 
 from django import forms
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     AMPRadioSelectWidget,
@@ -21,13 +20,16 @@ from ..common.forms import (
     AMPBooleanField,
     AMPDateField,
     AMPDateRangeForm,
+    AMPURLField,
 )
 from .models import (
     Case,
     Contact,
     CASE_ORIGIN_CHOICES,
     STATUS_CHOICES,
+    DEFAULT_TEST_TYPE,
     TEST_TYPE_CHOICES,
+    DEFAULT_WEBSITE_TYPE,
     WEBSITE_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
@@ -84,18 +86,19 @@ class CaseCreateForm(forms.ModelForm):
         label="Test type",
         choices=TEST_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
-        initial="simple",
+        initial=DEFAULT_TEST_TYPE,
     )
-    home_page_url = AMPCharFieldWide(
+    home_page_url = AMPURLField(
         label="Full URL",
         help_text="E.g. https://example.com",
         required=True,
     )
     organisation_name = AMPCharFieldWide(label="Organisation name")
-    service_name = AMPCharFieldWide(label="Service name")
+    service_name = AMPCharFieldWide(label="Website, App or Service name")
     website_type = AMPChoiceField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
+        initial=DEFAULT_WEBSITE_TYPE,
         widget=AMPRadioSelectWidget,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
@@ -106,7 +109,7 @@ class CaseCreateForm(forms.ModelForm):
     case_origin = AMPChoiceField(
         label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
-    trello_url = AMPCharFieldWide(label="Trello ticket URL")
+    trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -125,12 +128,6 @@ class CaseCreateForm(forms.ModelForm):
             "notes",
         ]
 
-    def clean_home_page_url(self):
-        data = self.cleaned_data["home_page_url"]
-        if not (data.startswith("http://") or data.startswith("https://")):
-            raise ValidationError("URL must start with http:// or https://")
-        return data
-
 
 class CaseDetailUpdateForm(CaseCreateForm):
     """
@@ -138,7 +135,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     """
 
     domain = AMPCharFieldWide(label="Domain")
-    zendesk_url = AMPCharFieldWide(label="Zendesk ticket URL")
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     is_public_sector_body = AMPBooleanField(
         label="Public sector body?",
         help_text="If you later find out the organisation is not a public sector body,"
@@ -210,7 +207,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     Form for updating test results
     """
 
-    test_results_url = AMPCharFieldWide(label="Link to test results")
+    test_results_url = AMPURLField(label="Link to test results")
     test_status = AMPChoiceField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
@@ -234,7 +231,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     Form for updating report details
     """
 
-    report_draft_url = AMPCharFieldWide(label="Link to report draft")
+    report_draft_url = AMPURLField(label="Link to report draft")
     report_review_status = AMPChoiceField(
         label="Report ready to be reviewed?",
         choices=REPORT_REVIEW_STATUS_CHOICES,
@@ -247,7 +244,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         widget=AMPRadioSelectWidget,
     )
     reviewer_notes = AMPTextField(label="QA notes")
-    report_final_url = AMPCharFieldWide(label="Link to final report")
+    report_final_url = AMPURLField(label="Link to final report")
     report_sent_date = AMPDateField(label="Report sent on")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
 
@@ -288,7 +285,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    accessibility_statement_url = AMPCharFieldWide(
+    accessibility_statement_url = AMPURLField(
         label="Link to new accessibility statement"
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
