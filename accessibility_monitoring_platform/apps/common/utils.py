@@ -10,6 +10,7 @@ from typing import (
     Tuple,
 )
 
+from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
@@ -81,3 +82,12 @@ def convert_date_to_datetime(input_date: date) -> datetime:
         day=input_date.day,
         tzinfo=pytz.UTC,
     )
+
+
+def validate_url(url):
+    """
+    Validate URL string entered by user
+    """
+
+    if not (url.startswith("http://") or url.startswith("https://")):
+        raise ValidationError("URL must start with http:// or https://")

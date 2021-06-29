@@ -26,16 +26,17 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("not-a-psb", "Not a public sector body"),
 ]
 
+DEFAULT_TEST_TYPE = "simple"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("simple", "Simple"),
+    (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
 ]
 
+DEFAULT_WEBSITE_TYPE = "public"
 WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("public", "Public website"),
+    (DEFAULT_WEBSITE_TYPE, "Public website"),
     ("int-extranet", "Intranet/Extranet"),
-    ("other", "Other"),
-    ("unknown", "Unknown"),
+    ("n/a", "N/A"),
 ]
 
 CASE_ORIGIN_CHOICES: List[Tuple[str, str]] = [
@@ -92,7 +93,7 @@ class Case(models.Model):
         null=True,
     )
     test_type = models.CharField(
-        max_length=10, choices=TEST_TYPE_CHOICES, default="simple"
+        max_length=10, choices=TEST_TYPE_CHOICES, default=DEFAULT_TEST_TYPE
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
@@ -100,7 +101,7 @@ class Case(models.Model):
     organisation_name = models.TextField(default="", blank=True)
     service_name = models.TextField(default="", blank=True)
     website_type = models.CharField(
-        max_length=100, choices=WEBSITE_TYPE_CHOICES, default="public"
+        max_length=100, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
     )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
     region = models.ManyToManyField(Region, null=True, blank=True)
@@ -115,7 +116,7 @@ class Case(models.Model):
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
     )
-    is_website_compliant = models.BooleanField(default=False)
+    is_website_compliant = models.BooleanField(null=True, blank=True)
     test_notes = models.TextField(default="", blank=True)
     report_draft_url = models.CharField(max_length=200, default="", blank=True)
     report_review_status = models.CharField(
@@ -142,7 +143,7 @@ class Case(models.Model):
         null=True, blank=True
     )
     is_website_retested = models.BooleanField(default=False)
-    is_disproportionate_claimed = models.BooleanField(default=False)
+    is_disproportionate_claimed = models.BooleanField(null=True, blank=True)
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_decison = models.CharField(
         max_length=200,
@@ -159,7 +160,7 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
-    is_case_completed = models.BooleanField(default=False)
+    is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
 
@@ -186,7 +187,9 @@ class Case(models.Model):
         if self.is_case_completed and not self.completed:
             self.completed = now
         if self.report_acknowledged_date and not self.week_12_followup_date:
-            self.week_12_followup_date = self.report_acknowledged_date + timedelta(weeks=12)
+            self.week_12_followup_date = self.report_acknowledged_date + timedelta(
+                weeks=12
+            )
         super().save(*args, **kwargs)
 
 
@@ -200,7 +203,7 @@ class Contact(models.Model):
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     detail = models.CharField(max_length=200, default="", blank=True)
-    preferred = models.BooleanField(default=False)
+    preferred = models.BooleanField(null=True, blank=True)
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
