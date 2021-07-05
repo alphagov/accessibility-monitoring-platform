@@ -3,19 +3,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="govuk-width-container">
-  <main class="govuk-main-wrapper">
-    <h1 class="govuk-heading-l"> Your account details </h1>
-    <p class="govuk-body-l">You can change your details on this page</p>
-    {% if messages %}
-      {% for message in messages %}
-        <div class="govuk-inset-text"> {{ message }} </div>
-      {% endfor %}
-    {% endif %}
+    <main class="govuk-main-wrapper">
+        <h1 class="govuk-heading-l">Your account details</h1>
+        <p class="govuk-body-l">You can change your details on this page</p>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="govuk-inset-text">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-    {% include "forms/default.html" %}
-  </main>
+        {% include "forms/default.html" %}
+    </main>
 </div>
-
 {% endblock %}

@@ -11,26 +11,47 @@ from typing import (
     Union
 )
 
+from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.db.models import Q
 from .typing import IntOrNone, StringOrNone
 
+CONTACT_FIELDS = ["contact_email", "contact_notes"]
+
 
 def download_as_csv(
-    queryset: QuerySet, field_names: List[str], filename: str = "download.csv"
+    queryset: QuerySet, field_names: List[str], filename: str = "download.csv", include_contact: bool = False
 ) -> HttpResponse:
     """ Given a queryset and a list of field names, download the data in csv format """
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(field_names)
+    if include_contact:
+        writer.writerow(field_names + CONTACT_FIELDS)
+    else:
+        writer.writerow(field_names)
 
     output: List[List[str]] = []
     for item in queryset:
-        output.append([getattr(item, field_name) for field_name in field_names])
+        row = []
+        for field_name in field_names:
+            item_attr = getattr(item, field_name)
+            if hasattr(item_attr, "all"):
+                value = ",".join([str(related_item) for related_item in item_attr.all()])
+            else:
+                value = item_attr
+            row.append(value)
+
+        if include_contact:
+            contacts = list(item.contact_set.filter(is_archived=False))
+            if contacts:
+                row.append(contacts[0].detail)
+                row.append(contacts[0].notes)
+
+        output.append(row)
 
     writer.writerows(output)
 
@@ -196,3 +217,11 @@ def filter_by_status(query_set: QuerySet, status: str) -> Union[QuerySet, None]:
         )
 
     return None
+
+def validate_url(url):
+    """
+    Validate URL string entered by user
+    """
+
+    if not (url.startswith("http://") or url.startswith("https://")):
+        raise ValidationError("URL must start with http:// or https://")

@@ -16,7 +16,7 @@ from django.urls import reverse
         ("get", reverse("cases:case-export-single", kwargs={"pk": 1})),
         ("post", reverse("cases:case-create")),
         ("get", reverse("cases:case-detail", kwargs={"pk": 1})),
-        ("post", reverse("cases:edit-website-details", kwargs={"pk": 1})),
+        ("post", reverse("cases:edit-case-details", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-contact-details", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-test-results", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-report-details", kwargs={"pk": 1})),

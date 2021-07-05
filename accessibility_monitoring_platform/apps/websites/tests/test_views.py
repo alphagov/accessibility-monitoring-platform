@@ -54,7 +54,7 @@ class QueryLocalViewTests(TestCase):
         )
         self.assertEqual(str(response.context["user"]), "testuser")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Query Domain Register")
+        self.assertContains(response, "Query domain register")
 
     def test_query_loads_table(self):
         """ String query loads table correctly """
@@ -71,7 +71,7 @@ class QueryLocalViewTests(TestCase):
         url_req: str = f"{reverse('websites:website-list')}?"
         response: HttpResponse = self.client.get(url_req, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Query Domain Register")
+        self.assertContains(response, "Query domain register")
         self.assertFalse("Education" in response)
 
     def test_error_is_shown_with_bad_date_entered(self):
@@ -79,6 +79,6 @@ class QueryLocalViewTests(TestCase):
         url_req: str = f"{reverse('websites:website-list')}?start_date_0=30&start_date_1=2&start_date_2=2020"
         response: HttpResponse = self.client.get(url_req, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Query Domain Register")
+        self.assertContains(response, "Query domain register")
         self.assertFalse("Education" in response)
         self.assertContains(response, "Enter a valid date.")

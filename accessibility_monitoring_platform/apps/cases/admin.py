@@ -7,7 +7,7 @@ from .models import Case, Contact
 
 
 class CaseAdmin(admin.ModelAdmin):
-    """ Django admin configuration for Case model """
+    """Django admin configuration for Case model"""
 
     readonly_fields = ["simplified_test_filename", "created"]
     search_fields = ["organisation_name"]
@@ -17,7 +17,7 @@ class CaseAdmin(admin.ModelAdmin):
 
 
 class ContactAdmin(admin.ModelAdmin):
-    """ Django admin configuration for Contact model """
+    """Django admin configuration for Contact model"""
 
     search_fields = [
         "first_name",
