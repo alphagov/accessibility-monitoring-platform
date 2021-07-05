@@ -27,6 +27,10 @@ WEBSITE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("start_date", "last_updated__gte"),
     ("end_date", "last_updated__lte"),
 ]
+DEFAULT_DATE_RANGE_FILTER = {
+    "last_updated__gte": DEFAULT_START_DATE,
+    "last_updated__lte": DEFAULT_END_DATE,
+}
 WEBSITE_FIELDS_TO_EXPORT: List[str] = [
     "website_id",
     "url",
@@ -46,11 +50,7 @@ def check_only_default_date_filters_applied(filters):
     """
     Check that only date filters with the default start and end dates have been applied
     """
-    return (
-        [key for key in filters.keys()] == ["last_updated__gte", "last_updated__lte"]
-        and filters["last_updated__gte"] == DEFAULT_START_DATE
-        and filters["last_updated__lte"] == DEFAULT_END_DATE
-    )
+    return filters == DEFAULT_DATE_RANGE_FILTER
 
 
 class WebsiteListView(ListView):
