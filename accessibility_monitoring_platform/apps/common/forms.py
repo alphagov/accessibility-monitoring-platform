@@ -15,25 +15,25 @@ DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
-    """ Widget for GDS design system radio button fields """
+    """Widget for GDS design system radio button fields"""
 
     template_name = "common/amp_radio_select_widget_template.html"
 
 
 class AMPCheckboxWidget(forms.CheckboxInput):
-    """ Widget for GDS design system checkbox fields """
+    """Widget for GDS design system checkbox fields"""
 
     template_name = "common/amp_checkbox_widget_template.html"
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
-    """ Widget for GDS design system multi-select checkboxes fields """
+    """Widget for GDS design system multi-select checkboxes fields"""
 
     template_name = "common/amp_checkbox_select_multiple_widget_template.html"
 
 
 class AMPDateWidget(forms.MultiWidget):
-    """ Widget for GDS design system date fields """
+    """Widget for GDS design system date fields"""
 
     template_name = "common/amp_date_widget_template.html"
 
@@ -92,7 +92,7 @@ class AMPDateWidget(forms.MultiWidget):
 
 
 class AMPIntegerField(forms.IntegerField):
-    """ Integer input field in the style of GDS design system """
+    """Integer input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -104,7 +104,7 @@ class AMPIntegerField(forms.IntegerField):
 
 
 class AMPCharField(forms.CharField):
-    """ Character input field in the style of GDS design system """
+    """Character input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -117,7 +117,7 @@ class AMPCharField(forms.CharField):
 
 
 class AMPCharFieldWide(forms.CharField):
-    """ Full width character input field in the style of GDS design system """
+    """Full width character input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -129,7 +129,7 @@ class AMPCharFieldWide(forms.CharField):
 
 
 class AMPURLField(forms.CharField):
-    """ Character input field with url validation in the style of GDS design system """
+    """Character input field with url validation in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -142,7 +142,7 @@ class AMPURLField(forms.CharField):
 
 
 class AMPTextField(forms.CharField):
-    """ Textarea input field in the style of GDS design system """
+    """Textarea input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -154,7 +154,7 @@ class AMPTextField(forms.CharField):
 
 
 class AMPChoiceField(forms.ChoiceField):
-    """ Choice input field in the style of GDS design system """
+    """Choice input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -166,7 +166,7 @@ class AMPChoiceField(forms.ChoiceField):
 
 
 class AMPModelChoiceField(forms.ModelChoiceField):
-    """ Model choice input field in the style of GDS design system """
+    """Model choice input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -191,12 +191,12 @@ class AMPUserModelChoiceField(AMPModelChoiceField):
         super().__init__(*args, **kwargs)
 
     def label_from_instance(self, user):
-        """ Return full name from user """
+        """Return full name from user"""
         return user.get_full_name()
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """ Model multi-choice input field in the style of GDS design system """
+    """Model multi-choice input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -205,7 +205,7 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class AMPBooleanField(forms.BooleanField):
-    """ Checkbox input field in the style of GDS design system """
+    """Checkbox input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -214,7 +214,7 @@ class AMPBooleanField(forms.BooleanField):
 
 
 class AMPDateField(forms.DateField):
-    """ Date input field in the style of GDS design system """
+    """Date input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
@@ -234,15 +234,15 @@ class AMPDateRangeForm(forms.Form):
     end_date = forms.DateField(label="End date", widget=AMPDateWidget(), required=False)
 
     def clean_start_date(self) -> datetime:
-        """ Returns default start date or converts entered date to datetime """
+        """Returns default start date or converts entered date to datetime"""
         start_date = self.cleaned_data["start_date"]
         if start_date:
             return convert_date_to_datetime(start_date)
         return DEFAULT_START_DATE
 
     def clean_end_date(self) -> datetime:
-        """ Returns default end date or converts entered date to datetime """
+        """Returns default end date or converts entered date to datetime"""
         end_date = self.cleaned_data["end_date"]
         if end_date:
-            return convert_date_to_datetime(end_date)
+            return convert_date_to_datetime(end_date, hour=23, minute=59, second=59)
         return DEFAULT_END_DATE

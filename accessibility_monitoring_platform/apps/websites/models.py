@@ -6,7 +6,7 @@ from django.db import models
 
 
 class DomainRegister(models.Model):
-    """ DomainRegister Model """
+    """DomainRegister Model"""
 
     domain_id = models.IntegerField(primary_key=True)
     domain_name = models.CharField(unique=True, max_length=1000)
@@ -49,7 +49,7 @@ class DomainRegister(models.Model):
 
 
 class DomainsOrgs(models.Model):
-    """ DomainsOrgs Model """
+    """DomainsOrgs Model"""
 
     domain = models.OneToOneField(DomainRegister, models.DO_NOTHING, primary_key=True)
     organisation = models.ForeignKey("Organisation", models.DO_NOTHING)
@@ -61,7 +61,7 @@ class DomainsOrgs(models.Model):
 
 
 class HttpStatusCodes(models.Model):
-    """ HttpStatusCodes Model """
+    """HttpStatusCodes Model"""
 
     status = models.CharField(primary_key=True, max_length=3)
     status_description = models.CharField(max_length=1000)
@@ -73,7 +73,7 @@ class HttpStatusCodes(models.Model):
 
 
 class NutsArea(models.Model):
-    """ NutsArea Model """
+    """NutsArea Model"""
 
     area_code = models.CharField(primary_key=True, max_length=1000)
     area_name = models.CharField(max_length=1000)
@@ -86,7 +86,7 @@ class NutsArea(models.Model):
 
 
 class OrgOrgtype(models.Model):
-    """ OrgOrgtype Model """
+    """OrgOrgtype Model"""
 
     organisation = models.OneToOneField(
         "Organisation", models.DO_NOTHING, primary_key=True
@@ -100,7 +100,7 @@ class OrgOrgtype(models.Model):
 
 
 class Organisation(models.Model):
-    """ Organisation Model """
+    """Organisation Model"""
 
     organisation_id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=1000)
@@ -122,7 +122,7 @@ class Organisation(models.Model):
 
 
 class OrganisationType(models.Model):
-    """ OrganisationType Model """
+    """OrganisationType Model"""
 
     organisation_type_id = models.IntegerField(primary_key=True)
     type_name = models.CharField(max_length=1000)
@@ -134,7 +134,7 @@ class OrganisationType(models.Model):
 
 
 class Sector(models.Model):
-    """ Sector Model """
+    """Sector Model"""
 
     sector_id = models.IntegerField(primary_key=True)
     sector_name = models.CharField(max_length=1000)
@@ -148,7 +148,7 @@ class Sector(models.Model):
 
 
 class WebsiteRegister(models.Model):
-    """ WebsiteRegister Model """
+    """WebsiteRegister Model"""
 
     website_id = models.IntegerField(primary_key=True, unique=True)
     url = models.CharField(max_length=1000)
@@ -171,7 +171,7 @@ class WebsiteRegister(models.Model):
 
 
 class WebsitesOrgs(models.Model):
-    """ WebsitesOrgs Model """
+    """WebsitesOrgs Model"""
 
     website = models.OneToOneField(WebsiteRegister, models.DO_NOTHING, primary_key=True)
     organisation = models.ForeignKey(Organisation, models.DO_NOTHING)
@@ -183,7 +183,7 @@ class WebsitesOrgs(models.Model):
 
 
 class NutsConversion(models.Model):
-    """ NutsConversion Model """
+    """NutsConversion Model"""
 
     lad18cd = models.CharField(
         db_column="LAD18CD", max_length=200, blank=True, null=True

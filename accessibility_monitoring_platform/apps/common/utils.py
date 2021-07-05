@@ -21,9 +21,12 @@ CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
 
 def download_as_csv(
-    queryset: QuerySet, field_names: List[str], filename: str = "download.csv", include_contact: bool = False
+    queryset: QuerySet,
+    field_names: List[str],
+    filename: str = "download.csv",
+    include_contact: bool = False,
 ) -> HttpResponse:
-    """ Given a queryset and a list of field names, download the data in csv format """
+    """Given a queryset and a list of field names, download the data in csv format"""
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
@@ -39,7 +42,9 @@ def download_as_csv(
         for field_name in field_names:
             item_attr = getattr(item, field_name)
             if hasattr(item_attr, "all"):
-                value = ",".join([str(related_item) for related_item in item_attr.all()])
+                value = ",".join(
+                    [str(related_item) for related_item in item_attr.all()]
+                )
             else:
                 value = item_attr
             row.append(value)
@@ -91,7 +96,9 @@ def build_filters(
     return filters
 
 
-def convert_date_to_datetime(input_date: date) -> datetime:
+def convert_date_to_datetime(
+    input_date: date, hour: int = 0, minute: int = 0, second: int = 0
+) -> datetime:
     """
     Python dates are not timezone-aware. This function converts a date into a timezone-aware
     datetime with a time of midnight UTC
@@ -100,6 +107,9 @@ def convert_date_to_datetime(input_date: date) -> datetime:
         year=input_date.year,
         month=input_date.month,
         day=input_date.day,
+        hour=hour,
+        minute=minute,
+        second=second,
         tzinfo=pytz.UTC,
     )
 
