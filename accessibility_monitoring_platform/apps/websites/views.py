@@ -14,6 +14,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.views.generic.list import ListView
 
+from ..common.forms import DEFAULT_START_DATE, DEFAULT_END_DATE
 from ..common.utils import build_filters, download_as_csv
 from .models import NutsConversion, WebsiteRegister
 from .forms import DEFAULT_SORT, WebsiteSearchForm
@@ -41,6 +42,17 @@ WEBSITE_FIELDS_TO_EXPORT: List[str] = [
 ]
 
 
+def check_only_default_date_filters_applied(filters):
+    """
+    Check that only date filters with the default start and end dates have been applied
+    """
+    return (
+        [key for key in filters.keys()] == ["last_updated__gte", "last_updated__lte"]
+        and filters["last_updated__gte"] == DEFAULT_START_DATE
+        and filters["last_updated__lte"] == DEFAULT_END_DATE
+    )
+
+
 class WebsiteListView(ListView):
     """
     View of list of cases
@@ -51,7 +63,7 @@ class WebsiteListView(ListView):
     paginate_by: int = 25
 
     def get(self, request, *args, **kwargs):
-        """ Populate filter form """
+        """Populate filter form"""
         if self.request.GET:
             self.form: WebsiteSearchForm = WebsiteSearchForm(self.request.GET)
             self.form.is_valid()
@@ -60,7 +72,7 @@ class WebsiteListView(ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet[WebsiteRegister]:
-        """ Add filters to queryset """
+        """Add filters to queryset"""
         if not self.request.GET or self.form.errors:
             return WebsiteRegister.objects.none()
 
@@ -73,8 +85,13 @@ class WebsiteListView(ListView):
         nuts318_codes: Union[QuerySet[NutsConversion], List] = (
             get_list_of_nuts318_codes(location) if location else []
         )
-        if nuts318_codes:
+        if location and not nuts318_codes:
+            return WebsiteRegister.objects.none()
+        elif nuts318_codes:
             filters["nuts3__in"] = nuts318_codes
+
+        if check_only_default_date_filters_applied(filters):
+            return WebsiteRegister.objects.none()
 
         sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
@@ -87,7 +104,7 @@ class WebsiteListView(ListView):
         )
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """ Add field values into context """
+        """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         get_without_page: Dict[str, str] = {
