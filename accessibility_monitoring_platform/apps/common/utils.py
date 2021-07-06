@@ -110,7 +110,7 @@ def filter_by_status(query_set: QuerySet, status: str) -> Union[QuerySet, None]:
     of the QuerySet that match that status.
 
     Args:
-        query_set (QuerySet): Any QuerySet object
+        query_set (QuerySet): A Case QuerySet object
         status (str): a string describing the status
 
     Returns:
@@ -217,6 +217,7 @@ def filter_by_status(query_set: QuerySet, status: str) -> Union[QuerySet, None]:
         )
 
     return None
+
 
 def validate_url(url):
     """

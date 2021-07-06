@@ -27,7 +27,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-website-details' item.id %}"> {{item.new_case_progress}} </a>
+                            <a href="{% url 'cases:edit-case-details' item.id %}"> {{item.new_case_progress}} </a>
                         {% endif %}
                     </td>
                 </tr>

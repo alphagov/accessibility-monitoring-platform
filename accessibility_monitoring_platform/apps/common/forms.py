@@ -14,10 +14,6 @@ DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.U
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
 
-class AMPSelectWidget(forms.RadioSelect):
-    template_name = "common/amp_select_widget_template.html"
-
-
 class AMPRadioSelectWidget(forms.RadioSelect):
     """ Widget for GDS design system radio button fields """
 
@@ -197,27 +193,6 @@ class AMPUserModelChoiceField(AMPModelChoiceField):
     def label_from_instance(self, user):
         """ Return full name from user """
         return user.get_full_name()
-
-
-class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """ Model multi-choice input field in the style of GDS design system """
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPCheckboxSelectMultipleWidget())
-        super().__init__(*args, **kwargs)
-
-
-class AMPModelChoiceField(forms.ModelChoiceField):
-    """ Adds default widget to Django forms ModelChoiceField """
-
-    def __init__(self, *args, **kwargs) -> None:
-        default_kwargs: dict = {
-            "widget": forms.Select(attrs={"class": "govuk-select"}),
-            "required": False,
-        }
-        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
-        super().__init__(*args, **overridden_default_kwargs)
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):

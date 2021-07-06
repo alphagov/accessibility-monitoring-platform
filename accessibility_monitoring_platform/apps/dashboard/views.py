@@ -11,20 +11,23 @@ from django.views.generic import TemplateView
 from ..common.utils import filter_by_status
 
 
-class AboutView(TemplateView):
-    template_name: str = "dashboard/home.html"
+class DashboardView(TemplateView):
+    """Filters and displays the cases into states on the landing page"""
+    template_name: str = "dashboard/dashboard.html"
 
     def get_context_data(self, *args, **kwargs):
-        context = super(AboutView, self).get_context_data(*args, **kwargs)
+        context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)
         if self.request.GET.get("view") == "View all cases":
             return self.macro_view(context, user)
         return self.user_view(context, user)
 
     def user_view(self, context, user):
+        """Shows and filters user cases"""
         all_entries = Case.objects.all()
         user_entries = Case.objects.filter(auditor=user).order_by("created")
         qa_entries = Case.objects.filter(reviewer=user).order_by("created")
+
         sorted_cases = {
             "new_case": filter_by_status(
                 user_entries,
@@ -139,6 +142,7 @@ class AboutView(TemplateView):
         return context
 
     def macro_view(self, context, user):
+        """Shows and filters all cases"""
         all_entries = Case.objects.all()
         user_entries = Case.objects.filter(auditor=user).order_by("created")
         sorted_cases = {
