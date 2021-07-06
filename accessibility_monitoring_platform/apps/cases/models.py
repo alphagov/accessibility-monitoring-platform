@@ -104,7 +104,7 @@ class Case(models.Model):
         max_length=100, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
     )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
-    region = models.ManyToManyField(Region, null=True, blank=True)
+    region = models.ManyToManyField(Region, blank=True)
     case_origin = models.CharField(
         max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"
     )
