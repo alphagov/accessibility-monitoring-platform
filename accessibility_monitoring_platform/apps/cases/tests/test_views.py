@@ -387,3 +387,34 @@ def test_archive_contact(admin_client):
 
     contact_on_database = Contact.objects.get(pk=contact.id)
     assert contact_on_database.is_archived is True
+
+
+@pytest.mark.django_db
+def test_preferred_contact_not_displayed(admin_client):
+    """
+    Test that the preferred contact field is not displayed when there is only one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertNotContains(response, "Preferred contact?")
+
+
+@pytest.mark.django_db
+def test_preferred_contact_displayed(admin_client):
+    """
+    Test that the preferred contact field is displayed when there is more than one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, "Preferred contact?")
