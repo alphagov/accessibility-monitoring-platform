@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 
 from ..common.forms import (
     AMPRadioSelectWidget,
-    AMPCheckboxWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -136,17 +135,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
 
     domain = AMPCharFieldWide(label="Domain")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
-    is_public_sector_body = AMPBooleanField(
-        label="Public sector body?",
-        help_text="If you later find out the organisation is not a public sector body,"
-        " unmark the checkbox, then save and exit to unlist the case.",
-        widget=AMPCheckboxWidget(
-            attrs={
-                "label": "Untick this box to unlist the case",
-            }
-        ),
-        initial=True,
-    )
 
     class Meta:
         model = Case
@@ -164,7 +152,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "zendesk_url",
             "trello_url",
             "notes",
-            "is_public_sector_body",
         ]
 
 
