@@ -138,6 +138,7 @@ class AMPURLField(forms.CharField):
             forms.TextInput(attrs={"class": "govuk-input"}),
         )
         kwargs.setdefault("validators", [validate_url])
+        kwargs.setdefault("help_text", "Must include https://")
         super().__init__(*args, **kwargs)
 
 
