@@ -8,6 +8,7 @@ import pytz
 from pytest_django.asserts import assertContains, assertNotContains
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
@@ -15,6 +16,7 @@ from ..models import Case, Contact
 from ..views import CASE_FIELDS_TO_EXPORT
 
 CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
+CONTACT_DETAIL = "test@email.com"
 
 
 @pytest.mark.django_db
@@ -320,3 +322,68 @@ def test_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})
+
+
+@pytest.mark.django_db
+def test_add_contact_form_appears(admin_client):
+    """Test that pressing the add contact button adds a new contact form"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        {
+            "add_contact": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "Contact 1")
+
+
+@pytest.mark.django_db
+def test_add_contact(admin_client):
+    """Test adding a contact"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-first_name": "",
+            "form-0-last_name": "",
+            "form-0-job_title": "",
+            "form-0-detail": CONTACT_DETAIL,
+            "form-0-notes": "",
+            "save_continue": "Save and continue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
+    assert contacts.count() == 1
+    assert list(contacts)[0].detail == CONTACT_DETAIL
+
+
+@pytest.mark.django_db
+def test_archive_contact(admin_client):
+    """Test that pressing the remove contact button archives the contact"""
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+        {
+            f"remove_contact_{contact.id}": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "No contacts have been entered")
+
+    contact_on_database = Contact.objects.get(pk=contact.id)
+    assert contact_on_database.is_archived is True
