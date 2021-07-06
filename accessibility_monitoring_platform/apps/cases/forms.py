@@ -207,7 +207,10 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     Form for updating test results
     """
 
-    test_results_url = AMPURLField(label="Link to test results")
+    test_results_url = AMPURLField(
+        label="Link to test results",
+        help_text="Must include https://",
+    )
     test_status = AMPChoiceField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
