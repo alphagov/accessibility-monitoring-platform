@@ -36,14 +36,16 @@
                                                 {% endfor %}
                                             </div>
                                             {% for field in contact_form.visible_fields %}
-                                                <div class="govuk-grid-column-full govuk-form-group">
-                                                    <label class="govuk-label"
-                                                        for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                                    </label>
-                                                    <div class="govuk-error-message">{{ field.errors }}</div>
-                                                    <p class="govuk-body-m">{{ field.help_text }}</p>
-                                                    {{ field }}
-                                                </div>
+                                                {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}
+                                                    <div class="govuk-grid-column-full govuk-form-group">
+                                                        <label class="govuk-label"
+                                                            for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                                                        </label>
+                                                        <div class="govuk-error-message">{{ field.errors }}</div>
+                                                        <p class="govuk-body-m">{{ field.help_text }}</p>
+                                                        {{ field }}
+                                                    </div>
+                                                {% endif %}
                                             {% endfor %}
                                             {% if contact_form.instance.id %}
                                                 <div class="govuk-grid-column-full">
