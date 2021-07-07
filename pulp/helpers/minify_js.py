@@ -17,12 +17,15 @@ def minify_javascript(src: str, dest: str) -> None:
     for file in src_files:
         file_path = file.replace(src, "")
         js_code = f"node {pathlib.Path(__file__).parent.absolute()}/process_js.js {src}{file_path}"
-        output = subprocess.check_output(js_code, shell=True).decode("utf-8")
-
+        output = subprocess.check_output(
+            js_code,
+            shell=True
+        ).decode("utf-8")
         try:
             os.makedirs("/".join(f"{dest}{file_path}".split("/")[:-1]))
         except:
             pass
+        print(f"{dest}{file_path}")
 
         with open(f"{dest}{file_path}", "w") as outfile:
             outfile.write(output)

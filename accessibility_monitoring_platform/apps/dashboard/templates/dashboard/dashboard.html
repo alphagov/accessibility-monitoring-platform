@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper dashboard">
+        <div class="govuk-body">
+        <strong class="govuk-tag govuk-!-margin-top-4 govuk-!-margin-bottom-4">
+            Experimental
+        </strong>
+            &nbsp Status is programatically assigned and may label cases incorrectly
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Dashboard</h1>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% if macro_view %}
+                    <form method="get" action="{% url 'dashboard:home' %}">
+                        <input
+                            type="submit"
+                            value="View your cases"
+                            name="view"
+                            class="govuk-button govuk-button--secondary float-right"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% else %}
+                    <form method="get" action="{% url 'dashboard:home' %}">
+                        <input
+                            type="submit"
+                            value="View all cases"
+                            name="view"
+                            class="govuk-button govuk-button--secondary float-right"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="govuk-grid-row insert-margin">
+            <div class="govuk-grid-column-one-quarter">
+                <div class="govuk-body-m">
+                    Total active cases
+                </div>
+                <div class="govuk-heading-xl no-bottom-margin">
+                    {{total_cases}}
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-quarter leftborder">
+                <div class="govuk-body-m">
+                    Your active cases
+                </div>
+                <div class="govuk-heading-xl no-bottom-margin">
+                    {{your_cases}}
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-quarter leftborder">
+                <div class="govuk-body-m">
+                    Unassigned cases
+                </div>
+                <div class="govuk-heading-xl no-bottom-margin">
+                    {{unassigned_cases}}
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-quarter leftborder">
+                <div class="govuk-body-m">
+                    Unassigned QA cases
+                </div>
+                <div class="govuk-heading-xl no-bottom-margin">
+                    {{unassigned_qa_cases}}
+                </div>
+            </div>
+        </div>
+        {% include "./list_view.html" %}
+    </main>
+</div>
+
+{% endblock %}

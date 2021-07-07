@@ -200,9 +200,12 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """Model multi-choice input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPCheckboxSelectMultipleWidget())
-        super().__init__(*args, **kwargs)
+        default_kwargs: dict = {
+            "widget": AMPCheckboxSelectMultipleWidget(),
+            "required": False,
+        }
+        overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
+        super().__init__(*args, **overridden_default_kwargs)
 
 
 class AMPBooleanField(forms.BooleanField):

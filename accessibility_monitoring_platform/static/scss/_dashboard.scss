@@ -9,5 +9,32 @@
 }
 
 .dashboard {
-  margin: 0 0 40px 0;
+  padding-top: 0;
+}
+
+.case-dashboard > tbody > tr:last-child {
+  th, td {
+      border-bottom: none;
+  }
+}
+
+.float-right {
+  float: right;
+}
+
+.centretext {
+  text-align: center;
+}
+
+.leftborder {
+  border-left: 1px solid;
+}
+
+.no-bottom-margin {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.insert-margin {
+  margin-bottom: 50px;
 }
