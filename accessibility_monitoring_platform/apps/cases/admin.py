@@ -26,7 +26,7 @@ class ContactAdmin(admin.ModelAdmin):
         "detail",
         "case__organisation_name",
     ]
-    list_display = ["first_name", "last_name", "job_title", "detail", "case"]
+    list_display = ["detail", "first_name", "last_name", "job_title", "case"]
     autocomplete_fields = ["case"]
 
 
