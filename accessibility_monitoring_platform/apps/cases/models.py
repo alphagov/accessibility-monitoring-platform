@@ -200,54 +200,42 @@ class Case(models.Model):
             self.week_12_followup_date = self.report_acknowledged_date + timedelta(
                 weeks=12
             )
-        self.status = self.create_status()
-        self.qa_status = self.create_qa_status()
+        self.status = self.set_status()
+        self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)
 
-    def create_status(self):
+    def set_status(self):
         if self.is_archived:
             return "archived"
         elif self.is_case_completed:
             return "complete"
         elif self.auditor is None:
             return "unassigned-case"
-        elif self.auditor and self.contact_exists is False:
+        elif self.contact_exists is False:
             return "new-case"
         elif (
-            self.auditor
-            and self.contact_exists
-            and self.test_status != "complete"
+            self.test_status != "complete"
             and self.report_sent_date is None
         ):
             return "test-in-progress"
         elif (
-            self.auditor
-            and self.contact_exists
-            and self.test_status == "complete"
+            self.test_status == "complete"
             and self.report_sent_date is None
         ):
             return "report-in-progress"
         elif (
-            self.auditor
-            and self.contact_exists
-            and self.test_status == "complete"
-            and self.report_sent_date
-            and self.report_acknowledged_date is None
+            self.report_acknowledged_date is None
             and self.week_12_followup_date is None
             and self.compliance_email_sent_date is None
         ):
             return "awaiting-response"
-        elif (
-            self.report_sent_date
-            and self.report_acknowledged_date
-            and self.compliance_email_sent_date is None
-        ):
+        elif self.compliance_email_sent_date is None:
             return "12w-review"
         elif self.compliance_email_sent_date:
             return "update-for-enforcement-bodies-due"
         return "unknown"
 
-    def create_qa_status(self):
+    def set_qa_status(self):
         if (
             self.reviewer is None
             and self.report_review_status == "ready-to-review"
@@ -255,14 +243,12 @@ class Case(models.Model):
         ):
             return "unassigned_qa_case"
         elif (
-            self.reviewer
-            and self.report_review_status == "ready-to-review"
+            self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
         ):
             return "in_qa"
         elif (
-            self.reviewer
-            and self.report_review_status == "ready-to-review"
+            self.report_review_status == "ready-to-review"
             and self.report_approved_status == "yes"
         ):
             return "qa_approved"
