@@ -6,18 +6,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0004_alter_case_region'),
+        ("cases", "0004_alter_case_region"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='qa_status',
-            field=models.CharField(choices=[('unknown', 'Unknown'), ('unassigned_qa_case', 'Unassigned QA case'), ('in_qa', 'In QA'), ('qa_approved', 'QA approved')], default='unknown', max_length=200),
+            model_name="case",
+            name="qa_status",
+            field=models.CharField(
+                choices=[
+                    ("unknown", "Unknown"),
+                    ("unassigned_qa_case", "Unassigned QA case"),
+                    ("in_qa", "In QA"),
+                    ("qa_approved", "QA approved"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='status',
-            field=models.CharField(choices=[('', 'All'), ('unknown', 'Unknown'), ('unassigned-case', 'Unassigned case'), ('new-case', 'New case'), ('test-in-progress', 'Test in progress'), ('report-in-progress', 'Report in progress'), ('awaiting-response', 'Awaiting response to report'), ('12w-review', '12 Week review'), ('update-for-enforcement-bodies-due', 'Update for enforcement bodies due'), ('complete', 'Complete'), ('archived', 'Archived')], default='new-case', max_length=200),
+            model_name="case",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("", "All"),
+                    ("unknown", "Unknown"),
+                    ("unassigned-case", "Unassigned case"),
+                    ("new-case", "New case"),
+                    ("test-in-progress", "Test in progress"),
+                    ("report-in-progress", "Report in progress"),
+                    ("awaiting-response", "Awaiting response to report"),
+                    ("12w-review", "12 Week review"),
+                    (
+                        "update-for-enforcement-bodies-due",
+                        "Update for enforcement bodies due",
+                    ),
+                    ("complete", "Complete"),
+                    ("archived", "Archived"),
+                ],
+                default="new-case",
+                max_length=200,
+            ),
         ),
     ]
