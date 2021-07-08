@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0001_initial'),
-        ('cases', '0003_alter_case_website_type'),
+        ("common", "0001_initial"),
+        ("cases", "0003_alter_case_website_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='region',
-            field=models.ManyToManyField(blank=True, to='common.Region'),
+            model_name="case",
+            name="region",
+            field=models.ManyToManyField(blank=True, to="common.Region"),
         ),
     ]

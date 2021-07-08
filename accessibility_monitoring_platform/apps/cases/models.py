@@ -213,15 +213,9 @@ class Case(models.Model):
             return "unassigned-case"
         elif self.contact_exists is False:
             return "new-case"
-        elif (
-            self.test_status != "complete"
-            and self.report_sent_date is None
-        ):
+        elif self.test_status != "complete" and self.report_sent_date is None:
             return "test-in-progress"
-        elif (
-            self.test_status == "complete"
-            and self.report_sent_date is None
-        ):
+        elif self.test_status == "complete" and self.report_sent_date is None:
             return "report-in-progress"
         elif (
             self.report_acknowledged_date is None
@@ -384,7 +378,7 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"Case #{self.case.id}: {self.job_title} {self.name}")
+        return str(f"{self.detail} (Case #{self.case.id})")
 
     def save(self, *args, **kwargs):
         if not self.id:
