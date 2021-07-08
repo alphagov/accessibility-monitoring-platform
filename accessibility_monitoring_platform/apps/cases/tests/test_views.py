@@ -80,7 +80,6 @@ def test_case_list_view_filters_by_case_number(admin_client):
     [
         ("domain", "included.com", "domain"),
         ("organisation_name", "IncludedOrg", "organisation"),
-        ("status", "complete", "status"),
     ],
 )
 @pytest.mark.django_db

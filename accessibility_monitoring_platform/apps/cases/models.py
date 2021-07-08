@@ -14,16 +14,23 @@ from ..common.utils import extract_domain_from_url
 from ..common.models import Region, Sector
 
 STATUS_CHOICES: List[Tuple[str, str]] = [
+    ("unknown", "Unknown"),
+    ("unassigned-case", "Unassigned case"),
     ("new-case", "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
     ("awaiting-response", "Awaiting response to report"),
-    ("12w-due", "12 Week review due"),
-    ("12w-sent", "12 Week review sent"),
-    ("escalated", "Case sent to supporting bodies"),
+    ("12w-review", "12 Week review"),
+    ("update-for-enforcement-bodies-due", "Update for enforcement bodies due"),
     ("complete", "Complete"),
     ("archived", "Archived"),
-    ("not-a-psb", "Not a public sector body"),
+]
+
+QA_STATUS_CHOICES: List[Tuple[str, str]] = [
+    ("unknown", "Unknown"),
+    ("unassigned_qa_case", "Unassigned QA case"),
+    ("in_qa", "In QA"),
+    ("qa_approved", "QA approved"),
 ]
 
 DEFAULT_TEST_TYPE = "simple"
@@ -84,6 +91,9 @@ class Case(models.Model):
     created = models.DateTimeField(blank=True)
     status = models.CharField(
         max_length=200, choices=STATUS_CHOICES, default="new-case"
+    )
+    qa_status = models.CharField(
+        max_length=200, choices=QA_STATUS_CHOICES, default="unknown"
     )
     auditor = models.ForeignKey(
         User,
@@ -190,7 +200,73 @@ class Case(models.Model):
             self.week_12_followup_date = self.report_acknowledged_date + timedelta(
                 weeks=12
             )
+        self.status = self.create_status()
+        self.qa_status = self.create_qa_status()
         super().save(*args, **kwargs)
+
+    def create_status(self):
+        if self.is_archived:
+            return "archived"
+        elif self.is_case_completed:
+            return "complete"
+        elif self.auditor is None:
+            return "unassigned-case"
+        elif self.auditor and self.contact_exists is False:
+            return "new-case"
+        elif (
+            self.auditor
+            and self.contact_exists
+            and self.test_status != "complete"
+            and self.report_sent_date is None
+        ):
+            return "test-in-progress"
+        elif (
+            self.auditor
+            and self.contact_exists
+            and self.test_status == "complete"
+            and self.report_sent_date is None
+        ):
+            return "report-in-progress"
+        elif (
+            self.auditor
+            and self.contact_exists
+            and self.test_status == "complete"
+            and self.report_sent_date
+            and self.report_acknowledged_date is None
+            and self.week_12_followup_date is None
+            and self.compliance_email_sent_date is None
+        ):
+            return "awaiting-response"
+        elif (
+            self.report_sent_date
+            and self.report_acknowledged_date
+            and self.compliance_email_sent_date is None
+        ):
+            return "12w-review"
+        elif self.compliance_email_sent_date:
+            return "update-for-enforcement-bodies-due"
+        return "unknown"
+
+    def create_qa_status(self):
+        if (
+            self.reviewer is None
+            and self.report_review_status == "ready-to-review"
+            and self.report_approved_status != "yes"
+        ):
+            return "unassigned_qa_case"
+        elif (
+            self.reviewer
+            and self.report_review_status == "ready-to-review"
+            and self.report_approved_status != "yes"
+        ):
+            return "in_qa"
+        elif (
+            self.reviewer
+            and self.report_review_status == "ready-to-review"
+            and self.report_approved_status == "yes"
+        ):
+            return "qa_approved"
+        return "unknown"
 
     @property
     def new_case_progress(self):
@@ -295,6 +371,10 @@ class Case(models.Model):
                 progress += percentage_increase
 
         return str(progress) + "%"
+
+    @property
+    def contact_exists(self):
+        return Contact.objects.filter(case_id=self.id).exists()
 
 
 class Contact(models.Model):
