@@ -1,5 +1,7 @@
 """
-This command adds historic case data.
+This command adds historic case data from a local copy
+of the Simplified testing central spreadsheet as well
+as an extract of data from the testing documents.
 """
 import csv
 from datetime import date, datetime
