@@ -27,7 +27,7 @@ jobs:
         npm i
         python3 -c 'from pulp import pulp; pulp()'
         python3 manage.py collectstatic --noinput
-        python3 manage.py test
+        python3 manage.py test ./accessibility_monitoring_platform/apps/websites
         pytest
 
   int-test:
