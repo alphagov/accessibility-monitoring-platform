@@ -20,7 +20,8 @@ from ....common.models import Sector, Region
 from ....common.utils import extract_domain_from_url
 
 HOME_PATH = expanduser("~")
-INPUT_FILE_NAME = f"{HOME_PATH}/simplified_test_central_sheet_2021-07-07.csv"
+CENTRAL_SPREADSHEET_FILE_NAME = f"{HOME_PATH}/simplified_test_central_sheet_2021-07-07.csv"
+TEST_RESULTS_FILE_NAME = f"{HOME_PATH}/historic_cases_test_results.csv"
 
 # All columns in Simplified test central spreadsheet, with unused ones as comments:
 CASE_NUMBER = " Case No."
@@ -71,6 +72,15 @@ def delete_existing_data(verbose: bool = False) -> None:
     Case.objects.all().delete()
 
 
+def get_test_results_urls() -> Dict[int, str]:
+    test_results_urls: Dict[int, str] = {}
+    with open(TEST_RESULTS_FILE_NAME) as csvfile:
+        reader: Any = csv.DictReader(csvfile)
+        for row in reader:
+            test_results_urls[int(row["Case number"])] = row["Home page URL"]
+    return test_results_urls
+
+
 def get_users() -> Dict[str, User]:
     return {user.first_name.lower(): user for user in User.objects.all()}
 
@@ -83,7 +93,7 @@ def get_sectors() -> Dict[str, Sector]:
     return {sector.name: sector for sector in Sector.objects.all()}
 
 
-def print_error_message(row: Dict[str, str], message: str) -> None:
+def print_row_message(row: Dict[str, str], message: str) -> None:
     print(f"#{row[CASE_NUMBER]} {row[ORGANISATION_NAME]}: {message}")
 
 
@@ -112,7 +122,7 @@ def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None
                 dd, mm, yyyy = date_string.group().split("/")
                 return date(int(yyyy), int(mm), int(dd))
             except Exception:
-                print_error_message(
+                print_row_message(
                     row, f"'{column_name}' has bad date string '{column_string}'"
                 )
                 return None
@@ -130,7 +140,7 @@ def get_month_from_row(row: Dict[str, str], column_name: str) -> Union[date, Non
             mm = datetime.strptime(month[:3], "%b").month
             return date(int(year), int(mm), int(1))
         except Exception:
-            print_error_message(
+            print_row_message(
                 row, f"'{column_name}' has bad month string '{column_string}'"
             )
             return None
@@ -164,7 +174,7 @@ def get_or_create_user_from_row(
             users[first_name_key] = user
             return user
         except Exception:
-            print_error_message(row, f"'{column_name}' has bad user name '{user_name}'")
+            print_row_message(row, f"'{column_name}' has bad user name '{user_name}'")
             return None
     return users.get(first_name_key) if user_name is not None else None
 
@@ -212,8 +222,13 @@ def get_data_from_row(
         return get_month_from_row(column_name=column_name, row=row)
 
 
-def create_case(get_data: Callable) -> Case:
+def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
+    case_number = get_data(column_name=CASE_NUMBER, column_type="integer")
     home_page_url = get_data(column_name=HOME_PAGE_URL)
+    if not home_page_url:
+        home_page_url = homepage_urls.get(case_number, "")
+        if home_page_url:
+            print(f"#{case_number}: Got home page url from test results '{home_page_url}'")
     is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     case_origin = (
         "complaint"
@@ -239,7 +254,7 @@ def create_case(get_data: Callable) -> Case:
     is_case_completed = sent_to_enforcement_body.lower() == "n/a - no need to send"
 
     return Case.objects.create(
-        id=get_data(column_name=CASE_NUMBER, column_type="integer"),
+        id=case_number,
         created=get_data(column_name=CREATED_DATE, column_type="datetime"),
         auditor=get_data(column_name=AUDITOR, column_type="user"),
         test_type="simple",
@@ -377,11 +392,12 @@ class Command(BaseCommand):
         if initial:
             delete_existing_data(verbose)
 
+        homepage_urls: Dict[int, str] = get_test_results_urls()
         regions: Dict[str, Region] = get_regions()
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
 
-        with open(INPUT_FILE_NAME) as csvfile:
+        with open(CENTRAL_SPREADSHEET_FILE_NAME) as csvfile:
             reader: Any = csv.DictReader(csvfile)
             for count, row in enumerate(reader, start=1):
                 if not row[CREATED_DATE]:
@@ -393,7 +409,7 @@ class Command(BaseCommand):
                 get_data: Callable = partial(
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
-                case: Case = create_case(get_data)
+                case: Case = create_case(get_data, homepage_urls=homepage_urls)
 
                 regions_for_case: List[Region] = get_or_create_regions_from_row(
                     row, regions
