@@ -38,7 +38,7 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
         {
             "subject": subject,
             "message": message,
-        }
+        },
     )
 
     assert response.status_code == 302
