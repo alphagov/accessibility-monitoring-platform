@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path("blog/", include("blog.urls"))
 """
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from django.conf.urls import include
 from django.views.generic import RedirectView
@@ -25,7 +26,7 @@ urlpatterns = [
     path("websites/", include("accessibility_monitoring_platform.apps.websites.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("contact/", ContactAdminView.as_view(), name="contact-admin"),
+    path("contact/", login_required(ContactAdminView.as_view()), name="contact-admin"),
     path(r"admin/", admin.site.urls),
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
 ]
