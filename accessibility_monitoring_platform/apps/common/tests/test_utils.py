@@ -178,7 +178,10 @@ def test_convert_date_plus_hour_minute_second_to_datetime():
     expected_datetime: datetime = datetime(
         year=2021, month=6, day=10, hour=1, minute=2, second=3, tzinfo=pytz.UTC
     )
-    assert convert_date_to_datetime(input_date, hour=1, minute=2, second=3) == expected_datetime
+    assert (
+        convert_date_to_datetime(input_date, hour=1, minute=2, second=3)
+        == expected_datetime
+    )
 
 
 @pytest.mark.parametrize("url", ["https://gov.uk", "http://example.com"])

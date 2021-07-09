@@ -165,3 +165,5 @@ STATICFILES_DIRS = [BASE_DIR / "static/compiled/"]
 STATIC_URL = os.path.join(BASE_DIR, "/static/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+CONTACT_ADMIN_EMAIL = "***REMOVED***@digital.cabinet-office.gov.uk"
