@@ -66,7 +66,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?case_number={included_case.id}"
+        f"{reverse('cases:case-list')}?search={included_case.id}"
     )
 
     assert response.status_code == 200
@@ -78,8 +78,8 @@ def test_case_list_view_filters_by_case_number(admin_client):
 @pytest.mark.parametrize(
     "field_name,value,url_parameter_name",
     [
-        ("domain", "included.com", "domain"),
-        ("organisation_name", "IncludedOrg", "organisation"),
+        ("home_page_url", "included.com", "search"),
+        ("organisation_name", "IncludedOrg", "search"),
     ],
 )
 @pytest.mark.django_db

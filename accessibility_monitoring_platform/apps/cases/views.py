@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.db.models import Q
 
 from ..common.typing import IntOrNone
 from ..common.utils import build_filters, download_as_csv, get_id_from_button_name
@@ -29,9 +30,6 @@ from .forms import (
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
-    ("case_number", "id"),
-    ("domain", "domain__icontains"),
-    ("organisation", "organisation_name__icontains"),
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
     ("status", "status"),
@@ -128,6 +126,7 @@ class CaseListView(ListView):
             return Case.objects.none()
 
         filters: Dict = {}
+        search_query = Q()
         sort_by: str = DEFAULT_SORT
 
         if hasattr(self.form, "cleaned_data"):
@@ -138,6 +137,12 @@ class CaseListView(ListView):
             sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
             if not sort_by:
                 sort_by: str = DEFAULT_SORT
+            if self.form.cleaned_data["search"]:
+                search_query = (
+                    Q(organisation_name__icontains=self.form.cleaned_data["search"])
+                    | Q(home_page_url__icontains=self.form.cleaned_data["search"])
+                    | Q(id__icontains=self.form.cleaned_data["search"])
+                )
 
         filters["is_archived"] = False
 
@@ -146,7 +151,7 @@ class CaseListView(ListView):
         if "reviewer_id" in filters and filters["reviewer_id"] == "none":
             filters["reviewer_id"] = None
 
-        return Case.objects.filter(**filters).order_by(sort_by)
+        return Case.objects.filter(search_query, **filters).order_by(sort_by)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""
