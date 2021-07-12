@@ -26,7 +26,6 @@ from .models import (
     Contact,
     CASE_ORIGIN_CHOICES,
     STATUS_CHOICES,
-    DEFAULT_TEST_TYPE,
     TEST_TYPE_CHOICES,
     DEFAULT_WEBSITE_TYPE,
     WEBSITE_TYPE_CHOICES,
@@ -78,19 +77,42 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    auditor = AMPUserModelChoiceField(label="Auditor")
+    organisation_name = AMPCharFieldWide(
+        label="Organisation name",
+        help_text="Enter the name of the organization",
+    )
+    home_page_url = AMPURLField(
+        label="Full URL",
+        help_text="Enter a domain if test type is simple or complex",
+        required=True,
+    )
     test_type = AMPChoiceField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
         widget=AMPRadioSelectWidget,
-        initial=DEFAULT_TEST_TYPE,
     )
-    home_page_url = AMPURLField(
-        label="Full URL",
-        help_text="E.g. https://example.com",
-        required=True,
+    case_origin = AMPChoiceField(
+        label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
     )
-    organisation_name = AMPCharFieldWide(label="Organisation name")
+    auditor = AMPUserModelChoiceField(label="Auditor")
+
+    class Meta:
+        model = Case
+        fields = [
+            "organisation_name",
+            "home_page_url",
+            "test_type",
+            "case_origin",
+            "auditor",
+        ]
+
+
+class CaseDetailUpdateForm(CaseCreateForm):
+    """
+    Form for updating case details fields
+    """
+
+    domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, App or Service name")
     website_type = AMPChoiceField(
         label="Type of site",
@@ -103,36 +125,9 @@ class CaseCreateForm(forms.ModelForm):
         label="Region",
         queryset=Region.objects.all(),
     )
-    case_origin = AMPChoiceField(
-        label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
-    )
     trello_url = AMPURLField(label="Trello ticket URL")
-    notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = Case
-        fields = [
-            "auditor",
-            "test_type",
-            "home_page_url",
-            "organisation_name",
-            "service_name",
-            "website_type",
-            "sector",
-            "region",
-            "case_origin",
-            "trello_url",
-            "notes",
-        ]
-
-
-class CaseDetailUpdateForm(CaseCreateForm):
-    """
-    Form for updating case details fields
-    """
-
-    domain = AMPCharFieldWide(label="Domain")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
