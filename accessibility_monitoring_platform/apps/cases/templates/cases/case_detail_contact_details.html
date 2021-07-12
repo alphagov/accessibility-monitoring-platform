@@ -1,4 +1,15 @@
-<h2 id="contact-details" class="govuk-heading-m">Contact details</h2>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="contact-details" class="govuk-heading-l">Contact details</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds" style="text-align:right">
+        <a href="{% url 'cases:edit-contact-details' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+            rel="noreferrer noopener">
+            Edit contact details
+        </a>
+    </div>
+</div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         {% for contact in contacts %}
@@ -37,8 +48,10 @@
                     </div>
                 </div>
                 <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+                    <div class="govuk-grid-column-one-third">
+                        <h3 class="govuk-heading-s">Notes</h3>
+                    </div>
+                    <div class="govuk-grid-column-two-thirds">
                         {% if contact.notes %}<p class="govuk-body-m cases-notes">{{ contact.notes }}</p>{% endif %}
                     </div>
                 </div>

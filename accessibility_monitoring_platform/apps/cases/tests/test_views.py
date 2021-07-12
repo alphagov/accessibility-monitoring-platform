@@ -242,7 +242,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     "path_name, expected_content",
     [
         ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
-        ("cases:case-detail", '<h1 class="govuk-heading-xl">View case #'),
+        ("cases:case-detail", '<h1 class="govuk-heading-xl" style="margin-bottom:0">View case</h1>'),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),

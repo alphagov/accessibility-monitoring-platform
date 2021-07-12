@@ -1,4 +1,15 @@
-<h2 id="case-details" class="govuk-heading-m">Case details</h2>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="case-details" class="govuk-heading-l">Case details</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds" style="text-align:right">
+        <a href="{% url 'cases:edit-case-details' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+            rel="noreferrer noopener">
+            Edit case details
+        </a>
+    </div>
+</div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
@@ -68,11 +79,10 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+            <th scope="row" class="govuk-table__header">Notes</th>
+            <td class="govuk-table__cell">
                 {% if case.notes %}<p class="govuk-body-m cases-notes">{{ case.notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Public sector body?</th>
