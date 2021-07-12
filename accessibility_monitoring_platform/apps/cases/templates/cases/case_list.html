@@ -98,16 +98,11 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
-                                    {% include 'common/amp_field.html' with field=form.sort_by %}
-                                    {% include 'common/amp_field.html' with field=form.case_number %}
-                                    {% include 'common/amp_field.html' with field=form.domain %}
-                                    {% include 'common/amp_field.html' with field=form.organisation %}
-                                    {% include 'common/amp_field.html' with field=form.auditor %}
-                                    {% include 'common/amp_field.html' with field=form.reviewer %}
-                                    {% include 'common/amp_field.html' with field=form.status %}
-                                    <h3 class="govuk-heading-s">Date created filter</h3>
-                                    {% include 'common/amp_field.html' with field=form.start_date %}
-                                    {% include 'common/amp_field.html' with field=form.end_date %}
+                                        {% include 'common/amp_field.html' with field=form.search %}
+                                        {% include 'common/amp_field.html' with field=form.status %}
+                                        {% include 'common/amp_field.html' with field=form.auditor %}
+                                        {% include 'common/amp_field.html' with field=form.reviewer %}
+                                        {% include 'common/amp_field.html' with field=form.sort_by %}
                                 </div>
                             </div>
                             <div class="govuk-button-group">
