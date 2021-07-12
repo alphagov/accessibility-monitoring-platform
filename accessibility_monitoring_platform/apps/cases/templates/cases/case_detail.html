@@ -12,6 +12,14 @@
             </div>
             <div class="govuk-grid-column-one-third">
                 <div class="govuk-button-group" style="flex-direction:row-reverse">
+                    <a href="{% url 'cases:edit-case-details' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Edit case
+                    </a>
                     <a
                         href="{% url 'cases:case-export-single' case.id %}"
                         role="button"
@@ -20,14 +28,6 @@
                         data-module="govuk-button"
                     >
                         Export to CSV
-                    </a>
-                    <a href="{% url 'cases:edit-case-details' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Edit case
                     </a>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                 {% include 'cases/case_detail_testing_details.html' %}
                 {% include 'cases/case_detail_report_details.html' %}
                 {% include 'cases/case_detail_post_report.html' %}
-                <h2 id="delete-case" class="govuk-heading-m">Delete case</h2>
+                <h2 id="delete-case" class="govuk-heading-l">Delete case</h2>
                 <p class="govuk-body-m">
                     Unlist the case removes the case from your home view and from general case search,
                     essentially acting as a delete option. This can be undone by contacting an admin.

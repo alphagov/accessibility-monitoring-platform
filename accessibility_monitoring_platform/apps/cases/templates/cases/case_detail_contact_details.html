@@ -2,12 +2,14 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 id="contact-details" class="govuk-heading-l">Contact details</h2>
     </div>
-    <div class="govuk-grid-column-one-thirds" style="text-align:right">
-        <a href="{% url 'cases:edit-contact-details' case.id %}"
-            class="govuk-link govuk-link--no-visited-state"
-            rel="noreferrer noopener">
-            Edit contact details
-        </a>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-contact-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit contact details
+            </a>
+        </div>
     </div>
 </div>
 <table class="govuk-table">
