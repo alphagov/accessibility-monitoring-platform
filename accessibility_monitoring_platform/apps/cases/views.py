@@ -171,9 +171,18 @@ class CaseCreateView(CreateView):
     context_object_name: str = "case"
     template_name_suffix: str = "_create_form"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["auditor"] = self.request.user.id
+        return initial
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
+        if "save_continue_case" in self.request.POST:
+            url = reverse_lazy("cases:edit-case-details", kwargs={"pk": self.object.id})
+        elif "save_new_case" in self.request.POST:
+            url = reverse_lazy("cases:case-create")
+        elif "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy(

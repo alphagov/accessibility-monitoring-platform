@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-full">
                 <form method="post" action="{% url 'cases:case-create' %}">
                     {% csrf_token %}
 
@@ -37,12 +37,26 @@
                     </div>
 
                     <div class="govuk-grid-row">
-                        <div class="govuk-button-group">
+                        <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save"
-                                name="save_exit"
+                                value="Save and continue case"
+                                name="save_continue_case"
                                 class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and create another case"
+                                name="save_new_case"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                             <a
@@ -54,8 +68,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
             </div>
         </div>
     </main>

@@ -263,16 +263,27 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assertContains(response, expected_content)
 
 
+def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
+    """
+    Test that the auditor field in create case defaults to logged in user.
+    """
+    response: HttpResponse = admin_client.get(reverse("cases:case-create"))
+
+    assert response.status_code == 200
+    assert response.context["form"].initial["auditor"] == response.context["request"].user.id
+
+
 @pytest.mark.parametrize(
-    "button_name, expected_redirect_path",
+    "button_name, expected_redirect_url",
     [
-        ("save_continue", "cases:edit-contact-details"),
-        ("save_exit", "cases:case-detail"),
+        ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 1})),
+        ("save_new_case", reverse("cases:case-create")),
+        ("save_exit", reverse("cases:case-detail", kwargs={"pk": 1})),
     ],
 )
 @pytest.mark.django_db
 def test_create_case_redirects_based_on_button_pressed(
-    button_name, expected_redirect_path, admin_client
+    button_name, expected_redirect_url, admin_client
 ):
     """Test that a successful case create redirects based on the button pressed"""
     response: HttpResponse = admin_client.post(
@@ -284,7 +295,7 @@ def test_create_case_redirects_based_on_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(expected_redirect_path, kwargs={"pk": 1})
+    assert response.url == expected_redirect_url
 
 
 @pytest.mark.parametrize(
