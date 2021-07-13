@@ -11,7 +11,6 @@ from ..common.forms import (
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
-    AMPIntegerField,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
@@ -79,7 +78,7 @@ class CaseCreateForm(forms.ModelForm):
 
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
-        help_text="Enter the name of the organization",
+        help_text="Enter the name of the organisation",
     )
     home_page_url = AMPURLField(
         label="Full URL",

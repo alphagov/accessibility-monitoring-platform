@@ -278,7 +278,7 @@ def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
     [
         ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 1})),
         ("save_new_case", reverse("cases:case-create")),
-        ("save_exit", reverse("cases:case-detail", kwargs={"pk": 1})),
+        ("save_exit", reverse("cases:case-list")),
     ],
 )
 @pytest.mark.django_db

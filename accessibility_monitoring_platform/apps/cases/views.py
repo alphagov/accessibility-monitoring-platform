@@ -181,6 +181,23 @@ class CaseCreateView(CreateView):
         initial["auditor"] = self.request.user.id
         return initial
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        if "allow_duplicate_cases" in self.request.GET:
+            return super().form_valid(form)
+
+        context: Dict[str, Any] = self.get_context_data()
+        filters: Dict[str, str] = {}
+        organisation_name: str = form.cleaned_data.get("organisation_name")
+        if organisation_name:
+            filters["organisation_name__icontains"] = organisation_name
+        if filters:
+            duplicate_cases: QuerySet[Case] = Case.objects.filter(**filters)
+            if duplicate_cases:
+                context["duplicate_cases"] = duplicate_cases
+                return self.render_to_response(context)
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue_case" in self.request.POST:
@@ -188,7 +205,7 @@ class CaseCreateView(CreateView):
         elif "save_new_case" in self.request.POST:
             url = reverse_lazy("cases:case-create")
         elif "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:case-list")
         else:
             url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}
