@@ -1,3 +1,5 @@
+{% load custom_tags %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="post-report" class="govuk-heading-l">Post report</h2>
@@ -44,7 +46,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>
-            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed }}</td>
+            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed|nullable_boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Disproportionate burden notes</th>
@@ -90,7 +92,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Case complete</th>
-            <td class="govuk-table__cell">{{ case.is_case_completed }}</td>
+            <td class="govuk-table__cell">{{ case.is_case_completed|nullable_boolean_label }}</td>
         </tr>
     </tbody>
 </table>

@@ -11,12 +11,12 @@ from ..common.forms import (
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
-    AMPIntegerField,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
     AMPModelMultipleChoiceField,
     AMPBooleanField,
+    AMPNullableBooleanField,
     AMPDateField,
     AMPDateRangeForm,
     AMPURLField,
@@ -193,7 +193,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=TEST_STATUS_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    is_website_compliant = AMPBooleanField(label="Is the website compliant?")
+    is_website_compliant = AMPNullableBooleanField(label="Is the website compliant?")
     test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
@@ -255,7 +255,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="12 week followup acknowledge"
     )
     is_website_retested = AMPBooleanField(label="Retested website?")
-    is_disproportionate_claimed = AMPBooleanField(
+    is_disproportionate_claimed = AMPNullableBooleanField(
         label="Disproportionate burden claimed?"
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
@@ -279,7 +279,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="Date sent to enforcement body",
         help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
     )
-    is_case_completed = AMPBooleanField(label="Case completed?")
+    is_case_completed = AMPNullableBooleanField(label="Case completed?")
 
     class Meta:
         model = Case

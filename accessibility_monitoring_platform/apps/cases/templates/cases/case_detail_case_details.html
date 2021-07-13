@@ -23,30 +23,22 @@
             <td class="govuk-table__cell">{{ case.get_status_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header"">Auditor</th>
+            <th scope="row" class="govuk-table__header">Auditor</th>
             <td class="govuk-table__cell">{{ case.auditor.get_full_name }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header"">Test type</th>
+            <th scope="row" class="govuk-table__header">Test type</th>
             <td class="govuk-table__cell">{{ case.get_test_type_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Full url</th>
+            <th scope="row" class="govuk-table__header">Full URL</th>
             <td class="govuk-table__cell">
                 <a href="{{ case.home_page_url }}" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Domain</th>
-            <td class="govuk-table__cell">{{ case.domain }}</td>
-        </tr>
-        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Organisation name</th>
             <td class="govuk-table__cell">{{ case.organisation_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Website, App or Service name</th>
-            <td class="govuk-table__cell">{{ case.service_name }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Type of site</th>
