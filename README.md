@@ -61,7 +61,6 @@ To launch the development environment:
 2. Start the Django server
 3. Start the Pulp watch process in a new terminal
 4. Start browser-sync (if needed) in a new terminal
-5. Start the local email server (if needed) in a new terminal
 
 For example
 
@@ -70,7 +69,6 @@ docker-compose up -d
 make start
 make watch
 make sync
-make mail_server
 ```
 ---
 ## ADR Records
