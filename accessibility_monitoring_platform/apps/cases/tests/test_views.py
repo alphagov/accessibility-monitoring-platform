@@ -242,7 +242,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     "path_name, expected_content",
     [
         ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
-        ("cases:case-detail", '<h1 class="govuk-heading-xl" style="margin-bottom:0">View case</h1>'),
+        (
+            "cases:case-detail",
+            '<h1 class="govuk-heading-xl" style="margin-bottom:0">View case</h1>',
+        ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
@@ -270,7 +273,10 @@ def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-create"))
 
     assert response.status_code == 200
-    assert response.context["form"].initial["auditor"] == response.context["request"].user.id
+    assert (
+        response.context["form"].initial["auditor"]
+        == response.context["request"].user.id
+    )
 
 
 @pytest.mark.parametrize(

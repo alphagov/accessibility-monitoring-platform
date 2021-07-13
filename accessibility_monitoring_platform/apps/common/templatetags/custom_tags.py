@@ -13,5 +13,5 @@ register = template.Library()
 
 @register.filter
 def nullable_boolean_label(value):
-    """ Convert nullable boolean value into its label """
+    """Convert nullable boolean value into its label"""
     return nullable_boolean_labels.get(value, "")

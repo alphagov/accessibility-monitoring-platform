@@ -17,6 +17,7 @@ from ..forms import (
     AMPTextField,
     AMPChoiceField,
     AMPBooleanField,
+    AMPNullableBooleanField,
     AMPDateField,
     AMPDateRangeForm,
 )
@@ -213,6 +214,23 @@ def test_amp_boolean_field_widget():
     """Check AMPBooleanField uses widget AMPCheckboxWidget"""
     field: AMPBooleanField = AMPBooleanField(label="Label text")
     assert isinstance(field.widget, AMPCheckboxWidget)
+
+
+def test_amp_nullable_boolean_field_class_is_a_subclass_of_choicefield():
+    """Check AMPNullableBooleanField is a subclass of forms.ChoiceField"""
+    assert issubclass(AMPNullableBooleanField, forms.ChoiceField)
+
+
+def test_amp_nullable_boolean_field_is_not_required():
+    """Check AMPNullableBooleanField defaults to not being required"""
+    field: AMPNullableBooleanField = AMPNullableBooleanField(label="Label text")
+    assert not field.required
+
+
+def test_amp_nullable_boolean_field_widget():
+    """Check AMPNullableBooleanField uses widget AMPRadioSelectWidget"""
+    field: AMPNullableBooleanField = AMPNullableBooleanField(label="Label text")
+    assert isinstance(field.widget, AMPRadioSelectWidget)
 
 
 def test_amp_date_field_class_is_a_subclass_of_datefield():

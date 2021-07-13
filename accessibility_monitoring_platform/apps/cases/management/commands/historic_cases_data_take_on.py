@@ -20,7 +20,9 @@ from ....common.models import Sector, Region
 from ....common.utils import extract_domain_from_url
 
 HOME_PATH = expanduser("~")
-CENTRAL_SPREADSHEET_FILE_NAME = f"{HOME_PATH}/simplified_test_central_sheet_2021-07-07.csv"
+CENTRAL_SPREADSHEET_FILE_NAME = (
+    f"{HOME_PATH}/simplified_test_central_sheet_2021-07-07.csv"
+)
 TEST_RESULTS_FILE_NAME = f"{HOME_PATH}/historic_cases_test_results.csv"
 
 # All columns in Simplified test central spreadsheet, with unused ones as comments:
@@ -228,7 +230,9 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     if not home_page_url:
         home_page_url = homepage_urls.get(case_number, "")
         if home_page_url:
-            print(f"#{case_number}: Got home page url from test results '{home_page_url}'")
+            print(
+                f"#{case_number}: Got home page url from test results '{home_page_url}'"
+            )
     is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     case_origin = (
         "complaint"
@@ -348,6 +352,7 @@ def create_contact_from_row(get_data: Callable, case: Case) -> None:
             created_by=get_data(column_name=AUDITOR, column_type="user"),
         )
         contact.save()
+
 
 class Command(BaseCommand):
     """
