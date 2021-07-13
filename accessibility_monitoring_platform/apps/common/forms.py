@@ -250,3 +250,12 @@ class AMPDateRangeForm(forms.Form):
         if end_date:
             return convert_date_to_datetime(end_date, hour=23, minute=59, second=59)
         return DEFAULT_END_DATE
+
+
+class AMPContactAdminForm(forms.Form):
+    """
+    Form used to send message to platform admin.
+    """
+
+    subject = AMPCharFieldWide(label="Subject")
+    message = AMPTextField(label="Message")

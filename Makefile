@@ -47,9 +47,6 @@ sync:
 		--watchEvents change --watchEvents add \
 		--reload-delay 500
 
-mail_server:
-	python -m smtpd -n -c DebuggingServer localhost:1025
-
 test:
 	python manage.py collectstatic --noinput \
 		&& coverage run --source='.' -p manage.py test \
