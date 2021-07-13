@@ -3,11 +3,14 @@ Views for dashboard.
 
 Home should be the only view for dashboard.
 """
-from datetime import date, datetime, timedelta
-from ..cases.models import Case
-from django.shortcuts import get_object_or_404
+from datetime import date, timedelta
+
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.generic import TemplateView
+
+from ..cases.models import Case
 
 
 class DashboardView(TemplateView):
@@ -56,7 +59,7 @@ class DashboardView(TemplateView):
             ),
             "recently_completed": user_entries.filter(
                 status="complete",
-                completed__gte=datetime.now() - timedelta(30)
+                completed__gte=timezone.now() - timedelta(30)
             ),
         }
 
@@ -154,7 +157,7 @@ class DashboardView(TemplateView):
             ),
             "recently_completed": all_entries.filter(
                 status="complete",
-                completed__gte=datetime.now() - timedelta(30)
+                completed__gte=timezone.now() - timedelta(30)
             ),
         }
 
