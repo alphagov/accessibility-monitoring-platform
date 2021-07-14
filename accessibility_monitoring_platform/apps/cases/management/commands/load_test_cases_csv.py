@@ -174,16 +174,12 @@ def create_case(get_data: Callable) -> Case:
         report_acknowledged_date=get_data(
             column_name="report_acknowledged_date", column_type="date"
         ),
-        week_12_followup_date=get_data(
-            column_name="week_12_followup_date", column_type="date"
+        report_followup_week_12_due_date=get_data(
+            column_name="report_followup_week_12_due_date", column_type="date"
         ),
         psb_progress_notes=get_data(column_name="psb_progress_notes"),
-        week_12_followup_email_sent_date=get_data(
-            column_name="week_12_followup_email_sent_date",
-            column_type="date",
-        ),
-        week_12_followup_email_acknowledgement_date=get_data(
-            column_name="week_12_followup_email_acknowledgement_date",
+        report_followup_week_12_sent_date=get_data(
+            column_name="report_followup_week_12_sent_date",
             column_type="date",
         ),
         is_website_retested=get_data(

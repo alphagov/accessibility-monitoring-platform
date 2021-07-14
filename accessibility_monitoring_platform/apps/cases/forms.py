@@ -246,14 +246,11 @@ class CasePostReportUpdateForm(forms.ModelForm):
     """
 
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    week_12_followup_date = AMPDateField(label="12 week followup date")
+    report_followup_week_12_due_date = AMPDateField(label="12 week followup date")
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    week_12_followup_email_sent_date = AMPDateField(label="12 week followup email sent")
-    week_12_followup_email_acknowledgement_date = AMPDateField(
-        label="12 week followup acknowledge"
-    )
+    report_followup_week_12_sent_date = AMPDateField(label="12 week followup email sent")
     is_website_retested = AMPBooleanField(label="Retested website?")
     is_disproportionate_claimed = AMPBooleanField(
         label="Disproportionate burden claimed?"
@@ -285,10 +282,9 @@ class CasePostReportUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "report_acknowledged_date",
-            "week_12_followup_date",
+            "report_followup_week_12_due_date",
             "psb_progress_notes",
-            "week_12_followup_email_sent_date",
-            "week_12_followup_email_acknowledgement_date",
+            "report_followup_week_12_sent_date",
             "is_website_retested",
             "is_disproportionate_claimed",
             "disproportionate_notes",

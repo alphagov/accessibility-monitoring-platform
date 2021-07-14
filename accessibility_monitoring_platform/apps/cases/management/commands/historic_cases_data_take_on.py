@@ -287,12 +287,11 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         report_acknowledged_date=get_data(
             column_name=REPORT_ACKNOWLEDGED_DATE, column_type="date"
         ),
-        week_12_followup_date=get_data(
+        report_followup_week_12_due_date=get_data(
             column_name=WEEK_12_FOLLOWEP_DATE, column_type="date"
         ),
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
-        week_12_followup_email_sent_date=None,
-        week_12_followup_email_acknowledgement_date=None,
+        report_followup_week_12_sent_date=None,
         is_website_retested=is_website_retested,
         is_disproportionate_claimed=is_disproportionate_claimed,
         disproportionate_notes=get_data(column_name=DISPROPORTIONATE_NOTES),

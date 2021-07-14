@@ -52,7 +52,7 @@ class DashboardView(TemplateView):
             "twelve_week_review_due": user_entries.filter(
                 status="12w-review"
             ).order_by(
-                "week_12_followup_date"
+                "report_followup_week_12_due_date"
             ),
             "update_for_enforcement_bodies_due": user_entries.filter(
                 status="update-for-enforcement-bodies-due"
@@ -150,7 +150,7 @@ class DashboardView(TemplateView):
             "twelve_week_review_due": all_entries.filter(
                 status="12w-review"
             ).order_by(
-                "week_12_followup_date"
+                "report_followup_week_12_due_date"
             ),
             "update_for_enforcement_bodies_due": all_entries.filter(
                 status="update-for-enforcement-bodies-due"
