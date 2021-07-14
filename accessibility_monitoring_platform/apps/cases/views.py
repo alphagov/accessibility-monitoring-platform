@@ -209,6 +209,12 @@ class CaseCreateView(CreateView):
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases
             context["cleaned_data"] = form.cleaned_data
+            context["cleaned_data"]["test_type"] = dict(
+                form.fields["test_type"].choices
+            )[context["cleaned_data"]["test_type"]]
+            context["cleaned_data"]["case_origin"] = dict(
+                form.fields["case_origin"].choices
+            )[context["cleaned_data"]["case_origin"]]
             return self.render_to_response(context)
         return super().form_valid(form)
 
