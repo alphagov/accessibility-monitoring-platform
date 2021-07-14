@@ -46,15 +46,15 @@
                         <table class="govuk-table">
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
-                                    <th class="govuk-table__header">Date</th>
                                     <th class="govuk-table__header">Case</th>
+                                    <th class="govuk-table__header">Domain</th>
                                     <th class="govuk-table__header">Status</th>
+                                    <th class="govuk-table__header">Created</th>
                                 </tr>
                             </thead>
                             <tbody class="govuk-table__body">
                                 {% for case in duplicate_cases %}
                                     <tr class="govuk-table__row">
-                                        <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
                                         <td class="govuk-table__cell">
                                             <a href="{% url 'cases:case-detail' case.id %}"
                                                 class="govuk-link govuk-link--no-visited-state"
@@ -62,7 +62,9 @@
                                                 #{{ case.id }} | {{ case.organisation_name }}
                                             </a>
                                         </td>
+                                        <td class="govuk-table__cell">{{ case.domain }}</td>
                                         <td class="govuk-table__cell">{{ case.get_status_display }}</td>
+                                        <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

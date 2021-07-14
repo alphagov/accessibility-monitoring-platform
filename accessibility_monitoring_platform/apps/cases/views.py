@@ -15,7 +15,12 @@ from django.views.generic.list import ListView
 from django.db.models import Q
 
 from ..common.typing import IntOrNone
-from ..common.utils import build_filters, download_as_csv, get_id_from_button_name
+from ..common.utils import (
+    build_filters,
+    download_as_csv,
+    extract_domain_from_url,
+    get_id_from_button_name,
+)
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
@@ -84,6 +89,16 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "completed",
     "is_archived",
 ]
+
+
+def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
+    """Look for cases with matching domain or organisation name"""
+    domain: str = extract_domain_from_url(url)
+    if organisation_name:
+        return Case.objects.filter(
+            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
+        )
+    return Case.objects.filter(domain=domain)
 
 
 class CaseDetailView(DetailView):
@@ -187,15 +202,13 @@ class CaseCreateView(CreateView):
             return super().form_valid(form)
 
         context: Dict[str, Any] = self.get_context_data()
-        filters: Dict[str, str] = {}
-        organisation_name: str = form.cleaned_data.get("organisation_name")
-        if organisation_name:
-            filters["organisation_name__icontains"] = organisation_name
-        if filters:
-            duplicate_cases: QuerySet[Case] = Case.objects.filter(**filters)
-            if duplicate_cases:
-                context["duplicate_cases"] = duplicate_cases
-                return self.render_to_response(context)
+        duplicate_cases: QuerySet[Case] = find_duplicate_cases(
+            url=form.cleaned_data.get("home_page_url", ""),
+            organisation_name=form.cleaned_data.get("organisation_name", ""),
+        )
+        if duplicate_cases:
+            context["duplicate_cases"] = duplicate_cases
+            return self.render_to_response(context)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

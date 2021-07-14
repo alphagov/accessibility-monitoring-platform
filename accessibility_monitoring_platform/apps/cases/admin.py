@@ -10,7 +10,7 @@ class CaseAdmin(admin.ModelAdmin):
     """Django admin configuration for Case model"""
 
     readonly_fields = ["simplified_test_filename", "created"]
-    search_fields = ["organisation_name"]
+    search_fields = ["organisation_name", "domain"]
     list_display = ["organisation_name", "domain", "auditor", "created"]
     list_filter = ["auditor"]
     filter_horizontal = ["region"]
