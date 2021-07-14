@@ -208,6 +208,7 @@ class CaseCreateView(CreateView):
         )
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases
+            context["cleaned_data"] = form.cleaned_data
             return self.render_to_response(context)
         return super().form_valid(form)
 
