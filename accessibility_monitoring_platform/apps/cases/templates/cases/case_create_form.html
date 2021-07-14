@@ -51,34 +51,22 @@
 
                         <div class="govuk-body">
                             <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Auditor</p>
-                            <p class="govuk-!-font-weight-regular">{{cleaned_data.auditor.first_name }} {{cleaned_data.auditor.last_name}}</p>
+                            <p class="govuk-!-font-weight-regular">{{ cleaned_data.auditor.get_full_name }}</p>
                         </div>
-                        <div class="hidden-form"> 
-                            {% for field in form.visible_fields %}
-                                <div class="govuk-grid-column-full govuk-form-group">
-                                    <label class="govuk-label"
-                                        for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                    </label>
-                                    <div class="govuk-error-message">{{ field.errors }}</div>
-                                    <p class="govuk-body-m">{{ field.help_text }}</p>
-                                    {{ field }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="govuk-grid-row">
-                            {% for field in form.visible_fields %}
-                                <div class="govuk-grid-column-full govuk-form-group">
-                                    <label class="govuk-label"
-                                        for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                    </label>
-                                    <div class="govuk-error-message">{{ field.errors }}</div>
-                                    <p class="govuk-body-m">{{ field.help_text }}</p>
-                                    {{ field }}
-                                </div>
-                            {% endfor %}
-                        </div>
+
                     {% endif %}
+                    <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
+                        {% for field in form.visible_fields %}
+                            <div class="govuk-grid-column-full govuk-form-group">
+                                <label class="govuk-label"
+                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                                </label>
+                                <div class="govuk-error-message">{{ field.errors }}</div>
+                                <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
 
                     {% if duplicate_cases %}
                         <h2 id="case-details" class="govuk-heading-m">Duplicate cases</h2>
