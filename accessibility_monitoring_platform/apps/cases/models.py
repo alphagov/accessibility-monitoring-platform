@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import timedelta, date
+from datetime import date
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
@@ -200,10 +200,6 @@ class Case(models.Model):
             self.domain = extract_domain_from_url(self.home_page_url)
         if self.is_case_completed and not self.completed:
             self.completed = now
-        if self.report_acknowledged_date and not self.report_followup_week_12_due_date:
-            self.report_followup_week_12_due_date = (
-                self.report_acknowledged_date + timedelta(weeks=12)
-            )
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)

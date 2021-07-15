@@ -94,23 +94,3 @@ def test_contact_created_timestamp_is_not_updated():
 
     assert updated_contact.first_name == updated_first_name
     assert updated_contact.created == original_created_timestamp
-
-
-@pytest.mark.django_db
-def test_case_report_followup_week_12_due_date_is_populated():
-    """
-    Test the Case report_followup_week_12_due_date field is populated when the report_acknowledged_date
-    is set.
-    """
-    today = date(year=2021, month=6, day=22)
-    twelve_weeks_from_today = today + timedelta(weeks=12)
-    case = Case.objects.create()
-
-    assert case.report_followup_week_12_due_date is None
-
-    case.report_acknowledged_date = today
-    case.save()
-    updated_case = Case.objects.get(pk=case.id)
-
-    assert isinstance(updated_case.report_followup_week_12_due_date, date)
-    assert updated_case.report_followup_week_12_due_date == twelve_weeks_from_today

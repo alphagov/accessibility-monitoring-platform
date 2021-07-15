@@ -290,8 +290,8 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         report_followup_week_12_due_date=get_data(
             column_name=WEEK_12_FOLLOWEP_DATE, column_type="date"
         ),
-        psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
         report_followup_week_12_sent_date=None,
+        psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
         is_website_retested=is_website_retested,
         is_disproportionate_claimed=is_disproportionate_claimed,
         disproportionate_notes=get_data(column_name=DISPROPORTIONATE_NOTES),

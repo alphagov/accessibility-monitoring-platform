@@ -1,8 +1,8 @@
 """
 Views for cases app
 """
-from datetime import date, timedelta
-from typing import Any, Dict, List, Tuple, Union
+from datetime import timedelta
+from typing import Any, Dict, List, Tuple
 import urllib
 
 from django.db.models.query import QuerySet
@@ -35,6 +35,7 @@ from .forms import (
     CaseReportFollowupDueDatesUpdateForm,
     DEFAULT_SORT,
 )
+from .utils import get_sent_date
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -369,22 +370,6 @@ class CaseReportDetailsUpdateView(UpdateView):
         return url
 
 
-def get_sent_date(
-    form: CasePostReportUpdateForm, case_from_db: Case, sent_date_name: str
-) -> Union[date, None]:
-    """
-    Work out what value to save in a sent date field on the case.
-    If there is a new value in the form, don't replace an existing date on the database.
-    If there is a new value in the form and no date on the database then use the date from the form.
-    If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
-    """
-    date_on_form: date = form.cleaned_data[sent_date_name]
-    if date_on_form is None:
-        return None
-    date_on_db: date = getattr(case_from_db, sent_date_name)
-    return date_on_db if date_on_db else date_on_form
-
-
 class CasePostReportDetailsUpdateView(UpdateView):
     """
     View to update case post report details
@@ -439,13 +424,17 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
     """
 
     model: Case = Case
-    form_class: CaseReportFollowupDueDatesUpdateForm = CaseReportFollowupDueDatesUpdateForm
+    form_class: CaseReportFollowupDueDatesUpdateForm = (
+        CaseReportFollowupDueDatesUpdateForm
+    )
     context_object_name: str = "case"
     template_name_suffix: str = "_report_followup_due_dates_update_form"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy("cases:edit-post-report-details", kwargs={"pk": self.object.id})
+        return reverse_lazy(
+            "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+        )
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

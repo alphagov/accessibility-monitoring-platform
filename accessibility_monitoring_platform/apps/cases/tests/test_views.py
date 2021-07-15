@@ -1,7 +1,7 @@
 """
 Tests for cases views
 """
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import pytest
 import pytz
 
@@ -13,10 +13,26 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ..models import Case, Contact
-from ..views import CASE_FIELDS_TO_EXPORT
+from ..views import (
+    CASE_FIELDS_TO_EXPORT,
+    ONE_WEEK_IN_DAYS,
+    FOUR_WEEKS_IN_DAYS,
+    SEVEN_WEEKS_IN_DAYS,
+    TWELVE_WEEKS_IN_DAYS,
+)
 
 CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 CONTACT_DETAIL = "test@email.com"
+REPORT_SENT_DATE: date = date(2021, 2, 28)
+OTHER_DATE: date = date(2020, 12, 31)
+ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
+FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
+SEVEN_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(
+    days=SEVEN_WEEKS_IN_DAYS
+)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(
+    days=TWELVE_WEEKS_IN_DAYS
+)
 
 
 @pytest.mark.django_db
@@ -317,6 +333,7 @@ def test_create_case_redirects_based_on_button_pressed(
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
         ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-report-followup-due-dates", "save_return", "cases:edit-post-report-details"),
     ],
 )
 @pytest.mark.django_db
@@ -431,3 +448,83 @@ def test_preferred_contact_displayed(admin_client):
     )
     assert response.status_code == 200
     assertContains(response, "Preferred contact?")
+
+
+def test_updating_report_sent_date(admin_client):
+    """Test that populating the report sent date populates the report followup due dates"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        {
+            "report_sent_date_0": REPORT_SENT_DATE.day,
+            "report_sent_date_1": REPORT_SENT_DATE.month,
+            "report_sent_date_2": REPORT_SENT_DATE.year,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_due_date == ONE_WEEK_FOLLOWUP_DUE_DATE
+    assert case_from_db.report_followup_week_4_due_date == FOUR_WEEK_FOLLOWUP_DUE_DATE
+    assert case_from_db.report_followup_week_7_due_date == SEVEN_WEEK_FOLLOWUP_DUE_DATE
+    assert (
+        case_from_db.report_followup_week_12_due_date == TWELVE_WEEK_FOLLOWUP_DUE_DATE
+    )
+
+
+def test_report_followup_due_dates_not_changed(admin_client):
+    """
+    Test that populating the report sent date does not update existing report followup due dates
+    """
+    case: Case = Case.objects.create(
+        report_followup_week_1_due_date=OTHER_DATE,
+        report_followup_week_4_due_date=OTHER_DATE,
+        report_followup_week_7_due_date=OTHER_DATE,
+        report_followup_week_12_due_date=OTHER_DATE,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        {
+            "report_sent_date_0": REPORT_SENT_DATE.day,
+            "report_sent_date_1": REPORT_SENT_DATE.month,
+            "report_sent_date_2": REPORT_SENT_DATE.year,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_due_date == OTHER_DATE
+    assert case_from_db.report_followup_week_4_due_date == OTHER_DATE
+    assert case_from_db.report_followup_week_7_due_date == OTHER_DATE
+    assert case_from_db.report_followup_week_12_due_date == OTHER_DATE
+
+
+def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(admin_client):
+    """
+    Test that updating the report sent date does not populate report followup due dates
+    """
+    case: Case = Case.objects.create(report_sent_date=OTHER_DATE)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        {
+            "report_sent_date_0": REPORT_SENT_DATE.day,
+            "report_sent_date_1": REPORT_SENT_DATE.month,
+            "report_sent_date_2": REPORT_SENT_DATE.year,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_due_date is None
+    assert case_from_db.report_followup_week_4_due_date is None
+    assert case_from_db.report_followup_week_7_due_date is None
+    assert case_from_db.report_followup_week_12_due_date is None
