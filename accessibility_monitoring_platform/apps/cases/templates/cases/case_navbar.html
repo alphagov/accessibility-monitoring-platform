@@ -2,12 +2,12 @@
     {% if current_page == 'view-details' %}
         <h2 class="govuk-heading-m">Contents</h2>
         <ul class="govuk-list">
-            <li><a href="#case-details" class="govuk-link">Case details</a></li>
-            <li><a href="#contact-details" class="govuk-link">Contact details</a></li>
-            <li><a href="#testing-details" class="govuk-link">Testing details</a></li>
-            <li><a href="#report-details" class="govuk-link">Report details</a></li>
-            <li><a href="#post-report" class="govuk-link">Post report</a></li>
-            <li><a href="#unlist-case" class="govuk-link">Unlist case</a></li>
+            <li><a href="#case-details" class="govuk-link govuk-link--no-visited-state">Case details</a></li>
+            <li><a href="#contact-details" class="govuk-link govuk-link--no-visited-state">Contact details</a></li>
+            <li><a href="#testing-details" class="govuk-link govuk-link--no-visited-state">Testing details</a></li>
+            <li><a href="#report-details" class="govuk-link govuk-link--no-visited-state">Report details</a></li>
+            <li><a href="#post-report" class="govuk-link govuk-link--no-visited-state">Post report</a></li>
+            <li><a href="#delete-case" class="govuk-link govuk-link--no-visited-state">Delete case</a></li>
         </ul>
     {% else %}
         <h2 class="govuk-heading-m">Case steps</h2>
@@ -15,27 +15,27 @@
             {% if current_page == 'edit-case-details' %}
                 <li>Case details</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link">Case details</a></li>
+                <li><a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Case details</a></li>
             {% endif %}
             {% if current_page == 'edit-contacts' %}
                 <li>Contact details</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link">Contact details</a></li>
+                <li><a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Contact details</a></li>
             {% endif %}
             {% if current_page == 'edit-test-results' %}
                 <li>Testing details</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link">Testing details</a></li>
+                <li><a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Testing details</a></li>
             {% endif %}
             {% if current_page == 'edit-report-details' %}
                 <li>Report details</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link">Report details</a></li>
+                <li><a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Report details</a></li>
             {% endif %}
             {% if current_page == 'edit-post-report-details' %}
                 <li>Post report</li>
             {% else %}
-                <li><a href="{% url 'cases:edit-post-report-details' case.id %}" class="govuk-link">Post report</a></li>
+                <li><a href="{% url 'cases:edit-post-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Post report</a></li>
             {% endif %}
         </ul>
     {% endif %}

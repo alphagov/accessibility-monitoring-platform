@@ -1,24 +1,37 @@
-<h2 id="case-details" class="govuk-heading-m">Case details</h2>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="case-details" class="govuk-heading-l">Case details</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-case-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit case details
+            </a>
+        </div>
+    </div>
+</div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Date created</th>
-            <td class="govuk-table__cell govuk-!-width-two-thirds govuk-!-width-two-thirds">{{ case.created|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Date created</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">{{ case.created|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Status</th>
             <td class="govuk-table__cell">{{ case.get_status_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header"">Auditor</th>
+            <th scope="row" class="govuk-table__header">Auditor</th>
             <td class="govuk-table__cell">{{ case.auditor.get_full_name }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header"">Test type</th>
+            <th scope="row" class="govuk-table__header">Test type</th>
             <td class="govuk-table__cell">{{ case.get_test_type_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Full url</th>
+            <th scope="row" class="govuk-table__header">Full URL</th>
             <td class="govuk-table__cell">
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
             </td>
@@ -30,10 +43,6 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Organisation name</th>
             <td class="govuk-table__cell">{{ case.organisation_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Website, App or Service name</th>
-            <td class="govuk-table__cell">{{ case.service_name }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Type of site</th>
@@ -68,11 +77,10 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Notes</h3>
+            <th scope="row" class="govuk-table__header">Notes</th>
+            <td class="govuk-table__cell">
                 {% if case.notes %}<p class="govuk-body-m cases-notes">{{ case.notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Public sector body?</th>
