@@ -1,11 +1,26 @@
-<h2 id="testing-details" class="govuk-heading-m">Testing details</h2>
+{% load custom_tags %}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="testing-details" class="govuk-heading-l">Testing details</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-test-results' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit testing details
+            </a>
+        </div>
+    </div>
+</div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Link to test spreadsheet</th>
-            <td class="govuk-table__cell govuk-!-width-two-thirds">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to test spreadsheet</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">
                 {% if case.test_results_url %}
-                    <a href="{{ case.test_results_url }}" target="_blank">Monitor document</a>
+                    <a href="{{ case.test_results_url }}" rel="noreferrer noopener" target="_blank">Monitor document</a>
                 {% endif %}
             </td>
         </tr>
@@ -15,14 +30,13 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Is the website compliant?</th>
-            <td class="govuk-table__cell">{{ case.is_website_compliant }}</td>
+            <td class="govuk-table__cell">{{ case.is_website_compliant|nullable_boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Compliance notes</h3>
+            <th scope="row" class="govuk-table__header">Compliance notes</th>
+            <td class="govuk-table__cell">
                 {% if case.test_notes %}<p class="govuk-body-m cases-notes">{{ case.test_notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
     </tbody>
 </table>

@@ -12,6 +12,11 @@ from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
+NULLABLE_BOOLEAN_CHOICES = [
+    (True, "Yes"),
+    (False, "No"),
+    (None, "Not known"),
+]
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -101,18 +106,6 @@ class AMPDateWidget(forms.MultiWidget):
         if day == "" and month == "" and year == "":
             return ""
         return "{}-{}-{}".format(year, month, day)
-
-
-class AMPIntegerField(forms.IntegerField):
-    """Integer input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault(
-            "widget",
-            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
-        )
-        super().__init__(*args, **kwargs)
 
 
 class AMPCharField(forms.CharField):
@@ -226,6 +219,16 @@ class AMPBooleanField(forms.BooleanField):
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
         kwargs.setdefault("widget", AMPCheckboxWidget())
+        super().__init__(*args, **kwargs)
+
+
+class AMPNullableBooleanField(forms.ChoiceField):
+    """Radio input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPRadioSelectWidget())
+        kwargs.setdefault("choices", NULLABLE_BOOLEAN_CHOICES)
         super().__init__(*args, **kwargs)
 
 

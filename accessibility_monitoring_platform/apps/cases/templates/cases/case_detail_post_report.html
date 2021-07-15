@@ -1,20 +1,36 @@
-<h2 id="post-report" class="govuk-heading-m">Post report</h2>
+{% load custom_tags %}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="post-report" class="govuk-heading-l">Post report</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-post-report-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit post report
+            </a>
+        </div>
+    </div>
+</div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Report acknowledged</th>
-            <td class="govuk-table__cell">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header  govuk-!-width-one-half">Report acknowledged</th>
+            <td class="govuk-table__cell  govuk-!-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-third">Followup date</th>
             <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Summary of progress made from public sector body</h3>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">
+                Summary of progress made from public sector body
+            </th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">
                 {% if case.psb_progress_notes %}<p class="govuk-body-m cases-notes">{{ case.psb_progress_notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Followup email sent</th>
@@ -26,25 +42,23 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>
-            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed }}</td>
+            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed|nullable_boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Disproportionate burden notes</h3>
+            <th scope="row" class="govuk-table__header">Disproportionate burden notes</th>
+            <td class="govuk-table__cell">
                 {% if case.disproportionate_notes %}<p class="govuk-body-m cases-notes">{{ case.disproportionate_notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Accessibility statement decision</th>
             <td class="govuk-table__cell">{{ case.get_accessibility_statement_decison_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Accessibility statement notes</h3>
+            <th scope="row" class="govuk-table__header">Accessibility statement notes</th>
+            <td class="govuk-table__cell">
                 {% if case.accessibility_statement_notes %}<p class="govuk-body-m cases-notes">{{ case.accessibility_statement_notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">New accessibility statement</th>
@@ -59,11 +73,10 @@
             <td class="govuk-table__cell">{{ case.get_compliance_decision_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <td colspan="2" class="govuk-table__cell">
-                <h3 class="govuk-heading-s cases-sub-heading">Compliance decision notes</h3>
+            <th scope="row" class="govuk-table__header">Compliance decision notes</th>
+            <td class="govuk-table__cell">
                 {% if case.compliance_decision_notes %}<p class="govuk-body-m cases-notes">{{ case.compliance_decision_notes }}</p>{% endif %}
             </td>
-            <td class="govuk-table__cell"></td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Compliance email sent?</th>
@@ -75,7 +88,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Case complete</th>
-            <td class="govuk-table__cell">{{ case.is_case_completed }}</td>
+            <td class="govuk-table__cell">{{ case.is_case_completed|nullable_boolean_label }}</td>
         </tr>
     </tbody>
 </table>

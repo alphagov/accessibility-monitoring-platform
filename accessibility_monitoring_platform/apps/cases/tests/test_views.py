@@ -4,6 +4,7 @@ Tests for cases views
 from datetime import date, datetime, timedelta
 import pytest
 import pytz
+from typing import List
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -19,11 +20,15 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     SEVEN_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
+    find_duplicate_cases,
 )
 from ...common.utils import format_date
 
 CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 CONTACT_DETAIL = "test@email.com"
+DOMAIN = "domain.com"
+HOME_PAGE_URL = f"https://{DOMAIN}"
+ORGANISATION_NAME = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
@@ -245,7 +250,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     "path_name, expected_content",
     [
         ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
-        ("cases:case-detail", '<h1 class="govuk-heading-xl">View case #'),
+        (
+            "cases:case-detail",
+            '<h1 class="govuk-heading-xl" style="margin-bottom:0">View case</h1>',
+        ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
@@ -283,7 +291,7 @@ def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
     [
         ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 1})),
         ("save_new_case", reverse("cases:case-create")),
-        ("save_exit", reverse("cases:case-detail", kwargs={"pk": 1})),
+        ("save_exit", reverse("cases:case-list")),
     ],
 )
 def test_create_case_redirects_based_on_button_pressed(
@@ -293,7 +301,53 @@ def test_create_case_redirects_based_on_button_pressed(
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
         {
-            "home_page_url": "https://domain.com",
+            "home_page_url": HOME_PAGE_URL,
+            button_name: "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == expected_redirect_url
+
+
+@pytest.mark.django_db
+def test_create_case_shows_duplicate_cases(admin_client):
+    """Test that create case shows duplicates found"""
+    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
+    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": HOME_PAGE_URL,
+            "organisation_name": ORGANISATION_NAME,
+        },
+    )
+
+    assert response.status_code == 200
+    assertContains(response, f"#{domain_case.id} | ")
+    assertContains(response, f"#{organisation_name_case.id} | ")
+
+
+@pytest.mark.parametrize(
+    "button_name, expected_redirect_url",
+    [
+        ("save_continue_case", reverse("cases:edit-case-details", kwargs={"pk": 3})),
+        ("save_new_case", reverse("cases:case-create")),
+        ("save_exit", reverse("cases:case-list")),
+    ],
+)
+@pytest.mark.django_db
+def test_create_case_can_create_duplicate_cases(button_name, expected_redirect_url, admin_client):
+    """Test that create case can create duplicate cases"""
+    Case.objects.create(home_page_url=HOME_PAGE_URL)
+    Case.objects.create(organisation_name=ORGANISATION_NAME)
+
+    response: HttpResponse = admin_client.post(
+        f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
+        {
+            "home_page_url": HOME_PAGE_URL,
+            "organisation_name": ORGANISATION_NAME,
             button_name: "Button value",
         },
     )
@@ -334,7 +388,7 @@ def test_case_edit_redirects_based_on_button_pressed(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
-            "home_page_url": "https://domain.com",
+            "home_page_url": HOME_PAGE_URL,
             button_name: "Button value",
         },
     )
@@ -623,3 +677,29 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     assert case_from_db.report_followup_week_4_sent_date is None
     assert case_from_db.report_followup_week_7_sent_date is None
     assert case_from_db.report_followup_week_12_sent_date is None
+
+
+@pytest.mark.parametrize(
+    "url, domain, expected_number_of_duplicates",
+    [
+        (HOME_PAGE_URL, ORGANISATION_NAME, 2),
+        (HOME_PAGE_URL, "", 1),
+        ("https://domain2.com", "Org name", 0),
+        ("https://domain2.com", "", 0),
+    ],
+)
+@pytest.mark.django_db
+def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
+    """Test find_duplicate_cases returns matching cases"""
+    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
+    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+
+    duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
+
+    assert len(duplicate_cases) == expected_number_of_duplicates
+
+    if expected_number_of_duplicates > 0:
+        assert duplicate_cases[0] == domain_case
+
+    if expected_number_of_duplicates > 1:
+        assert duplicate_cases[1] == organisation_name_case

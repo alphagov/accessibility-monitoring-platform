@@ -16,6 +16,7 @@ from ..common.forms import (
     AMPModelChoiceField,
     AMPModelMultipleChoiceField,
     AMPBooleanField,
+    AMPNullableBooleanField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -79,7 +80,7 @@ class CaseCreateForm(forms.ModelForm):
 
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
-        help_text="Enter the name of the organization",
+        help_text="Enter the name of the organisation",
     )
     home_page_url = AMPURLField(
         label="Full URL",
@@ -193,7 +194,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=TEST_STATUS_CHOICES,
         widget=AMPRadioSelectWidget,
     )
-    is_website_compliant = AMPBooleanField(label="Is the website compliant?")
+    is_website_compliant = AMPNullableBooleanField(label="Is the website compliant?")
     test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
@@ -255,7 +256,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="Summary of progress made from public sector body"
     )
     is_website_retested = AMPBooleanField(label="Retested website?")
-    is_disproportionate_claimed = AMPBooleanField(
+    is_disproportionate_claimed = AMPNullableBooleanField(
         label="Disproportionate burden claimed?"
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
@@ -279,7 +280,7 @@ class CasePostReportUpdateForm(forms.ModelForm):
         label="Date sent to enforcement body",
         help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
     )
-    is_case_completed = AMPBooleanField(label="Case completed?")
+    is_case_completed = AMPNullableBooleanField(label="Case completed?")
 
     class Meta:
         model = Case
