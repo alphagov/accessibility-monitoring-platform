@@ -33,7 +33,7 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Full URL</th>
             <td class="govuk-table__cell">
-                <a href="{{ case.home_page_url }}" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
+                <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
             </td>
         </tr>
         <tr class="govuk-table__row">
@@ -64,7 +64,7 @@
             <th scope="row" class="govuk-table__header">Zendesk link</th>
             <td class="govuk-table__cell">
                 {% if case.zendesk_url %}
-                    <a href="{{ case.zendesk_url }}" target="_blank" class="govuk-link">{{ case.zendesk_url }}</a>
+                    <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.zendesk_url }}</a>
                 {% endif %}
             </td>
         </tr>
@@ -72,7 +72,7 @@
             <th scope="row" class="govuk-table__header">Trello ticket</th>
             <td class="govuk-table__cell">
                 {% if case.trello_url %}
-                    <a href="{{ case.trello_url }}" target="_blank" class="govuk-link">{{ case.trello_url }}</a>
+                    <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.trello_url }}</a>
                 {% endif %}
             </td>
         </tr>

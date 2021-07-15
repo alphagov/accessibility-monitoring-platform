@@ -15,7 +15,12 @@ from django.views.generic.list import ListView
 from django.db.models import Q
 
 from ..common.typing import IntOrNone
-from ..common.utils import build_filters, download_as_csv, get_id_from_button_name
+from ..common.utils import (
+    build_filters,
+    download_as_csv,
+    extract_domain_from_url,
+    get_id_from_button_name,
+)
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
@@ -84,6 +89,16 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "completed",
     "is_archived",
 ]
+
+
+def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
+    """Look for cases with matching domain or organisation name"""
+    domain: str = extract_domain_from_url(url)
+    if organisation_name:
+        return Case.objects.filter(
+            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
+        )
+    return Case.objects.filter(domain=domain)
 
 
 class CaseDetailView(DetailView):
@@ -181,6 +196,30 @@ class CaseCreateView(CreateView):
         initial["auditor"] = self.request.user.id
         return initial
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        if "allow_duplicate_cases" in self.request.GET:
+            return super().form_valid(form)
+
+        context: Dict[str, Any] = self.get_context_data()
+        duplicate_cases: QuerySet[Case] = find_duplicate_cases(
+            url=form.cleaned_data.get("home_page_url", ""),
+            organisation_name=form.cleaned_data.get("organisation_name", ""),
+        )
+        if duplicate_cases:
+            context["duplicate_cases"] = duplicate_cases
+            context["cleaned_data"] = form.cleaned_data
+            if context["cleaned_data"]["test_type"]:
+                context["cleaned_data"]["test_type"] = dict(
+                    form.fields["test_type"].choices
+                )[context["cleaned_data"]["test_type"]]
+            if context["cleaned_data"]["case_origin"]:
+                context["cleaned_data"]["case_origin"] = dict(
+                    form.fields["case_origin"].choices
+                )[context["cleaned_data"]["case_origin"]]
+            return self.render_to_response(context)
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue_case" in self.request.POST:
@@ -188,7 +227,7 @@ class CaseCreateView(CreateView):
         elif "save_new_case" in self.request.POST:
             url = reverse_lazy("cases:case-create")
         elif "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:case-list")
         else:
             url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}

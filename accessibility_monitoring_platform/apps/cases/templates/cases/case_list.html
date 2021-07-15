@@ -51,8 +51,7 @@
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-full">
                                             <a href="{% url 'cases:case-detail' case.id %}"
-                                                class="govuk-link govuk-link--no-visited-state cases-bigger-link"
-                                                rel="noreferrer noopener">
+                                                class="govuk-link govuk-link--no-visited-state cases-bigger-link">
                                                 #{{ case.id }} | {{ case.organisation_name }}</a>
                                             <p class="govuk-body-m">{{ case.domain }}</p>
                                         </div>
@@ -84,12 +83,14 @@
                                                     <a href="{{ case.zendesk_url }}"
                                                         class="govuk-link govuk-link--no-visited-state"
                                                         style="margin-right: 15px"
+                                                        rel="noreferrer noopener"
                                                         target="_blank"
                                                         rel="noreferrer noopener">Zendesk</a>
                                                 {% endif %}
                                                 {% if case.trello_url %}
                                                     <a href="{{ case.trello_url }}"
                                                         class="govuk-link govuk-link--no-visited-state"
+                                                        rel="noreferrer noopener"
                                                         target="_blank"
                                                         rel="noreferrer noopener">Trello</a>
                                                 {% endif %}
