@@ -66,9 +66,16 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "report_final_url",
     "report_sent_date",
     "report_acknowledged_date",
+    "report_followup_week_1_due_date",
+    "report_followup_week_1_sent_date",
+    "report_followup_week_4_due_date",
+    "report_followup_week_4_sent_date",
+    "report_followup_week_7_due_date",
+    "report_followup_week_7_sent_date",
     "report_followup_week_12_due_date",
-    "psb_progress_notes",
     "report_followup_week_12_sent_date",
+    "correspondance_notes",
+    "psb_progress_notes",
     "is_website_retested",
     "is_disproportionate_claimed",
     "disproportionate_notes",
@@ -335,6 +342,27 @@ class CasePostReportDetailsUpdateView(UpdateView):
     form_class: CasePostReportUpdateForm = CasePostReportUpdateForm
     context_object_name: str = "case"
     template_name_suffix: str = "_post_report_details_update_form"
+
+    def get_form(self):
+        form = super().get_form()
+
+        due_date = form.instance.report_followup_week_1_due_date
+        if due_date:
+            form.fields["report_followup_week_1_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
+
+        due_date = form.instance.report_followup_week_4_due_date
+        if due_date:
+            form.fields["report_followup_week_4_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
+
+        due_date = form.instance.report_followup_week_7_due_date
+        if due_date:
+            form.fields["report_followup_week_7_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
+
+        due_date = form.instance.report_followup_week_12_due_date
+        if due_date:
+            form.fields["report_followup_week_12_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
+
+        return form
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""

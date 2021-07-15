@@ -154,6 +154,7 @@ class Case(models.Model):
     report_followup_week_7_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
+    correspondance_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
     is_website_retested = models.BooleanField(default=False)
     is_disproportionate_claimed = models.BooleanField(null=True, blank=True)

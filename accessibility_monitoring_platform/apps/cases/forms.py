@@ -11,13 +11,13 @@ from ..common.forms import (
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
-    AMPIntegerField,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
     AMPModelMultipleChoiceField,
     AMPBooleanField,
     AMPDateField,
+    AMPDateSentField,
     AMPDateRangeForm,
     AMPURLField,
 )
@@ -245,8 +245,12 @@ class CasePostReportUpdateForm(forms.ModelForm):
     Form for updating post report details
     """
 
+    report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
+    report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
+    report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
+    report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
+    correspondance_notes = AMPTextField(label="Correspondance notes")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    report_followup_week_12_due_date = AMPDateField(label="12 week followup date")
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
@@ -281,10 +285,13 @@ class CasePostReportUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            "report_acknowledged_date",
-            "report_followup_week_12_due_date",
-            "psb_progress_notes",
+            "report_followup_week_1_sent_date",
+            "report_followup_week_4_sent_date",
+            "report_followup_week_7_sent_date",
             "report_followup_week_12_sent_date",
+            "correspondance_notes",
+            "report_acknowledged_date",
+            "psb_progress_notes",
             "is_website_retested",
             "is_disproportionate_claimed",
             "disproportionate_notes",

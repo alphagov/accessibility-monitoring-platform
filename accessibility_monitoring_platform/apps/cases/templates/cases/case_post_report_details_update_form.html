@@ -8,12 +8,15 @@
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">Edit case #{{ case.id }}</h1>
-                <p class="govuk-body-l">{{ case.domain }}</p>
+                <h1 class="govuk-heading-xl">Edit case | Post report</h1>
+                <p class="govuk-body-m">#{{ case.id }} | {{ case.organisation_name }} | {{ case.domain }}</p>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-column-full">
+                    <p class="govuk-body-m">Edit followup dates</p>
+                </div>
                 <form method="post" action="{% url 'cases:edit-post-report-details' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

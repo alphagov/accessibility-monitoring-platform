@@ -226,6 +226,16 @@ class AMPDateField(forms.DateField):
         super().__init__(*args, **kwargs)
 
 
+class AMPDateSentField(forms.DateField):
+    """Checkbox input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", AMPCheckboxWidget(attrs={"label": "Sent?"}))
+        kwargs.setdefault("help_text", "Not set")
+        super().__init__(*args, **kwargs)
+
+
 class AMPDateRangeForm(forms.Form):
     """
     Form used to filter by date range.
