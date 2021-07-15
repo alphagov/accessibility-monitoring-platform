@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% load l10n %}
+
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
@@ -9,11 +11,14 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">Create case</h1>
+                {% if duplicate_cases %}
+                    <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
+                {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <form method="post" action="{% url 'cases:case-create' %}">
+                <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
                     {% csrf_token %}
 
                     <div class="govuk-error-message">{{ form.non_field_errors }}</div>
@@ -22,8 +27,35 @@
                         <div class="govuk-error-message">{{ hidden_field.errors }}</div>
                         {{ hidden_field }}
                     {% endfor %}
+                    
+                    {% if duplicate_cases %}
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Organisation name</p>
+                            <p class="govuk-!-font-weight-regular">{{cleaned_data.organisation_name}}</p>
+                        </div>
 
-                    <div class="govuk-grid-row">
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Full URL</p>
+                            <p class="govuk-!-font-weight-regular">{{cleaned_data.home_page_url}}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Test type</p>
+                            <p class="govuk-!-font-weight-regular">{{cleaned_data.test_type}}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Case origin</p>
+                            <p class="govuk-!-font-weight-regular">{{cleaned_data.case_origin}}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Auditor</p>
+                            <p class="govuk-!-font-weight-regular">{{ cleaned_data.auditor.get_full_name }}</p>
+                        </div>
+
+                    {% endif %}
+                    <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
                         {% for field in form.visible_fields %}
                             <div class="govuk-grid-column-full govuk-form-group">
                                 <label class="govuk-label"
@@ -35,6 +67,37 @@
                             </div>
                         {% endfor %}
                     </div>
+
+                    {% if duplicate_cases %}
+                        <h2 id="case-details" class="govuk-heading-m">Duplicate cases</h2>
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">Case</th>
+                                    <th class="govuk-table__header">Domain</th>
+                                    <th class="govuk-table__header">Status</th>
+                                    <th class="govuk-table__header">Created</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for case in duplicate_cases %}
+                                    <tr class="govuk-table__row">
+                                        <td class="govuk-table__cell">
+                                            <a href="{% url 'cases:case-detail' case.id %}"
+                                                class="govuk-link govuk-link--no-visited-state">
+                                                #{{ case.id }} | {{ case.organisation_name }}
+                                            </a>
+                                        </td>
+                                        <td class="govuk-table__cell">{{ case.domain }}</td>
+                                        <td class="govuk-table__cell">{{ case.get_status_display }}</td>
+                                        <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
+                    {% endif %}
+
 
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">

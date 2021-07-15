@@ -91,18 +91,6 @@ class AMPDateWidget(forms.MultiWidget):
         return "{}-{}-{}".format(year, month, day)
 
 
-class AMPIntegerField(forms.IntegerField):
-    """Integer input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault(
-            "widget",
-            forms.TextInput(attrs={"class": "govuk-input govuk-input--width-10"}),
-        )
-        super().__init__(*args, **kwargs)
-
-
 class AMPCharField(forms.CharField):
     """Character input field in the style of GDS design system"""
 
