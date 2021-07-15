@@ -201,8 +201,8 @@ class Case(models.Model):
         if self.is_case_completed and not self.completed:
             self.completed = now
         if self.report_acknowledged_date and not self.report_followup_week_12_due_date:
-            self.report_followup_week_12_due_date = self.report_acknowledged_date + timedelta(
-                weeks=12
+            self.report_followup_week_12_due_date = (
+                self.report_acknowledged_date + timedelta(weeks=12)
             )
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()

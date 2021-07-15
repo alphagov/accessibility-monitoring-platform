@@ -1,7 +1,7 @@
 """
 Views for cases app
 """
-from datetime import date
+from datetime import date, timedelta
 from typing import Any, Dict, List, Tuple, Union
 import urllib
 
@@ -16,7 +16,12 @@ from django.views.generic.list import ListView
 from django.db.models import Q
 
 from ..common.typing import IntOrNone
-from ..common.utils import build_filters, download_as_csv, get_id_from_button_name
+from ..common.utils import (
+    build_filters,
+    format_date,
+    download_as_csv,
+    get_id_from_button_name,
+)
 from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
@@ -91,6 +96,10 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "completed",
     "is_archived",
 ]
+ONE_WEEK_IN_DAYS = 7
+FOUR_WEEKS_IN_DAYS = 28
+SEVEN_WEEKS_IN_DAYS = 49
+TWELVE_WEEKS_IN_DAYS = 84
 
 
 class CaseDetailView(DetailView):
@@ -323,6 +332,31 @@ class CaseReportDetailsUpdateView(UpdateView):
     context_object_name: str = "case"
     template_name_suffix: str = "_report_details_update_form"
 
+    def form_valid(self, form: CaseReportDetailsUpdateForm):
+        self.object: CaseReportDetailsUpdateForm = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        report_sent_date_from_form = form.cleaned_data["report_sent_date"]
+        report_sent_date_from_db = case_from_db.report_sent_date
+        if report_sent_date_from_form and not report_sent_date_from_db:
+            if not case_from_db.report_followup_week_1_due_date:
+                self.object.report_followup_week_1_due_date = (
+                    report_sent_date_from_form + timedelta(days=ONE_WEEK_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_4_due_date:
+                self.object.report_followup_week_4_due_date = (
+                    report_sent_date_from_form + timedelta(days=FOUR_WEEKS_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_7_due_date:
+                self.object.report_followup_week_7_due_date = (
+                    report_sent_date_from_form + timedelta(days=SEVEN_WEEKS_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_12_due_date:
+                self.object.report_followup_week_12_due_date = (
+                    report_sent_date_from_form + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+                )
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
@@ -334,10 +368,13 @@ class CaseReportDetailsUpdateView(UpdateView):
         return url
 
 
-def get_sent_date(form: CasePostReportUpdateForm, case_from_db: Case, sent_date_name: str) -> Union[date, None]:
+def get_sent_date(
+    form: CasePostReportUpdateForm, case_from_db: Case, sent_date_name: str
+) -> Union[date, None]:
     """
     Work out what value to save in a sent date field on the case.
     If there is a new value in the form, don't replace an existing date on the database.
+    If there is a new value in the form and no date on the database then use the date from the form.
     If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
     """
     date_on_form: date = form.cleaned_data[sent_date_name]
@@ -359,32 +396,35 @@ class CasePostReportDetailsUpdateView(UpdateView):
 
     def get_form(self):
         form = super().get_form()
-        due_date = form.instance.report_followup_week_1_due_date
-        if due_date:
-            form.fields["report_followup_week_1_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
-        due_date = form.instance.report_followup_week_4_due_date
-        if due_date:
-            form.fields["report_followup_week_4_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
-        due_date = form.instance.report_followup_week_7_due_date
-        if due_date:
-            form.fields["report_followup_week_7_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
-        due_date = form.instance.report_followup_week_12_due_date
-        if due_date:
-            form.fields["report_followup_week_12_sent_date"].help_text = due_date.strftime("%m/%d/%Y")
+        form.fields["report_followup_week_1_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_1_due_date
+        )
+        form.fields["report_followup_week_4_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_4_due_date
+        )
+        form.fields["report_followup_week_7_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_7_due_date
+        )
+        form.fields["report_followup_week_12_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_12_due_date
+        )
         return form
 
     def form_valid(self, form: CasePostReportUpdateForm):
-        self.object = form.save(commit=False)
-        case_from_db = Case.objects.get(pk=self.object.id)
+        self.object: CasePostReportUpdateForm = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
         for sent_date_name in [
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
             "report_followup_week_7_sent_date",
             "report_followup_week_12_sent_date",
         ]:
-            setattr(self.object, sent_date_name, get_sent_date(form, case_from_db, sent_date_name))
+            setattr(
+                self.object,
+                sent_date_name,
+                get_sent_date(form, case_from_db, sent_date_name),
+            )
         self.object.save()
-
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:

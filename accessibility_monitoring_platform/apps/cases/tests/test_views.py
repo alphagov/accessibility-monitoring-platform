@@ -270,7 +270,10 @@ def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-create"))
 
     assert response.status_code == 200
-    assert response.context["form"].initial["auditor"] == response.context["request"].user.id
+    assert (
+        response.context["form"].initial["auditor"]
+        == response.context["request"].user.id
+    )
 
 
 @pytest.mark.parametrize(

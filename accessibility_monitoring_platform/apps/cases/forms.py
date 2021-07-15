@@ -254,7 +254,6 @@ class CasePostReportUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    report_followup_week_12_sent_date = AMPDateField(label="12 week followup email sent")
     is_website_retested = AMPBooleanField(label="Retested website?")
     is_disproportionate_claimed = AMPBooleanField(
         label="Disproportionate burden claimed?"
