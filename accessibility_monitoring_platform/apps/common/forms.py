@@ -26,6 +26,18 @@ class AMPCheckboxWidget(forms.CheckboxInput):
     template_name = "common/amp_checkbox_widget_template.html"
 
 
+class AMPDateCheckboxWidget(AMPCheckboxWidget):
+    """Widget for GDS design system showing date field as checkbox"""
+
+    def value_from_datadict(self, data, files, name):
+        """If checkbox is ticked, return today's date"""
+        if name not in data:
+            # A missing value means False because HTML form submission does not
+            # send results for unselected checkboxes.
+            return None
+        return date.today()
+
+
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
     """Widget for GDS design system multi-select checkboxes fields"""
 
@@ -231,8 +243,8 @@ class AMPDateSentField(forms.DateField):
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPCheckboxWidget(attrs={"label": "Sent?"}))
-        kwargs.setdefault("help_text", "Not set")
+        kwargs.setdefault("widget", AMPDateCheckboxWidget(attrs={"label": "Sent?"}))
+        kwargs.setdefault("help_text", "None")
         super().__init__(*args, **kwargs)
 
 
