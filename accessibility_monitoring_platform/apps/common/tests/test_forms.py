@@ -1,7 +1,7 @@
 """
 Test - common widgets and forms
 """
-from datetime import datetime
+from datetime import date, datetime
 import pytz
 
 from pytest_django.asserts import assertHTMLEqual
@@ -11,6 +11,7 @@ from django import forms
 from ..forms import (
     AMPRadioSelectWidget,
     AMPCheckboxWidget,
+    AMPDateCheckboxWidget,
     AMPDateWidget,
     AMPCharField,
     AMPCharFieldWide,
@@ -19,6 +20,7 @@ from ..forms import (
     AMPBooleanField,
     AMPNullableBooleanField,
     AMPDateField,
+    AMPDateSentField,
     AMPDateRangeForm,
 )
 
@@ -80,6 +82,11 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 </div>"""
 
 
+class MockForm(forms.Form):
+    """Form used to test fields and widgets"""
+    date_as_checkbox = AMPDateSentField(label="Label1")
+
+
 def test_amp_radio_select_widget_html_uses_govuk_classes():
     """Check AMPRadioSelectWidget renders the expected HTML"""
     widget: AMPRadioSelectWidget = AMPRadioSelectWidget(choices=[("val1", "Label1")])
@@ -89,6 +96,12 @@ def test_amp_radio_select_widget_html_uses_govuk_classes():
 def test_amp_checkbox_widget_html_uses_govuk_classes():
     """Check AMPCheckboxWidget renders the expected HTML"""
     widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
+    assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
+
+
+def test_amp_date_checkbox_widget_html_uses_govuk_classes():
+    """Check AMPDateCheckboxWidget renders the expected HTML"""
+    widget: AMPDateCheckboxWidget = AMPDateCheckboxWidget(attrs={"label": "Label text"})
     assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
 
 
@@ -305,3 +318,21 @@ def test_amp_date_range_form_fails_invalid_end_date_year():
         }
     )
     assert not form.is_valid()
+
+
+def test_amp_date_sent_field_and_widget_return_today_when_checked():
+    """Tests AMPDateSentField and AMPDateCheckboxWidget return today when checked"""
+    form: MockForm = MockForm(
+        data={
+            "date_as_checkbox": "on",
+        }
+    )
+    assert form.is_valid()
+    assert form.cleaned_data["date_as_checkbox"] == date.today()
+
+
+def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
+    """Tests AMPDateSentField and AMPDateCheckboxWidget return none when not checked"""
+    form: MockForm = MockForm(data={})
+    assert form.is_valid()
+    assert form.cleaned_data["date_as_checkbox"] is None
