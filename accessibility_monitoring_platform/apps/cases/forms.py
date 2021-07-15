@@ -303,3 +303,23 @@ class CasePostReportUpdateForm(forms.ModelForm):
             "sent_to_enforcement_body_sent_date",
             "is_case_completed",
         ]
+
+
+class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
+    """
+    Form for updating report followup due dates
+    """
+
+    report_followup_week_1_due_date = AMPDateField(label="1 week followup")
+    report_followup_week_4_due_date = AMPDateField(label="4 week followup")
+    report_followup_week_7_due_date = AMPDateField(label="7 week followup")
+    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+
+    class Meta:
+        model = Case
+        fields = [
+            "report_followup_week_1_due_date",
+            "report_followup_week_4_due_date",
+            "report_followup_week_7_due_date",
+            "report_followup_week_12_due_date",
+        ]

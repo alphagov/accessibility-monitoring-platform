@@ -32,6 +32,7 @@ from .forms import (
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CasePostReportUpdateForm,
+    CaseReportFollowupDueDatesUpdateForm,
     DEFAULT_SORT,
 )
 
@@ -430,6 +431,21 @@ class CasePostReportDetailsUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+
+
+class CaseReportFollowupDueDatesUpdateView(UpdateView):
+    """
+    View to update report followup due dates
+    """
+
+    model: Case = Case
+    form_class: CaseReportFollowupDueDatesUpdateForm = CaseReportFollowupDueDatesUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_report_followup_due_dates_update_form"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:edit-post-report-details", kwargs={"pk": self.object.id})
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

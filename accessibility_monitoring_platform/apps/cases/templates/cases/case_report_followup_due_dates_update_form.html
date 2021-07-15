@@ -4,36 +4,34 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'cases:edit-post-report-details' case.id %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">Edit case | Post report</h1>
+                <h1 class="govuk-heading-xl">Edit case | Followup dates</h1>
                 <p class="govuk-body-m">#{{ case.id }} | {{ case.organisation_name }} | {{ case.domain }}</p>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <a
-                    href="{% url 'cases:edit-report-followup-due-dates' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Edit followup dates
-                </a>
-                <form method="post" action="{% url 'cases:edit-post-report-details' case.id %}">
+                <div class="govuk-body">
+                    <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Report sent on</p>
+                    <p class="govuk-!-font-weight-regular">{{ case.report_sent_date|date:"d/m/Y" }}</p>
+                </div>
+                <form method="post" action="{% url 'cases:edit-report-followup-due-dates' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_column_full_form_snippet.html' %}
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
+                                value="Save and return"
+                                name="save"
+                                class="govuk-button"
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:case-detail' case.id %}"
+                                href="{% url 'cases:edit-post-report-details' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel
