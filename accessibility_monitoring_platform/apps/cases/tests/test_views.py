@@ -20,6 +20,7 @@ from ..views import (
     SEVEN_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
 )
+from ...common.utils import format_date
 
 CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 CONTACT_DETAIL = "test@email.com"
@@ -27,15 +28,11 @@ REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
 FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-SEVEN_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(
-    days=SEVEN_WEEKS_IN_DAYS
-)
-TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(
-    days=TWELVE_WEEKS_IN_DAYS
-)
+SEVEN_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=SEVEN_WEEKS_IN_DAYS)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+TODAY = date.today()
 
 
-@pytest.mark.django_db
 def test_case_detail_view_leaves_out_archived_contact(admin_client):
     """Test that archived Contacts are not included in context"""
     case: Case = Case.objects.create()
@@ -61,7 +58,6 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
     assertNotContains(response, "Archived Contact")
 
 
-@pytest.mark.django_db
 def test_case_list_view_leaves_out_archived_case(admin_client):
     """Test that the case list view page does not include archived cases"""
     Case.objects.create(organisation_name="Not Archived")
@@ -75,7 +71,6 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
     assertNotContains(response, "Is Archived")
 
 
-@pytest.mark.django_db
 def test_case_list_view_filters_by_case_number(admin_client):
     """Test that the case list view page can be filtered by case number"""
     included_case: Case = Case.objects.create(organisation_name="Included")
@@ -98,7 +93,6 @@ def test_case_list_view_filters_by_case_number(admin_client):
         ("organisation_name", "IncludedOrg", "search"),
     ],
 )
-@pytest.mark.django_db
 def test_case_list_view_string_filters(
     field_name, value, url_parameter_name, admin_client
 ):
@@ -126,7 +120,6 @@ def test_case_list_view_string_filters(
         ("reviewer", "reviewer"),
     ],
 )
-@pytest.mark.django_db
 def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
     """Test that the case list view page can be filtered by user"""
     user = User.objects.create()
@@ -153,7 +146,6 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
         ("reviewer", "reviewer"),
     ],
 )
-@pytest.mark.django_db
 def test_case_list_view_user_unassigned_filters(
     field_name, url_parameter_name, admin_client
 ):
@@ -175,7 +167,6 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-@pytest.mark.django_db
 def test_case_list_view_date_range_filters(admin_client):
     """Test that the case list view page can be filtered by date range"""
     included_created_date: datetime = datetime(
@@ -198,7 +189,6 @@ def test_case_list_view_date_range_filters(admin_client):
     assertNotContains(response, "Excluded")
 
 
-@pytest.mark.django_db
 def test_case_export_list_view(admin_client):
     """Test that the case export list view returns csv data"""
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
@@ -207,7 +197,6 @@ def test_case_export_list_view(admin_client):
     assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
 
 
-@pytest.mark.django_db
 def test_case_export_single_view(admin_client):
     """Test that the case export single view returns csv data"""
     case: Case = Case.objects.create()
@@ -220,7 +209,6 @@ def test_case_export_single_view(admin_client):
     assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
 
 
-@pytest.mark.django_db
 def test_archive_case_view(admin_client):
     """Test that archive case view archives case"""
     case: Case = Case.objects.create()
@@ -245,7 +233,6 @@ def test_archive_case_view(admin_client):
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )
-@pytest.mark.django_db
 def test_non_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the non-case-specific view page loads"""
     response: HttpResponse = admin_client.get(reverse(path_name))
@@ -266,7 +253,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-post-report-details", "<li>Post report</li>"),
     ],
 )
-@pytest.mark.django_db
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
@@ -300,7 +286,6 @@ def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
         ("save_exit", reverse("cases:case-detail", kwargs={"pk": 1})),
     ],
 )
-@pytest.mark.django_db
 def test_create_case_redirects_based_on_button_pressed(
     button_name, expected_redirect_url, admin_client
 ):
@@ -333,10 +318,13 @@ def test_create_case_redirects_based_on_button_pressed(
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
         ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-followup-due-dates", "save_return", "cases:edit-post-report-details"),
+        (
+            "cases:edit-report-followup-due-dates",
+            "save_return",
+            "cases:edit-post-report-details",
+        ),
     ],
 )
-@pytest.mark.django_db
 def test_case_edit_redirects_based_on_button_pressed(
     case_edit_path, button_name, expected_redirect_path, admin_client
 ):
@@ -354,7 +342,6 @@ def test_case_edit_redirects_based_on_button_pressed(
     assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})
 
 
-@pytest.mark.django_db
 def test_add_contact_form_appears(admin_client):
     """Test that pressing the add contact button adds a new contact form"""
     case: Case = Case.objects.create()
@@ -370,7 +357,6 @@ def test_add_contact_form_appears(admin_client):
     assertContains(response, "Contact 1")
 
 
-@pytest.mark.django_db
 def test_add_contact(admin_client):
     """Test adding a contact"""
     case: Case = Case.objects.create()
@@ -399,7 +385,6 @@ def test_add_contact(admin_client):
     assert list(contacts)[0].detail == CONTACT_DETAIL
 
 
-@pytest.mark.django_db
 def test_archive_contact(admin_client):
     """Test that pressing the remove contact button archives the contact"""
     case: Case = Case.objects.create()
@@ -419,7 +404,6 @@ def test_archive_contact(admin_client):
     assert contact_on_database.is_archived is True
 
 
-@pytest.mark.django_db
 def test_preferred_contact_not_displayed(admin_client):
     """
     Test that the preferred contact field is not displayed when there is only one contact
@@ -434,7 +418,6 @@ def test_preferred_contact_not_displayed(admin_client):
     assertNotContains(response, "Preferred contact?")
 
 
-@pytest.mark.django_db
 def test_preferred_contact_displayed(admin_client):
     """
     Test that the preferred contact field is displayed when there is more than one contact
@@ -505,7 +488,9 @@ def test_report_followup_due_dates_not_changed(admin_client):
     assert case_from_db.report_followup_week_12_due_date == OTHER_DATE
 
 
-def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(admin_client):
+def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
+    admin_client,
+):
     """
     Test that updating the report sent date does not populate report followup due dates
     """
@@ -528,3 +513,113 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(ad
     assert case_from_db.report_followup_week_4_due_date is None
     assert case_from_db.report_followup_week_7_due_date is None
     assert case_from_db.report_followup_week_12_due_date is None
+
+
+def test_case_port_report_view_contains_followup_due_dates(admin_client):
+    """Test that the case post report view contains the followup due dates"""
+    case: Case = Case.objects.create(
+        report_followup_week_1_due_date=ONE_WEEK_FOLLOWUP_DUE_DATE,
+        report_followup_week_4_due_date=FOUR_WEEK_FOLLOWUP_DUE_DATE,
+        report_followup_week_7_due_date=SEVEN_WEEK_FOLLOWUP_DUE_DATE,
+        report_followup_week_12_due_date=TWELVE_WEEK_FOLLOWUP_DUE_DATE,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-post-report-details", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f'<div id="event-name-hint" class="govuk-hint">{format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+    )
+    assertContains(
+        response,
+        f'<div id="event-name-hint" class="govuk-hint">{format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+    )
+    assertContains(
+        response,
+        f'<div id="event-name-hint" class="govuk-hint">{format_date(SEVEN_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+    )
+    assertContains(
+        response,
+        f'<div id="event-name-hint" class="govuk-hint">{format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+    )
+
+
+def test_setting_report_followup_populates_sent_dates(admin_client):
+    """Test that ticking the report followup checkboxes populates the report followup sent dates"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        {
+            "report_followup_week_1_sent_date": "on",
+            "report_followup_week_4_sent_date": "on",
+            "report_followup_week_7_sent_date": "on",
+            "report_followup_week_12_sent_date": "on",
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_sent_date == TODAY
+    assert case_from_db.report_followup_week_4_sent_date == TODAY
+    assert case_from_db.report_followup_week_7_sent_date == TODAY
+    assert case_from_db.report_followup_week_12_sent_date == TODAY
+
+
+def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
+    """Test that ticking the report followup checkboxes does not update the report followup sent dates"""
+    case: Case = Case.objects.create(
+        report_followup_week_1_sent_date=OTHER_DATE,
+        report_followup_week_4_sent_date=OTHER_DATE,
+        report_followup_week_7_sent_date=OTHER_DATE,
+        report_followup_week_12_sent_date=OTHER_DATE,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        {
+            "report_followup_week_1_sent_date": "on",
+            "report_followup_week_4_sent_date": "on",
+            "report_followup_week_7_sent_date": "on",
+            "report_followup_week_12_sent_date": "on",
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
+    assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
+    assert case_from_db.report_followup_week_7_sent_date == OTHER_DATE
+    assert case_from_db.report_followup_week_12_sent_date == OTHER_DATE
+
+
+def test_unsetting_report_followup_sent_dates(admin_client):
+    """Test that not ticking the report followup checkboxes clears the report followup sent dates"""
+    case: Case = Case.objects.create(
+        report_followup_week_1_sent_date=OTHER_DATE,
+        report_followup_week_4_sent_date=OTHER_DATE,
+        report_followup_week_7_sent_date=OTHER_DATE,
+        report_followup_week_12_sent_date=OTHER_DATE,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        {
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.report_followup_week_1_sent_date is None
+    assert case_from_db.report_followup_week_4_sent_date is None
+    assert case_from_db.report_followup_week_7_sent_date is None
+    assert case_from_db.report_followup_week_12_sent_date is None
