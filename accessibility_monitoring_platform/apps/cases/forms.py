@@ -370,13 +370,20 @@ class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
     """
     Form for recording correspondance with enforcement body
     """
-    sent_to_enforcement_body_sent_date = AMPDateField(label="Date sent to equality body")
-    enforcement_body_correspondance_notes = AMPTextField(label="Equality body correspondance notes")
+
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to equality body"
+    )
+    enforcement_body_correspondance_notes = AMPTextField(
+        label="Equality body correspondance notes"
+    )
     is_case_completed = AMPBooleanField(
         label="Case completed?",
         widget=AMPCheckboxWidget(
-            attrs={"label": "No further action is required and the case can be marked as complete"}
-        )
+            attrs={
+                "label": "No further action is required and the case can be marked as complete"
+            }
+        ),
     )
 
     class Meta:
@@ -385,4 +392,46 @@ class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_correspondance_notes",
             "is_case_completed",
+        ]
+
+
+class CaseFinalDecisionUpdateForm(forms.ModelForm):
+    """
+    Form for updating case final decision details
+    """
+
+    psb_progress_notes = AMPTextField(
+        label="Summary of progress made from public sector body"
+    )
+    is_website_retested = AMPBooleanField(label="Retested website?")
+    is_disproportionate_claimed = AMPNullableBooleanField(
+        label="Disproportionate burden claimed?"
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_decison = AMPChoiceField(
+        label="Accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
+    compliance_decision = AMPChoiceField(
+        label="Compliance decision",
+        choices=COMPLIANCE_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
+
+    class Meta:
+        model = Case
+        fields = [
+            "psb_progress_notes",
+            "is_website_retested",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_decison",
+            "accessibility_statement_notes",
+            "compliance_decision",
+            "compliance_decision_notes",
+            "compliance_email_sent_date",
         ]

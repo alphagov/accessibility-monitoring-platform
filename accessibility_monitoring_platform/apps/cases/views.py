@@ -35,6 +35,7 @@ from .forms import (
     CaseReportFollowupDueDatesUpdateForm,
     CaseArchiveForm,
     CaseNoPSBContactUpdateForm,
+    CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondanceUpdateForm,
     DEFAULT_SORT,
 )
@@ -452,7 +453,12 @@ class CasePostReportDetailsUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        if "save_exit" in self.request.POST:
+            return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            return reverse_lazy(
+                "cases:edit-final-decision", kwargs={"pk": self.object.id}
+            )
 
 
 class CaseReportFollowupDueDatesUpdateView(UpdateView):
@@ -512,7 +518,30 @@ class CaseNoPSBContactUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy(
-                "cases:edit-enforecement-body-correspondance", kwargs={"pk": self.object.id}
+                "cases:edit-enforcement-body-correspondance",
+                kwargs={"pk": self.object.id},
+            )
+        return url
+
+
+class CaseFinalDecisionUpdateView(UpdateView):
+    """
+    View to record final decision details
+    """
+
+    model: Case = Case
+    form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_final_decision"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-enforcement-body-correspondance",
+                kwargs={"pk": self.object.id},
             )
         return url
 
@@ -523,7 +552,9 @@ class CaseEnforcementBodyCorrespondanceUpdateView(UpdateView):
     """
 
     model: Case = Case
-    form_class: CaseEnforcementBodyCorrespondanceUpdateForm = CaseEnforcementBodyCorrespondanceUpdateForm
+    form_class: CaseEnforcementBodyCorrespondanceUpdateForm = (
+        CaseEnforcementBodyCorrespondanceUpdateForm
+    )
     context_object_name: str = "case"
     template_name_suffix: str = "_enforcement_body_correspondance"
 

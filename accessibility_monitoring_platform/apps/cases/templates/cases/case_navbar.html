@@ -37,11 +37,20 @@
             {% else %}
                 <li><a href="{% url 'cases:edit-post-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Post report</a></li>
             {% endif %}
-            {% if current_page == 'edit-enforecement-body-correspondance' %}
+            {% if current_page == 'edit-final-decision' %}
+                <li>Final decision</li>
+            {% else %}
+                <li>
+                    <a href="{% url 'cases:edit-final-decision' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Final decision
+                    </a>
+                </li>
+            {% endif %}
+            {% if current_page == 'edit-enforcement-body-correspondance' %}
                 <li>Equality body correspondance</li>
             {% else %}
                 <li>
-                    <a href="{% url 'cases:edit-enforecement-body-correspondance' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{% url 'cases:edit-enforcement-body-correspondance' case.id %}" class="govuk-link govuk-link--no-visited-state">
                         Equality body correspondance
                     </a>
                 </li>
