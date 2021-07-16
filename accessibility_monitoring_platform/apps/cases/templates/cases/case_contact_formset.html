@@ -5,11 +5,10 @@
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-back-link">Back</a>
-    <main class="govuk-main-wrapper">
+    <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">Edit case #{{ case.id }}</h1>
-                <p class="govuk-body-l">{{ case.domain }}</p>
+                {% include "cases/edit_case_header.html" with header_suffix="Contact details" %}
             </div>
         </div>
         <div class="govuk-grid-row">

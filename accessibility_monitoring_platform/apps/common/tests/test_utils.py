@@ -19,6 +19,7 @@ from ..utils import (
     get_id_from_button_name,
     convert_date_to_datetime,
     validate_url,
+    format_date,
 )
 
 
@@ -198,3 +199,9 @@ def test_validate_url_raises_validation_error():
         validate_url("no protocol")
 
     assert "URL must start with http:// or https://" in str(excinfo.value)
+
+
+def test_format_date():
+    """Test format_date returns date strings in uk format dd/mm/yyyy"""
+    DATE = date(2020, 12, 31)
+    assert format_date(DATE) == "31/12/2020"

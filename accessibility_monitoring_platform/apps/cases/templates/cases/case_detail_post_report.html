@@ -17,12 +17,28 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header  govuk-!-width-one-half">Report acknowledged</th>
-            <td class="govuk-table__cell  govuk-!-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">1 week followup date</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.report_followup_week_1_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Followup date</th>
-            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.week_12_followup_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">4 week followup date</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.report_followup_week_4_due_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">7 week followup date</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.report_followup_week_7_due_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">12 week followup date</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.report_followup_week_12_due_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Correspondance notes</th>
+            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.correspondance_notes }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header  govuk-!-width-one-half">Report acknowledged</th>
+            <td class="govuk-table__cell  govuk-!-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-third">
@@ -34,11 +50,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Followup email sent</th>
-            <td class="govuk-table__cell">{{ case.week_12_followup_email_sent_date|date:"d/m/Y" }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Followup email acknowledged</th>
-            <td class="govuk-table__cell">{{ case.week_12_followup_email_acknowledgement_date|date:"d/m/Y" }}</td>
+            <td class="govuk-table__cell">{{ case.report_followup_week_12_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Website retested?</th>

@@ -2,12 +2,13 @@
 Tests for cases models
 """
 import pytest
-from datetime import date, datetime, timedelta
+from datetime import datetime
 
 from ..models import Case, Contact
 
 DOMAIN = "example.com"
 HOME_PAGE_URL = f"https://{DOMAIN}/index.html"
+ORGANISATION_NAME = "Organisation name"
 
 
 @pytest.mark.django_db
@@ -40,6 +41,22 @@ def test_case_domain_is_populated_from_home_page_url():
     case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
     assert case.domain == DOMAIN
+
+
+@pytest.mark.django_db
+def test_case_renders_as_id_bar_organisation_name():
+    """Test the Case string is id | organisation_name"""
+    case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+
+    assert str(case) == f"#{case.id} | {case.organisation_name}"
+
+
+@pytest.mark.django_db
+def test_case_summary_is_id_bar_organisation_name_bar_domain():
+    """Test the Case summary string is id | organisation_name | domain"""
+    case = Case.objects.create(home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME)
+
+    assert case.summary == f"#{case.id} | {case.organisation_name} | {case.domain}"
 
 
 @pytest.mark.django_db
@@ -94,23 +111,3 @@ def test_contact_created_timestamp_is_not_updated():
 
     assert updated_contact.first_name == updated_first_name
     assert updated_contact.created == original_created_timestamp
-
-
-@pytest.mark.django_db
-def test_case_week_12_followup_date_is_populated():
-    """
-    Test the Case week_12_followup_date field is populated when the report_acknowledged_date
-    is set.
-    """
-    today = date(year=2021, month=6, day=22)
-    twelve_weeks_from_today = today + timedelta(weeks=12)
-    case = Case.objects.create()
-
-    assert case.week_12_followup_date is None
-
-    case.report_acknowledged_date = today
-    case.save()
-    updated_case = Case.objects.get(pk=case.id)
-
-    assert isinstance(updated_case.week_12_followup_date, date)
-    assert updated_case.week_12_followup_date == twelve_weeks_from_today

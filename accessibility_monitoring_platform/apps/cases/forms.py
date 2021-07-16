@@ -18,6 +18,7 @@ from ..common.forms import (
     AMPBooleanField,
     AMPNullableBooleanField,
     AMPDateField,
+    AMPDateSentField,
     AMPDateRangeForm,
     AMPURLField,
 )
@@ -34,6 +35,7 @@ from .models import (
     REPORT_APPROVED_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
+    ARCHIVE_DECISION_CHOICES,
 )
 from ..common.models import Region, Sector
 
@@ -245,14 +247,14 @@ class CasePostReportUpdateForm(forms.ModelForm):
     Form for updating post report details
     """
 
+    report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
+    report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
+    report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
+    report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
+    correspondance_notes = AMPTextField(label="Correspondance notes")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    week_12_followup_date = AMPDateField(label="12 week followup date")
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
-    )
-    week_12_followup_email_sent_date = AMPDateField(label="12 week followup email sent")
-    week_12_followup_email_acknowledgement_date = AMPDateField(
-        label="12 week followup acknowledge"
     )
     is_website_retested = AMPBooleanField(label="Retested website?")
     is_disproportionate_claimed = AMPNullableBooleanField(
@@ -284,11 +286,13 @@ class CasePostReportUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "report_followup_week_1_sent_date",
+            "report_followup_week_4_sent_date",
+            "report_followup_week_7_sent_date",
+            "report_followup_week_12_sent_date",
+            "correspondance_notes",
             "report_acknowledged_date",
-            "week_12_followup_date",
             "psb_progress_notes",
-            "week_12_followup_email_sent_date",
-            "week_12_followup_email_acknowledgement_date",
             "is_website_retested",
             "is_disproportionate_claimed",
             "disproportionate_notes",
@@ -300,4 +304,44 @@ class CasePostReportUpdateForm(forms.ModelForm):
             "compliance_email_sent_date",
             "sent_to_enforcement_body_sent_date",
             "is_case_completed",
+        ]
+
+
+class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
+    """
+    Form for updating report followup due dates
+    """
+
+    report_followup_week_1_due_date = AMPDateField(label="1 week followup")
+    report_followup_week_4_due_date = AMPDateField(label="4 week followup")
+    report_followup_week_7_due_date = AMPDateField(label="7 week followup")
+    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+
+    class Meta:
+        model = Case
+        fields = [
+            "report_followup_week_1_due_date",
+            "report_followup_week_4_due_date",
+            "report_followup_week_7_due_date",
+            "report_followup_week_12_due_date",
+        ]
+
+
+class CaseArchiveForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    archive_reason = AMPChoiceField(
+        label="Reason why?",
+        choices=ARCHIVE_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    archive_notes = AMPTextField(label="More information?")
+
+    class Meta:
+        model = Case
+        fields = [
+            "archive_reason",
+            "archive_notes",
         ]

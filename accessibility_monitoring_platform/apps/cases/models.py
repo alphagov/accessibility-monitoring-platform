@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import timedelta, date
+from datetime import date
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
@@ -82,6 +82,12 @@ COMPLIANCE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
 ]
 
+ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
+    ("not-psb", "Organisation is not a public sector body"),
+    ("mistake", "Case was opened by mistake"),
+    ("duplicate", "This case was a duplicate case"),
+    ("other", "Other"),
+]
 
 class Case(models.Model):
     """
@@ -146,12 +152,16 @@ class Case(models.Model):
     report_final_url = models.CharField(max_length=200, default="", blank=True)
     report_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
-    week_12_followup_date = models.DateField(null=True, blank=True)
+    report_followup_week_1_due_date = models.DateField(null=True, blank=True)
+    report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
+    report_followup_week_4_due_date = models.DateField(null=True, blank=True)
+    report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
+    report_followup_week_7_due_date = models.DateField(null=True, blank=True)
+    report_followup_week_7_sent_date = models.DateField(null=True, blank=True)
+    report_followup_week_12_due_date = models.DateField(null=True, blank=True)
+    report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
+    correspondance_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
-    week_12_followup_email_sent_date = models.DateField(null=True, blank=True)
-    week_12_followup_email_acknowledgement_date = models.DateField(
-        null=True, blank=True
-    )
     is_website_retested = models.BooleanField(default=False)
     is_disproportionate_claimed = models.BooleanField(null=True, blank=True)
     disproportionate_notes = models.TextField(default="", blank=True)
@@ -173,6 +183,10 @@ class Case(models.Model):
     is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
+    archive_reason = models.CharField(
+        max_length=200, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
+    )
+    archive_notes = models.TextField(default="", blank=True)
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(
@@ -184,7 +198,7 @@ class Case(models.Model):
     )
 
     def __str__(self):
-        return str(f"#{self.id} {self.organisation_name}")
+        return str(f"#{self.id} | {self.organisation_name}")
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -196,13 +210,13 @@ class Case(models.Model):
             self.domain = extract_domain_from_url(self.home_page_url)
         if self.is_case_completed and not self.completed:
             self.completed = now
-        if self.report_acknowledged_date and not self.week_12_followup_date:
-            self.week_12_followup_date = self.report_acknowledged_date + timedelta(
-                weeks=12
-            )
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)
+
+    @property
+    def summary(self):
+        return str(f"#{self.id} | {self.organisation_name} | {self.domain}")
 
     def set_status(self):
         if self.is_archived:
@@ -219,7 +233,7 @@ class Case(models.Model):
             return "report-in-progress"
         elif (
             self.report_acknowledged_date is None
-            and self.week_12_followup_date is None
+            and self.report_followup_week_12_due_date is None
             and self.compliance_email_sent_date is None
         ):
             return "awaiting-response"
@@ -326,22 +340,22 @@ class Case(models.Model):
 
     @property
     def twelve_week_progress(self):
-        if self.week_12_followup_email_sent_date is None:
+        if self.report_followup_week_12_sent_date is None:
             return "Follow up email not sent"
 
         if (
-            self.week_12_followup_email_sent_date
-            and self.week_12_followup_email_acknowledgement_date is None
+            self.report_followup_week_12_sent_date
+            and self.report_acknowledged_date is None
         ):
             now = date.today()
             return "No response - {} days".format(
-                (now - self.week_12_followup_email_sent_date).days
+                (now - self.report_followup_week_12_sent_date).days
             )
 
         to_check = [
-            "week_12_followup_date",
-            "week_12_followup_email_sent_date",
-            "week_12_followup_email_acknowledgement_date",
+            "report_followup_week_12_due_date",
+            "report_followup_week_12_sent_date",
+            "report_acknowledged_date",
             "compliance_email_sent_date",
         ]
         percentage_increase = round(100 / (len(to_check)))

@@ -113,10 +113,15 @@ def convert_date_to_datetime(
     )
 
 
-def validate_url(url):
+def validate_url(url: str) -> None:
     """
     Validate URL string entered by user
     """
 
     if not (url.startswith("http://") or url.startswith("https://")):
         raise ValidationError("URL must start with http:// or https://")
+
+
+def format_date(date_to_format: date) -> str:
+    """Format a date as a string"""
+    return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"

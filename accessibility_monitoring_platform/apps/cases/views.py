@@ -1,12 +1,13 @@
 """
 Views for cases app
 """
-import urllib
+from datetime import timedelta
 from typing import Any, Dict, List, Tuple
+import urllib
+
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
@@ -17,6 +18,7 @@ from django.db.models import Q
 from ..common.typing import IntOrNone
 from ..common.utils import (
     build_filters,
+    format_date,
     download_as_csv,
     extract_domain_from_url,
     get_id_from_button_name,
@@ -31,8 +33,11 @@ from .forms import (
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CasePostReportUpdateForm,
+    CaseReportFollowupDueDatesUpdateForm,
+    CaseArchiveForm,
     DEFAULT_SORT,
 )
+from .utils import get_sent_date
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -71,10 +76,16 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "report_final_url",
     "report_sent_date",
     "report_acknowledged_date",
-    "week_12_followup_date",
+    "report_followup_week_1_due_date",
+    "report_followup_week_1_sent_date",
+    "report_followup_week_4_due_date",
+    "report_followup_week_4_sent_date",
+    "report_followup_week_7_due_date",
+    "report_followup_week_7_sent_date",
+    "report_followup_week_12_due_date",
+    "report_followup_week_12_sent_date",
+    "correspondance_notes",
     "psb_progress_notes",
-    "week_12_followup_email_sent_date",
-    "week_12_followup_email_acknowledgement_date",
     "is_website_retested",
     "is_disproportionate_claimed",
     "disproportionate_notes",
@@ -89,6 +100,10 @@ CASE_FIELDS_TO_EXPORT: List[str] = [
     "completed",
     "is_archived",
 ]
+ONE_WEEK_IN_DAYS = 7
+FOUR_WEEKS_IN_DAYS = 28
+SEVEN_WEEKS_IN_DAYS = 49
+TWELVE_WEEKS_IN_DAYS = 84
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -355,6 +370,31 @@ class CaseReportDetailsUpdateView(UpdateView):
     context_object_name: str = "case"
     template_name_suffix: str = "_report_details_update_form"
 
+    def form_valid(self, form: CaseReportDetailsUpdateForm):
+        self.object: CaseReportDetailsUpdateForm = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        report_sent_date_from_form = form.cleaned_data["report_sent_date"]
+        report_sent_date_from_db = case_from_db.report_sent_date
+        if report_sent_date_from_form and not report_sent_date_from_db:
+            if not case_from_db.report_followup_week_1_due_date:
+                self.object.report_followup_week_1_due_date = (
+                    report_sent_date_from_form + timedelta(days=ONE_WEEK_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_4_due_date:
+                self.object.report_followup_week_4_due_date = (
+                    report_sent_date_from_form + timedelta(days=FOUR_WEEKS_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_7_due_date:
+                self.object.report_followup_week_7_due_date = (
+                    report_sent_date_from_form + timedelta(days=SEVEN_WEEKS_IN_DAYS)
+                )
+            if not case_from_db.report_followup_week_12_due_date:
+                self.object.report_followup_week_12_due_date = (
+                    report_sent_date_from_form + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+                )
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
@@ -376,9 +416,83 @@ class CasePostReportDetailsUpdateView(UpdateView):
     context_object_name: str = "case"
     template_name_suffix: str = "_post_report_details_update_form"
 
+    def get_form(self):
+        form = super().get_form()
+        form.fields["report_followup_week_1_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_1_due_date
+        )
+        form.fields["report_followup_week_4_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_4_due_date
+        )
+        form.fields["report_followup_week_7_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_7_due_date
+        )
+        form.fields["report_followup_week_12_sent_date"].help_text = format_date(
+            form.instance.report_followup_week_12_due_date
+        )
+        return form
+
+    def form_valid(self, form: CasePostReportUpdateForm):
+        self.object: CasePostReportUpdateForm = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        for sent_date_name in [
+            "report_followup_week_1_sent_date",
+            "report_followup_week_4_sent_date",
+            "report_followup_week_7_sent_date",
+            "report_followup_week_12_sent_date",
+        ]:
+            setattr(
+                self.object,
+                sent_date_name,
+                get_sent_date(form, case_from_db, sent_date_name),
+            )
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+
+
+class CaseReportFollowupDueDatesUpdateView(UpdateView):
+    """
+    View to update report followup due dates
+    """
+
+    model: Case = Case
+    form_class: CaseReportFollowupDueDatesUpdateForm = (
+        CaseReportFollowupDueDatesUpdateForm
+    )
+    context_object_name: str = "case"
+    template_name_suffix: str = "_report_followup_due_dates_update_form"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy(
+            "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+        )
+
+
+class CaseArchiveUpdateView(UpdateView):
+    """
+    View to archive case
+    """
+
+    model: Case = Case
+    form_class: CaseArchiveForm = CaseArchiveForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_archive"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = form.save(commit=False)
+        case.is_archived = True
+        case.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:case-list")
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:
@@ -422,20 +536,3 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )
-
-
-def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    View to archive case
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk: int
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    case: Case = get_object_or_404(Case, pk=pk)
-    case.is_archived = True
-    case.save()
-    return redirect(reverse_lazy("cases:case-list"))
