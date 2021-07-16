@@ -218,7 +218,7 @@ def test_archive_case_view(admin_client):
     """Test that archive case view archives case"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(
+    response: HttpResponse = admin_client.post(
         reverse("cases:archive-case", kwargs={"pk": case.id})
     )
 

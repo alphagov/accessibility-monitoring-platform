@@ -82,6 +82,12 @@ COMPLIANCE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
 ]
 
+ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
+    ("not-psb", "Organisation is not a public sector body"),
+    ("mistake", "Case was opened by mistake"),
+    ("duplicate", "This case was a duplicate case"),
+    ("other", "Other"),
+]
 
 class Case(models.Model):
     """
@@ -177,6 +183,10 @@ class Case(models.Model):
     is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
+    archive_reason = models.CharField(
+        max_length=200, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
+    )
+    archive_notes = models.TextField(default="", blank=True)
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(

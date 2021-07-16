@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.cases.views import (
-    archive_case,
     export_cases,
     export_single_case,
     CaseCreateView,
@@ -19,6 +18,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseReportDetailsUpdateView,
     CasePostReportDetailsUpdateView,
     CaseReportFollowupDueDatesUpdateView,
+    CaseArchiveUpdateView,
 )
 
 app_name: str = "cases"
@@ -64,5 +64,5 @@ urlpatterns: List[URLPattern] = [
         login_required(CaseReportFollowupDueDatesUpdateView.as_view()),
         name="edit-report-followup-due-dates",
     ),
-    path("<int:pk>/archive-case/", login_required(archive_case), name="archive-case"),
+    path("<int:pk>/archive-case/", login_required(CaseArchiveUpdateView.as_view()), name="archive-case"),
 ]

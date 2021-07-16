@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'cases:case-detail' case.id %}" class="govuk-back-link">Back</a>
+    <main class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl" style="margin-bottom:15px">Delete case</h1>
+                {% include "cases/case_summary.html" %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-body">
+                    <p class="govuk-body-m">
+                        Deleting a case is not permanent.
+                        Deleting a case can be undone by contacting an admin.
+                    </p>
+                </div>
+                <form method="post" action="{% url 'cases:archive-case' case.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        {% include 'common/amp_column_full_form_snippet.html' %}
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Delete case"
+                                name="delete"
+                                class="govuk-button govuk-button--warning"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:case-detail' case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

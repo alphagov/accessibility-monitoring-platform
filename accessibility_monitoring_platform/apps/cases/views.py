@@ -34,6 +34,7 @@ from .forms import (
     CaseReportDetailsUpdateForm,
     CasePostReportUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
+    CaseArchiveForm,
     DEFAULT_SORT,
 )
 from .utils import get_sent_date
@@ -472,6 +473,28 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
         )
 
 
+class CaseArchiveUpdateView(UpdateView):
+    """
+    View to archive case
+    """
+
+    model: Case = Case
+    form_class: CaseArchiveForm = CaseArchiveForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_archive"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = form.save(commit=False)
+        case.is_archived = True
+        case.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:case-list")
+
+
 def export_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases
@@ -513,20 +536,3 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )
-
-
-def archive_case(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    View to archive case
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk: int
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    case: Case = get_object_or_404(Case, pk=pk)
-    case.is_archived = True
-    case.save()
-    return redirect(reverse_lazy("cases:case-list"))

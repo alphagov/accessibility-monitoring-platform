@@ -35,6 +35,7 @@ from .models import (
     REPORT_APPROVED_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
+    ARCHIVE_DECISION_CHOICES,
 )
 from ..common.models import Region, Sector
 
@@ -323,4 +324,24 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
             "report_followup_week_4_due_date",
             "report_followup_week_7_due_date",
             "report_followup_week_12_due_date",
+        ]
+
+
+class CaseArchiveForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    archive_reason = AMPChoiceField(
+        label="Reason why?",
+        choices=ARCHIVE_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    archive_notes = AMPTextField(label="More information?")
+
+    class Meta:
+        model = Case
+        fields = [
+            "archive_reason",
+            "archive_notes",
         ]

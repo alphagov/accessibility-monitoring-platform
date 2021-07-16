@@ -46,19 +46,14 @@
                 {% include 'cases/case_detail_report_details.html' %}
                 {% include 'cases/case_detail_post_report.html' %}
                 <h2 id="delete-case" class="govuk-heading-l">Delete case</h2>
-                <p class="govuk-body-m">
-                    Unlist the case removes the case from your home view and from general case search,
-                    essentially acting as a delete option. This can be undone by contacting an admin.
-                </p>
-                <a
-                    href="{% url 'cases:archive-case' case.id %}"
-                    role="button"
-                    draggable="false"
-                    class="govuk-button govuk-button--warning"
-                    data-module="govuk-button"
-                >
-                    Remove
-                </a>
+                <div class="govuk-button-group">
+                    <a
+                        href="{% url 'cases:archive-case' case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        Delete case
+                    </a>
+                </div>
             </div>
         </div>
     </main>
