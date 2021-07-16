@@ -8,7 +8,6 @@ import urllib
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
@@ -35,6 +34,7 @@ from .forms import (
     CasePostReportUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
     CaseArchiveForm,
+    CaseNoPSBContactUpdateForm,
     DEFAULT_SORT,
 )
 from .utils import get_sent_date
@@ -493,6 +493,27 @@ class CaseArchiveUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-list")
+
+
+class CaseNoPSBContactUpdateView(UpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    model: Case = Case
+    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_no_psb_contact"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+            )
+        return url
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

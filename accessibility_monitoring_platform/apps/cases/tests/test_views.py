@@ -314,7 +314,9 @@ def test_create_case_redirects_based_on_button_pressed(
 def test_create_case_shows_duplicate_cases(admin_client):
     """Test that create case shows duplicates found"""
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
-    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    organisation_name_case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
@@ -338,7 +340,9 @@ def test_create_case_shows_duplicate_cases(admin_client):
     ],
 )
 @pytest.mark.django_db
-def test_create_case_can_create_duplicate_cases(button_name, expected_redirect_url, admin_client):
+def test_create_case_can_create_duplicate_cases(
+    button_name, expected_redirect_url, admin_client
+):
     """Test that create case can create duplicate cases"""
     Case.objects.create(home_page_url=HOME_PAGE_URL)
     Case.objects.create(organisation_name=ORGANISATION_NAME)
@@ -692,7 +696,9 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     """Test find_duplicate_cases returns matching cases"""
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
-    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    organisation_name_case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
     duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
 

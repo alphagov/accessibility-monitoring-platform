@@ -84,6 +84,7 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
+
     date_as_checkbox = AMPDateSentField(label="Label1")
 
 

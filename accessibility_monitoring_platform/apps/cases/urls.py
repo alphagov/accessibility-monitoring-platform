@@ -19,6 +19,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CasePostReportDetailsUpdateView,
     CaseReportFollowupDueDatesUpdateView,
     CaseArchiveUpdateView,
+    CaseNoPSBContactUpdateView,
 )
 
 app_name: str = "cases"
@@ -55,6 +56,11 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-details",
     ),
     path(
+        "<int:pk>/edit-no-psb-contact/",
+        login_required(CaseNoPSBContactUpdateView.as_view()),
+        name="edit-no-psb-contact",
+    ),
+    path(
         "<int:pk>/edit-post-report-details/",
         login_required(CasePostReportDetailsUpdateView.as_view()),
         name="edit-post-report-details",
@@ -64,5 +70,9 @@ urlpatterns: List[URLPattern] = [
         login_required(CaseReportFollowupDueDatesUpdateView.as_view()),
         name="edit-report-followup-due-dates",
     ),
-    path("<int:pk>/archive-case/", login_required(CaseArchiveUpdateView.as_view()), name="archive-case"),
+    path(
+        "<int:pk>/archive-case/",
+        login_required(CaseArchiveUpdateView.as_view()),
+        name="archive-case",
+    ),
 ]

@@ -54,7 +54,9 @@ def test_case_renders_as_id_bar_organisation_name():
 @pytest.mark.django_db
 def test_case_summary_is_id_bar_organisation_name_bar_domain():
     """Test the Case summary string is id | organisation_name | domain"""
-    case = Case.objects.create(home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME)
+    case = Case.objects.create(
+        home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
+    )
 
     assert case.summary == f"#{case.id} | {case.organisation_name} | {case.domain}"
 

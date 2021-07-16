@@ -89,6 +89,7 @@ ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("other", "Other"),
 ]
 
+
 class Case(models.Model):
     """
     Model for Case
@@ -187,6 +188,7 @@ class Case(models.Model):
         max_length=200, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
     )
     archive_notes = models.TextField(default="", blank=True)
+    no_psb_contact = models.BooleanField(default=False)
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(

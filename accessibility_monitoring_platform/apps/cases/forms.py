@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ..common.forms import (
+    AMPCheckboxWidget,
     AMPRadioSelectWidget,
     AMPUserModelChoiceField,
     AMPCharField,
@@ -344,4 +345,22 @@ class CaseArchiveForm(forms.ModelForm):
         fields = [
             "archive_reason",
             "archive_notes",
+        ]
+
+
+class CaseNoPSBContactUpdateForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    no_psb_contact = AMPBooleanField(
+        widget=AMPCheckboxWidget(
+            attrs={"label": "Move case onto equality bodies correspondance stage?"}
+        )
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "no_psb_contact",
         ]
