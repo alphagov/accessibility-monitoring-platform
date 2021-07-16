@@ -26,7 +26,7 @@
                         {% if macro_view %}
                             <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                         {% else %}
-                            <a href="{% url 'cases:edit-post-report-details' item.id %}"> Completed </a>
+                            <a href="{% url 'cases:edit-report-correspondance' item.id %}"> Completed </a>
                         {% endif %}
                     </td>
                 </tr>

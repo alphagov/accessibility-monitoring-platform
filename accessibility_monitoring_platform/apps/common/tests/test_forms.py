@@ -213,9 +213,9 @@ def test_amp_choice_field_widget_attrs():
     assert field.widget.attrs == {"class": "govuk-select"}
 
 
-def test_amp_boolean_field_class_is_a_subclass_of_booleanfield():
-    """Check AMPBooleanField is a subclass of forms.BooleanField"""
-    assert issubclass(AMPBooleanField, forms.BooleanField)
+def test_amp_boolean_field_class_is_a_subclass_of_choicefield():
+    """Check AMPBooleanField is a subclass of forms.ChoiceField"""
+    assert issubclass(AMPBooleanField, forms.ChoiceField)
 
 
 def test_amp_boolean_field_is_not_required():
@@ -225,9 +225,9 @@ def test_amp_boolean_field_is_not_required():
 
 
 def test_amp_boolean_field_widget():
-    """Check AMPBooleanField uses widget AMPCheckboxWidget"""
+    """Check AMPBooleanField uses widget AMPRadioSelectWidget"""
     field: AMPBooleanField = AMPBooleanField(label="Label text")
-    assert isinstance(field.widget, AMPCheckboxWidget)
+    assert isinstance(field.widget, AMPRadioSelectWidget)
 
 
 def test_amp_nullable_boolean_field_class_is_a_subclass_of_choicefield():

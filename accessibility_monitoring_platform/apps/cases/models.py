@@ -152,6 +152,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_url = models.CharField(max_length=200, default="", blank=True)
     report_sent_date = models.DateField(null=True, blank=True)
+
     report_acknowledged_date = models.DateField(null=True, blank=True)
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
@@ -161,6 +162,15 @@ class Case(models.Model):
     report_followup_week_7_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
+
+    twelve_week_update_requested_due_date = models.DateField(null=True, blank=True)
+    twelve_week_update_requested_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_correspondance_acknowledged_date = models.DateField(null=True, blank=True)
+
     correspondance_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
     is_website_retested = models.BooleanField(default=False)

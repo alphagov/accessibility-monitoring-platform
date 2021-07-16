@@ -243,46 +243,17 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         ]
 
 
-class CasePostReportUpdateForm(forms.ModelForm):
+class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
     """
-    Form for updating post report details
+    Form for updating report correspondance details
     """
 
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
     report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
-    correspondance_notes = AMPTextField(label="Correspondance notes")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
-    is_website_retested = AMPBooleanField(label="Retested website?")
-    is_disproportionate_claimed = AMPNullableBooleanField(
-        label="Disproportionate burden claimed?"
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceField(
-        label="Accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
-    accessibility_statement_url = AMPURLField(
-        label="Link to new accessibility statement"
-    )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    compliance_decision = AMPChoiceField(
-        label="Compliance decision",
-        choices=COMPLIANCE_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
-    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
-    compliance_email_sent_date = AMPDateField(label="Compliance email sent?")
-    sent_to_enforcement_body_sent_date = AMPDateField(
-        label="Date sent to enforcement body",
-        help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
-    )
-    is_case_completed = AMPNullableBooleanField(label="Case completed?")
+    correspondance_notes = AMPTextField(label="Correspondance notes")
 
     class Meta:
         model = Case
@@ -291,20 +262,30 @@ class CasePostReportUpdateForm(forms.ModelForm):
             "report_followup_week_4_sent_date",
             "report_followup_week_7_sent_date",
             "report_followup_week_12_sent_date",
-            "correspondance_notes",
             "report_acknowledged_date",
-            "psb_progress_notes",
-            "is_website_retested",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_decison",
-            "accessibility_statement_url",
-            "accessibility_statement_notes",
-            "compliance_decision",
-            "compliance_decision_notes",
-            "compliance_email_sent_date",
-            "sent_to_enforcement_body_sent_date",
-            "is_case_completed",
+            "correspondance_notes",
+        ]
+
+
+class CaseTwelveWeekCorrespondanceUpdateForm(forms.ModelForm):
+    """
+    Form for updating week twelve correspondance details
+    """
+
+    twelve_week_update_requested_sent_date = AMPDateSentField(label="12 week update requested")
+    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
+    twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
+    twelve_week_correspondance_acknowledged_date = AMPDateField(label="12 week correspondance acknowledged")
+    correspondance_notes = AMPTextField(label="Correspondance notes")
+
+    class Meta:
+        model = Case
+        fields = [
+            "twelve_week_update_requested_sent_date",
+            "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_4_week_chaser_sent_date",
+            "twelve_week_correspondance_acknowledged_date",
+            "correspondance_notes",
         ]
 
 

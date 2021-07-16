@@ -8,7 +8,7 @@
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/edit_case_header.html" with header_suffix="Post report details" %}
+                {% include "cases/edit_case_header.html" with header_suffix="Report correspondance" %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -21,7 +21,7 @@
                         Edit followup dates
                     </a>
                 </p>
-                <form method="post" action="{% url 'cases:edit-post-report-details' case.id %}">
+                <form method="post" action="{% url 'cases:edit-report-correspondance' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_column_full_form_snippet.html' %}
@@ -44,7 +44,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/case_navbar.html' with current_page='edit-post-report-details' %}
+                {% include 'cases/case_navbar.html' with current_page='edit-report-correspondance' %}
             </div>
         </div>
     </main>
