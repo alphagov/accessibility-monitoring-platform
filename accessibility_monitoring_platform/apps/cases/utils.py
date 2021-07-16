@@ -1,3 +1,7 @@
+"""
+Utility functions for cases app
+"""
+
 from datetime import date
 from typing import Union
 

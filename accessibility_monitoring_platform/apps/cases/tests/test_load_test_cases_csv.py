@@ -1,3 +1,6 @@
+"""
+Test for loat_test_cases_csv command
+"""
 import pytest
 from datetime import date, datetime
 from functools import partial
@@ -239,9 +242,9 @@ def test_get_data_from_row(column_name, column_type, expected_value):
 @pytest.mark.django_db
 def test_create_case_creates_a_case():
     """Test create_case creates a case"""
-    CASE_ID: str = "7"
+    case_id: str = "7"
     row: Dict[str, str] = {
-        "id": CASE_ID,
+        "id": case_id,
         "is_public_sector_body": "True",
         "is_website_compliant": "False",
         "is_website_retested": "False",
@@ -257,7 +260,7 @@ def test_create_case_creates_a_case():
     case: Case = create_case(get_data)
 
     assert Case.objects.count() == 1
-    assert case.id == int(CASE_ID)
+    assert case.id == int(case_id)
 
 
 @pytest.mark.parametrize("row", [{"regions": ""}, {}])

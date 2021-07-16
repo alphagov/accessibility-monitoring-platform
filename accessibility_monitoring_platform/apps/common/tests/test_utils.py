@@ -188,9 +188,7 @@ def test_convert_date_plus_hour_minute_second_to_datetime():
 @pytest.mark.parametrize("url", ["https://gov.uk", "http://example.com"])
 def test_validate_url_raises_no_error(url):
     """Test url_validation raises no error for a valid url"""
-    validation_result = validate_url(url)
-
-    assert validation_result is None
+    assert validate_url(url) is None
 
 
 def test_validate_url_raises_validation_error():
@@ -203,5 +201,4 @@ def test_validate_url_raises_validation_error():
 
 def test_format_date():
     """Test format_date returns date strings in uk format dd/mm/yyyy"""
-    DATE = date(2020, 12, 31)
-    assert format_date(DATE) == "31/12/2020"
+    assert format_date(date(2020, 12, 31)) == "31/12/2020"

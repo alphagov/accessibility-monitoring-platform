@@ -1,3 +1,6 @@
+"""
+Test utility functions of cases app
+"""
 import pytest
 
 from dataclasses import dataclass

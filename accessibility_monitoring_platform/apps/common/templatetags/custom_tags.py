@@ -1,12 +1,15 @@
 """
 Custom template filters
 """
+from typing import Dict, Union
 
 from django import template
 
 from ..forms import NULLABLE_BOOLEAN_CHOICES
 
-nullable_boolean_labels = {value: label for value, label in NULLABLE_BOOLEAN_CHOICES}
+nullable_boolean_labels: Dict[Union[bool, None], str] = {
+    value: label for value, label in NULLABLE_BOOLEAN_CHOICES
+}
 
 register = template.Library()
 
