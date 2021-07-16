@@ -188,7 +188,7 @@ class Case(models.Model):
     )
 
     def __str__(self):
-        return str(f"#{self.id} {self.organisation_name}")
+        return str(f"#{self.id} | {self.organisation_name}")
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -203,6 +203,10 @@ class Case(models.Model):
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)
+
+    @property
+    def summary(self):
+        return str(f"#{self.id} | {self.organisation_name} | {self.domain}")
 
     def set_status(self):
         if self.is_archived:
