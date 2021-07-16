@@ -181,6 +181,7 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_correspondance_notes = models.TextField(default="", blank=True)
     is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)

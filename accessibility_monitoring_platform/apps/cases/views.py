@@ -35,6 +35,7 @@ from .forms import (
     CaseReportFollowupDueDatesUpdateForm,
     CaseArchiveForm,
     CaseNoPSBContactUpdateForm,
+    CaseEnforcementBodyCorrespondanceUpdateForm,
     DEFAULT_SORT,
 )
 from .utils import get_sent_date
@@ -511,9 +512,24 @@ class CaseNoPSBContactUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy(
-                "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+                "cases:edit-enforecement-body-correspondance", kwargs={"pk": self.object.id}
             )
         return url
+
+
+class CaseEnforcementBodyCorrespondanceUpdateView(UpdateView):
+    """
+    View to note correspondance with enforcement body
+    """
+
+    model: Case = Case
+    form_class: CaseEnforcementBodyCorrespondanceUpdateForm = CaseEnforcementBodyCorrespondanceUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_enforcement_body_correspondance"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

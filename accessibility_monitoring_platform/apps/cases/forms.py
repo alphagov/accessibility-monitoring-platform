@@ -364,3 +364,25 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
         fields = [
             "no_psb_contact",
         ]
+
+
+class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
+    """
+    Form for recording correspondance with enforcement body
+    """
+    sent_to_enforcement_body_sent_date = AMPDateField(label="Date sent to equality body")
+    enforcement_body_correspondance_notes = AMPTextField(label="Equality body correspondance notes")
+    is_case_completed = AMPBooleanField(
+        label="Case completed?",
+        widget=AMPCheckboxWidget(
+            attrs={"label": "No further action is required and the case can be marked as complete"}
+        )
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "sent_to_enforcement_body_sent_date",
+            "enforcement_body_correspondance_notes",
+            "is_case_completed",
+        ]
