@@ -1,0 +1,70 @@
+{% load custom_tags %}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="final-decision" class="govuk-heading-l">Final decision</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-final-decision' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit final decision
+            </a>
+        </div>
+    </div>
+</div>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">
+                Summary of progress made from public sector body
+            </th>
+            <td class="govuk-table__cell govuk-!-width-one-half">
+                {% if case.psb_progress_notes %}<p class="govuk-body-m cases-notes">{{ case.psb_progress_notes }}</p>{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Retested website?</th>
+            <td class="govuk-table__cell">{{ case.is_website_retested }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>
+            <td class="govuk-table__cell">{{ case.is_disproportionate_claimed|nullable_boolean_label }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Disproportionate burden notes</th>
+            <td class="govuk-table__cell">
+                {% if case.disproportionate_notes %}<p class="govuk-body-m cases-notes">{{ case.disproportionate_notes }}</p>{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Accessibility statement decision</th>
+            <td class="govuk-table__cell">{{ case.get_accessibility_statement_decison_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Accessibility statement notes</th>
+            <td class="govuk-table__cell">
+                {% if case.accessibility_statement_notes %}<p class="govuk-body-m cases-notes">{{ case.accessibility_statement_notes }}</p>{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Compliance decision</th>
+            <td class="govuk-table__cell">{{ case.get_compliance_decision_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Compliance decision notes</th>
+            <td class="govuk-table__cell">
+                {% if case.compliance_decision_notes %}<p class="govuk-body-m cases-notes">{{ case.compliance_decision_notes }}</p>{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Compliance email sent to PSB?</th>
+            <td class="govuk-table__cell">{{ case.compliance_email_sent_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Case completed?</th>
+            <td class="govuk-table__cell">{{ case.is_case_completed|nullable_boolean_label }}</td>
+        </tr>
+    </tbody>
+</table>
