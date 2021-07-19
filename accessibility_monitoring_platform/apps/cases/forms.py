@@ -51,7 +51,7 @@ SORT_CHOICES = [
 IS_CASE_COMPLETED_CHOICES = [
     (True, "No further action is required and the case can be marked as complete"),
     (False, "The audit needs to be sent the the relevant equalities body"),
-    (None, "Unknown"),
+    (None, "Decision not reached"),
 ]
 
 
