@@ -540,7 +540,9 @@ class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
     """
 
     model: Case = Case
-    form_class: CaseTwelveWeekCorrespondanceUpdateForm = CaseTwelveWeekCorrespondanceUpdateForm
+    form_class: CaseTwelveWeekCorrespondanceUpdateForm = (
+        CaseTwelveWeekCorrespondanceUpdateForm
+    )
     context_object_name: str = "case"
     template_name_suffix: str = "_twelve_week_correspondance"
 

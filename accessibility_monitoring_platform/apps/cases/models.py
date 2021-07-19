@@ -169,7 +169,9 @@ class Case(models.Model):
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_correspondance_acknowledged_date = models.DateField(null=True, blank=True)
+    twelve_week_correspondance_acknowledged_date = models.DateField(
+        null=True, blank=True
+    )
 
     correspondance_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
