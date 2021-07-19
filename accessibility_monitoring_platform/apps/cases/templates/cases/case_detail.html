@@ -34,20 +34,20 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'cases/case_summary.html' %}
+                {% include 'cases/helpers/case_summary.html' %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'cases/case_navbar.html' with current_page='view-details' %}
-                {% include 'cases/case_detail/case_details.html' %}
-                {% include 'cases/case_detail/contact_details.html' %}
-                {% include 'cases/case_detail/testing_details.html' %}
-                {% include 'cases/case_detail/report_details.html' %}
-                {% include 'cases/case_detail/report_correspondance.html' %}
-                {% include 'cases/case_detail/twelve_week_correspondance.html' %}
-                {% include 'cases/case_detail/final_decision.html' %}
-                {% include 'cases/case_detail/equality_bodies_correspondance.html' %}
+                {% include 'cases/helpers/navbar.html' with current_page='view-details' %}
+                {% include 'cases/details/case_details.html' %}
+                {% include 'cases/details/contact_details.html' %}
+                {% include 'cases/details/testing_details.html' %}
+                {% include 'cases/details/report_details.html' %}
+                {% include 'cases/details/report_correspondance.html' %}
+                {% include 'cases/details/twelve_week_correspondance.html' %}
+                {% include 'cases/details/final_decision.html' %}
+                {% include 'cases/details/equality_bodies_correspondance.html' %}
                 <h2 id="delete-case" class="govuk-heading-l">Delete case</h2>
                 <div class="govuk-button-group">
                     <a

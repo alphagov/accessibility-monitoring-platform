@@ -4,43 +4,30 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:case-detail' case.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/edit_case_header.html" with header_suffix="Case details" %}
+                {% include "cases/helpers/edit_header.html" with header_suffix="Report details" %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'cases:edit-case-details' case.id %}">
+                <form method="post" action="{% url 'cases:edit-report-details' case.id %}">
                     {% csrf_token %}
-                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
-
-                    {% for hidden_field in form.hidden_fields %}
-                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                        {{ hidden_field }}
-                    {% endfor %}
-
                     <div class="govuk-grid-row">
+                        {% include 'common/amp_column_full_form_snippet.html' %}
                         <div class="govuk-grid-column-full">
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Date created</b></label>
-                                <p class="govuk-body-m">{{ case.created|date:"d/m/Y"}}</p>
-                            </div>
-
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Status</b></label>
-                                <p class="govuk-body-m">The status can not be edited manually</p>
-                                <p class="govuk-body-m">{{ case.get_status_display}}</p>
-                            </div>
-
-                            {% for field in form.visible_fields %}
-                                {% include 'common/amp_field.html' %}
-                            {% endfor %}
+                            <p class="govuk-body-m">
+                                <a
+                                    href="{% url 'cases:edit-no-psb-contact' case.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Contact details missing?
+                                </a>
+                            </p>
                         </div>
-
-                        <div class="govuk-button-group">
+                        <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
                                 value="Save and continue"
@@ -66,7 +53,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/case_navbar.html' with current_page='edit-case-details' %}
+                {% include 'cases/helpers/navbar.html' with current_page='edit-report-details' %}
             </div>
         </div>
     </main>
