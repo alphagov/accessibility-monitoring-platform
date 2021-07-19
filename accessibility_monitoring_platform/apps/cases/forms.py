@@ -267,6 +267,26 @@ class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
         ]
 
 
+class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
+    """
+    Form for updating report followup due dates
+    """
+
+    report_followup_week_1_due_date = AMPDateField(label="1 week followup")
+    report_followup_week_4_due_date = AMPDateField(label="4 week followup")
+    report_followup_week_7_due_date = AMPDateField(label="7 week followup")
+    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+
+    class Meta:
+        model = Case
+        fields = [
+            "report_followup_week_1_due_date",
+            "report_followup_week_4_due_date",
+            "report_followup_week_7_due_date",
+            "report_followup_week_12_due_date",
+        ]
+
+
 class CaseTwelveWeekCorrespondanceUpdateForm(forms.ModelForm):
     """
     Form for updating week twelve correspondance details
@@ -289,23 +309,21 @@ class CaseTwelveWeekCorrespondanceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
+class CaseTwelveWeekCorrespondanceDueDatesUpdateForm(forms.ModelForm):
     """
-    Form for updating report followup due dates
+    Form for updating twelve week correspondance followup due dates
     """
 
-    report_followup_week_1_due_date = AMPDateField(label="1 week followup")
-    report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_7_due_date = AMPDateField(label="7 week followup")
-    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+    twelve_week_update_requested_due_date = AMPDateField(label="12 week deadline")
+    twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
+    twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
 
     class Meta:
         model = Case
         fields = [
-            "report_followup_week_1_due_date",
-            "report_followup_week_4_due_date",
-            "report_followup_week_7_due_date",
-            "report_followup_week_12_due_date",
+            "twelve_week_update_requested_due_date",
+            "twelve_week_1_week_chaser_due_date",
+            "twelve_week_4_week_chaser_due_date",
         ]
 
 

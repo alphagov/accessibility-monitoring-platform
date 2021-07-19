@@ -36,6 +36,7 @@ from .forms import (
     CaseArchiveForm,
     CaseNoPSBContactUpdateForm,
     CaseTwelveWeekCorrespondanceUpdateForm,
+    CaseTwelveWeekCorrespondanceDueDatesUpdateForm,
     CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondanceUpdateForm,
     DEFAULT_SORT,
@@ -525,6 +526,14 @@ class CaseNoPSBContactUpdateView(UpdateView):
         return url
 
 
+class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    template_name_suffix: str = "_no_psb_response"
+
+
 class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
     """
     View to record week twelve correspondance details
@@ -574,6 +583,25 @@ class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
                 kwargs={"pk": self.object.id},
             )
         return url
+
+
+class CaseTwelveWeekCorrespondanceDueDatesUpdateView(UpdateView):
+    """
+    View to update twelve week correspondance followup due dates
+    """
+
+    model: Case = Case
+    form_class: CaseTwelveWeekCorrespondanceDueDatesUpdateForm = (
+        CaseTwelveWeekCorrespondanceDueDatesUpdateForm
+    )
+    context_object_name: str = "case"
+    template_name_suffix: str = "_twelve_week_correspondance_due_dates_update_form"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy(
+            "cases:edit-12-week-correspondance", kwargs={"pk": self.object.id}
+        )
 
 
 class CaseFinalDecisionUpdateView(UpdateView):
