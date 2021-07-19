@@ -48,6 +48,11 @@ SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
 ]
+IS_CASE_COMPLETED_CHOICES = [
+    (True, "No further action is required and the case can be marked as complete"),
+    (False, "The audit needs to be sent the the relevant equalities body"),
+    (None, "Unknown"),
+]
 
 
 class CaseSearchForm(AMPDateRangeForm):
@@ -420,6 +425,11 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     )
     compliance_decision_notes = AMPTextField(label="Compliance decision notes")
     compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
+    is_case_completed = AMPChoiceField(
+        label="Case completed?",
+        choices=IS_CASE_COMPLETED_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
 
     class Meta:
         model = Case
@@ -433,4 +443,5 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "compliance_decision",
             "compliance_decision_notes",
             "compliance_email_sent_date",
+            "is_case_completed",
         ]
