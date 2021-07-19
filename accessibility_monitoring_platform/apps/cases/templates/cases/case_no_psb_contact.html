@@ -8,24 +8,33 @@
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/edit_case_header.html" with header_suffix="Post report details" %}
+                {% include "cases/edit_case_header.html" with header_suffix="Missing contact details?" %}
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body-m">
-                    <a
-                        href="{% url 'cases:edit-report-followup-due-dates' case.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                    >
-                        Edit followup dates
-                    </a>
-                </p>
-                <form method="post" action="{% url 'cases:edit-post-report-details' case.id %}">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-body">
+                    <p class="govuk-body-l">
+                        If the contact details can not be found on the public sector website,
+                        this means the case must be forwarded to the relevant equalities bodies.
+                    </p>
+                    <p class="govuk-body-l">
+                        Do you want to mark the public sector body as having missing contect details and
+                        move the audit to the equality bodies correspondence stage?
+                    </p>
+                </div>
+                <form method="post" action="{% url 'cases:edit-no-psb-contact' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_column_full_form_snippet.html' %}
                         <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
                             <input
                                 type="submit"
                                 value="Save and exit"
@@ -34,7 +43,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:case-detail' case.id %}"
+                                href="{% url 'cases:edit-report-details' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel
@@ -42,9 +51,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/case_navbar.html' with current_page='edit-post-report-details' %}
             </div>
         </div>
     </main>

@@ -89,6 +89,7 @@ ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("other", "Other"),
 ]
 
+
 class Case(models.Model):
     """
     Model for Case
@@ -151,6 +152,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_url = models.CharField(max_length=200, default="", blank=True)
     report_sent_date = models.DateField(null=True, blank=True)
+
     report_acknowledged_date = models.DateField(null=True, blank=True)
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
@@ -160,6 +162,17 @@ class Case(models.Model):
     report_followup_week_7_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
+
+    twelve_week_update_requested_due_date = models.DateField(null=True, blank=True)
+    twelve_week_update_requested_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
+    twelve_week_correspondance_acknowledged_date = models.DateField(
+        null=True, blank=True
+    )
+
     correspondance_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
     is_website_retested = models.BooleanField(default=False)
@@ -180,6 +193,7 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_correspondance_notes = models.TextField(default="", blank=True)
     is_case_completed = models.BooleanField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
@@ -187,6 +201,7 @@ class Case(models.Model):
         max_length=200, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
     )
     archive_notes = models.TextField(default="", blank=True)
+    no_psb_contact = models.BooleanField(default=False)
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(

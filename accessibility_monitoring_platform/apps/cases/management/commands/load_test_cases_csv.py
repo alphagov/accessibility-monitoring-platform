@@ -48,8 +48,8 @@ def get_string_from_row(
 
 
 def get_integer_from_row(row: Dict[str, str], column_name: str = "id") -> int:
-    id: str = row.get(column_name)
-    return int(id)
+    id_str: str = row.get(column_name)
+    return int(id_str)
 
 
 def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None]:

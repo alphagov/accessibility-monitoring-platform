@@ -258,7 +258,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-post-report-details", "<li>Post report</li>"),
+        ("cases:edit-report-correspondance", "<li>Report correspondance</li>"),
     ],
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
@@ -314,7 +314,9 @@ def test_create_case_redirects_based_on_button_pressed(
 def test_create_case_shows_duplicate_cases(admin_client):
     """Test that create case shows duplicates found"""
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
-    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    organisation_name_case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
     response: HttpResponse = admin_client.post(
         reverse("cases:case-create"),
@@ -338,7 +340,9 @@ def test_create_case_shows_duplicate_cases(admin_client):
     ],
 )
 @pytest.mark.django_db
-def test_create_case_can_create_duplicate_cases(button_name, expected_redirect_url, admin_client):
+def test_create_case_can_create_duplicate_cases(
+    button_name, expected_redirect_url, admin_client
+):
     """Test that create case can create duplicate cases"""
     Case.objects.create(home_page_url=HOME_PAGE_URL)
     Case.objects.create(organisation_name=ORGANISATION_NAME)
@@ -368,14 +372,14 @@ def test_create_case_can_create_duplicate_cases(button_name, expected_redirect_u
         (
             "cases:edit-report-details",
             "save_continue",
-            "cases:edit-post-report-details",
+            "cases:edit-report-correspondance",
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-post-report-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-report-correspondance", "save_exit", "cases:case-detail"),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",
-            "cases:edit-post-report-details",
+            "cases:edit-report-correspondance",
         ),
     ],
 )
@@ -569,8 +573,8 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     assert case_from_db.report_followup_week_12_due_date is None
 
 
-def test_case_port_report_view_contains_followup_due_dates(admin_client):
-    """Test that the case post report view contains the followup due dates"""
+def test_case_report_correspondance_view_contains_followup_due_dates(admin_client):
+    """Test that the case report correspondance view contains the followup due dates"""
     case: Case = Case.objects.create(
         report_followup_week_1_due_date=ONE_WEEK_FOLLOWUP_DUE_DATE,
         report_followup_week_4_due_date=FOUR_WEEK_FOLLOWUP_DUE_DATE,
@@ -579,7 +583,7 @@ def test_case_port_report_view_contains_followup_due_dates(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-post-report-details", kwargs={"pk": case.id})
+        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -606,7 +610,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
@@ -635,7 +639,7 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
@@ -664,7 +668,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-post-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
         {
             "save_continue": "Button value",
         },
@@ -692,7 +696,9 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     """Test find_duplicate_cases returns matching cases"""
     domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
-    organisation_name_case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    organisation_name_case: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
     duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
 

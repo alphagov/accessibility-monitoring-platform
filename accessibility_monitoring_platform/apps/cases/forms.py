@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ..common.forms import (
+    AMPCheckboxWidget,
     AMPRadioSelectWidget,
     AMPUserModelChoiceField,
     AMPCharField,
@@ -46,6 +47,11 @@ DEFAULT_SORT: str = "-id"
 SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
+]
+IS_CASE_COMPLETED_CHOICES = [
+    (True, "No further action is required and the case can be marked as complete"),
+    (False, "The audit needs to be sent the the relevant equalities body"),
+    (None, "Decision not reached"),
 ]
 
 
@@ -242,46 +248,17 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         ]
 
 
-class CasePostReportUpdateForm(forms.ModelForm):
+class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
     """
-    Form for updating post report details
+    Form for updating report correspondance details
     """
 
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
     report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
-    correspondance_notes = AMPTextField(label="Correspondance notes")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
-    is_website_retested = AMPBooleanField(label="Retested website?")
-    is_disproportionate_claimed = AMPNullableBooleanField(
-        label="Disproportionate burden claimed?"
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceField(
-        label="Accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
-    accessibility_statement_url = AMPURLField(
-        label="Link to new accessibility statement"
-    )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    compliance_decision = AMPChoiceField(
-        label="Compliance decision",
-        choices=COMPLIANCE_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
-    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
-    compliance_email_sent_date = AMPDateField(label="Compliance email sent?")
-    sent_to_enforcement_body_sent_date = AMPDateField(
-        label="Date sent to enforcement body",
-        help_text="If case does not need to be sent to enforcement body, this step can be skipped.",
-    )
-    is_case_completed = AMPNullableBooleanField(label="Case completed?")
+    correspondance_notes = AMPTextField(label="Correspondance notes")
 
     class Meta:
         model = Case
@@ -290,20 +267,8 @@ class CasePostReportUpdateForm(forms.ModelForm):
             "report_followup_week_4_sent_date",
             "report_followup_week_7_sent_date",
             "report_followup_week_12_sent_date",
-            "correspondance_notes",
             "report_acknowledged_date",
-            "psb_progress_notes",
-            "is_website_retested",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_decison",
-            "accessibility_statement_url",
-            "accessibility_statement_notes",
-            "compliance_decision",
-            "compliance_decision_notes",
-            "compliance_email_sent_date",
-            "sent_to_enforcement_body_sent_date",
-            "is_case_completed",
+            "correspondance_notes",
         ]
 
 
@@ -327,6 +292,50 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
         ]
 
 
+class CaseTwelveWeekCorrespondanceUpdateForm(forms.ModelForm):
+    """
+    Form for updating week twelve correspondance details
+    """
+
+    twelve_week_update_requested_sent_date = AMPDateSentField(
+        label="12 week update requested"
+    )
+    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
+    twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
+    twelve_week_correspondance_acknowledged_date = AMPDateField(
+        label="12 week correspondance acknowledged"
+    )
+    correspondance_notes = AMPTextField(label="Correspondance notes")
+
+    class Meta:
+        model = Case
+        fields = [
+            "twelve_week_update_requested_sent_date",
+            "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_4_week_chaser_sent_date",
+            "twelve_week_correspondance_acknowledged_date",
+            "correspondance_notes",
+        ]
+
+
+class CaseTwelveWeekCorrespondanceDueDatesUpdateForm(forms.ModelForm):
+    """
+    Form for updating twelve week correspondance followup due dates
+    """
+
+    twelve_week_update_requested_due_date = AMPDateField(label="12 week deadline")
+    twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
+    twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
+
+    class Meta:
+        model = Case
+        fields = [
+            "twelve_week_update_requested_due_date",
+            "twelve_week_1_week_chaser_due_date",
+            "twelve_week_4_week_chaser_due_date",
+        ]
+
+
 class CaseArchiveForm(forms.ModelForm):
     """
     Form for archiving a case
@@ -344,4 +353,99 @@ class CaseArchiveForm(forms.ModelForm):
         fields = [
             "archive_reason",
             "archive_notes",
+        ]
+
+
+class CaseNoPSBContactUpdateForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    no_psb_contact = AMPBooleanField(
+        widget=AMPCheckboxWidget(
+            attrs={"label": "Move case onto equality bodies correspondance stage?"}
+        )
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "no_psb_contact",
+        ]
+
+
+class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
+    """
+    Form for recording correspondance with enforcement body
+    """
+
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to equality body"
+    )
+    enforcement_body_correspondance_notes = AMPTextField(
+        label="Equality body correspondance notes"
+    )
+    is_case_completed = AMPBooleanField(
+        label="Case completed?",
+        widget=AMPCheckboxWidget(
+            attrs={
+                "label": "No further action is required and the case can be marked as complete"
+            }
+        ),
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "sent_to_enforcement_body_sent_date",
+            "enforcement_body_correspondance_notes",
+            "is_case_completed",
+        ]
+
+
+class CaseFinalDecisionUpdateForm(forms.ModelForm):
+    """
+    Form for updating case final decision details
+    """
+
+    psb_progress_notes = AMPTextField(
+        label="Summary of progress made from public sector body"
+    )
+    is_website_retested = AMPBooleanField(label="Retested website?")
+    is_disproportionate_claimed = AMPNullableBooleanField(
+        label="Disproportionate burden claimed?"
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_decison = AMPChoiceField(
+        label="Accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
+    compliance_decision = AMPChoiceField(
+        label="Compliance decision",
+        choices=COMPLIANCE_DECISION_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
+    is_case_completed = AMPChoiceField(
+        label="Case completed?",
+        choices=IS_CASE_COMPLETED_CHOICES,
+        widget=AMPRadioSelectWidget,
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "psb_progress_notes",
+            "is_website_retested",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_decison",
+            "accessibility_statement_notes",
+            "compliance_decision",
+            "compliance_decision_notes",
+            "compliance_email_sent_date",
+            "is_case_completed",
         ]

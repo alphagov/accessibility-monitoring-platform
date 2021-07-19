@@ -8,7 +8,6 @@ import urllib
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
@@ -32,9 +31,14 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
-    CasePostReportUpdateForm,
+    CaseReportCorrespondanceUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
     CaseArchiveForm,
+    CaseNoPSBContactUpdateForm,
+    CaseTwelveWeekCorrespondanceUpdateForm,
+    CaseTwelveWeekCorrespondanceDueDatesUpdateForm,
+    CaseFinalDecisionUpdateForm,
+    CaseEnforcementBodyCorrespondanceUpdateForm,
     DEFAULT_SORT,
 )
 from .utils import get_sent_date
@@ -401,20 +405,20 @@ class CaseReportDetailsUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy(
-                "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+                "cases:edit-report-correspondance", kwargs={"pk": self.object.id}
             )
         return url
 
 
-class CasePostReportDetailsUpdateView(UpdateView):
+class CaseReportCorrespondanceUpdateView(UpdateView):
     """
     View to update case post report details
     """
 
     model: Case = Case
-    form_class: CasePostReportUpdateForm = CasePostReportUpdateForm
+    form_class: CaseReportCorrespondanceUpdateForm = CaseReportCorrespondanceUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_post_report_details_update_form"
+    template_name_suffix: str = "_report_correspondance_update_form"
 
     def get_form(self):
         form = super().get_form()
@@ -432,8 +436,8 @@ class CasePostReportDetailsUpdateView(UpdateView):
         )
         return form
 
-    def form_valid(self, form: CasePostReportUpdateForm):
-        self.object: CasePostReportUpdateForm = form.save(commit=False)
+    def form_valid(self, form: CaseReportCorrespondanceUpdateForm):
+        self.object: CaseReportCorrespondanceUpdateForm = form.save(commit=False)
         case_from_db: Case = Case.objects.get(pk=self.object.id)
         for sent_date_name in [
             "report_followup_week_1_sent_date",
@@ -451,7 +455,12 @@ class CasePostReportDetailsUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        if "save_exit" in self.request.POST:
+            return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            return reverse_lazy(
+                "cases:edit-12-week-correspondance", kwargs={"pk": self.object.id}
+            )
 
 
 class CaseReportFollowupDueDatesUpdateView(UpdateView):
@@ -469,7 +478,7 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
-            "cases:edit-post-report-details", kwargs={"pk": self.object.id}
+            "cases:edit-report-correspondance", kwargs={"pk": self.object.id}
         )
 
 
@@ -493,6 +502,147 @@ class CaseArchiveUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-list")
+
+
+class CaseNoPSBContactUpdateView(UpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    model: Case = Case
+    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_no_psb_contact"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-enforcement-body-correspondance",
+                kwargs={"pk": self.object.id},
+            )
+        return url
+
+
+class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    template_name_suffix: str = "_no_psb_response"
+
+
+class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
+    """
+    View to record week twelve correspondance details
+    """
+
+    model: Case = Case
+    form_class: CaseTwelveWeekCorrespondanceUpdateForm = (
+        CaseTwelveWeekCorrespondanceUpdateForm
+    )
+    context_object_name: str = "case"
+    template_name_suffix: str = "_twelve_week_correspondance"
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields["twelve_week_update_requested_sent_date"].help_text = format_date(
+            form.instance.twelve_week_update_requested_due_date
+        )
+        form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(
+            form.instance.twelve_week_1_week_chaser_due_date
+        )
+        form.fields["twelve_week_4_week_chaser_sent_date"].help_text = format_date(
+            form.instance.twelve_week_4_week_chaser_due_date
+        )
+        return form
+
+    def form_valid(self, form: CaseTwelveWeekCorrespondanceUpdateForm):
+        self.object: CaseTwelveWeekCorrespondanceUpdateForm = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        for sent_date_name in [
+            "twelve_week_update_requested_sent_date",
+            "twelve_week_1_week_chaser_sent_date",
+            "twelve_week_4_week_chaser_sent_date",
+        ]:
+            setattr(
+                self.object,
+                sent_date_name,
+                get_sent_date(form, case_from_db, sent_date_name),
+            )
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-final-decision",
+                kwargs={"pk": self.object.id},
+            )
+        return url
+
+
+class CaseTwelveWeekCorrespondanceDueDatesUpdateView(UpdateView):
+    """
+    View to update twelve week correspondance followup due dates
+    """
+
+    model: Case = Case
+    form_class: CaseTwelveWeekCorrespondanceDueDatesUpdateForm = (
+        CaseTwelveWeekCorrespondanceDueDatesUpdateForm
+    )
+    context_object_name: str = "case"
+    template_name_suffix: str = "_twelve_week_correspondance_due_dates_update_form"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy(
+            "cases:edit-12-week-correspondance", kwargs={"pk": self.object.id}
+        )
+
+
+class CaseFinalDecisionUpdateView(UpdateView):
+    """
+    View to record final decision details
+    """
+
+    model: Case = Case
+    form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
+    context_object_name: str = "case"
+    template_name_suffix: str = "_final_decision"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-enforcement-body-correspondance",
+                kwargs={"pk": self.object.id},
+            )
+        return url
+
+
+class CaseEnforcementBodyCorrespondanceUpdateView(UpdateView):
+    """
+    View to note correspondance with enforcement body
+    """
+
+    model: Case = Case
+    form_class: CaseEnforcementBodyCorrespondanceUpdateForm = (
+        CaseEnforcementBodyCorrespondanceUpdateForm
+    )
+    context_object_name: str = "case"
+    template_name_suffix: str = "_enforcement_body_correspondance"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

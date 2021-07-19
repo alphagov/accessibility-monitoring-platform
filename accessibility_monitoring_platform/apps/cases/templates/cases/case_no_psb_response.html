@@ -8,25 +8,38 @@
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/edit_case_header.html" with header_suffix="Report followup dates" %}
+                {% include "cases/edit_case_header.html" with header_suffix="No response from public sector body?" %}
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-full">
                 <div class="govuk-body">
-                    <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Report sent on</p>
-                    <p class="govuk-!-font-weight-regular">{{ case.report_sent_date|date:"d/m/Y" }}</p>
+                    <p class="govuk-body-l">
+                        If the public sector body does not respond to the initial report,
+                        the case must be forwarded to the relevant equalities bodies.
+                    </p>
+                    <p class="govuk-body-l">
+                        Do you want to mark the public sector body as unresponsive and
+                        move the audit to the equality bodies correspondence stage?
+                    </p>
                 </div>
-                <form method="post" action="{% url 'cases:edit-report-followup-due-dates' case.id %}">
+                <form method="post" action="{% url 'cases:edit-no-psb-contact' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_column_full_form_snippet.html' %}
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save and return"
-                                name="save_return"
+                                value="Save and continue"
+                                name="save_continue"
                                 class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                             <a
@@ -38,9 +51,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/case_navbar.html' with current_page='edit-report-correspondance' %}
             </div>
         </div>
     </main>

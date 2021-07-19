@@ -6,18 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0007_case_correspondance_notes'),
+        ("cases", "0007_case_correspondance_notes"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='archive_notes',
-            field=models.TextField(blank=True, default=''),
+            model_name="case",
+            name="archive_notes",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='case',
-            name='archive_reason',
-            field=models.CharField(choices=[('not-psb', 'Organisation is not a public sector body'), ('mistake', 'Case was opened by mistake'), ('duplicate', 'This case was a duplicate case'), ('other', 'Other')], default='unknown', max_length=200),
+            model_name="case",
+            name="archive_reason",
+            field=models.CharField(
+                choices=[
+                    ("not-psb", "Organisation is not a public sector body"),
+                    ("mistake", "Case was opened by mistake"),
+                    ("duplicate", "This case was a duplicate case"),
+                    ("other", "Other"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
     ]
