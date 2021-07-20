@@ -18,7 +18,6 @@ from ..views import (
     CASE_FIELDS_TO_EXPORT,
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
-    SEVEN_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     find_duplicate_cases,
 )
@@ -33,7 +32,6 @@ REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
 FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-SEVEN_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=SEVEN_WEEKS_IN_DAYS)
 TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
 TODAY = date.today()
 
@@ -258,7 +256,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
-        ("cases:edit-report-correspondance", "<li>Report correspondance</li>"),
+        ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
     ],
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
@@ -372,22 +370,22 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-report-details",
             "save_continue",
-            "cases:edit-report-correspondance",
+            "cases:edit-report-correspondence",
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-correspondance", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-correspondance", "save_continue", "cases:edit-12-week-correspondance"),
-        ("cases:edit-report-followup-due-dates", "save_return", "cases:edit-report-correspondance"),
+        ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
+        ("cases:edit-report-correspondence", "save_continue", "cases:edit-12-week-correspondence"),
+        ("cases:edit-report-followup-due-dates", "save_return", "cases:edit-report-correspondence"),
         ("cases:edit-no-psb-contact", "save_exit", "cases:case-detail"),
-        ("cases:edit-no-psb-contact", "save_continue", "cases:edit-enforcement-body-correspondance"),
-        ("cases:edit-12-week-correspondance", "save_exit", "cases:case-detail"),
-        ("cases:edit-12-week-correspondance", "save_continue", "cases:edit-final-decision"),
-        ("cases:edit-12-week-correspondance-due-dates", "save_return", "cases:edit-12-week-correspondance"),
+        ("cases:edit-no-psb-contact", "save_continue", "cases:edit-enforcement-body-correspondence"),
+        ("cases:edit-12-week-correspondence", "save_exit", "cases:case-detail"),
+        ("cases:edit-12-week-correspondence", "save_continue", "cases:edit-final-decision"),
+        ("cases:edit-12-week-correspondence-due-dates", "save_return", "cases:edit-12-week-correspondence"),
         ("cases:edit-no-psb-response", "save_exit", "cases:case-detail"),
-        ("cases:edit-no-psb-response", "save_continue", "cases:edit-enforcement-body-correspondance"),
+        ("cases:edit-no-psb-response", "save_continue", "cases:edit-enforcement-body-correspondence"),
         ("cases:edit-final-decision", "save_exit", "cases:case-detail"),
-        ("cases:edit-final-decision", "save_continue", "cases:edit-enforcement-body-correspondance"),
-        ("cases:edit-enforcement-body-correspondance", "save_exit", "cases:case-detail"),
+        ("cases:edit-final-decision", "save_continue", "cases:edit-enforcement-body-correspondence"),
+        ("cases:edit-enforcement-body-correspondence", "save_exit", "cases:case-detail"),
     ],
 )
 def test_case_edit_redirects_based_on_button_pressed(
@@ -517,7 +515,6 @@ def test_updating_report_sent_date(admin_client):
 
     assert case_from_db.report_followup_week_1_due_date == ONE_WEEK_FOLLOWUP_DUE_DATE
     assert case_from_db.report_followup_week_4_due_date == FOUR_WEEK_FOLLOWUP_DUE_DATE
-    assert case_from_db.report_followup_week_7_due_date == SEVEN_WEEK_FOLLOWUP_DUE_DATE
     assert (
         case_from_db.report_followup_week_12_due_date == TWELVE_WEEK_FOLLOWUP_DUE_DATE
     )
@@ -530,7 +527,6 @@ def test_report_followup_due_dates_not_changed(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_due_date=OTHER_DATE,
         report_followup_week_4_due_date=OTHER_DATE,
-        report_followup_week_7_due_date=OTHER_DATE,
         report_followup_week_12_due_date=OTHER_DATE,
     )
 
@@ -549,7 +545,6 @@ def test_report_followup_due_dates_not_changed(admin_client):
 
     assert case_from_db.report_followup_week_1_due_date == OTHER_DATE
     assert case_from_db.report_followup_week_4_due_date == OTHER_DATE
-    assert case_from_db.report_followup_week_7_due_date == OTHER_DATE
     assert case_from_db.report_followup_week_12_due_date == OTHER_DATE
 
 
@@ -576,21 +571,19 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
 
     assert case_from_db.report_followup_week_1_due_date is None
     assert case_from_db.report_followup_week_4_due_date is None
-    assert case_from_db.report_followup_week_7_due_date is None
     assert case_from_db.report_followup_week_12_due_date is None
 
 
-def test_case_report_correspondance_view_contains_followup_due_dates(admin_client):
-    """Test that the case report correspondance view contains the followup due dates"""
+def test_case_report_correspondence_view_contains_followup_due_dates(admin_client):
+    """Test that the case report correspondence view contains the followup due dates"""
     case: Case = Case.objects.create(
         report_followup_week_1_due_date=ONE_WEEK_FOLLOWUP_DUE_DATE,
         report_followup_week_4_due_date=FOUR_WEEK_FOLLOWUP_DUE_DATE,
-        report_followup_week_7_due_date=SEVEN_WEEK_FOLLOWUP_DUE_DATE,
         report_followup_week_12_due_date=TWELVE_WEEK_FOLLOWUP_DUE_DATE,
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id})
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -604,10 +597,6 @@ def test_case_report_correspondance_view_contains_followup_due_dates(admin_clien
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(SEVEN_WEEK_FOLLOWUP_DUE_DATE)}</div>',
-    )
-    assertContains(
-        response,
         f'<div id="event-name-hint" class="govuk-hint">{format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
 
@@ -617,11 +606,10 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_7_sent_date": "on",
             "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
@@ -632,7 +620,6 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == TODAY
     assert case_from_db.report_followup_week_4_sent_date == TODAY
-    assert case_from_db.report_followup_week_7_sent_date == TODAY
     assert case_from_db.report_followup_week_12_sent_date == TODAY
 
 
@@ -641,16 +628,14 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_7_sent_date=OTHER_DATE,
         report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_7_sent_date": "on",
             "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
@@ -661,7 +646,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
     assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
-    assert case_from_db.report_followup_week_7_sent_date == OTHER_DATE
     assert case_from_db.report_followup_week_12_sent_date == OTHER_DATE
 
 
@@ -670,12 +654,11 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_7_sent_date=OTHER_DATE,
         report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondance", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "save_continue": "Button value",
         },
@@ -686,7 +669,6 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
-    assert case_from_db.report_followup_week_7_sent_date is None
     assert case_from_db.report_followup_week_12_sent_date is None
 
 

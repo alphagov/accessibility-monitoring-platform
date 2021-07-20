@@ -248,9 +248,9 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
+class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     """
-    Form for updating report correspondance details
+    Form for updating report correspondence details
     """
 
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
@@ -258,7 +258,7 @@ class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
     report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
     report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
-    correspondance_notes = AMPTextField(label="Correspondance notes")
+    correspondence_notes = AMPTextField(label="Correspondence notes")
 
     class Meta:
         model = Case
@@ -268,7 +268,7 @@ class CaseReportCorrespondanceUpdateForm(forms.ModelForm):
             "report_followup_week_7_sent_date",
             "report_followup_week_12_sent_date",
             "report_acknowledged_date",
-            "correspondance_notes",
+            "correspondence_notes",
         ]
 
 
@@ -279,7 +279,6 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
 
     report_followup_week_1_due_date = AMPDateField(label="1 week followup")
     report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_7_due_date = AMPDateField(label="7 week followup")
     report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
 
     class Meta:
@@ -287,50 +286,46 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
         fields = [
             "report_followup_week_1_due_date",
             "report_followup_week_4_due_date",
-            "report_followup_week_7_due_date",
             "report_followup_week_12_due_date",
         ]
 
 
-class CaseTwelveWeekCorrespondanceUpdateForm(forms.ModelForm):
+class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     """
-    Form for updating week twelve correspondance details
+    Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_sent_date = AMPDateSentField(
+    report_followup_week_12_sent_date = AMPDateSentField(
         label="12 week update requested"
     )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
-    twelve_week_correspondance_acknowledged_date = AMPDateField(
-        label="12 week correspondance acknowledged"
+    twelve_week_correspondence_acknowledged_date = AMPDateField(
+        label="12 week correspondence acknowledged"
     )
-    correspondance_notes = AMPTextField(label="Correspondance notes")
+    correspondence_notes = AMPTextField(label="Correspondence notes")
 
     class Meta:
         model = Case
         fields = [
-            "twelve_week_update_requested_sent_date",
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
-            "twelve_week_correspondance_acknowledged_date",
-            "correspondance_notes",
+            "twelve_week_correspondence_acknowledged_date",
+            "correspondence_notes",
         ]
 
 
-class CaseTwelveWeekCorrespondanceDueDatesUpdateForm(forms.ModelForm):
+class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
     """
-    Form for updating twelve week correspondance followup due dates
+    Form for updating twelve week correspondence followup due dates
     """
 
-    twelve_week_update_requested_due_date = AMPDateField(label="12 week deadline")
     twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
     twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
 
     class Meta:
         model = Case
         fields = [
-            "twelve_week_update_requested_due_date",
             "twelve_week_1_week_chaser_due_date",
             "twelve_week_4_week_chaser_due_date",
         ]
@@ -363,7 +358,7 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
 
     no_psb_contact = AMPBooleanField(
         widget=AMPCheckboxWidget(
-            attrs={"label": "Move case onto equality bodies correspondance stage?"}
+            attrs={"label": "Move case onto equality bodies correspondence stage?"}
         )
     )
 
@@ -374,16 +369,16 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
+class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     """
-    Form for recording correspondance with enforcement body
+    Form for recording correspondence with enforcement body
     """
 
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )
-    enforcement_body_correspondance_notes = AMPTextField(
-        label="Equality body correspondance notes"
+    enforcement_body_correspondence_notes = AMPTextField(
+        label="Equality body correspondence notes"
     )
     is_case_completed = AMPBooleanField(
         label="Case completed?",
@@ -398,7 +393,7 @@ class CaseEnforcementBodyCorrespondanceUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "sent_to_enforcement_body_sent_date",
-            "enforcement_body_correspondance_notes",
+            "enforcement_body_correspondence_notes",
             "is_case_completed",
         ]
 
