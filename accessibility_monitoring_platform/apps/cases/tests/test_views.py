@@ -271,19 +271,6 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assertContains(response, expected_content)
 
 
-def test_create_case_auditor_defaults_to_logged_in_user(admin_client):
-    """
-    Test that the auditor field in create case defaults to logged in user.
-    """
-    response: HttpResponse = admin_client.get(reverse("cases:case-create"))
-
-    assert response.status_code == 200
-    assert (
-        response.context["form"].initial["auditor"]
-        == response.context["request"].user.id
-    )
-
-
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
