@@ -66,11 +66,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-no-psb-contact",
     ),
     path(
-        "<int:pk>/edit-no-psb-response/",
-        login_required(CaseNoPSBResponseUpdateView.as_view()),
-        name="edit-no-psb-response",
-    ),
-    path(
         "<int:pk>/edit-report-correspondance/",
         login_required(CaseReportCorrespondanceUpdateView.as_view()),
         name="edit-report-correspondance",
@@ -89,6 +84,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-12-week-correspondance-due-dates/",
         login_required(CaseTwelveWeekCorrespondanceDueDatesUpdateView.as_view()),
         name="edit-12-week-correspondance-due-dates",
+    ),
+    path(
+        "<int:pk>/edit-no-psb-response/",
+        login_required(CaseNoPSBResponseUpdateView.as_view()),
+        name="edit-no-psb-response",
     ),
     path(
         "<int:pk>/edit-final-decision/",

@@ -127,7 +127,6 @@ class CaseDetailView(DetailView):
 
     model: Case = Case
     context_object_name: str = "case"
-    template_name_suffix: str = "_detail"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add unarchived contacts to context"""
@@ -208,7 +207,7 @@ class CaseCreateView(CreateView):
     model: Case = Case
     form_class: CaseCreateForm = CaseCreateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_create_form"
+    template_name: str = "cases/forms/create.html"
 
     def get_initial(self):
         initial = super().get_initial()
@@ -262,7 +261,7 @@ class CaseDetailUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseDetailUpdateForm = CaseDetailUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_details_update_form"
+    template_name: str = "cases/forms/details.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -283,7 +282,7 @@ class CaseContactFormsetUpdateView(UpdateView):
     model: Case = Case
     fields: List[str] = []
     context_object_name: str = "case"
-    template_name_suffix: str = "_contact_formset"
+    template_name: str = "cases/forms/contact_formset.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -351,7 +350,7 @@ class CaseTestResultsUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_test_results_update_form"
+    template_name: str = "cases/forms/test_results.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -372,7 +371,7 @@ class CaseReportDetailsUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_report_details_update_form"
+    template_name: str = "cases/forms/report_details.html"
 
     def form_valid(self, form: CaseReportDetailsUpdateForm):
         self.object: CaseReportDetailsUpdateForm = form.save(commit=False)
@@ -418,7 +417,7 @@ class CaseReportCorrespondanceUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseReportCorrespondanceUpdateForm = CaseReportCorrespondanceUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_report_correspondance_update_form"
+    template_name: str = "cases/forms/report_correspondance.html"
 
     def get_form(self):
         form = super().get_form()
@@ -473,35 +472,13 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
         CaseReportFollowupDueDatesUpdateForm
     )
     context_object_name: str = "case"
-    template_name_suffix: str = "_report_followup_due_dates_update_form"
+    template_name: str = "cases/forms/report_followup_due_dates.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
             "cases:edit-report-correspondance", kwargs={"pk": self.object.id}
         )
-
-
-class CaseArchiveUpdateView(UpdateView):
-    """
-    View to archive case
-    """
-
-    model: Case = Case
-    form_class: CaseArchiveForm = CaseArchiveForm
-    context_object_name: str = "case"
-    template_name_suffix: str = "_archive"
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        case: Case = form.save(commit=False)
-        case.is_archived = True
-        case.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        return reverse_lazy("cases:case-list")
 
 
 class CaseNoPSBContactUpdateView(UpdateView):
@@ -512,7 +489,7 @@ class CaseNoPSBContactUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_no_psb_contact"
+    template_name: str = "cases/forms/no_psb_contact.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
@@ -526,14 +503,6 @@ class CaseNoPSBContactUpdateView(UpdateView):
         return url
 
 
-class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
-    """
-    View to set no psb contact flag
-    """
-
-    template_name_suffix: str = "_no_psb_response"
-
-
 class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
     """
     View to record week twelve correspondance details
@@ -544,7 +513,7 @@ class CaseTwelveWeekCorrespondanceUpdateView(UpdateView):
         CaseTwelveWeekCorrespondanceUpdateForm
     )
     context_object_name: str = "case"
-    template_name_suffix: str = "_twelve_week_correspondance"
+    template_name: str = "cases/forms/twelve_week_correspondance.html"
 
     def get_form(self):
         form = super().get_form()
@@ -597,13 +566,21 @@ class CaseTwelveWeekCorrespondanceDueDatesUpdateView(UpdateView):
         CaseTwelveWeekCorrespondanceDueDatesUpdateForm
     )
     context_object_name: str = "case"
-    template_name_suffix: str = "_twelve_week_correspondance_due_dates_update_form"
+    template_name: str = "cases/forms/twelve_week_correspondance_due_dates.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
             "cases:edit-12-week-correspondance", kwargs={"pk": self.object.id}
         )
+
+
+class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
+    """
+    View to set no psb contact flag
+    """
+
+    template_name: str = "cases/forms/no_psb_response.html"
 
 
 class CaseFinalDecisionUpdateView(UpdateView):
@@ -614,7 +591,7 @@ class CaseFinalDecisionUpdateView(UpdateView):
     model: Case = Case
     form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
     context_object_name: str = "case"
-    template_name_suffix: str = "_final_decision"
+    template_name: str = "cases/forms/final_decision.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
@@ -638,11 +615,33 @@ class CaseEnforcementBodyCorrespondanceUpdateView(UpdateView):
         CaseEnforcementBodyCorrespondanceUpdateForm
     )
     context_object_name: str = "case"
-    template_name_suffix: str = "_enforcement_body_correspondance"
+    template_name: str = "cases/forms/enforcement_body_correspondance.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+
+
+class CaseArchiveUpdateView(UpdateView):
+    """
+    View to archive case
+    """
+
+    model: Case = Case
+    form_class: CaseArchiveForm = CaseArchiveForm
+    context_object_name: str = "case"
+    template_name: str = "cases/forms/archive.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = form.save(commit=False)
+        case.is_archived = True
+        case.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        return reverse_lazy("cases:case-list")
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:
