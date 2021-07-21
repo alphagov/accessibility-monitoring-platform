@@ -3,7 +3,7 @@ Common widgets and form fields
 """
 from datetime import date, datetime
 import pytz
-from typing import Any, Dict, Iterable, List, Mapping, Union
+from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
 
 from django.contrib.auth.models import User
 from django import forms
@@ -12,7 +12,11 @@ from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
-BOOLEAN_CHOICES = [
+BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+    (True, "Yes"),
+    (False, "No"),
+]
+NULLABLE_BOOLEAN_CHOICES: List[Tuple[Union[bool, None], str]] = [
     (True, "Yes"),
     (False, "No"),
     (None, "Not known"),
