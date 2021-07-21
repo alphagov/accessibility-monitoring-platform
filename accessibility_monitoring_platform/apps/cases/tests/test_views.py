@@ -361,18 +361,50 @@ def test_create_case_can_create_duplicate_cases(
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
         ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-correspondence", "save_continue", "cases:edit-12-week-correspondence"),
-        ("cases:edit-report-followup-due-dates", "save_return", "cases:edit-report-correspondence"),
+        (
+            "cases:edit-report-correspondence",
+            "save_continue",
+            "cases:edit-12-week-correspondence",
+        ),
+        (
+            "cases:edit-report-followup-due-dates",
+            "save_return",
+            "cases:edit-report-correspondence",
+        ),
         ("cases:edit-no-psb-contact", "save_exit", "cases:case-detail"),
-        ("cases:edit-no-psb-contact", "save_continue", "cases:edit-enforcement-body-correspondence"),
+        (
+            "cases:edit-no-psb-contact",
+            "save_continue",
+            "cases:edit-enforcement-body-correspondence",
+        ),
         ("cases:edit-12-week-correspondence", "save_exit", "cases:case-detail"),
-        ("cases:edit-12-week-correspondence", "save_continue", "cases:edit-final-decision"),
-        ("cases:edit-12-week-correspondence-due-dates", "save_return", "cases:edit-12-week-correspondence"),
+        (
+            "cases:edit-12-week-correspondence",
+            "save_continue",
+            "cases:edit-final-decision",
+        ),
+        (
+            "cases:edit-12-week-correspondence-due-dates",
+            "save_return",
+            "cases:edit-12-week-correspondence",
+        ),
         ("cases:edit-no-psb-response", "save_exit", "cases:case-detail"),
-        ("cases:edit-no-psb-response", "save_continue", "cases:edit-enforcement-body-correspondence"),
+        (
+            "cases:edit-no-psb-response",
+            "save_continue",
+            "cases:edit-enforcement-body-correspondence",
+        ),
         ("cases:edit-final-decision", "save_exit", "cases:case-detail"),
-        ("cases:edit-final-decision", "save_continue", "cases:edit-enforcement-body-correspondence"),
-        ("cases:edit-enforcement-body-correspondence", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-final-decision",
+            "save_continue",
+            "cases:edit-enforcement-body-correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "save_exit",
+            "cases:case-detail",
+        ),
     ],
 )
 def test_case_edit_redirects_based_on_button_pressed(

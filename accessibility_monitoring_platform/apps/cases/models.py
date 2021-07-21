@@ -146,6 +146,8 @@ class Case(models.Model):
         blank=True,
         null=True,
     )
+    report_is_ready_to_review = models.BooleanField(default=False)
+    report_is_approved = models.BooleanField(default=False)
     report_approved_status = models.CharField(
         max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
     )

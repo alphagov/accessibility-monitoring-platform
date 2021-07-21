@@ -1,3 +1,5 @@
+{% load custom_tags %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="report-details" class="govuk-heading-l">Report details</h2>
@@ -23,16 +25,16 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Report ready to be reviewed</th>
-            <td class="govuk-table__cell">{{ case.get_report_review_status_display }}</td>
+            <th scope="row" class="govuk-table__header">Is report ready to be reviewed?</th>
+            <td class="govuk-table__cell">{{ case.report_is_ready_to_review|boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">QA auditor</th>
             <td class="govuk-table__cell">{{ case.reviewer.get_full_name }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Report approved</th>
-            <td class="govuk-table__cell">{{ case.get_report_approved_status_display }}</td>
+            <th scope="row" class="govuk-table__header">Is report approved?</th>
+            <td class="govuk-table__cell">{{ case.report_is_approved|boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">QA notes</th>

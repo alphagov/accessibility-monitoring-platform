@@ -220,17 +220,9 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     """
 
     report_draft_url = AMPURLField(label="Link to report draft")
-    report_review_status = AMPChoiceField(
-        label="Report ready to be reviewed?",
-        choices=REPORT_REVIEW_STATUS_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
+    report_is_ready_to_review = AMPBooleanField(label="Is report ready to be reviewed?")
     reviewer = AMPUserModelChoiceField(label="QA Auditor")
-    report_approved_status = AMPChoiceField(
-        label="Report approved?",
-        choices=REPORT_APPROVED_STATUS_CHOICES,
-        widget=AMPRadioSelectWidget,
-    )
+    report_is_approved = AMPBooleanField(label="Is report approved")
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_url = AMPURLField(label="Link to final report")
     report_sent_date = AMPDateField(label="Report sent on")
@@ -239,9 +231,9 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "report_draft_url",
-            "report_review_status",
+            "report_is_ready_to_review",
             "reviewer",
-            "report_approved_status",
+            "report_is_approved",
             "reviewer_notes",
             "report_final_url",
             "report_sent_date",

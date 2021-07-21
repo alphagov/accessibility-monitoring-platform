@@ -6,43 +6,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0012_rename_twelve_week_correspondance_notes_case_correspondance_notes'),
+        (
+            "cases",
+            "0012_rename_twelve_week_correspondance_notes_case_correspondance_notes",
+        ),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='case',
-            old_name='correspondance_notes',
-            new_name='correspondence_notes',
+            model_name="case",
+            old_name="correspondance_notes",
+            new_name="correspondence_notes",
         ),
         migrations.RenameField(
-            model_name='case',
-            old_name='enforcement_body_correspondance_notes',
-            new_name='enforcement_body_correspondence_notes',
+            model_name="case",
+            old_name="enforcement_body_correspondance_notes",
+            new_name="enforcement_body_correspondence_notes",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='report_followup_week_7_due_date',
+            model_name="case",
+            name="report_followup_week_7_due_date",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='report_followup_week_7_sent_date',
+            model_name="case",
+            name="report_followup_week_7_sent_date",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='twelve_week_correspondance_acknowledged_date',
+            model_name="case",
+            name="twelve_week_correspondance_acknowledged_date",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='twelve_week_update_requested_due_date',
+            model_name="case",
+            name="twelve_week_update_requested_due_date",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='twelve_week_update_requested_sent_date',
+            model_name="case",
+            name="twelve_week_update_requested_sent_date",
         ),
         migrations.AddField(
-            model_name='case',
-            name='twelve_week_correspondence_acknowledged_date',
+            model_name="case",
+            name="twelve_week_correspondence_acknowledged_date",
             field=models.DateField(blank=True, null=True),
         ),
     ]
