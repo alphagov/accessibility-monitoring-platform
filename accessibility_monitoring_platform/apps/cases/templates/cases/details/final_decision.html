@@ -26,7 +26,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Retested website?</th>
-            <td class="govuk-table__cell">{{ case.is_website_retested }}</td>
+            <td class="govuk-table__cell">{{ case.is_website_retested|nullable_boolean_label }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>

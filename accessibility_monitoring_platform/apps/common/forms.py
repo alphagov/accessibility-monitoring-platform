@@ -15,10 +15,6 @@ DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC
 BOOLEAN_CHOICES = [
     (True, "Yes"),
     (False, "No"),
-]
-NULLABLE_BOOLEAN_CHOICES = [
-    (True, "Yes"),
-    (False, "No"),
     (None, "Not known"),
 ]
 
@@ -224,16 +220,6 @@ class AMPBooleanField(forms.ChoiceField):
         kwargs.setdefault("required", False)
         kwargs.setdefault("widget", AMPRadioSelectWidget())
         kwargs.setdefault("choices", BOOLEAN_CHOICES)
-        super().__init__(*args, **kwargs)
-
-
-class AMPNullableBooleanField(forms.ChoiceField):
-    """Radio input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPRadioSelectWidget())
-        kwargs.setdefault("choices", NULLABLE_BOOLEAN_CHOICES)
         super().__init__(*args, **kwargs)
 
 
