@@ -227,6 +227,14 @@ class AMPBooleanField(forms.ChoiceField):
         super().__init__(*args, **kwargs)
 
 
+class AMPNullableBooleanField(AMPBooleanField):
+    """Radio input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("choices", NULLABLE_BOOLEAN_CHOICES)
+        super().__init__(*args, **kwargs)
+
+
 class AMPDateField(forms.DateField):
     """Date input field in the style of GDS design system"""
 
