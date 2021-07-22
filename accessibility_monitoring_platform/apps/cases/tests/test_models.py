@@ -58,7 +58,7 @@ def test_case_summary_is_id_bar_organisation_name_bar_domain():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.summary == f"#{case.id} | {case.organisation_name} | {case.domain}"
+    assert case.summary == f"{case.organisation_name} | {case.domain} | #{case.id}"
 
 
 @pytest.mark.django_db

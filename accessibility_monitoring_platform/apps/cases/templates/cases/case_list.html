@@ -52,9 +52,9 @@
                                         <div class="govuk-grid-column-full">
                                             <a href="{% url 'cases:case-detail' case.id %}"
                                                 class="govuk-link govuk-link--no-visited-state cases-bigger-link">
-                                                {{ case }}
+                                                {{ case.organisation_name }}
                                             </a>
-                                            <p class="govuk-body-m">{{ case.domain }}</p>
+                                            <p class="govuk-body-m">#{{ case.id }} | {{ case.domain }}</p>
                                         </div>
                                     </div>
                                     <div class="govuk-grid-row">
