@@ -9,6 +9,7 @@ from typing import Callable, Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.db import models
 
 from ...common.models import Region, Sector
 from ..management.commands.load_test_cases_csv import (
@@ -202,18 +203,18 @@ def test_get_or_create_sector_from_row_creates_sector():
 
 
 @pytest.mark.parametrize(
-    "column_name, column_type, expected_value",
+    "field, expected_value",
     [
-        ("name", "string", "squiggle"),
-        ("flag", "boolean", True),
-        ("id", "integer", 4),
-        ("sent", "date", date(2021, 2, 28)),
-        ("created", "datetime", datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC)),
-        ("auditor", "user", "user1"),
-        ("sector", "sector", "sector1"),
+        (models.CharField(name="name"), "squiggle"),
+        (models.BooleanField(name="flag"), True),
+        (models.IntegerField(name="id"), 4),
+        (models.DateField(name="sent"), date(2021, 2, 28)),
+        (models.DateTimeField(name="created"), datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC)),
+        (models.ForeignKey(name="auditor", to=User, on_delete=models.DO_NOTHING), "user1"),
+        (models.ForeignKey(name="sector", to=Sector, on_delete=models.DO_NOTHING), "sector1"),
     ],
 )
-def test_get_data_from_row(column_name, column_type, expected_value):
+def test_get_data_from_row(field, expected_value):
     """Test get_date_from_row returns timestamp or none"""
     row: Dict[str, str] = {
         "name": "squiggle",
@@ -232,8 +233,7 @@ def test_get_data_from_row(column_name, column_type, expected_value):
             row=row,
             users=users,
             sectors=sectors,
-            column_name=column_name,
-            column_type=column_type,
+            field=field,
         )
         == expected_value
     )
@@ -249,8 +249,10 @@ def test_create_case_creates_a_case():
         "is_website_compliant": "False",
         "is_website_retested": "False",
         "is_disproportionate_claimed": "False",
-        "is_case_completed": "False",
         "is_archived": "False",
+        "no_psb_contact": "False",
+        "report_is_approved": "False",
+        "report_is_ready_to_review": "False",
     }
 
     get_data: Callable = partial(get_data_from_row, row=row, users={}, sectors={})

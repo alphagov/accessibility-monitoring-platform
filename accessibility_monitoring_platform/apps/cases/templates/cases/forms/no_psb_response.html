@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:edit-report-correspondance' case.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -26,7 +26,22 @@
                 <form method="post" action="{% url 'cases:edit-no-psb-contact' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        {% include 'common/amp_column_full_form_snippet.html' %}
+                        <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+
+                        {% for hidden_field in form.hidden_fields %}
+                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                            {{ hidden_field }}
+                        {% endfor %}
+
+                        <div class="govuk-grid-column-full">
+                            {% for field in form.visible_fields %}
+                                <div class="govuk-form-group">
+                                    <div id="event-name-hint" class="govuk-hint">{{ field.help_text }}</div>
+                                    {{ field }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
@@ -43,7 +58,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:edit-report-correspondance' case.id %}"
+                                href="{% url 'cases:edit-report-correspondence' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel

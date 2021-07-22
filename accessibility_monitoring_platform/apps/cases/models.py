@@ -89,6 +89,26 @@ ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("other", "Other"),
 ]
 
+DEFAULT_CASE_COMPLETED = "no-decision"
+CASE_COMPLETED_CHOICES = [
+    (
+        "no-action",
+        "No further action is required and the case can be marked as complete",
+    ),
+    ("escalated", "The audit needs to be sent to the relevant equalities body"),
+    (DEFAULT_CASE_COMPLETED, "Decision not reached"),
+]
+
+DEFAULT_ESCALATION_STATE = "unknown"
+ESCALATION_STATE_CHOICES = [
+    (
+        "no-action",
+        "No further action is required and correspondence has closed regarding this issue",
+    ),
+    ("ongoing", "Correspondence ongoing"),
+    (DEFAULT_ESCALATION_STATE, "Not known"),
+]
+
 
 class Case(models.Model):
     """
@@ -146,6 +166,8 @@ class Case(models.Model):
         blank=True,
         null=True,
     )
+    report_is_ready_to_review = models.BooleanField(default=False)
+    report_is_approved = models.BooleanField(default=False)
     report_approved_status = models.CharField(
         max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
     )
@@ -158,24 +180,20 @@ class Case(models.Model):
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_7_due_date = models.DateField(null=True, blank=True)
-    report_followup_week_7_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
 
-    twelve_week_update_requested_due_date = models.DateField(null=True, blank=True)
-    twelve_week_update_requested_sent_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_correspondance_acknowledged_date = models.DateField(
+    twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
 
-    correspondance_notes = models.TextField(default="", blank=True)
+    correspondence_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
-    is_website_retested = models.BooleanField(default=False)
+    retested_website = models.DateField(null=True, blank=True)
     is_disproportionate_claimed = models.BooleanField(null=True, blank=True)
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_decison = models.CharField(
@@ -193,8 +211,15 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
-    enforcement_body_correspondance_notes = models.TextField(default="", blank=True)
-    is_case_completed = models.BooleanField(null=True, blank=True)
+    enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
+    escalation_state = models.CharField(
+        max_length=20,
+        choices=ESCALATION_STATE_CHOICES,
+        default=DEFAULT_ESCALATION_STATE,
+    )
+    case_completed = models.CharField(
+        max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
+    )
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
     archive_reason = models.CharField(
@@ -223,7 +248,7 @@ class Case(models.Model):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
-        if self.is_case_completed and not self.completed:
+        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed:
             self.completed = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
@@ -236,7 +261,7 @@ class Case(models.Model):
     def set_status(self):
         if self.is_archived:
             return "archived"
-        elif self.is_case_completed:
+        elif self.case_completed != DEFAULT_CASE_COMPLETED:
             return "complete"
         elif self.auditor is None:
             return "unassigned-case"

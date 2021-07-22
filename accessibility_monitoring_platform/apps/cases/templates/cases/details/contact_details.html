@@ -1,3 +1,5 @@
+{% load custom_tags %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="contact-details" class="govuk-heading-l">Contact details</h2>
@@ -46,7 +48,7 @@
                         <h3 class="govuk-heading-s">Preferred contact</h3>
                     </div>
                     <div class="govuk-grid-column-one-half no-padding-left">
-                        <p class="govuk-body-m">{{ contact.preferred }}</p>
+                        <p class="govuk-body-m">{{ contact.preferred|boolean_label }}</p>
                     </div>
                 </div>
                 <div class="govuk-grid-row">

@@ -6,10 +6,10 @@
             <li><a href="#contact-details" class="govuk-link govuk-link--no-visited-state">Contact details</a></li>
             <li><a href="#testing-details" class="govuk-link govuk-link--no-visited-state">Testing details</a></li>
             <li><a href="#report-details" class="govuk-link govuk-link--no-visited-state">Report details</a></li>
-            <li><a href="#report-correspondance" class="govuk-link govuk-link--no-visited-state">Report correspondance</a></li>
-            <li><a href="#12-week-correspondance" class="govuk-link govuk-link--no-visited-state">12 week correspondance</a></li>
+            <li><a href="#report-correspondence" class="govuk-link govuk-link--no-visited-state">Report correspondence</a></li>
+            <li><a href="#12-week-correspondence" class="govuk-link govuk-link--no-visited-state">12 week correspondence</a></li>
             <li><a href="#final-decision" class="govuk-link govuk-link--no-visited-state">Final decision</a></li>
-            <li><a href="#equality-bodies-correspondance" class="govuk-link govuk-link--no-visited-state">Equality bodies correspondance</a></li>
+            <li><a href="#equality-bodies-correspondence" class="govuk-link govuk-link--no-visited-state">Equality bodies correspondence</a></li>
             <li><a href="#delete-case" class="govuk-link govuk-link--no-visited-state">Delete case</a></li>
         </ul>
     {% else %}
@@ -35,21 +35,21 @@
             {% else %}
                 <li><a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Report details</a></li>
             {% endif %}
-            {% if current_page == 'edit-report-correspondance' %}
-                <li>Report correspondance</li>
+            {% if current_page == 'edit-report-correspondence' %}
+                <li>Report correspondence</li>
             {% else %}
                 <li>
-                    <a href="{% url 'cases:edit-report-correspondance' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Report correspondance
+                    <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Report correspondence
                     </a>
                 </li>
             {% endif %}
-            {% if current_page == 'edit-12-week-correspondance' %}
-                <li>12 week correspondance</li>
+            {% if current_page == 'edit-12-week-correspondence' %}
+                <li>12 week correspondence</li>
             {% else %}
                 <li>
-                    <a href="{% url 'cases:edit-12-week-correspondance' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        12 week correspondance
+                    <a href="{% url 'cases:edit-12-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        12 week correspondence
                     </a>
                 </li>
             {% endif %}
@@ -62,12 +62,12 @@
                     </a>
                 </li>
             {% endif %}
-            {% if current_page == 'edit-enforcement-body-correspondance' %}
-                <li>Equality body correspondance</li>
+            {% if current_page == 'edit-enforcement-body-correspondence' %}
+                <li>Equality body correspondence</li>
             {% else %}
                 <li>
-                    <a href="{% url 'cases:edit-enforcement-body-correspondance' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Equality body correspondance
+                    <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Equality body correspondence
                     </a>
                 </li>
             {% endif %}

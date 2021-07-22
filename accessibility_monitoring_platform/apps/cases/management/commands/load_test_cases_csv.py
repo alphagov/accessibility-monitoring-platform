@@ -8,6 +8,8 @@ from typing import Any, Callable, Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.db import models
+from django.db.models.fields.reverse_related import ManyToOneRel
 
 from ...models import Case, Contact
 from ....common.models import Region, Sector
@@ -112,110 +114,31 @@ def get_data_from_row(
     row: Dict[str, str],
     users: List[User],
     sectors: List[Sector],
-    column_name: str,
-    column_type: str = "string",
-    default: Any = "",
+    field: models.Field,
 ) -> Union[str, bool, int, date, datetime, User, Sector]:
-    if column_type == "string":
-        return get_string_from_row(row=row, column_name=column_name, default=default)
-    if column_type == "boolean":
-        return get_boolean_from_row(row=row, column_name=column_name)
-    if column_type == "integer":
-        return get_integer_from_row(row=row, column_name=column_name)
-    if column_type == "date":
-        return get_date_from_row(row=row, column_name=column_name)
-    if column_type == "datetime":
-        return get_datetime_from_row(row=row, column_name=column_name)
-    if column_type == "user":
+    if isinstance(field, models.CharField) or isinstance(field, models.TextField):
+        return get_string_from_row(row=row, column_name=field.name, default=field.default)
+    if isinstance(field, models.BooleanField):
+        return get_boolean_from_row(row=row, column_name=field.name)
+    if isinstance(field, models.IntegerField or isinstance(field, models.AutoField)):
+        return get_integer_from_row(row=row, column_name=field.name)
+    if isinstance(field, models.DateTimeField):
+        return get_datetime_from_row(row=row, column_name=field.name)
+    if isinstance(field, models.DateField):
+        return get_date_from_row(row=row, column_name=field.name)
+    if isinstance(field, models.ForeignKey) and field.related_model == User:
         return get_or_create_user_from_row(
-            row=row, users=users, column_name=column_name
+            row=row, users=users, column_name=field.name
         )
-    if column_type == "sector":
+    if isinstance(field, models.ForeignKey) and field.related_model == Sector:
         return get_or_create_sector_from_row(row=row, sectors=sectors)
 
 
 def create_case(get_data: Callable) -> Case:
-    return Case.objects.create(
-        id=get_data(column_name="id", column_type="integer"),
-        status=get_data(column_name="status", default="new-case"),
-        created=get_data(column_name="created", column_type="datetime"),
-        auditor=get_data(column_name="auditor", column_type="user"),
-        test_type=get_data(column_name="test_type", default="simple"),
-        home_page_url=get_data(column_name="home_page_url"),
-        domain=get_data(column_name="domain"),
-        application=get_data(column_name="application"),
-        organisation_name=get_data(column_name="organisation_name"),
-        website_type=get_data(column_name="website_type", default="public"),
-        sector=get_data(column_name="sector", column_type="sector"),
-        case_origin=get_data(column_name="case_origin", default="org"),
-        zendesk_url=get_data(column_name="zendesk_url"),
-        trello_url=get_data(column_name="trello_url"),
-        notes=get_data(column_name="notes"),
-        is_public_sector_body=get_data(
-            column_name="is_public_sector_body", column_type="boolean"
-        ),
-        test_results_url=get_data(column_name="test_results_url"),
-        test_status=get_data(column_name="test_status", default="not-started"),
-        is_website_compliant=get_data(
-            column_name="is_website_compliant", column_type="boolean"
-        ),
-        test_notes=get_data(column_name="test_notes"),
-        report_draft_url=get_data(column_name="report_draft_url"),
-        report_review_status=get_data(
-            column_name="report_review_status", default="not-started"
-        ),
-        reviewer=get_data(column_name="reviewer", column_type="user"),
-        report_approved_status=get_data(
-            column_name="report_approved_status", default="not-started"
-        ),
-        reviewer_notes=get_data(column_name="reviewer_notes"),
-        report_final_url=get_data(column_name="report_final_url"),
-        report_sent_date=get_data(column_name="report_sent_date", column_type="date"),
-        report_acknowledged_date=get_data(
-            column_name="report_acknowledged_date", column_type="date"
-        ),
-        report_followup_week_12_due_date=get_data(
-            column_name="report_followup_week_12_due_date", column_type="date"
-        ),
-        psb_progress_notes=get_data(column_name="psb_progress_notes"),
-        report_followup_week_12_sent_date=get_data(
-            column_name="report_followup_week_12_sent_date",
-            column_type="date",
-        ),
-        is_website_retested=get_data(
-            column_name="is_website_retested", column_type="boolean"
-        ),
-        is_disproportionate_claimed=get_data(
-            column_name="is_disproportionate_claimed",
-            column_type="boolean",
-        ),
-        disproportionate_notes=get_data(column_name="disproportionate_notes"),
-        accessibility_statement_decison=get_data(
-            column_name="accessibility_statement_decison",
-            default="not-compliant",
-        ),
-        accessibility_statement_url=get_data(column_name="accessibility_statement_url"),
-        accessibility_statement_notes=get_data(
-            column_name="accessibility_statement_notes"
-        ),
-        compliance_decision=get_data(
-            column_name="compliance_decision", default="unknown"
-        ),
-        compliance_decision_notes=get_data(column_name="compliance_decision_notes"),
-        compliance_email_sent_date=get_data(
-            column_name="compliance_email_sent_date",
-            column_type="date",
-        ),
-        sent_to_enforcement_body_sent_date=get_data(
-            column_name="sent_to_enforcement_body_sent_date",
-            column_type="date",
-        ),
-        is_case_completed=get_data(
-            column_name="is_case_completed", column_type="boolean"
-        ),
-        completed=get_data(column_name="completed", column_type="datetime"),
-        is_archived=get_data(column_name="is_archived", column_type="boolean"),
-    )
+    fields = Case._meta.get_fields()
+    kwargs = {field.name: get_data(field=field) for field in fields if not isinstance(field, ManyToOneRel)}
+    del kwargs["region"]
+    return Case.objects.create(**kwargs)
 
 
 def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]:
@@ -294,9 +217,9 @@ class Command(BaseCommand):
                 if "contact_email" in row and row["contact_email"]:
                     contact: Contact = Contact(
                         case=case,
-                        detail=get_data(column_name="contact_email"),
-                        notes=get_data(column_name="contact_notes"),
-                        created=get_data(column_name="created", column_type="datetime"),
-                        created_by=get_data(column_name="auditor", column_type="user"),
+                        detail=get_string_from_row(row=row, column_name="contact_email"),
+                        notes=get_string_from_row(row=row, column_name="contact_notes"),
+                        created=get_datetime_from_row(row=row, column_name="created"),
+                        created_by=get_or_create_user_from_row(row=row, users=users, column_name="auditor"),
                     )
                     contact.save()

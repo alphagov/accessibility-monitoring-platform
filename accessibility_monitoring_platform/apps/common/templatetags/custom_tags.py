@@ -7,7 +7,7 @@ from django import template
 
 from ..forms import NULLABLE_BOOLEAN_CHOICES
 
-nullable_boolean_labels: Dict[Union[bool, None], str] = {
+boolean_labels: Dict[Union[bool, None], str] = {
     value: label for value, label in NULLABLE_BOOLEAN_CHOICES
 }
 
@@ -15,6 +15,6 @@ register = template.Library()
 
 
 @register.filter
-def nullable_boolean_label(value):
-    """Convert nullable boolean value into its label"""
-    return nullable_boolean_labels.get(value, "")
+def boolean_label(value):
+    """Convert boolean value into its label"""
+    return boolean_labels.get(value, "")

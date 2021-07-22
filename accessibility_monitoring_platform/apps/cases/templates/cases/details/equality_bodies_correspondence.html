@@ -2,14 +2,14 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 id="equality-bodies-correspondance" class="govuk-heading-l">Equality bodies correspondance</h2>
+        <h2 id="equality-bodies-correspondence" class="govuk-heading-l">Equality bodies correspondence</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
         <div class="govuk-button-group" style="flex-direction:row-reverse">
-            <a href="{% url 'cases:edit-enforcement-body-correspondance' case.id %}"
+            <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit equality bodies correspondance
+                Edit equality bodies correspondence
             </a>
         </div>
     </div>
@@ -21,14 +21,14 @@
             <td class="govuk-table__cell govuk-!-width-one-half">{{ case.sent_to_enforcement_body_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Equality body correspondance notes</th>
+            <th scope="row" class="govuk-table__header">Equality body correspondence notes</th>
             <td class="govuk-table__cell">
-                {% if case.enforcement_body_correspondance_notes %}<p class="govuk-body-m cases-notes">{{ case.enforcement_body_correspondance_notes }}</p>{% endif %}
+                {% if case.enforcement_body_correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.enforcement_body_correspondence_notes }}</p>{% endif %}
             </td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Case is complete?</th>
-            <td class="govuk-table__cell">{{ case.is_case_completed|nullable_boolean_label }}</td>
+            <td class="govuk-table__cell">{{ case.get_escalation_state_display }}</td>
         </tr>
     </tbody>
 </table>
