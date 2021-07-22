@@ -28,7 +28,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Case is complete?</th>
-            <td class="govuk-table__cell">{{ case.is_case_completed|boolean_label }}</td>
+            <td class="govuk-table__cell">{{ case.get_escalation_state_display }}</td>
         </tr>
     </tbody>
 </table>

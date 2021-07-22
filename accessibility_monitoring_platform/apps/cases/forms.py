@@ -8,13 +8,13 @@ from django.contrib.auth.models import User
 
 from ..common.forms import (
     AMPCheckboxWidget,
-    AMPRadioSelectWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
     AMPModelChoiceField,
+    AMPChoiceRadioField,
     AMPModelMultipleChoiceField,
     AMPBooleanField,
     AMPNullableBooleanField,
@@ -32,11 +32,11 @@ from .models import (
     DEFAULT_WEBSITE_TYPE,
     WEBSITE_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
-    REPORT_REVIEW_STATUS_CHOICES,
-    REPORT_APPROVED_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     COMPLIANCE_DECISION_CHOICES,
     ARCHIVE_DECISION_CHOICES,
+    CASE_COMPLETED_CHOICES,
+    ESCALATION_STATE_CHOICES,
 )
 from ..common.models import Region, Sector
 
@@ -47,11 +47,6 @@ DEFAULT_SORT: str = "-id"
 SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
-]
-IS_CASE_COMPLETED_CHOICES = [
-    (True, "No further action is required and the case can be marked as complete"),
-    (False, "The audit needs to be sent the the relevant equalities body"),
-    (None, "Decision not reached"),
 ]
 
 
@@ -94,14 +89,11 @@ class CaseCreateForm(forms.ModelForm):
         help_text="Enter a domain if test type is simple or complex",
         required=True,
     )
-    test_type = AMPChoiceField(
+    test_type = AMPChoiceRadioField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
-        widget=AMPRadioSelectWidget,
     )
-    case_origin = AMPChoiceField(
-        label="Case origin", choices=CASE_ORIGIN_CHOICES, widget=AMPRadioSelectWidget
-    )
+    case_origin = AMPChoiceRadioField(label="Case origin", choices=CASE_ORIGIN_CHOICES)
     auditor = AMPUserModelChoiceField(label="Auditor")
 
     class Meta:
@@ -122,11 +114,10 @@ class CaseDetailUpdateForm(CaseCreateForm):
 
     domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, App or Service name")
-    website_type = AMPChoiceField(
+    website_type = AMPChoiceRadioField(
         label="Type of site",
         choices=WEBSITE_TYPE_CHOICES,
         initial=DEFAULT_WEBSITE_TYPE,
-        widget=AMPRadioSelectWidget,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     region = AMPModelMultipleChoiceField(
@@ -196,10 +187,9 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     """
 
     test_results_url = AMPURLField(label="Link to test results")
-    test_status = AMPChoiceField(
+    test_status = AMPChoiceRadioField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
-        widget=AMPRadioSelectWidget,
     )
     is_website_compliant = AMPNullableBooleanField(label="Is the website compliant?")
     test_notes = AMPTextField(label="Compliance notes")
@@ -328,10 +318,9 @@ class CaseArchiveForm(forms.ModelForm):
     Form for archiving a case
     """
 
-    archive_reason = AMPChoiceField(
+    archive_reason = AMPChoiceRadioField(
         label="Reason why?",
         choices=ARCHIVE_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
     )
     archive_notes = AMPTextField(label="More information?")
 
@@ -372,13 +361,9 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
-    is_case_completed = AMPBooleanField(
-        label="Case completed?",
-        widget=AMPCheckboxWidget(
-            attrs={
-                "label": "No further action is required and the case can be marked as complete"
-            }
-        ),
+    escalation_state = AMPChoiceRadioField(
+        label="Equalities body correspondence completed?",
+        choices=ESCALATION_STATE_CHOICES,
     )
 
     class Meta:
@@ -386,7 +371,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         fields = [
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_correspondence_notes",
-            "is_case_completed",
+            "escalation_state",
         ]
 
 
@@ -398,35 +383,35 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    is_website_retested = AMPBooleanField(label="Retested website?")
+    retested_website = AMPDateField(
+        label="Retested website?",
+        help_text="The retest form can be found in the test results",
+    )
     is_disproportionate_claimed = AMPNullableBooleanField(
         label="Disproportionate burden claimed?",
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceField(
+    accessibility_statement_decison = AMPChoiceRadioField(
         label="Accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    compliance_decision = AMPChoiceField(
+    compliance_decision = AMPChoiceRadioField(
         label="Compliance decision",
         choices=COMPLIANCE_DECISION_CHOICES,
-        widget=AMPRadioSelectWidget,
     )
     compliance_decision_notes = AMPTextField(label="Compliance decision notes")
     compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
-    is_case_completed = AMPChoiceField(
+    case_completed = AMPChoiceRadioField(
         label="Case completed?",
-        choices=IS_CASE_COMPLETED_CHOICES,
-        widget=AMPRadioSelectWidget,
+        choices=CASE_COMPLETED_CHOICES,
     )
 
     class Meta:
         model = Case
         fields = [
             "psb_progress_notes",
-            "is_website_retested",
+            "retested_website",
             "is_disproportionate_claimed",
             "disproportionate_notes",
             "accessibility_statement_decison",
@@ -434,5 +419,5 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "compliance_decision",
             "compliance_decision_notes",
             "compliance_email_sent_date",
-            "is_case_completed",
+            "case_completed",
         ]

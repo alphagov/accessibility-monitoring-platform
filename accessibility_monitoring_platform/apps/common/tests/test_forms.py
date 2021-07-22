@@ -1,6 +1,8 @@
 """
 Test - common widgets and forms
 """
+import pytest
+
 from datetime import date, datetime
 import pytz
 
@@ -17,6 +19,7 @@ from ..forms import (
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
+    AMPChoiceRadioField,
     AMPBooleanField,
     AMPNullableBooleanField,
     AMPDateField,
@@ -88,8 +91,8 @@ class MockForm(forms.Form):
     date_as_checkbox = AMPDateSentField(label="Label1")
 
 
-def test_amp_radio_select_widget_html_uses_govuk_classes():
-    """Check AMPRadioSelectWidget renders the expected HTML"""
+def test_amp_widget_html_uses_govuk_classes():
+    """Check widget renders the expected HTML"""
     widget: AMPRadioSelectWidget = AMPRadioSelectWidget(choices=[("val1", "Label1")])
     assertHTMLEqual(widget.render("name", None), EXPECTED_RADIO_SELECT_WIDGET_HTML)
 
@@ -112,27 +115,66 @@ def test_amp_date_widget_html_uses_govuk_classes():
     assertHTMLEqual(widget.render("name", None), EXPECTED_DATE_WIDGET_HTML)
 
 
-def test_amp_char_field_class_is_a_subclass_of_charfield():
-    """Check AMPCharField is a subclass of forms.CharField"""
-    assert issubclass(AMPCharField, forms.CharField)
+@pytest.mark.parametrize(
+    "field_class, expected_superclass",
+    [
+        (AMPCharField, forms.CharField),
+        (AMPCharFieldWide, forms.CharField),
+        (AMPTextField, forms.CharField),
+        (AMPChoiceField, forms.ChoiceField),
+        (AMPChoiceRadioField, forms.ChoiceField),
+        (AMPBooleanField, forms.ChoiceField),
+        (AMPNullableBooleanField, forms.ChoiceField),
+        (AMPDateField, forms.DateField),
+    ],
+)
+def test_amp_field_class_subclasses_expected_class(field_class, expected_superclass):
+    """Check field class is a subclass of expected class"""
+    assert issubclass(field_class, expected_superclass)
 
 
-def test_amp_char_field_is_not_required():
-    """Check AMPCharField defaults to not being required"""
-    field: AMPCharField = AMPCharField(label="Label text")
+@pytest.mark.parametrize(
+    "field_class",
+    [
+        AMPCharField,
+        AMPCharFieldWide,
+        AMPTextField,
+        AMPChoiceField,
+        AMPChoiceRadioField,
+        AMPBooleanField,
+        AMPNullableBooleanField,
+        AMPDateField,
+    ],
+)
+def test_amp_field_is_not_required(field_class):
+    """Check field class defaults to not being required"""
+    field: forms.Field = field_class(label="Label text")
     assert not field.required
+
+
+@pytest.mark.parametrize(
+    "field_class, expected_widget",
+    [
+        (AMPCharField, forms.TextInput),
+        (AMPCharFieldWide, forms.TextInput),
+        (AMPTextField, forms.Textarea),
+        (AMPChoiceField, forms.Select),
+        (AMPChoiceRadioField, AMPRadioSelectWidget),
+        (AMPBooleanField, AMPRadioSelectWidget),
+        (AMPNullableBooleanField, AMPRadioSelectWidget),
+        (AMPDateField, AMPDateWidget),
+    ],
+)
+def test_amp_field_uses_expected_widget(field_class, expected_widget):
+    """Check field uses expected widget"""
+    field: forms.field = field_class(label="Label text")
+    assert isinstance(field.widget, expected_widget)
 
 
 def test_amp_char_field_max_length():
     """Check AMPCharField defaults a max_length of 100"""
     field: AMPCharField = AMPCharField(label="Label text")
     assert field.max_length == 100
-
-
-def test_amp_char_field_widget():
-    """Check AMPCharField uses widget forms.TextInput"""
-    field: AMPCharField = AMPCharField(label="Label text")
-    assert isinstance(field.widget, forms.TextInput)
 
 
 def test_amp_char_field_widget_attrs():
@@ -142,17 +184,6 @@ def test_amp_char_field_widget_attrs():
         "class": "govuk-input govuk-input--width-10",
         "maxlength": "100",
     }
-
-
-def test_amp_char_field_wide_class_is_a_subclass_of_charfield():
-    """Check AMPCharFieldWide is a subclass of forms.CharField"""
-    assert issubclass(AMPCharFieldWide, forms.CharField)
-
-
-def test_amp_char_field_wide_is_not_required():
-    """Check AMPCharField defaults to not being required"""
-    field: AMPCharFieldWide = AMPCharFieldWide(label="Label text")
-    assert not field.required
 
 
 def test_amp_char_field_wide_has_no_max_length():
@@ -167,101 +198,16 @@ def test_amp_char_field_wide_widget_attrs():
     assert field.widget.attrs == {"class": "govuk-input"}
 
 
-def test_amp_text_field_class_is_a_subclass_of_charfield():
-    """Check AMPTextField is a subclass of forms.CharField"""
-    assert issubclass(AMPTextField, forms.CharField)
-
-
-def test_amp_text_field_is_not_required():
-    """Check AMPTextField defaults to not being required"""
-    field: AMPTextField = AMPTextField(label="Label text")
-    assert not field.required
-
-
-def test_amp_text_field_widget():
-    """Check AMPTextField uses widget forms.Textarea"""
-    field: AMPTextField = AMPTextField(label="Label text")
-    assert isinstance(field.widget, forms.Textarea)
-
-
 def test_amp_text_field_widget_attrs():
     """Check AMPTextField widget attr defaults"""
     field: AMPTextField = AMPTextField(label="Label text")
     assert field.widget.attrs == {"class": "govuk-textarea", "cols": "40", "rows": "2"}
 
 
-def test_amp_choice_field_class_is_a_subclass_of_choicefield():
-    """Check AMPChoiceField is a subclass of forms.ChoiceField"""
-    assert issubclass(AMPChoiceField, forms.ChoiceField)
-
-
-def test_amp_choice_field_is_not_required():
-    """Check AMPChoiceField defaults to not being required"""
-    field: AMPChoiceField = AMPChoiceField(label="Label text")
-    assert not field.required
-
-
-def test_amp_choice_field_widget():
-    """Check AMPChoiceField uses widget forms.Select"""
-    field: AMPChoiceField = AMPChoiceField(label="Label text")
-    assert isinstance(field.widget, forms.Select)
-
-
 def test_amp_choice_field_widget_attrs():
     """Check AMPChoiceField widget attr defaults"""
     field: AMPChoiceField = AMPChoiceField(label="Label text")
     assert field.widget.attrs == {"class": "govuk-select"}
-
-
-def test_amp_boolean_field_class_is_a_subclass_of_choicefield():
-    """Check AMPBooleanField is a subclass of forms.ChoiceField"""
-    assert issubclass(AMPBooleanField, forms.ChoiceField)
-
-
-def test_amp_boolean_field_is_not_required():
-    """Check AMPBooleanField defaults to not being required"""
-    field: AMPBooleanField = AMPBooleanField(label="Label text")
-    assert not field.required
-
-
-def test_amp_boolean_field_widget():
-    """Check AMPBooleanField uses widget AMPRadioSelectWidget"""
-    field: AMPBooleanField = AMPBooleanField(label="Label text")
-    assert isinstance(field.widget, AMPRadioSelectWidget)
-
-
-def test_amp_nullable_boolean_field_class_is_a_subclass_of_choicefield():
-    """Check AMPNullableBooleanField is a subclass of forms.ChoiceField"""
-    assert issubclass(AMPNullableBooleanField, forms.ChoiceField)
-
-
-def test_amp_nullable_boolean_field_is_not_required():
-    """Check AMPNullableBooleanField defaults to not being required"""
-    field: AMPNullableBooleanField = AMPNullableBooleanField(label="Label text")
-    assert not field.required
-
-
-def test_amp_nullable_boolean_field_widget():
-    """Check AMPNullableBooleanField uses widget AMPRadioSelectWidget"""
-    field: AMPNullableBooleanField = AMPNullableBooleanField(label="Label text")
-    assert isinstance(field.widget, AMPRadioSelectWidget)
-
-
-def test_amp_date_field_class_is_a_subclass_of_datefield():
-    """Check AMPDateField is a subclass of forms.DateField"""
-    assert issubclass(AMPDateField, forms.DateField)
-
-
-def test_amp_date_field_is_not_required():
-    """Check AMPDateField defaults to not being required"""
-    field: AMPDateField = AMPDateField(label="Label text")
-    assert not field.required
-
-
-def test_amp_date_field_widget():
-    """Check AMPDateField uses widget AMPDateWidget"""
-    field: AMPDateField = AMPDateField(label="Label text")
-    assert isinstance(field.widget, AMPDateWidget)
 
 
 def test_amp_date_field_widget_attrs():

@@ -15,15 +15,13 @@ from django.urls import reverse
 
 from ..models import Case, Contact
 from ..views import (
-    CASE_FIELDS_TO_EXPORT,
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     find_duplicate_cases,
 )
-from ...common.utils import format_date
+from ...common.utils import format_date, get_field_names_for_export
 
-CASE_FIELDS_TO_EXPORT_STR = ",".join(CASE_FIELDS_TO_EXPORT)
 CONTACT_DETAIL = "test@email.com"
 DOMAIN = "domain.com"
 HOME_PAGE_URL = f"https://{DOMAIN}"
@@ -34,6 +32,7 @@ ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
 FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
 TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
 TODAY = date.today()
+case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
 
 def test_case_detail_view_leaves_out_archived_contact(admin_client):
@@ -197,7 +196,7 @@ def test_case_export_list_view(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
-    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+    assertContains(response, case_fields_to_export_str)
 
 
 def test_case_export_single_view(admin_client):
@@ -209,7 +208,7 @@ def test_case_export_single_view(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, CASE_FIELDS_TO_EXPORT_STR)
+    assertContains(response, case_fields_to_export_str)
 
 
 def test_archive_case_view(admin_client):
@@ -232,7 +231,7 @@ def test_archive_case_view(admin_client):
     "path_name, expected_content",
     [
         ("cases:case-list", '<h1 class="govuk-heading-xl">Cases and reports</h1>'),
-        ("cases:case-export-list", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-export-list", case_fields_to_export_str),
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )
@@ -247,7 +246,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("cases:case-export-single", CASE_FIELDS_TO_EXPORT_STR),
+        ("cases:case-export-single", case_fields_to_export_str),
         (
             "cases:case-detail",
             '<h1 class="govuk-heading-xl" style="margin-bottom:15px">View case</h1>',

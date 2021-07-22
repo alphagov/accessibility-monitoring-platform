@@ -175,6 +175,14 @@ class AMPChoiceField(forms.ChoiceField):
         super().__init__(*args, **kwargs)
 
 
+class AMPChoiceRadioField(AMPChoiceField):
+    """Radio input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("widget", AMPRadioSelectWidget)
+        super().__init__(*args, **kwargs)
+
+
 class AMPModelChoiceField(forms.ModelChoiceField):
     """Model choice input field in the style of GDS design system"""
 

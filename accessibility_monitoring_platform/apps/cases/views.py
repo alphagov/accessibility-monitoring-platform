@@ -20,6 +20,7 @@ from ..common.utils import (
     format_date,
     download_as_csv,
     extract_domain_from_url,
+    get_field_names_for_export,
     get_id_from_button_name,
 )
 from .models import Case, Contact
@@ -49,58 +50,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("status", "status"),
     ("start_date", "created__gte"),
     ("end_date", "created__lte"),
-]
-CASE_FIELDS_TO_EXPORT: List[str] = [
-    "id",
-    "status",
-    "created",
-    "auditor",
-    "test_type",
-    "home_page_url",
-    "domain",
-    "application",
-    "organisation_name",
-    "website_type",
-    "sector",
-    "region",
-    "case_origin",
-    "zendesk_url",
-    "trello_url",
-    "notes",
-    "is_public_sector_body",
-    "test_results_url",
-    "test_status",
-    "is_website_compliant",
-    "test_notes",
-    "report_draft_url",
-    "report_review_status",
-    "reviewer",
-    "report_approved_status",
-    "reviewer_notes",
-    "report_final_url",
-    "report_sent_date",
-    "report_acknowledged_date",
-    "report_followup_week_1_due_date",
-    "report_followup_week_1_sent_date",
-    "report_followup_week_4_due_date",
-    "report_followup_week_4_sent_date",
-    "report_followup_week_12_due_date",
-    "report_followup_week_12_sent_date",
-    "correspondence_notes",
-    "psb_progress_notes",
-    "is_website_retested",
-    "is_disproportionate_claimed",
-    "disproportionate_notes",
-    "accessibility_statement_decison",
-    "accessibility_statement_url",
-    "accessibility_statement_notes",
-    "compliance_decision",
-    "compliance_decision_notes",
-    "compliance_email_sent_date",
-    "sent_to_enforcement_body_sent_date",
-    "is_case_completed",
-    "completed",
-    "is_archived",
 ]
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 28
@@ -642,7 +591,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     )
     return download_as_csv(
         queryset=Case.objects.filter(**filters),
-        field_names=CASE_FIELDS_TO_EXPORT,
+        field_names=get_field_names_for_export(Case),
         filename="cases.csv",
         include_contact=True,
     )
@@ -661,7 +610,7 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
     """
     return download_as_csv(
         queryset=Case.objects.filter(id=pk),
-        field_names=CASE_FIELDS_TO_EXPORT,
+        field_names=get_field_names_for_export(Case),
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )

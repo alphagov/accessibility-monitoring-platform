@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0013_auto_20210720_1319'),
+        ("cases", "0013_auto_20210720_1319"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='report_is_approved',
+            model_name="case",
+            name="report_is_approved",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='report_is_ready_to_review',
+            model_name="case",
+            name="report_is_ready_to_review",
             field=models.BooleanField(default=False),
         ),
     ]
