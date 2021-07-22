@@ -244,7 +244,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
-    is_website_retested = get_data(column_name=RETEST_DATE) != ""
+    retested_website = get_data(column_name=RETEST_DATE, column_type="date")
     is_disproportionate_claimed = (
         get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
     )
@@ -255,7 +255,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     else:
         compliance_decision = "unknown"
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
-    is_case_completed = sent_to_enforcement_body.lower() == "n/a - no need to send"
+    case_completed = "no-action" if sent_to_enforcement_body.lower() == "n/a - no need to send" else "no-decision"
 
     return Case.objects.create(
         id=case_number,
@@ -292,7 +292,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         ),
         report_followup_week_12_sent_date=None,
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
-        is_website_retested=is_website_retested,
+        retested_website=retested_website,
         is_disproportionate_claimed=is_disproportionate_claimed,
         disproportionate_notes=get_data(column_name=DISPROPORTIONATE_NOTES),
         accessibility_statement_decison=slugify(
@@ -308,7 +308,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         sent_to_enforcement_body_sent_date=get_data(
             column_name=SENT_TO_ENFORCEMENT_BODY_DATE, column_type="month"
         ),
-        is_case_completed=is_case_completed,
+        case_completed=case_completed,
         completed=None,
         is_archived=False,
     )
