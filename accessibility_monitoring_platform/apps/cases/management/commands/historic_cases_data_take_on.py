@@ -6,7 +6,7 @@ as an extract of data from the testing documents.
 import csv
 from datetime import date, datetime
 from functools import partial
-from os.path import expanduser
+from pathlib import Path
 import pytz
 import re
 from typing import Any, Callable, Dict, List, Union
@@ -19,11 +19,8 @@ from ...models import Case, Contact
 from ....common.models import Sector, Region
 from ....common.utils import extract_domain_from_url
 
-HOME_PATH = expanduser("~")
-CENTRAL_SPREADSHEET_FILE_NAME = (
-    f"{HOME_PATH}/simplified_test_central_sheet_2021-07-15.csv"
-)
-TEST_RESULTS_FILE_NAME = f"{HOME_PATH}/historic_cases_test_results.csv"
+CENTRAL_SPREADSHEET_FILE_NAME = Path.home() / "simplified_test_central_sheet.csv"
+TEST_RESULTS_FILE_NAME = Path.home() / "historic_cases_test_results.csv"
 
 # All columns in Simplified test central spreadsheet, with unused ones as comments:
 CASE_NUMBER = " Case No."
@@ -229,10 +226,10 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     home_page_url = get_data(column_name=HOME_PAGE_URL)
     if not home_page_url:
         home_page_url = homepage_urls.get(case_number, "")
-        if home_page_url:
-            print(
-                f"#{case_number}: Got home page url from test results '{home_page_url}'"
-            )
+        # if home_page_url:
+        #     print(
+        #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
+        #     )
     is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     case_origin = (
         "complaint"

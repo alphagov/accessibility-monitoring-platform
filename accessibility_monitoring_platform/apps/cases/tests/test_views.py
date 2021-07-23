@@ -485,7 +485,7 @@ def test_archive_contact(admin_client):
     assert contact_on_database.is_archived is True
 
 
-def test_preferred_contact_not_displayed(admin_client):
+def test_preferred_contact_not_displayed_on_form(admin_client):
     """
     Test that the preferred contact field is not displayed when there is only one contact
     """
@@ -499,7 +499,7 @@ def test_preferred_contact_not_displayed(admin_client):
     assertNotContains(response, "Preferred contact?")
 
 
-def test_preferred_contact_displayed(admin_client):
+def test_preferred_contact_displayed_on_form(admin_client):
     """
     Test that the preferred contact field is displayed when there is more than one contact
     """
@@ -716,3 +716,32 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
 
     if expected_number_of_duplicates > 1:
         assert duplicate_cases[1] == organisation_name_case
+
+
+def test_preferred_contact_not_displayed(admin_client):
+    """
+    Test that the preferred contact is not displayed when there is only one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertNotContains(response, "Preferred contact")
+
+
+def test_preferred_contact_displayed(admin_client):
+    """
+    Test that the preferred contact is displayed when there is more than one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, "Preferred contact")

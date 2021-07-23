@@ -256,7 +256,7 @@ class Case(models.Model):
 
     @property
     def summary(self):
-        return str(f"#{self.id} | {self.organisation_name} | {self.domain}")
+        return str(f"{self.organisation_name} | {self.domain} | #{self.id}")
 
     def set_status(self):
         if self.is_archived:

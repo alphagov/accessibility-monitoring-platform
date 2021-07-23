@@ -5,11 +5,13 @@
     font-size: x-large;
     color: #2F80ED;
 }
-.cases-sub-heading, .cases-notes {
-    margin: 0;
-}
 .cases-notes {
+    margin: 0;
     white-space: pre-line;
+}
+.cases-sub-heading {
+    margin-bottom: 0;
+    font-weight: bold;
 }
 .cases-margin-top {
     margin-top: 20px;
