@@ -19,18 +19,28 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("new-case", "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
-    ("awaiting-response", "Awaiting response to report"),
-    ("12w-review", "12 Week review"),
-    ("update-for-enforcement-bodies-due", "Update for enforcement bodies due"),
+    ("qa-in-progress", "QA in progress"),
+    ("report-ready-to-send", "Report ready to send"),
+    ("in-report-correspondence", "In report correspondence"),
+    ("in-probation-period", "In probation period"),
+    ("in-12-week-correspondence", "In 12 week correspondence"),
+    ("final-decision", "Final decision"),
     ("complete", "Complete"),
     ("archived", "Archived"),
 ]
 
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
-    ("unassigned_qa_case", "Unassigned QA case"),
-    ("in_qa", "In QA"),
-    ("qa_approved", "QA approved"),
+    ("unassigned-qa-case", "Unassigned QA case"),
+    ("in-qa", "In QA"),
+    ("qa-approved", "QA approved"),
+]
+
+EB_STATUS_CHOICES: List[Tuple[str, str]] = [
+    ("unknown", "Unknown"),
+    ("no-correspondence", "No correspondence"),
+    ("in-correspondence", "In correspondence"),
+    ("completed", "Completed"),
 ]
 
 DEFAULT_TEST_TYPE = "simple"
@@ -101,6 +111,9 @@ class Case(models.Model):
     )
     qa_status = models.CharField(
         max_length=200, choices=QA_STATUS_CHOICES, default="unknown"
+    )
+    equalities_body_status = models.CharField(
+        max_length=200, choices=EB_STATUS_CHOICES, default="unknown"
     )
     auditor = models.ForeignKey(
         User,
@@ -227,6 +240,7 @@ class Case(models.Model):
             self.completed = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
+        self.equalities_body_status = self.set_equalities_body_status()
         super().save(*args, **kwargs)
 
     @property
@@ -244,18 +258,27 @@ class Case(models.Model):
             return "new-case"
         elif self.test_status != "complete" and self.report_sent_date is None:
             return "test-in-progress"
-        elif self.test_status == "complete" and self.report_sent_date is None:
+        elif self.test_status == "complete" and self.report_review_status != "ready-to-review":
             return "report-in-progress"
-        elif (
-            self.report_acknowledged_date is None
-            and self.report_followup_week_12_due_date is None
-            and self.compliance_email_sent_date is None
-        ):
-            return "awaiting-response"
-        elif self.compliance_email_sent_date is None:
-            return "12w-review"
-        elif self.compliance_email_sent_date:
-            return "update-for-enforcement-bodies-due"
+        elif self.report_review_status == "ready-to-review" and self.report_approved_status == "no":
+            return "qa-in-progress"
+        elif self.report_approved_status == "yes" and self.report_sent_date is None:
+            return "report-ready-to-send"
+        elif self.report_sent_date and self.report_acknowledged_date is None:
+            return "in-report-correspondence"
+        elif self.report_acknowledged_date and self.twelve_week_update_requested_sent_date is None:
+            return "in-probation-period"
+        elif self.twelve_week_update_requested_sent_date and self.twelve_week_correspondance_acknowledged_date is None:
+            # TODO Add 'no response to 12 week update' as an option once field is in model
+            # i.e.
+            # elif self.twelve_week_update_requested_sent_date \
+            #   and self.twelve_week_correspondance_acknowledged_date is None\
+            #   and self.twelve_week_correspondance_no_response is None:
+            return "in-12-week-correspondence"
+        elif self.twelve_week_correspondance_acknowledged_date and self.is_case_completed is None:
+            # TODO Same as above but final-decision-due
+            return "final-decision-due"
+
         return "unknown"
 
     def set_qa_status(self):
@@ -264,18 +287,26 @@ class Case(models.Model):
             and self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
         ):
-            return "unassigned_qa_case"
+            return "unassigned-qa-case"
         elif (
             self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
         ):
-            return "in_qa"
+            return "in-qa"
         elif (
             self.report_review_status == "ready-to-review"
             and self.report_approved_status == "yes"
         ):
-            return "qa_approved"
+            return "qa-approved"
         return "unknown"
+
+    def set_equalities_body_status(self):
+        if (self.sent_to_enforcement_body_sent_date is None and self.no_psb_contact is None):
+            return "no-correspondence"
+        elif (self.sent_to_enforcement_body_sent_date or self.no_psb_contact is None):
+            return "in-correspondence"
+        return "completed"
+        # TODO: Need to add explicit finished state once field has been added to model and form.
 
     @property
     def new_case_progress(self):
@@ -352,6 +383,74 @@ class Case(models.Model):
             progress += percentage_increase
 
         return str(progress) + "%"
+
+    @property
+    def in_report_correspondence_progress(self):
+        now = date.today()
+        if (
+            self.report_followup_week_1_due_date > now
+            and self.report_followup_week_1_sent_date is None
+        ):
+            return "1 week followup coming up"
+        elif (
+            self.report_followup_week_1_due_date < now
+            and self.report_followup_week_1_sent_date is None
+        ):
+            return "1 week followup due"
+        elif (
+            self.report_followup_week_1_sent_date
+            and self.report_followup_week_4_due_date > now
+            and self.report_followup_week_4_sent_date is None
+        ):
+            return "4 week followup coming up"
+        elif (
+            self.report_followup_week_1_sent_date
+            and self.report_followup_week_4_due_date < now
+            and self.report_followup_week_4_sent_date is None
+        ):
+            return "4 week followup due"
+        elif (
+            self.report_followup_week_1_sent_date
+            and self.report_followup_week_4_sent_date
+        ):
+            return "4 week followup sent"
+        return "Unknown"
+
+    @property
+    def twelve_week_correspondence_progress(self):
+        now = date.today()
+        if (
+            self.twelve_week_update_requested_sent_date > now
+            and self.twelve_week_update_requested_sent_date is None
+        ):
+            return "1 week chaser coming up"
+        elif (
+            self.twelve_week_update_requested_sent_date < now
+            and self.twelve_week_update_requested_sent_date is None
+        ):
+            return "1 week chaser due"
+        # elif (
+        #     self.twelve_week_update_requested_sent_date
+        #     and self.twelve_week_4_week_chaser_due_date > now
+        #     and self.twelve_week_4_week_chaser_sent_date is None
+        # ):
+        #     return "4 week chaser coming up"
+        # elif (
+        #     self.twelve_week_update_requested_sent_date
+        #     and self.twelve_week_4_week_chaser_due_date < now
+        #     and self.twelve_week_4_week_chaser_sent_date is None
+        # ):
+        #     return "4 week chaser due"
+        # elif (
+        #     self.twelve_week_update_requested_sent_date
+        #     and self.twelve_week_4_week_chaser_sent_date
+        # ):
+        #     return "4 week chaser sent"
+        return "Unknown"
+
+    @property
+    def final_decision_progress(self):
+        return "TO DO PROGRESS"
 
     @property
     def twelve_week_progress(self):

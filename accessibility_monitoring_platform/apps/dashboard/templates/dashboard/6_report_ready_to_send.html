@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 
 {% if table_data.count == 0 %}
-   <p class="govuk-body"> There are currently no reports to QA </p>
+   <p class="govuk-body"> There are currently no cases in ready to send </p>
 {% else %}
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
-            <tr class="govuk-table__row govuk-!-width-one-quarter">
-                {% for item in table_header %}
-                    <th scope="col" class="govuk-table__header">{{item}}</th>
-                {% endfor %}
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
             {% for item in table_data %}
-                <tr class="govuk-table__row">
+                <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.created|date:"d/m/Y"}}</th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         <a href="{% url 'cases:case-detail' item.id %}"> {{item.domain|truncatechars:25}} </a>
@@ -21,13 +22,13 @@
                     <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name|truncatechars:25}}</td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         {% if macro_view %}
-                            {% if item.reviewer %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.reviewer.first_name}} {{item.reviewer.last_name}} </a>
+                            {% if item.auditor %}
+                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                             {% else %}
-                                No QA auditor
+                                No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-report-details' item.id %}"> Report details </a>
+                            <a href="{% url 'cases:edit-report-details' item.id %}"> Ready to send </a>
                         {% endif %}
                     </td>
                 </tr>
