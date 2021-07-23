@@ -21,7 +21,7 @@ from ....common.utils import extract_domain_from_url
 
 HOME_PATH = expanduser("~")
 CENTRAL_SPREADSHEET_FILE_NAME = (
-    f"{HOME_PATH}/simplified_test_central_sheet_2021-07-15.csv"
+    f"{HOME_PATH}/simplified_test_central_sheet.csv"
 )
 TEST_RESULTS_FILE_NAME = f"{HOME_PATH}/historic_cases_test_results.csv"
 
