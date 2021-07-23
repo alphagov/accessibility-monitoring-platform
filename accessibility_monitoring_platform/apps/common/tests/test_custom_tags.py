@@ -3,7 +3,7 @@ Tests of custom template tags.
 """
 import pytest
 
-from ..templatetags.custom_tags import nullable_boolean_label
+from ..templatetags.custom_tags import boolean_label
 
 
 @pytest.mark.parametrize(
@@ -14,6 +14,6 @@ from ..templatetags.custom_tags import nullable_boolean_label
         (None, "Not known"),
     ],
 )
-def test_nullable_boolean_label_template_filter(value, expected_label):
-    """Test nullable_boolean_label returns the correct label for each value"""
-    assert nullable_boolean_label(value) == expected_label
+def test_boolean_label_template_filter(value, expected_label):
+    """Test boolean_label returns the correct label for each value"""
+    assert boolean_label(value) == expected_label

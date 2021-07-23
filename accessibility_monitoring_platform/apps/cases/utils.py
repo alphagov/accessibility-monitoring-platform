@@ -5,12 +5,12 @@ Utility functions for cases app
 from datetime import date
 from typing import Union
 
-from .forms import CaseReportCorrespondanceUpdateForm
+from .forms import CaseReportCorrespondenceUpdateForm
 from .models import Case
 
 
 def get_sent_date(
-    form: CaseReportCorrespondanceUpdateForm, case_from_db: Case, sent_date_name: str
+    form: CaseReportCorrespondenceUpdateForm, case_from_db: Case, sent_date_name: str
 ) -> Union[date, None]:
     """
     Work out what value to save in a sent date field on the case.

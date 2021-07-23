@@ -34,7 +34,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-12-week-correspondance' item.id %}"> 
+                            <a href="{% url 'cases:edit-12-week-correspondence' item.id %}"> 
                                 {% if item.report_followup_week_12_due_date < today %}
                                     Overdue
                                 {% else %}

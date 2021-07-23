@@ -16,15 +16,15 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseDetailUpdateView,
     CaseTestResultsUpdateView,
     CaseReportDetailsUpdateView,
-    CaseReportCorrespondanceUpdateView,
+    CaseReportCorrespondenceUpdateView,
     CaseReportFollowupDueDatesUpdateView,
     CaseArchiveUpdateView,
     CaseNoPSBContactUpdateView,
     CaseNoPSBResponseUpdateView,
-    CaseTwelveWeekCorrespondanceUpdateView,
-    CaseTwelveWeekCorrespondanceDueDatesUpdateView,
+    CaseTwelveWeekCorrespondenceUpdateView,
+    CaseTwelveWeekCorrespondenceDueDatesUpdateView,
     CaseFinalDecisionUpdateView,
-    CaseEnforcementBodyCorrespondanceUpdateView,
+    CaseEnforcementBodyCorrespondenceUpdateView,
 )
 
 app_name: str = "cases"
@@ -66,9 +66,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-no-psb-contact",
     ),
     path(
-        "<int:pk>/edit-report-correspondance/",
-        login_required(CaseReportCorrespondanceUpdateView.as_view()),
-        name="edit-report-correspondance",
+        "<int:pk>/edit-report-correspondence/",
+        login_required(CaseReportCorrespondenceUpdateView.as_view()),
+        name="edit-report-correspondence",
     ),
     path(
         "<int:pk>/edit-report-followup-due-dates/",
@@ -76,14 +76,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-followup-due-dates",
     ),
     path(
-        "<int:pk>/edit-12-week-correspondance/",
-        login_required(CaseTwelveWeekCorrespondanceUpdateView.as_view()),
-        name="edit-12-week-correspondance",
+        "<int:pk>/edit-12-week-correspondence/",
+        login_required(CaseTwelveWeekCorrespondenceUpdateView.as_view()),
+        name="edit-12-week-correspondence",
     ),
     path(
-        "<int:pk>/edit-12-week-correspondance-due-dates/",
-        login_required(CaseTwelveWeekCorrespondanceDueDatesUpdateView.as_view()),
-        name="edit-12-week-correspondance-due-dates",
+        "<int:pk>/edit-12-week-correspondence-due-dates/",
+        login_required(CaseTwelveWeekCorrespondenceDueDatesUpdateView.as_view()),
+        name="edit-12-week-correspondence-due-dates",
     ),
     path(
         "<int:pk>/edit-no-psb-response/",
@@ -96,9 +96,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-final-decision",
     ),
     path(
-        "<int:pk>/edit-enforcement-body-correspondance/",
-        login_required(CaseEnforcementBodyCorrespondanceUpdateView.as_view()),
-        name="edit-enforcement-body-correspondance",
+        "<int:pk>/edit-enforcement-body-correspondence/",
+        login_required(CaseEnforcementBodyCorrespondenceUpdateView.as_view()),
+        name="edit-enforcement-body-correspondence",
     ),
     path(
         "<int:pk>/archive-case/",

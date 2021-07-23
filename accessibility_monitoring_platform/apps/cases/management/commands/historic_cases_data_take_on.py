@@ -6,7 +6,7 @@ as an extract of data from the testing documents.
 import csv
 from datetime import date, datetime
 from functools import partial
-from os.path import expanduser
+from pathlib import Path
 import pytz
 import re
 from typing import Any, Callable, Dict, List, Union
@@ -19,11 +19,8 @@ from ...models import Case, Contact
 from ....common.models import Sector, Region
 from ....common.utils import extract_domain_from_url
 
-HOME_PATH = expanduser("~")
-CENTRAL_SPREADSHEET_FILE_NAME = (
-    f"{HOME_PATH}/simplified_test_central_sheet_2021-07-15.csv"
-)
-TEST_RESULTS_FILE_NAME = f"{HOME_PATH}/historic_cases_test_results.csv"
+CENTRAL_SPREADSHEET_FILE_NAME = Path.home() / "simplified_test_central_sheet.csv"
+TEST_RESULTS_FILE_NAME = Path.home() / "historic_cases_test_results.csv"
 
 # All columns in Simplified test central spreadsheet, with unused ones as comments:
 CASE_NUMBER = " Case No."
@@ -229,10 +226,10 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     home_page_url = get_data(column_name=HOME_PAGE_URL)
     if not home_page_url:
         home_page_url = homepage_urls.get(case_number, "")
-        if home_page_url:
-            print(
-                f"#{case_number}: Got home page url from test results '{home_page_url}'"
-            )
+        # if home_page_url:
+        #     print(
+        #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
+        #     )
     is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     case_origin = (
         "complaint"
@@ -244,7 +241,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
-    is_website_retested = get_data(column_name=RETEST_DATE) != ""
+    retested_website = get_data(column_name=RETEST_DATE, column_type="date")
     is_disproportionate_claimed = (
         get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
     )
@@ -255,7 +252,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     else:
         compliance_decision = "unknown"
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
-    is_case_completed = sent_to_enforcement_body.lower() == "n/a - no need to send"
+    case_completed = "no-action" if sent_to_enforcement_body.lower() == "n/a - no need to send" else "no-decision"
 
     return Case.objects.create(
         id=case_number,
@@ -292,7 +289,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         ),
         report_followup_week_12_sent_date=None,
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
-        is_website_retested=is_website_retested,
+        retested_website=retested_website,
         is_disproportionate_claimed=is_disproportionate_claimed,
         disproportionate_notes=get_data(column_name=DISPROPORTIONATE_NOTES),
         accessibility_statement_decison=slugify(
@@ -308,7 +305,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         sent_to_enforcement_body_sent_date=get_data(
             column_name=SENT_TO_ENFORCEMENT_BODY_DATE, column_type="month"
         ),
-        is_case_completed=is_case_completed,
+        case_completed=case_completed,
         completed=None,
         is_archived=False,
     )

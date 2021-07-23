@@ -11,12 +11,22 @@ from typing import (
 )
 
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import QuerySet
+from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
+
+
+def get_field_names_for_export(model: models.Model) -> List[str]:
+    """
+    Returns a list of names of all the fields in a model.
+    Exclude those representing reverse relationships.
+    """
+    return [field.name for field in model._meta.get_fields() if not isinstance(field, ManyToOneRel)]
 
 
 def download_as_csv(

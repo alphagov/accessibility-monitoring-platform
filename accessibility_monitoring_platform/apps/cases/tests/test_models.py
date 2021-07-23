@@ -58,17 +58,17 @@ def test_case_summary_is_id_bar_organisation_name_bar_domain():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.summary == f"#{case.id} | {case.organisation_name} | {case.domain}"
+    assert case.summary == f"{case.organisation_name} | {case.domain} | #{case.id}"
 
 
 @pytest.mark.django_db
 def test_case_completed_timestamp_is_updated_on_completion():
-    """Test the Case completed field is updated when is_case_completed flag is set"""
+    """Test the Case completed date field is updated when case_completed is set"""
     case = Case.objects.create()
 
     assert case.completed is None
 
-    case.is_case_completed = True
+    case.case_completed = "no-action"
     case.save()
     updated_case = Case.objects.get(pk=case.id)
 
