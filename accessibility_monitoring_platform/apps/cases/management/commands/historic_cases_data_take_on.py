@@ -237,14 +237,12 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         else get_data(column_name=CASE_ORIGIN, default="list").lower()
     )
     compliance_decision_str = get_data(column_name=COMPLIANCE_DECISION)
-    is_website_compliant = compliance_decision_str == "No further action"
+    is_website_compliant = "yes" if compliance_decision_str == "No further action" else "unknown"
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
     retested_website = get_data(column_name=RETEST_DATE, column_type="date")
-    is_disproportionate_claimed = (
-        get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
-    )
+    is_disproportionate_claimed = "yes" if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes" else "unknown"
     if compliance_decision_str:
         compliance_decision = (
             "inaction" if is_website_compliant else slugify(compliance_decision_str)
@@ -252,7 +250,11 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     else:
         compliance_decision = "unknown"
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
-    case_completed = "no-action" if sent_to_enforcement_body.lower() == "n/a - no need to send" else "no-decision"
+    case_completed = (
+        "no-action"
+        if sent_to_enforcement_body.lower() == "n/a - no need to send"
+        else "no-decision"
+    )
 
     return Case.objects.create(
         id=case_number,
@@ -269,7 +271,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         zendesk_url="",
         trello_url="",
         notes="",
-        is_public_sector_body=True,
+        is_public_sector_body="yes",
         test_results_url=get_data(column_name=TEST_RESULTS_URL),
         test_status="not-started",
         is_website_compliant=is_website_compliant,

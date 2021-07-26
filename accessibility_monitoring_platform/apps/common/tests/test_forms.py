@@ -20,8 +20,6 @@ from ..forms import (
     AMPTextField,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPBooleanField,
-    AMPNullableBooleanField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -123,8 +121,6 @@ def test_amp_date_widget_html_uses_govuk_classes():
         (AMPTextField, forms.CharField),
         (AMPChoiceField, forms.ChoiceField),
         (AMPChoiceRadioField, forms.ChoiceField),
-        (AMPBooleanField, forms.ChoiceField),
-        (AMPNullableBooleanField, forms.ChoiceField),
         (AMPDateField, forms.DateField),
     ],
 )
@@ -141,8 +137,6 @@ def test_amp_field_class_subclasses_expected_class(field_class, expected_supercl
         AMPTextField,
         AMPChoiceField,
         AMPChoiceRadioField,
-        AMPBooleanField,
-        AMPNullableBooleanField,
         AMPDateField,
     ],
 )
@@ -160,8 +154,6 @@ def test_amp_field_is_not_required(field_class):
         (AMPTextField, forms.Textarea),
         (AMPChoiceField, forms.Select),
         (AMPChoiceRadioField, AMPRadioSelectWidget),
-        (AMPBooleanField, AMPRadioSelectWidget),
-        (AMPNullableBooleanField, AMPRadioSelectWidget),
         (AMPDateField, AMPDateWidget),
     ],
 )

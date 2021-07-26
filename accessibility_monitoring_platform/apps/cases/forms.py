@@ -7,7 +7,6 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ..common.forms import (
-    AMPCheckboxWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -16,8 +15,6 @@ from ..common.forms import (
     AMPModelChoiceField,
     AMPChoiceRadioField,
     AMPModelMultipleChoiceField,
-    AMPBooleanField,
-    AMPNullableBooleanField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -37,6 +34,10 @@ from .models import (
     ARCHIVE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
+    PREFERRED_CHOICES,
+    IS_WEBSITE_COMPLIANT_CHOICES,
+    BOOLEAN_CHOICES,
+    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
 )
 from ..common.models import Region, Sector
 
@@ -158,7 +159,9 @@ class CaseContactUpdateForm(forms.ModelForm):
     detail = AMPCharFieldWide(
         label="Detail", help_text="E.g. email address or telephone number"
     )
-    preferred = AMPBooleanField(label="Preferred contact?")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=PREFERRED_CHOICES
+    )
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -191,7 +194,9 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Test status",
         choices=TEST_STATUS_CHOICES,
     )
-    is_website_compliant = AMPNullableBooleanField(label="Is the website compliant?")
+    is_website_compliant = AMPChoiceRadioField(
+        label="Is the website compliant?", choices=IS_WEBSITE_COMPLIANT_CHOICES
+    )
     test_notes = AMPTextField(label="Compliance notes")
 
     class Meta:
@@ -210,9 +215,13 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     """
 
     report_draft_url = AMPURLField(label="Link to report draft")
-    report_is_ready_to_review = AMPBooleanField(label="Is report ready to be reviewed?")
+    report_is_ready_to_review = AMPChoiceRadioField(
+        label="Is report ready to be reviewed?", choices=IS_WEBSITE_COMPLIANT_CHOICES
+    )
     reviewer = AMPUserModelChoiceField(label="QA Auditor")
-    report_is_approved = AMPBooleanField(label="Is report approved")
+    report_is_approved = AMPChoiceRadioField(
+        label="Is report approved", choices=BOOLEAN_CHOICES
+    )
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_url = AMPURLField(label="Link to final report")
     report_sent_date = AMPDateField(label="Report sent on")
@@ -337,10 +346,9 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
     Form for archiving a case
     """
 
-    no_psb_contact = AMPBooleanField(
-        widget=AMPCheckboxWidget(
-            attrs={"label": "Move case onto equality bodies correspondence stage?"}
-        )
+    no_psb_contact = AMPChoiceRadioField(
+        label="Move case onto equality bodies correspondence stage?",
+        choices=BOOLEAN_CHOICES,
     )
 
     class Meta:
@@ -387,8 +395,9 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Retested website?",
         help_text="The retest form can be found in the test results",
     )
-    is_disproportionate_claimed = AMPNullableBooleanField(
+    is_disproportionate_claimed = AMPChoiceRadioField(
         label="Disproportionate burden claimed?",
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
     accessibility_statement_decison = AMPChoiceRadioField(

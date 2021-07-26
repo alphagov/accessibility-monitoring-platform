@@ -1,5 +1,3 @@
-{% load custom_tags %}
-
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="case-details" class="govuk-heading-l">Case details</h2>
@@ -86,7 +84,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Public sector body?</th>
-            <td class="govuk-table__cell">{{ case.is_public_sector_body|boolean_label }}</td>
+            <td class="govuk-table__cell">{{ case.get_is_public_sector_body_display }}</td>
         </tr>
     </tbody>
 </table>
