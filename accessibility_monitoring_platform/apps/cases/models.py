@@ -2,7 +2,7 @@
 Models - cases
 """
 from datetime import date
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -109,6 +109,39 @@ ESCALATION_STATE_CHOICES = [
     (DEFAULT_ESCALATION_STATE, "Not known"),
 ]
 
+IS_PUBLIC_SECTOR_BODY_DEFAULT = "yes"
+IS_PUBLIC_SECTOR_BODY_CHOICES: List[Tuple[bool, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+]
+
+IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
+IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[Union[bool, None], str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
+]
+
+BOOLEAN_DEFAULT = "no"
+BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+]
+
+IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
+IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[Union[bool, None], str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
+]
+
+PREFERRED_DEFAULT = "unknown"
+PREFERRED_CHOICES: List[Tuple[Union[bool, None], str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (PREFERRED_DEFAULT, "Not known"),
+]
+
 
 class Case(models.Model):
     """
@@ -148,12 +181,20 @@ class Case(models.Model):
     zendesk_url = models.CharField(max_length=200, default="", blank=True)
     trello_url = models.CharField(max_length=200, default="", blank=True)
     notes = models.TextField(default="", blank=True)
-    is_public_sector_body = models.BooleanField(default=True)
+    is_public_sector_body = models.CharField(
+        max_length=20,
+        choices=IS_PUBLIC_SECTOR_BODY_CHOICES,
+        default=IS_PUBLIC_SECTOR_BODY_DEFAULT,
+    )
     test_results_url = models.CharField(max_length=200, default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
     )
-    is_website_compliant = models.BooleanField(null=True, blank=True)
+    is_website_compliant = models.CharField(
+        max_length=20,
+        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+        default=IS_WEBSITE_COMPLIANT_DEFAULT,
+    )
     test_notes = models.TextField(default="", blank=True)
     report_draft_url = models.CharField(max_length=200, default="", blank=True)
     report_review_status = models.CharField(
@@ -166,8 +207,12 @@ class Case(models.Model):
         blank=True,
         null=True,
     )
-    report_is_ready_to_review = models.BooleanField(default=False)
-    report_is_approved = models.BooleanField(default=False)
+    report_is_ready_to_review = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_is_approved = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     report_approved_status = models.CharField(
         max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
     )
@@ -194,7 +239,11 @@ class Case(models.Model):
     correspondence_notes = models.TextField(default="", blank=True)
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website = models.DateField(null=True, blank=True)
-    is_disproportionate_claimed = models.BooleanField(null=True, blank=True)
+    is_disproportionate_claimed = models.CharField(
+        max_length=20,
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+        default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
+    )
     disproportionate_notes = models.TextField(default="", blank=True)
     accessibility_statement_decison = models.CharField(
         max_length=200,
@@ -223,10 +272,12 @@ class Case(models.Model):
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
     archive_reason = models.CharField(
-        max_length=200, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
+        max_length=20, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
     )
     archive_notes = models.TextField(default="", blank=True)
-    no_psb_contact = models.BooleanField(default=False)
+    no_psb_contact = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
 
     simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(
@@ -421,7 +472,9 @@ class Contact(models.Model):
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     detail = models.CharField(max_length=200, default="", blank=True)
-    preferred = models.BooleanField(null=True, blank=True)
+    preferred = models.CharField(
+        max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
+    )
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)

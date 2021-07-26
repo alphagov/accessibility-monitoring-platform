@@ -12,15 +12,6 @@ from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
-BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
-    (True, "Yes"),
-    (False, "No"),
-]
-NULLABLE_BOOLEAN_CHOICES: List[Tuple[Union[bool, None], str]] = [
-    (True, "Yes"),
-    (False, "No"),
-    (None, "Not known"),
-]
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -223,24 +214,6 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
-
-
-class AMPBooleanField(forms.ChoiceField):
-    """Radio input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPRadioSelectWidget())
-        kwargs.setdefault("choices", BOOLEAN_CHOICES)
-        super().__init__(*args, **kwargs)
-
-
-class AMPNullableBooleanField(AMPBooleanField):
-    """Radio input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("choices", NULLABLE_BOOLEAN_CHOICES)
-        super().__init__(*args, **kwargs)
 
 
 class AMPDateField(forms.DateField):

@@ -117,7 +117,9 @@ def get_data_from_row(
     field: models.Field,
 ) -> Union[str, bool, int, date, datetime, User, Sector]:
     if isinstance(field, models.CharField) or isinstance(field, models.TextField):
-        return get_string_from_row(row=row, column_name=field.name, default=field.default)
+        return get_string_from_row(
+            row=row, column_name=field.name, default=field.default
+        )
     if isinstance(field, models.BooleanField):
         return get_boolean_from_row(row=row, column_name=field.name)
     if isinstance(field, models.IntegerField or isinstance(field, models.AutoField)):
@@ -127,16 +129,18 @@ def get_data_from_row(
     if isinstance(field, models.DateField):
         return get_date_from_row(row=row, column_name=field.name)
     if isinstance(field, models.ForeignKey) and field.related_model == User:
-        return get_or_create_user_from_row(
-            row=row, users=users, column_name=field.name
-        )
+        return get_or_create_user_from_row(row=row, users=users, column_name=field.name)
     if isinstance(field, models.ForeignKey) and field.related_model == Sector:
         return get_or_create_sector_from_row(row=row, sectors=sectors)
 
 
 def create_case(get_data: Callable) -> Case:
     fields = Case._meta.get_fields()
-    kwargs = {field.name: get_data(field=field) for field in fields if not isinstance(field, ManyToOneRel)}
+    kwargs = {
+        field.name: get_data(field=field)
+        for field in fields
+        if not isinstance(field, ManyToOneRel)
+    }
     del kwargs["region"]
     return Case.objects.create(**kwargs)
 
@@ -217,9 +221,13 @@ class Command(BaseCommand):
                 if "contact_email" in row and row["contact_email"]:
                     contact: Contact = Contact(
                         case=case,
-                        detail=get_string_from_row(row=row, column_name="contact_email"),
+                        detail=get_string_from_row(
+                            row=row, column_name="contact_email"
+                        ),
                         notes=get_string_from_row(row=row, column_name="contact_notes"),
                         created=get_datetime_from_row(row=row, column_name="created"),
-                        created_by=get_or_create_user_from_row(row=row, users=users, column_name="auditor"),
+                        created_by=get_or_create_user_from_row(
+                            row=row, users=users, column_name="auditor"
+                        ),
                     )
                     contact.save()
