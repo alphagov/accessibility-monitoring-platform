@@ -3,7 +3,7 @@ Common widgets and form fields
 """
 from datetime import date, datetime
 import pytz
-from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Union
 
 from django.contrib.auth.models import User
 from django import forms
@@ -24,6 +24,14 @@ class AMPCheckboxWidget(forms.CheckboxInput):
     """Widget for GDS design system checkbox fields"""
 
     template_name = "common/amp_checkbox_widget_template.html"
+
+    def value_from_datadict(self, data, files, name):
+        """If checkbox is ticked, return 'yes' otherwise return 'no'"""
+        if name not in data:
+            # A missing value means False because HTML form submission does not
+            # send results for unselected checkboxes.
+            return "no"
+        return "yes"
 
 
 class AMPDateCheckboxWidget(AMPCheckboxWidget):
@@ -171,6 +179,14 @@ class AMPChoiceRadioField(AMPChoiceField):
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("widget", AMPRadioSelectWidget)
+        super().__init__(*args, **kwargs)
+
+
+class AMPChoiceCheckboxField(AMPChoiceField):
+    """Checkbox input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("widget", AMPCheckboxWidget)
         super().__init__(*args, **kwargs)
 
 

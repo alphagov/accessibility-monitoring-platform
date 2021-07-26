@@ -2,7 +2,7 @@
 Models - cases
 """
 from datetime import date
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -37,6 +37,7 @@ DEFAULT_TEST_TYPE = "simple"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
+    ("mobile", "Mobile"),
 ]
 
 DEFAULT_WEBSITE_TYPE = "public"
@@ -44,12 +45,6 @@ WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_WEBSITE_TYPE, "Public website"),
     ("int-extranet", "Intranet/Extranet"),
     ("n/a", "N/A"),
-]
-
-CASE_ORIGIN_CHOICES: List[Tuple[str, str]] = [
-    ("org", "Organisation"),
-    ("list", "Website list"),
-    ("complaint", "Complaint"),
 ]
 
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
@@ -116,7 +111,7 @@ IS_PUBLIC_SECTOR_BODY_CHOICES: List[Tuple[bool, str]] = [
 ]
 
 IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
-IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[Union[bool, None], str]] = [
+IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
@@ -129,17 +124,23 @@ BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
 ]
 
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
-IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[Union[bool, None], str]] = [
+IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
 ]
 
 PREFERRED_DEFAULT = "unknown"
-PREFERRED_CHOICES: List[Tuple[Union[bool, None], str]] = [
+PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (PREFERRED_DEFAULT, "Not known"),
+]
+
+ENFORCEMENT_BODY_DEFAULT = "ehrc"
+ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
+    ("ecni", "Equality Commission Northern Ireland"),
+    (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
 ]
 
 
@@ -171,12 +172,12 @@ class Case(models.Model):
     organisation_name = models.TextField(default="", blank=True)
     service_name = models.TextField(default="", blank=True)
     website_type = models.CharField(
-        max_length=100, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
+        max_length=20, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
     )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
     region = models.ManyToManyField(Region, blank=True)
-    case_origin = models.CharField(
-        max_length=200, choices=CASE_ORIGIN_CHOICES, default="org"
+    is_complaint = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     zendesk_url = models.CharField(max_length=200, default="", blank=True)
     trello_url = models.CharField(max_length=200, default="", blank=True)
@@ -259,6 +260,11 @@ class Case(models.Model):
     )
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_CHOICES,
+        default=ENFORCEMENT_BODY_DEFAULT,
+    )
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
@@ -362,7 +368,7 @@ class Case(models.Model):
             "organisation_name",
             "website_type",
             "region",
-            "case_origin",
+            "is_complaint",
         ]
         percentage_increase = round(100 / (len(to_check) + 2))
         progress = 0
