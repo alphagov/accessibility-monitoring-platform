@@ -237,12 +237,18 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         else get_data(column_name=CASE_ORIGIN, default="list").lower()
     )
     compliance_decision_str = get_data(column_name=COMPLIANCE_DECISION)
-    is_website_compliant = "yes" if compliance_decision_str == "No further action" else "unknown"
+    is_website_compliant = (
+        "yes" if compliance_decision_str == "No further action" else "unknown"
+    )
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
     retested_website = get_data(column_name=RETEST_DATE, column_type="date")
-    is_disproportionate_claimed = "yes" if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes" else "unknown"
+    is_disproportionate_claimed = (
+        "yes"
+        if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
+        else "unknown"
+    )
     if compliance_decision_str:
         compliance_decision = (
             "inaction" if is_website_compliant else slugify(compliance_decision_str)

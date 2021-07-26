@@ -11,95 +11,439 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('common', '0001_initial'),
+        ("common", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Case',
+            name="Case",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(blank=True)),
-                ('status', models.CharField(choices=[('', 'All'), ('unknown', 'Unknown'), ('unassigned-case', 'Unassigned case'), ('new-case', 'New case'), ('test-in-progress', 'Test in progress'), ('report-in-progress', 'Report in progress'), ('awaiting-response', 'Awaiting response to report'), ('12w-review', '12 Week review'), ('update-for-enforcement-bodies-due', 'Update for enforcement bodies due'), ('complete', 'Complete'), ('archived', 'Archived')], default='new-case', max_length=200)),
-                ('qa_status', models.CharField(choices=[('unknown', 'Unknown'), ('unassigned_qa_case', 'Unassigned QA case'), ('in_qa', 'In QA'), ('qa_approved', 'QA approved')], default='unknown', max_length=200)),
-                ('test_type', models.CharField(choices=[('simple', 'Simplified'), ('detailed', 'Detailed')], default='simple', max_length=10)),
-                ('home_page_url', models.TextField(blank=True, default='')),
-                ('domain', models.TextField(blank=True, default='')),
-                ('application', models.CharField(default='N/A', max_length=200)),
-                ('organisation_name', models.TextField(blank=True, default='')),
-                ('service_name', models.TextField(blank=True, default='')),
-                ('website_type', models.CharField(choices=[('public', 'Public website'), ('int-extranet', 'Intranet/Extranet'), ('n/a', 'N/A')], default='public', max_length=100)),
-                ('case_origin', models.CharField(choices=[('org', 'Organisation'), ('list', 'Website list'), ('complaint', 'Complaint')], default='org', max_length=200)),
-                ('zendesk_url', models.CharField(blank=True, default='', max_length=200)),
-                ('trello_url', models.CharField(blank=True, default='', max_length=200)),
-                ('notes', models.TextField(blank=True, default='')),
-                ('is_public_sector_body', models.CharField(choices=[('yes', 'Yes'), ('no', 'No')], default='yes', max_length=20)),
-                ('test_results_url', models.CharField(blank=True, default='', max_length=200)),
-                ('test_status', models.CharField(choices=[('complete', 'Complete'), ('in-progress', 'In progress'), ('not-started', 'Not started')], default='not-started', max_length=200)),
-                ('is_website_compliant', models.CharField(choices=[('yes', 'Yes'), ('no', 'No'), ('unknown', 'Not known')], default='unknown', max_length=20)),
-                ('test_notes', models.TextField(blank=True, default='')),
-                ('report_draft_url', models.CharField(blank=True, default='', max_length=200)),
-                ('report_review_status', models.CharField(choices=[('ready-to-review', 'Yes'), ('in-progress', 'In progress'), ('not-started', 'Not started')], default='not-started', max_length=200)),
-                ('report_is_ready_to_review', models.CharField(choices=[('yes', 'Yes'), ('no', 'No')], default='no', max_length=20)),
-                ('report_is_approved', models.CharField(choices=[('yes', 'Yes'), ('no', 'No')], default='no', max_length=20)),
-                ('report_approved_status', models.CharField(choices=[('yes', 'Yes'), ('no', 'Further work is needed')], default='no', max_length=200)),
-                ('reviewer_notes', models.TextField(blank=True, default='')),
-                ('report_final_url', models.CharField(blank=True, default='', max_length=200)),
-                ('report_sent_date', models.DateField(blank=True, null=True)),
-                ('report_acknowledged_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_1_due_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_1_sent_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_4_due_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_4_sent_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_12_due_date', models.DateField(blank=True, null=True)),
-                ('report_followup_week_12_sent_date', models.DateField(blank=True, null=True)),
-                ('twelve_week_1_week_chaser_due_date', models.DateField(blank=True, null=True)),
-                ('twelve_week_1_week_chaser_sent_date', models.DateField(blank=True, null=True)),
-                ('twelve_week_4_week_chaser_due_date', models.DateField(blank=True, null=True)),
-                ('twelve_week_4_week_chaser_sent_date', models.DateField(blank=True, null=True)),
-                ('twelve_week_correspondence_acknowledged_date', models.DateField(blank=True, null=True)),
-                ('correspondence_notes', models.TextField(blank=True, default='')),
-                ('psb_progress_notes', models.TextField(blank=True, default='')),
-                ('retested_website', models.DateField(blank=True, null=True)),
-                ('is_disproportionate_claimed', models.CharField(choices=[('yes', 'Yes'), ('no', 'No'), ('unknown', 'Not known')], default='unknown', max_length=20)),
-                ('disproportionate_notes', models.TextField(blank=True, default='')),
-                ('accessibility_statement_decison', models.CharField(choices=[('compliant', 'Compliant'), ('partially', 'Partially compliant'), ('not-compliant', 'Not compliant'), ('other', 'Other')], default='not-compliant', max_length=200)),
-                ('accessibility_statement_url', models.CharField(blank=True, default='', max_length=200)),
-                ('accessibility_statement_notes', models.TextField(blank=True, default='')),
-                ('compliance_decision', models.CharField(choices=[('inaction', 'No further action'), ('other', 'Other'), ('unknown', 'Unknown')], default='unknown', max_length=200)),
-                ('compliance_decision_notes', models.TextField(blank=True, default='')),
-                ('compliance_email_sent_date', models.DateField(blank=True, null=True)),
-                ('sent_to_enforcement_body_sent_date', models.DateField(blank=True, null=True)),
-                ('enforcement_body_correspondence_notes', models.TextField(blank=True, default='')),
-                ('escalation_state', models.CharField(choices=[('no-action', 'No further action is required and correspondence has closed regarding this issue'), ('ongoing', 'Correspondence ongoing'), ('unknown', 'Not known')], default='unknown', max_length=20)),
-                ('case_completed', models.CharField(choices=[('no-action', 'No further action is required and the case can be marked as complete'), ('escalated', 'The audit needs to be sent to the relevant equalities body'), ('no-decision', 'Decision not reached')], default='no-decision', max_length=20)),
-                ('completed', models.DateTimeField(blank=True, null=True)),
-                ('is_archived', models.BooleanField(default=False)),
-                ('archive_reason', models.CharField(choices=[('not-psb', 'Organisation is not a public sector body'), ('mistake', 'Case was opened by mistake'), ('duplicate', 'This case was a duplicate case'), ('other', 'Other')], default='unknown', max_length=20)),
-                ('archive_notes', models.TextField(blank=True, default='')),
-                ('no_psb_contact', models.CharField(choices=[('yes', 'Yes'), ('no', 'No')], default='no', max_length=20)),
-                ('simplified_test_filename', models.CharField(blank=True, default='', max_length=200)),
-                ('auditor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='case_auditor_user', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='case_created_by_user', to=settings.AUTH_USER_MODEL)),
-                ('region', models.ManyToManyField(blank=True, to='common.Region')),
-                ('reviewer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='case_reviewer_user', to=settings.AUTH_USER_MODEL)),
-                ('sector', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='common.sector')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(blank=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("", "All"),
+                            ("unknown", "Unknown"),
+                            ("unassigned-case", "Unassigned case"),
+                            ("new-case", "New case"),
+                            ("test-in-progress", "Test in progress"),
+                            ("report-in-progress", "Report in progress"),
+                            ("awaiting-response", "Awaiting response to report"),
+                            ("12w-review", "12 Week review"),
+                            (
+                                "update-for-enforcement-bodies-due",
+                                "Update for enforcement bodies due",
+                            ),
+                            ("complete", "Complete"),
+                            ("archived", "Archived"),
+                        ],
+                        default="new-case",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "qa_status",
+                    models.CharField(
+                        choices=[
+                            ("unknown", "Unknown"),
+                            ("unassigned_qa_case", "Unassigned QA case"),
+                            ("in_qa", "In QA"),
+                            ("qa_approved", "QA approved"),
+                        ],
+                        default="unknown",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "test_type",
+                    models.CharField(
+                        choices=[("simple", "Simplified"), ("detailed", "Detailed")],
+                        default="simple",
+                        max_length=10,
+                    ),
+                ),
+                ("home_page_url", models.TextField(blank=True, default="")),
+                ("domain", models.TextField(blank=True, default="")),
+                ("application", models.CharField(default="N/A", max_length=200)),
+                ("organisation_name", models.TextField(blank=True, default="")),
+                ("service_name", models.TextField(blank=True, default="")),
+                (
+                    "website_type",
+                    models.CharField(
+                        choices=[
+                            ("public", "Public website"),
+                            ("int-extranet", "Intranet/Extranet"),
+                            ("n/a", "N/A"),
+                        ],
+                        default="public",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "case_origin",
+                    models.CharField(
+                        choices=[
+                            ("org", "Organisation"),
+                            ("list", "Website list"),
+                            ("complaint", "Complaint"),
+                        ],
+                        default="org",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "zendesk_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                (
+                    "trello_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                ("notes", models.TextField(blank=True, default="")),
+                (
+                    "is_public_sector_body",
+                    models.CharField(
+                        choices=[("yes", "Yes"), ("no", "No")],
+                        default="yes",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "test_results_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                (
+                    "test_status",
+                    models.CharField(
+                        choices=[
+                            ("complete", "Complete"),
+                            ("in-progress", "In progress"),
+                            ("not-started", "Not started"),
+                        ],
+                        default="not-started",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "is_website_compliant",
+                    models.CharField(
+                        choices=[
+                            ("yes", "Yes"),
+                            ("no", "No"),
+                            ("unknown", "Not known"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                ("test_notes", models.TextField(blank=True, default="")),
+                (
+                    "report_draft_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                (
+                    "report_review_status",
+                    models.CharField(
+                        choices=[
+                            ("ready-to-review", "Yes"),
+                            ("in-progress", "In progress"),
+                            ("not-started", "Not started"),
+                        ],
+                        default="not-started",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "report_is_ready_to_review",
+                    models.CharField(
+                        choices=[("yes", "Yes"), ("no", "No")],
+                        default="no",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "report_is_approved",
+                    models.CharField(
+                        choices=[("yes", "Yes"), ("no", "No")],
+                        default="no",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "report_approved_status",
+                    models.CharField(
+                        choices=[("yes", "Yes"), ("no", "Further work is needed")],
+                        default="no",
+                        max_length=200,
+                    ),
+                ),
+                ("reviewer_notes", models.TextField(blank=True, default="")),
+                (
+                    "report_final_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                ("report_sent_date", models.DateField(blank=True, null=True)),
+                ("report_acknowledged_date", models.DateField(blank=True, null=True)),
+                (
+                    "report_followup_week_1_due_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "report_followup_week_1_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "report_followup_week_4_due_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "report_followup_week_4_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "report_followup_week_12_due_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "report_followup_week_12_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "twelve_week_1_week_chaser_due_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "twelve_week_1_week_chaser_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "twelve_week_4_week_chaser_due_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "twelve_week_4_week_chaser_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "twelve_week_correspondence_acknowledged_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                ("correspondence_notes", models.TextField(blank=True, default="")),
+                ("psb_progress_notes", models.TextField(blank=True, default="")),
+                ("retested_website", models.DateField(blank=True, null=True)),
+                (
+                    "is_disproportionate_claimed",
+                    models.CharField(
+                        choices=[
+                            ("yes", "Yes"),
+                            ("no", "No"),
+                            ("unknown", "Not known"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                ("disproportionate_notes", models.TextField(blank=True, default="")),
+                (
+                    "accessibility_statement_decison",
+                    models.CharField(
+                        choices=[
+                            ("compliant", "Compliant"),
+                            ("partially", "Partially compliant"),
+                            ("not-compliant", "Not compliant"),
+                            ("other", "Other"),
+                        ],
+                        default="not-compliant",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "accessibility_statement_url",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                (
+                    "accessibility_statement_notes",
+                    models.TextField(blank=True, default=""),
+                ),
+                (
+                    "compliance_decision",
+                    models.CharField(
+                        choices=[
+                            ("inaction", "No further action"),
+                            ("other", "Other"),
+                            ("unknown", "Unknown"),
+                        ],
+                        default="unknown",
+                        max_length=200,
+                    ),
+                ),
+                ("compliance_decision_notes", models.TextField(blank=True, default="")),
+                ("compliance_email_sent_date", models.DateField(blank=True, null=True)),
+                (
+                    "sent_to_enforcement_body_sent_date",
+                    models.DateField(blank=True, null=True),
+                ),
+                (
+                    "enforcement_body_correspondence_notes",
+                    models.TextField(blank=True, default=""),
+                ),
+                (
+                    "escalation_state",
+                    models.CharField(
+                        choices=[
+                            (
+                                "no-action",
+                                "No further action is required and correspondence has closed regarding this issue",
+                            ),
+                            ("ongoing", "Correspondence ongoing"),
+                            ("unknown", "Not known"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "case_completed",
+                    models.CharField(
+                        choices=[
+                            (
+                                "no-action",
+                                "No further action is required and the case can be marked as complete",
+                            ),
+                            (
+                                "escalated",
+                                "The audit needs to be sent to the relevant equalities body",
+                            ),
+                            ("no-decision", "Decision not reached"),
+                        ],
+                        default="no-decision",
+                        max_length=20,
+                    ),
+                ),
+                ("completed", models.DateTimeField(blank=True, null=True)),
+                ("is_archived", models.BooleanField(default=False)),
+                (
+                    "archive_reason",
+                    models.CharField(
+                        choices=[
+                            ("not-psb", "Organisation is not a public sector body"),
+                            ("mistake", "Case was opened by mistake"),
+                            ("duplicate", "This case was a duplicate case"),
+                            ("other", "Other"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                ("archive_notes", models.TextField(blank=True, default="")),
+                (
+                    "no_psb_contact",
+                    models.CharField(
+                        choices=[("yes", "Yes"), ("no", "No")],
+                        default="no",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "simplified_test_filename",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                (
+                    "auditor",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="case_auditor_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="case_created_by_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                ("region", models.ManyToManyField(blank=True, to="common.Region")),
+                (
+                    "reviewer",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="case_reviewer_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "sector",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="common.sector",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(blank=True, default='', max_length=200)),
-                ('last_name', models.CharField(blank=True, default='', max_length=200)),
-                ('job_title', models.CharField(blank=True, default='', max_length=200)),
-                ('detail', models.CharField(blank=True, default='', max_length=200)),
-                ('preferred', models.CharField(choices=[('yes', 'Yes'), ('no', 'No'), ('unknown', 'Not known')], default='unknown', max_length=20)),
-                ('notes', models.TextField(blank=True, default='')),
-                ('created', models.DateTimeField()),
-                ('created_by', models.CharField(blank=True, default='', max_length=200)),
-                ('is_archived', models.BooleanField(default=False)),
-                ('case', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cases.case')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                ("last_name", models.CharField(blank=True, default="", max_length=200)),
+                ("job_title", models.CharField(blank=True, default="", max_length=200)),
+                ("detail", models.CharField(blank=True, default="", max_length=200)),
+                (
+                    "preferred",
+                    models.CharField(
+                        choices=[
+                            ("yes", "Yes"),
+                            ("no", "No"),
+                            ("unknown", "Not known"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                ("notes", models.TextField(blank=True, default="")),
+                ("created", models.DateTimeField()),
+                (
+                    "created_by",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                ("is_archived", models.BooleanField(default=False)),
+                (
+                    "case",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cases.case"
+                    ),
+                ),
             ],
         ),
     ]
