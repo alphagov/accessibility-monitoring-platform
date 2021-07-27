@@ -119,8 +119,8 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
 
 BOOLEAN_DEFAULT = "no"
 BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
-    ("yes", "Yes"),
     ("no", "No"),
+    ("yes", "Yes"),
 ]
 
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
