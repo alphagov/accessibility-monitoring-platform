@@ -295,7 +295,7 @@ class Case(models.Model):
     )
 
     def __str__(self):
-        return str(f"#{self.id} | {self.organisation_name}")
+        return str(f"{self.organisation_name} | #{self.id}")
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})

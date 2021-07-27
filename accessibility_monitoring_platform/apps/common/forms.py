@@ -40,8 +40,6 @@ class AMPDateCheckboxWidget(AMPCheckboxWidget):
     def value_from_datadict(self, data, files, name):
         """If checkbox is ticked, return today's date"""
         if name not in data:
-            # A missing value means False because HTML form submission does not
-            # send results for unselected checkboxes.
             return None
         return date.today()
 

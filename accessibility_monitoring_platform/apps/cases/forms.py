@@ -126,6 +126,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
+    auditor = AMPUserModelChoiceField(label="Auditor")
     domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, App or Service name")
     website_type = AMPChoiceRadioField(

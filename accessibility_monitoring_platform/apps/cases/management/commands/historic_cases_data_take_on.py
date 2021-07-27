@@ -182,12 +182,14 @@ def get_or_create_sector_from_row(
     row: Dict[str, str], sectors: Dict[str, Sector], column_name: str
 ) -> Union[Sector, None]:
     sector_name: Union[str] = row.get(column_name, "").strip()
-    if sector_name and sector_name.lower() not in sectors:
-        sector: Sector = Sector.objects.create(name=sector_name)
-        sectors[sector_name] = sector
-        return sector
-    else:
-        return sectors.get(sector_name.lower())
+    if sector_name:
+        sector_name_lower = sector_name.lower()
+        if sector_name_lower in sectors:
+            return sectors.get(sector_name_lower)
+        else:
+            sector: Sector = Sector.objects.create(name=sector_name)
+            sectors[sector_name_lower] = sector
+            return sector
     return None
 
 

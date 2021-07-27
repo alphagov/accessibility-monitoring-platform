@@ -59,6 +59,7 @@
                             <p class="govuk-!-font-weight-regular">{{ new_case.get_is_complaint_display }}</p>
                         </div>
                     {% endif %}
+
                     <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
                         {% for field in form.visible_fields %}
                             <div class="govuk-grid-column-full govuk-form-group">
@@ -89,7 +90,7 @@
                                         <td class="govuk-table__cell">
                                             <a href="{% url 'cases:case-detail' case.id %}"
                                                 class="govuk-link govuk-link--no-visited-state">
-                                                #{{ case.id }} | {{ case.organisation_name }}
+                                               {{ case }}
                                             </a>
                                         </td>
                                         <td class="govuk-table__cell">{{ case.domain }}</td>

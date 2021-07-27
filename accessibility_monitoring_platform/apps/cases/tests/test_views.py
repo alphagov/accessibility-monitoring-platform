@@ -311,8 +311,8 @@ def test_create_case_shows_duplicate_cases(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, f"#{domain_case.id} | ")
-    assertContains(response, f"#{organisation_name_case.id} | ")
+    assertContains(response, f" | #{domain_case.id}")
+    assertContains(response, f" | #{organisation_name_case.id}")
 
 
 @pytest.mark.parametrize(
