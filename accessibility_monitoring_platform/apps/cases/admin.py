@@ -23,10 +23,10 @@ class ContactAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
         "job_title",
-        "detail",
+        "email",
         "case__organisation_name",
     ]
-    list_display = ["detail", "first_name", "last_name", "job_title", "case"]
+    list_display = ["email", "first_name", "last_name", "job_title", "case"]
     autocomplete_fields = ["case"]
 
 

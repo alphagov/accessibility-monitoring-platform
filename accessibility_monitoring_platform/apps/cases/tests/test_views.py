@@ -23,7 +23,7 @@ from ..views import (
 )
 from ...common.utils import format_date, get_field_names_for_export
 
-CONTACT_DETAIL = "test@email.com"
+CONTACT_EMAIL = "test@email.com"
 DOMAIN = "domain.com"
 HOME_PAGE_URL = f"https://{DOMAIN}"
 ORGANISATION_NAME = "Organisation name"
@@ -461,7 +461,7 @@ def test_add_contact(admin_client):
             "form-0-first_name": "",
             "form-0-last_name": "",
             "form-0-job_title": "",
-            "form-0-detail": CONTACT_DETAIL,
+            "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
             "save_continue": "Save and continue",
         },
@@ -471,7 +471,7 @@ def test_add_contact(admin_client):
 
     contacts: QuerySet[Contact] = Contact.objects.filter(case=case)
     assert contacts.count() == 1
-    assert list(contacts)[0].detail == CONTACT_DETAIL
+    assert list(contacts)[0].email == CONTACT_EMAIL
 
 
 def test_archive_contact(admin_client):
@@ -768,7 +768,9 @@ def test_preferred_contact_displayed(admin_client):
         ("is_enforcement_correspondence_complete", "Equality bodies correspondence"),
     ],
 )
-def test_section_complete_check_displayed_in_contents(flag_name, section_name, admin_client):
+def test_section_complete_check_displayed_in_contents(
+    flag_name, section_name, admin_client
+):
     """
     Test that the section complete tick is displayed in contents
     """
@@ -793,16 +795,38 @@ def test_section_complete_check_displayed_in_contents(flag_name, section_name, a
     "step_url, flag_name, step_name",
     [
         ("cases:edit-case-details", "is_case_details_complete", "Case details"),
-        ("cases:edit-contact-details", "is_contact_details_complete", "Contact details"),
+        (
+            "cases:edit-contact-details",
+            "is_contact_details_complete",
+            "Contact details",
+        ),
         ("cases:edit-test-results", "is_testing_details_complete", "Testing details"),
-        ("cases:edit-report-details", "is_reporting_details_complete", "Report details"),
-        ("cases:edit-report-correspondence", "is_report_correspondence_complete", "Report correspondence"),
-        ("cases:edit-12-week-correspondence", "is_12_week_correspondence_complete", "12 week correspondence"),
+        (
+            "cases:edit-report-details",
+            "is_reporting_details_complete",
+            "Report details",
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "is_report_correspondence_complete",
+            "Report correspondence",
+        ),
+        (
+            "cases:edit-12-week-correspondence",
+            "is_12_week_correspondence_complete",
+            "12 week correspondence",
+        ),
         ("cases:edit-final-decision", "is_final_decision_complete", "Final decision"),
-        ("cases:edit-enforcement-body-correspondence", "is_enforcement_correspondence_complete", "Equality body correspondence"),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "is_enforcement_correspondence_complete",
+            "Equality body correspondence",
+        ),
     ],
 )
-def test_section_complete_check_displayed_in_steps(step_url, flag_name, step_name, admin_client):
+def test_section_complete_check_displayed_in_steps(
+    step_url, flag_name, step_name, admin_client
+):
     """
     Test that the section complete tick is displayed in list of steps
     """

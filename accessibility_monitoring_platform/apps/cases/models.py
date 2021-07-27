@@ -13,10 +13,11 @@ from django.utils import timezone
 from ..common.utils import extract_domain_from_url
 from ..common.models import Region, Sector
 
+STATUS_DEFAULT = "new-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
     ("unassigned-case", "Unassigned case"),
-    ("new-case", "New case"),
+    (STATUS_DEFAULT, "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
     ("awaiting-response", "Awaiting response to report"),
@@ -26,8 +27,9 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("archived", "Archived"),
 ]
 
+QA_STATUS_DEFAULT = "unknown"
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("unknown", "Unknown"),
+    (QA_STATUS_DEFAULT, "Unknown"),
     ("unassigned_qa_case", "Unassigned QA case"),
     ("in_qa", "In QA"),
     ("qa_approved", "QA approved"),
@@ -47,38 +49,45 @@ WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("n/a", "N/A"),
 ]
 
+TEST_STATUS_DEFAULT = "not-started"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("complete", "Complete"),
     ("in-progress", "In progress"),
-    ("not-started", "Not started"),
+    (TEST_STATUS_DEFAULT, "Not started"),
 ]
 
+REPORT_REVIEW_STATUS_DEFAULT = "not-started"
 REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("ready-to-review", "Yes"),
     ("in-progress", "In progress"),
-    ("not-started", "Not started"),
+    (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
 ]
 
+REPORT_APPROVED_STATUS_DEFAULT = "no"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
-    ("no", "Further work is needed"),
+    (REPORT_APPROVED_STATUS_DEFAULT, "Further work is needed"),
 ]
 
+ACCESSIBILITY_STATEMENT_DECISION_DEFAULT = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("partially", "Partially compliant"),
     ("not-compliant", "Not compliant"),
-    ("other", "Other"),
+    ("missing", "Statement missing"),
+    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
 ]
 
+COMPLIANCE_DECISION_DEFAULT = "unknown"
 COMPLIANCE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("inaction", "No further action"),
     ("other", "Other"),
-    ("unknown", "Unknown"),
+    (COMPLIANCE_DECISION_DEFAULT, "Unknown"),
 ]
 
+ARCHIVE_DECISION_DEFAULT = "not-psb"
 ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("not-psb", "Organisation is not a public sector body"),
+    (ARCHIVE_DECISION_DEFAULT, "Organisation is not a public sector body"),
     ("mistake", "Case was opened by mistake"),
     ("duplicate", "This case was a duplicate case"),
     ("other", "Other"),
@@ -112,8 +121,9 @@ IS_PUBLIC_SECTOR_BODY_CHOICES: List[Tuple[bool, str]] = [
 
 IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
+    ("yes", "Compliant"),
+    ("partially", "Partially compliant"),
+    ("no", "Not compliant"),
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
 ]
 
@@ -151,10 +161,10 @@ class Case(models.Model):
 
     created = models.DateTimeField(blank=True)
     status = models.CharField(
-        max_length=200, choices=STATUS_CHOICES, default="new-case"
+        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
     )
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default="unknown"
+        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
     )
     auditor = models.ForeignKey(
         User,
@@ -189,7 +199,7 @@ class Case(models.Model):
     )
     test_results_url = models.CharField(max_length=200, default="", blank=True)
     test_status = models.CharField(
-        max_length=200, choices=TEST_STATUS_CHOICES, default="not-started"
+        max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
     )
     is_website_compliant = models.CharField(
         max_length=20,
@@ -199,7 +209,9 @@ class Case(models.Model):
     test_notes = models.TextField(default="", blank=True)
     report_draft_url = models.CharField(max_length=200, default="", blank=True)
     report_review_status = models.CharField(
-        max_length=200, choices=REPORT_REVIEW_STATUS_CHOICES, default="not-started"
+        max_length=200,
+        choices=REPORT_REVIEW_STATUS_CHOICES,
+        default=REPORT_REVIEW_STATUS_DEFAULT,
     )
     reviewer = models.ForeignKey(
         User,
@@ -215,7 +227,9 @@ class Case(models.Model):
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     report_approved_status = models.CharField(
-        max_length=200, choices=REPORT_APPROVED_STATUS_CHOICES, default="no"
+        max_length=200,
+        choices=REPORT_APPROVED_STATUS_CHOICES,
+        default=REPORT_APPROVED_STATUS_DEFAULT,
     )
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_url = models.CharField(max_length=200, default="", blank=True)
@@ -249,14 +263,16 @@ class Case(models.Model):
     accessibility_statement_decison = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default="not-compliant",
+        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
     accessibility_statement_url = models.CharField(
         max_length=200, default="", blank=True
     )
     accessibility_statement_notes = models.TextField(default="", blank=True)
     compliance_decision = models.CharField(
-        max_length=200, choices=COMPLIANCE_DECISION_CHOICES, default="unknown"
+        max_length=200,
+        choices=COMPLIANCE_DECISION_CHOICES,
+        default=COMPLIANCE_DECISION_DEFAULT,
     )
     compliance_decision_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
@@ -278,7 +294,9 @@ class Case(models.Model):
     completed = models.DateTimeField(null=True, blank=True)
     is_archived = models.BooleanField(default=False)
     archive_reason = models.CharField(
-        max_length=20, choices=ARCHIVE_DECISION_CHOICES, default="unknown"
+        max_length=20,
+        choices=ARCHIVE_DECISION_CHOICES,
+        default=ARCHIVE_DECISION_DEFAULT,
     )
     archive_notes = models.TextField(default="", blank=True)
     no_psb_contact = models.CharField(
@@ -486,7 +504,7 @@ class Contact(models.Model):
     first_name = models.CharField(max_length=200, default="", blank=True)
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
-    detail = models.CharField(max_length=200, default="", blank=True)
+    email = models.CharField(max_length=200, default="", blank=True)
     preferred = models.CharField(
         max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
     )
