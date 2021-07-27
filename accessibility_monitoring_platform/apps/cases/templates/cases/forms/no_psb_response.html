@@ -8,40 +8,22 @@
     <main class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with header_suffix="No response from public sector body?" %}
+                {% include "cases/helpers/edit_header.html" with header_suffix="Unable to send report or no response from public sector body?" %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-body">
-                    <p class="govuk-body-l">
-                        If the public sector body does not respond to the initial report,
-                        the case must be forwarded to the relevant equalities bodies.
-                    </p>
-                    <p class="govuk-body-l">
-                        Do you want to mark the public sector body as unresponsive and
-                        move the audit to the equality bodies correspondence stage?
+                    <p class="govuk-body-m">
+                        The case must be forwarded to the relevant equalities body if you cannot find
+                        contact details for the public sector body or the public sector body does not respond
+                        to the initial report.
                     </p>
                 </div>
-                <form method="post" action="{% url 'cases:edit-no-psb-contact' case.id %}">
+                <form method="post" action="{% url 'cases:edit-no-psb-response' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-error-message">{{ form.non_field_errors }}</div>
-
-                        {% for hidden_field in form.hidden_fields %}
-                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                            {{ hidden_field }}
-                        {% endfor %}
-
-                        <div class="govuk-grid-column-full">
-                            {% for field in form.visible_fields %}
-                                <div class="govuk-form-group">
-                                    <div id="event-name-hint" class="govuk-hint">{{ field.help_text }}</div>
-                                    {{ field }}
-                                </div>
-                            {% endfor %}
-                        </div>
-
+                        {% include 'common/amp_form_snippet.html' %}
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

@@ -407,28 +407,6 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseNoPSBContactUpdateView(UpdateView):
-    """
-    View to set no psb contact flag
-    """
-
-    model: Case = Case
-    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
-    context_object_name: str = "case"
-    template_name: str = "cases/forms/no_psb_contact.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
-        else:
-            url = reverse_lazy(
-                "cases:edit-enforcement-body-correspondence",
-                kwargs={"pk": self.object.id},
-            )
-        return url
-
-
 class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     """
     View to record week twelve correspondence details
@@ -497,12 +475,26 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
+class CaseNoPSBResponseUpdateView(UpdateView):
     """
     View to set no psb contact flag
     """
 
+    model: Case = Case
+    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    context_object_name: str = "case"
     template_name: str = "cases/forms/no_psb_response.html"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-enforcement-body-correspondence",
+                kwargs={"pk": self.object.id},
+            )
+        return url
 
 
 class CaseFinalDecisionUpdateView(UpdateView):

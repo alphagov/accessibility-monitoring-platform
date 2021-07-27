@@ -17,16 +17,6 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_form_snippet.html' %}
-                        <div class="govuk-grid-column-full">
-                            <p class="govuk-body-m">
-                                <a
-                                    href="{% url 'cases:edit-no-psb-contact' case.id %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Contact details missing?
-                                </a>
-                            </p>
-                        </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

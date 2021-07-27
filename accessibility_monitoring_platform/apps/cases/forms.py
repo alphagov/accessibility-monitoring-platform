@@ -359,9 +359,12 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
     Form for archiving a case
     """
 
-    no_psb_contact = AMPChoiceRadioField(
-        label="Move case onto equality bodies correspondence stage?",
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to move this case to the equality bodies correspondence stage?",
         choices=BOOLEAN_CHOICES,
+        widget=AMPCheckboxWidget(
+            attrs={"label": "Move this case onto equality bodies correspondence stage?"}
+        ),
     )
 
     class Meta:

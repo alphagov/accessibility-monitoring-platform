@@ -370,12 +370,6 @@ def test_create_case_can_create_duplicate_cases(
             "save_return",
             "cases:edit-report-correspondence",
         ),
-        ("cases:edit-no-psb-contact", "save_exit", "cases:case-detail"),
-        (
-            "cases:edit-no-psb-contact",
-            "save_continue",
-            "cases:edit-enforcement-body-correspondence",
-        ),
         ("cases:edit-12-week-correspondence", "save_exit", "cases:case-detail"),
         (
             "cases:edit-12-week-correspondence",

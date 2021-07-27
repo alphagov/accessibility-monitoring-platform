@@ -25,6 +25,12 @@ class AMPCheckboxWidget(forms.CheckboxInput):
 
     template_name = "common/amp_checkbox_widget_template.html"
 
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value == "no":
+            context["widget"]["attrs"]["checked"] = False
+        return context
+
     def value_from_datadict(self, data, files, name):
         """If checkbox is ticked, return 'yes' otherwise return 'no'"""
         if name not in data:
