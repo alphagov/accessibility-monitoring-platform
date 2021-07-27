@@ -247,7 +247,6 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("cases:case-export-single", case_fields_to_export_str),
         (
             "cases:case-detail",
             '<h1 class="govuk-heading-xl" style="margin-bottom:15px">View case</h1>',
@@ -268,7 +267,21 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, expected_content)
+
+    assertContains(response, expected_content, html=True)
+
+
+def test_export_single_case_return_csv(admin_client):
+    """Test that the export single case view responds with csv data"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-export-single", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, case_fields_to_export_str)
 
 
 @pytest.mark.parametrize(
@@ -764,10 +777,16 @@ def test_section_complete_check_displayed_in_contents(flag_name, section_name, a
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
+
     assert response.status_code == 200
-    assertContains(response, f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">{section_name}</a> &check;', html=True)
+
+    assertContains(
+        response,
+        f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">{section_name}</a> &check;',
+        html=True,
+    )
 
 
 @pytest.mark.parametrize(
@@ -794,6 +813,7 @@ def test_section_complete_check_displayed_in_steps(step_url, flag_name, step_nam
     response: HttpResponse = admin_client.get(
         reverse(step_url, kwargs={"pk": case.id}),
     )
+
     assert response.status_code == 200
 
     assertContains(response, f"{step_name} &check;", html=True)
