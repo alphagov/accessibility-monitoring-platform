@@ -29,6 +29,7 @@ from .forms import (
     CaseDetailUpdateForm,
     CaseContactFormset,
     CaseContactFormsetOneExtra,
+    CaseContactsUpdateForm,
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
@@ -214,7 +215,7 @@ class CaseContactFormsetUpdateView(UpdateView):
     """
 
     model: Case = Case
-    fields: List[str] = []
+    form_class: CaseContactsUpdateForm = CaseContactsUpdateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/contact_formset.html"
 

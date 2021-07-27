@@ -294,6 +294,15 @@ class Case(models.Model):
         null=True,
     )
 
+    is_case_details_complete = models.BooleanField(default=False)
+    is_contact_details_complete = models.BooleanField(default=False)
+    is_testing_details_complete = models.BooleanField(default=False)
+    is_reporting_details_complete = models.BooleanField(default=False)
+    is_report_correspondence_complete = models.BooleanField(default=False)
+    is_12_week_correspondence_complete = models.BooleanField(default=False)
+    is_final_decision_complete = models.BooleanField(default=False)
+    is_enforcement_correspondence_complete = models.BooleanField(default=False)
+
     def __str__(self):
         return str(f"{self.organisation_name} | #{self.id}")
 

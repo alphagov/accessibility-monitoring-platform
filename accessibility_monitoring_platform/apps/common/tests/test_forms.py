@@ -13,7 +13,7 @@ from django import forms
 
 from ..forms import (
     AMPRadioSelectWidget,
-    AMPCheckboxWidget,
+    AMPChoiceCheckboxWidget,
     AMPDateCheckboxWidget,
     AMPDateWidget,
     AMPCharField,
@@ -104,8 +104,8 @@ def test_amp_widget_html_uses_govuk_classes():
 
 
 def test_amp_checkbox_widget_html_uses_govuk_classes():
-    """Check AMPCheckboxWidget renders the expected HTML"""
-    widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
+    """Check AMPChoiceCheckboxWidget renders the expected HTML"""
+    widget: AMPChoiceCheckboxWidget = AMPChoiceCheckboxWidget(attrs={"label": "Label text"})
     assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
 
 
@@ -268,7 +268,7 @@ def test_amp_date_range_form_fails_invalid_end_date_year():
 
 
 def test_amp_choice_checkbox_field_and_widget_return_yes_when_checked():
-    """Tests AMPChoiceCheckboxField and AMPCheckboxWidget return 'yes' when checked"""
+    """Tests AMPChoiceCheckboxField and AMPChoiceCheckboxWidget return 'yes' when checked"""
     form: MockForm = MockForm(
         data={
             "choice_as_checkbox": "on",
@@ -279,7 +279,7 @@ def test_amp_choice_checkbox_field_and_widget_return_yes_when_checked():
 
 
 def test_amp_choice_checkbox_field_and_widget_return_no_when_not_checked():
-    """Tests AMPChoiceCheckboxField and AMPCheckboxWidget return 'no' when not checked"""
+    """Tests AMPChoiceCheckboxField and AMPChoiceCheckboxWidget return 'no' when not checked"""
     form: MockForm = MockForm(data={})
     assert form.is_valid()
     assert form.cleaned_data["choice_as_checkbox"] == "no"

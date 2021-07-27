@@ -20,10 +20,14 @@ class AMPRadioSelectWidget(forms.RadioSelect):
     template_name = "common/amp_radio_select_widget_template.html"
 
 
-class AMPCheckboxWidget(forms.CheckboxInput):
-    """Widget for GDS design system checkbox fields"""
+class AMPBooleanCheckboxWidget(forms.CheckboxInput):
+    """Widget for GDS design system checkbox fields with boolean data"""
 
     template_name = "common/amp_checkbox_widget_template.html"
+
+
+class AMPChoiceCheckboxWidget(AMPBooleanCheckboxWidget):
+    """Widget for GDS design system checkbox fields with choice data"""
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
@@ -40,7 +44,7 @@ class AMPCheckboxWidget(forms.CheckboxInput):
         return "yes"
 
 
-class AMPDateCheckboxWidget(AMPCheckboxWidget):
+class AMPDateCheckboxWidget(AMPChoiceCheckboxWidget):
     """Widget for GDS design system showing date field as checkbox"""
 
     def value_from_datadict(self, data, files, name):
@@ -190,7 +194,7 @@ class AMPChoiceCheckboxField(AMPChoiceField):
     """Checkbox input field in the style of GDS design system"""
 
     def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("widget", AMPCheckboxWidget)
+        kwargs.setdefault("widget", AMPChoiceCheckboxWidget)
         super().__init__(*args, **kwargs)
 
 
