@@ -165,17 +165,10 @@ class CaseCreateView(CreateView):
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
         )
+
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases
-            context["cleaned_data"] = form.cleaned_data
-            if context["cleaned_data"]["test_type"]:
-                context["cleaned_data"]["test_type"] = dict(
-                    form.fields["test_type"].choices
-                )[context["cleaned_data"]["test_type"]]
-            if context["cleaned_data"]["case_origin"]:
-                context["cleaned_data"]["case_origin"] = dict(
-                    form.fields["case_origin"].choices
-                )[context["cleaned_data"]["case_origin"]]
+            context["new_case"] = form.save(commit=False)
             return self.render_to_response(context)
         return super().form_valid(form)
 

@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ..common.forms import (
+    AMPCheckboxWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -15,6 +16,7 @@ from ..common.forms import (
     AMPModelChoiceField,
     AMPChoiceRadioField,
     AMPModelMultipleChoiceField,
+    AMPChoiceCheckboxField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -23,7 +25,6 @@ from ..common.forms import (
 from .models import (
     Case,
     Contact,
-    CASE_ORIGIN_CHOICES,
     STATUS_CHOICES,
     TEST_TYPE_CHOICES,
     DEFAULT_WEBSITE_TYPE,
@@ -38,6 +39,7 @@ from .models import (
     IS_WEBSITE_COMPLIANT_CHOICES,
     BOOLEAN_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    ENFORCEMENT_BODY_CHOICES,
 )
 from ..common.models import Region, Sector
 
@@ -94,8 +96,18 @@ class CaseCreateForm(forms.ModelForm):
         label="Test type",
         choices=TEST_TYPE_CHOICES,
     )
-    case_origin = AMPChoiceRadioField(label="Case origin", choices=CASE_ORIGIN_CHOICES)
-    auditor = AMPUserModelChoiceField(label="Auditor")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    enforcement_body = AMPChoiceRadioField(
+        label="Equalities body who will check the case?",
+        choices=ENFORCEMENT_BODY_CHOICES,
+    )
+    is_complaint = AMPChoiceCheckboxField(
+        label="Complaint?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPCheckboxWidget(
+            attrs={"label": "Did this case originate from a complaint?"}
+        ),
+    )
 
     class Meta:
         model = Case
@@ -103,8 +115,9 @@ class CaseCreateForm(forms.ModelForm):
             "organisation_name",
             "home_page_url",
             "test_type",
-            "case_origin",
-            "auditor",
+            "sector",
+            "enforcement_body",
+            "is_complaint",
         ]
 
 
@@ -113,6 +126,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
+    auditor = AMPUserModelChoiceField(label="Auditor")
     domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, App or Service name")
     website_type = AMPChoiceRadioField(
@@ -120,7 +134,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
         choices=WEBSITE_TYPE_CHOICES,
         initial=DEFAULT_WEBSITE_TYPE,
     )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     region = AMPModelMultipleChoiceField(
         label="Region",
         queryset=Region.objects.all(),
@@ -141,7 +154,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "website_type",
             "sector",
             "region",
-            "case_origin",
+            "is_complaint",
             "zendesk_url",
             "trello_url",
             "notes",

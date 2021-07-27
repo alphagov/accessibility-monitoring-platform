@@ -85,11 +85,11 @@ def get_users() -> Dict[str, User]:
 
 
 def get_regions() -> Dict[str, Region]:
-    return {region.name: region for region in Region.objects.all()}
+    return {region.name.lower(): region for region in Region.objects.all()}
 
 
 def get_sectors() -> Dict[str, Sector]:
-    return {sector.name: sector for sector in Sector.objects.all()}
+    return {sector.name.lower(): sector for sector in Sector.objects.all()}
 
 
 def print_row_message(row: Dict[str, str], message: str) -> None:
@@ -181,13 +181,15 @@ def get_or_create_user_from_row(
 def get_or_create_sector_from_row(
     row: Dict[str, str], sectors: Dict[str, Sector], column_name: str
 ) -> Union[Sector, None]:
-    sector_name: Union[str, None] = row.get(column_name)
-    if sector_name and sector_name not in sectors:
-        sector: Sector = Sector.objects.create(name=sector_name)
-        sectors[sector_name] = sector
-        return sector
-    else:
-        return sectors.get(sector_name)
+    sector_name: Union[str] = row.get(column_name, "").strip()
+    if sector_name:
+        sector_name_lower = sector_name.lower()
+        if sector_name_lower in sectors:
+            return sectors.get(sector_name_lower)
+        else:
+            sector: Sector = Sector.objects.create(name=sector_name)
+            sectors[sector_name_lower] = sector
+            return sector
     return None
 
 
@@ -230,12 +232,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         #     print(
         #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
         #     )
-    is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
-    case_origin = (
-        "complaint"
-        if is_a_complaint
-        else get_data(column_name=CASE_ORIGIN, default="list").lower()
-    )
+    is_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     compliance_decision_str = get_data(column_name=COMPLIANCE_DECISION)
     is_website_compliant = (
         "yes" if compliance_decision_str == "No further action" else "unknown"
@@ -273,7 +270,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         organisation_name=get_data(column_name=ORGANISATION_NAME),
         website_type=get_data(column_name=WEBSITE_TYPE),
         sector=get_data(column_name=SECTOR, column_type="sector"),
-        case_origin=case_origin,
+        is_complaint=is_complaint,
         zendesk_url="",
         trello_url="",
         notes="",
@@ -331,11 +328,11 @@ def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]
         region_objects: List[Region] = []
         for region_name in region_names:
             region_name
-            if region_name in regions:
-                region_objects.append(regions[region_name])
+            if region_name.lower() in regions:
+                region_objects.append(regions[region_name.lower()])
             else:
                 new_region: Region = Region.objects.create(name=region_name)
-                regions[region_name] = new_region
+                regions[region_name.lower()] = new_region
                 region_objects.append(new_region)
         return region_objects
     return []
