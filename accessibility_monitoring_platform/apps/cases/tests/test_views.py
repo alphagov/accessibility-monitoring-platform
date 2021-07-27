@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils.text import slugify
 
 from ..models import Case, Contact
 from ..views import (
@@ -739,3 +740,60 @@ def test_preferred_contact_displayed(admin_client):
     )
     assert response.status_code == 200
     assertContains(response, "Preferred contact")
+
+
+@pytest.mark.parametrize(
+    "flag_name, section_name",
+    [
+        ("is_case_details_complete", "Case details"),
+        ("is_contact_details_complete", "Contact details"),
+        ("is_testing_details_complete", "Testing details"),
+        ("is_reporting_details_complete", "Report details"),
+        ("is_report_correspondence_complete", "Report correspondence"),
+        ("is_12_week_correspondence_complete", "12 week correspondence"),
+        ("is_final_decision_complete", "Final decision"),
+        ("is_enforcement_correspondence_complete", "Equality bodies correspondence"),
+    ],
+)
+def test_section_complete_check_displayed_in_contents(flag_name, section_name, admin_client):
+    """
+    Test that the section complete tick is displayed in contents
+    """
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, True)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">{section_name}</a> &check;', html=True)
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        ("cases:edit-case-details", "is_case_details_complete", "Case details"),
+        ("cases:edit-contact-details", "is_contact_details_complete", "Contact details"),
+        ("cases:edit-test-results", "is_testing_details_complete", "Testing details"),
+        ("cases:edit-report-details", "is_reporting_details_complete", "Report details"),
+        ("cases:edit-report-correspondence", "is_report_correspondence_complete", "Report correspondence"),
+        ("cases:edit-12-week-correspondence", "is_12_week_correspondence_complete", "12 week correspondence"),
+        ("cases:edit-final-decision", "is_final_decision_complete", "Final decision"),
+        ("cases:edit-enforcement-body-correspondence", "is_enforcement_correspondence_complete", "Equality body correspondence"),
+    ],
+)
+def test_section_complete_check_displayed_in_steps(step_url, flag_name, step_name, admin_client):
+    """
+    Test that the section complete tick is displayed in list of steps
+    """
+    case: Case = Case.objects.create()
+    setattr(case, flag_name, True)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, f"{step_name} &check;", html=True)

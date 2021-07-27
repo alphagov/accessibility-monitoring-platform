@@ -67,11 +67,14 @@
                     </table>
                     <input
                         type="submit"
-                        value="Add new contact"
+                        value="Create additional contact"
                         name="add_contact"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     />
+                    {% for field in form.visible_fields %}
+                        {% include 'common/amp_field.html' %}
+                    {% endfor %}
                     <div class="govuk-button-group">
                         <input
                             type="submit"
