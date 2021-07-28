@@ -63,10 +63,11 @@ REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
 ]
 
-REPORT_APPROVED_STATUS_DEFAULT = "no"
+REPORT_APPROVED_STATUS_DEFAULT = "not-started"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
-    (REPORT_APPROVED_STATUS_DEFAULT, "Further work is needed"),
+    ("in-progress", "Further work is needed"),
+    (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT = "unknown"
@@ -189,15 +190,15 @@ class Case(models.Model):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    zendesk_url = models.CharField(max_length=200, default="", blank=True)
-    trello_url = models.CharField(max_length=200, default="", blank=True)
+    zendesk_url = models.TextField(default="", blank=True)
+    trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
     is_public_sector_body = models.CharField(
         max_length=20,
         choices=IS_PUBLIC_SECTOR_BODY_CHOICES,
         default=IS_PUBLIC_SECTOR_BODY_DEFAULT,
     )
-    test_results_url = models.CharField(max_length=200, default="", blank=True)
+    test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
     )
@@ -207,7 +208,7 @@ class Case(models.Model):
         default=IS_WEBSITE_COMPLIANT_DEFAULT,
     )
     test_notes = models.TextField(default="", blank=True)
-    report_draft_url = models.CharField(max_length=200, default="", blank=True)
+    report_draft_url = models.TextField(default="", blank=True)
     report_review_status = models.CharField(
         max_length=200,
         choices=REPORT_REVIEW_STATUS_CHOICES,
@@ -220,19 +221,14 @@ class Case(models.Model):
         blank=True,
         null=True,
     )
-    report_is_ready_to_review = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
-    report_is_approved = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
     report_approved_status = models.CharField(
         max_length=200,
         choices=REPORT_APPROVED_STATUS_CHOICES,
         default=REPORT_APPROVED_STATUS_DEFAULT,
     )
     reviewer_notes = models.TextField(default="", blank=True)
-    report_final_url = models.CharField(max_length=200, default="", blank=True)
+    report_final_pdf_url = models.TextField(default="", blank=True)
+    report_final_odt_url = models.TextField(default="", blank=True)
     report_sent_date = models.DateField(null=True, blank=True)
 
     report_acknowledged_date = models.DateField(null=True, blank=True)
@@ -241,14 +237,17 @@ class Case(models.Model):
     report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
-    report_followup_week_12_sent_date = models.DateField(null=True, blank=True)
 
+    twelve_week_update_requested_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
+    )
+    twelve_week_response_state = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
 
     correspondence_notes = models.TextField(default="", blank=True)
@@ -265,9 +264,7 @@ class Case(models.Model):
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
-    accessibility_statement_url = models.CharField(
-        max_length=200, default="", blank=True
-    )
+    accessibility_statement_url = models.TextField(default="", blank=True)
     accessibility_statement_notes = models.TextField(default="", blank=True)
     compliance_decision = models.CharField(
         max_length=200,

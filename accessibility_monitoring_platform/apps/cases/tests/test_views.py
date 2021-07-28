@@ -527,7 +527,7 @@ def test_updating_report_sent_date(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -636,7 +636,6 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
     )
@@ -646,7 +645,6 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == TODAY
     assert case_from_db.report_followup_week_4_sent_date == TODAY
-    assert case_from_db.report_followup_week_12_sent_date == TODAY
 
 
 def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
@@ -654,7 +652,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
@@ -662,7 +659,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
     )
@@ -672,7 +668,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
     assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
-    assert case_from_db.report_followup_week_12_sent_date == OTHER_DATE
 
 
 def test_unsetting_report_followup_sent_dates(admin_client):
@@ -680,7 +675,6 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
@@ -695,7 +689,6 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
-    assert case_from_db.report_followup_week_12_sent_date is None
 
 
 @pytest.mark.parametrize(
