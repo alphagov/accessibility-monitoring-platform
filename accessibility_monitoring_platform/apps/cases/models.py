@@ -98,7 +98,7 @@ DEFAULT_CASE_COMPLETED = "no-decision"
 CASE_COMPLETED_CHOICES = [
     (
         "no-action",
-        "No further action is required and the case can be marked as complete",
+        "Compliance decision has been sent to public sector body",
     ),
     ("escalated", "The audit needs to be sent to the relevant equalities body"),
     (DEFAULT_CASE_COMPLETED, "Decision not reached"),
@@ -138,7 +138,7 @@ IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
-    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
+    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "N/A"),
 ]
 
 PREFERRED_DEFAULT = "unknown"

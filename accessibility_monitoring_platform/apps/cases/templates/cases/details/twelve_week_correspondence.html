@@ -19,8 +19,8 @@
             <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_followup_week_12_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">12 week update sent</th>
-            <td class="govuk-table__cell">{{ case.report_followup_week_12_sent_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header">12 week update requested</th>
+            <td class="govuk-table__cell">{{ case.twelve_week_update_requested_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">1 week chaser due</th>
@@ -41,6 +41,10 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">12 week update request acknowledged</th>
             <td class="govuk-table__cell">{{ case.twelve_week_correspondence_acknowledged_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">No response to 12 week update</th>
+            <td class="govuk-table__cell">{{ case.get_twelve_week_response_state_display }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Correspondence notes</th>

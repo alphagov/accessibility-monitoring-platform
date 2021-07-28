@@ -15,6 +15,10 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Report sent on</th>
+            <td class="govuk-table__cell">{{ case.report_sent_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-half">1 week followup due</th>
             <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_followup_week_1_due_date|date:"d/m/Y" }}</td>
         </tr>
