@@ -362,9 +362,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     twelve_week_response_state = AMPChoiceCheckboxField(
         label="Mark the case as having no response to 12 week update",
         choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "No response?"}
-        ),
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
     )
     is_12_week_correspondence_complete = forms.BooleanField(
         label="Mark 12 week correspondence as completed",

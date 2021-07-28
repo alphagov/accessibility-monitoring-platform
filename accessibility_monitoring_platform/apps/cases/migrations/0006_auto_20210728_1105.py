@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0005_auto_20210728_0828'),
+        ("cases", "0005_auto_20210728_0828"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='case',
-            name='report_followup_week_12_sent_date',
+            model_name="case",
+            name="report_followup_week_12_sent_date",
         ),
         migrations.AddField(
-            model_name='case',
-            name='twelve_week_update_requested_date',
+            model_name="case",
+            name="twelve_week_update_requested_date",
             field=models.DateField(blank=True, null=True),
         ),
     ]

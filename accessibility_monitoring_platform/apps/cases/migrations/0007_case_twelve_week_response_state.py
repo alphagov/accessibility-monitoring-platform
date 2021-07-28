@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0006_auto_20210728_1105'),
+        ("cases", "0006_auto_20210728_1105"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='twelve_week_response_state',
-            field=models.CharField(choices=[('no', 'No'), ('yes', 'Yes')], default='no', max_length=20),
+            model_name="case",
+            name="twelve_week_response_state",
+            field=models.CharField(
+                choices=[("no", "No"), ("yes", "Yes")], default="no", max_length=20
+            ),
         ),
     ]

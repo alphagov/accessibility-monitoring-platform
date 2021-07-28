@@ -20,6 +20,8 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     find_duplicate_cases,
+    calculate_report_followup_dates,
+    calculate_twelve_week_chaser_dates,
 )
 from ...common.utils import format_date, get_field_names_for_export
 
@@ -834,3 +836,34 @@ def test_section_complete_check_displayed_in_steps(
     assert response.status_code == 200
 
     assertContains(response, f"{step_name} &check;", html=True)
+
+
+def test_calculate_report_followup_dates():
+    """
+    Test that the report followup dates are calculated correctly.
+    """
+    case: Case = Case()
+    report_sent_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_report_followup_dates(
+        case=case, report_sent_date=report_sent_date
+    )
+
+    assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
+    assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
+    assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
+
+
+def test_calculate_twelve_week_chaser_dates():
+    """
+    Test that the twelve week chaser dates are calculated correctly.
+    """
+    case: Case = Case()
+    twelve_week_update_requested_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_twelve_week_chaser_dates(
+        case=case, twelve_week_update_requested_date=twelve_week_update_requested_date
+    )
+
+    assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)
+    assert updated_case.twelve_week_4_week_chaser_due_date == date(2020, 1, 29)
