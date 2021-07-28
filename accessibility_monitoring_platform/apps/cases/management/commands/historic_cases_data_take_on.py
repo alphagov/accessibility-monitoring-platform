@@ -348,7 +348,7 @@ def create_contact_from_row(get_data: Callable, case: Case) -> None:
             first_name="Historic",
             last_name=contact_name,
             job_title=job_title,
-            detail=contact_detail,
+            email=contact_detail,
             created=get_data(column_name=CREATED_DATE, column_type="datetime"),
             created_by=get_data(column_name=AUDITOR, column_type="user"),
         )

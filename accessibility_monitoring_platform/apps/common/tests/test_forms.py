@@ -105,7 +105,9 @@ def test_amp_widget_html_uses_govuk_classes():
 
 def test_amp_checkbox_widget_html_uses_govuk_classes():
     """Check AMPChoiceCheckboxWidget renders the expected HTML"""
-    widget: AMPChoiceCheckboxWidget = AMPChoiceCheckboxWidget(attrs={"label": "Label text"})
+    widget: AMPChoiceCheckboxWidget = AMPChoiceCheckboxWidget(
+        attrs={"label": "Label text"}
+    )
     assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
 
 

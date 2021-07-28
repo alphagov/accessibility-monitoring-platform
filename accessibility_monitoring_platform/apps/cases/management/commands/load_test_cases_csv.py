@@ -221,9 +221,7 @@ class Command(BaseCommand):
                 if "contact_email" in row and row["contact_email"]:
                     contact: Contact = Contact(
                         case=case,
-                        detail=get_string_from_row(
-                            row=row, column_name="contact_email"
-                        ),
+                        email=get_string_from_row(row=row, column_name="contact_email"),
                         notes=get_string_from_row(row=row, column_name="contact_notes"),
                         created=get_datetime_from_row(row=row, column_name="created"),
                         created_by=get_or_create_user_from_row(

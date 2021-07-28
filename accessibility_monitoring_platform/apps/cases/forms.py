@@ -165,9 +165,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     first_name = AMPCharFieldWide(label="First name")
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
-    detail = AMPCharFieldWide(
-        label="Detail", help_text="E.g. email address or telephone number"
-    )
+    email = AMPCharFieldWide(label="Email")
     preferred = AMPChoiceRadioField(
         label="Preferred contact?", choices=PREFERRED_CHOICES
     )
@@ -179,7 +177,7 @@ class CaseContactUpdateForm(forms.ModelForm):
             "first_name",
             "last_name",
             "job_title",
-            "detail",
+            "email",
             "preferred",
             "notes",
         ]
@@ -223,10 +221,15 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Test status",
         choices=TEST_STATUS_CHOICES,
     )
+    accessibility_statement_decison = AMPChoiceRadioField(
+        label="Is the accessibility statement compliant?",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     is_website_compliant = AMPChoiceRadioField(
         label="Is the website compliant?", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
-    test_notes = AMPTextField(label="Compliance notes")
+    compliance_decision_notes = AMPTextField(label="Compliance notes")
     is_testing_details_complete = forms.BooleanField(
         label="Mark testing details as completed",
         widget=AMPBooleanCheckboxWidget(
@@ -240,8 +243,10 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         fields = [
             "test_results_url",
             "test_status",
+            "accessibility_statement_decison",
+            "accessibility_statement_notes",
             "is_website_compliant",
-            "test_notes",
+            "compliance_decision_notes",
             "is_testing_details_complete",
         ]
 
@@ -339,9 +344,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    report_followup_week_12_sent_date = AMPDateField(
-        label="12 week update requested"
-    )
+    report_followup_week_12_sent_date = AMPDateField(label="12 week update requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(

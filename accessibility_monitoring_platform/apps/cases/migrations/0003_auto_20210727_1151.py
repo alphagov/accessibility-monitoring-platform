@@ -6,73 +6,88 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0002_auto_20210726_1400'),
+        ("cases", "0002_auto_20210726_1400"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='is_12_week_correspondence_complete',
+            model_name="case",
+            name="is_12_week_correspondence_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_case_details_complete',
+            model_name="case",
+            name="is_case_details_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_contact_details_complete',
+            model_name="case",
+            name="is_contact_details_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_enforcement_correspondence_complete',
+            model_name="case",
+            name="is_enforcement_correspondence_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_final_decision_complete',
+            model_name="case",
+            name="is_final_decision_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_report_correspondence_complete',
+            model_name="case",
+            name="is_report_correspondence_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_reporting_details_complete',
+            model_name="case",
+            name="is_reporting_details_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_testing_details_complete',
+            model_name="case",
+            name="is_testing_details_complete",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='enforcement_body',
-            field=models.CharField(choices=[('ecni', 'Equality Commission Northern Ireland'), ('ehrc', 'Equality and Human Rights Commission')], default='ehrc', max_length=20),
+            model_name="case",
+            name="enforcement_body",
+            field=models.CharField(
+                choices=[
+                    ("ecni", "Equality Commission Northern Ireland"),
+                    ("ehrc", "Equality and Human Rights Commission"),
+                ],
+                default="ehrc",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='is_complaint',
-            field=models.CharField(choices=[('no', 'No'), ('yes', 'Yes')], default='no', max_length=20),
+            model_name="case",
+            name="is_complaint",
+            field=models.CharField(
+                choices=[("no", "No"), ("yes", "Yes")], default="no", max_length=20
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='no_psb_contact',
-            field=models.CharField(choices=[('no', 'No'), ('yes', 'Yes')], default='no', max_length=20),
+            model_name="case",
+            name="no_psb_contact",
+            field=models.CharField(
+                choices=[("no", "No"), ("yes", "Yes")], default="no", max_length=20
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='report_is_approved',
-            field=models.CharField(choices=[('no', 'No'), ('yes', 'Yes')], default='no', max_length=20),
+            model_name="case",
+            name="report_is_approved",
+            field=models.CharField(
+                choices=[("no", "No"), ("yes", "Yes")], default="no", max_length=20
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='report_is_ready_to_review',
-            field=models.CharField(choices=[('no', 'No'), ('yes', 'Yes')], default='no', max_length=20),
+            model_name="case",
+            name="report_is_ready_to_review",
+            field=models.CharField(
+                choices=[("no", "No"), ("yes", "Yes")], default="no", max_length=20
+            ),
         ),
     ]
