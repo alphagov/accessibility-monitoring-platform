@@ -24,7 +24,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Is report ready to be reviewed?</th>
-            <td class="govuk-table__cell">{{ case.get_report_is_ready_to_review_display }}</td>
+            <td class="govuk-table__cell">{{ case.get_report_review_status_display }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">QA auditor</th>
@@ -32,7 +32,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Is report approved?</th>
-            <td class="govuk-table__cell">{{ case.get_report_is_approved_display }}</td>
+            <td class="govuk-table__cell">{{ case.get_report_approved_status_display }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">QA notes</th>
@@ -41,16 +41,20 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Link to final report</th>
+            <th scope="row" class="govuk-table__header">Link to final PDF report</th>
             <td class="govuk-table__cell">
-                {% if case.report_final_url %}
-                    <a href="{{ case.report_final_url }}">Final draft</a>
+                {% if case.report_final_pdf_url %}
+                    <a href="{{ case.report_final_pdf_url }}">Final PDF draft</a>
                 {% endif %}
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Report sent on</th>
-            <td class="govuk-table__cell">{{ case.report_sent_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header">Link to final ODT report</th>
+            <td class="govuk-table__cell">
+                {% if case.report_final_odt_url %}
+                    <a href="{{ case.report_final_odt_url }}">Final ODT draft</a>
+                {% endif %}
+            </td>
         </tr>
     </tbody>
 </table>

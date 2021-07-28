@@ -129,7 +129,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
 
     auditor = AMPUserModelChoiceField(label="Auditor")
     domain = AMPCharFieldWide(label="Domain")
-    service_name = AMPCharFieldWide(label="Website, App or Service name")
+    service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     notes = AMPTextField(label="Notes")
@@ -451,10 +451,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    retested_website = AMPDateField(
-        label="Retested website?",
-        help_text="The retest form can be found in the test results",
-    )
+    retested_website = AMPDateField(label="Retested website?")
     is_disproportionate_claimed = AMPChoiceRadioField(
         label="Disproportionate burden claimed?",
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
@@ -470,7 +467,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=COMPLIANCE_DECISION_CHOICES,
     )
     compliance_decision_notes = AMPTextField(label="Compliance decision notes")
-    compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
+    compliance_email_sent_date = AMPDateField(label="Compliance email sent to public sector body?")
     case_completed = AMPChoiceRadioField(
         label="Case completed?",
         choices=CASE_COMPLETED_CHOICES,

@@ -24,7 +24,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Retested website?</th>
-            <td class="govuk-table__cell">{{ case.get_is_website_retested_display }}</td>
+            <td class="govuk-table__cell">{{ case.retested_website|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Disproportionate burden claimed?</th>
@@ -57,7 +57,7 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Compliance email sent to PSB?</th>
+            <th scope="row" class="govuk-table__header">Compliance email sent to public sector body?</th>
             <td class="govuk-table__cell">{{ case.compliance_email_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">

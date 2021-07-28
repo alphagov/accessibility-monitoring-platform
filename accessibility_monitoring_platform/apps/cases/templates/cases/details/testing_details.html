@@ -27,13 +27,23 @@
             <td class="govuk-table__cell">{{ case.get_test_status_display }}</td>
         </tr>
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Is the accessibility statement compliant?</th>
+            <td class="govuk-table__cell">{{ case.get_accessibility_statement_decison_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Accessibility statement notes</th>
+            <td class="govuk-table__cell">
+                {% if case.accessibility_statement_notes %}<p class="govuk-body-m cases-notes">{{ case.accessibility_statement_notes }}</p>{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Is the website compliant?</th>
             <td class="govuk-table__cell">{{ case.get_is_website_compliant_display }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Compliance notes</th>
             <td class="govuk-table__cell">
-                {% if case.test_notes %}<p class="govuk-body-m cases-notes">{{ case.test_notes }}</p>{% endif %}
+                {% if case.compliance_decision_notes %}<p class="govuk-body-m cases-notes">{{ case.compliance_decision_notes }}</p>{% endif %}
             </td>
         </tr>
     </tbody>
