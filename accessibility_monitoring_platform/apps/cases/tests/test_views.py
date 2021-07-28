@@ -759,7 +759,7 @@ def test_preferred_contact_displayed(admin_client):
         ("is_report_correspondence_complete", "Report correspondence"),
         ("is_12_week_correspondence_complete", "12 week correspondence"),
         ("is_final_decision_complete", "Final decision"),
-        ("is_enforcement_correspondence_complete", "Equality bodies correspondence"),
+        ("is_enforcement_correspondence_complete", "Equality body correspondence"),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
