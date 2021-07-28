@@ -234,7 +234,6 @@ def test_archive_case_view(admin_client):
     "path_name, expected_content",
     [
         ("cases:case-list", '<h1 class="govuk-heading-xl">Cases and reports</h1>'),
-        ("cases:case-export-list", case_fields_to_export_str),
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )
@@ -781,7 +780,8 @@ def test_section_complete_check_displayed_in_contents(
 
     assertContains(
         response,
-        f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">{section_name}</a> &check;',
+        f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">'
+        f'{section_name}</a> &check;',
         html=True,
     )
 
@@ -836,6 +836,25 @@ def test_section_complete_check_displayed_in_steps(
     assert response.status_code == 200
 
     assertContains(response, f"{step_name} &check;", html=True)
+
+
+def test_case_final_decision_view_contains_link_to_test_results_url(admin_client):
+    """Test that the case final decision view contains the link to the test results"""
+    test_results_url: str = "https://test-results-url"
+    case: Case = Case.objects.create(test_results_url=test_results_url)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<div id="event-name-hint" class="govuk-hint">'
+        f'The retest form can be found in the <a href="{test_results_url}"'
+        ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+        '</div>',
+    )
 
 
 def test_calculate_report_followup_dates():
