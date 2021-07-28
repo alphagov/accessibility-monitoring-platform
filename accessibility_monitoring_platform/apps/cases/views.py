@@ -1,7 +1,7 @@
 """
 Views for cases app
 """
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Any, Dict, List, Tuple
 import urllib
 
@@ -53,8 +53,8 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("end_date", "created__lte"),
 ]
 ONE_WEEK_IN_DAYS = 7
-FOUR_WEEKS_IN_DAYS = 28
-TWELVE_WEEKS_IN_DAYS = 84
+FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
+TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -65,6 +65,36 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case
             Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
         )
     return Case.objects.filter(domain=domain)
+
+
+def calculate_report_followup_dates(
+    case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
+) -> CaseReportCorrespondenceUpdateForm:
+    """Calculate followup dates based on a report sent date"""
+    case.report_followup_week_1_due_date = report_sent_date + timedelta(
+        days=ONE_WEEK_IN_DAYS
+    )
+    case.report_followup_week_4_due_date = report_sent_date + timedelta(
+        days=FOUR_WEEKS_IN_DAYS
+    )
+    case.report_followup_week_12_due_date = report_sent_date + timedelta(
+        days=TWELVE_WEEKS_IN_DAYS
+    )
+    return case
+
+
+def calculate_twelve_week_chaser_dates(
+    case: CaseTwelveWeekCorrespondenceUpdateForm,
+    twelve_week_update_requested_date: date,
+) -> CaseTwelveWeekCorrespondenceUpdateForm:
+    """Calculate chaser dates based on a twelve week update requested date"""
+    case.twelve_week_1_week_chaser_due_date = (
+        twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
+    )
+    case.twelve_week_4_week_chaser_due_date = (
+        twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
+    )
+    return case
 
 
 class CaseDetailView(DetailView):
@@ -308,27 +338,6 @@ class CaseReportDetailsUpdateView(UpdateView):
     context_object_name: str = "case"
     template_name: str = "cases/forms/report_details.html"
 
-    def form_valid(self, form: CaseReportDetailsUpdateForm):
-        self.object: CaseReportDetailsUpdateForm = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
-        report_sent_date_from_form = form.cleaned_data["report_sent_date"]
-        report_sent_date_from_db = case_from_db.report_sent_date
-        if report_sent_date_from_form and not report_sent_date_from_db:
-            if not case_from_db.report_followup_week_1_due_date:
-                self.object.report_followup_week_1_due_date = (
-                    report_sent_date_from_form + timedelta(days=ONE_WEEK_IN_DAYS)
-                )
-            if not case_from_db.report_followup_week_4_due_date:
-                self.object.report_followup_week_4_due_date = (
-                    report_sent_date_from_form + timedelta(days=FOUR_WEEKS_IN_DAYS)
-                )
-            if not case_from_db.report_followup_week_12_due_date:
-                self.object.report_followup_week_12_due_date = (
-                    report_sent_date_from_form + timedelta(days=TWELVE_WEEKS_IN_DAYS)
-                )
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
@@ -358,7 +367,7 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
         form.fields["report_followup_week_4_sent_date"].help_text = format_date(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields["report_followup_week_12_sent_date"].help_text = format_date(
+        form.fields["twelve_week_update_display"].help_text = format_date(
             form.instance.report_followup_week_12_due_date
         )
         return form
@@ -366,16 +375,22 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
         self.object: CaseReportCorrespondenceUpdateForm = form.save(commit=False)
         case_from_db: Case = Case.objects.get(pk=self.object.id)
-        for sent_date_name in [
-            "report_followup_week_1_sent_date",
-            "report_followup_week_4_sent_date",
-            "report_followup_week_12_sent_date",
-        ]:
-            setattr(
-                self.object,
-                sent_date_name,
-                get_sent_date(form, case_from_db, sent_date_name),
+        report_sent_date_from_form: date = form.cleaned_data["report_sent_date"]
+        if report_sent_date_from_form != case_from_db.report_sent_date:
+            self.object = calculate_report_followup_dates(
+                case=self.object, report_sent_date=report_sent_date_from_form
             )
+        else:
+            for sent_date_name in [
+                "report_followup_week_1_sent_date",
+                "report_followup_week_4_sent_date",
+                "report_followup_week_12_sent_date",
+            ]:
+                setattr(
+                    self.object,
+                    sent_date_name,
+                    get_sent_date(form, case_from_db, sent_date_name),
+                )
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -422,6 +437,9 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
 
     def get_form(self):
         form = super().get_form()
+        form.fields["twelve_week_update_display"].help_text = format_date(
+            form.instance.report_followup_week_12_due_date
+        )
         form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(
             form.instance.twelve_week_1_week_chaser_due_date
         )
@@ -433,15 +451,27 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
         self.object: CaseTwelveWeekCorrespondenceUpdateForm = form.save(commit=False)
         case_from_db: Case = Case.objects.get(pk=self.object.id)
-        for sent_date_name in [
-            "twelve_week_1_week_chaser_sent_date",
-            "twelve_week_4_week_chaser_sent_date",
-        ]:
-            setattr(
-                self.object,
-                sent_date_name,
-                get_sent_date(form, case_from_db, sent_date_name),
+        twelve_week_update_requested_date_from_form: date = form.cleaned_data[
+            "twelve_week_update_requested_date"
+        ]
+        if (
+            twelve_week_update_requested_date_from_form
+            != case_from_db.twelve_week_update_requested_date
+        ):
+            self.object = calculate_twelve_week_chaser_dates(
+                case=self.object,
+                twelve_week_update_requested_date=twelve_week_update_requested_date_from_form,
             )
+        else:
+            for sent_date_name in [
+                "twelve_week_1_week_chaser_sent_date",
+                "twelve_week_4_week_chaser_sent_date",
+            ]:
+                setattr(
+                    self.object,
+                    sent_date_name,
+                    get_sent_date(form, case_from_db, sent_date_name),
+                )
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

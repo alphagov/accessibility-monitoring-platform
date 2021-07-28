@@ -20,6 +20,8 @@ from ..views import (
     FOUR_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
     find_duplicate_cases,
+    calculate_report_followup_dates,
+    calculate_twelve_week_chaser_dates,
 )
 from ...common.utils import format_date, get_field_names_for_export
 
@@ -527,7 +529,7 @@ def test_updating_report_sent_date(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -636,7 +638,6 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
     )
@@ -646,7 +647,6 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == TODAY
     assert case_from_db.report_followup_week_4_sent_date == TODAY
-    assert case_from_db.report_followup_week_12_sent_date == TODAY
 
 
 def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
@@ -654,7 +654,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
@@ -662,7 +661,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "report_followup_week_12_sent_date": "on",
             "save_continue": "Button value",
         },
     )
@@ -672,7 +670,6 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
     assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
-    assert case_from_db.report_followup_week_12_sent_date == OTHER_DATE
 
 
 def test_unsetting_report_followup_sent_dates(admin_client):
@@ -680,7 +677,6 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
         report_followup_week_4_sent_date=OTHER_DATE,
-        report_followup_week_12_sent_date=OTHER_DATE,
     )
 
     response: HttpResponse = admin_client.post(
@@ -695,7 +691,6 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
-    assert case_from_db.report_followup_week_12_sent_date is None
 
 
 @pytest.mark.parametrize(
@@ -841,3 +836,34 @@ def test_section_complete_check_displayed_in_steps(
     assert response.status_code == 200
 
     assertContains(response, f"{step_name} &check;", html=True)
+
+
+def test_calculate_report_followup_dates():
+    """
+    Test that the report followup dates are calculated correctly.
+    """
+    case: Case = Case()
+    report_sent_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_report_followup_dates(
+        case=case, report_sent_date=report_sent_date
+    )
+
+    assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
+    assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
+    assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
+
+
+def test_calculate_twelve_week_chaser_dates():
+    """
+    Test that the twelve week chaser dates are calculated correctly.
+    """
+    case: Case = Case()
+    twelve_week_update_requested_date: date = date(2020, 1, 1)
+
+    updated_case = calculate_twelve_week_chaser_dates(
+        case=case, twelve_week_update_requested_date=twelve_week_update_requested_date
+    )
+
+    assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)
+    assert updated_case.twelve_week_4_week_chaser_due_date == date(2020, 1, 29)

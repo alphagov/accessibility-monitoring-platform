@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from ..common.forms import (
     AMPBooleanCheckboxWidget,
     AMPChoiceCheckboxWidget,
+    AMPDateCheckboxWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -38,6 +39,8 @@ from .models import (
     BOOLEAN_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
+    REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_APPROVED_STATUS_CHOICES,
 )
 from ..common.models import Sector
 
@@ -87,7 +90,7 @@ class CaseCreateForm(forms.ModelForm):
     )
     home_page_url = AMPURLField(
         label="Full URL",
-        help_text="Enter a domain if test type is simple or complex",
+        help_text="Enter if test type is simplified or detailed",
         required=True,
     )
     test_type = AMPChoiceRadioField(
@@ -257,16 +260,16 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     """
 
     report_draft_url = AMPURLField(label="Link to report draft")
-    report_is_ready_to_review = AMPChoiceRadioField(
-        label="Is report ready to be reviewed?", choices=IS_WEBSITE_COMPLIANT_CHOICES
+    report_review_status = AMPChoiceRadioField(
+        label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
     )
     reviewer = AMPUserModelChoiceField(label="QA Auditor")
-    report_is_approved = AMPChoiceRadioField(
-        label="Is report approved", choices=BOOLEAN_CHOICES
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
     )
     reviewer_notes = AMPTextField(label="QA notes")
-    report_final_url = AMPURLField(label="Link to final report")
-    report_sent_date = AMPDateField(label="Report sent on")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    report_final_odt_url = AMPURLField(label="Link to final ODT report")
     is_reporting_details_complete = forms.BooleanField(
         label="Mark reporting details as completed",
         widget=AMPBooleanCheckboxWidget(
@@ -279,12 +282,12 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "report_draft_url",
-            "report_is_ready_to_review",
+            "report_review_status",
             "reviewer",
-            "report_is_approved",
+            "report_approved_status",
             "reviewer_notes",
-            "report_final_url",
-            "report_sent_date",
+            "report_final_pdf_url",
+            "report_final_odt_url",
             "is_reporting_details_complete",
         ]
 
@@ -294,10 +297,12 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating report correspondence details
     """
 
+    report_sent_date = AMPDateField(label="Report sent on")
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
-    report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
-    report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
+    twelve_week_update_display = AMPDateSentField(
+        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
+    )
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     is_report_correspondence_complete = forms.BooleanField(
@@ -311,10 +316,10 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
-            "report_followup_week_7_sent_date",
-            "report_followup_week_12_sent_date",
+            "twelve_week_update_display",
             "report_acknowledged_date",
             "correspondence_notes",
             "is_report_correspondence_complete",
@@ -328,7 +333,7 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
 
     report_followup_week_1_due_date = AMPDateField(label="1 week followup")
     report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+    report_followup_week_12_due_date = AMPDateField(label="12 week update")
 
     class Meta:
         model = Case
@@ -344,13 +349,21 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    report_followup_week_12_sent_date = AMPDateField(label="12 week update requested")
+    twelve_week_update_display = AMPDateSentField(
+        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
+    )
+    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
         label="12 week correspondence acknowledged"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
+    twelve_week_response_state = AMPChoiceCheckboxField(
+        label="Mark the case as having no response to 12 week update",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
+    )
     is_12_week_correspondence_complete = forms.BooleanField(
         label="Mark 12 week correspondence as completed",
         widget=AMPBooleanCheckboxWidget(
@@ -362,11 +375,13 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            "report_followup_week_12_sent_date",
+            "twelve_week_update_display",
+            "twelve_week_update_requested_date",
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
             "twelve_week_correspondence_acknowledged_date",
             "correspondence_notes",
+            "twelve_week_response_state",
             "is_12_week_correspondence_complete",
         ]
 
@@ -376,12 +391,14 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
     Form for updating twelve week correspondence followup due dates
     """
 
+    report_followup_week_12_due_date = AMPDateField(label="12 week update")
     twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
     twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
 
     class Meta:
         model = Case
         fields = [
+            "report_followup_week_12_due_date",
             "twelve_week_1_week_chaser_due_date",
             "twelve_week_4_week_chaser_due_date",
         ]

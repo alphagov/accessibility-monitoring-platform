@@ -18,7 +18,7 @@ def get_sent_date(
     If there is a new value in the form and no date on the database then use the date from the form.
     If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
     """
-    date_on_form: date = form.cleaned_data[sent_date_name]
+    date_on_form: date = form.cleaned_data.get(sent_date_name)
     if date_on_form is None:
         return None
     date_on_db: date = getattr(case_from_db, sent_date_name)
