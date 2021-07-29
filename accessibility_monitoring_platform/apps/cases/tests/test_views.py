@@ -759,7 +759,7 @@ def test_preferred_contact_displayed(admin_client):
         ("is_report_correspondence_complete", "Report correspondence"),
         ("is_12_week_correspondence_complete", "12 week correspondence"),
         ("is_final_decision_complete", "Final decision"),
-        ("is_enforcement_correspondence_complete", "Equality bodies correspondence"),
+        ("is_enforcement_correspondence_complete", "Equality body correspondence"),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
@@ -781,7 +781,7 @@ def test_section_complete_check_displayed_in_contents(
     assertContains(
         response,
         f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">'
-        f'{section_name}</a> &check;',
+        f"{section_name}</a> &check;",
         html=True,
     )
 
@@ -853,7 +853,7 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
         '<div id="event-name-hint" class="govuk-hint">'
         f'The retest form can be found in the <a href="{test_results_url}"'
         ' class="govuk-link govuk-link--no-visited-state">test results</a>'
-        '</div>',
+        "</div>",
     )
 
 

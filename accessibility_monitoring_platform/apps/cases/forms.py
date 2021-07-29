@@ -30,7 +30,6 @@ from .models import (
     TEST_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    COMPLIANCE_DECISION_CHOICES,
     ARCHIVE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
@@ -344,6 +343,26 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
         ]
 
 
+class CaseNoPSBContactUpdateForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to move this case to the equality bodies correspondence stage?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Move this case onto equality bodies correspondence stage?"}
+        ),
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "no_psb_contact",
+        ]
+
+
 class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     """
     Form for updating week twelve correspondence details
@@ -404,45 +423,6 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseArchiveForm(forms.ModelForm):
-    """
-    Form for archiving a case
-    """
-
-    archive_reason = AMPChoiceRadioField(
-        label="Reason why?",
-        choices=ARCHIVE_DECISION_CHOICES,
-    )
-    archive_notes = AMPTextField(label="More information?")
-
-    class Meta:
-        model = Case
-        fields = [
-            "archive_reason",
-            "archive_notes",
-        ]
-
-
-class CaseNoPSBContactUpdateForm(forms.ModelForm):
-    """
-    Form for archiving a case
-    """
-
-    no_psb_contact = AMPChoiceCheckboxField(
-        label="Do you want to move this case to the equality bodies correspondence stage?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Move this case onto equality bodies correspondence stage?"}
-        ),
-    )
-
-    class Meta:
-        model = Case
-        fields = [
-            "no_psb_contact",
-        ]
-
-
 class CaseFinalDecisionUpdateForm(forms.ModelForm):
     """
     Form for updating case final decision details
@@ -462,9 +442,9 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    compliance_decision = AMPChoiceRadioField(
+    is_website_compliant = AMPChoiceRadioField(
         label="Compliance decision",
-        choices=COMPLIANCE_DECISION_CHOICES,
+        choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
     compliance_decision_notes = AMPTextField(label="Compliance decision notes")
     compliance_email_sent_date = AMPDateField(
@@ -491,7 +471,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "disproportionate_notes",
             "accessibility_statement_decison",
             "accessibility_statement_notes",
-            "compliance_decision",
+            "is_website_compliant",
             "compliance_decision_notes",
             "compliance_email_sent_date",
             "case_completed",
@@ -529,4 +509,23 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
             "enforcement_body_correspondence_notes",
             "escalation_state",
             "is_enforcement_correspondence_complete",
+        ]
+
+
+class CaseArchiveForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    archive_reason = AMPChoiceRadioField(
+        label="Reason why?",
+        choices=ARCHIVE_DECISION_CHOICES,
+    )
+    archive_notes = AMPTextField(label="More information?")
+
+    class Meta:
+        model = Case
+        fields = [
+            "archive_reason",
+            "archive_notes",
         ]

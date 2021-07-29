@@ -65,7 +65,7 @@ def download_as_csv(
         if include_contact:
             contacts = list(item.contact_set.filter(is_archived=False))
             if contacts:
-                row.append(contacts[0].detail)
+                row.append(contacts[0].email)
                 row.append(contacts[0].notes)
 
         output.append(row)

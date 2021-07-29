@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Region, Sector
+from ..common.models import Sector
 
 STATUS_DEFAULT = "new-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
@@ -40,13 +40,6 @@ TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
     ("mobile", "Mobile"),
-]
-
-DEFAULT_WEBSITE_TYPE = "public"
-WEBSITE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_WEBSITE_TYPE, "Public website"),
-    ("int-extranet", "Intranet/Extranet"),
-    ("n/a", "N/A"),
 ]
 
 TEST_STATUS_DEFAULT = "not-started"
@@ -160,12 +153,18 @@ class Case(models.Model):
     Model for Case
     """
 
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="case_created_by_user",
+        blank=True,
+        null=True,
+    )
+
+    # Case details
     created = models.DateTimeField(blank=True)
     status = models.CharField(
         max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
-    )
-    qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
     )
     auditor = models.ForeignKey(
         User,
@@ -179,35 +178,45 @@ class Case(models.Model):
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
-    application = models.CharField(max_length=200, default="N/A")
     organisation_name = models.TextField(default="", blank=True)
     service_name = models.TextField(default="", blank=True)
-    website_type = models.CharField(
-        max_length=20, choices=WEBSITE_TYPE_CHOICES, default=DEFAULT_WEBSITE_TYPE
-    )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
-    region = models.ManyToManyField(Region, blank=True)
+    enforcement_body = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_CHOICES,
+        default=ENFORCEMENT_BODY_DEFAULT,
+    )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     zendesk_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
-    is_public_sector_body = models.CharField(
-        max_length=20,
-        choices=IS_PUBLIC_SECTOR_BODY_CHOICES,
-        default=IS_PUBLIC_SECTOR_BODY_DEFAULT,
-    )
+    is_case_details_complete = models.BooleanField(default=False)
+
+    # Contact details
+    is_contact_details_complete = models.BooleanField(default=False)
+
+    # Testing details
     test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
     )
+    accessibility_statement_decison = models.CharField(
+        max_length=200,
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+    )
+    accessibility_statement_notes = models.TextField(default="", blank=True)
     is_website_compliant = models.CharField(
         max_length=20,
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
         default=IS_WEBSITE_COMPLIANT_DEFAULT,
     )
-    test_notes = models.TextField(default="", blank=True)
+    compliance_decision_notes = models.TextField(default="", blank=True)
+    is_testing_details_complete = models.BooleanField(default=False)
+
+    # Report details
     report_draft_url = models.TextField(default="", blank=True)
     report_review_status = models.CharField(
         max_length=200,
@@ -229,28 +238,45 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
-    report_sent_date = models.DateField(null=True, blank=True)
+    is_reporting_details_complete = models.BooleanField(default=False)
 
-    report_acknowledged_date = models.DateField(null=True, blank=True)
-    report_followup_week_1_due_date = models.DateField(null=True, blank=True)
+    # Report correspondence
+    report_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
-    report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
+    report_acknowledged_date = models.DateField(null=True, blank=True)
+    correspondence_notes = models.TextField(default="", blank=True)
+    is_report_correspondence_complete = models.BooleanField(default=False)
+
+    # Report followup dates
+    report_followup_week_1_due_date = models.DateField(null=True, blank=True)
+    report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
 
+    # Unable to send report or no response from public sector body?
+    no_psb_contact = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+
+    # 12 week correspondence
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
-    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
+    # correspondence_notes from report correspondance again
     twelve_week_response_state = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    is_12_week_correspondence_complete = models.BooleanField(default=False)
 
-    correspondence_notes = models.TextField(default="", blank=True)
+    # 12 week correspondence dates
+    # report_followup_week_12_due_date from report followup dates again
+    twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
+    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
+
+    # Final decision
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website = models.DateField(null=True, blank=True)
     is_disproportionate_claimed = models.CharField(
@@ -259,25 +285,18 @@ class Case(models.Model):
         default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
-    accessibility_statement_decison = models.CharField(
-        max_length=200,
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
-    )
-    accessibility_statement_url = models.TextField(default="", blank=True)
-    accessibility_statement_notes = models.TextField(default="", blank=True)
-    compliance_decision = models.CharField(
-        max_length=200,
-        choices=COMPLIANCE_DECISION_CHOICES,
-        default=COMPLIANCE_DECISION_DEFAULT,
-    )
-    compliance_decision_notes = models.TextField(default="", blank=True)
+    # accessibility_statement_decison from testing details again
+    # accessibility_statement_notes from testing details again
+    # is_website_compliant from testing details again
+    # compliance_decision_notes from testing details again
     compliance_email_sent_date = models.DateField(null=True, blank=True)
-    enforcement_body = models.CharField(
-        max_length=20,
-        choices=ENFORCEMENT_BODY_CHOICES,
-        default=ENFORCEMENT_BODY_DEFAULT,
+    case_completed = models.CharField(
+        max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
+    completed = models.DateTimeField(null=True, blank=True)
+    is_final_decision_complete = models.BooleanField(default=False)
+
+    # Equality body correspondence
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
@@ -285,10 +304,9 @@ class Case(models.Model):
         choices=ESCALATION_STATE_CHOICES,
         default=DEFAULT_ESCALATION_STATE,
     )
-    case_completed = models.CharField(
-        max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
-    )
-    completed = models.DateTimeField(null=True, blank=True)
+    is_enforcement_correspondence_complete = models.BooleanField(default=False)
+
+    # Delete case
     is_archived = models.BooleanField(default=False)
     archive_reason = models.CharField(
         max_length=20,
@@ -296,27 +314,11 @@ class Case(models.Model):
         default=ARCHIVE_DECISION_DEFAULT,
     )
     archive_notes = models.TextField(default="", blank=True)
-    no_psb_contact = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
 
-    simplified_test_filename = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="case_created_by_user",
-        blank=True,
-        null=True,
+    # Dashboard
+    qa_status = models.CharField(
+        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
     )
-
-    is_case_details_complete = models.BooleanField(default=False)
-    is_contact_details_complete = models.BooleanField(default=False)
-    is_testing_details_complete = models.BooleanField(default=False)
-    is_reporting_details_complete = models.BooleanField(default=False)
-    is_report_correspondence_complete = models.BooleanField(default=False)
-    is_12_week_correspondence_complete = models.BooleanField(default=False)
-    is_final_decision_complete = models.BooleanField(default=False)
-    is_enforcement_correspondence_complete = models.BooleanField(default=False)
 
     def __str__(self):
         return str(f"{self.organisation_name} | #{self.id}")
@@ -390,8 +392,6 @@ class Case(models.Model):
             "test_type",
             "home_page_url",
             "organisation_name",
-            "website_type",
-            "region",
             "is_complaint",
         ]
         percentage_increase = round(100 / (len(to_check) + 2))
@@ -399,9 +399,6 @@ class Case(models.Model):
         for field in to_check:
             if getattr(self, field):
                 progress += percentage_increase
-
-        if self.region.values_list("name", flat=True).exists():
-            progress += percentage_increase
 
         if Contact.objects.filter(case_id=self.id).exists():
             progress += percentage_increase
@@ -515,7 +512,7 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"{self.detail} (Case #{self.case.id})")
+        return str(f"{self.email} (Case #{self.case.id})")
 
     def save(self, *args, **kwargs):
         if not self.id:

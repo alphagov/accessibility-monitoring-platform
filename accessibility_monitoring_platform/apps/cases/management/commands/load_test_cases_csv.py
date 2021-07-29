@@ -12,7 +12,7 @@ from django.db import models
 from django.db.models.fields.reverse_related import ManyToOneRel
 
 from ...models import Case, Contact
-from ....common.models import Region, Sector
+from ....common.models import Sector
 
 INPUT_FILE_NAME = (
     "accessibility_monitoring_platform/apps/cases/management/commands/test_cases.csv"
@@ -28,10 +28,6 @@ def delete_existing_data(verbose: bool = False) -> None:
 
 def get_users() -> Dict[str, User]:
     return {user.username: user for user in User.objects.all()}
-
-
-def get_regions() -> Dict[str, Region]:
-    return {region.name: region for region in Region.objects.all()}
 
 
 def get_sectors() -> Dict[str, Sector]:
@@ -141,24 +137,7 @@ def create_case(get_data: Callable) -> Case:
         for field in fields
         if not isinstance(field, ManyToOneRel)
     }
-    del kwargs["region"]
     return Case.objects.create(**kwargs)
-
-
-def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]:
-    region: Union[Region, None] = row.get("region", None)
-    if region:
-        region_names: List[str] = region.split(",")
-        region_objects: List[Region] = []
-        for region_name in region_names:
-            if region_name in regions:
-                region_objects.append(regions[region_name])
-            else:
-                new_region: Region = Region.objects.create(name=region_name)
-                regions[region_name] = new_region
-                region_objects.append(new_region)
-        return region_objects
-    return []
 
 
 class Command(BaseCommand):
@@ -196,7 +175,6 @@ class Command(BaseCommand):
         if initial:
             delete_existing_data(verbose)
 
-        regions: Dict[str, Region] = get_regions()
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
 
@@ -210,13 +188,6 @@ class Command(BaseCommand):
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
                 case: Case = create_case(get_data)
-
-                regions_for_case: List[Region] = get_or_create_regions_from_row(
-                    row, regions
-                )
-
-                if regions_for_case:
-                    case.region.add(*regions_for_case)
 
                 if "contact_email" in row and row["contact_email"]:
                     contact: Contact = Contact(
