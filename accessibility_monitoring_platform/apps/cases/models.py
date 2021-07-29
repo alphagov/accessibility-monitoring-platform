@@ -27,14 +27,6 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("archived", "Archived"),
 ]
 
-QA_STATUS_DEFAULT = "unknown"
-QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_DEFAULT, "Unknown"),
-    ("unassigned_qa_case", "Unassigned QA case"),
-    ("in_qa", "In QA"),
-    ("qa_approved", "QA approved"),
-]
-
 DEFAULT_TEST_TYPE = "simple"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
@@ -42,11 +34,40 @@ TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("mobile", "Mobile"),
 ]
 
+ENFORCEMENT_BODY_DEFAULT = "ehrc"
+ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
+    ("ecni", "Equality Commission Northern Ireland"),
+    (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
+]
+
+BOOLEAN_DEFAULT = "no"
+BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+    ("no", "No"),
+    ("yes", "Yes"),
+]
+
 TEST_STATUS_DEFAULT = "not-started"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("complete", "Complete"),
     ("in-progress", "In progress"),
     (TEST_STATUS_DEFAULT, "Not started"),
+]
+
+ACCESSIBILITY_STATEMENT_DECISION_DEFAULT = "unknown"
+ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
+    ("compliant", "Compliant"),
+    ("partially", "Partially compliant"),
+    ("not-compliant", "Not compliant"),
+    ("missing", "Statement missing"),
+    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
+]
+
+IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
+IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Compliant"),
+    ("partially", "Partially compliant"),
+    ("no", "Not compliant"),
+    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
 ]
 
 REPORT_REVIEW_STATUS_DEFAULT = "not-started"
@@ -63,28 +84,11 @@ REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
-ACCESSIBILITY_STATEMENT_DECISION_DEFAULT = "unknown"
-ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
-    ("partially", "Partially compliant"),
-    ("not-compliant", "Not compliant"),
-    ("missing", "Statement missing"),
-    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
-]
-
-COMPLIANCE_DECISION_DEFAULT = "unknown"
-COMPLIANCE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("inaction", "No further action"),
-    ("other", "Other"),
-    (COMPLIANCE_DECISION_DEFAULT, "Unknown"),
-]
-
-ARCHIVE_DECISION_DEFAULT = "not-psb"
-ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    (ARCHIVE_DECISION_DEFAULT, "Organisation is not a public sector body"),
-    ("mistake", "Case was opened by mistake"),
-    ("duplicate", "This case was a duplicate case"),
-    ("other", "Other"),
+IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
+IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "N/A"),
 ]
 
 DEFAULT_CASE_COMPLETED = "no-decision"
@@ -107,31 +111,20 @@ ESCALATION_STATE_CHOICES = [
     (DEFAULT_ESCALATION_STATE, "Not known"),
 ]
 
-IS_PUBLIC_SECTOR_BODY_DEFAULT = "yes"
-IS_PUBLIC_SECTOR_BODY_CHOICES: List[Tuple[bool, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
+ARCHIVE_DECISION_DEFAULT = "not-psb"
+ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
+    (ARCHIVE_DECISION_DEFAULT, "Organisation is not a public sector body"),
+    ("mistake", "Case was opened by mistake"),
+    ("duplicate", "This case was a duplicate case"),
+    ("other", "Other"),
 ]
 
-IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
-IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Compliant"),
-    ("partially", "Partially compliant"),
-    ("no", "Not compliant"),
-    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
-]
-
-BOOLEAN_DEFAULT = "no"
-BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
-]
-
-IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
-IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "N/A"),
+QA_STATUS_DEFAULT = "unknown"
+QA_STATUS_CHOICES: List[Tuple[str, str]] = [
+    (QA_STATUS_DEFAULT, "Unknown"),
+    ("unassigned_qa_case", "Unassigned QA case"),
+    ("in_qa", "In QA"),
+    ("qa_approved", "QA approved"),
 ]
 
 PREFERRED_DEFAULT = "unknown"
@@ -139,12 +132,6 @@ PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (PREFERRED_DEFAULT, "Not known"),
-]
-
-ENFORCEMENT_BODY_DEFAULT = "ehrc"
-ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
-    ("ecni", "Equality Commission Northern Ireland"),
-    (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
 ]
 
 
@@ -161,7 +148,7 @@ class Case(models.Model):
         null=True,
     )
 
-    # Case details
+    # Case details page
     created = models.DateTimeField(blank=True)
     status = models.CharField(
         max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
@@ -194,10 +181,10 @@ class Case(models.Model):
     notes = models.TextField(default="", blank=True)
     is_case_details_complete = models.BooleanField(default=False)
 
-    # Contact details
+    # Contact details page
     is_contact_details_complete = models.BooleanField(default=False)
 
-    # Testing details
+    # Testing details page
     test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
@@ -216,7 +203,7 @@ class Case(models.Model):
     compliance_decision_notes = models.TextField(default="", blank=True)
     is_testing_details_complete = models.BooleanField(default=False)
 
-    # Report details
+    # Report details page
     report_draft_url = models.TextField(default="", blank=True)
     report_review_status = models.CharField(
         max_length=200,
@@ -240,7 +227,7 @@ class Case(models.Model):
     report_final_odt_url = models.TextField(default="", blank=True)
     is_reporting_details_complete = models.BooleanField(default=False)
 
-    # Report correspondence
+    # Report correspondence page
     report_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
@@ -248,35 +235,35 @@ class Case(models.Model):
     correspondence_notes = models.TextField(default="", blank=True)
     is_report_correspondence_complete = models.BooleanField(default=False)
 
-    # Report followup dates
+    # Report followup dates page
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
     report_followup_week_4_due_date = models.DateField(null=True, blank=True)
     report_followup_week_12_due_date = models.DateField(null=True, blank=True)
 
-    # Unable to send report or no response from public sector body?
+    # Unable to send report or no response from public sector body page
     no_psb_contact = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
 
-    # 12 week correspondence
+    # 12 week correspondence page
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
-    # correspondence_notes from report correspondance again
+    # correspondence_notes from report correspondance page
     twelve_week_response_state = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     is_12_week_correspondence_complete = models.BooleanField(default=False)
 
     # 12 week correspondence dates
-    # report_followup_week_12_due_date from report followup dates again
+    # report_followup_week_12_due_date from report followup dates page
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
 
-    # Final decision
+    # Final decision page
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website = models.DateField(null=True, blank=True)
     is_disproportionate_claimed = models.CharField(
@@ -285,10 +272,10 @@ class Case(models.Model):
         default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
-    # accessibility_statement_decison from testing details again
-    # accessibility_statement_notes from testing details again
-    # is_website_compliant from testing details again
-    # compliance_decision_notes from testing details again
+    # accessibility_statement_decison from testing details page
+    # accessibility_statement_notes from testing details page
+    # is_website_compliant from testing details page
+    # compliance_decision_notes from testing details page
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
@@ -296,7 +283,7 @@ class Case(models.Model):
     completed = models.DateTimeField(null=True, blank=True)
     is_final_decision_complete = models.BooleanField(default=False)
 
-    # Equality body correspondence
+    # Equality body correspondence page
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
@@ -306,7 +293,7 @@ class Case(models.Model):
     )
     is_enforcement_correspondence_complete = models.BooleanField(default=False)
 
-    # Delete case
+    # Delete case page
     is_archived = models.BooleanField(default=False)
     archive_reason = models.CharField(
         max_length=20,
@@ -315,7 +302,7 @@ class Case(models.Model):
     )
     archive_notes = models.TextField(default="", blank=True)
 
-    # Dashboard
+    # Dashboard page
     qa_status = models.CharField(
         max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
     )
