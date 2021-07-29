@@ -45,7 +45,7 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
     DEFAULT_SORT,
 )
-from .utils import get_sent_date
+from .utils import extract_display_type_label_and_value, get_sent_date
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -111,6 +111,21 @@ class CaseDetailView(DetailView):
         """Add unarchived contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["contacts"] = self.object.contact_set.filter(is_archived=False)
+        context["case_details_rows"] = extract_display_type_label_and_value(
+            self.object, CaseDetailUpdateForm()
+        )
+        context["testing_details_rows"] = extract_display_type_label_and_value(
+            self.object, CaseTestResultsUpdateForm()
+        )
+        context["report_details_rows"] = extract_display_type_label_and_value(
+            self.object, CaseReportDetailsUpdateForm()
+        )
+        context["final_decision_rows"] = extract_display_type_label_and_value(
+            self.object, CaseFinalDecisionUpdateForm()
+        )
+        context["enforcement_body_correspondence_rows"] = extract_display_type_label_and_value(
+            self.object, CaseEnforcementBodyCorrespondenceUpdateForm()
+        )
         return context
 
 
@@ -370,7 +385,7 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
         form.fields["report_followup_week_4_sent_date"].help_text = format_date(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields["twelve_week_update_display"].help_text = format_date(
+        form.fields["report_followup_week_12_due_date"].help_text = format_date(
             form.instance.report_followup_week_12_due_date
         )
         return form
@@ -443,7 +458,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields["twelve_week_update_display"].help_text = format_date(
+        form.fields["report_followup_week_12_due_date"].help_text = format_date(
             form.instance.report_followup_week_12_due_date
         )
         form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(

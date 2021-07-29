@@ -22,73 +22,8 @@
             <th scope="row" class="govuk-table__header">Status</th>
             <td class="govuk-table__cell">{{ case.get_status_display }}</td>
         </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Auditor</th>
-            <td class="govuk-table__cell">{{ case.auditor.get_full_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Test type</th>
-            <td class="govuk-table__cell">{{ case.get_test_type_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Full URL</th>
-            <td class="govuk-table__cell">
-                <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.home_page_url }}</a>
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Domain</th>
-            <td class="govuk-table__cell">{{ case.domain }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Organisation name</th>
-            <td class="govuk-table__cell">{{ case.organisation_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Website, app or service name</th>
-            <td class="govuk-table__cell">{{ case.service_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Type of site</th>
-            <td class="govuk-table__cell">{{ case.get_website_type_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Sector</th>
-            <td class="govuk-table__cell">{{ case.sector }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Equalities body who will check the case</th>
-            <td class="govuk-table__cell">{{ case.get_enforcement_body_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Did this case originate from a complaint?</th>
-            <td class="govuk-table__cell">{{ case.get_is_complaint_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Zendesk link</th>
-            <td class="govuk-table__cell">
-                {% if case.zendesk_url %}
-                    <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.zendesk_url }}</a>
-                {% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Trello ticket</th>
-            <td class="govuk-table__cell">
-                {% if case.trello_url %}
-                    <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">{{ case.trello_url }}</a>
-                {% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Notes</th>
-            <td class="govuk-table__cell">
-                {% if case.notes %}<p class="govuk-body-m cases-notes">{{ case.notes }}</p>{% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Public sector body?</th>
-            <td class="govuk-table__cell">{{ case.get_is_public_sector_body_display }}</td>
-        </tr>
+        {% for row in case_details_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
     </tbody>
 </table>

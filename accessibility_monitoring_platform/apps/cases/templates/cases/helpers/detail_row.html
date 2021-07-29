@@ -1,0 +1,20 @@
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">{{ row.label }}</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">
+                {% if row.type == 'url' %}
+                    <a href="{{ row.value }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        {% if row.extra_label %}
+                            {{ row.extra_label }}
+                        {% else %}
+                            {{ row.value }}
+                        {% endif %}
+                    </a>
+                {% elif row.type == 'notes' %}
+                    {% if row.value %}<p class="govuk-body-m cases-notes">{{ row.value }}</p>{% endif %}
+                {% elif row.type == 'date' %}
+                    {{ row.value|date:"d/m/Y" }}
+                {% else %}
+                    {{ row.value }}
+                {% endif %}
+            </td>
+        </tr>
