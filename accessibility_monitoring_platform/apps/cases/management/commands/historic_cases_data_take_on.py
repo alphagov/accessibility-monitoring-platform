@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
 from ...models import Case, Contact
-from ....common.models import Sector, Region
+from ....common.models import Sector
 from ....common.utils import extract_domain_from_url
 
 CENTRAL_SPREADSHEET_FILE_NAME = Path.home() / "simplified_test_central_sheet.csv"
@@ -43,7 +43,7 @@ DISPROPORTIONATE_NOTES = "Disproportionate Burden Notes"
 ACCESSIBILITY_STATEMENT_DECISION = "Accessibility Statement Decision"
 ACCESSIBILITY_STATEMENT_NOTES = "Notes on accessibility statement"
 # Link to new saved screen shot of accessibility statement if not compliant
-COMPLIANCE_DECISION = "Compliance Decision"
+# COMPLIANCE_DECISION = "Compliance Decision"
 COMPLIANCE_DECISION_NOTES = "Compliance Decision Notes"
 RETEST_DATE = "Retest date"  # Used to set is_website_retested flag
 # Decision email sent?
@@ -56,10 +56,10 @@ SENT_TO_ENFORCEMENT_BODY_DATE = (
 # User Research
 # Post audit survey
 # METADATA
-WEBSITE_TYPE = "Type of site"
+# WEBSITE_TYPE = "Type of site"
 SECTOR = "Sector"
 # Scale
-REGION = "Region"
+# REGION = "Region"
 CASE_ORIGIN = "Org or website list?"
 # FOI checked
 
@@ -82,10 +82,6 @@ def get_test_results_urls() -> Dict[int, str]:
 
 def get_users() -> Dict[str, User]:
     return {user.first_name.lower(): user for user in User.objects.all()}
-
-
-def get_regions() -> Dict[str, Region]:
-    return {region.name.lower(): region for region in Region.objects.all()}
 
 
 def get_sectors() -> Dict[str, Sector]:
@@ -233,10 +229,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
         #     )
     is_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
-    compliance_decision_str = get_data(column_name=COMPLIANCE_DECISION)
-    is_website_compliant = (
-        "yes" if compliance_decision_str == "No further action" else "unknown"
-    )
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
@@ -246,12 +238,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
         else "unknown"
     )
-    if compliance_decision_str:
-        compliance_decision = (
-            "inaction" if is_website_compliant else slugify(compliance_decision_str)
-        )
-    else:
-        compliance_decision = "unknown"
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
     case_completed = (
         "no-action"
@@ -266,19 +252,14 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         test_type="simple",
         home_page_url=home_page_url,
         domain=extract_domain_from_url(home_page_url),
-        application="n/a",
         organisation_name=get_data(column_name=ORGANISATION_NAME),
-        website_type=get_data(column_name=WEBSITE_TYPE),
         sector=get_data(column_name=SECTOR, column_type="sector"),
         is_complaint=is_complaint,
         zendesk_url="",
         trello_url="",
         notes="",
-        is_public_sector_body="yes",
         test_results_url=get_data(column_name=TEST_RESULTS_URL),
         test_status="not-started",
-        is_website_compliant=is_website_compliant,
-        test_notes="",
         report_draft_url="",
         report_review_status=report_review_status,
         reviewer=None,
@@ -300,11 +281,9 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         accessibility_statement_decison=slugify(
             get_data(column_name=ACCESSIBILITY_STATEMENT_DECISION)
         ),
-        accessibility_statement_url="",
         accessibility_statement_notes=get_data(
             column_name=ACCESSIBILITY_STATEMENT_NOTES
         ),
-        compliance_decision=compliance_decision,
         compliance_decision_notes=get_data(column_name=COMPLIANCE_DECISION_NOTES),
         compliance_email_sent_date=None,
         sent_to_enforcement_body_sent_date=get_data(
@@ -314,28 +293,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         completed=None,
         is_archived=False,
     )
-
-
-def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]:
-    region: Union[str, None] = row.get(REGION)
-    gb_or_ni: Union[str, None] = row.get(GB_OR_NI)
-    if region:
-        region_names: List[str] = [
-            region_name.strip() for region_name in region.split(",")
-        ]
-        if gb_or_ni and gb_or_ni == "NI":
-            region_names.append("Northern Ireland")
-        region_objects: List[Region] = []
-        for region_name in region_names:
-            region_name
-            if region_name.lower() in regions:
-                region_objects.append(regions[region_name.lower()])
-            else:
-                new_region: Region = Region.objects.create(name=region_name)
-                regions[region_name.lower()] = new_region
-                region_objects.append(new_region)
-        return region_objects
-    return []
 
 
 def create_contact_from_row(get_data: Callable, case: Case) -> None:
@@ -399,7 +356,6 @@ class Command(BaseCommand):
             delete_existing_data(verbose)
 
         homepage_urls: Dict[int, str] = get_test_results_urls()
-        regions: Dict[str, Region] = get_regions()
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
 
@@ -416,13 +372,6 @@ class Command(BaseCommand):
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
                 case: Case = create_case(get_data, homepage_urls=homepage_urls)
-
-                regions_for_case: List[Region] = get_or_create_regions_from_row(
-                    row, regions
-                )
-
-                if regions_for_case:
-                    case.region.add(*regions_for_case)
 
                 if create_contacts:
                     create_contact_from_row(get_data, case)

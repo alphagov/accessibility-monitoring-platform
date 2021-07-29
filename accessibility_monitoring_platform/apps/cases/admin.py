@@ -9,11 +9,10 @@ from .models import Case, Contact
 class CaseAdmin(admin.ModelAdmin):
     """Django admin configuration for Case model"""
 
-    readonly_fields = ["simplified_test_filename", "created"]
+    readonly_fields = ["created"]
     search_fields = ["organisation_name", "domain"]
     list_display = ["organisation_name", "domain", "auditor", "created"]
     list_filter = ["auditor"]
-    filter_horizontal = ["region"]
 
 
 class ContactAdmin(admin.ModelAdmin):
