@@ -152,6 +152,7 @@ class Case(models.Model):
     """
     Model for Case
     """
+
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -511,7 +512,7 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"{self.detail} (Case #{self.case.id})")
+        return str(f"{self.email} (Case #{self.case.id})")
 
     def save(self, *args, **kwargs):
         if not self.id:

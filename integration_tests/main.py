@@ -71,8 +71,9 @@ def download_webdriver() -> None:
     if os.path.isfile(webdriver_path):
         return
 
-    page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-    chrome_version: str = page.read().decode("utf-8")
+    #page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+    #chrome_version: str = page.read().decode("utf-8")
+    chrome_version: str = "92.0.4515.107"
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
     webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/{chrome_version}/chromedriver_{library}.zip"
     target_path: str = "./integration_tests/chromedriver.zip"

@@ -260,12 +260,11 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         notes="",
         test_results_url=get_data(column_name=TEST_RESULTS_URL),
         test_status="not-started",
-        report_draft_url="",
+        report_draft_url=get_data(column_name=REPORT_FINAL_URL),
         report_review_status=report_review_status,
         reviewer=None,
         report_approved_status=report_approved_status,
         reviewer_notes="",
-        report_final_url=get_data(column_name=REPORT_FINAL_URL),
         report_sent_date=report_sent_date,
         report_acknowledged_date=get_data(
             column_name=REPORT_ACKNOWLEDGED_DATE, column_type="date"
@@ -273,7 +272,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         report_followup_week_12_due_date=get_data(
             column_name=WEEK_12_FOLLOWEP_DATE, column_type="date"
         ),
-        report_followup_week_12_sent_date=None,
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
         retested_website=retested_website,
         is_disproportionate_claimed=is_disproportionate_claimed,
