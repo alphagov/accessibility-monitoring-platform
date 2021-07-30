@@ -27,7 +27,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("archived", "Archived"),
 ]
 
-DEFAULT_TEST_TYPE = "simple"
+DEFAULT_TEST_TYPE = "simplified"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),

@@ -124,11 +124,15 @@ class CaseDetailView(DetailView):
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)
 
-        context["case_details_rows"] = case_details_prefix + get_rows(form=CaseDetailUpdateForm())
+        context["case_details_rows"] = case_details_prefix + get_rows(
+            form=CaseDetailUpdateForm()
+        )
         context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
-        context["enforcement_body_correspondence_rows"] = get_rows(form=CaseEnforcementBodyCorrespondenceUpdateForm())
+        context["enforcement_body_correspondence_rows"] = get_rows(
+            form=CaseEnforcementBodyCorrespondenceUpdateForm()
+        )
         return context
 
 

@@ -9,7 +9,7 @@ from typing import ClassVar, List, Union
 from django import forms
 from django.contrib.auth.models import User
 
-from ..common.forms import AMPDateField, AMPTextField, AMPURLField
+from ..common.forms import AMPTextField, AMPURLField
 
 from .forms import (
     CaseDetailUpdateForm,
