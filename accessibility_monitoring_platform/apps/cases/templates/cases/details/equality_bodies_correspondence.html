@@ -14,19 +14,8 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Date sent to equality body</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">{{ case.sent_to_enforcement_body_sent_date|date:"d/m/Y" }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Equality body correspondence notes</th>
-            <td class="govuk-table__cell">
-                {% if case.enforcement_body_correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.enforcement_body_correspondence_notes }}</p>{% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Case is complete?</th>
-            <td class="govuk-table__cell">{{ case.get_escalation_state_display }}</td>
-        </tr>
+        {% for row in enforcement_body_correspondence_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
     </tbody>
 </table>

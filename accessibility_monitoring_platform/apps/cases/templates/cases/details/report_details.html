@@ -14,47 +14,8 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to report draft</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
-                {% if case.report_draft_url %}
-                    <a href="{{ case.report_draft_url }}" target="_blank">Report draft</a>
-                {% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Is report ready to be reviewed?</th>
-            <td class="govuk-table__cell">{{ case.get_report_review_status_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">QA auditor</th>
-            <td class="govuk-table__cell">{{ case.reviewer.get_full_name }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Is report approved?</th>
-            <td class="govuk-table__cell">{{ case.get_report_approved_status_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">QA notes</th>
-            <td class="govuk-table__cell">
-                {% if case.reviewer_notes %}<p class="govuk-body-m cases-notes">{{ case.reviewer_notes }}</p>{% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Link to final PDF report</th>
-            <td class="govuk-table__cell">
-                {% if case.report_final_pdf_url %}
-                    <a href="{{ case.report_final_pdf_url }}">Final PDF draft</a>
-                {% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Link to final ODT report</th>
-            <td class="govuk-table__cell">
-                {% if case.report_final_odt_url %}
-                    <a href="{{ case.report_final_odt_url }}">Final ODT draft</a>
-                {% endif %}
-            </td>
-        </tr>
+        {% for row in report_details_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
     </tbody>
 </table>

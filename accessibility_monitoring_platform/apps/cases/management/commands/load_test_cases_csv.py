@@ -112,7 +112,7 @@ def get_data_from_row(
     sectors: List[Sector],
     field: models.Field,
 ) -> Union[str, bool, int, date, datetime, User, Sector]:
-    if isinstance(field, models.CharField) or isinstance(field, models.TextField):
+    if isinstance(field, (models.CharField, models.TextField)):
         return get_string_from_row(
             row=row, column_name=field.name, default=field.default
         )
