@@ -11,11 +11,10 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.db import models
 
-from ...common.models import Region, Sector
+from ...common.models import Sector
 from ..management.commands.load_test_cases_csv import (
     delete_existing_data,
     get_users,
-    get_regions,
     get_sectors,
     get_boolean_from_row,
     get_string_from_row,
@@ -26,13 +25,10 @@ from ..management.commands.load_test_cases_csv import (
     get_or_create_sector_from_row,
     get_data_from_row,
     create_case,
-    get_or_create_regions_from_row,
 )
 from ..models import Case, Contact
 
 USER_NAME: str = "user.name@example.com"
-REGION_NAME: str = "Region Name"
-SECOND_REGION_NAME: str = "Second Region"
 SECTOR_NAME: str = "Sector Name"
 
 
@@ -55,16 +51,15 @@ def test_delete_existing_data():
     "get_function, model, field_name, value",
     [
         (get_users, User, "username", "username"),
-        (get_regions, Region, "name", "Region Name"),
         (get_sectors, Sector, "name", "Sector Name"),
     ],
 )
 @pytest.mark.django_db
 def test_get_users(get_function, model, field_name, value):
     """Test function returns a dictionary of objects keyed by values"""
-    obj: Union[User, Region, Sector] = model.objects.create(**{field_name: value})
+    obj: Union[User, Sector] = model.objects.create(**{field_name: value})
 
-    objs: List[Union[User, Region, Sector]] = get_function()
+    objs: List[Union[User, Sector]] = get_function()
 
     assert objs == {value: obj}
 
@@ -209,9 +204,18 @@ def test_get_or_create_sector_from_row_creates_sector():
         (models.BooleanField(name="flag"), True),
         (models.IntegerField(name="id"), 4),
         (models.DateField(name="sent"), date(2021, 2, 28)),
-        (models.DateTimeField(name="created"), datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC)),
-        (models.ForeignKey(name="auditor", to=User, on_delete=models.DO_NOTHING), "user1"),
-        (models.ForeignKey(name="sector", to=Sector, on_delete=models.DO_NOTHING), "sector1"),
+        (
+            models.DateTimeField(name="created"),
+            datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC),
+        ),
+        (
+            models.ForeignKey(name="auditor", to=User, on_delete=models.DO_NOTHING),
+            "user1",
+        ),
+        (
+            models.ForeignKey(name="sector", to=Sector, on_delete=models.DO_NOTHING),
+            "sector1",
+        ),
     ],
 )
 def test_get_data_from_row(field, expected_value):
@@ -245,7 +249,6 @@ def test_create_case_creates_a_case():
     case_id: str = "7"
     row: Dict[str, str] = {
         "id": case_id,
-        "is_public_sector_body": "True",
         "is_website_compliant": "False",
         "is_website_retested": "False",
         "is_disproportionate_claimed": "False",
@@ -253,6 +256,14 @@ def test_create_case_creates_a_case():
         "no_psb_contact": "False",
         "report_is_approved": "False",
         "report_is_ready_to_review": "False",
+        "is_case_details_complete": "False",
+        "is_contact_details_complete": "False",
+        "is_testing_details_complete": "False",
+        "is_reporting_details_complete": "False",
+        "is_report_correspondence_complete": "False",
+        "is_12_week_correspondence_complete": "False",
+        "is_final_decision_complete": "False",
+        "is_enforcement_correspondence_complete": "False",
     }
 
     get_data: Callable = partial(get_data_from_row, row=row, users={}, sectors={})
@@ -263,46 +274,6 @@ def test_create_case_creates_a_case():
 
     assert Case.objects.count() == 1
     assert case.id == int(case_id)
-
-
-@pytest.mark.parametrize("row", [{"regions": ""}, {}])
-def test_get_or_create_regions_from_row_returns_none_if_no_sector_in_row(row):
-    """Test get_or_create_regions_from_row returns none if no regions in row"""
-    regions: Dict = {}
-
-    assert get_or_create_regions_from_row(row=row, regions=regions) == []
-
-
-@pytest.mark.django_db
-def test_get_or_create_regions_from_row_returns_sector():
-    """Test get_or_create_regions_from_row returns regions matching names"""
-    first_region: Region = Region.objects.create(name=REGION_NAME)
-    second_region: Region = Region.objects.create(name=SECOND_REGION_NAME)
-    regions: Dict[str, Region] = {
-        REGION_NAME: first_region,
-        SECOND_REGION_NAME: second_region,
-    }
-    row: Dict[str, str] = {"region": f"{REGION_NAME},{SECOND_REGION_NAME}"}
-
-    assert get_or_create_regions_from_row(row=row, regions=regions) == [
-        first_region,
-        second_region,
-    ]
-
-
-@pytest.mark.django_db
-def test_get_or_create_regions_from_row_creates_regions():
-    """Test get_or_create_regions_from_row creates regions if no matching region found"""
-    regions: Dict = {}
-    row: Dict[str, str] = {"region": f"{REGION_NAME},{SECOND_REGION_NAME}"}
-
-    assert Region.objects.count() == 0
-
-    regions: List[Region] = get_or_create_regions_from_row(row=row, regions=regions)
-
-    assert Region.objects.count() == 2
-    assert regions[0].name == REGION_NAME
-    assert regions[1].name == SECOND_REGION_NAME
 
 
 @pytest.mark.django_db

@@ -44,15 +44,15 @@ def test_case_domain_is_populated_from_home_page_url():
 
 
 @pytest.mark.django_db
-def test_case_renders_as_id_bar_organisation_name():
-    """Test the Case string is id | organisation_name"""
+def test_case_renders_as_organisation_name_bar_id():
+    """Test the Case string is organisation_name | id"""
     case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
-    assert str(case) == f"#{case.id} | {case.organisation_name}"
+    assert str(case) == f"{case.organisation_name} | #{case.id}"
 
 
 @pytest.mark.django_db
-def test_case_summary_is_id_bar_organisation_name_bar_domain():
+def test_case_summary_is_organisation_name_bar_domain_bar_id():
     """Test the Case summary string is id | organisation_name | domain"""
     case = Case.objects.create(
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME

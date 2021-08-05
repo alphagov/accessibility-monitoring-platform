@@ -1,10 +1,12 @@
 """
 Views for cases app
 """
-from datetime import timedelta
-from typing import Any, Dict, List, Tuple
+from datetime import date, timedelta
+from functools import partial
+from typing import Any, Callable, Dict, List, Tuple
 import urllib
 
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -12,7 +14,8 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.db.models import Q
+from django.utils.safestring import mark_safe
+
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
@@ -29,6 +32,7 @@ from .forms import (
     CaseDetailUpdateForm,
     CaseContactFormset,
     CaseContactFormsetOneExtra,
+    CaseContactsUpdateForm,
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
@@ -42,7 +46,7 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
     DEFAULT_SORT,
 )
-from .utils import get_sent_date
+from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -52,8 +56,8 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("end_date", "created__lte"),
 ]
 ONE_WEEK_IN_DAYS = 7
-FOUR_WEEKS_IN_DAYS = 28
-TWELVE_WEEKS_IN_DAYS = 84
+FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
+TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -64,6 +68,36 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case
             Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
         )
     return Case.objects.filter(domain=domain)
+
+
+def calculate_report_followup_dates(
+    case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
+) -> CaseReportCorrespondenceUpdateForm:
+    """Calculate followup dates based on a report sent date"""
+    case.report_followup_week_1_due_date = report_sent_date + timedelta(
+        days=ONE_WEEK_IN_DAYS
+    )
+    case.report_followup_week_4_due_date = report_sent_date + timedelta(
+        days=FOUR_WEEKS_IN_DAYS
+    )
+    case.report_followup_week_12_due_date = report_sent_date + timedelta(
+        days=TWELVE_WEEKS_IN_DAYS
+    )
+    return case
+
+
+def calculate_twelve_week_chaser_dates(
+    case: CaseTwelveWeekCorrespondenceUpdateForm,
+    twelve_week_update_requested_date: date,
+) -> CaseTwelveWeekCorrespondenceUpdateForm:
+    """Calculate chaser dates based on a twelve week update requested date"""
+    case.twelve_week_1_week_chaser_due_date = (
+        twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
+    )
+    case.twelve_week_4_week_chaser_due_date = (
+        twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
+    )
+    return case
 
 
 class CaseDetailView(DetailView):
@@ -78,6 +112,27 @@ class CaseDetailView(DetailView):
         """Add unarchived contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["contacts"] = self.object.contact_set.filter(is_archived=False)
+        case_details_prefix: List[CaseFieldLabelAndValue] = [
+            CaseFieldLabelAndValue(
+                label="Date created",
+                value=self.object.created,
+                type=CaseFieldLabelAndValue.DATE_TYPE,
+            ),
+            CaseFieldLabelAndValue(
+                label="Status", value=self.object.get_status_display()
+            ),
+        ]
+        get_rows: Callable = partial(extract_labels_and_values, case=self.object)
+
+        context["case_details_rows"] = case_details_prefix + get_rows(
+            form=CaseDetailUpdateForm()
+        )
+        context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
+        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
+        context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
+        context["enforcement_body_correspondence_rows"] = get_rows(
+            form=CaseEnforcementBodyCorrespondenceUpdateForm()
+        )
         return context
 
 
@@ -165,17 +220,10 @@ class CaseCreateView(CreateView):
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
         )
+
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases
-            context["cleaned_data"] = form.cleaned_data
-            if context["cleaned_data"]["test_type"]:
-                context["cleaned_data"]["test_type"] = dict(
-                    form.fields["test_type"].choices
-                )[context["cleaned_data"]["test_type"]]
-            if context["cleaned_data"]["case_origin"]:
-                context["cleaned_data"]["case_origin"] = dict(
-                    form.fields["case_origin"].choices
-                )[context["cleaned_data"]["case_origin"]]
+            context["new_case"] = form.save(commit=False)
             return self.render_to_response(context)
         return super().form_valid(form)
 
@@ -221,7 +269,7 @@ class CaseContactFormsetUpdateView(UpdateView):
     """
 
     model: Case = Case
-    fields: List[str] = []
+    form_class: CaseContactsUpdateForm = CaseContactsUpdateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/contact_formset.html"
 
@@ -314,27 +362,6 @@ class CaseReportDetailsUpdateView(UpdateView):
     context_object_name: str = "case"
     template_name: str = "cases/forms/report_details.html"
 
-    def form_valid(self, form: CaseReportDetailsUpdateForm):
-        self.object: CaseReportDetailsUpdateForm = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
-        report_sent_date_from_form = form.cleaned_data["report_sent_date"]
-        report_sent_date_from_db = case_from_db.report_sent_date
-        if report_sent_date_from_form and not report_sent_date_from_db:
-            if not case_from_db.report_followup_week_1_due_date:
-                self.object.report_followup_week_1_due_date = (
-                    report_sent_date_from_form + timedelta(days=ONE_WEEK_IN_DAYS)
-                )
-            if not case_from_db.report_followup_week_4_due_date:
-                self.object.report_followup_week_4_due_date = (
-                    report_sent_date_from_form + timedelta(days=FOUR_WEEKS_IN_DAYS)
-                )
-            if not case_from_db.report_followup_week_12_due_date:
-                self.object.report_followup_week_12_due_date = (
-                    report_sent_date_from_form + timedelta(days=TWELVE_WEEKS_IN_DAYS)
-                )
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
@@ -357,6 +384,7 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
     template_name: str = "cases/forms/report_correspondence.html"
 
     def get_form(self):
+        """Populate help text with dates"""
         form = super().get_form()
         form.fields["report_followup_week_1_sent_date"].help_text = format_date(
             form.instance.report_followup_week_1_due_date
@@ -364,24 +392,32 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
         form.fields["report_followup_week_4_sent_date"].help_text = format_date(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields["report_followup_week_12_sent_date"].help_text = format_date(
+        form.fields["report_followup_week_12_due_date"].help_text = format_date(
             form.instance.report_followup_week_12_due_date
         )
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
+        """
+        Recalculate followup dates if report sent date has changed;
+        Otherwise set sent dates based on followup date checkboxes.
+        """
         self.object: CaseReportCorrespondenceUpdateForm = form.save(commit=False)
         case_from_db: Case = Case.objects.get(pk=self.object.id)
-        for sent_date_name in [
-            "report_followup_week_1_sent_date",
-            "report_followup_week_4_sent_date",
-            "report_followup_week_12_sent_date",
-        ]:
-            setattr(
-                self.object,
-                sent_date_name,
-                get_sent_date(form, case_from_db, sent_date_name),
+        if "report_sent_date" in form.changed_data:
+            self.object = calculate_report_followup_dates(
+                case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
             )
+        else:
+            for sent_date_name in [
+                "report_followup_week_1_sent_date",
+                "report_followup_week_4_sent_date",
+            ]:
+                setattr(
+                    self.object,
+                    sent_date_name,
+                    get_sent_date(form, case_from_db, sent_date_name),
+                )
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -414,28 +450,6 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseNoPSBContactUpdateView(UpdateView):
-    """
-    View to set no psb contact flag
-    """
-
-    model: Case = Case
-    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
-    context_object_name: str = "case"
-    template_name: str = "cases/forms/no_psb_contact.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
-        else:
-            url = reverse_lazy(
-                "cases:edit-enforcement-body-correspondence",
-                kwargs={"pk": self.object.id},
-            )
-        return url
-
-
 class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     """
     View to record week twelve correspondence details
@@ -449,7 +463,11 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     template_name: str = "cases/forms/twelve_week_correspondence.html"
 
     def get_form(self):
+        """Populate help text with dates"""
         form = super().get_form()
+        form.fields["report_followup_week_12_due_date"].help_text = format_date(
+            form.instance.report_followup_week_12_due_date
+        )
         form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(
             form.instance.twelve_week_1_week_chaser_due_date
         )
@@ -459,17 +477,29 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
         return form
 
     def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
+        """
+        Recalculate chaser dates if twelve week update requested date has changed;
+        Otherwise set sent dates based on chaser date checkboxes.
+        """
         self.object: CaseTwelveWeekCorrespondenceUpdateForm = form.save(commit=False)
         case_from_db: Case = Case.objects.get(pk=self.object.id)
-        for sent_date_name in [
-            "twelve_week_1_week_chaser_sent_date",
-            "twelve_week_4_week_chaser_sent_date",
-        ]:
-            setattr(
-                self.object,
-                sent_date_name,
-                get_sent_date(form, case_from_db, sent_date_name),
+        if "twelve_week_update_requested_date" in form.changed_data:
+            self.object = calculate_twelve_week_chaser_dates(
+                case=self.object,
+                twelve_week_update_requested_date=form.cleaned_data[
+                    "twelve_week_update_requested_date"
+                ],
             )
+        else:
+            for sent_date_name in [
+                "twelve_week_1_week_chaser_sent_date",
+                "twelve_week_4_week_chaser_sent_date",
+            ]:
+                setattr(
+                    self.object,
+                    sent_date_name,
+                    get_sent_date(form, case_from_db, sent_date_name),
+                )
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -504,12 +534,26 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseNoPSBResponseUpdateView(CaseNoPSBContactUpdateView):
+class CaseNoPSBResponseUpdateView(UpdateView):
     """
     View to set no psb contact flag
     """
 
+    model: Case = Case
+    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    context_object_name: str = "case"
     template_name: str = "cases/forms/no_psb_response.html"
+
+    def get_success_url(self) -> str:
+        """Work out url to redirect to on success"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-enforcement-body-correspondence",
+                kwargs={"pk": self.object.id},
+            )
+        return url
 
 
 class CaseFinalDecisionUpdateView(UpdateView):
@@ -521,6 +565,16 @@ class CaseFinalDecisionUpdateView(UpdateView):
     form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/final_decision.html"
+
+    def get_form(self):
+        """Populate retested_website help text with link to test results for this case"""
+        form = super().get_form()
+        if form.instance.test_results_url:
+            form.fields["retested_website"].help_text = mark_safe(
+                f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
+                ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+            )
+        return form
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""

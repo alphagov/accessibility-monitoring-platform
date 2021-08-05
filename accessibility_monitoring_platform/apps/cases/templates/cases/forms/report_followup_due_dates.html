@@ -12,10 +12,12 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-full">
                 <div class="govuk-body">
                     <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Report sent on</p>
-                    <p class="govuk-!-font-weight-regular">{{ case.report_sent_date|date:"d/m/Y" }}</p>
+                    <p class="govuk-!-font-weight-regular">
+                        {% if case.report_sent_date %}{{ case.report_sent_date|date:"d/m/Y" }}{% else %}None{% endif %}
+                    </p>
                 </div>
                 <form method="post" action="{% url 'cases:edit-report-followup-due-dates' case.id %}">
                     {% csrf_token %}
@@ -38,9 +40,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/navbar.html' with current_page='edit-report-correspondence' %}
             </div>
         </div>
     </main>

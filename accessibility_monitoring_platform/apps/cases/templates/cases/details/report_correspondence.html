@@ -15,6 +15,10 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Report sent on</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_sent_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-half">1 week followup due</th>
             <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_followup_week_1_due_date|date:"d/m/Y" }}</td>
         </tr>
@@ -36,7 +40,10 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Correspondence notes</th>
-            <td class="govuk-table__cell govuk-!-width-two-thirds">{{ case.correspondence_notes }}</td>
+            <td class="govuk-table__cell">
+                {% if case.correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.correspondence_notes }}</p>{% endif %}
+            </td>
+
         </tr>
     </tbody>
 </table>

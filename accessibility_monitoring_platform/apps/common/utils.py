@@ -26,7 +26,11 @@ def get_field_names_for_export(model: models.Model) -> List[str]:
     Returns a list of names of all the fields in a model.
     Exclude those representing reverse relationships.
     """
-    return [field.name for field in model._meta.get_fields() if not isinstance(field, ManyToOneRel)]
+    return [
+        field.name
+        for field in model._meta.get_fields()
+        if not isinstance(field, ManyToOneRel)
+    ]
 
 
 def download_as_csv(
@@ -61,7 +65,7 @@ def download_as_csv(
         if include_contact:
             contacts = list(item.contact_set.filter(is_archived=False))
             if contacts:
-                row.append(contacts[0].detail)
+                row.append(contacts[0].email)
                 row.append(contacts[0].notes)
 
         output.append(row)

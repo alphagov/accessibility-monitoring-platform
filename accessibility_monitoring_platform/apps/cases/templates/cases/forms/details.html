@@ -15,14 +15,14 @@
             <div class="govuk-grid-column-two-thirds">
                 <form method="post" action="{% url 'cases:edit-case-details' case.id %}">
                     {% csrf_token %}
-                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
-
-                    {% for hidden_field in form.hidden_fields %}
-                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                        {{ hidden_field }}
-                    {% endfor %}
-
                     <div class="govuk-grid-row">
+                        <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+
+                        {% for hidden_field in form.hidden_fields %}
+                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                            {{ hidden_field }}
+                        {% endfor %}
+
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date created</b></label>
@@ -31,7 +31,6 @@
 
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Status</b></label>
-                                <p class="govuk-body-m">The status can not be edited manually</p>
                                 <p class="govuk-body-m">{{ case.get_status_display}}</p>
                             </div>
 
@@ -40,7 +39,7 @@
                             {% endfor %}
                         </div>
 
-                        <div class="govuk-button-group">
+                        <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
                                 value="Save and continue"

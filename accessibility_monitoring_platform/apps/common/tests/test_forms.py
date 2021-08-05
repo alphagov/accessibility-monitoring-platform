@@ -5,6 +5,7 @@ import pytest
 
 from datetime import date, datetime
 import pytz
+from typing import List, Tuple
 
 from pytest_django.asserts import assertHTMLEqual
 
@@ -12,7 +13,7 @@ from django import forms
 
 from ..forms import (
     AMPRadioSelectWidget,
-    AMPCheckboxWidget,
+    AMPChoiceCheckboxWidget,
     AMPDateCheckboxWidget,
     AMPDateWidget,
     AMPCharField,
@@ -20,8 +21,7 @@ from ..forms import (
     AMPTextField,
     AMPChoiceField,
     AMPChoiceRadioField,
-    AMPBooleanField,
-    AMPNullableBooleanField,
+    AMPChoiceCheckboxField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -84,11 +84,17 @@ EXPECTED_DATE_WIDGET_HTML: str = """
         </div>
 </div>"""
 
+BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+]
+
 
 class MockForm(forms.Form):
     """Form used to test fields and widgets"""
 
     date_as_checkbox = AMPDateSentField(label="Label1")
+    choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
 
 
 def test_amp_widget_html_uses_govuk_classes():
@@ -98,8 +104,10 @@ def test_amp_widget_html_uses_govuk_classes():
 
 
 def test_amp_checkbox_widget_html_uses_govuk_classes():
-    """Check AMPCheckboxWidget renders the expected HTML"""
-    widget: AMPCheckboxWidget = AMPCheckboxWidget(attrs={"label": "Label text"})
+    """Check AMPChoiceCheckboxWidget renders the expected HTML"""
+    widget: AMPChoiceCheckboxWidget = AMPChoiceCheckboxWidget(
+        attrs={"label": "Label text"}
+    )
     assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
 
 
@@ -123,8 +131,6 @@ def test_amp_date_widget_html_uses_govuk_classes():
         (AMPTextField, forms.CharField),
         (AMPChoiceField, forms.ChoiceField),
         (AMPChoiceRadioField, forms.ChoiceField),
-        (AMPBooleanField, forms.ChoiceField),
-        (AMPNullableBooleanField, forms.ChoiceField),
         (AMPDateField, forms.DateField),
     ],
 )
@@ -141,8 +147,6 @@ def test_amp_field_class_subclasses_expected_class(field_class, expected_supercl
         AMPTextField,
         AMPChoiceField,
         AMPChoiceRadioField,
-        AMPBooleanField,
-        AMPNullableBooleanField,
         AMPDateField,
     ],
 )
@@ -160,8 +164,6 @@ def test_amp_field_is_not_required(field_class):
         (AMPTextField, forms.Textarea),
         (AMPChoiceField, forms.Select),
         (AMPChoiceRadioField, AMPRadioSelectWidget),
-        (AMPBooleanField, AMPRadioSelectWidget),
-        (AMPNullableBooleanField, AMPRadioSelectWidget),
         (AMPDateField, AMPDateWidget),
     ],
 )
@@ -265,6 +267,24 @@ def test_amp_date_range_form_fails_invalid_end_date_year():
         }
     )
     assert not form.is_valid()
+
+
+def test_amp_choice_checkbox_field_and_widget_return_yes_when_checked():
+    """Tests AMPChoiceCheckboxField and AMPChoiceCheckboxWidget return 'yes' when checked"""
+    form: MockForm = MockForm(
+        data={
+            "choice_as_checkbox": "on",
+        }
+    )
+    assert form.is_valid()
+    assert form.cleaned_data["choice_as_checkbox"] == "yes"
+
+
+def test_amp_choice_checkbox_field_and_widget_return_no_when_not_checked():
+    """Tests AMPChoiceCheckboxField and AMPChoiceCheckboxWidget return 'no' when not checked"""
+    form: MockForm = MockForm(data={})
+    assert form.is_valid()
+    assert form.cleaned_data["choice_as_checkbox"] == "no"
 
 
 def test_amp_date_sent_field_and_widget_return_today_when_checked():

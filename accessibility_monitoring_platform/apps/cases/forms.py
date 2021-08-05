@@ -7,7 +7,9 @@ from django import forms
 from django.contrib.auth.models import User
 
 from ..common.forms import (
-    AMPCheckboxWidget,
+    AMPBooleanCheckboxWidget,
+    AMPChoiceCheckboxWidget,
+    AMPDateCheckboxWidget,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -15,9 +17,7 @@ from ..common.forms import (
     AMPChoiceField,
     AMPModelChoiceField,
     AMPChoiceRadioField,
-    AMPModelMultipleChoiceField,
-    AMPBooleanField,
-    AMPNullableBooleanField,
+    AMPChoiceCheckboxField,
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
@@ -26,19 +26,22 @@ from ..common.forms import (
 from .models import (
     Case,
     Contact,
-    CASE_ORIGIN_CHOICES,
     STATUS_CHOICES,
     TEST_TYPE_CHOICES,
-    DEFAULT_WEBSITE_TYPE,
-    WEBSITE_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    COMPLIANCE_DECISION_CHOICES,
     ARCHIVE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
+    PREFERRED_CHOICES,
+    IS_WEBSITE_COMPLIANT_CHOICES,
+    BOOLEAN_CHOICES,
+    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    ENFORCEMENT_BODY_CHOICES,
+    REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_APPROVED_STATUS_CHOICES,
 )
-from ..common.models import Region, Sector
+from ..common.models import Sector
 
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
@@ -86,15 +89,25 @@ class CaseCreateForm(forms.ModelForm):
     )
     home_page_url = AMPURLField(
         label="Full URL",
-        help_text="Enter a domain if test type is simple or complex",
+        help_text="Enter if test type is simplified or detailed",
         required=True,
     )
     test_type = AMPChoiceRadioField(
         label="Test type",
         choices=TEST_TYPE_CHOICES,
     )
-    case_origin = AMPChoiceRadioField(label="Case origin", choices=CASE_ORIGIN_CHOICES)
-    auditor = AMPUserModelChoiceField(label="Auditor")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    enforcement_body = AMPChoiceRadioField(
+        label="Equalities body who will check the case?",
+        choices=ENFORCEMENT_BODY_CHOICES,
+    )
+    is_complaint = AMPChoiceCheckboxField(
+        label="Complaint?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Did this case originate from a complaint?"}
+        ),
+    )
 
     class Meta:
         model = Case
@@ -102,8 +115,9 @@ class CaseCreateForm(forms.ModelForm):
             "organisation_name",
             "home_page_url",
             "test_type",
-            "case_origin",
-            "auditor",
+            "sector",
+            "enforcement_body",
+            "is_complaint",
         ]
 
 
@@ -112,21 +126,19 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
+    auditor = AMPUserModelChoiceField(label="Auditor")
     domain = AMPCharFieldWide(label="Domain")
-    service_name = AMPCharFieldWide(label="Website, App or Service name")
-    website_type = AMPChoiceRadioField(
-        label="Type of site",
-        choices=WEBSITE_TYPE_CHOICES,
-        initial=DEFAULT_WEBSITE_TYPE,
-    )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    region = AMPModelMultipleChoiceField(
-        label="Region",
-        queryset=Region.objects.all(),
-    )
+    service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     notes = AMPTextField(label="Notes")
+    is_case_details_complete = forms.BooleanField(
+        label="Mark case details as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Case details completed?"},
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Case
@@ -137,13 +149,13 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "domain",
             "organisation_name",
             "service_name",
-            "website_type",
             "sector",
-            "region",
-            "case_origin",
+            "enforcement_body",
+            "is_complaint",
             "zendesk_url",
             "trello_url",
             "notes",
+            "is_case_details_complete",
         ]
 
 
@@ -155,10 +167,10 @@ class CaseContactUpdateForm(forms.ModelForm):
     first_name = AMPCharFieldWide(label="First name")
     last_name = AMPCharFieldWide(label="Last name")
     job_title = AMPCharFieldWide(label="Job title")
-    detail = AMPCharFieldWide(
-        label="Detail", help_text="E.g. email address or telephone number"
+    email = AMPCharFieldWide(label="Email")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=PREFERRED_CHOICES
     )
-    preferred = AMPBooleanField(label="Preferred contact?")
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -167,7 +179,7 @@ class CaseContactUpdateForm(forms.ModelForm):
             "first_name",
             "last_name",
             "job_title",
-            "detail",
+            "email",
             "preferred",
             "notes",
         ]
@@ -181,6 +193,26 @@ CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
+class CaseContactsUpdateForm(forms.ModelForm):
+    """
+    Form for updating test results
+    """
+
+    is_contact_details_complete = forms.BooleanField(
+        label="Mark contact details as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Contact details completed?"},
+        ),
+        required=False,
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "is_contact_details_complete",
+        ]
+
+
 class CaseTestResultsUpdateForm(forms.ModelForm):
     """
     Form for updating test results
@@ -191,16 +223,33 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Test status",
         choices=TEST_STATUS_CHOICES,
     )
-    is_website_compliant = AMPNullableBooleanField(label="Is the website compliant?")
-    test_notes = AMPTextField(label="Compliance notes")
+    accessibility_statement_decison = AMPChoiceRadioField(
+        label="Is the accessibility statement compliant?",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
+    is_website_compliant = AMPChoiceRadioField(
+        label="Is the website compliant?", choices=IS_WEBSITE_COMPLIANT_CHOICES
+    )
+    compliance_decision_notes = AMPTextField(label="Compliance notes")
+    is_testing_details_complete = forms.BooleanField(
+        label="Mark testing details as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Testing details completed?"},
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Case
         fields = [
             "test_results_url",
             "test_status",
+            "accessibility_statement_decison",
+            "accessibility_statement_notes",
             "is_website_compliant",
-            "test_notes",
+            "compliance_decision_notes",
+            "is_testing_details_complete",
         ]
 
 
@@ -210,23 +259,35 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     """
 
     report_draft_url = AMPURLField(label="Link to report draft")
-    report_is_ready_to_review = AMPBooleanField(label="Is report ready to be reviewed?")
+    report_review_status = AMPChoiceRadioField(
+        label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
+    )
     reviewer = AMPUserModelChoiceField(label="QA Auditor")
-    report_is_approved = AMPBooleanField(label="Is report approved")
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
+    )
     reviewer_notes = AMPTextField(label="QA notes")
-    report_final_url = AMPURLField(label="Link to final report")
-    report_sent_date = AMPDateField(label="Report sent on")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    report_final_odt_url = AMPURLField(label="Link to final ODT report")
+    is_reporting_details_complete = forms.BooleanField(
+        label="Mark reporting details as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Reporting details completed?"},
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Case
         fields = [
             "report_draft_url",
-            "report_is_ready_to_review",
+            "report_review_status",
             "reviewer",
-            "report_is_approved",
+            "report_approved_status",
             "reviewer_notes",
-            "report_final_url",
-            "report_sent_date",
+            "report_final_pdf_url",
+            "report_final_odt_url",
+            "is_reporting_details_complete",
         ]
 
 
@@ -235,22 +296,32 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating report correspondence details
     """
 
+    report_sent_date = AMPDateField(label="Report sent on")
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
-    report_followup_week_7_sent_date = AMPDateSentField(label="7 week followup date")
-    report_followup_week_12_sent_date = AMPDateSentField(label="12 week deadline")
+    report_followup_week_12_due_date = AMPDateSentField(
+        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
+    )
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
     correspondence_notes = AMPTextField(label="Correspondence notes")
+    is_report_correspondence_complete = forms.BooleanField(
+        label="Mark report correspondence as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Report correspondence completed?"},
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Case
         fields = [
+            "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
-            "report_followup_week_7_sent_date",
-            "report_followup_week_12_sent_date",
+            "report_followup_week_12_due_date",
             "report_acknowledged_date",
             "correspondence_notes",
+            "is_report_correspondence_complete",
         ]
 
 
@@ -261,7 +332,7 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
 
     report_followup_week_1_due_date = AMPDateField(label="1 week followup")
     report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+    report_followup_week_12_due_date = AMPDateField(label="12 week update")
 
     class Meta:
         model = Case
@@ -272,28 +343,65 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
         ]
 
 
+class CaseNoPSBContactUpdateForm(forms.ModelForm):
+    """
+    Form for archiving a case
+    """
+
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to move this case to the equality bodies correspondence stage?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Move this case onto equality bodies correspondence stage?"}
+        ),
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "no_psb_contact",
+        ]
+
+
 class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     """
     Form for updating week twelve correspondence details
     """
 
-    report_followup_week_12_sent_date = AMPDateSentField(
-        label="12 week update requested"
+    report_followup_week_12_due_date = AMPDateSentField(
+        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
     )
+    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
         label="12 week correspondence acknowledged"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
+    twelve_week_response_state = AMPChoiceCheckboxField(
+        label="Mark the case as having no response to 12 week update",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
+    )
+    is_12_week_correspondence_complete = forms.BooleanField(
+        label="Mark 12 week correspondence as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "12 week correspondence completed?"},
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Case
         fields = [
+            "report_followup_week_12_due_date",
+            "twelve_week_update_requested_date",
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
             "twelve_week_correspondence_acknowledged_date",
             "correspondence_notes",
+            "twelve_week_response_state",
+            "is_12_week_correspondence_complete",
         ]
 
 
@@ -302,14 +410,105 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
     Form for updating twelve week correspondence followup due dates
     """
 
+    report_followup_week_12_due_date = AMPDateField(label="12 week update")
     twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
     twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
 
     class Meta:
         model = Case
         fields = [
+            "report_followup_week_12_due_date",
             "twelve_week_1_week_chaser_due_date",
             "twelve_week_4_week_chaser_due_date",
+        ]
+
+
+class CaseFinalDecisionUpdateForm(forms.ModelForm):
+    """
+    Form for updating case final decision details
+    """
+
+    psb_progress_notes = AMPTextField(
+        label="Summary of progress made from public sector body"
+    )
+    retested_website = AMPDateField(label="Retested website?")
+    is_disproportionate_claimed = AMPChoiceRadioField(
+        label="Disproportionate burden claimed?",
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_decison = AMPChoiceRadioField(
+        label="Accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
+    is_website_compliant = AMPChoiceRadioField(
+        label="Compliance decision",
+        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+    )
+    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_email_sent_date = AMPDateField(
+        label="Compliance email sent to public sector body?"
+    )
+    case_completed = AMPChoiceRadioField(
+        label="Case completed?",
+        choices=CASE_COMPLETED_CHOICES,
+    )
+    is_final_decision_complete = forms.BooleanField(
+        label="Mark final decision as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Final decision completed?"},
+        ),
+        required=False,
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "psb_progress_notes",
+            "retested_website",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_decison",
+            "accessibility_statement_notes",
+            "is_website_compliant",
+            "compliance_decision_notes",
+            "compliance_email_sent_date",
+            "case_completed",
+            "is_final_decision_complete",
+        ]
+
+
+class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
+    """
+    Form for recording correspondence with enforcement body
+    """
+
+    sent_to_enforcement_body_sent_date = AMPDateField(
+        label="Date sent to equality body"
+    )
+    enforcement_body_correspondence_notes = AMPTextField(
+        label="Equality body correspondence notes"
+    )
+    escalation_state = AMPChoiceRadioField(
+        label="Equalities body correspondence completed?",
+        choices=ESCALATION_STATE_CHOICES,
+    )
+    is_enforcement_correspondence_complete = forms.BooleanField(
+        label="Mark equality body correspondence as completed",
+        widget=AMPBooleanCheckboxWidget(
+            attrs={"label": "Equality body correspondence completed?"},
+        ),
+        required=False,
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "sent_to_enforcement_body_sent_date",
+            "enforcement_body_correspondence_notes",
+            "escalation_state",
+            "is_enforcement_correspondence_complete",
         ]
 
 
@@ -329,95 +528,4 @@ class CaseArchiveForm(forms.ModelForm):
         fields = [
             "archive_reason",
             "archive_notes",
-        ]
-
-
-class CaseNoPSBContactUpdateForm(forms.ModelForm):
-    """
-    Form for archiving a case
-    """
-
-    no_psb_contact = AMPBooleanField(
-        widget=AMPCheckboxWidget(
-            attrs={"label": "Move case onto equality bodies correspondence stage?"}
-        )
-    )
-
-    class Meta:
-        model = Case
-        fields = [
-            "no_psb_contact",
-        ]
-
-
-class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
-    """
-    Form for recording correspondence with enforcement body
-    """
-
-    sent_to_enforcement_body_sent_date = AMPDateField(
-        label="Date sent to equality body"
-    )
-    enforcement_body_correspondence_notes = AMPTextField(
-        label="Equality body correspondence notes"
-    )
-    escalation_state = AMPChoiceRadioField(
-        label="Equalities body correspondence completed?",
-        choices=ESCALATION_STATE_CHOICES,
-    )
-
-    class Meta:
-        model = Case
-        fields = [
-            "sent_to_enforcement_body_sent_date",
-            "enforcement_body_correspondence_notes",
-            "escalation_state",
-        ]
-
-
-class CaseFinalDecisionUpdateForm(forms.ModelForm):
-    """
-    Form for updating case final decision details
-    """
-
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
-    retested_website = AMPDateField(
-        label="Retested website?",
-        help_text="The retest form can be found in the test results",
-    )
-    is_disproportionate_claimed = AMPNullableBooleanField(
-        label="Disproportionate burden claimed?",
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceRadioField(
-        label="Accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    compliance_decision = AMPChoiceRadioField(
-        label="Compliance decision",
-        choices=COMPLIANCE_DECISION_CHOICES,
-    )
-    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
-    compliance_email_sent_date = AMPDateField(label="Compliance email sent to PSB?")
-    case_completed = AMPChoiceRadioField(
-        label="Case completed?",
-        choices=CASE_COMPLETED_CHOICES,
-    )
-
-    class Meta:
-        model = Case
-        fields = [
-            "psb_progress_notes",
-            "retested_website",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_decison",
-            "accessibility_statement_notes",
-            "compliance_decision",
-            "compliance_decision_notes",
-            "compliance_email_sent_date",
-            "case_completed",
         ]

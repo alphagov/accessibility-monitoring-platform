@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
 from ...models import Case, Contact
-from ....common.models import Sector, Region
+from ....common.models import Sector
 from ....common.utils import extract_domain_from_url
 
 CENTRAL_SPREADSHEET_FILE_NAME = Path.home() / "simplified_test_central_sheet.csv"
@@ -43,7 +43,7 @@ DISPROPORTIONATE_NOTES = "Disproportionate Burden Notes"
 ACCESSIBILITY_STATEMENT_DECISION = "Accessibility Statement Decision"
 ACCESSIBILITY_STATEMENT_NOTES = "Notes on accessibility statement"
 # Link to new saved screen shot of accessibility statement if not compliant
-COMPLIANCE_DECISION = "Compliance Decision"
+# COMPLIANCE_DECISION = "Compliance Decision"
 COMPLIANCE_DECISION_NOTES = "Compliance Decision Notes"
 RETEST_DATE = "Retest date"  # Used to set is_website_retested flag
 # Decision email sent?
@@ -56,10 +56,10 @@ SENT_TO_ENFORCEMENT_BODY_DATE = (
 # User Research
 # Post audit survey
 # METADATA
-WEBSITE_TYPE = "Type of site"
+# WEBSITE_TYPE = "Type of site"
 SECTOR = "Sector"
 # Scale
-REGION = "Region"
+# REGION = "Region"
 CASE_ORIGIN = "Org or website list?"
 # FOI checked
 
@@ -84,12 +84,8 @@ def get_users() -> Dict[str, User]:
     return {user.first_name.lower(): user for user in User.objects.all()}
 
 
-def get_regions() -> Dict[str, Region]:
-    return {region.name: region for region in Region.objects.all()}
-
-
 def get_sectors() -> Dict[str, Sector]:
-    return {sector.name: sector for sector in Sector.objects.all()}
+    return {sector.name.lower(): sector for sector in Sector.objects.all()}
 
 
 def print_row_message(row: Dict[str, str], message: str) -> None:
@@ -181,13 +177,15 @@ def get_or_create_user_from_row(
 def get_or_create_sector_from_row(
     row: Dict[str, str], sectors: Dict[str, Sector], column_name: str
 ) -> Union[Sector, None]:
-    sector_name: Union[str, None] = row.get(column_name)
-    if sector_name and sector_name not in sectors:
-        sector: Sector = Sector.objects.create(name=sector_name)
-        sectors[sector_name] = sector
-        return sector
-    else:
-        return sectors.get(sector_name)
+    sector_name: Union[str] = row.get(column_name, "").strip()
+    if sector_name:
+        sector_name_lower = sector_name.lower()
+        if sector_name_lower in sectors:
+            return sectors.get(sector_name_lower)
+        else:
+            sector: Sector = Sector.objects.create(name=sector_name)
+            sectors[sector_name_lower] = sector
+            return sector
     return None
 
 
@@ -230,29 +228,22 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         #     print(
         #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
         #     )
-    is_a_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
-    case_origin = (
-        "complaint"
-        if is_a_complaint
-        else get_data(column_name=CASE_ORIGIN, default="list").lower()
-    )
-    compliance_decision_str = get_data(column_name=COMPLIANCE_DECISION)
-    is_website_compliant = compliance_decision_str == "No further action"
+    is_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
     retested_website = get_data(column_name=RETEST_DATE, column_type="date")
     is_disproportionate_claimed = (
-        get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
+        "yes"
+        if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
+        else "unknown"
     )
-    if compliance_decision_str:
-        compliance_decision = (
-            "inaction" if is_website_compliant else slugify(compliance_decision_str)
-        )
-    else:
-        compliance_decision = "unknown"
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
-    case_completed = "no-action" if sent_to_enforcement_body.lower() == "n/a - no need to send" else "no-decision"
+    case_completed = (
+        "no-action"
+        if sent_to_enforcement_body.lower() == "n/a - no need to send"
+        else "no-decision"
+    )
 
     return Case.objects.create(
         id=case_number,
@@ -261,25 +252,19 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         test_type="simple",
         home_page_url=home_page_url,
         domain=extract_domain_from_url(home_page_url),
-        application="n/a",
         organisation_name=get_data(column_name=ORGANISATION_NAME),
-        website_type=get_data(column_name=WEBSITE_TYPE),
         sector=get_data(column_name=SECTOR, column_type="sector"),
-        case_origin=case_origin,
+        is_complaint=is_complaint,
         zendesk_url="",
         trello_url="",
         notes="",
-        is_public_sector_body=True,
         test_results_url=get_data(column_name=TEST_RESULTS_URL),
         test_status="not-started",
-        is_website_compliant=is_website_compliant,
-        test_notes="",
-        report_draft_url="",
+        report_draft_url=get_data(column_name=REPORT_FINAL_URL),
         report_review_status=report_review_status,
         reviewer=None,
         report_approved_status=report_approved_status,
         reviewer_notes="",
-        report_final_url=get_data(column_name=REPORT_FINAL_URL),
         report_sent_date=report_sent_date,
         report_acknowledged_date=get_data(
             column_name=REPORT_ACKNOWLEDGED_DATE, column_type="date"
@@ -287,7 +272,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         report_followup_week_12_due_date=get_data(
             column_name=WEEK_12_FOLLOWEP_DATE, column_type="date"
         ),
-        report_followup_week_12_sent_date=None,
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
         retested_website=retested_website,
         is_disproportionate_claimed=is_disproportionate_claimed,
@@ -295,11 +279,9 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         accessibility_statement_decison=slugify(
             get_data(column_name=ACCESSIBILITY_STATEMENT_DECISION)
         ),
-        accessibility_statement_url="",
         accessibility_statement_notes=get_data(
             column_name=ACCESSIBILITY_STATEMENT_NOTES
         ),
-        compliance_decision=compliance_decision,
         compliance_decision_notes=get_data(column_name=COMPLIANCE_DECISION_NOTES),
         compliance_email_sent_date=None,
         sent_to_enforcement_body_sent_date=get_data(
@@ -309,28 +291,6 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         completed=None,
         is_archived=False,
     )
-
-
-def get_or_create_regions_from_row(row: Dict[str, str], regions) -> List[Region]:
-    region: Union[str, None] = row.get(REGION)
-    gb_or_ni: Union[str, None] = row.get(GB_OR_NI)
-    if region:
-        region_names: List[str] = [
-            region_name.strip() for region_name in region.split(",")
-        ]
-        if gb_or_ni and gb_or_ni == "NI":
-            region_names.append("Northern Ireland")
-        region_objects: List[Region] = []
-        for region_name in region_names:
-            region_name
-            if region_name in regions:
-                region_objects.append(regions[region_name])
-            else:
-                new_region: Region = Region.objects.create(name=region_name)
-                regions[region_name] = new_region
-                region_objects.append(new_region)
-        return region_objects
-    return []
 
 
 def create_contact_from_row(get_data: Callable, case: Case) -> None:
@@ -343,7 +303,7 @@ def create_contact_from_row(get_data: Callable, case: Case) -> None:
             first_name="Historic",
             last_name=contact_name,
             job_title=job_title,
-            detail=contact_detail,
+            email=contact_detail,
             created=get_data(column_name=CREATED_DATE, column_type="datetime"),
             created_by=get_data(column_name=AUDITOR, column_type="user"),
         )
@@ -394,7 +354,6 @@ class Command(BaseCommand):
             delete_existing_data(verbose)
 
         homepage_urls: Dict[int, str] = get_test_results_urls()
-        regions: Dict[str, Region] = get_regions()
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
 
@@ -411,13 +370,6 @@ class Command(BaseCommand):
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
                 case: Case = create_case(get_data, homepage_urls=homepage_urls)
-
-                regions_for_case: List[Region] = get_or_create_regions_from_row(
-                    row, regions
-                )
-
-                if regions_for_case:
-                    case.region.add(*regions_for_case)
 
                 if create_contacts:
                     create_contact_from_row(get_data, case)

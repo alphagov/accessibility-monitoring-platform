@@ -3,7 +3,7 @@ Common widgets and form fields
 """
 from datetime import date, datetime
 import pytz
-from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Union
 
 from django.contrib.auth.models import User
 from django import forms
@@ -12,15 +12,6 @@ from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
-BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
-    (True, "Yes"),
-    (False, "No"),
-]
-NULLABLE_BOOLEAN_CHOICES: List[Tuple[Union[bool, None], str]] = [
-    (True, "Yes"),
-    (False, "No"),
-    (None, "Not known"),
-]
 
 
 class AMPRadioSelectWidget(forms.RadioSelect):
@@ -29,20 +20,36 @@ class AMPRadioSelectWidget(forms.RadioSelect):
     template_name = "common/amp_radio_select_widget_template.html"
 
 
-class AMPCheckboxWidget(forms.CheckboxInput):
-    """Widget for GDS design system checkbox fields"""
+class AMPBooleanCheckboxWidget(forms.CheckboxInput):
+    """Widget for GDS design system checkbox fields with boolean data"""
 
     template_name = "common/amp_checkbox_widget_template.html"
 
 
-class AMPDateCheckboxWidget(AMPCheckboxWidget):
+class AMPChoiceCheckboxWidget(AMPBooleanCheckboxWidget):
+    """Widget for GDS design system checkbox fields with choice data"""
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value == "no":
+            context["widget"]["attrs"]["checked"] = False
+        return context
+
+    def value_from_datadict(self, data, files, name):
+        """If checkbox is ticked, return 'yes' otherwise return 'no'"""
+        if name not in data:
+            # A missing value means False because HTML form submission does not
+            # send results for unselected checkboxes.
+            return "no"
+        return "yes"
+
+
+class AMPDateCheckboxWidget(AMPChoiceCheckboxWidget):
     """Widget for GDS design system showing date field as checkbox"""
 
     def value_from_datadict(self, data, files, name):
         """If checkbox is ticked, return today's date"""
         if name not in data:
-            # A missing value means False because HTML form submission does not
-            # send results for unselected checkboxes.
             return None
         return date.today()
 
@@ -147,7 +154,7 @@ class AMPURLField(forms.CharField):
             forms.TextInput(attrs={"class": "govuk-input"}),
         )
         kwargs.setdefault("validators", [validate_url])
-        kwargs.setdefault("help_text", "Must include https://")
+        kwargs.setdefault("help_text", "Must begin with http:// or https://")
         super().__init__(*args, **kwargs)
 
 
@@ -180,6 +187,14 @@ class AMPChoiceRadioField(AMPChoiceField):
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("widget", AMPRadioSelectWidget)
+        super().__init__(*args, **kwargs)
+
+
+class AMPChoiceCheckboxField(AMPChoiceField):
+    """Checkbox input field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("widget", AMPChoiceCheckboxWidget)
         super().__init__(*args, **kwargs)
 
 
@@ -223,24 +238,6 @@ class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):
         }
         overridden_default_kwargs: dict = {**default_kwargs, **kwargs}
         super().__init__(*args, **overridden_default_kwargs)
-
-
-class AMPBooleanField(forms.ChoiceField):
-    """Radio input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", AMPRadioSelectWidget())
-        kwargs.setdefault("choices", BOOLEAN_CHOICES)
-        super().__init__(*args, **kwargs)
-
-
-class AMPNullableBooleanField(AMPBooleanField):
-    """Radio input field in the style of GDS design system"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        kwargs.setdefault("choices", NULLABLE_BOOLEAN_CHOICES)
-        super().__init__(*args, **kwargs)
 
 
 class AMPDateField(forms.DateField):
