@@ -62,12 +62,12 @@ class DashboardView(TemplateView):
             "final_decision_due": user_entries.filter(
                 status="final-decision-due"
             ),
+            "in_correspondence_with_equalities_body": user_entries.filter(
+                status="in-correspondence-with-equalities-body"
+            ),
             "recently_completed": user_entries.filter(
                 status="complete",
                 completed__gte=timezone.now() - timedelta(30)
-            ),
-            "in_equality_body_correspondence": user_entries.filter(
-                equalities_body_status="in-correspondence"
             ),
         }
 
@@ -78,7 +78,7 @@ class DashboardView(TemplateView):
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned_qa_case")
+                    all_entries.filter(qa_status="unassigned-qa-case")
                 ),
                 "today": date.today(),
             }
@@ -102,24 +102,29 @@ class DashboardView(TemplateView):
             "reports_in_progress": all_entries.filter(
                 status="report-in-progress"
             ),
-            "qa_cases": all_entries.filter(
-                qa_status="in_qa"
+            "ready_for_qa": all_entries.filter(
+                qa_status="unassigned-qa-case"
             ),
-            "unassigned_qa_cases": all_entries.filter(
-                qa_status="unassigned_qa_case"
+            "qa_in_progress": all_entries.filter(
+                qa_status="in-qa"
             ),
-            "awaiting_response_to_report": all_entries.filter(
-                status="awaiting-response"
-            ).order_by(
-                "report_sent_date"
+            "report_ready_to_send": all_entries.filter(
+                status="report-ready-to-send"
             ),
-            "twelve_week_review_due": all_entries.filter(
-                status="12w-review"
-            ).order_by(
-                "report_followup_week_12_due_date"
+            "in_report_correspondence": all_entries.filter(
+                status="in-report-correspondence"
+            ).order_by("report_sent_date"),
+            "in_probation_period": all_entries.filter(
+                status="in-probation-period"
+            ).order_by("report_followup_week_12_due_date"),
+            "in_12_week_correspondence": all_entries.filter(
+                status="in-12-week-correspondence"
             ),
-            "update_for_enforcement_bodies_due": all_entries.filter(
-                status="update-for-enforcement-bodies-due"
+            "final_decision_due": all_entries.filter(
+                status="final-decision-due"
+            ),
+            "in_correspondence_with_equalities_body": all_entries.filter(
+                status="in-correspondence-with-equalities-body"
             ),
             "recently_completed": all_entries.filter(
                 status="complete",
@@ -134,7 +139,7 @@ class DashboardView(TemplateView):
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned_qa_case")
+                    all_entries.filter(qa_status="unassigned-qa-case")
                 ),
                 "today": date.today(),
                 "macro_view": True,

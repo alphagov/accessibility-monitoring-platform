@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 
 {% if table_data.count == 0 %}
-   <p class="govuk-body"> There are currently no new cases </p>
+   <p class="govuk-body"> There are currently no cases in correspondence </p>
 {% else %}
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">12 week review due</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% if macro_view %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
+                {% else %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody class="govuk-table__body">
             {% for item in table_data %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.sent_to_enforcement_body_sent_date|date:"d/m/Y"}}</th>
+                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">
+                        {% if item.report_followup_week_12_due_date < today %}
+                            {{item.report_followup_week_12_due_date|timesince}} ago
+                        {% else %}
+                            {{item.report_followup_week_12_due_date}}
+                        {% endif %}
+                    </th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         <a href="{% url 'cases:case-detail' item.id %}"> {{item.domain|truncatechars:25}} </a>
                     </td>

@@ -9,7 +9,11 @@
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% if macro_view %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
+                {% else %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody class="govuk-table__body">

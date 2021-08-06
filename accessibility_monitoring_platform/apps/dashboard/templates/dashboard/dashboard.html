@@ -14,7 +14,11 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">Dashboard</h1>
+                {% if macro_view %}
+                    <h1 class="govuk-heading-xl">All cases</h1>
+                {% else %}
+                    <h1 class="govuk-heading-xl">Your cases</h1>
+                {% endif %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% if macro_view %}
