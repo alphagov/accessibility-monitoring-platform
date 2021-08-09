@@ -280,7 +280,7 @@ def create_case(get_data: Callable) -> Case:
 
 
 def create_contact_from_row(get_data: Callable, case: Case) -> None:
-    contact_name = get_data(column_name=CONTACT_NAME)
+    contact_name = get_data(column_name=CONTACT_NAME).strip()
     if " " in contact_name:
         first_name, last_name = contact_name.rsplit(" ", 1)
     else:
