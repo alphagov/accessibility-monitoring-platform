@@ -85,11 +85,9 @@ class CaseCreateForm(forms.ModelForm):
 
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
-        help_text="Enter the name of the organisation",
     )
     home_page_url = AMPURLField(
         label="Full URL",
-        help_text="Enter if test type is simplified or detailed",
         required=True,
     )
     test_type = AMPChoiceRadioField(
@@ -98,7 +96,7 @@ class CaseCreateForm(forms.ModelForm):
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     enforcement_body = AMPChoiceRadioField(
-        label="Equalities body who will check the case?",
+        label="Equalities body who will check the case",
         choices=ENFORCEMENT_BODY_CHOICES,
     )
     is_complaint = AMPChoiceCheckboxField(
@@ -375,7 +373,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week correspondence acknowledged"
+        label="12 week update request acknowledged"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
