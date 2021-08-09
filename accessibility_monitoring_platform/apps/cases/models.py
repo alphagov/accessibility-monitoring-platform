@@ -58,7 +58,7 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("partially", "Partially compliant"),
     ("not-compliant", "Not compliant"),
-    ("missing", "Statement missing"),
+    ("missing", "Missing accessibility statement"),
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
 ]
 
@@ -101,14 +101,14 @@ CASE_COMPLETED_CHOICES = [
     (DEFAULT_CASE_COMPLETED, "Decision not reached"),
 ]
 
-DEFAULT_ESCALATION_STATE = "unknown"
+DEFAULT_ESCALATION_STATE = "not-started"
 ESCALATION_STATE_CHOICES = [
     (
         "no-action",
         "No further action is required and correspondence has closed regarding this issue",
     ),
     ("ongoing", "Correspondence ongoing"),
-    (DEFAULT_ESCALATION_STATE, "Not known"),
+    (DEFAULT_ESCALATION_STATE, "Not started"),
 ]
 
 ARCHIVE_DECISION_DEFAULT = "not-psb"
