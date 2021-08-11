@@ -396,7 +396,6 @@ def test_create_case_can_create_duplicate_cases(
             "save_return",
             "cases:edit-12-week-correspondence",
         ),
-        ("cases:edit-no-psb-response", "save_exit", "cases:case-detail"),
         (
             "cases:edit-no-psb-response",
             "save_continue",
