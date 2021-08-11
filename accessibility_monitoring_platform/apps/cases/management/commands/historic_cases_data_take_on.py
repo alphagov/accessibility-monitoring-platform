@@ -47,7 +47,9 @@ COMPLIANCE_DECISION_NOTES = "Compliance Decision Notes"
 RETEST_DATE = "Retest date"  # Used to set is_website_retested flag
 # Decision email sent?
 GB_OR_NI = "GB or NI?"
-SENT_TO_ENFORCEMENT_BODY_DATE = "Date sent to enforcement body"  # Actually a month value
+SENT_TO_ENFORCEMENT_BODY_DATE = (
+    "Date sent to enforcement body"  # Actually a month value
+)
 # Update from org once case was closed (if applicable)
 # Enforcement body interested in case
 # User Research
@@ -222,7 +224,11 @@ def create_case(get_data: Callable) -> Case:
         if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
         else "unknown"
     )
-    is_website_compliant = "yes" if get_data(column_name=COMPLIANCE_DECISION) == "No further action" else "unknown"
+    is_website_compliant = (
+        "yes"
+        if get_data(column_name=COMPLIANCE_DECISION) == "No further action"
+        else "unknown"
+    )
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
     case_completed = (
         "no-action"

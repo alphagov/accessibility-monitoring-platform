@@ -27,7 +27,6 @@ from .models import (
     Case,
     Contact,
     STATUS_CHOICES,
-    TEST_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     ARCHIVE_DECISION_CHOICES,
@@ -90,13 +89,9 @@ class CaseCreateForm(forms.ModelForm):
         label="Full URL",
         required=True,
     )
-    test_type = AMPChoiceRadioField(
-        label="Test type",
-        choices=TEST_TYPE_CHOICES,
-    )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     enforcement_body = AMPChoiceRadioField(
-        label="Equalities body who will check the case",
+        label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
     )
     is_complaint = AMPChoiceCheckboxField(
@@ -112,7 +107,6 @@ class CaseCreateForm(forms.ModelForm):
         fields = [
             "organisation_name",
             "home_page_url",
-            "test_type",
             "sector",
             "enforcement_body",
             "is_complaint",
@@ -125,7 +119,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
     """
 
     auditor = AMPUserModelChoiceField(label="Auditor")
-    domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
@@ -142,9 +135,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
         model = Case
         fields = [
             "auditor",
-            "test_type",
             "home_page_url",
-            "domain",
             "organisation_name",
             "service_name",
             "sector",
