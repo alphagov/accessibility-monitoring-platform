@@ -6,10 +6,12 @@ from typing import Any, Dict
 from django.conf import settings
 from django.core.mail import send_mail
 from django.forms.models import ModelForm
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm
+from .models import IssueReport
 
 
 class ContactAdminView(FormView):
@@ -60,7 +62,7 @@ class IssueReportView(FormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        issue_report = form.save(commit=False)
+        issue_report: IssueReport = form.save(commit=False)
         issue_report.created_by = self.request.user
         issue_report.save()
-        return super().form_valid(form)
+        return redirect(issue_report.page_url)

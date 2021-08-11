@@ -11,7 +11,7 @@ class IssueReportAdmin(admin.ModelAdmin):
 
     readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
     search_fields = ["page_url", "page_title", "description"]
-    list_display = ["id", "page_title", "created_by", "created"]
+    list_display = ["page_title", "created_by", "created", "description"]
     list_filter = ["created_by"]
 
 
