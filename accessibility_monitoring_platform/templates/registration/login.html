@@ -5,7 +5,7 @@
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
-<div class="govuk-main-wrapper">
+<main id="main-content" class="govuk-main-wrapper">
   <div class="region login">
     <h1 class="govuk-heading-l">Sign in</h1>
     {% if next %}
@@ -52,5 +52,5 @@
     <p class="govuk-body"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
     <p class="govuk-body"><a href="{% url 'users:register' %}">Register</a></p>
   </div>
-</div>
+</main>
 {% endblock %}
