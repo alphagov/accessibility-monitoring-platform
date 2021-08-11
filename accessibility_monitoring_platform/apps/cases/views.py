@@ -133,6 +133,7 @@ class CaseDetailView(DetailView):
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
+        context["page_title"] = "View case"
         return context
 
 
@@ -197,6 +198,7 @@ class CaseListView(ListView):
 
         context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["page_title"] = "Cases and reports"
         return context
 
 

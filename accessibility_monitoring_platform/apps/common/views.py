@@ -1,12 +1,15 @@
 """
 Common views
 """
+from typing import Any, Dict
+
 from django.conf import settings
 from django.core.mail import send_mail
+from django.forms.models import ModelForm
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
-from .forms import AMPContactAdminForm
+from .forms import AMPContactAdminForm, AMPIssueReportForm
 
 
 class ContactAdminView(FormView):
@@ -32,3 +35,32 @@ class ContactAdminView(FormView):
                 from_email=self.request.user.email,
                 recipient_list=[settings.CONTACT_ADMIN_EMAIL],
             )
+
+
+class IssueReportView(FormView):
+    """
+    Save user feedback
+    """
+
+    form_class = AMPIssueReportForm
+    template_name: str = "common/issue_report.html"
+    success_url = reverse_lazy("dashboard:home")
+
+    def get(self, request, *args, **kwargs):
+        """Populate form"""
+        self.form: AMPIssueReportForm = self.form_class(self.request.GET)
+        self.form.is_valid()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add field values into context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["form"] = self.form
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        issue_report = form.save(commit=False)
+        issue_report.created_by = self.request.user
+        issue_report.save()
+        return super().form_valid(form)

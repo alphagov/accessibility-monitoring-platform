@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Union
 from django.contrib.auth.models import User
 from django import forms
 
+from .models import IssueReport
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
@@ -291,3 +292,21 @@ class AMPContactAdminForm(forms.Form):
 
     subject = AMPCharFieldWide(label="Subject")
     message = AMPTextField(label="Message")
+
+
+class AMPIssueReportForm(forms.ModelForm):
+    """
+    Form used to record issue reported by user in database.
+    """
+
+    page_url = forms.CharField(widget=forms.HiddenInput())
+    page_title = AMPCharFieldWide(label="Page where the problem occurred")
+    description = AMPTextField(label="Description")
+
+    class Meta:
+        model = IssueReport
+        fields = [
+            "page_url",
+            "page_title",
+            "description",
+        ]
