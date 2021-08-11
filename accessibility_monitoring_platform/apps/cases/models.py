@@ -272,10 +272,19 @@ class Case(models.Model):
         default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
-    # accessibility_statement_decison from testing details page
-    # accessibility_statement_notes from testing details page
-    # is_website_compliant from testing details page
-    # compliance_decision_notes from testing details page
+
+    accessibility_statement_decison_twelve_weeks = models.CharField(
+        max_length=200,
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+        default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+    )
+    accessibility_statement_notes_twelve_weeks = models.TextField(default="", blank=True)
+    is_website_compliant_twelve_weeks = models.CharField(
+        max_length=20,
+        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+        default=IS_WEBSITE_COMPLIANT_DEFAULT,
+    )
+    compliance_decision_notes_twelve_weeks = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED

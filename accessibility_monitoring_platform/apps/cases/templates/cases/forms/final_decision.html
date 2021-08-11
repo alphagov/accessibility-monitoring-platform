@@ -16,7 +16,41 @@
                 <form method="post" action="{% url 'cases:edit-final-decision' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        {% include 'common/amp_form_snippet.html' %}
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.psb_progress_notes %}
+                            {% include 'common/amp_field.html' with field=form.retested_website %}
+                            {% include 'common/amp_field.html' with field=form.is_disproportionate_claimed %}
+                            {% include 'common/amp_field.html' with field=form.disproportionate_notes %}
+                            
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Initial accessibility statement decision</b></label>
+                                <div id="event-name-hint" class="govuk-hint">{{case.get_accessibility_statement_decison_display}}</div>
+                            </div>
+
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
+                                <div id="event-name-hint" class="govuk-hint">{{case.accessibility_statement_notes}}</div>
+                            </div>
+                            
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_decison_twelve_weeks %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_notes_twelve_weeks %}
+
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Initial compliance decision</b></label>
+                                <div id="event-name-hint" class="govuk-hint">{{case.get_is_website_compliant_display}}</div>
+                            </div>
+
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Initial compliance notes</b></label>
+                                <div id="event-name-hint" class="govuk-hint">{{case.compliance_decision_notes}}</div>
+                            </div>
+
+                            {% include 'common/amp_field.html' with field=form.is_website_compliant_twelve_weeks %}
+                            {% include 'common/amp_field.html' with field=form.compliance_decision_notes_twelve_weeks %}
+                            {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
+                            {% include 'common/amp_field.html' with field=form.case_completed %}
+                            {% include 'common/amp_field.html' with field=form.is_final_decision_complete %}
+                        </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
