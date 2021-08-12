@@ -219,7 +219,7 @@ class CaseCreateView(CreateView):
         duplicate_cases: QuerySet[Case] = find_duplicate_cases(
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
-        )
+        ).order_by("created")
 
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases

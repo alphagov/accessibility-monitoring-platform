@@ -15,7 +15,6 @@ from ..common.forms import (
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
-    AMPModelChoiceField,
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPDateField,
@@ -40,7 +39,6 @@ from .models import (
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
 )
-from ..common.models import Sector
 
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
@@ -89,7 +87,6 @@ class CaseCreateForm(forms.ModelForm):
         label="Full URL",
         required=True,
     )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
@@ -107,7 +104,6 @@ class CaseCreateForm(forms.ModelForm):
         fields = [
             "organisation_name",
             "home_page_url",
-            "sector",
             "enforcement_body",
             "is_complaint",
         ]
@@ -138,7 +134,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "home_page_url",
             "organisation_name",
             "service_name",
-            "sector",
             "enforcement_body",
             "is_complaint",
             "zendesk_url",
