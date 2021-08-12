@@ -67,7 +67,7 @@
                     </table>
                     <input
                         type="submit"
-                        value="Create additional contact"
+                        value={% if contacts_formset.forms %} "Save and add another contact" {% else %} "Create contact" {% endif %}
                         name="add_contact"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
