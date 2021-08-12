@@ -4,6 +4,7 @@
         <span class="govuk-phase-banner__text">
             This is a new service – Please
             <a href="{% url 'issue-report' %}?page_url={{ request.path }}&page_title={{ page_title }}"
+                target="_blank"
                 class="govuk-link govuk-link--no-visited-state">report</a>
             any issues you find in this page
         </span>
