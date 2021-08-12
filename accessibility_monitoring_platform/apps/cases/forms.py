@@ -426,16 +426,16 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceRadioField(
-        label="Accessibility statement decision",
+    accessibility_statement_decison_final = AMPChoiceRadioField(
+        label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    is_website_compliant = AMPChoiceRadioField(
-        label="Compliance decision",
+    accessibility_statement_notes_final = AMPTextField(label="Final accessibility statement notes")
+    is_website_compliant_final = AMPChoiceRadioField(
+        label="Final compliance decision",
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
-    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_decision_notes_final = AMPTextField(label="FInal compliance decision notes")
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )
@@ -458,10 +458,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "retested_website",
             "is_disproportionate_claimed",
             "disproportionate_notes",
-            "accessibility_statement_decison",
-            "accessibility_statement_notes",
-            "is_website_compliant",
-            "compliance_decision_notes",
+            "accessibility_statement_decison_final",
+            "accessibility_statement_notes_final",
+            "is_website_compliant_final",
+            "compliance_decision_notes_final",
             "compliance_email_sent_date",
             "case_completed",
             "is_final_decision_complete",
