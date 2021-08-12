@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+    {% if sorted_cases.unknown %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-0">
+                    Unknown - {{ sorted_cases.unknown.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-unknown table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-unknown">
+            {% include "./1_new_cases_table.html" with table_data=sorted_cases.unknown %}
+        </div>
+    </div>
+    {% endif %}
     {% if macro_view %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
@@ -11,7 +25,7 @@
             </h2>
         </div>
         <div id="accordion-default-content-0 table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-0">
-            {% include "./1_new_cases_table.html" with table_data=sorted_cases.unassigned_cases table_header=headers.new_case %}
+            {% include "./1_new_cases_table.html" with table_data=sorted_cases.unassigned_cases %}
         </div>
     </div>
     {% endif %}
@@ -86,7 +100,7 @@
                     </span>
                 </h2>
             </div>
-            <div id="accordion-default-content-13" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-13">
+            <div id="accordion-default-content-14" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-14">
                 {% include "./5_requires_your_review.html" with table_data=sorted_cases.requires_your_review %}
             </div>
         </div>
@@ -161,7 +175,6 @@
         </div>
         <div id="accordion-default-content-12" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-12">
             {% include "./11_in_correnspondence_with_equality_body.html" with table_data=sorted_cases.in_correspondence_with_equalities_body %}
-            <!-- 12_in_correnspondence_with_equality_body -->
         </div>
     </div>
     <div class="govuk-accordion__section ">

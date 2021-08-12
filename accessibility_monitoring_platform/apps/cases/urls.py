@@ -70,14 +70,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-report-followup-due-dates",
     ),
     path(
-        "<int:pk>/edit-12-week-correspondence/",
+        "<int:pk>/edit-twelve-week-correspondence/",
         login_required(CaseTwelveWeekCorrespondenceUpdateView.as_view()),
-        name="edit-12-week-correspondence",
+        name="edit-twelve-week-correspondence",
     ),
     path(
-        "<int:pk>/edit-12-week-correspondence-due-dates/",
+        "<int:pk>/edit-twelve-week-correspondence-due-dates/",
         login_required(CaseTwelveWeekCorrespondenceDueDatesUpdateView.as_view()),
-        name="edit-12-week-correspondence-due-dates",
+        name="edit-twelve-week-correspondence-due-dates",
     ),
     path(
         "<int:pk>/edit-no-psb-response/",

@@ -5,10 +5,10 @@
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-back-link">Back</a>
-    <main class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with header_suffix="Contact details" %}
+                {% include "cases/helpers/edit_header.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -67,7 +67,7 @@
                     </table>
                     <input
                         type="submit"
-                        value="Create additional contact"
+                        value={% if contacts_formset.forms %} "Save and add another contact" {% else %} "Create contact" {% endif %}
                         name="add_contact"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"

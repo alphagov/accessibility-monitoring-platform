@@ -59,7 +59,7 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
 ]
 
 BOOLEAN_DEFAULT = "no"
-BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     ("yes", "Yes"),
 ]
@@ -76,7 +76,7 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("partially", "Partially compliant"),
     ("not-compliant", "Not compliant"),
-    ("missing", "Statement missing"),
+    ("missing", "Missing accessibility statement"),
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
 ]
 
@@ -119,14 +119,14 @@ CASE_COMPLETED_CHOICES = [
     (DEFAULT_CASE_COMPLETED, "Decision not reached"),
 ]
 
-DEFAULT_ESCALATION_STATE = "unknown"
+DEFAULT_ESCALATION_STATE = "not-started"
 ESCALATION_STATE_CHOICES = [
     (
         "no-action",
         "No further action is required and correspondence has closed regarding this issue",
     ),
     ("ongoing", "Correspondence ongoing"),
-    (DEFAULT_ESCALATION_STATE, "Not known"),
+    (DEFAULT_ESCALATION_STATE, "Not started"),
 ]
 
 ARCHIVE_DECISION_DEFAULT = "not-psb"
@@ -290,25 +290,19 @@ class Case(models.Model):
         default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
-    # accessibility_statement_decison from testing details page
-    # accessibility_statement_notes from testing details page
-    # is_website_compliant from testing details page
-    # compliance_decision_notes from testing details page
 
-    accessibility_statement_decison_twelve_weeks = models.CharField(
+    accessibility_statement_decison_final = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
-    accessibility_statement_notes_twelve_weeks = models.TextField(default="", blank=True)
-
-    is_website_compliant_twelve_weeks = models.CharField(
+    accessibility_statement_notes_final = models.TextField(default="", blank=True)
+    is_website_compliant_final = models.CharField(
         max_length=20,
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
         default=IS_WEBSITE_COMPLIANT_DEFAULT,
     )
-    compliance_decision_notes_twelve_weeks = models.TextField(default="", blank=True)
-
+    compliance_decision_notes_final = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
@@ -530,23 +524,23 @@ class Case(models.Model):
             return "1 week chaser coming up"
         elif (
             self.twelve_week_update_requested_date < now
-            and self.twelve_week_update_requested_date is None
+            and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1 week chaser due"
         elif (
-            self.twelve_week_update_requested_date
+            self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date > now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
             return "4 week chaser coming up"
         elif (
-            self.twelve_week_update_requested_date
+            self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date < now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
             return "4 week chaser due"
         elif (
-            self.twelve_week_update_requested_date
+            self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_sent_date
         ):
             return "4 week chaser sent"
@@ -556,10 +550,10 @@ class Case(models.Model):
     def final_decision_progress(self):
         to_check = [
             "retested_website",
-            "accessibility_statement_decison_twelve_weeks",
-            "accessibility_statement_notes_twelve_weeks",
-            "is_website_compliant_twelve_weeks",
-            "compliance_decision_notes_twelve_weeks",
+            "accessibility_statement_decison_final",
+            "accessibility_statement_notes_final",
+            "is_website_compliant_final",
+            "compliance_decision_notes_final",
             "is_disproportionate_claimed",
             "compliance_email_sent_date",
         ]

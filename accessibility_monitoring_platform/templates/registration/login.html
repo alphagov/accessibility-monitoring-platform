@@ -2,10 +2,12 @@
 
 {% extends "base.html" %}
 
+{% block phase_banner %}{% endblock %}
+
 {% block content %}
-<div class="govuk-main-wrapper">
+<main id="main-content" class="govuk-main-wrapper">
   <div class="region login">
-    <h1 class="govuk-heading-l">Sign in</h1>
+    <h1 class="govuk-heading-l">{{ page_title }}</h1>
     {% if next %}
       {% if user.is_authenticated %}
         <p>
@@ -50,5 +52,5 @@
     <p class="govuk-body"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
     <p class="govuk-body"><a href="{% url 'users:register' %}">Register</a></p>
   </div>
-</div>
+</main>
 {% endblock %}

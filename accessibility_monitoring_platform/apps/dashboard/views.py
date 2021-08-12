@@ -32,6 +32,9 @@ class DashboardView(TemplateView):
         qa_entries = Case.objects.filter(reviewer=user).order_by("created")
 
         sorted_cases = {
+            "unknown": user_entries.filter(
+                status="unknown"
+            ),
             "new_case": user_entries.filter(
                 status="new-case"
             ),
@@ -70,7 +73,7 @@ class DashboardView(TemplateView):
                 completed__gte=timezone.now() - timedelta(30)
             ),
         }
-
+        print(len(sorted_cases['unknown']))
         context.update(
             {
                 "sorted_cases": sorted_cases,
@@ -90,6 +93,9 @@ class DashboardView(TemplateView):
         all_entries = Case.objects.all()
         user_entries = Case.objects.filter(auditor=user).order_by("created")
         sorted_cases = {
+            "unknown": all_entries.filter(
+                status="unknown"
+            ),
             "unassigned_cases": all_entries.filter(
                 status="unassigned-case"
             ),
@@ -131,7 +137,6 @@ class DashboardView(TemplateView):
                 completed__gte=timezone.now() - timedelta(30)
             ),
         }
-
         context.update(
             {
                 "sorted_cases": sorted_cases,

@@ -27,7 +27,6 @@ from .models import (
     Case,
     Contact,
     STATUS_CHOICES,
-    TEST_TYPE_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     ARCHIVE_DECISION_CHOICES,
@@ -85,20 +84,14 @@ class CaseCreateForm(forms.ModelForm):
 
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
-        help_text="Enter the name of the organisation",
     )
     home_page_url = AMPURLField(
         label="Full URL",
-        help_text="Enter if test type is simplified or detailed",
         required=True,
-    )
-    test_type = AMPChoiceRadioField(
-        label="Test type",
-        choices=TEST_TYPE_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     enforcement_body = AMPChoiceRadioField(
-        label="Equalities body who will check the case?",
+        label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
     )
     is_complaint = AMPChoiceCheckboxField(
@@ -114,7 +107,6 @@ class CaseCreateForm(forms.ModelForm):
         fields = [
             "organisation_name",
             "home_page_url",
-            "test_type",
             "sector",
             "enforcement_body",
             "is_complaint",
@@ -127,7 +119,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
     """
 
     auditor = AMPUserModelChoiceField(label="Auditor")
-    domain = AMPCharFieldWide(label="Domain")
     service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
@@ -144,9 +135,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
         model = Case
         fields = [
             "auditor",
-            "test_type",
             "home_page_url",
-            "domain",
             "organisation_name",
             "service_name",
             "sector",
@@ -375,7 +364,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week correspondence acknowledged"
+        label="12 week update request acknowledged"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
@@ -437,16 +426,16 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison = AMPChoiceRadioField(
-        label="Accessibility statement decision",
+    accessibility_statement_decison_final = AMPChoiceRadioField(
+        label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    is_website_compliant = AMPChoiceRadioField(
-        label="Compliance decision",
+    accessibility_statement_notes_final = AMPTextField(label="Final accessibility statement notes")
+    is_website_compliant_final = AMPChoiceRadioField(
+        label="Final compliance decision",
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
-    compliance_decision_notes = AMPTextField(label="Compliance decision notes")
+    compliance_decision_notes_final = AMPTextField(label="FInal compliance decision notes")
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )
@@ -469,10 +458,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "retested_website",
             "is_disproportionate_claimed",
             "disproportionate_notes",
-            "accessibility_statement_decison",
-            "accessibility_statement_notes",
-            "is_website_compliant",
-            "compliance_decision_notes",
+            "accessibility_statement_decison_final",
+            "accessibility_statement_notes_final",
+            "is_website_compliant_final",
+            "compliance_decision_notes_final",
             "compliance_email_sent_date",
             "case_completed",
             "is_final_decision_complete",

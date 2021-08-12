@@ -20,7 +20,6 @@ from ....common.models import Sector
 from ....common.utils import extract_domain_from_url
 
 CENTRAL_SPREADSHEET_FILE_NAME = Path.home() / "simplified_test_central_sheet.csv"
-TEST_RESULTS_FILE_NAME = Path.home() / "historic_cases_test_results.csv"
 
 # All columns in Simplified test central spreadsheet, with unused ones as comments:
 CASE_NUMBER = " Case No."
@@ -43,7 +42,7 @@ DISPROPORTIONATE_NOTES = "Disproportionate Burden Notes"
 ACCESSIBILITY_STATEMENT_DECISION = "Accessibility Statement Decision"
 ACCESSIBILITY_STATEMENT_NOTES = "Notes on accessibility statement"
 # Link to new saved screen shot of accessibility statement if not compliant
-# COMPLIANCE_DECISION = "Compliance Decision"
+COMPLIANCE_DECISION = "Compliance Decision"
 COMPLIANCE_DECISION_NOTES = "Compliance Decision Notes"
 RETEST_DATE = "Retest date"  # Used to set is_website_retested flag
 # Decision email sent?
@@ -69,15 +68,6 @@ def delete_existing_data(verbose: bool = False) -> None:
         print("Deleting all existing cases and contacts from database")
 
     Case.objects.all().delete()
-
-
-def get_test_results_urls() -> Dict[int, str]:
-    test_results_urls: Dict[int, str] = {}
-    with open(TEST_RESULTS_FILE_NAME) as csvfile:
-        reader: Any = csv.DictReader(csvfile)
-        for row in reader:
-            test_results_urls[int(row["Case number"])] = row["Home page URL"]
-    return test_results_urls
 
 
 def get_users() -> Dict[str, User]:
@@ -111,6 +101,8 @@ def get_integer_from_row(row: Dict[str, str], column_name: str = "id") -> int:
 def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None]:
     column_string: Union[str, None] = row.get(column_name)
     if column_string:
+        if " " in column_string:
+            _, column_string = column_string.rsplit(" ", 1)
         date_string = re.search(r"\d+/\d+/\d+", column_string)
         if date_string:
             try:
@@ -219,15 +211,9 @@ def get_data_from_row(
         return get_month_from_row(column_name=column_name, row=row)
 
 
-def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
+def create_case(get_data: Callable) -> Case:
     case_number = get_data(column_name=CASE_NUMBER, column_type="integer")
     home_page_url = get_data(column_name=HOME_PAGE_URL)
-    if not home_page_url:
-        home_page_url = homepage_urls.get(case_number, "")
-        # if home_page_url:
-        #     print(
-        #         f"#{case_number}: Got home page url from test results '{home_page_url}'"
-        #     )
     is_complaint = get_data(column_name=IS_IT_A_COMPLAINT).strip() == "TRUE"
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
@@ -236,6 +222,11 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
     is_disproportionate_claimed = (
         "yes"
         if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
+        else "unknown"
+    )
+    is_website_compliant = (
+        "yes"
+        if get_data(column_name=COMPLIANCE_DECISION) == "No further action"
         else "unknown"
     )
     sent_to_enforcement_body = get_data(column_name=SENT_TO_ENFORCEMENT_BODY_DATE)
@@ -282,6 +273,7 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
         accessibility_statement_notes=get_data(
             column_name=ACCESSIBILITY_STATEMENT_NOTES
         ),
+        is_website_compliant=is_website_compliant,
         compliance_decision_notes=get_data(column_name=COMPLIANCE_DECISION_NOTES),
         compliance_email_sent_date=None,
         sent_to_enforcement_body_sent_date=get_data(
@@ -294,14 +286,18 @@ def create_case(get_data: Callable, homepage_urls: Dict[int, str]) -> Case:
 
 
 def create_contact_from_row(get_data: Callable, case: Case) -> None:
-    contact_name = get_data(column_name=CONTACT_NAME)
+    contact_name = get_data(column_name=CONTACT_NAME).strip()
+    if " " in contact_name:
+        first_name, last_name = contact_name.rsplit(" ", 1)
+    else:
+        first_name, last_name = "", ""
     job_title = get_data(column_name=JOB_TITLE)
     contact_detail = get_data(column_name=CONTACT_DETAIL)
     if contact_detail:
         contact: Contact = Contact(
             case=case,
-            first_name="Historic",
-            last_name=contact_name,
+            first_name=first_name,
+            last_name=last_name,
             job_title=job_title,
             email=contact_detail,
             created=get_data(column_name=CREATED_DATE, column_type="datetime"),
@@ -353,7 +349,6 @@ class Command(BaseCommand):
         if initial:
             delete_existing_data(verbose)
 
-        homepage_urls: Dict[int, str] = get_test_results_urls()
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
 
@@ -369,7 +364,7 @@ class Command(BaseCommand):
                 get_data: Callable = partial(
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
-                case: Case = create_case(get_data, homepage_urls=homepage_urls)
+                case: Case = create_case(get_data)
 
                 if create_contacts:
                     create_contact_from_row(get_data, case)

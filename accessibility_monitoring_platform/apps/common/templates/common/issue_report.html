@@ -2,8 +2,11 @@
 
 {% extends 'base.html' %}
 
+{% block phase_banner %}{% endblock %}
+
 {% block content %}
 <div class="govuk-width-container">
+    <a href="{{ form.page_url.value }}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -12,7 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'contact-admin' %}">
+                <form method="post" action="{% url 'issue-report' %}">
                     {% csrf_token %}
 
                     <div class="govuk-error-message">{{ form.non_field_errors }}</div>
@@ -39,11 +42,17 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Submit enquiry"
+                                value="Post and exit"
                                 name="submit"
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
+                            <a
+                                href="{{ form.page_url.value }}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
                         </div>
                     </div>
                 </form>
