@@ -27,13 +27,13 @@ class ContactAdminView(FormView):
         self.send_mail(form.cleaned_data)
         return super().form_valid(form)
 
-    def send_mail(self, cleaned_data):
+    def send_mail(self, cleaned_data: dict[str, str]) -> None:
         subject = cleaned_data.get("subject")
         message = cleaned_data.get("message")
         if subject or message:
             send_mail(
-                subject=cleaned_data["subject"],
-                message=cleaned_data["message"],
+                subject=subject,
+                message=message,
                 from_email=self.request.user.email,
                 recipient_list=[settings.CONTACT_ADMIN_EMAIL],
             )
@@ -65,4 +65,15 @@ class IssueReportView(FormView):
         issue_report: IssueReport = form.save(commit=False)
         issue_report.created_by = self.request.user
         issue_report.save()
+        self.send_mail(issue_report)
         return redirect(issue_report.page_url)
+
+    def send_mail(self, issue_report: IssueReport) -> None:
+        subject = f"Platform issue on {issue_report.page_title}"
+        message = f"Reported by: {issue_report.created_by}\n\n{issue_report.description}"
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=self.request.user.email,
+            recipient_list=[settings.CONTACT_ADMIN_EMAIL],
+        )
