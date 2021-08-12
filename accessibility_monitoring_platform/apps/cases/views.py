@@ -427,7 +427,7 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
             return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             return reverse_lazy(
-                "cases:edit-12-week-correspondence", kwargs={"pk": self.object.id}
+                "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}
             )
 
 
@@ -530,7 +530,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
-            "cases:edit-12-week-correspondence", kwargs={"pk": self.object.id}
+            "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}
         )
 
 

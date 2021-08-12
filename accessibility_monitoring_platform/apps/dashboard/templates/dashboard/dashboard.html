@@ -2,8 +2,6 @@
 
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
-
 {% block content %}
 
 <div class="govuk-width-container">
@@ -16,7 +14,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">Dashboard</h1>
+                <h1 class="govuk-heading-xl">{{ page_title }}</h1>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% if macro_view %}

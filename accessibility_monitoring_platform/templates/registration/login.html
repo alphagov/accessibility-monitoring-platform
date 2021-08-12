@@ -2,12 +2,12 @@
 
 {% extends "base.html" %}
 
-{% block title %}Sign in{% endblock %}
+{% block phase_banner %}{% endblock %}
 
 {% block content %}
 <main id="main-content" class="govuk-main-wrapper">
   <div class="region login">
-    <h1 class="govuk-heading-l">Sign in</h1>
+    <h1 class="govuk-heading-l">{{ page_title }}</h1>
     {% if next %}
       {% if user.is_authenticated %}
         <p>

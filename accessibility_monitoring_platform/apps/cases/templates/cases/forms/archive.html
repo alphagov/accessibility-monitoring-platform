@@ -2,11 +2,8 @@
 
 {% extends 'base.html' %}
 
-{% block title %}{{ page_title }}{% endblock %}
-
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/phase_banner.html' %}
     <a href="{% url 'cases:case-detail' case.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
