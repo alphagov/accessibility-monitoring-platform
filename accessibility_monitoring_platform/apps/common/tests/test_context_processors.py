@@ -12,7 +12,6 @@ from django.urls import reverse
 @pytest.mark.parametrize(
     "url, page_title",
     [
-        (reverse("dashboard:home"), "Dashboard"),
         (reverse("cases:case-list"), "Cases and reports"),
         (reverse("cases:case-create"), "Create case"),
         (reverse("contact-admin"), "Contact admin"),
