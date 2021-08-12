@@ -32,8 +32,8 @@
                                 <div id="event-name-hint" class="govuk-hint">{{case.accessibility_statement_notes}}</div>
                             </div>
                             
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_decison_twelve_weeks %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_notes_twelve_weeks %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_decison_final %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_notes_final %}
 
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance decision</b></label>
@@ -45,8 +45,8 @@
                                 <div id="event-name-hint" class="govuk-hint">{{case.compliance_decision_notes}}</div>
                             </div>
 
-                            {% include 'common/amp_field.html' with field=form.is_website_compliant_twelve_weeks %}
-                            {% include 'common/amp_field.html' with field=form.compliance_decision_notes_twelve_weeks %}
+                            {% include 'common/amp_field.html' with field=form.is_website_compliant_final %}
+                            {% include 'common/amp_field.html' with field=form.compliance_decision_notes_final %}
                             {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
                             {% include 'common/amp_field.html' with field=form.case_completed %}
                             {% include 'common/amp_field.html' with field=form.is_final_decision_complete %}
