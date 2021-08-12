@@ -27,7 +27,7 @@ class ContactAdminView(FormView):
         self.send_mail(form.cleaned_data)
         return super().form_valid(form)
 
-    def send_mail(self, cleaned_data: dict[str, str]) -> None:
+    def send_mail(self, cleaned_data: Dict[str, str]) -> None:
         subject = cleaned_data.get("subject")
         message = cleaned_data.get("message")
         if subject or message:
