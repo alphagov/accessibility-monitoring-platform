@@ -378,23 +378,23 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-report-correspondence",
             "save_continue",
-            "cases:edit-12-week-correspondence",
+            "cases:edit-twelve-week-correspondence",
         ),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",
             "cases:edit-report-correspondence",
         ),
-        ("cases:edit-12-week-correspondence", "save_exit", "cases:case-detail"),
+        ("cases:edit-twelve-week-correspondence", "save_exit", "cases:case-detail"),
         (
-            "cases:edit-12-week-correspondence",
+            "cases:edit-twelve-week-correspondence",
             "save_continue",
             "cases:edit-final-decision",
         ),
         (
-            "cases:edit-12-week-correspondence-due-dates",
+            "cases:edit-twelve-week-correspondence-due-dates",
             "save_return",
-            "cases:edit-12-week-correspondence",
+            "cases:edit-twelve-week-correspondence",
         ),
         (
             "cases:edit-no-psb-response",
@@ -806,7 +806,7 @@ def test_section_complete_check_displayed_in_contents(
             "Report correspondence",
         ),
         (
-            "cases:edit-12-week-correspondence",
+            "cases:edit-twelve-week-correspondence",
             "is_12_week_correspondence_complete",
             "12 week correspondence",
         ),

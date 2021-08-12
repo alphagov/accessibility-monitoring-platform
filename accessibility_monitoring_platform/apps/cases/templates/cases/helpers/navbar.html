@@ -81,10 +81,10 @@
                 {% if case.is_report_correspondence_complete %}&check;{% endif %}
             </li>
             <li>
-                {% if current_page == 'edit-12-week-correspondence' %}
+                {% if current_page == 'edit-twelve-week-correspondence' %}
                     12 week correspondence
                 {% else %}
-                    <a href="{% url 'cases:edit-12-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
                         12 week correspondence
                     </a>
                 {% endif %}
