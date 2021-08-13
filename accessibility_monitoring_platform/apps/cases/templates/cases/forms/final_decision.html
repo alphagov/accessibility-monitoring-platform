@@ -21,7 +21,7 @@
                             {% include 'common/amp_field.html' with field=form.retested_website %}
                             {% include 'common/amp_field.html' with field=form.is_disproportionate_claimed %}
                             {% include 'common/amp_field.html' with field=form.disproportionate_notes %}
-                            
+
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial accessibility statement decision</b></label>
                                 <div id="event-name-hint" class="govuk-hint">{{case.get_accessibility_statement_decison_display}}</div>
@@ -29,9 +29,15 @@
 
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
-                                <div id="event-name-hint" class="govuk-hint">{{case.accessibility_statement_notes}}</div>
+                                <div id="event-name-hint" class="govuk-hint">
+                                    {% if case.accessibility_statement_notes %}
+                                        {{case.accessibility_statement_notes}}
+                                    {% else %}
+                                        No notes for this case
+                                    {% endif %}
+                                </div>
                             </div>
-                            
+
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_decison_final %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_notes_final %}
 
@@ -42,7 +48,13 @@
 
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance notes</b></label>
-                                <div id="event-name-hint" class="govuk-hint">{{case.compliance_decision_notes}}</div>
+                                <div id="event-name-hint" class="govuk-hint">
+                                    {% if case.compliance_decision_notes %}
+                                        {{case.compliance_decision_notes}}
+                                    {% else %}
+                                        No notes for this case
+                                    {% endif %}
+                                </div>
                             </div>
 
                             {% include 'common/amp_field.html' with field=form.is_website_compliant_final %}

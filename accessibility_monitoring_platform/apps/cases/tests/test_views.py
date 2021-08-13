@@ -874,6 +874,52 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     )
 
 
+def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(admin_client):
+    """
+    Test that the case final decision view contains placeholder text if there are no accessibility statement notes
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
+            <div id="event-name-hint" class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(admin_client):
+    """
+    Test that the case final decision view contains placeholder text if there are no compliance decision notes
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial compliance notes</b></label>
+            <div id="event-name-hint" class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
 def test_calculate_report_followup_dates():
     """
     Test that the report followup dates are calculated correctly.

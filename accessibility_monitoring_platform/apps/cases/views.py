@@ -594,10 +594,11 @@ class CaseFinalDecisionUpdateView(UpdateView):
         """Populate retested_website help text with link to test results for this case"""
         form = super().get_form()
         if form.instance.test_results_url:
-            form.fields["retested_website"].help_text = mark_safe(
-                f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
-                ' class="govuk-link govuk-link--no-visited-state">test results</a>'
-            )
+            if form.instance.test_results_url:
+                form.fields["retested_website"].help_text = mark_safe(
+                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
+                    ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+                )
         return form
 
     def get_success_url(self) -> str:
