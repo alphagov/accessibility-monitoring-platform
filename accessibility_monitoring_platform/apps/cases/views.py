@@ -74,15 +74,20 @@ def calculate_report_followup_dates(
     case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
 ) -> CaseReportCorrespondenceUpdateForm:
     """Calculate followup dates based on a report sent date"""
-    case.report_followup_week_1_due_date = report_sent_date + timedelta(
-        days=ONE_WEEK_IN_DAYS
-    )
-    case.report_followup_week_4_due_date = report_sent_date + timedelta(
-        days=FOUR_WEEKS_IN_DAYS
-    )
-    case.report_followup_week_12_due_date = report_sent_date + timedelta(
-        days=TWELVE_WEEKS_IN_DAYS
-    )
+    if report_sent_date is None:
+        case.report_followup_week_1_due_date = None
+        case.report_followup_week_4_due_date = None
+        case.report_followup_week_12_due_date = None
+    else:
+        case.report_followup_week_1_due_date = report_sent_date + timedelta(
+            days=ONE_WEEK_IN_DAYS
+        )
+        case.report_followup_week_4_due_date = report_sent_date + timedelta(
+            days=FOUR_WEEKS_IN_DAYS
+        )
+        case.report_followup_week_12_due_date = report_sent_date + timedelta(
+            days=TWELVE_WEEKS_IN_DAYS
+        )
     return case
 
 
@@ -91,12 +96,16 @@ def calculate_twelve_week_chaser_dates(
     twelve_week_update_requested_date: date,
 ) -> CaseTwelveWeekCorrespondenceUpdateForm:
     """Calculate chaser dates based on a twelve week update requested date"""
-    case.twelve_week_1_week_chaser_due_date = (
-        twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
-    )
-    case.twelve_week_4_week_chaser_due_date = (
-        twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
-    )
+    if twelve_week_update_requested_date is None:
+        case.twelve_week_1_week_chaser_due_date = None
+        case.twelve_week_3_week_chaser_due_date = None
+    else:
+        case.twelve_week_1_week_chaser_due_date = (
+            twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
+        )
+        case.twelve_week_4_week_chaser_due_date = (
+            twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
+        )
     return case
 
 
@@ -219,7 +228,7 @@ class CaseCreateView(CreateView):
         duplicate_cases: QuerySet[Case] = find_duplicate_cases(
             url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
-        )
+        ).order_by("created")
 
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases

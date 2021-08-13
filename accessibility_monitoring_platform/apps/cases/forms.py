@@ -15,7 +15,6 @@ from ..common.forms import (
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
-    AMPModelChoiceField,
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPDateField,
@@ -40,7 +39,6 @@ from .models import (
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
 )
-from ..common.models import Sector
 
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
@@ -58,7 +56,9 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    search = AMPCharField(label="Search")
+    search = AMPCharField(
+        label="Search", help_text="Searches in URLs and organisation names"
+    )
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
@@ -89,7 +89,6 @@ class CaseCreateForm(forms.ModelForm):
         label="Full URL",
         required=True,
     )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
@@ -107,7 +106,6 @@ class CaseCreateForm(forms.ModelForm):
         fields = [
             "organisation_name",
             "home_page_url",
-            "sector",
             "enforcement_body",
             "is_complaint",
         ]
@@ -138,7 +136,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "home_page_url",
             "organisation_name",
             "service_name",
-            "sector",
             "enforcement_body",
             "is_complaint",
             "zendesk_url",
@@ -430,12 +427,16 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes_final = AMPTextField(label="Final accessibility statement notes")
+    accessibility_statement_notes_final = AMPTextField(
+        label="Final accessibility statement notes"
+    )
     is_website_compliant_final = AMPChoiceRadioField(
         label="Final compliance decision",
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
-    compliance_decision_notes_final = AMPTextField(label="FInal compliance decision notes")
+    compliance_decision_notes_final = AMPTextField(
+        label="FInal compliance decision notes"
+    )
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )

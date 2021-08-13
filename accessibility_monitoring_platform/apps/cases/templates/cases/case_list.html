@@ -53,7 +53,7 @@
                                             <h2 class="govuk-heading-m cases-sub-heading">
                                                 <a href="{% url 'cases:case-detail' case.id %}"
                                                     style="font-weight:normal"
-                                                    class="govuk-link govuk-link--no-visited-state">
+                                                    class="govuk-link">
                                                     {{ case.organisation_name }}
                                                 </a>
                                             </h2>
@@ -85,7 +85,7 @@
                                             <div class="govuk-grid-column-full">
                                                 {% if case.zendesk_url %}
                                                     <a href="{{ case.zendesk_url }}"
-                                                        class="govuk-link govuk-link--no-visited-state"
+                                                        class="govuk-link"
                                                         style="margin-right: 15px"
                                                         rel="noreferrer noopener"
                                                         target="_blank"
@@ -93,7 +93,7 @@
                                                 {% endif %}
                                                 {% if case.trello_url %}
                                                     <a href="{{ case.trello_url }}"
-                                                        class="govuk-link govuk-link--no-visited-state"
+                                                        class="govuk-link"
                                                         rel="noreferrer noopener"
                                                         target="_blank"
                                                         rel="noreferrer noopener">Trello</a>

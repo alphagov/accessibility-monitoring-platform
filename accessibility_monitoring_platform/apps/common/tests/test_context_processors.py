@@ -23,4 +23,4 @@ def test_page_title_present(url, page_title, admin_client):
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
-    assertContains(response, f"<h1 class=\"govuk-heading-xl\">{page_title}</h1>")
+    assertContains(response, f'<h1 class="govuk-heading-xl">{page_title}</h1>')
