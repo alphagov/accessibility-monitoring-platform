@@ -417,7 +417,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    retested_website = AMPDateField(label="Retested website?")
+    retested_website = AMPDateField(
+        label="Retested website?",
+        help_text="There is no test spreadsheet for this case",
+    )
     is_disproportionate_claimed = AMPChoiceRadioField(
         label="Disproportionate burden claimed?",
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,

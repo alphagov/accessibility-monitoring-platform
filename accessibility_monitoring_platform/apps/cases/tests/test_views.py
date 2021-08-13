@@ -857,6 +857,23 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
     )
 
 
+def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_client):
+    """Test that the case final decision view contains no link to the test results if none is on case"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<div id="event-name-hint" class="govuk-hint">'
+        'There is no test spreadsheet for this case'
+        "</div>",
+    )
+
+
 def test_calculate_report_followup_dates():
     """
     Test that the report followup dates are calculated correctly.
