@@ -109,6 +109,13 @@ def calculate_twelve_week_chaser_dates(
     return case
 
 
+def format_due_date_help_text(due_date: date) -> str:
+    """Format date and prefix with 'Due' if present"""
+    if due_date is None:
+        return "None"
+    return f"Due {format_date(due_date)}"
+
+
 class CaseDetailView(DetailView):
     """
     View of details of a single case
@@ -395,13 +402,19 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields["report_followup_week_1_sent_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_1_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_1_due_date
         )
-        form.fields["report_followup_week_4_sent_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_4_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields["report_followup_week_12_due_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_12_due_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_12_due_date
         )
         return form
@@ -474,13 +487,19 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields["report_followup_week_12_due_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_12_due_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_12_due_date
         )
-        form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(
+        form.fields[
+            "twelve_week_1_week_chaser_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.twelve_week_1_week_chaser_due_date
         )
-        form.fields["twelve_week_4_week_chaser_sent_date"].help_text = format_date(
+        form.fields[
+            "twelve_week_4_week_chaser_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.twelve_week_4_week_chaser_due_date
         )
         return form

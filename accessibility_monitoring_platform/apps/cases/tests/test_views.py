@@ -22,6 +22,7 @@ from ..views import (
     find_duplicate_cases,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
+    format_due_date_help_text,
 )
 from ...common.utils import format_date, get_field_names_for_export
 
@@ -885,3 +886,17 @@ def test_calculate_twelve_week_chaser_dates():
 
     assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)
     assert updated_case.twelve_week_4_week_chaser_due_date == date(2020, 1, 29)
+
+
+@pytest.mark.parametrize(
+    "due_date, expected_help_text",
+    [
+        (date(2020, 1, 1), "Due 01/01/2020"),
+        (None, "None"),
+    ],
+)
+def test_format_due_date_help_text(due_date, expected_help_text):
+    """
+    Test due date formatting for help text
+    """
+    assert format_due_date_help_text(due_date) == expected_help_text
