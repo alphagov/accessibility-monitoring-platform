@@ -6,33 +6,60 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0001_initial'),
+        ("cases", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='accessibility_statement_decison_final',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('partially', 'Partially compliant'), ('not-compliant', 'Not compliant'), ('missing', 'Statement missing'), ('unknown', 'Not known')], default='unknown', max_length=200),
+            model_name="case",
+            name="accessibility_statement_decison_final",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("partially", "Partially compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("missing", "Statement missing"),
+                    ("unknown", "Not known"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AddField(
-            model_name='case',
-            name='accessibility_statement_notes_final',
-            field=models.TextField(blank=True, default=''),
+            model_name="case",
+            name="accessibility_statement_notes_final",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='case',
-            name='compliance_decision_notes_final',
-            field=models.TextField(blank=True, default=''),
+            model_name="case",
+            name="compliance_decision_notes_final",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='case',
-            name='is_website_compliant_final',
-            field=models.CharField(choices=[('yes', 'Compliant'), ('partially', 'Partially compliant'), ('no', 'Not compliant'), ('unknown', 'Not known')], default='unknown', max_length=20),
+            model_name="case",
+            name="is_website_compliant_final",
+            field=models.CharField(
+                choices=[
+                    ("yes", "Compliant"),
+                    ("partially", "Partially compliant"),
+                    ("no", "Not compliant"),
+                    ("unknown", "Not known"),
+                ],
+                default="unknown",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='test_type',
-            field=models.CharField(choices=[('simplified', 'Simplified'), ('detailed', 'Detailed'), ('mobile', 'Mobile')], default='simplified', max_length=10),
+            model_name="case",
+            name="test_type",
+            field=models.CharField(
+                choices=[
+                    ("simplified", "Simplified"),
+                    ("detailed", "Detailed"),
+                    ("mobile", "Mobile"),
+                ],
+                default="simplified",
+                max_length=10,
+            ),
         ),
     ]

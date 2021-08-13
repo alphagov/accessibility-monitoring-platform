@@ -56,7 +56,9 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    search = AMPCharField(label="Search", help_text="Searches in URLs and organisation names")
+    search = AMPCharField(
+        label="Search", help_text="Searches in URLs and organisation names"
+    )
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
@@ -425,12 +427,16 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
-    accessibility_statement_notes_final = AMPTextField(label="Final accessibility statement notes")
+    accessibility_statement_notes_final = AMPTextField(
+        label="Final accessibility statement notes"
+    )
     is_website_compliant_final = AMPChoiceRadioField(
         label="Final compliance decision",
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
-    compliance_decision_notes_final = AMPTextField(label="FInal compliance decision notes")
+    compliance_decision_notes_final = AMPTextField(
+        label="FInal compliance decision notes"
+    )
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )

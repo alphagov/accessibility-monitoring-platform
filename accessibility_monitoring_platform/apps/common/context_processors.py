@@ -34,7 +34,9 @@ PAGE_TITLES_BY_URL = {
 
 def page_title(request):
     """Lookup the page title using URL path and place it in context for template rendering"""
-    url_without_id = re.sub(r'\d+', "[id]", request.path)
+    url_without_id = re.sub(r"\d+", "[id]", request.path)
     return {
-        "page_title": PAGE_TITLES_BY_URL.get(url_without_id, "Accessibility Monitoring Platform"),
+        "page_title": PAGE_TITLES_BY_URL.get(
+            url_without_id, "Accessibility Monitoring Platform"
+        ),
     }
