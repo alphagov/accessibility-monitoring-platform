@@ -22,7 +22,9 @@ class DashboardView(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)
         if self.request.GET.get("view") == "View all cases":
-            return self.macro_view(context, user)
+            context["page_title"] = "All cases"
+            return self.show_all_cases(context, user)
+        context["page_title"] = "Your cases"
         return self.user_view(context, user)
 
     def user_view(self, context, user):
@@ -73,7 +75,6 @@ class DashboardView(TemplateView):
                 completed__gte=timezone.now() - timedelta(30)
             ),
         }
-        print(len(sorted_cases['unknown']))
         context.update(
             {
                 "sorted_cases": sorted_cases,
@@ -88,7 +89,7 @@ class DashboardView(TemplateView):
         )
         return context
 
-    def macro_view(self, context, user):
+    def show_all_cases(self, context, user):
         """Shows and filters all cases"""
         all_entries = Case.objects.all()
         user_entries = Case.objects.filter(auditor=user).order_by("created")
@@ -147,7 +148,7 @@ class DashboardView(TemplateView):
                     all_entries.filter(qa_status="unassigned-qa-case")
                 ),
                 "today": date.today(),
-                "macro_view": True,
+                "show_all_cases": True,
             }
         )
         return context

@@ -31,21 +31,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("archived", "Archived"),
 ]
 
-QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("unknown", "Unknown"),
-    ("unassigned-qa-case", "Unassigned QA case"),
-    ("in-qa", "In QA"),
-    ("qa-approved", "QA approved"),
-]
-
-EB_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("unknown", "Unknown"),
-    ("no-correspondence", "No correspondence"),
-    ("in-correspondence", "In correspondence"),
-    ("completed", "Completed"),
-]
-
-DEFAULT_TEST_TYPE = "simple"
+DEFAULT_TEST_TYPE = "simplified"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),

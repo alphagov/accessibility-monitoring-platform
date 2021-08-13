@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 {% if table_data.count == 0 %}
-   <p class="govuk-body"> There are currently no new cases </p>
+   <p class="govuk-body"> There are currently no recently completed cases </p>
 {% else %}
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
@@ -9,7 +9,7 @@
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Completed on</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
-                {% if macro_view %}
+                {% if show_all_cases %}
                     <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
                 {% else %}
                     <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
@@ -25,7 +25,7 @@
                     </td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name|truncatechars:25}}</td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
-                        {% if macro_view %}
+                        {% if show_all_cases %}
                             {% if item.auditor %}
                                 <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                             {% else %}
