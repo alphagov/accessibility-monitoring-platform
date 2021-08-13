@@ -616,15 +616,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     assert response.status_code == 200
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
 
 

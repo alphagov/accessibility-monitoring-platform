@@ -13,7 +13,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/archive-case/": "Delete case",
     "/cases/[id]/edit-case-details/": "Edit case | Case details",
     "/cases/[id]/edit-contact-details/": "Edit case | Contact details",
-    "/cases/[id]/edit-enforcement-body-correspondence/": "Edit case | Equality body correspondance",
+    "/cases/[id]/edit-enforcement-body-correspondence/": "Edit case | Equality body correspondence",
     "/cases/[id]/edit-final-decision/": "Edit case | Final decision",
     "/cases/[id]/edit-no-psb-response/": "Edit case | Public sector body is unresponsive",
     "/cases/[id]/edit-report-correspondence/": "Edit case | Report correspondence",
