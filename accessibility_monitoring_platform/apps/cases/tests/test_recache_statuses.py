@@ -9,5 +9,4 @@ from ..models import Case
 def test_recache_statuses_can_be_called():
     """Test recache_statuses can be called"""
     call_command("recache_statuses")
-
     assert Case.objects.count() == 0
