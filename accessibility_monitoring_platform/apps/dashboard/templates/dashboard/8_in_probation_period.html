@@ -23,7 +23,7 @@
                         {% if item.report_followup_week_12_due_date < today %}
                             {{item.report_followup_week_12_due_date|timesince}} ago
                         {% else %}
-                            {{item.report_followup_week_12_due_date}}
+                            {{item.report_followup_week_12_due_date|date:"d/m/Y"}}
                         {% endif %}
                     </th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
