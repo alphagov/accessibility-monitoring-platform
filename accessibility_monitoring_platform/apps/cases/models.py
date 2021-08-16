@@ -2,6 +2,7 @@
 Models - cases
 """
 from datetime import date, timedelta
+import re
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
@@ -26,7 +27,10 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("in-probation-period", "In probation period"),
     ("in-12-week-correspondence", "In 12 week correspondence"),
     ("final-decision-due", "Final decision due"),
-    ("in-correspondence-with-equalities-body", "In correspondence with equalities body"),
+    (
+        "in-correspondence-with-equalities-body",
+        "In correspondence with equalities body",
+    ),
     ("complete", "Complete"),
     ("archived", "Archived"),
 ]
@@ -138,6 +142,7 @@ PREFERRED_CHOICES: List[Tuple[str, str]] = [
     (PREFERRED_DEFAULT, "Not known"),
 ]
 
+MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_DAYS = 28
 
 
@@ -341,16 +346,22 @@ class Case(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def summary(self):
-        return str(f"{self.organisation_name} | {self.domain} | #{self.id}")
+    def formatted_home_page_url(self):
+        if self.home_page_url:
+            formatted_url = re.sub(r"https?://(www.|)", "", self.home_page_url)
+            if len(formatted_url) <= MAX_LENGTH_OF_FORMATTED_URL:
+                return formatted_url[:-1] if formatted_url[-1] == "/" else formatted_url
+            return f"{formatted_url[:MAX_LENGTH_OF_FORMATTED_URL]}…"
+        return ""
+
+    @property
+    def title(self):
+        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")
 
     def set_status(self):
         if self.is_archived:
             return "archived"
-        elif (
-            self.case_completed == "no-action"
-            or self.escalation_state == "no-action"
-        ):
+        elif self.case_completed == "no-action" or self.escalation_state == "no-action":
             return "complete"
         elif self.auditor is None:
             return "unassigned-case"
@@ -358,19 +369,34 @@ class Case(models.Model):
             return "new-case"
         elif self.test_status != "complete" and self.report_sent_date is None:
             return "test-in-progress"
-        elif self.test_status == "complete" and self.report_review_status != "ready-to-review":
+        elif (
+            self.test_status == "complete"
+            and self.report_review_status != "ready-to-review"
+        ):
             return "report-in-progress"
-        elif self.report_review_status == "ready-to-review" and self.report_approved_status != "yes":
+        elif (
+            self.report_review_status == "ready-to-review"
+            and self.report_approved_status != "yes"
+        ):
             return "qa-in-progress"
         elif self.report_approved_status == "yes" and self.report_sent_date is None:
             return "report-ready-to-send"
         elif self.report_sent_date and self.report_acknowledged_date is None:
             return "in-report-correspondence"
-        elif self.report_acknowledged_date and self.twelve_week_update_requested_date is None:
+        elif (
+            self.report_acknowledged_date
+            and self.twelve_week_update_requested_date is None
+        ):
             return "in-probation-period"
-        elif self.twelve_week_update_requested_date and self.twelve_week_correspondence_acknowledged_date is None:
+        elif (
+            self.twelve_week_update_requested_date
+            and self.twelve_week_correspondence_acknowledged_date is None
+        ):
             return "in-12-week-correspondence"
-        elif self.twelve_week_correspondence_acknowledged_date and self.case_completed == DEFAULT_CASE_COMPLETED:
+        elif (
+            self.twelve_week_correspondence_acknowledged_date
+            and self.case_completed == DEFAULT_CASE_COMPLETED
+        ):
             return "final-decision-due"
         elif self.case_completed == "escalated":
             return "in-correspondence-with-equalities-body"
@@ -553,7 +579,6 @@ class Case(models.Model):
                 progress += percentage_increase
 
         return str(progress) + "%"
-
 
     @property
     def twelve_week_progress(self):

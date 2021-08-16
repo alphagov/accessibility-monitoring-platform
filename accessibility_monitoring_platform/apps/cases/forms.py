@@ -477,9 +477,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     Form for recording correspondence with enforcement body
     """
 
-    psb_appeal_notes = AMPTextField(
-        label="Public sector body appeal notes"
-    )
+    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )

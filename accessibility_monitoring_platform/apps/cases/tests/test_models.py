@@ -52,13 +52,13 @@ def test_case_renders_as_organisation_name_bar_id():
 
 
 @pytest.mark.django_db
-def test_case_summary_is_organisation_name_bar_domain_bar_id():
-    """Test the Case summary string is id | organisation_name | domain"""
+def test_case_title_is_organisation_name_bar_domain_bar_id():
+    """Test the Case title string is organisation_name | url | id"""
     case: Case = Case.objects.create(
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.summary == f"{case.organisation_name} | {case.domain} | #{case.id}"
+    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"
 
 
 @pytest.mark.django_db
@@ -126,3 +126,20 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
     case: Case = Case(compliance_email_sent_date=compliance_email_sent_date)
 
     assert case.psb_appeal_deadline == expected_psb_appeal_deadline
+
+
+@pytest.mark.parametrize(
+    "url, expected_formatted_url",
+    [
+        ("https://gov.uk/bank-holidays/", "gov.uk/bank-holidays"),
+        ("https://www.google.com/maps", "google.com/maps"),
+        (
+            "http://www.google.com/search?q=bbc+news&oq=&aqs=chrome.3.69i5"
+            "9i450l8.515265j0j7&sourceid=chrome&ie=UTF-8",
+            "google.com/search?q=bbc+n…",
+        ),
+    ],
+)
+def test_formatted_home_page_url(url, expected_formatted_url):
+    case: Case = Case(home_page_url=url)
+    assert case.formatted_home_page_url == expected_formatted_url
