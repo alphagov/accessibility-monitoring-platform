@@ -417,7 +417,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    retested_website = AMPDateField(label="Retested website?")
+    retested_website = AMPDateField(
+        label="Retested website?",
+        help_text="There is no test spreadsheet for this case",
+    )
     is_disproportionate_claimed = AMPChoiceRadioField(
         label="Disproportionate burden claimed?",
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
@@ -474,6 +477,9 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     Form for recording correspondence with enforcement body
     """
 
+    psb_appeal_notes = AMPTextField(
+        label="Public sector body appeal notes"
+    )
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )
@@ -495,6 +501,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "psb_appeal_notes",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_correspondence_notes",
             "escalation_state",

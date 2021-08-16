@@ -22,6 +22,7 @@ from ..views import (
     find_duplicate_cases,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
+    format_due_date_help_text,
 )
 from ...common.utils import format_date, get_field_names_for_export
 
@@ -74,6 +75,21 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
     assertContains(response, "Not Archived")
     assertNotContains(response, "Is Archived")
+
+
+def test_case_list_view_filtering_by_archived_includes_archived_contact(admin_client):
+    """Test that archived Cases are included in context when filtering by status 'archived'"""
+    Case.objects.create(organisation_name="Not Archived")
+    Case.objects.create(organisation_name="Is Archived", is_archived=True)
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:case-list")}?status=archived'
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Is Archived")
+    assertNotContains(response, "Not Archived")
 
 
 def test_case_list_view_filters_by_case_number(admin_client):
@@ -228,6 +244,22 @@ def test_archive_case_view(admin_client):
     case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.is_archived
+
+
+def test_restore_case_view(admin_client):
+    """Test that restore case view restores case"""
+    case: Case = Case.objects.create(is_archived=True)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:restore-case", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.is_archived == False
 
 
 @pytest.mark.parametrize(
@@ -615,15 +647,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     assert response.status_code == 200
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">{format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
 
 
@@ -856,6 +888,69 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
     )
 
 
+def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_client):
+    """Test that the case final decision view contains no link to the test results if none is on case"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<div id="event-name-hint" class="govuk-hint">'
+        'There is no test spreadsheet for this case'
+        "</div>",
+    )
+
+
+def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(admin_client):
+    """
+    Test that the case final decision view contains placeholder text if there are no accessibility statement notes
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
+            <div id="event-name-hint" class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(admin_client):
+    """
+    Test that the case final decision view contains placeholder text if there are no compliance decision notes
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial compliance notes</b></label>
+            <div id="event-name-hint" class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
 def test_calculate_report_followup_dates():
     """
     Test that the report followup dates are calculated correctly.
@@ -885,3 +980,17 @@ def test_calculate_twelve_week_chaser_dates():
 
     assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)
     assert updated_case.twelve_week_4_week_chaser_due_date == date(2020, 1, 29)
+
+
+@pytest.mark.parametrize(
+    "due_date, expected_help_text",
+    [
+        (date(2020, 1, 1), "Due 01/01/2020"),
+        (None, "None"),
+    ],
+)
+def test_format_due_date_help_text(due_date, expected_help_text):
+    """
+    Test due date formatting for help text
+    """
+    assert format_due_date_help_text(due_date) == expected_help_text

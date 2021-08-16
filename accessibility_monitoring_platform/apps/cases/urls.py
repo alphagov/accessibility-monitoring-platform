@@ -24,6 +24,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseTwelveWeekCorrespondenceDueDatesUpdateView,
     CaseFinalDecisionUpdateView,
     CaseEnforcementBodyCorrespondenceUpdateView,
+    restore_case,
 )
 
 app_name: str = "cases"
@@ -98,5 +99,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/archive-case/",
         login_required(CaseArchiveUpdateView.as_view()),
         name="archive-case",
+    ),
+    path(
+        "<int:pk>/restore-case/",
+        login_required(restore_case),
+        name="restore-case",
     ),
 ]

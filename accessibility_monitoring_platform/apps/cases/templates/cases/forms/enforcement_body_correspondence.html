@@ -16,6 +16,20 @@
                 <form method="post" action="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
+
+                        <div class="govuk-grid-column-full">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Public sector body appeal deadline</b></label>
+                                <div id="event-name-hint" class="govuk-hint">
+                                    {% if case.psb_appeal_deadline %}
+                                        {{ case.psb_appeal_deadline|date:'d/m/Y' }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
                         {% include 'common/amp_form_snippet.html' %}
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

@@ -10,11 +10,12 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
+from django.utils.safestring import mark_safe
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.utils.safestring import mark_safe
 
 
 from ..common.typing import IntOrNone
@@ -109,6 +110,13 @@ def calculate_twelve_week_chaser_dates(
     return case
 
 
+def format_due_date_help_text(due_date: date) -> str:
+    """Format date and prefix with 'Due' if present"""
+    if due_date is None:
+        return "None"
+    return f"Due {format_date(due_date)}"
+
+
 class CaseDetailView(DetailView):
     """
     View of details of a single case
@@ -187,7 +195,8 @@ class CaseListView(ListView):
                     | Q(id__icontains=self.form.cleaned_data["search"])
                 )
 
-        filters["is_archived"] = False
+        if filters.get("status", "") != "archived":
+            filters["is_archived"] = False
 
         if "auditor_id" in filters and filters["auditor_id"] == "none":
             filters["auditor_id"] = None
@@ -395,13 +404,19 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields["report_followup_week_1_sent_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_1_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_1_due_date
         )
-        form.fields["report_followup_week_4_sent_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_4_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields["report_followup_week_12_due_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_12_due_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_12_due_date
         )
         return form
@@ -474,13 +489,19 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields["report_followup_week_12_due_date"].help_text = format_date(
+        form.fields[
+            "report_followup_week_12_due_date"
+        ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_12_due_date
         )
-        form.fields["twelve_week_1_week_chaser_sent_date"].help_text = format_date(
+        form.fields[
+            "twelve_week_1_week_chaser_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.twelve_week_1_week_chaser_due_date
         )
-        form.fields["twelve_week_4_week_chaser_sent_date"].help_text = format_date(
+        form.fields[
+            "twelve_week_4_week_chaser_sent_date"
+        ].help_text = format_due_date_help_text(
             form.instance.twelve_week_4_week_chaser_due_date
         )
         return form
@@ -575,10 +596,11 @@ class CaseFinalDecisionUpdateView(UpdateView):
         """Populate retested_website help text with link to test results for this case"""
         form = super().get_form()
         if form.instance.test_results_url:
-            form.fields["retested_website"].help_text = mark_safe(
-                f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
-                ' class="govuk-link govuk-link--no-visited-state">test results</a>'
-            )
+            if form.instance.test_results_url:
+                form.fields["retested_website"].help_text = mark_safe(
+                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
+                    ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+                )
         return form
 
     def get_success_url(self) -> str:
@@ -673,3 +695,20 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )
+
+
+def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Restore archived case
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of case to restore
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case: Case = get_object_or_404(Case, id=pk)
+    case.is_archived = False
+    case.save()
+    return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))
