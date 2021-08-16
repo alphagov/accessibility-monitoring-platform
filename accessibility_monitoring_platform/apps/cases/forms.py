@@ -477,6 +477,9 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     Form for recording correspondence with enforcement body
     """
 
+    psb_appeal_notes = AMPTextField(
+        label="Public sector body appeal notes"
+    )
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )
@@ -498,6 +501,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "psb_appeal_notes",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_correspondence_notes",
             "escalation_state",

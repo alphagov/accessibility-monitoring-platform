@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import date
+from datetime import date, timedelta
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
@@ -133,6 +133,8 @@ PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     (PREFERRED_DEFAULT, "Not known"),
 ]
+
+PSB_APPEAL_WINDOW_DAYS = 28
 
 
 class Case(models.Model):
@@ -293,6 +295,7 @@ class Case(models.Model):
     is_final_decision_complete = models.BooleanField(default=False)
 
     # Equality body correspondence page
+    psb_appeal_notes = models.TextField(default="", blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
@@ -483,6 +486,12 @@ class Case(models.Model):
     @property
     def contact_exists(self):
         return Contact.objects.filter(case_id=self.id).exists()
+
+    @property
+    def psb_appeal_deadline(self):
+        if self.compliance_email_sent_date is None:
+            return None
+        return self.compliance_email_sent_date + timedelta(days=PSB_APPEAL_WINDOW_DAYS)
 
 
 class Contact(models.Model):

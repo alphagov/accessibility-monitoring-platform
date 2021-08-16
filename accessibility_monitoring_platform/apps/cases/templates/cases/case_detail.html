@@ -12,14 +12,13 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end">
-                    <a
-                        href="{% url 'cases:archive-case' case.id %}"
+                    <a href="{% url 'cases:edit-case-details' case.id %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button govuk-button--secondary"
+                        class="govuk-button"
                         data-module="govuk-button"
                     >
-                        Delete case
+                        Edit case
                     </a>
                     <a
                         href="{% url 'cases:case-export-single' case.id %}"
@@ -30,14 +29,27 @@
                     >
                         Export to CSV
                     </a>
-                    <a href="{% url 'cases:edit-case-details' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Edit case
-                    </a>
+                    {% if case.is_archived %}
+                        <a
+                            href="{% url 'cases:restore-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--warning"
+                            data-module="govuk-button"
+                        >
+                            Restore
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'cases:archive-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Delete case
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

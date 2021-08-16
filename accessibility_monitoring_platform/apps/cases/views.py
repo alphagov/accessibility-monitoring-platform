@@ -10,11 +10,12 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
+from django.utils.safestring import mark_safe
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.utils.safestring import mark_safe
 
 
 from ..common.typing import IntOrNone
@@ -194,7 +195,8 @@ class CaseListView(ListView):
                     | Q(id__icontains=self.form.cleaned_data["search"])
                 )
 
-        filters["is_archived"] = False
+        if filters.get("status", "") != "archived":
+            filters["is_archived"] = False
 
         if "auditor_id" in filters and filters["auditor_id"] == "none":
             filters["auditor_id"] = None
@@ -693,3 +695,20 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )
+
+
+def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Restore archived case
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of case to restore
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case: Case = get_object_or_404(Case, id=pk)
+    case.is_archived = False
+    case.save()
+    return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))
