@@ -17,7 +17,7 @@
                 <h1 class="govuk-heading-xl">{{ page_title }}</h1>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% if macro_view %}
+                {% if show_all_cases %}
                     <form method="get" action="{% url 'dashboard:home' %}">
                         <input
                             type="submit"

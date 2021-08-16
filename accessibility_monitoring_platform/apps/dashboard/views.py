@@ -22,7 +22,9 @@ class DashboardView(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)
         if self.request.GET.get("view") == "View all cases":
-            return self.macro_view(context, user)
+            context["page_title"] = "All cases"
+            return self.show_all_cases(context, user)
+        context["page_title"] = "Your cases"
         return self.user_view(context, user)
 
     def user_view(self, context, user):
@@ -32,6 +34,9 @@ class DashboardView(TemplateView):
         qa_entries = Case.objects.filter(reviewer=user).order_by("created")
 
         sorted_cases = {
+            "unknown": user_entries.filter(
+                status="unknown"
+            ),
             "new_case": user_entries.filter(
                 status="new-case"
             ),
@@ -41,89 +46,57 @@ class DashboardView(TemplateView):
             "reports_in_progress": user_entries.filter(
                 status="report-in-progress"
             ),
-            "qa_cases": qa_entries.filter(
-                qa_status="in_qa"
+            "qa_in_progress": user_entries.filter(
+                status="qa-in-progress"
             ),
-            "awaiting_response_to_report": user_entries.filter(
-                status="awaiting-response"
-            ).order_by(
-                "report_sent_date"
+            "requires_your_review": qa_entries.filter(
+                qa_status="in-qa"
             ),
-            "twelve_week_review_due": user_entries.filter(
-                status="12w-review"
-            ).order_by(
-                "report_followup_week_12_due_date"
+            "report_ready_to_send": user_entries.filter(
+                status="report-ready-to-send"
             ),
-            "update_for_enforcement_bodies_due": user_entries.filter(
-                status="update-for-enforcement-bodies-due"
+            "in_report_correspondence": user_entries.filter(
+                status="in-report-correspondence"
+            ).order_by("report_sent_date"),
+            "in_probation_period": user_entries.filter(
+                status="in-probation-period"
+            ).order_by("report_followup_week_12_due_date"),
+            "in_12_week_correspondence": user_entries.filter(
+                status="in-12-week-correspondence"
+            ),
+            "final_decision_due": user_entries.filter(
+                status="final-decision-due"
+            ),
+            "in_correspondence_with_equalities_body": user_entries.filter(
+                status="in-correspondence-with-equalities-body"
             ),
             "recently_completed": user_entries.filter(
                 status="complete",
                 completed__gte=timezone.now() - timedelta(30)
             ),
         }
-
-        headers = {
-            "new_case": ["Date created", "Case", "Organisation", "Step progress"],
-            "test_in_progress": [
-                "Date created",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-            "reports_in_progress": [
-                "Date created",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-            "qa_cases": ["Date created", "Case", "Organisation", "Step progress"],
-            "awaiting_response_to_report": [
-                "Days since being sent",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-            "twelve_week_review_due": [
-                "Review due",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-            "update_for_enforcement_bodies_due": [
-                "Review due",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-            "recently_completed": [
-                "Completed on",
-                "Case",
-                "Organisation",
-                "Step progress",
-            ],
-        }
-
         context.update(
             {
                 "sorted_cases": sorted_cases,
-                "headers": headers,
                 "total_cases": len(all_entries),
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned_qa_case")
+                    all_entries.filter(qa_status="unassigned-qa-case")
                 ),
                 "today": date.today(),
             }
         )
         return context
 
-    def macro_view(self, context, user):
+    def show_all_cases(self, context, user):
         """Shows and filters all cases"""
         all_entries = Case.objects.all()
         user_entries = Case.objects.filter(auditor=user).order_by("created")
         sorted_cases = {
+            "unknown": all_entries.filter(
+                status="unknown"
+            ),
             "unassigned_cases": all_entries.filter(
                 status="unassigned-case"
             ),
@@ -136,70 +109,46 @@ class DashboardView(TemplateView):
             "reports_in_progress": all_entries.filter(
                 status="report-in-progress"
             ),
-            "qa_cases": all_entries.filter(
-                qa_status="in_qa"
+            "ready_for_qa": all_entries.filter(
+                qa_status="unassigned-qa-case"
             ),
-            "unassigned_qa_cases": all_entries.filter(
-                qa_status="unassigned_qa_case"
+            "qa_in_progress": all_entries.filter(
+                qa_status="in-qa"
             ),
-            "awaiting_response_to_report": all_entries.filter(
-                status="awaiting-response"
-            ).order_by(
-                "report_sent_date"
+            "report_ready_to_send": all_entries.filter(
+                status="report-ready-to-send"
             ),
-            "twelve_week_review_due": all_entries.filter(
-                status="12w-review"
-            ).order_by(
-                "report_followup_week_12_due_date"
+            "in_report_correspondence": all_entries.filter(
+                status="in-report-correspondence"
+            ).order_by("report_sent_date"),
+            "in_probation_period": all_entries.filter(
+                status="in-probation-period"
+            ).order_by("report_followup_week_12_due_date"),
+            "in_12_week_correspondence": all_entries.filter(
+                status="in-12-week-correspondence"
             ),
-            "update_for_enforcement_bodies_due": all_entries.filter(
-                status="update-for-enforcement-bodies-due"
+            "final_decision_due": all_entries.filter(
+                status="final-decision-due"
+            ),
+            "in_correspondence_with_equalities_body": all_entries.filter(
+                status="in-correspondence-with-equalities-body"
             ),
             "recently_completed": all_entries.filter(
                 status="complete",
                 completed__gte=timezone.now() - timedelta(30)
             ),
         }
-
-        headers = {
-            "new_case": ["Date created", "Case", "Organisation", "Auditor"],
-            "test_in_progress": ["Date created", "Case", "Organisation", "Auditor"],
-            "reports_in_progress": ["Date created", "Case", "Organisation", "Auditor"],
-            "qa_cases": ["Date created", "Case", "Organisation", "QA auditor"],
-            "unassigned_qa_cases": [
-                "Date created",
-                "Case",
-                "Organisation",
-                "QA auditor",
-            ],
-            "awaiting_response_to_report": [
-                "Days since being sent",
-                "Case",
-                "Organisation",
-                "Auditor",
-            ],
-            "twelve_week_review_due": ["Review due", "Case", "Organisation", "Auditor"],
-            "update_for_enforcement_bodies_due": [
-                "Review due",
-                "Case",
-                "Organisation",
-                "Auditor",
-            ],
-            "recently_completed": ["Completed on", "Case", "Organisation", "Auditor"],
-        }
-
         context.update(
             {
                 "sorted_cases": sorted_cases,
-                "headers": headers,
                 "total_cases": len(all_entries),
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned_qa_case")
+                    all_entries.filter(qa_status="unassigned-qa-case")
                 ),
                 "today": date.today(),
-                "macro_view": True,
+                "show_all_cases": True,
             }
         )
         return context

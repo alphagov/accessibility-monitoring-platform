@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 
 {% if table_data.count == 0 %}
-   <p class="govuk-body"> There are currently no new cases </p>
+   <p class="govuk-body"> There are currently no cases in correspondence </p>
 {% else %}
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                {% for item in table_header %}
-                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">{{item}}</th>
-                {% endfor %}
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">12 week review due</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
+                {% if show_all_cases %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
+                {% else %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody class="govuk-table__body">
             {% for item in table_data %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.created|date:"d/m/Y"}}</th>
+                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">
+                        {% if item.report_followup_week_12_due_date < today %}
+                            {{item.report_followup_week_12_due_date|timesince}} ago
+                        {% else %}
+                            {{item.report_followup_week_12_due_date}}
+                        {% endif %}
+                    </th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         <a href="{% url 'cases:case-detail' item.id %}"> {{item.domain|truncatechars:25}} </a>
                     </td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name|truncatechars:25}}</td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
-                        {% if macro_view %}
+                        {% if show_all_cases %}
                             {% if item.auditor %}
                                 <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                             {% else %}
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-case-details' item.id %}"> {{item.new_case_progress}} </a>
+                            <a href="{% url 'cases:edit-enforcement-body-correspondence' item.id %}"> Case not closed </a>
                         {% endif %}
                     </td>
                 </tr>

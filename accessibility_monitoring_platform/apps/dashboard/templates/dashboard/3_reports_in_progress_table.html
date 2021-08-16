@@ -7,9 +7,14 @@
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                {% for item in table_header %}
-                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">{{item}}</th>
-                {% endfor %}
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
+                {% if show_all_cases %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
+                {% else %}
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Step progress</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody class="govuk-table__body">
@@ -21,7 +26,7 @@
                     </td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name|truncatechars:25}}</td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
-                        {% if macro_view %}
+                        {% if show_all_cases %}
                             <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                         {% else %}
                             <a href="{% url 'cases:edit-report-details' item.id %}"> {{item.report_progress}} </a>
