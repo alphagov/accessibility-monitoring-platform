@@ -19,7 +19,7 @@
         <tbody class="govuk-table__body">
             {% for item in table_data %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.report_sent_date|timesince}}</th>
+                    <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.report_sent_date|timesince}} ago </th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         <a href="{% url 'cases:case-detail' item.id %}"> {{item.organisation_name|truncatechars:25}} </a>
                     </td>
