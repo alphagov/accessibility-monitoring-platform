@@ -77,6 +77,21 @@ def test_case_list_view_leaves_out_archived_case(admin_client):
     assertNotContains(response, "Is Archived")
 
 
+def test_case_list_view_filtering_by_archived_includes_archived_contact(admin_client):
+    """Test that archived Cases are included in context when filtering by status 'archived'"""
+    Case.objects.create(organisation_name="Not Archived")
+    Case.objects.create(organisation_name="Is Archived", is_archived=True)
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:case-list")}?status=archived'
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Is Archived")
+    assertNotContains(response, "Not Archived")
+
+
 def test_case_list_view_filters_by_case_number(admin_client):
     """Test that the case list view page can be filtered by case number"""
     included_case: Case = Case.objects.create(organisation_name="Included")
@@ -229,6 +244,22 @@ def test_archive_case_view(admin_client):
     case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.is_archived
+
+
+def test_restore_case_view(admin_client):
+    """Test that restore case view restores case"""
+    case: Case = Case.objects.create(is_archived=True)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:restore-case", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})
+
+    case_from_db: Case = Case.objects.get(pk=case.id)
+
+    assert case_from_db.is_archived == False
 
 
 @pytest.mark.parametrize(
