@@ -143,7 +143,7 @@ PREFERRED_CHOICES: List[Tuple[str, str]] = [
 ]
 
 MAX_LENGTH_OF_FORMATTED_URL = 25
-PSB_APPEAL_WINDOW_DAYS = 28
+PSB_APPEAL_WINDOW_IN_DAYS = 28
 
 
 class Case(models.Model):
@@ -348,7 +348,7 @@ class Case(models.Model):
     @property
     def formatted_home_page_url(self):
         if self.home_page_url:
-            formatted_url = re.sub(r"https?://(www.|)", "", self.home_page_url)
+            formatted_url = re.sub(r"https?://(www\.|)", "", self.home_page_url)
             if len(formatted_url) <= MAX_LENGTH_OF_FORMATTED_URL:
                 return formatted_url[:-1] if formatted_url[-1] == "/" else formatted_url
             return f"{formatted_url[:MAX_LENGTH_OF_FORMATTED_URL]}…"
@@ -356,7 +356,9 @@ class Case(models.Model):
 
     @property
     def title(self):
-        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")
+        return str(
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+        )
 
     def set_status(self):
         if self.is_archived:
@@ -616,7 +618,7 @@ class Case(models.Model):
     def psb_appeal_deadline(self):
         if self.compliance_email_sent_date is None:
             return None
-        return self.compliance_email_sent_date + timedelta(days=PSB_APPEAL_WINDOW_DAYS)
+        return self.compliance_email_sent_date + timedelta(days=PSB_APPEAL_WINDOW_IN_DAYS)
 
 
 class Contact(models.Model):

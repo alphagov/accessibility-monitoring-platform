@@ -58,7 +58,10 @@ def test_case_title_is_organisation_name_bar_domain_bar_id():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"
+    assert (
+        case.title
+        == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"
+    )
 
 
 @pytest.mark.django_db
@@ -138,6 +141,7 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
             "9i450l8.515265j0j7&sourceid=chrome&ie=UTF-8",
             "google.com/search?q=bbc+n…",
         ),
+        ("https://www3.halton.gov.uk/Pages/Home.aspx", "www3.halton.gov.uk/Pages/…"),
     ],
 )
 def test_formatted_home_page_url(url, expected_formatted_url):
