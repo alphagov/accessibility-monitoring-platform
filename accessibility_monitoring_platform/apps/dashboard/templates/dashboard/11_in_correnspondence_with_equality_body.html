@@ -27,18 +27,18 @@
                         {% endif %}
                     </th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
-                        <a href="{% url 'cases:case-detail' item.id %}"> {{item.organisation_name|truncatechars:25}} </a>
+                        <a href="{% url 'cases:case-detail' item.id %}" class="govuk-link"> {{item.organisation_name|truncatechars:25}} </a>
                     </td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.domain|truncatechars:25}}</td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         {% if show_all_cases %}
                             {% if item.auditor %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
+                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}" class="govuk-link"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
                             {% else %}
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-enforcement-body-correspondence' item.id %}"> Case not closed </a>
+                            <a href="{% url 'cases:edit-enforcement-body-correspondence' item.id %}" class="govuk-link"> Case not closed </a>
                         {% endif %}
                     </td>
                 </tr>
