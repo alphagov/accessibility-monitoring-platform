@@ -195,7 +195,7 @@ class CaseListView(ListView):
                     | Q(id__icontains=self.form.cleaned_data["search"])
                 )
 
-        if filters.get("status", "") != "archived":
+        if filters.get("status", "") != "deleted":
             filters["is_archived"] = False
 
         if "auditor_id" in filters and filters["auditor_id"] == "none":

@@ -69,6 +69,15 @@
                 {% include 'cases/helpers/case_title.html' %}
             </div>
         </div>
+        {% if case.no_psb_contact == 'yes' %}
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                    Public sector body is unresponsive and has been moved to equalities bodies correspondence
+                </strong>
+            </div>
+        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'cases/helpers/navbar.html' with current_page='view-details' %}
