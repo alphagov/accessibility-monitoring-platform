@@ -282,7 +282,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl" style="margin-bottom:15px">View case</h1>',
+            '<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
         ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
@@ -344,9 +344,15 @@ def test_create_case_redirects_based_on_button_pressed(
 @pytest.mark.django_db
 def test_create_case_shows_duplicate_cases(admin_client):
     """Test that create case shows duplicates found"""
-    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
-    organisation_name_case: Case = Case.objects.create(
-        organisation_name=ORGANISATION_NAME
+    other_url: str = "other_url"
+    other_organisation_name: str = "other organisation name"
+    Case.objects.create(
+        home_page_url=HOME_PAGE_URL,
+        organisation_name=other_organisation_name,
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=other_url,
     )
 
     response: HttpResponse = admin_client.post(
@@ -358,8 +364,8 @@ def test_create_case_shows_duplicate_cases(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, f" | #{domain_case.id}")
-    assertContains(response, f" | #{organisation_name_case.id}")
+    assertContains(response, other_url)
+    assertContains(response, other_organisation_name)
 
 
 @pytest.mark.parametrize(
@@ -900,12 +906,14 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     assertContains(
         response,
         '<div id="event-name-hint" class="govuk-hint">'
-        'There is no test spreadsheet for this case'
+        "There is no test spreadsheet for this case"
         "</div>",
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(admin_client):
+def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(
+    admin_client,
+):
     """
     Test that the case final decision view contains placeholder text if there are no accessibility statement notes
     """
@@ -928,7 +936,9 @@ def test_case_final_decision_view_contains_placeholder_no_accessibility_statemen
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(admin_client):
+def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(
+    admin_client,
+):
     """
     Test that the case final decision view contains placeholder text if there are no compliance decision notes
     """

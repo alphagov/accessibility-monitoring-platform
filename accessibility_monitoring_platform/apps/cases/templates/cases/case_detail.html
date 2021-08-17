@@ -8,7 +8,18 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                <h1 class="govuk-heading-xl" style="margin-bottom:15px">{{ page_title }}</h1>
+                <div class="govuk-button-group" style="display: flex;">
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_title }}</h1>
+                    {% if case.escalation_state == 'no-action' %}
+                        <strong class="govuk-tag">
+                            completed
+                        </strong>
+                    {% elif case.is_archived %}
+                        <strong class="govuk-tag govuk-tag--red">
+                            deleted
+                        </strong>
+                    {% endif %}
+                </div>
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end">
@@ -55,7 +66,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'cases/helpers/case_summary.html' %}
+                {% include 'cases/helpers/case_title.html' %}
             </div>
         </div>
         <div class="govuk-grid-row">

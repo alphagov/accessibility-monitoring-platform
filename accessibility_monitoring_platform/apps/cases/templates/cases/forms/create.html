@@ -14,14 +14,13 @@
                 {% if duplicate_cases %}
                     <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
                 {% else %}
-                    <details class="govuk-details" data-module="govuk-details">
-                        <summary class="govuk-details__summary">
-                            <span class="govuk-details__summary-text">Help with test type</span>
-                        </summary>
-                        <div class="govuk-details__text">
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
                             The accessibility monitoring platform currently does not support detailed or mobile testing.
-                        </div>
-                    </details>
+                        </strong>
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -46,11 +45,6 @@
                         <div class="govuk-body">
                             <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Full URL</p>
                             <p class="govuk-!-font-weight-regular">{{ new_case.home_page_url }}</p>
-                        </div>
-
-                        <div class="govuk-body">
-                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Sector</p>
-                            <p class="govuk-!-font-weight-regular">{{ new_case.sector }}</p>
                         </div>
 
                         <div class="govuk-body">
@@ -82,10 +76,10 @@
                         <table class="govuk-table">
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
-                                    <th class="govuk-table__header">Date created</th>
-                                    <th class="govuk-table__header">Case</th>
-                                    <th class="govuk-table__header">Full URL</th>
-                                    <th class="govuk-table__header">Status</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Case</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Full URL</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="govuk-table__body">
@@ -95,7 +89,7 @@
                                         <td class="govuk-table__cell">
                                             <a href="{% url 'cases:case-detail' case.id %}"
                                                 class="govuk-link govuk-link--no-visited-state">
-                                               {{ case }}
+                                               {{ case.organisation_name }}
                                             </a>
                                         </td>
                                         <td class="govuk-table__cell">{{ case.home_page_url }}</td>

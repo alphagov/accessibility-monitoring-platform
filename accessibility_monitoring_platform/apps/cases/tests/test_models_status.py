@@ -72,7 +72,7 @@ def test_case_status_qa_in_progress():
         organisation_name="org name",
         auditor=user,
         test_status="complete",
-        report_review_status="ready-to-review"
+        report_review_status="ready-to-review",
     )
     Contact.objects.create(case=case)
     case.save()
