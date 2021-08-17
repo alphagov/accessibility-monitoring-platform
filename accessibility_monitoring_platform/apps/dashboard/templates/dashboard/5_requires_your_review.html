@@ -8,7 +8,7 @@
             <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
                 <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Case</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Organisation</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Full URL</th>
                 {% if show_all_cases %}
                     <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Auditor</th>
                 {% else %}
@@ -21,9 +21,9 @@
                 <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header govuk-!-width-one-quarter">{{item.created|date:"d/m/Y"}}</th>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
-                        <a href="{% url 'cases:case-detail' item.id %}"> {{item.domain|truncatechars:25}} </a>
+                        <a href="{% url 'cases:case-detail' item.id %}"> {{item.organisation_name|truncatechars:25}}  </a>
                     </td>
-                    <td class="govuk-table__cell govuk-!-width-one-quarter">{{item.organisation_name|truncatechars:25}}</td>
+                    <td class="govuk-table__cell govuk-!-width-one-quarter"> {{item.domain|truncatechars:25}} </td>
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         {% if item.auditor %}
                             <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
