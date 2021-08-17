@@ -282,7 +282,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl" style="margin-bottom:15px">View case</h1>',
+            '<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
         ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
