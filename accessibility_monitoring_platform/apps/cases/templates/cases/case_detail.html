@@ -9,18 +9,15 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="padding-right: 20px;">
-                        {{ page_title }}
-                        <span class="govuk-caption-l" style="margin-top: 10px;">{{ case.title }}</span>
-                    </h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_title }}</h1>
                     {% if case.escalation_state == 'no-action' %}
-                    <strong class="govuk-tag">
-                        completed
-                    </strong>
+                        <strong class="govuk-tag">
+                            completed
+                        </strong>
                     {% elif case.is_archived %}
-                    <strong class="govuk-tag govuk-tag--red">
-                        deleted
-                    </strong>
+                        <strong class="govuk-tag govuk-tag--red">
+                            deleted
+                        </strong>
                     {% endif %}
                 </div>
             </div>
@@ -65,6 +62,11 @@
                         </a>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'cases/helpers/case_title.html' %}
             </div>
         </div>
         <div class="govuk-grid-row">
