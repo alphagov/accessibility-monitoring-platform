@@ -3,35 +3,43 @@
         <h2 class="govuk-heading-m">Contents</h2>
         <ul class="govuk-list">
             <li>
-                <a href="#case-details" class="govuk-link govuk-link--no-visited-state">Case details</a>
+                <a href="#case-details" class="govuk-link govuk-link--no-visited-state">
+                    Case details{% if case.is_case_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_case_details_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#contact-details" class="govuk-link govuk-link--no-visited-state">Contact details</a>
+                <a href="#contact-details" class="govuk-link govuk-link--no-visited-state">
+                    Contact details{% if case.is_contact_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_contact_details_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#testing-details" class="govuk-link govuk-link--no-visited-state">Testing details</a>
+                <a href="#testing-details" class="govuk-link govuk-link--no-visited-state">
+                    Testing details{% if case.is_testing_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_testing_details_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#report-details" class="govuk-link govuk-link--no-visited-state">Report details</a>
+                <a href="#report-details" class="govuk-link govuk-link--no-visited-state">
+                    Report details{% if case.is_reporting_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_reporting_details_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#report-correspondence" class="govuk-link govuk-link--no-visited-state">Report correspondence</a>
+                <a href="#report-correspondence" class="govuk-link govuk-link--no-visited-state">
+                    Report correspondence{% if case.is_report_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_report_correspondence_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#12-week-correspondence" class="govuk-link govuk-link--no-visited-state">12 week correspondence</a>
+                <a href="#12-week-correspondence" class="govuk-link govuk-link--no-visited-state">
+                    12 week correspondence{% if case.is_12_week_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_12_week_correspondence_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#final-decision" class="govuk-link govuk-link--no-visited-state">Final decision</a>
+                <a href="#final-decision" class="govuk-link govuk-link--no-visited-state">
+                    Final decision{% if case.is_final_decision_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_final_decision_complete %}&check;{% endif %}
             </li>
             <li>
-                <a href="#equality-body-correspondence" class="govuk-link govuk-link--no-visited-state">Equality body correspondence</a>
+                <a href="#equality-body-correspondence" class="govuk-link govuk-link--no-visited-state">
+                    Equality body correspondence{% if case.is_enforcement_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.is_enforcement_correspondence_complete %}&check;{% endif %}
             </li>
         </ul>
@@ -41,72 +49,80 @@
             <li>
                 {% if current_page == 'edit-case-details' %}
                     Case details
+                    {% if case.is_case_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
-                    <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Case details</a>
+                    <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Case details{% if case.is_case_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_case_details_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-contacts' %}
                     Contact details
+                    {% if case.is_contact_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
-                    <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Contact details</a>
+                    <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Contact details{% if case.is_contact_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_contact_details_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-test-results' %}
                     Testing details
+                    {% if case.is_testing_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
-                    <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Testing details</a>
+                    <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Testing details{% if case.is_testing_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_testing_details_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-report-details' %}
                     Report details
+                    {% if case.is_reporting_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
-                    <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">Report details</a>
+                    <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Report details{% if case.is_reporting_details_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_reporting_details_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-report-correspondence' %}
                     Report correspondence
+                    {% if case.is_report_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
                     <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Report correspondence
-                    </a>
+                        Report correspondence{% if case.is_report_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_report_correspondence_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-twelve-week-correspondence' %}
                     12 week correspondence
+                    {% if case.is_12_week_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
                     <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        12 week correspondence
-                    </a>
+                        12 week correspondence{% if case.is_12_week_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_12_week_correspondence_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-final-decision' %}
                     Final decision
+                    {% if case.is_final_decision_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
                     <a href="{% url 'cases:edit-final-decision' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Final decision
-                    </a>
+                        Final decision{% if case.is_final_decision_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_final_decision_complete %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-enforcement-body-correspondence' %}
                     Equality body correspondence
+                    {% if case.is_enforcement_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
                     <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Equality body correspondence
-                    </a>
+                        Equality body correspondence{% if case.is_enforcement_correspondence_complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.is_enforcement_correspondence_complete %}&check;{% endif %}
             </li>

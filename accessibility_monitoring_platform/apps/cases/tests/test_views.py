@@ -818,7 +818,7 @@ def test_section_complete_check_displayed_in_contents(
     assertContains(
         response,
         f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">'
-        f"{section_name}</a> &check;",
+        f'{section_name}<span class="govuk-visually-hidden">complete</span></a> &check;',
         html=True,
     )
 
@@ -872,7 +872,7 @@ def test_section_complete_check_displayed_in_steps(
 
     assert response.status_code == 200
 
-    assertContains(response, f"{step_name} &check;", html=True)
+    assertContains(response, f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;', html=True)
 
 
 def test_case_final_decision_view_contains_link_to_test_results_url(admin_client):
