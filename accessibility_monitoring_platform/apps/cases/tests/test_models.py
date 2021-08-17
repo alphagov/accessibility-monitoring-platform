@@ -141,7 +141,7 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
             "9i450l8.515265j0j7&sourceid=chrome&ie=UTF-8",
             "google.com/search?q=bbc+n…",
         ),
-        ("https://www3.halton.gov.uk/Pages/Home.aspx", "www3.halton.gov.uk/Pages/…"),
+        ("https://www3.halton.gov.uk/Pages/Home.aspx", "halton.gov.uk/Pages/Home.…"),
     ],
 )
 def test_formatted_home_page_url(url, expected_formatted_url):

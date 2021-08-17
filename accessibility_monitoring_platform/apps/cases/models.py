@@ -348,7 +348,7 @@ class Case(models.Model):
     @property
     def formatted_home_page_url(self):
         if self.home_page_url:
-            formatted_url = re.sub(r"https?://(www\.|)", "", self.home_page_url)
+            formatted_url = re.sub(r"https?://(www[0-9]?\.|)", "", self.home_page_url)
             if len(formatted_url) <= MAX_LENGTH_OF_FORMATTED_URL:
                 return formatted_url[:-1] if formatted_url[-1] == "/" else formatted_url
             return f"{formatted_url[:MAX_LENGTH_OF_FORMATTED_URL]}…"
