@@ -906,12 +906,14 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     assertContains(
         response,
         '<div id="event-name-hint" class="govuk-hint">'
-        'There is no test spreadsheet for this case'
+        "There is no test spreadsheet for this case"
         "</div>",
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(admin_client):
+def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(
+    admin_client,
+):
     """
     Test that the case final decision view contains placeholder text if there are no accessibility statement notes
     """
@@ -934,7 +936,9 @@ def test_case_final_decision_view_contains_placeholder_no_accessibility_statemen
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(admin_client):
+def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(
+    admin_client,
+):
     """
     Test that the case final decision view contains placeholder text if there are no compliance decision notes
     """
