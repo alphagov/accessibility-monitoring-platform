@@ -16,8 +16,13 @@
             <div class="govuk-grid-column-full">
                 <div class="govuk-body">
                     <p class="govuk-body-m">
-                        Deleting a case is not permanent.
-                        Deleting a case can be undone by contacting an administrator.
+                        Deleting a case is not permanent. 
+                    </p>
+                    <p class="govuk-body-m">
+                        Deleted cases can be viewed in <a href="{% url 'cases:case-list' %}?status=deleted">search</a> by selecting deleted under the statuses. 
+                    </p>
+                    <p class="govuk-body-m">
+                        Deletion can be undone by selecting restore in the view case page.
                     </p>
                 </div>
                 <form method="post" action="{% url 'cases:archive-case' case.id %}">
