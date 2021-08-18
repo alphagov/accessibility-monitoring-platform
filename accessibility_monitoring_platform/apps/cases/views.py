@@ -231,6 +231,8 @@ class CaseCreateView(CreateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
+            case: Case = form.save(commit=False)
+            case.created_by = self.request.user
             return super().form_valid(form)
 
         context: Dict[str, Any] = self.get_context_data()
@@ -243,6 +245,9 @@ class CaseCreateView(CreateView):
             context["duplicate_cases"] = duplicate_cases
             context["new_case"] = form.save(commit=False)
             return self.render_to_response(context)
+
+        case: Case = form.save(commit=False)
+        case.created_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

@@ -438,7 +438,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
     compliance_decision_notes_final = AMPTextField(
-        label="FInal compliance decision notes"
+        label="Final compliance decision notes"
     )
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
