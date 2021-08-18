@@ -26,7 +26,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/create/": "Create case",
     "/contact/": "Contact admin",
     "/report-issue/": "Report an issue",
-    "/user/account_details/": "Your account details",
+    "/user/account_details/": "Account details",
     "/user/register/": "Register",
     "/websites/": "Query domain register",
 }
