@@ -32,7 +32,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "In correspondence with equalities body",
     ),
     ("complete", "Complete"),
-    ("archived", "Archived"),
+    ("deleted", "Deleted"),
 ]
 
 DEFAULT_TEST_TYPE = "simplified"
@@ -362,9 +362,11 @@ class Case(models.Model):
 
     def set_status(self):
         if self.is_archived:
-            return "archived"
+            return "deleted"
         elif self.case_completed == "no-action" or self.escalation_state == "no-action":
             return "complete"
+        elif self.no_psb_contact == "yes" or self.case_completed == "escalated":
+            return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
         elif self.contact_exists is False:
@@ -400,8 +402,6 @@ class Case(models.Model):
             and self.case_completed == DEFAULT_CASE_COMPLETED
         ):
             return "final-decision-due"
-        elif self.case_completed == "escalated":
-            return "in-correspondence-with-equalities-body"
         return "unknown"
 
     def set_qa_status(self):

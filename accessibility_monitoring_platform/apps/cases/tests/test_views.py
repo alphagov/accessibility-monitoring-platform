@@ -83,7 +83,7 @@ def test_case_list_view_filtering_by_archived_includes_archived_contact(admin_cl
     Case.objects.create(organisation_name="Is Archived", is_archived=True)
 
     response: HttpResponse = admin_client.get(
-        f'{reverse("cases:case-list")}?status=archived'
+        f'{reverse("cases:case-list")}?status=deleted'
     )
 
     assert response.status_code == 200

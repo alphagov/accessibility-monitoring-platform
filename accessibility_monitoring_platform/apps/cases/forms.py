@@ -62,7 +62,6 @@ class CaseSearchForm(AMPDateRangeForm):
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
