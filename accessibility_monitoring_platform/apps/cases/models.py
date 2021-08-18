@@ -101,11 +101,11 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED = "no-decision"
 CASE_COMPLETED_CHOICES = [
+    ("escalated", "The audit needs to be sent to the relevant equalities body"),
     (
         "no-action",
         "The case requires no further action",
     ),
-    ("escalated", "The audit needs to be sent to the relevant equalities body"),
     (DEFAULT_CASE_COMPLETED, "Decision not reached"),
 ]
 
