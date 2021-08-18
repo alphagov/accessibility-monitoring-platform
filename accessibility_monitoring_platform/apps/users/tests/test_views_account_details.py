@@ -52,7 +52,7 @@ class UserViewTests(TestCase):
         response: HttpResponse = self.client.get(reverse("users:account_details"))
         self.assertEqual(str(response.context["user"]), "testuser")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Your account details")
+        self.assertContains(response, "Account details")
 
     def test_account_details_loads_correctly_no_auth(self):
         """ Tests if a unauthenticated user returns a 302 response """
@@ -79,7 +79,7 @@ class UserViewTests(TestCase):
             reverse("users:account_details"), data=data, follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Your account details")
+        self.assertContains(response, "Account details")
         messages: List[str] = [str(x) for x in list(response.context["messages"])]
         self.assertEqual(messages[0], "Successfully saved details!")
 
