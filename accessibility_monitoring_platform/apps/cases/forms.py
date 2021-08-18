@@ -209,7 +209,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Test status",
         choices=TEST_STATUS_CHOICES,
     )
-    accessibility_statement_decison = AMPChoiceRadioField(
+    accessibility_statement_state = AMPChoiceRadioField(
         label="Is the accessibility statement compliant?",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
@@ -231,7 +231,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         fields = [
             "test_results_url",
             "test_status",
-            "accessibility_statement_decison",
+            "accessibility_statement_state",
             "accessibility_statement_notes",
             "is_website_compliant",
             "compliance_decision_notes",
@@ -417,7 +417,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    retested_website = AMPDateField(
+    retested_website_date = AMPDateField(
         label="Retested website?",
         help_text="There is no test spreadsheet for this case",
     )
@@ -426,7 +426,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison_final = AMPChoiceRadioField(
+    accessibility_statement_state_final = AMPChoiceRadioField(
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
@@ -459,10 +459,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "psb_progress_notes",
-            "retested_website",
+            "retested_website_date",
             "is_disproportionate_claimed",
             "disproportionate_notes",
-            "accessibility_statement_decison_final",
+            "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "is_website_compliant_final",
             "compliance_decision_notes_final",

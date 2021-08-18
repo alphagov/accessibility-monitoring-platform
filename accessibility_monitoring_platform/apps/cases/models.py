@@ -200,7 +200,7 @@ class Case(models.Model):
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
     )
-    accessibility_statement_decison = models.CharField(
+    accessibility_statement_state = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
@@ -276,7 +276,7 @@ class Case(models.Model):
 
     # Final decision page
     psb_progress_notes = models.TextField(default="", blank=True)
-    retested_website = models.DateField(null=True, blank=True)
+    retested_website_date = models.DateField(null=True, blank=True)
     is_disproportionate_claimed = models.CharField(
         max_length=20,
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
@@ -284,7 +284,7 @@ class Case(models.Model):
     )
     disproportionate_notes = models.TextField(default="", blank=True)
 
-    accessibility_statement_decison_final = models.CharField(
+    accessibility_statement_state_final = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
@@ -300,7 +300,7 @@ class Case(models.Model):
     case_completed = models.CharField(
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
-    completed = models.DateTimeField(null=True, blank=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
     is_final_decision_complete = models.BooleanField(default=False)
 
     # Equality body correspondence page
@@ -339,8 +339,8 @@ class Case(models.Model):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
-        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed:
-            self.completed = now
+        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
+            self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)
@@ -566,8 +566,8 @@ class Case(models.Model):
     @property
     def final_decision_progress(self):
         to_check = [
-            "retested_website",
-            "accessibility_statement_decison_final",
+            "retested_website_date",
+            "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "is_website_compliant_final",
             "compliance_decision_notes_final",

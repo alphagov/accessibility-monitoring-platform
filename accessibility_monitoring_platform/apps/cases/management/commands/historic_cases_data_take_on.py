@@ -218,7 +218,7 @@ def create_case(get_data: Callable) -> Case:
     report_sent_date = get_data(column_name=REPORT_SENT_DATE, column_type="date")
     report_review_status = "ready-to-review" if report_sent_date else "not-started"
     report_approved_status = "yes" if report_sent_date else "no"
-    retested_website = get_data(column_name=RETEST_DATE, column_type="date")
+    retested_website_date = get_data(column_name=RETEST_DATE, column_type="date")
     is_disproportionate_claimed = (
         "yes"
         if get_data(column_name=IS_DISPROPORTIONATE_CLAIMBED) == "Yes"
@@ -264,10 +264,10 @@ def create_case(get_data: Callable) -> Case:
             column_name=WEEK_12_FOLLOWEP_DATE, column_type="date"
         ),
         psb_progress_notes=get_data(column_name=PSB_PROGRESS_NOTES),
-        retested_website=retested_website,
+        retested_website_date=retested_website_date,
         is_disproportionate_claimed=is_disproportionate_claimed,
         disproportionate_notes=get_data(column_name=DISPROPORTIONATE_NOTES),
-        accessibility_statement_decison=slugify(
+        accessibility_statement_state=slugify(
             get_data(column_name=ACCESSIBILITY_STATEMENT_DECISION)
         ),
         accessibility_statement_notes=get_data(
@@ -280,7 +280,7 @@ def create_case(get_data: Callable) -> Case:
             column_name=SENT_TO_ENFORCEMENT_BODY_DATE, column_type="month"
         ),
         case_completed=case_completed,
-        completed=None,
+        completed_date=None,
         is_archived=False,
     )
 
