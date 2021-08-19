@@ -38,6 +38,7 @@ from .models import (
     BOOLEAN_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
+    PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
 )
@@ -120,7 +121,13 @@ class CaseDetailUpdateForm(CaseCreateForm):
 
     auditor = AMPUserModelChoiceField(label="Auditor")
     service_name = AMPCharFieldWide(label="Website, app or service name")
+    psb_location = AMPChoiceRadioField(
+        label="Public sector body location",
+        choices=PSB_LOCATION_CHOICES,
+    )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
@@ -144,6 +151,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "organisation_name",
             "service_name",
             "enforcement_body",
+            "psb_location",
             "sector",
             "is_complaint",
             "zendesk_url",
