@@ -39,19 +39,19 @@ TODAY = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
 
-def test_case_detail_view_leaves_out_archived_contact(admin_client):
-    """Test that archived Contacts are not included in context"""
+def test_case_detail_view_leaves_out_deleted_contact(admin_client):
+    """Test that deleted Contacts are not included in context"""
     case: Case = Case.objects.create()
-    unarchived_contact: Contact = Contact.objects.create(
+    undeleted_contact: Contact = Contact.objects.create(
         case=case,
-        first_name="Unarchived",
+        first_name="Undeleted",
         last_name="Contact",
     )
     Contact.objects.create(
         case=case,
-        first_name="Archived",
+        first_name="Deleted",
         last_name="Contact",
-        is_archived=True,
+        is_deleted=True,
     )
 
     response: HttpResponse = admin_client.get(
@@ -59,28 +59,28 @@ def test_case_detail_view_leaves_out_archived_contact(admin_client):
     )
 
     assert response.status_code == 200
-    assert set(response.context["contacts"]) == set([unarchived_contact])
-    assertContains(response, "Unarchived Contact")
-    assertNotContains(response, "Archived Contact")
+    assert set(response.context["contacts"]) == set([undeleted_contact])
+    assertContains(response, "Undeleted Contact")
+    assertNotContains(response, "Deleted Contact")
 
 
-def test_case_list_view_leaves_out_archived_case(admin_client):
-    """Test that the case list view page does not include archived cases"""
-    Case.objects.create(organisation_name="Not Archived")
-    Case.objects.create(organisation_name="Is Archived", is_archived=True)
+def test_case_list_view_leaves_out_deleted_case(admin_client):
+    """Test that the case list view page does not include deleted cases"""
+    Case.objects.create(organisation_name="Not Deleted")
+    Case.objects.create(organisation_name="Is Deleted", is_deleted=True)
 
     response: HttpResponse = admin_client.get(reverse("cases:case-list"))
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
-    assertContains(response, "Not Archived")
-    assertNotContains(response, "Is Archived")
+    assertContains(response, "Not Deleted")
+    assertNotContains(response, "Is Deleted")
 
 
-def test_case_list_view_filtering_by_archived_includes_archived_contact(admin_client):
-    """Test that archived Cases are included in context when filtering by status 'archived'"""
-    Case.objects.create(organisation_name="Not Archived")
-    Case.objects.create(organisation_name="Is Archived", is_archived=True)
+def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_client):
+    """Test that deleted Cases are included in context when filtering by status 'deleted'"""
+    Case.objects.create(organisation_name="Not Deleted")
+    Case.objects.create(organisation_name="Is Deleted", is_deleted=True)
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=deleted'
@@ -88,8 +88,8 @@ def test_case_list_view_filtering_by_archived_includes_archived_contact(admin_cl
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
-    assertContains(response, "Is Archived")
-    assertNotContains(response, "Not Archived")
+    assertContains(response, "Is Deleted")
+    assertNotContains(response, "Not Deleted")
 
 
 def test_case_list_view_filters_by_case_number(admin_client):
@@ -230,12 +230,12 @@ def test_case_export_single_view(admin_client):
     assertContains(response, case_fields_to_export_str)
 
 
-def test_archive_case_view(admin_client):
-    """Test that archive case view archives case"""
+def test_delete_case_view(admin_client):
+    """Test that delete case view deletes case"""
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:archive-case", kwargs={"pk": case.id})
+        reverse("cases:delete-case", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 302
@@ -243,12 +243,12 @@ def test_archive_case_view(admin_client):
 
     case_from_db: Case = Case.objects.get(pk=case.id)
 
-    assert case_from_db.is_archived
+    assert case_from_db.is_deleted
 
 
 def test_restore_case_view(admin_client):
     """Test that restore case view restores case"""
-    case: Case = Case.objects.create(is_archived=True)
+    case: Case = Case.objects.create(is_deleted=True)
 
     response: HttpResponse = admin_client.post(
         reverse("cases:restore-case", kwargs={"pk": case.id})
@@ -259,7 +259,7 @@ def test_restore_case_view(admin_client):
 
     case_from_db: Case = Case.objects.get(pk=case.id)
 
-    assert case_from_db.is_archived is False
+    assert case_from_db.is_deleted is False
 
 
 @pytest.mark.parametrize(
@@ -512,8 +512,8 @@ def test_add_contact(admin_client):
     assert list(contacts)[0].email == CONTACT_EMAIL
 
 
-def test_archive_contact(admin_client):
-    """Test that pressing the remove contact button archives the contact"""
+def test_delete_contact(admin_client):
+    """Test that pressing the remove contact button deletes the contact"""
     case: Case = Case.objects.create()
     contact: Contact = Contact.objects.create(case=case)
 
@@ -528,7 +528,7 @@ def test_archive_contact(admin_client):
     assertContains(response, "No contacts have been entered")
 
     contact_on_database = Contact.objects.get(pk=contact.id)
-    assert contact_on_database.is_archived is True
+    assert contact_on_database.is_deleted is True
 
 
 def test_preferred_contact_not_displayed_on_form(admin_client):

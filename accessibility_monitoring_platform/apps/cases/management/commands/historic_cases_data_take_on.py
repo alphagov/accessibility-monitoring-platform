@@ -281,7 +281,7 @@ def create_case(get_data: Callable) -> Case:
         ),
         case_completed=case_completed,
         completed_date=None,
-        is_archived=False,
+        is_deleted=False,
     )
 
 

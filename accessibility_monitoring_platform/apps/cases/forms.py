@@ -30,7 +30,7 @@ from .models import (
     STATUS_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    ARCHIVE_DECISION_CHOICES,
+    DELETE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
     PREFERRED_CHOICES,
@@ -523,20 +523,20 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseArchiveForm(forms.ModelForm):
+class CaseDeleteForm(forms.ModelForm):
     """
     Form for archiving a case
     """
 
-    archive_reason = AMPChoiceRadioField(
+    delete_reason = AMPChoiceRadioField(
         label="Reason why?",
-        choices=ARCHIVE_DECISION_CHOICES,
+        choices=DELETE_DECISION_CHOICES,
     )
-    archive_notes = AMPTextField(label="More information?")
+    delete_notes = AMPTextField(label="More information?")
 
     class Meta:
         model = Case
         fields = [
-            "archive_reason",
-            "archive_notes",
+            "delete_reason",
+            "delete_notes",
         ]

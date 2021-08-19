@@ -10,7 +10,7 @@ PAGE_TITLES_BY_URL = {
     "/accounts/password_reset/": "Reset password",
     "/accounts/password_reset/done/": "Password reset done",
     "/cases/": "Cases",
-    "/cases/[id]/archive-case/": "Delete case",
+    "/cases/[id]/delete-case/": "Delete case",
     "/cases/[id]/edit-case-details/": "Edit case | Case details",
     "/cases/[id]/edit-contact-details/": "Edit case | Contact details",
     "/cases/[id]/edit-enforcement-body-correspondence/": "Edit case | Equality body correspondence",

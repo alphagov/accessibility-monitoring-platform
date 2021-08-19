@@ -63,7 +63,7 @@ def download_as_csv(
             row.append(value)
 
         if include_contact:
-            contacts = list(item.contact_set.filter(is_archived=False))
+            contacts = list(item.contact_set.filter(is_deleted=False))
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)

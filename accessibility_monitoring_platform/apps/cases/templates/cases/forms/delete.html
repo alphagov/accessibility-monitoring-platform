@@ -20,7 +20,7 @@
                         Deleting a case can be undone by contacting an administrator.
                     </p>
                 </div>
-                <form method="post" action="{% url 'cases:archive-case' case.id %}">
+                <form method="post" action="{% url 'cases:delete-case' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/amp_form_snippet.html' %}

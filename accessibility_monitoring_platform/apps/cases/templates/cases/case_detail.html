@@ -14,7 +14,7 @@
                         <strong class="govuk-tag" style="position: relative; top: -5px;">
                             completed
                         </strong>
-                    {% elif case.is_archived %}
+                    {% elif case.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
                             deleted
                         </strong>
@@ -43,7 +43,7 @@
                     >
                         Export to CSV
                     </a>
-                    {% if case.is_archived %}
+                    {% if case.is_deleted %}
                         <a
                             href="{% url 'cases:restore-case' case.id %}"
                             role="button"
@@ -55,7 +55,7 @@
                         </a>
                     {% else %}
                         <a
-                            href="{% url 'cases:archive-case' case.id %}"
+                            href="{% url 'cases:delete-case' case.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--secondary"
