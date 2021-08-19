@@ -93,6 +93,9 @@ class CaseForm(forms.ModelForm):
 
 
 def test_extract_labels_and_values():
+    """
+    Test extraction of labels from form and values from case.
+    """
     auditor: User = User(first_name="first", last_name="second")
     sector: Sector = Sector(name="sector name")
     case: Case = Case(
@@ -130,4 +133,38 @@ def test_extract_labels_and_values():
         label=REPORT_SENT_ON_LABEL,
         value=case.report_sent_date,
         type=CaseFieldLabelAndValue.DATE_TYPE,
+    )
+
+
+def test_extract_labels_and_values_with_no_values_set():
+    """
+    Test extraction of labels from form and values from case when there are no values populated.
+    """
+    case: Case = Case()
+
+    labels_and_values: List[CaseFieldLabelAndValue] = extract_labels_and_values(
+        case=case, form=CaseForm()
+    )
+
+    assert len(labels_and_values) == 6
+    assert labels_and_values[0] == CaseFieldLabelAndValue(
+        label=AUDITOR_LABEL, value=None
+    )
+    assert labels_and_values[1] == CaseFieldLabelAndValue(
+        label=SECTOR_LABEL, value="Unknown"
+    )
+    assert labels_and_values[2] == CaseFieldLabelAndValue(
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+    )
+    assert labels_and_values[3] == CaseFieldLabelAndValue(
+        label=HOME_PAGE_URL_LABEL,
+        value="",
+        type=CaseFieldLabelAndValue.URL_TYPE,
+    )
+    assert labels_and_values[4] == CaseFieldLabelAndValue(
+        label=NOTES_LABEL, value="", type=CaseFieldLabelAndValue.NOTES_TYPE
+    )
+    assert labels_and_values[5] == CaseFieldLabelAndValue(
+        label=REPORT_SENT_ON_LABEL,
+        value=None,
     )

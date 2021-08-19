@@ -61,7 +61,7 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     (TEST_STATUS_DEFAULT, "Not started"),
 ]
 
-ACCESSIBILITY_STATEMENT_DECISION_DEFAULT = "unknown"
+ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("partially", "Partially compliant"),
@@ -70,7 +70,7 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not known"),
 ]
 
-IS_WEBSITE_COMPLIANT_DEFAULT = "unknown"
+IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Compliant"),
     ("partially", "Partially compliant"),
@@ -78,39 +78,39 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not known"),
 ]
 
-REPORT_REVIEW_STATUS_DEFAULT = "not-started"
+REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
 REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("ready-to-review", "Yes"),
     ("in-progress", "In progress"),
     (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
 ]
 
-REPORT_APPROVED_STATUS_DEFAULT = "not-started"
+REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("in-progress", "Further work is needed"),
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
-IS_DISPROPORTIONATE_CLAIMED_DEFAULT = "unknown"
+IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "N/A"),
 ]
 
-DEFAULT_CASE_COMPLETED = "no-decision"
-CASE_COMPLETED_CHOICES = [
+DEFAULT_CASE_COMPLETED: str = "no-decision"
+CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
+    ("escalated", "The audit needs to be sent to the relevant equalities body"),
     (
         "no-action",
         "The case requires no further action",
     ),
-    ("escalated", "The audit needs to be sent to the relevant equalities body"),
     (DEFAULT_CASE_COMPLETED, "Decision not reached"),
 ]
 
-DEFAULT_ESCALATION_STATE = "not-started"
-ESCALATION_STATE_CHOICES = [
+DEFAULT_ESCALATION_STATE: str = "not-started"
+ESCALATION_STATE_CHOICES: List[Tuple[str, str]] = [
     (
         "no-action",
         "No further action is required and correspondence has closed regarding this issue",
@@ -119,7 +119,7 @@ ESCALATION_STATE_CHOICES = [
     (DEFAULT_ESCALATION_STATE, "Not started"),
 ]
 
-ARCHIVE_DECISION_DEFAULT = "not-psb"
+ARCHIVE_DECISION_DEFAULT: str = "not-psb"
 ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
     (ARCHIVE_DECISION_DEFAULT, "Organisation is not a public sector body"),
     ("mistake", "Case was opened by mistake"),
@@ -127,7 +127,7 @@ ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("other", "Other"),
 ]
 
-QA_STATUS_DEFAULT = "unknown"
+QA_STATUS_DEFAULT: str = "unknown"
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     (QA_STATUS_DEFAULT, "Unknown"),
     ("unassigned_qa_case", "Unassigned QA case"),
@@ -135,11 +135,20 @@ QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("qa_approved", "QA approved"),
 ]
 
-PREFERRED_DEFAULT = "unknown"
+PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (PREFERRED_DEFAULT, "Not known"),
+]
+
+PSB_LOCATION_DEFAULT: str = "unknown"
+PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
+    ("england", "England"),
+    ("scotland", "Scotland"),
+    ("wales", "Wales"),
+    ("northern_ireland", "Northern Ireland"),
+    (PSB_LOCATION_DEFAULT, "Unknown"),
 ]
 
 MAX_LENGTH_OF_FORMATTED_URL = 25
@@ -178,6 +187,11 @@ class Case(models.Model):
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
     service_name = models.TextField(default="", blank=True)
+    psb_location = models.CharField(
+        max_length=20,
+        choices=PSB_LOCATION_CHOICES,
+        default=PSB_LOCATION_DEFAULT,
+    )
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
     enforcement_body = models.CharField(
         max_length=20,
@@ -618,7 +632,9 @@ class Case(models.Model):
     def psb_appeal_deadline(self):
         if self.compliance_email_sent_date is None:
             return None
-        return self.compliance_email_sent_date + timedelta(days=PSB_APPEAL_WINDOW_IN_DAYS)
+        return self.compliance_email_sent_date + timedelta(
+            days=PSB_APPEAL_WINDOW_IN_DAYS
+        )
 
 
 class Contact(models.Model):
