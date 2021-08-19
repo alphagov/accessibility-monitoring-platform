@@ -10,6 +10,7 @@ from ..common.forms import (
     AMPBooleanCheckboxWidget,
     AMPChoiceCheckboxWidget,
     AMPDateCheckboxWidget,
+    AMPModelChoiceField,
     AMPUserModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
@@ -22,6 +23,7 @@ from ..common.forms import (
     AMPDateRangeForm,
     AMPURLField,
 )
+from ..common.models import Sector
 from .models import (
     Case,
     Contact,
@@ -118,8 +120,9 @@ class CaseDetailUpdateForm(CaseCreateForm):
 
     auditor = AMPUserModelChoiceField(label="Auditor")
     service_name = AMPCharFieldWide(label="Website, app or service name")
-    trello_url = AMPURLField(label="Trello ticket URL")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     is_case_details_complete = forms.BooleanField(
         label="Mark this page as completed",
@@ -129,6 +132,10 @@ class CaseDetailUpdateForm(CaseCreateForm):
         required=False,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["sector"].empty_label = "Unknown"
+
     class Meta:
         model = Case
         fields = [
@@ -137,6 +144,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "organisation_name",
             "service_name",
             "enforcement_body",
+            "sector",
             "is_complaint",
             "zendesk_url",
             "trello_url",
