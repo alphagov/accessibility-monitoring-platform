@@ -632,7 +632,9 @@ class Case(models.Model):
     def psb_appeal_deadline(self):
         if self.compliance_email_sent_date is None:
             return None
-        return self.compliance_email_sent_date + timedelta(days=PSB_APPEAL_WINDOW_IN_DAYS)
+        return self.compliance_email_sent_date + timedelta(
+            days=PSB_APPEAL_WINDOW_IN_DAYS
+        )
 
 
 class Contact(models.Model):

@@ -129,6 +129,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
+    trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     is_case_details_complete = forms.BooleanField(
         label="Mark this page as completed",
@@ -137,6 +138,10 @@ class CaseDetailUpdateForm(CaseCreateForm):
         ),
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["sector"].empty_label = "Unknown"
 
     class Meta:
         model = Case
