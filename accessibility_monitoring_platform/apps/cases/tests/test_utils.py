@@ -138,7 +138,7 @@ def test_extract_labels_and_values():
 
 def test_extract_labels_and_values_with_no_values_set():
     """
-    Test extraction of labels from form and values from case.
+    Test extraction of labels from form and values from case when there are no values populated.
     """
     case: Case = Case()
 
