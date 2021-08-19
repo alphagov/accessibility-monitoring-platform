@@ -70,6 +70,8 @@ def extract_labels_and_values(
         value = getattr(case, field_name)
         if isinstance(value, User):
             value = value.get_full_name()
+        elif field_name == "sector" and value is None:
+            value = "Unknown"
         elif isinstance(field, forms.ModelChoiceField):
             pass
         elif isinstance(field, forms.ChoiceField):
