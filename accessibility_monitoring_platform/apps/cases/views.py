@@ -189,10 +189,13 @@ class CaseListView(ListView):
             if not sort_by:
                 sort_by: str = DEFAULT_SORT
             if self.form.cleaned_data["search"]:
+                search: str = self.form.cleaned_data["search"]
                 search_query = (
-                    Q(organisation_name__icontains=self.form.cleaned_data["search"])
-                    | Q(home_page_url__icontains=self.form.cleaned_data["search"])
-                    | Q(id__icontains=self.form.cleaned_data["search"])
+                    Q(organisation_name__icontains=search)
+                    | Q(home_page_url__icontains=search)
+                    | Q(id__icontains=search)
+                    | Q(psb_location__icontains=search)
+                    | Q(sector__name__icontains=search)
                 )
 
         if filters.get("status", "") != "deleted":

@@ -24,6 +24,7 @@ from ..views import (
     calculate_twelve_week_chaser_dates,
     format_due_date_help_text,
 )
+from ...common.models import Sector
 from ...common.utils import format_date, get_field_names_for_export
 
 CONTACT_EMAIL = "test@email.com"
@@ -99,6 +100,37 @@ def test_case_list_view_filters_by_case_number(admin_client):
 
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?search={included_case.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_filters_by_psb_location(admin_client):
+    """Test that the case list view page can be filtered by case number"""
+    Case.objects.create(organisation_name="Included", psb_location="scotland")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search=scot"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_filters_by_sector(admin_client):
+    """Test that the case list view page can be filtered by case number"""
+    sector: Sector = Sector.objects.create(name="Defence")
+    Case.objects.create(organisation_name="Included", sector=sector)
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search=fence"
     )
 
     assert response.status_code == 200
