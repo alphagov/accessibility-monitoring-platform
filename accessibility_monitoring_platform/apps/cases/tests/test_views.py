@@ -1067,3 +1067,23 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
         </tr>""",
         html=True,
     )
+
+
+def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
+    """
+    Test that the case details page contains no link to the auditor's cases if no auditor is set
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+        </tr>""",
+        html=True,
+    )
