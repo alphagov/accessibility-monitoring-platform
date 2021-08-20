@@ -18,7 +18,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseReportDetailsUpdateView,
     CaseReportCorrespondenceUpdateView,
     CaseReportFollowupDueDatesUpdateView,
-    CaseArchiveUpdateView,
+    CaseDeleteUpdateView,
     CaseNoPSBResponseUpdateView,
     CaseTwelveWeekCorrespondenceUpdateView,
     CaseTwelveWeekCorrespondenceDueDatesUpdateView,
@@ -96,9 +96,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-enforcement-body-correspondence",
     ),
     path(
-        "<int:pk>/archive-case/",
-        login_required(CaseArchiveUpdateView.as_view()),
-        name="archive-case",
+        "<int:pk>/delete-case/",
+        login_required(CaseDeleteUpdateView.as_view()),
+        name="delete-case",
     ),
     path(
         "<int:pk>/restore-case/",

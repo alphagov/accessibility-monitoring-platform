@@ -119,9 +119,9 @@ ESCALATION_STATE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_ESCALATION_STATE, "Not started"),
 ]
 
-ARCHIVE_DECISION_DEFAULT: str = "not-psb"
-ARCHIVE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    (ARCHIVE_DECISION_DEFAULT, "Organisation is not a public sector body"),
+DELETE_DECISION_DEFAULT: str = "not-psb"
+DELETE_DECISION_CHOICES: List[Tuple[str, str]] = [
+    (DELETE_DECISION_DEFAULT, "Organisation is not a public sector body"),
     ("mistake", "Case was opened by mistake"),
     ("duplicate", "This case was a duplicate case"),
     ("other", "Other"),
@@ -214,7 +214,7 @@ class Case(models.Model):
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
     )
-    accessibility_statement_decison = models.CharField(
+    accessibility_statement_state = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
@@ -290,7 +290,7 @@ class Case(models.Model):
 
     # Final decision page
     psb_progress_notes = models.TextField(default="", blank=True)
-    retested_website = models.DateField(null=True, blank=True)
+    retested_website_date = models.DateField(null=True, blank=True)
     is_disproportionate_claimed = models.CharField(
         max_length=20,
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
@@ -298,7 +298,7 @@ class Case(models.Model):
     )
     disproportionate_notes = models.TextField(default="", blank=True)
 
-    accessibility_statement_decison_final = models.CharField(
+    accessibility_statement_state_final = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
@@ -314,7 +314,7 @@ class Case(models.Model):
     case_completed = models.CharField(
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
-    completed = models.DateTimeField(null=True, blank=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
     is_final_decision_complete = models.BooleanField(default=False)
 
     # Equality body correspondence page
@@ -329,13 +329,13 @@ class Case(models.Model):
     is_enforcement_correspondence_complete = models.BooleanField(default=False)
 
     # Delete case page
-    is_archived = models.BooleanField(default=False)
-    archive_reason = models.CharField(
+    is_deleted = models.BooleanField(default=False)
+    delete_reason = models.CharField(
         max_length=20,
-        choices=ARCHIVE_DECISION_CHOICES,
-        default=ARCHIVE_DECISION_DEFAULT,
+        choices=DELETE_DECISION_CHOICES,
+        default=DELETE_DECISION_DEFAULT,
     )
-    archive_notes = models.TextField(default="", blank=True)
+    delete_notes = models.TextField(default="", blank=True)
 
     # Dashboard page
     qa_status = models.CharField(
@@ -353,8 +353,8 @@ class Case(models.Model):
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
-        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed:
-            self.completed = now
+        if self.case_completed != DEFAULT_CASE_COMPLETED and not self.completed_date:
+            self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
         super().save(*args, **kwargs)
@@ -375,7 +375,7 @@ class Case(models.Model):
         )
 
     def set_status(self):
-        if self.is_archived:
+        if self.is_deleted:
             return "deleted"
         elif self.case_completed == "no-action" or self.escalation_state == "no-action":
             return "complete"
@@ -580,8 +580,8 @@ class Case(models.Model):
     @property
     def final_decision_progress(self):
         to_check = [
-            "retested_website",
-            "accessibility_statement_decison_final",
+            "retested_website_date",
+            "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "is_website_compliant_final",
             "compliance_decision_notes_final",
@@ -653,7 +653,7 @@ class Contact(models.Model):
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
-    is_archived = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     @property
     def name(self):

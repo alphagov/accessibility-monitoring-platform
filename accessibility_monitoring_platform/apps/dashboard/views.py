@@ -72,7 +72,7 @@ class DashboardView(TemplateView):
             ),
             "recently_completed": user_entries.filter(
                 status="complete",
-                completed__gte=timezone.now() - timedelta(30)
+                completed_date__gte=timezone.now() - timedelta(30)
             ),
         }
         context.update(
@@ -135,7 +135,7 @@ class DashboardView(TemplateView):
             ),
             "recently_completed": all_entries.filter(
                 status="complete",
-                completed__gte=timezone.now() - timedelta(30)
+                completed_date__gte=timezone.now() - timedelta(30)
             ),
         }
         context.update(

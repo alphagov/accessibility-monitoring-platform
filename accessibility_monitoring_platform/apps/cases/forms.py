@@ -30,7 +30,7 @@ from .models import (
     STATUS_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    ARCHIVE_DECISION_CHOICES,
+    DELETE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
     PREFERRED_CHOICES,
@@ -225,7 +225,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Test status",
         choices=TEST_STATUS_CHOICES,
     )
-    accessibility_statement_decison = AMPChoiceRadioField(
+    accessibility_statement_state = AMPChoiceRadioField(
         label="Is the accessibility statement compliant?",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
@@ -247,7 +247,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         fields = [
             "test_results_url",
             "test_status",
-            "accessibility_statement_decison",
+            "accessibility_statement_state",
             "accessibility_statement_notes",
             "is_website_compliant",
             "compliance_decision_notes",
@@ -433,7 +433,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     psb_progress_notes = AMPTextField(
         label="Summary of progress made from public sector body"
     )
-    retested_website = AMPDateField(
+    retested_website_date = AMPDateField(
         label="Retested website?",
         help_text="There is no test spreadsheet for this case",
     )
@@ -442,7 +442,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     )
     disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_decison_final = AMPChoiceRadioField(
+    accessibility_statement_state_final = AMPChoiceRadioField(
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
@@ -454,7 +454,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
     compliance_decision_notes_final = AMPTextField(
-        label="FInal compliance decision notes"
+        label="Final compliance decision notes"
     )
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
@@ -475,10 +475,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         model = Case
         fields = [
             "psb_progress_notes",
-            "retested_website",
+            "retested_website_date",
             "is_disproportionate_claimed",
             "disproportionate_notes",
-            "accessibility_statement_decison_final",
+            "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "is_website_compliant_final",
             "compliance_decision_notes_final",
@@ -523,20 +523,20 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseArchiveForm(forms.ModelForm):
+class CaseDeleteForm(forms.ModelForm):
     """
     Form for archiving a case
     """
 
-    archive_reason = AMPChoiceRadioField(
+    delete_reason = AMPChoiceRadioField(
         label="Reason why?",
-        choices=ARCHIVE_DECISION_CHOICES,
+        choices=DELETE_DECISION_CHOICES,
     )
-    archive_notes = AMPTextField(label="More information?")
+    delete_notes = AMPTextField(label="More information?")
 
     class Meta:
         model = Case
         fields = [
-            "archive_reason",
-            "archive_notes",
+            "delete_reason",
+            "delete_notes",
         ]

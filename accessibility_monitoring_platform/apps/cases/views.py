@@ -39,7 +39,7 @@ from .forms import (
     CaseReportDetailsUpdateForm,
     CaseReportCorrespondenceUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
-    CaseArchiveForm,
+    CaseDeleteForm,
     CaseNoPSBContactUpdateForm,
     CaseTwelveWeekCorrespondenceUpdateForm,
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
@@ -126,9 +126,9 @@ class CaseDetailView(DetailView):
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add unarchived contacts to context"""
+        """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["contacts"] = self.object.contact_set.filter(is_archived=False)
+        context["contacts"] = self.object.contact_set.filter(is_deleted=False)
         case_details_prefix: List[CaseFieldLabelAndValue] = [
             CaseFieldLabelAndValue(
                 label="Date created",
@@ -199,7 +199,7 @@ class CaseListView(ListView):
                 )
 
         if filters.get("status", "") != "deleted":
-            filters["is_archived"] = False
+            filters["is_deleted"] = False
 
         if "auditor_id" in filters and filters["auditor_id"] == "none":
             filters["auditor_id"] = None
@@ -234,6 +234,8 @@ class CaseCreateView(CreateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
+            case: Case = form.save(commit=False)
+            case.created_by = self.request.user
             return super().form_valid(form)
 
         context: Dict[str, Any] = self.get_context_data()
@@ -246,6 +248,9 @@ class CaseCreateView(CreateView):
             context["duplicate_cases"] = duplicate_cases
             context["new_case"] = form.save(commit=False)
             return self.render_to_response(context)
+
+        case: Case = form.save(commit=False)
+        case.created_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -301,7 +306,7 @@ class CaseContactFormsetUpdateView(UpdateView):
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
             contacts: QuerySet[Contact] = self.object.contact_set.filter(
-                is_archived=False
+                is_deleted=False
             )
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
@@ -321,14 +326,14 @@ class CaseContactFormsetUpdateView(UpdateView):
                 if not contact.case_id:
                     contact.case_id = case.id
                 contact.save()
-        contact_id_to_archive: IntOrNone = get_id_from_button_name(
+        contact_id_to_delete: IntOrNone = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
         )
-        if contact_id_to_archive is not None:
-            contact_to_archive: Contact = Contact.objects.get(id=contact_id_to_archive)
-            contact_to_archive.is_archived = True
-            contact_to_archive.save()
+        if contact_id_to_delete is not None:
+            contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
+            contact_to_delete.is_deleted = True
+            contact_to_delete.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -340,10 +345,10 @@ class CaseContactFormsetUpdateView(UpdateView):
         elif "add_contact" in self.request.POST:
             url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:
-            contact_id_to_archive: IntOrNone = get_id_from_button_name(
+            contact_id_to_delete: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
-            if contact_id_to_archive is not None:
+            if contact_id_to_delete is not None:
                 url = reverse_lazy(
                     "cases:edit-contact-details", kwargs={"pk": self.object.id}
                 )
@@ -596,11 +601,11 @@ class CaseFinalDecisionUpdateView(UpdateView):
     template_name: str = "cases/forms/final_decision.html"
 
     def get_form(self):
-        """Populate retested_website help text with link to test results for this case"""
+        """Populate retested_website_date help text with link to test results for this case"""
         form = super().get_form()
         if form.instance.test_results_url:
             if form.instance.test_results_url:
-                form.fields["retested_website"].help_text = mark_safe(
+                form.fields["retested_website_date"].help_text = mark_safe(
                     f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
                     ' class="govuk-link govuk-link--no-visited-state">test results</a>'
                 )
@@ -635,20 +640,20 @@ class CaseEnforcementBodyCorrespondenceUpdateView(UpdateView):
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
-class CaseArchiveUpdateView(UpdateView):
+class CaseDeleteUpdateView(UpdateView):
     """
-    View to archive case
+    View to delete case
     """
 
     model: Case = Case
-    form_class: CaseArchiveForm = CaseArchiveForm
+    form_class: CaseDeleteForm = CaseDeleteForm
     context_object_name: str = "case"
-    template_name: str = "cases/forms/archive.html"
+    template_name: str = "cases/forms/delete.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
-        case.is_archived = True
+        case.is_deleted = True
         case.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -702,7 +707,7 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
 
 def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
     """
-    Restore archived case
+    Restore deleted case
 
     Args:
         request (HttpRequest): Django HttpRequest
@@ -712,6 +717,6 @@ def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     case: Case = get_object_or_404(Case, id=pk)
-    case.is_archived = False
+    case.is_deleted = False
     case.save()
     return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))

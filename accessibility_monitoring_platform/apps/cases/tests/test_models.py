@@ -69,14 +69,14 @@ def test_case_completed_timestamp_is_updated_on_completion():
     """Test the Case completed date field is updated when case_completed is set"""
     case: Case = Case.objects.create()
 
-    assert case.completed is None
+    assert case.completed_date is None
 
     case.case_completed: str = "no-action"
     case.save()
     updated_case: Case = Case.objects.get(pk=case.id)
 
-    assert updated_case.completed is not None
-    assert isinstance(updated_case.completed, datetime)
+    assert updated_case.completed_date is not None
+    assert isinstance(updated_case.completed_date, datetime)
 
 
 @pytest.mark.django_db
