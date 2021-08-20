@@ -1,7 +1,11 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header govuk-!-width-one-half">{{ row.label }}</th>
             <td class="govuk-table__cell govuk-!-width-one-half">
-                {% if row.type == 'url' %}
+                {% if row.label == 'Auditor' %}
+                    <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" rel="noreferrer noopener" class="govuk-link">
+                        {{ row.value }}
+                    </a>
+                {% elif row.type == 'url' %}
                     <a href="{{ row.value }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                         {% if row.extra_label %}
                             {{ row.extra_label }}

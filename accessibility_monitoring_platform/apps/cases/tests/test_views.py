@@ -24,6 +24,7 @@ from ..views import (
     calculate_twelve_week_chaser_dates,
     format_due_date_help_text,
 )
+from ...common.models import Sector
 from ...common.utils import format_date, get_field_names_for_export
 
 CONTACT_EMAIL = "test@email.com"
@@ -107,6 +108,37 @@ def test_case_list_view_filters_by_case_number(admin_client):
     assertNotContains(response, "Excluded")
 
 
+def test_case_list_view_filters_by_psb_location(admin_client):
+    """Test that the case list view page can be filtered by case number"""
+    Case.objects.create(organisation_name="Included", psb_location="scotland")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search=scot"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_filters_by_sector(admin_client):
+    """Test that the case list view page can be filtered by case number"""
+    sector: Sector = Sector.objects.create(name="Defence")
+    Case.objects.create(organisation_name="Included", sector=sector)
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search=fence"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
 @pytest.mark.parametrize(
     "field_name,value,url_parameter_name",
     [
@@ -143,7 +175,7 @@ def test_case_list_view_string_filters(
 )
 def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
     """Test that the case list view page can be filtered by user"""
-    user = User.objects.create()
+    user: User = User.objects.create()
     included_case: Case = Case.objects.create(organisation_name="Included")
     setattr(included_case, field_name, user)
     included_case.save()
@@ -216,6 +248,21 @@ def test_case_export_list_view(admin_client):
 
     assert response.status_code == 200
     assertContains(response, case_fields_to_export_str)
+
+
+def test_case_export_list_view_respects_filters(admin_client):
+    """Test that the case export list view includes only filtered data"""
+    user: User = User.objects.create()
+    Case.objects.create(organisation_name="Included", auditor=user)
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-export-list')}?auditor={user.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 def test_case_export_single_view(admin_client):
@@ -302,19 +349,6 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_content, html=True)
-
-
-def test_export_single_case_return_csv(admin_client):
-    """Test that the export single case view responds with csv data"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-export-single", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, case_fields_to_export_str)
 
 
 @pytest.mark.parametrize(
@@ -1008,3 +1042,28 @@ def test_format_due_date_help_text(due_date, expected_help_text):
     Test due date formatting for help text
     """
     assert format_due_date_help_text(due_date) == expected_help_text
+
+
+def test_case_details_includes_link_to_auditors_cases(admin_client):
+    """
+    Test that the case details page contains a link to all the auditor's cases
+    """
+    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
+    case: Case = Case.objects.create(auditor=user)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">
+                <a href="{reverse("cases:case-list")}?auditor={ user.id }" rel="noreferrer noopener" class="govuk-link">
+                    Joe Bloggs
+                </a>
+            </td>
+        </tr>""",
+        html=True,
+    )
