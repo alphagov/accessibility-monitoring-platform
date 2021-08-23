@@ -21,6 +21,14 @@
     <meta name="description" content="Accessibility Monitoring Platform">
   </head>
   <body class="govuk-template__body  js-enabled">
+    {% if 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
+        <div style="position:fixed;left:5px;top:95%;transform-origin:top left;-webkit-transform:rotate(-90deg);opacity:0.3;font-size:5em;z-index:1;font-family:sans-serif;">
+            TEST
+        </div>
+        <div style="position:fixed;right:5px;top:95%;transform-origin:top right;-webkit-transform:rotate(90deg);opacity:0.3;font-size:5em;z-index:1;font-family:sans-serif;">
+            PLATFORM
+        </div>
+    {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
       <script>
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
