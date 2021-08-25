@@ -140,7 +140,7 @@ def create_case(get_data: Callable) -> Case:
         for field in fields
         if not isinstance(field, ManyToOneRel)
     }
-    del kwargs['id']
+    del kwargs["id"]
     return Case.objects.create(**kwargs)
 
 
@@ -191,7 +191,7 @@ class Command(BaseCommand):
                 get_data: Callable = partial(
                     get_data_from_row, row=row, users=users, sectors=sectors
                 )
-                # print(get_data)
+
                 case: Case = create_case(get_data)
                 if "contact_email" in row and row["contact_email"]:
                     contact: Contact = Contact(
