@@ -8,8 +8,9 @@ from typing import Any, Callable, Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-from django.db import models
+from django.db import models, connection
 from django.db.models.fields.reverse_related import ManyToOneRel
+from django.core.management.color import no_style
 
 from ...models import Case, Contact
 from ....common.models import Sector
@@ -178,6 +179,11 @@ class Command(BaseCommand):
 
         if initial:
             delete_existing_data(verbose)
+
+            sequence_sql = connection.ops.sequence_reset_sql(no_style(), [Case])
+            with connection.cursor() as cursor:
+                for sql in sequence_sql:
+                    cursor.execute(sql)
 
         sectors: Dict[str, Sector] = get_sectors()
         users: Dict[str, User] = get_users()
