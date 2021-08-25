@@ -9,11 +9,59 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
+ENFORCEMENT_BODY_VALUE = "ehrc"
+ENFORCEMENT_BODY_LABEL = "Equality and Human Rights Commission"
 SERVICE_NAME = "Service name"
+ZENDESK_URL = "https://zendesk.com"
+TRELLO_URL = "https://trello.com"
+CASE_DETAILS_NOTES = """I am
+a multiline
+case details note, I am"""
+
+CONTACT_FIRST_NAME = "Contact first name"
+CONTACT_LAST_NAME = "Contact last name"
+CONTACT_JOB_TITLE = "Contact title"
 EMAIL = "contact_email@example.com"
+CONTACT_NOTES = """I am
+a multiline
+contact note, I am"""
+
+TEST_RESULTS_URL = "https://test-results.com"
+ACCESSIBILITY_STATEMENT_STATUS = "missing"
 ACCESSIBILITY_STATEMENT_NOTES = """I am
 a multiline
 accessibility statement note, I am"""
+WEBSITE_COMPLIANCE_NOTES = """I am
+a multiline
+accessibility statement note, I am"""
+
+
+REPORT_DRAFT_URL = "https://report-draft.com"
+REPORT_REVIEWER_NOTES = """I am
+a multiline
+report reviewer note, I am"""
+REPORT_FINAL_PDF_URL = "https://report-final-pdf.com"
+REPORT_FINAL_ODT_URL = "https://report-final-odt.com"
+
+REPORT_SENT_DATE_DD = "31"
+REPORT_SENT_DATE_MM = "12"
+REPORT_SENT_DATE_YYYY = "2020"
+REPORT_ACKNOWLEGED_DATE_DD = "1"
+REPORT_ACKNOWLEGED_DATE_MM = "4"
+REPORT_ACKNOWLEGED_DATE_YYYY = "2021"
+REPORT_CORRESPONDENCE_NOTES = """I am
+a multiline
+report correspondence note, I am"""
+
+TWELVE_WEEK_UPDATE_REQUESTED_DD = "1"
+TWELVE_WEEK_UPDATE_REQUESTED_MM = "3"
+TWELVE_WEEK_UPDATE_REQUESTED_YYYY = "2021"
+TWELVE_WEEK_ACKNOWLEGED_DATE_DD = "1"
+TWELVE_WEEK_ACKNOWLEGED_DATE_MM = "7"
+TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY = "2021"
+TWELVE_WEEK_CORRESPONDENCE_NOTES = """I am
+a multiline
+12 week correspondence note, I am"""
 
 
 class SeleniumTest(unittest.TestCase):
@@ -40,10 +88,8 @@ class SeleniumTest(unittest.TestCase):
     def login(self):
         """Login in to platform"""
         self.driver.get("http://localhost:8001/accounts/login/?next=/")
-        username_input = self.driver.find_element_by_name("username")
-        username_input.send_keys("admin@email.com")
-        password_input = self.driver.find_element_by_name("password")
-        password_input.send_keys("secret")
+        self.driver.find_element_by_name("username").send_keys("admin@email.com")
+        self.driver.find_element_by_name("password").send_keys("secret")
         self.driver.find_element_by_xpath('//input[@value="Submit"]').click()
 
 
@@ -68,18 +114,12 @@ class TestLogin(SeleniumTest):
 
 class TestCases(SeleniumTest):
     """
-    Test case for integration tests of case create and update
+    Test case for integration tests of case creation
 
     Methods
     -------
     setUp()
         Login and navigate to Cases list
-    test_create_case()
-        Tests whether case can be created
-    test_duplicate_case_found()
-        Tests whether duplicate case is found
-    test_update_case()
-        Tests whether case can be updated
     """
 
     def setUp(self):
@@ -88,13 +128,30 @@ class TestCases(SeleniumTest):
         self.login()
         self.driver.find_element_by_link_text("Cases").click()
 
+
+class TestCaseCreation(TestCases):
+    """
+    Test case for integration tests of case creation
+
+    Methods
+    -------
+    test_create_case()
+        Tests whether case can be created
+    test_duplicate_case_found()
+        Tests whether duplicate case is found
+    """
+
     def test_create_case(self):
         """Tests whether case can be created"""
         self.driver.find_element_by_link_text("Create case").click()
-        organisation_name_input = self.driver.find_element_by_name("organisation_name")
-        organisation_name_input.send_keys(ORGANISATION_NAME)
-        home_page_url_input = self.driver.find_element_by_name("home_page_url")
-        home_page_url_input.send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_css_selector("#id_is_complaint").click()
         self.driver.find_element_by_name("save_exit").click()
         self.assertTrue(
             '<h1 class="govuk-heading-xl">Cases</h1>' in self.driver.page_source
@@ -104,10 +161,10 @@ class TestCases(SeleniumTest):
     def test_duplicate_case_found(self):
         """Tests whether duplicate case is found"""
         self.driver.find_element_by_link_text("Create case").click()
-        organisation_name_input = self.driver.find_element_by_name("organisation_name")
-        organisation_name_input.send_keys(ORGANISATION_NAME)
-        home_page_url_input = self.driver.find_element_by_name("home_page_url")
-        home_page_url_input.send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
         self.driver.find_element_by_name("save_exit").click()
         self.assertTrue(
             '<h1 class="govuk-heading-xl">Create case</h1>' in self.driver.page_source
@@ -117,31 +174,54 @@ class TestCases(SeleniumTest):
             in self.driver.page_source
         )
 
-    def test_update_case(self):
-        """Tests whether case can be updated"""
+
+class TestCaseUpdates(TestCases):
+    """
+    Test case for integration tests of case create and update
+
+    Methods
+    -------
+    setUp()
+        Create case to update
+    test_update_case_sections()
+        Tests whether all case sections can be updated
+    test_update_case_edit_case_details()
+        Tests whether case details can be updated
+    test_update_case_edit_contact_details()
+        Tests whether contact details can be updated
+    test_update_case_edit_testing_details()
+        Tests whether testing details can be updated
+    test_update_case_edit_report_details()
+        Tests whether report details can be updated
+    test_update_case_edit_report_correspondence()
+        Tests whether report correspondence can be updated
+    test_update_case_edit_12_week_correspondence()
+        Tests whether 12 week correspondence can be updated
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("save_exit").click()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
+
+    def test_update_case_sections(self):
+        """Tests whether all case sections can be updated"""
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.driver.find_element_by_link_text("Edit case details").click()
+        self.driver.find_element_by_link_text("Edit case").click()
 
         self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
-        service_name_input = self.driver.find_element_by_name("service_name")
-        service_name_input.send_keys(SERVICE_NAME)
-        self.driver.find_element_by_css_selector(
-            "input[type='radio'][value='ehrc']"
-        ).click()
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_xpath('//input[@value="Create contact"]').click()
-        service_name_input = self.driver.find_element_by_name("form-0-email")
-        service_name_input.send_keys(EMAIL)
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
-        service_name_textarea = self.driver.find_element_by_name(
-            "accessibility_statement_notes"
-        )
-        service_name_textarea.send_keys(ACCESSIBILITY_STATEMENT_NOTES)
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
@@ -166,9 +246,237 @@ class TestCases(SeleniumTest):
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
+
+    def test_update_case_edit_case_details(self):
+        """Tests whether case details can be updated"""
+        self.driver.find_element_by_link_text("Edit case details").click()
+
+        self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_name("service_name").send_keys(SERVICE_NAME)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='england']"
+        ).click()
+        self.driver.find_element_by_css_selector("#id_is_complaint").click()
+        self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
+        self.driver.find_element_by_name("trello_url").send_keys(TRELLO_URL)
+        self.driver.find_element_by_name("notes").send_keys(CASE_DETAILS_NOTES)
+        self.driver.find_element_by_css_selector("#id_is_case_details_complete").click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(SERVICE_NAME in self.driver.page_source)
-        self.assertTrue(
-            "Equality and Human Rights Commission" in self.driver.page_source
+        self.assertTrue(ENFORCEMENT_BODY_LABEL in self.driver.page_source)
+        self.assertTrue(ZENDESK_URL in self.driver.page_source)
+        self.assertTrue(TRELLO_URL in self.driver.page_source)
+        self.assertTrue(CASE_DETAILS_NOTES in self.driver.page_source)
+
+    def test_update_case_edit_contact_details(self):
+        """Tests whether contact details can be updated"""
+        self.driver.find_element_by_link_text("Edit contact details").click()
+
+        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_xpath('//input[@value="Create contact"]').click()
+
+        self.driver.find_element_by_name("form-0-first_name").send_keys(
+            CONTACT_FIRST_NAME
         )
+        self.driver.find_element_by_name("form-0-last_name").send_keys(
+            CONTACT_LAST_NAME
+        )
+        self.driver.find_element_by_name("form-0-job_title").send_keys(
+            CONTACT_JOB_TITLE
+        )
+        self.driver.find_element_by_name("form-0-email").send_keys(EMAIL)
+        self.driver.find_element_by_name("form-0-notes").send_keys(CONTACT_NOTES)
+        self.driver.find_element_by_css_selector(
+            "#id_is_contact_details_complete"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(CONTACT_FIRST_NAME in self.driver.page_source)
+        self.assertTrue(CONTACT_LAST_NAME in self.driver.page_source)
+        self.assertTrue(CONTACT_JOB_TITLE in self.driver.page_source)
         self.assertTrue(EMAIL in self.driver.page_source)
+        self.assertTrue(CONTACT_NOTES in self.driver.page_source)
+
+    def test_update_case_edit_testing_details(self):
+        """Tests whether testing details can be updated"""
+        self.driver.find_element_by_link_text("Edit testing details").click()
+
+        self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_name("accessibility_statement_notes").send_keys(
+            TEST_RESULTS_URL
+        )
+        self.driver.find_element_by_css_selector("#id_test_status_0").click()
+        self.driver.find_element_by_css_selector(
+            "#id_accessibility_statement_state_3"
+        ).click()
+        self.driver.find_element_by_name("accessibility_statement_notes").send_keys(
+            ACCESSIBILITY_STATEMENT_NOTES
+        )
+        self.driver.find_element_by_css_selector("#id_is_website_compliant_1").click()
+        self.driver.find_element_by_name("accessibility_statement_notes").send_keys(
+            WEBSITE_COMPLIANCE_NOTES
+        )
+        self.driver.find_element_by_css_selector(
+            "#id_is_testing_details_complete"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(TEST_RESULTS_URL in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES in self.driver.page_source)
+        self.assertTrue(WEBSITE_COMPLIANCE_NOTES in self.driver.page_source)
+
+    def test_update_case_edit_report_details(self):
+        """Tests whether report details can be updated"""
+        self.driver.find_element_by_link_text("Edit report details").click()
+
+        self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_name("report_draft_url").send_keys(REPORT_DRAFT_URL)
+        self.driver.find_element_by_css_selector("#id_report_review_status_1").click()
+        self.driver.find_element_by_css_selector("#id_report_approved_status_0").click()
+        self.driver.find_element_by_name("reviewer_notes").send_keys(
+            REPORT_REVIEWER_NOTES
+        )
+        self.driver.find_element_by_name("report_final_pdf_url").send_keys(
+            REPORT_FINAL_PDF_URL
+        )
+        self.driver.find_element_by_name("report_final_odt_url").send_keys(
+            REPORT_FINAL_ODT_URL
+        )
+        self.driver.find_element_by_css_selector(
+            "#id_is_reporting_details_complete"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(REPORT_DRAFT_URL in self.driver.page_source)
+        self.assertTrue(REPORT_REVIEWER_NOTES in self.driver.page_source)
+        self.assertTrue(REPORT_FINAL_PDF_URL in self.driver.page_source)
+        self.assertTrue(REPORT_FINAL_ODT_URL in self.driver.page_source)
+
+    def test_update_case_edit_report_correspondence(self):
+        """Tests whether report correspondence can be updated"""
+        self.driver.find_element_by_link_text("Edit report correspondence").click()
+
+        self.assertTrue(
+            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_name("report_sent_date_0").clear()
+        self.driver.find_element_by_name("report_sent_date_0").send_keys(
+            REPORT_SENT_DATE_DD
+        )
+        self.driver.find_element_by_name("report_sent_date_1").clear()
+        self.driver.find_element_by_name("report_sent_date_1").send_keys(
+            REPORT_SENT_DATE_MM
+        )
+        self.driver.find_element_by_name("report_sent_date_2").clear()
+        self.driver.find_element_by_name("report_sent_date_2").send_keys(
+            REPORT_SENT_DATE_YYYY
+        )
+
+        self.driver.find_element_by_name("report_acknowledged_date_0").clear()
+        self.driver.find_element_by_name("report_acknowledged_date_0").send_keys(
+            REPORT_ACKNOWLEGED_DATE_DD
+        )
+        self.driver.find_element_by_name("report_acknowledged_date_1").clear()
+        self.driver.find_element_by_name("report_acknowledged_date_1").send_keys(
+            REPORT_ACKNOWLEGED_DATE_MM
+        )
+        self.driver.find_element_by_name("report_acknowledged_date_2").clear()
+        self.driver.find_element_by_name("report_acknowledged_date_2").send_keys(
+            REPORT_ACKNOWLEGED_DATE_YYYY
+        )
+
+        self.driver.find_element_by_name("correspondence_notes").send_keys(
+            REPORT_CORRESPONDENCE_NOTES
+        )
+        self.driver.find_element_by_css_selector(
+            "#id_is_report_correspondence_complete"
+        ).click()
+
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue("31/12/2020" in self.driver.page_source)
+        self.assertTrue("01/04/2021" in self.driver.page_source)
+        self.assertTrue(REPORT_CORRESPONDENCE_NOTES in self.driver.page_source)
+
+        # Check due dates have been calculated
+        self.driver.find_element_by_link_text("Edit report correspondence").click()
+        self.assertTrue(
+            "Due 07/01/2021" in self.driver.page_source
+        )  # 1 week followup date
+        self.assertTrue(
+            "Due 28/01/2021" in self.driver.page_source
+        )  # 4 week followup date
+        #self.assertTrue("Due 29/03/2021" in self.driver.page_source)  # 12 week update
+
+    def test_update_case_edit_12_week_correspondence(self):
+        """Tests whether 12 week correspondence can be updated"""
+        self.driver.find_element_by_link_text("Edit report correspondence").click()
+        self.driver.find_element_by_name("report_sent_date_0").clear()
+        self.driver.find_element_by_name("report_sent_date_0").send_keys(
+            REPORT_SENT_DATE_DD
+        )
+        self.driver.find_element_by_name("report_sent_date_1").clear()
+        self.driver.find_element_by_name("report_sent_date_1").send_keys(
+            REPORT_SENT_DATE_MM
+        )
+        self.driver.find_element_by_name("report_sent_date_2").clear()
+        self.driver.find_element_by_name("report_sent_date_2").send_keys(
+            REPORT_SENT_DATE_YYYY
+        )
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
+
+        self.assertTrue(
+            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_name("twelve_week_update_requested_date_0").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_update_requested_date_0"
+        ).send_keys(TWELVE_WEEK_UPDATE_REQUESTED_DD)
+        self.driver.find_element_by_name("twelve_week_update_requested_date_1").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_update_requested_date_1"
+        ).send_keys(TWELVE_WEEK_UPDATE_REQUESTED_MM)
+        self.driver.find_element_by_name("twelve_week_update_requested_date_2").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_update_requested_date_2"
+        ).send_keys(TWELVE_WEEK_UPDATE_REQUESTED_YYYY)
+
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_0"
+        ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_DD)
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_1"
+        ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_MM)
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_2"
+        ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY)
+
+        self.driver.find_element_by_name("correspondence_notes").send_keys(
+            TWELVE_WEEK_CORRESPONDENCE_NOTES
+        )
+        self.driver.find_element_by_css_selector(
+            "#id_twelve_week_response_state"
+        ).click()
+        self.driver.find_element_by_css_selector(
+            "#id_is_12_week_correspondence_complete"
+        ).click()
+
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue("01/03/2021" in self.driver.page_source)
+        self.assertTrue("01/07/2021" in self.driver.page_source)
+        self.assertTrue(TWELVE_WEEK_CORRESPONDENCE_NOTES in self.driver.page_source)
