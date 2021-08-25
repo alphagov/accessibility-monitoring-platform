@@ -17,6 +17,7 @@ chromedriver
 data/s3_files/*
 data/localstack-data/*
 filehash.txt
+20210823_cleaned_case_record.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
