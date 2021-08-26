@@ -1087,3 +1087,48 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
         </tr>""",
         html=True,
     )
+
+
+def test_case_details_includes_link_to_report(admin_client):
+    """
+    Test that the case details page contains a link to the report
+    """
+    report_final_pdf_url: str = "https://report-final-pdf-url.com"
+    case: Case = Case.objects.create(report_final_pdf_url=report_final_pdf_url)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">
+                <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Final PDF draft
+                </a>
+            </td>
+        </tr>""",
+        html=True,
+    )
+
+
+def test_case_details_includes_no_link_to_report(admin_client):
+    """
+    Test that the case details page contains a no link to the report if none is set
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+        </tr>""",
+        html=True,
+    )

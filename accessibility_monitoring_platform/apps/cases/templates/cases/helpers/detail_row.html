@@ -10,13 +10,17 @@
                         {{ row.value }}
                     {% endif %}
                 {% elif row.type == 'url' %}
-                    <a href="{{ row.value }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                        {% if row.extra_label %}
-                            {{ row.extra_label }}
-                        {% else %}
-                            {{ row.value }}
-                        {% endif %}
-                    </a>
+                    {% if row.value %}
+                        <a href="{{ row.value }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            {% if row.extra_label %}
+                                {{ row.extra_label }}
+                            {% else %}
+                                {{ row.value }}
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
                 {% elif row.type == 'notes' %}
                     {% if row.value %}<p class="govuk-body-m cases-notes">{{ row.value }}</p>{% endif %}
                 {% elif row.type == 'date' %}
