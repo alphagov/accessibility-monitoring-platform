@@ -1,0 +1,12 @@
+<div class="govuk-error-message">{{ form.non_field_errors }}</div>
+
+{% for hidden_field in form.hidden_fields %}
+    <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+    {{ hidden_field }}
+{% endfor %}
+
+<div class="govuk-grid-column-full">
+    {% for field in form.visible_fields %}
+        {% include 'common/amp_field.html' %}
+    {% endfor %}
+</div>

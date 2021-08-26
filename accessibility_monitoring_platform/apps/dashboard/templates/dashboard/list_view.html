@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+    {% if sorted_cases.unknown %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-unknown">
+                    Unknown - {{ sorted_cases.unknown.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-unknown table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-unknown">
+            {% include "./1_new_cases_table.html" with table_data=sorted_cases.unknown %}
+        </div>
+    </div>
+    {% endif %}
+    {% if show_all_cases %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-unassigned-cases">
+                    Unassigned cases - {{ sorted_cases.unassigned_cases.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-unassigned-cases table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-unassigned-cases">
+            {% include "./1_new_cases_table.html" with table_data=sorted_cases.unassigned_cases %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-new-cases">
+                    New cases - {{ sorted_cases.new_case.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-new-cases table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-new-cases">
+            {% include "./1_new_cases_table.html" with table_data=sorted_cases.new_case %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-test-in-progress">
+                    Tests in progress - {{ sorted_cases.test_in_progress.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-test-in-progress" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-test-in-progress">
+            {% include "./2_tests_in_progress_table.html" with table_data=sorted_cases.test_in_progress %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-in-progress">
+                    Reports in progress - {{ sorted_cases.reports_in_progress.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-reports-in-progress" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-reports-in-progress">
+            {% include "./3_reports_in_progress_table.html" with table_data=sorted_cases.reports_in_progress %}
+        </div>
+    </div>
+    {% if show_all_cases %}
+        <div class="govuk-accordion__section ">
+            <div class="govuk-accordion__section-header">
+                <h2 class="govuk-accordion__section-heading">
+                    <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
+                        Report ready for QA - {{ sorted_cases.ready_for_qa.count }}
+                    </span>
+                </h2>
+            </div>
+            <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
+                {% include "./13_ready_to_qa.html" with table_data=sorted_cases.ready_for_qa %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-qa-in-progress">
+                    QA in progress - {{ sorted_cases.qa_in_progress.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-qa-in-progress" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-qa-in-progress">
+            {% include "./4_qa_in_progress_table.html" with table_data=sorted_cases.qa_in_progress %}
+        </div>
+    </div>
+    {% if show_all_cases == false %}
+        <div class="govuk-accordion__section ">
+            <div class="govuk-accordion__section-header">
+                <h2 class="govuk-accordion__section-heading">
+                    <span class="govuk-accordion__section-button" id="accordion-default-heading-requires-your-review">
+                        Requires your review - {{ sorted_cases.requires_your_review.count }}
+                    </span>
+                </h2>
+            </div>
+            <div id="accordion-default-content-requires-your-review" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-requires-your-review">
+                {% include "./5_requires_your_review.html" with table_data=sorted_cases.requires_your_review %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-reports-ready-to-send">
+                    Reports ready to send - {{ sorted_cases.report_ready_to_send.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-reports-ready-to-send" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-reports-ready-to-send">
+            {% include "./6_report_ready_to_send.html" with table_data=sorted_cases.report_ready_to_send %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-report-correspondence">
+                    In report correspondence - {{ sorted_cases.in_report_correspondence.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-in-report-correspondence" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-in-report-correspondence">
+            {% include "./7_in_report_correspondence.html" with table_data=sorted_cases.in_report_correspondence %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-probation-period">
+                    In probation period - {{ sorted_cases.in_probation_period.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-in-probation-period" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-in-probation-period">
+            {% include "./8_in_probation_period.html" with table_data=sorted_cases.in_probation_period %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-in-twelve-week-correspondence">
+                    In 12 week correspondence - {{ sorted_cases.in_12_week_correspondence.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-in-twelve-week-correspondence" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
+            {% include "./9_in_12_week_correspondence.html" with table_data=sorted_cases.in_12_week_correspondence %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-final-decision-due">
+                    Final decision due - {{ sorted_cases.final_decision_due.count }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-final-decision-due" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-final-decision-due">
+            {% include "./10_final_decision_due.html" with table_data=sorted_cases.final_decision_due %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-equality-body-correspondence">
+                    Equality body correspondence - {{sorted_cases.in_correspondence_with_equalities_body.count}}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-equality-body-correspondence" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-equality-body-correspondence">
+            {% include "./11_in_correnspondence_with_equality_body.html" with table_data=sorted_cases.in_correspondence_with_equalities_body %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-recently-completed-cases">
+                    Recently completed cases - {{sorted_cases.recently_completed.count}}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-recently-completed-cases" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-11">
+            {% include "./12_recently_completed.html" with table_data=sorted_cases.recently_completed %}
+        </div>
+    </div>
+</div>

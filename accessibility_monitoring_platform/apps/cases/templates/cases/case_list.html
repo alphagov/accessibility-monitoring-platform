@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'dashboard:home' %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">{{ page_title }}</h1>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
+                    </div>
+                    <div class="govuk-grid-column-one-half">
+                        <div class="govuk-button-group no-bottom-margin">
+                            <a
+                                href="{% url 'cases:case-create' %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            >
+                                Create case
+                            </a>
+                            <a
+                                href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            >
+                                Export to CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% if cases %}
+                    {% include "common/pagination_controls.html" %}
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                        {% for case in cases %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 class="govuk-heading-m cases-sub-heading">
+                                                <a href="{% url 'cases:case-detail' case.id %}"
+                                                    style="font-weight:normal"
+                                                    class="govuk-link">
+                                                    {{ case.organisation_name }}
+                                                </a>
+                                            </h2>
+                                            <p class="govuk-body-m">{{ case.formatted_home_page_url }} | #{{ case.id }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-one-half">
+                                            <p class="govuk-body-m cases-sub-heading">Date created</p>
+                                            <p class="govuk-body-m">{{ case.created|date:"d/m/Y" }}</p>
+                                        </div>
+                                        <div class="govuk-grid-column-one-half">
+                                            <p class="govuk-body-m cases-sub-heading">Auditor</p>
+                                            <p class="govuk-body-m">{{ case.auditor.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-one-half">
+                                            <p class="govuk-body-m cases-sub-heading">Status</p>
+                                            <p class="govuk-body-m">{{ case.get_status_display }}</p>
+                                        </div>
+                                        <div class="govuk-grid-column-one-half">
+                                            <p class="govuk-body-m cases-sub-heading">QA auditor</p>
+                                            <p class="govuk-body-m">{{ case.reviewer.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                    {% if case.zendesk_url or case.trello_url %}
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-full">
+                                                {% if case.zendesk_url %}
+                                                    <a href="{{ case.zendesk_url }}"
+                                                        class="govuk-link"
+                                                        style="margin-right: 15px"
+                                                        rel="noreferrer noopener"
+                                                        target="_blank"
+                                                        rel="noreferrer noopener">Zendesk</a>
+                                                {% endif %}
+                                                {% if case.trello_url %}
+                                                    <a href="{{ case.trello_url }}"
+                                                        class="govuk-link"
+                                                        rel="noreferrer noopener"
+                                                        target="_blank"
+                                                        rel="noreferrer noopener">Trello</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% include "common/pagination_controls.html" %}
+                {% endif %}
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-grid-row cases-search-background">
+                    <div class="govuk-grid-column-full">
+                        <form method="get" action="{% url 'cases:case-list' %}">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
+                                        {% include 'common/amp_field.html' with field=form.search %}
+                                        {% include 'common/amp_field.html' with field=form.status %}
+                                        {% include 'common/amp_field.html' with field=form.auditor %}
+                                        {% include 'common/amp_field.html' with field=form.reviewer %}
+                                        {% include 'common/amp_field.html' with field=form.sort_by %}
+                                </div>
+                            </div>
+                            <div class="govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Search"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
+                                    Clear
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

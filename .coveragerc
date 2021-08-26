@@ -16,6 +16,7 @@ omit =
         */apps.py
         */migrations/*
         */admin.py
+        */pulp/*
 
 
 [report]

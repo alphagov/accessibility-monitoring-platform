@@ -3,9 +3,11 @@ URLS for dashboard
 """
 
 from django.urls import path
-from accessibility_monitoring_platform.apps.dashboard.views import home
+from django.contrib.auth.decorators import login_required
+from accessibility_monitoring_platform.apps.dashboard.views import DashboardView
 
-app_name = 'dashboard'
+
+app_name = "dashboard"
 urlpatterns = [
-    path('', home, name='home'),
+    path("", login_required(DashboardView.as_view()), name="home"),
 ]

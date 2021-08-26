@@ -1,0 +1,69 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="contact-details" class="govuk-heading-l">Contact details</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-contact-details' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit contact details
+            </a>
+        </div>
+    </div>
+</div>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        {% for contact in contacts %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s">Contact name</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half no-padding-left">
+                        <p class="govuk-body-m">{{ contact.name }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s">Job title</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half no-padding-left">
+                        <p class="govuk-body-m">{{ contact.job_title }}</p>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s">Email</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half no-padding-left">
+                        <p class="govuk-body-m">{{ contact.email }}</p>
+                    </div>
+                </div>
+                {% if contacts.count > 1 %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-half">
+                            <h3 class="govuk-heading-s">Preferred contact</h3>
+                        </div>
+                        <div class="govuk-grid-column-one-half no-padding-left">
+                            <p class="govuk-body-m">{{ contact.get_preferred_display }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-half">
+                        <h3 class="govuk-heading-s">Notes</h3>
+                    </div>
+                    <div class="govuk-grid-column-one-half no-padding-left">
+                        {% if contact.notes %}<p class="govuk-body-m cases-notes">{{ contact.notes }}</p>{% endif %}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        {% if not contacts %}
+            <p class="govuk-body-l">No contacts have been entered</p>
+        {% endif %}
+    </tbody>
+</table>

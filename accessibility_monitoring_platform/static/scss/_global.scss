@@ -1,0 +1,25 @@
+body {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.govuk-form-group--error input {
+    border: 2px solid #d4351c;
+}
+
+.no-bottom-margin {
+    margin-bottom: 0;
+}
+
+.no-padding-top {
+    padding-top: 0;
+}
+
+.no-padding-left {
+    padding-left: 0;
+}
+
+.hidden-form {
+    display: none;
+}

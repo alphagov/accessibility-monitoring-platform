@@ -12,6 +12,7 @@ class EmailInclusionList(models.Model):
     This contains a list of emails that are allowed to sign
     up to the app.
     """
+
     inclusion_email = models.CharField(max_length=200)
 
     def __str__(self):

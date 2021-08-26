@@ -4,19 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "~=3.2.4"
 python-dotenv = "*"
 psycopg2 = "*"
 notifications-python-client = "*"
 whitenoise = "*"
 dj-database-url = "*"
 waitress = "*"
+boto3 = "*"
+selenium = "~=3.141.0"
+libsass = "*"
+rcssmin = "*"
 
 [dev-packages]
 flake8 = "*"
 pylint = "*"
 coverage = "*"
-selenium = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.8"

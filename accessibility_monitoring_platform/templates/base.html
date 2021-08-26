@@ -5,11 +5,11 @@
 <html lang="en" class="govuk-template js flexbox no-flexboxtweener">
   <head>
     <meta charset="utf-8">
-    <title>AMP - Accessibility Monitoring Platform</title>
+    <title>{{ page_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c">
     <link href="{% static 'css/init.css' %}" rel="stylesheet" media="screen">
-    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/index.js' %}"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="/static/assets/images/favicon.ico" type="image/x-icon">
     <link rel="mask-icon" href="/static/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
@@ -21,10 +21,19 @@
     <meta name="description" content="Accessibility Monitoring Platform">
   </head>
   <body class="govuk-template__body  js-enabled">
+    {% if 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
+        <div style="position:fixed;left:5px;top:95%;transform-origin:top left;-webkit-transform:rotate(-90deg);opacity:0.3;font-size:5em;z-index:1;font-family:sans-serif;">
+            TEST
+        </div>
+        <div style="position:fixed;right:5px;top:95%;transform-origin:top right;-webkit-transform:rotate(90deg);opacity:0.3;font-size:5em;z-index:1;font-family:sans-serif;">
+            PLATFORM
+        </div>
+    {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
       <script>
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
       </script>
+      <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
       <header class="govuk-header " role="banner" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
@@ -44,7 +53,12 @@
           <div class="govuk-header__content">
             <a href="/" class="govuk-header__link govuk-header__link--homepage">
               <span class="govuk-header__link--service-name">
-                Accessiblity Monitoring Platform
+                Accessibility Monitoring Platform
+                {% if 'localhost' in request.build_absolute_uri %}
+                    - Local
+                {% elif 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
+                    - Test
+                {% endif %}
               </span>
             </a>
           </div>
@@ -53,6 +67,11 @@
 
       <div class="govuk-width-container custom-body">
         {% include "navbar.html" %}
+        {% block phase_banner %}
+            <div class="govuk-width-container">
+                {% include 'common/phase_banner.html' %}
+            </div>
+        {% endblock %}
         {% block content %}
         {% endblock %}
       </div>
@@ -61,4 +80,5 @@
 
     </div>
   </body>
+  <script src="{% static 'js/index.js' %}"></script>
 </html>

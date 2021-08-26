@@ -1,0 +1,28 @@
+{% if field.errors %}
+    <div class="govuk-form-group govuk-form-group--error">
+        <label class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+        <div id="event-name-hint" class="govuk-hint">{{ field.help_text }}</div>
+        <span id="event-name-error" class="govuk-error-message">
+            {% for error in field.errors %}
+                <span class="govuk-visually-hidden">Error:</span> {{ error }}
+            {% endfor %}
+        </span>
+        {{ field }}
+    </div>
+{% else %}
+    <div class="govuk-form-group">
+        {% if field.field.widget.input_type == 'radio' %}
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l no-bottom-margin">
+                <label class="govuk-label"><b>{{ field.label }}</b></label>
+                </legend>
+                <div id="event-name-hint" class="govuk-hint">{{ field.help_text }}</div>
+                {{ field }}
+            </fieldset>
+        {% else %}
+            <label class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+            <div id="event-name-hint" class="govuk-hint">{{ field.help_text }}</div>
+            {{ field }}
+        {% endif %}
+    </div>
+{% endif %}

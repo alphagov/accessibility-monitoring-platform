@@ -2,10 +2,13 @@
 Python script to orchestrate the integration tests
 """
 import argparse
+import boto3
+from dotenv import load_dotenv
 import os
+from pathlib import Path
+import platform
 import sys
 import time
-import platform
 import shutil
 import socket
 from typing import Any, Union
@@ -32,7 +35,7 @@ def ping(host: str) -> bool:
 
 
 def download_file(url: str, file_name: Union[str, None] = None) -> None:
-    """ Downloads file to local dir
+    """Downloads file to local dir
 
     Args:
         url (str): endpoint for the file you are downloading
@@ -68,8 +71,9 @@ def download_webdriver() -> None:
     if os.path.isfile(webdriver_path):
         return
 
-    page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-    chrome_version: str = page.read().decode("utf-8")
+    #page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+    #chrome_version: str = page.read().decode("utf-8")
+    chrome_version: str = "92.0.4515.107"
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
     webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/{chrome_version}/chromedriver_{library}.zip"
     target_path: str = "./integration_tests/chromedriver.zip"
@@ -81,12 +85,11 @@ def download_webdriver() -> None:
 
     os.rename(
         src="integration_tests/chromedriver/chromedriver",
-        dst="integration_tests/chromedriver2"
+        dst="integration_tests/chromedriver2",
     )
     shutil.rmtree(path="integration_tests/chromedriver")
     os.rename(
-        src="integration_tests/chromedriver2",
-        dst="integration_tests/chromedriver"
+        src="integration_tests/chromedriver2", dst="integration_tests/chromedriver"
     )
     os.remove(path="integration_tests/chromedriver.zip")
 
@@ -95,17 +98,59 @@ def download_webdriver() -> None:
     print(">>> chromedriver now ready")
 
 
+def download_s3_object(s3_path: str, local_path: str) -> None:
+    if os.path.exists(local_path) is False:
+        temp = "/".join(local_path.split("/")[:-1])
+        Path(temp).mkdir(parents=True, exist_ok=True)
+        s3_client.download_file(bucket, s3_path, local_path)
+    else:
+        print(">>>> file already exists")
+
+
 if __name__ == "__main__":
     start = time.time()
     parser = argparse.ArgumentParser(description="Starts integration tests")
+    load_dotenv()
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID_S3_STORE"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY_S3_STORE"),
+        region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE"),
+    )
+    bucket: str = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
 
-    parser.add_argument("-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true")
+    download_s3_object(
+        s3_path="fixtures/20210604_auth_data.json",
+        local_path="./data/s3_files/20210604_auth_data.json",
+    )
+
+    download_s3_object(
+        s3_path=(
+            "extra/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_"
+            "Lookup_in_United_Kingdom.csv"
+        ),
+        local_path=(
+            "./data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_"
+            "(January_2018)_Lookup_in_United_Kingdom.csv"
+        ),
+    )
+
+    download_s3_object(
+        s3_path="pubsecweb/pubsecweb_210216.pgadmin-backup",
+        local_path="./data/s3_files/pubsecweb_210216.pgadmin-backup",
+    )
+
+    parser.add_argument(
+        "-ignore-docker", "--ignore-docker", dest="ignore_docker", action="store_true"
+    )
     options = parser.parse_args()
     os.system("pipenv lock -r > requirements.txt")
     if options.ignore_docker:
         print("Skipping docker")
     else:
-        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+        os.system(
+            "docker-compose -f docker/int_tests.docker-compose.yml down --volumes"
+        )
         os.system(
             "docker build -t django_amp_two:latest -f - . < ./docker/django_app.Dockerfile"
         )
@@ -123,13 +168,19 @@ if __name__ == "__main__":
         time.sleep(1)
 
     tests_failed: bool = False
-    test_suite: TestSuite = unittest.defaultTestLoader.discover(start_dir="integration_tests/", pattern="test_*.py")
-    test_runner: TextTestRunner = unittest.TextTestRunner(resultclass=unittest.TextTestResult)
+    test_suite: TestSuite = unittest.defaultTestLoader.discover(
+        start_dir="integration_tests/", pattern="test_*.py"
+    )
+    test_runner: TextTestRunner = unittest.TextTestRunner(
+        resultclass=unittest.TextTestResult
+    )
     res: TestResult = test_runner.run(test=test_suite)
 
     if not options.ignore_docker:
         os.system("docker-compose -f docker/int_tests.docker-compose.yml down")
-        os.system("docker-compose -f docker/int_tests.docker-compose.yml down --volumes")
+        os.system(
+            "docker-compose -f docker/int_tests.docker-compose.yml down --volumes"
+        )
 
     end: float = time.time()
     print("Testing took", end - start, "seconds")

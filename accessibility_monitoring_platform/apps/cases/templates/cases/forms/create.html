@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl">{{ page_title }}</h1>
+                {% if duplicate_cases %}
+                    <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
+                {% else %}
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
+                            The accessibility monitoring platform currently does not support detailed or mobile testing.
+                        </strong>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
+                    {% csrf_token %}
+
+                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+
+                    {% for hidden_field in form.hidden_fields %}
+                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                        {{ hidden_field }}
+                    {% endfor %}
+
+                    {% if duplicate_cases %}
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Organisation name</p>
+                            <p class="govuk-!-font-weight-regular">{{ new_case.organisation_name }}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Full URL</p>
+                            <p class="govuk-!-font-weight-regular">{{ new_case.home_page_url }}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Equalities body who will check the case?</p>
+                            <p class="govuk-!-font-weight-regular">{{ new_case.get_enforcement_body_display }}</p>
+                        </div>
+
+                        <div class="govuk-body">
+                            <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Did this case originate from a complaint?</p>
+                            <p class="govuk-!-font-weight-regular">{{ new_case.get_is_complaint_display }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
+                        {% for field in form.visible_fields %}
+                            <div class="govuk-grid-column-full govuk-form-group">
+                                <label class="govuk-label"
+                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                                </label>
+                                <div class="govuk-error-message">{{ field.errors }}</div>
+                                <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if duplicate_cases %}
+                        <h2 id="case-details" class="govuk-heading-m">Duplicate cases</h2>
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Date created</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Case</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Full URL</th>
+                                    <th class="govuk-table__header govuk-!-width-one-quarter">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for case in duplicate_cases %}
+                                    <tr class="govuk-table__row">
+                                        <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+                                        <td class="govuk-table__cell">
+                                            <a href="{% url 'cases:case-detail' case.id %}"
+                                                class="govuk-link govuk-link--no-visited-state">
+                                               {{ case.organisation_name }}
+                                            </a>
+                                        </td>
+                                        <td class="govuk-table__cell">{{ case.home_page_url }}</td>
+                                        <td class="govuk-table__cell">{{ case.get_status_display }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
+                    {% endif %}
+
+
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and continue case"
+                                name="save_continue_case"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and create another case"
+                                name="save_new_case"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:case-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
