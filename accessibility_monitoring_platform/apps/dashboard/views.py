@@ -78,7 +78,7 @@ class DashboardView(TemplateView):
         context.update(
             {
                 "sorted_cases": sorted_cases,
-                "total_cases": len(all_entries),
+                "total_cases": len(all_entries.exclude(status="complete")),
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
@@ -141,7 +141,7 @@ class DashboardView(TemplateView):
         context.update(
             {
                 "sorted_cases": sorted_cases,
-                "total_cases": len(all_entries),
+                "total_cases": len(all_entries.exclude(status="complete")),
                 "your_cases": len(user_entries),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
