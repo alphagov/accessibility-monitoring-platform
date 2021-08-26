@@ -6,6 +6,7 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.support.ui import Select
 
 ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
@@ -62,6 +63,62 @@ TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY = "2021"
 TWELVE_WEEK_CORRESPONDENCE_NOTES = """I am
 a multiline
 12 week correspondence note, I am"""
+
+PSB_PROGRESS_NOTES = """I am
+a multiline
+public sector body progress note, I am"""
+RETESTED_WEBSITE_DD = "1"
+RETESTED_WEBSITE_MM = "8"
+RETESTED_WEBSITE_YYYY = "2021"
+DISPROPORTIONATE_NOTES = """I am
+a multiline
+disproportionate burden note, I am"""
+ACCESSIBILITY_STATEMENT_NOTES_FINAL = """I am
+a multiline
+accessibility statement final note, I am"""
+COMPLIANCE_DECISION_NOTES_FINAL = """I am
+a multiline
+compliance decision final note, I am"""
+COMPLIANCE_EMAIL_SENT_DATE_DD = "13"
+COMPLIANCE_EMAIL_SENT_DATE_MM = "8"
+COMPLIANCE_EMAIL_SENT_DATE_YYYY = "2021"
+
+PSB_APPEAL_NOTES = """I am
+a multiline
+public sector body appeal note, I am"""
+SENT_TO_ENFORCEMENT_BODY_SENT_DATE_DD = "15"
+SENT_TO_ENFORCEMENT_BODY_SENT_DATE_MM = "8"
+SENT_TO_ENFORCEMENT_BODY_SENT_DATE_YYYY = "2021"
+ENFORCEMENT_BODY_CORRESPONDENCE_NOTES = """I am
+a multiline
+enforcement body correspondence note, I am"""
+
+REPORT_FOLLOWUP_WEEK_1_DUE_DATE_DD = "16"
+REPORT_FOLLOWUP_WEEK_1_DUE_DATE_MM = "8"
+REPORT_FOLLOWUP_WEEK_1_DUE_DATE_YYYY = "2021"
+REPORT_FOLLOWUP_WEEK_4_DUE_DATE_DD = "20"
+REPORT_FOLLOWUP_WEEK_4_DUE_DATE_MM = "8"
+REPORT_FOLLOWUP_WEEK_4_DUE_DATE_YYYY = "2021"
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE_DD = "31"
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE_MM = "8"
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE_YYYY = "2021"
+
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_DD = "13"
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_MM = "7"
+REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_YYYY = "2021"
+TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_DD = "20"
+TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_MM = "7"
+TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_YYYY = "2021"
+TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_DD = "24"
+TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_MM = "7"
+TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_YYYY = "2021"
+
+DELETE_NOTES = """I am
+a multiline
+deletion note, I am"""
+
+ORGANISATION_NAME_TO_DELETE = "Example Organisation to Delete"
+HOME_PAGE_URL_TO_DELETE = "https://example-to-delete.com"
 
 
 class SeleniumTest(unittest.TestCase):
@@ -177,7 +234,7 @@ class TestCaseCreation(TestCases):
 
 class TestCaseUpdates(TestCases):
     """
-    Test case for integration tests of case create and update
+    Test case for integration tests of case updates
 
     Methods
     -------
@@ -197,6 +254,12 @@ class TestCaseUpdates(TestCases):
         Tests whether report correspondence can be updated
     test_update_case_edit_12_week_correspondence()
         Tests whether 12 week correspondence can be updated
+    test_update_case_edit_final_decision()
+        Tests whether final decision can be updated
+    test_update_case_edit_enforcement_body_correspondence()
+        Tests whether enforcement body correspondence can be updated
+    test_update_case_edit_psb_is_unresponsive()
+        Tests whether unresponsive public sector bodies can be moved directly to enforcement body
     """
 
     def setUp(self):
@@ -456,10 +519,19 @@ class TestCaseUpdates(TestCases):
 
         self.driver.find_element_by_name(
             "twelve_week_correspondence_acknowledged_date_0"
+        ).clear()
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_0"
         ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_DD)
         self.driver.find_element_by_name(
             "twelve_week_correspondence_acknowledged_date_1"
+        ).clear()
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_1"
         ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_MM)
+        self.driver.find_element_by_name(
+            "twelve_week_correspondence_acknowledged_date_2"
+        ).clear()
         self.driver.find_element_by_name(
             "twelve_week_correspondence_acknowledged_date_2"
         ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY)
@@ -480,3 +552,324 @@ class TestCaseUpdates(TestCases):
         self.assertTrue("01/03/2021" in self.driver.page_source)
         self.assertTrue("01/07/2021" in self.driver.page_source)
         self.assertTrue(TWELVE_WEEK_CORRESPONDENCE_NOTES in self.driver.page_source)
+
+    def test_update_case_edit_final_decision(self):
+        """Tests whether final decision can be updated"""
+        self.driver.find_element_by_link_text("Edit final decision").click()
+
+        self.assertTrue(">Edit case | Final decision</h1>" in self.driver.page_source)
+
+        self.driver.find_element_by_name("psb_progress_notes").send_keys(
+            PSB_PROGRESS_NOTES
+        )
+
+        self.driver.find_element_by_name("retested_website_date_0").clear()
+        self.driver.find_element_by_name("retested_website_date_0").send_keys(
+            RETESTED_WEBSITE_DD
+        )
+        self.driver.find_element_by_name("retested_website_date_1").clear()
+        self.driver.find_element_by_name("retested_website_date_1").send_keys(
+            RETESTED_WEBSITE_MM
+        )
+        self.driver.find_element_by_name("retested_website_date_2").clear()
+        self.driver.find_element_by_name("retested_website_date_2").send_keys(
+            RETESTED_WEBSITE_YYYY
+        )
+
+        self.driver.find_element_by_css_selector(
+            "#id_is_disproportionate_claimed_1"
+        ).click()
+        self.driver.find_element_by_name("disproportionate_notes").send_keys(
+            DISPROPORTIONATE_NOTES
+        )
+        self.driver.find_element_by_css_selector(
+            "#id_accessibility_statement_state_final_2"
+        ).click()
+        self.driver.find_element_by_name(
+            "accessibility_statement_notes_final"
+        ).send_keys(ACCESSIBILITY_STATEMENT_NOTES_FINAL)
+        self.driver.find_element_by_css_selector(
+            "#id_is_website_compliant_final_1"
+        ).click()
+        self.driver.find_element_by_name("compliance_decision_notes_final").send_keys(
+            COMPLIANCE_DECISION_NOTES_FINAL
+        )
+
+        self.driver.find_element_by_name("compliance_email_sent_date_0").clear()
+        self.driver.find_element_by_name("compliance_email_sent_date_0").send_keys(
+            COMPLIANCE_EMAIL_SENT_DATE_DD
+        )
+        self.driver.find_element_by_name("compliance_email_sent_date_1").clear()
+        self.driver.find_element_by_name("compliance_email_sent_date_1").send_keys(
+            COMPLIANCE_EMAIL_SENT_DATE_MM
+        )
+        self.driver.find_element_by_name("compliance_email_sent_date_2").clear()
+        self.driver.find_element_by_name("compliance_email_sent_date_2").send_keys(
+            COMPLIANCE_EMAIL_SENT_DATE_YYYY
+        )
+
+        self.driver.find_element_by_css_selector("#id_case_completed_1").click()
+        self.driver.find_element_by_css_selector(
+            "#id_is_final_decision_complete"
+        ).click()
+
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue("01/08/2021" in self.driver.page_source)
+        self.assertTrue(DISPROPORTIONATE_NOTES in self.driver.page_source)
+        self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES_FINAL in self.driver.page_source)
+        self.assertTrue(COMPLIANCE_DECISION_NOTES_FINAL in self.driver.page_source)
+        self.assertTrue("13/08/2021" in self.driver.page_source)
+
+    def test_update_case_edit_enforcement_body_correspondence(self):
+        """Tests whether enforcement body correspondence can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit equality body correspondence"
+        ).click()
+
+        self.assertTrue(
+            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
+
+        self.driver.find_element_by_name("sent_to_enforcement_body_sent_date_0").clear()
+        self.driver.find_element_by_name(
+            "sent_to_enforcement_body_sent_date_0"
+        ).send_keys(SENT_TO_ENFORCEMENT_BODY_SENT_DATE_DD)
+        self.driver.find_element_by_name("sent_to_enforcement_body_sent_date_1").clear()
+        self.driver.find_element_by_name(
+            "sent_to_enforcement_body_sent_date_1"
+        ).send_keys(SENT_TO_ENFORCEMENT_BODY_SENT_DATE_MM)
+        self.driver.find_element_by_name("sent_to_enforcement_body_sent_date_2").clear()
+        self.driver.find_element_by_name(
+            "sent_to_enforcement_body_sent_date_2"
+        ).send_keys(SENT_TO_ENFORCEMENT_BODY_SENT_DATE_YYYY)
+
+        self.driver.find_element_by_name(
+            "enforcement_body_correspondence_notes"
+        ).send_keys(ENFORCEMENT_BODY_CORRESPONDENCE_NOTES)
+        self.driver.find_element_by_css_selector("#id_escalation_state_1").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_is_enforcement_correspondence_complete"
+        ).click()
+
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
+        self.assertTrue("15/08/2021" in self.driver.page_source)
+        self.assertTrue(
+            ENFORCEMENT_BODY_CORRESPONDENCE_NOTES in self.driver.page_source
+        )
+
+    def test_update_case_edit_report_followup_dates(self):
+        """Tests whether report followup dates can be updated"""
+        self.driver.find_element_by_link_text("Edit report correspondence").click()
+        self.assertTrue(
+            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_link_text("Edit report followup due dates").click()
+        self.assertTrue(
+            ">Edit case | Report followup dates</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_name("report_followup_week_1_due_date_0").clear()
+        self.driver.find_element_by_name("report_followup_week_1_due_date_0").send_keys(
+            REPORT_FOLLOWUP_WEEK_1_DUE_DATE_DD
+        )
+        self.driver.find_element_by_name("report_followup_week_1_due_date_1").clear()
+        self.driver.find_element_by_name("report_followup_week_1_due_date_1").send_keys(
+            REPORT_FOLLOWUP_WEEK_1_DUE_DATE_MM
+        )
+        self.driver.find_element_by_name("report_followup_week_1_due_date_2").clear()
+        self.driver.find_element_by_name("report_followup_week_1_due_date_2").send_keys(
+            REPORT_FOLLOWUP_WEEK_1_DUE_DATE_YYYY
+        )
+
+        self.driver.find_element_by_name("report_followup_week_4_due_date_0").clear()
+        self.driver.find_element_by_name("report_followup_week_4_due_date_0").send_keys(
+            REPORT_FOLLOWUP_WEEK_4_DUE_DATE_DD
+        )
+        self.driver.find_element_by_name("report_followup_week_4_due_date_1").clear()
+        self.driver.find_element_by_name("report_followup_week_4_due_date_1").send_keys(
+            REPORT_FOLLOWUP_WEEK_4_DUE_DATE_MM
+        )
+        self.driver.find_element_by_name("report_followup_week_4_due_date_2").clear()
+        self.driver.find_element_by_name("report_followup_week_4_due_date_2").send_keys(
+            REPORT_FOLLOWUP_WEEK_4_DUE_DATE_YYYY
+        )
+
+        self.driver.find_element_by_name("report_followup_week_12_due_date_0").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_0"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE_DD)
+        self.driver.find_element_by_name("report_followup_week_12_due_date_1").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_1"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE_MM)
+        self.driver.find_element_by_name("report_followup_week_12_due_date_2").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_2"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE_YYYY)
+
+        self.driver.find_element_by_name("save_return").click()
+
+        self.assertTrue(
+            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+        )
+
+        self.assertTrue("Due 16/08/2021" in self.driver.page_source)
+        self.assertTrue("Due 20/08/2021" in self.driver.page_source)
+        self.assertTrue("Due 31/08/2021" in self.driver.page_source)
+
+    def test_update_case_edit_twelve_week_correspondence_dates(self):
+        """Tests whether 12 week correspondence dates can be updated"""
+        self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
+        self.assertTrue(
+            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_link_text(
+            "Edit 12 week correspondence due dates"
+        ).click()
+        self.assertTrue(
+            ">Edit case | 12 week correspondence dates</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_name("report_followup_week_12_due_date_0").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_0"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_DD)
+        self.driver.find_element_by_name("report_followup_week_12_due_date_1").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_1"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_MM)
+        self.driver.find_element_by_name("report_followup_week_12_due_date_2").clear()
+        self.driver.find_element_by_name(
+            "report_followup_week_12_due_date_2"
+        ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_YYYY)
+
+        self.driver.find_element_by_name("twelve_week_1_week_chaser_due_date_0").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_1_week_chaser_due_date_0"
+        ).send_keys(TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_DD)
+        self.driver.find_element_by_name("twelve_week_1_week_chaser_due_date_1").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_1_week_chaser_due_date_1"
+        ).send_keys(TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_MM)
+        self.driver.find_element_by_name("twelve_week_1_week_chaser_due_date_2").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_1_week_chaser_due_date_2"
+        ).send_keys(TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_YYYY)
+
+        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_0").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_4_week_chaser_due_date_0"
+        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_DD)
+        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_1").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_4_week_chaser_due_date_1"
+        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_MM)
+        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_2").clear()
+        self.driver.find_element_by_name(
+            "twelve_week_4_week_chaser_due_date_2"
+        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_YYYY)
+
+        self.driver.find_element_by_name("save_return").click()
+
+        self.assertTrue(
+            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+        )
+        self.assertTrue("Due 13/07/2021" in self.driver.page_source)
+        self.assertTrue("Due 20/07/2021" in self.driver.page_source)
+        self.assertTrue("Due 24/07/2021" in self.driver.page_source)
+
+    def test_update_case_edit_psb_is_unresponsive(self):
+        """
+        Tests whether unresponsive public sector bodies can be moved directly to enforcement body
+        """
+        self.driver.find_element_by_link_text("Edit report correspondence").click()
+        self.assertTrue(
+            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_link_text(
+            "Unable to send report or no response from public sector body?"
+        ).click()
+        self.assertTrue(
+            ">Edit case | Public sector body is unresponsive</h1>"
+            in self.driver.page_source
+        )
+
+        self.driver.find_element_by_css_selector("#id_no_psb_contact").click()
+
+        self.driver.find_element_by_name("save_continue").click()
+
+        self.assertTrue(
+            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
+        )
+
+
+class TestCaseDelete(TestCases):
+    """
+    Test case for integration tests of case deletion
+
+    Methods
+    -------
+    setUp()
+        Create case to delete
+    test_delete_case()
+        Tests whether case can be deleted
+    test_restore_deleted_case()
+        Tests whether deleted case can be restored
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME_TO_DELETE
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(
+            HOME_PAGE_URL_TO_DELETE
+        )
+        self.driver.find_element_by_name("save_exit").click()
+
+    def test_delete_case(self):
+        """Tests whether case can be deleted"""
+        self.driver.find_element_by_link_text(ORGANISATION_NAME_TO_DELETE).click()
+        self.driver.find_element_by_link_text("Delete case").click()
+        self.assertTrue(">Delete case</h1>" in self.driver.page_source)
+
+        self.driver.find_element_by_css_selector("#id_delete_reason_0").click()
+        self.driver.find_element_by_name("delete_notes").send_keys(DELETE_NOTES)
+
+        self.driver.find_element_by_name("delete").click()
+
+        self.assertTrue(">Cases</h1>" in self.driver.page_source)
+        self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
+
+    def test_restore_deleted_case(self):
+        """Tests whether deleted case can be restored"""
+        self.driver.find_element_by_link_text("Cases").click()
+        self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
+
+        select = Select(self.driver.find_element_by_id("id_status"))
+        select.select_by_visible_text("Deleted")
+        self.driver.find_element_by_css_selector("input[type='submit']").click()
+
+        self.assertTrue(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
+        self.driver.find_element_by_link_text(ORGANISATION_NAME_TO_DELETE).click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue("deleted" in self.driver.page_source)
+
+        self.driver.find_element_by_link_text("Restore").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertFalse("deleted" in self.driver.page_source)
