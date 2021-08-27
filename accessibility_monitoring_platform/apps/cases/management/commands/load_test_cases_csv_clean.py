@@ -15,9 +15,7 @@ from django.core.management.color import no_style
 from ...models import Case, Contact
 from ....common.models import Sector
 
-INPUT_FILE_NAME = (
-    "accessibility_monitoring_platform/apps/cases/management/commands/20210823_cleaned_case_record.csv"
-)
+INPUT_FILE_NAME = "accessibility_monitoring_platform/apps/cases/management/commands/20210823_cleaned_case_record.csv"
 
 
 def delete_existing_data(verbose: bool = False) -> None:
@@ -207,7 +205,7 @@ class Command(BaseCommand):
                         created=get_datetime_from_row(row=row, column_name="created"),
                         created_by=get_or_create_user_from_row(
                             row=row,
-                            users=users, 
+                            users=users,
                             column_name="auditor",
                         ),
                     )

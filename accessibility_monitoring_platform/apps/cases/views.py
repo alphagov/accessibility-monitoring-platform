@@ -422,11 +422,6 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
         ].help_text = format_due_date_help_text(
             form.instance.report_followup_week_4_due_date
         )
-        form.fields[
-            "report_followup_week_12_due_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_12_due_date
-        )
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
@@ -497,11 +492,6 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        form.fields[
-            "report_followup_week_12_due_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_12_due_date
-        )
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
         ].help_text = format_due_date_help_text(

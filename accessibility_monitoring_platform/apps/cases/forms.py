@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from ..common.forms import (
     AMPBooleanCheckboxWidget,
     AMPChoiceCheckboxWidget,
-    AMPDateCheckboxWidget,
     AMPModelChoiceField,
     AMPUserModelChoiceField,
     AMPCharField,
@@ -301,9 +300,6 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     report_sent_date = AMPDateField(label="Report sent on")
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
-    report_followup_week_12_due_date = AMPDateSentField(
-        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
-    )
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     is_report_correspondence_complete = forms.BooleanField(
@@ -320,7 +316,6 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
-            "report_followup_week_12_due_date",
             "report_acknowledged_date",
             "correspondence_notes",
             "is_report_correspondence_complete",
@@ -370,9 +365,6 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    report_followup_week_12_due_date = AMPDateSentField(
-        label="12 week update", widget=AMPDateCheckboxWidget(attrs={"removed": "true"})
-    )
     twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
@@ -396,7 +388,6 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            "report_followup_week_12_due_date",
             "twelve_week_update_requested_date",
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
