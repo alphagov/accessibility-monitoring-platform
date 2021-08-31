@@ -435,6 +435,7 @@ def test_create_case_redirects_based_on_button_pressed(
         reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             button_name: "Button value",
         },
     )
@@ -461,6 +462,7 @@ def test_create_case_shows_duplicate_cases(admin_client):
         reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
         },
     )
@@ -490,6 +492,7 @@ def test_create_case_can_create_duplicate_cases(
         f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
             button_name: "Button value",
         },
@@ -564,6 +567,7 @@ def test_case_edit_redirects_based_on_button_pressed(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             button_name: "Button value",
         },
     )
