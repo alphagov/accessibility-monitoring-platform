@@ -336,7 +336,7 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
 
     report_followup_week_1_due_date = AMPDateField(label="1 week followup")
     report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_12_due_date = AMPDateField(label="12 week update")
+    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
 
     class Meta:
         model = Case
@@ -372,15 +372,15 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
+    twelve_week_update_requested_date = AMPDateField(label="12 week deadline requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week update request acknowledged"
+        label="12 week deadline request acknowledged"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
-        label="Mark the case as having no response to 12 week update",
+        label="Mark the case as having no response to 12 week deadline",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
     )
@@ -410,7 +410,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
     Form for updating twelve week correspondence followup due dates
     """
 
-    report_followup_week_12_due_date = AMPDateField(label="12 week update")
+    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
     twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
     twelve_week_4_week_chaser_due_date = AMPDateField(label="4 week followup")
 
