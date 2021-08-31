@@ -445,7 +445,8 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
     accessibility_statement_notes_final = AMPTextField(
-        label="Final accessibility statement notes"
+        label="Final accessibility statement notes",
+        help_text="If non compliant also add link to copy of non compliant accessibility statement",
     )
     is_website_compliant_final = AMPChoiceRadioField(
         label="Final compliance decision",
