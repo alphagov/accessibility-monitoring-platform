@@ -52,6 +52,14 @@ SORT_CHOICES = [
     ("id", "Oldest"),
 ]
 
+page_completed_field = forms.BooleanField(
+    label="Mark this page as completed",
+    widget=AMPBooleanCheckboxWidget(
+        attrs={"label": "Page completed"},
+    ),
+    required=False,
+)
+
 
 class CaseSearchForm(AMPDateRangeForm):
     """
@@ -137,13 +145,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
-    is_case_details_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Case details completed?"},
-        ),
-        required=False,
-    )
+    is_case_details_complete = page_completed_field
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -206,13 +208,7 @@ class CaseContactsUpdateForm(forms.ModelForm):
     Form for updating test results
     """
 
-    is_contact_details_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Contact details completed?"},
-        ),
-        required=False,
-    )
+    is_contact_details_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -240,13 +236,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         label="Is the website compliant?", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
-    is_testing_details_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Testing details completed?"},
-        ),
-        required=False,
-    )
+    is_testing_details_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -277,13 +267,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
-    is_reporting_details_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Reporting details completed?"},
-        ),
-        required=False,
-    )
+    is_reporting_details_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -309,13 +293,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
     correspondence_notes = AMPTextField(label="Correspondence notes")
-    is_report_correspondence_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Report correspondence completed?"},
-        ),
-        required=False,
-    )
+    is_report_correspondence_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -384,13 +362,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
     )
-    is_12_week_correspondence_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "12 week correspondence completed?"},
-        ),
-        required=False,
-    )
+    is_12_week_correspondence_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -461,13 +433,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Case completed?",
         choices=CASE_COMPLETED_CHOICES,
     )
-    is_final_decision_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Final decision completed?"},
-        ),
-        required=False,
-    )
+    is_final_decision_complete = page_completed_field
 
     class Meta:
         model = Case
@@ -502,13 +468,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         label="Equalities body correspondence completed?",
         choices=ESCALATION_STATE_CHOICES,
     )
-    is_enforcement_correspondence_complete = forms.BooleanField(
-        label="Mark this page as completed",
-        widget=AMPBooleanCheckboxWidget(
-            attrs={"label": "Equality body correspondence completed?"},
-        ),
-        required=False,
-    )
+    is_enforcement_correspondence_complete = page_completed_field
 
     class Meta:
         model = Case
