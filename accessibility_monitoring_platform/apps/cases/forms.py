@@ -5,6 +5,7 @@ from typing import Any
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     AMPBooleanCheckboxWidget,
@@ -111,6 +112,12 @@ class CaseCreateForm(forms.ModelForm):
             "enforcement_body",
             "is_complaint",
         ]
+
+    def clean_enforcement_body(self):
+        data = self.cleaned_data.get("enforcement_body")
+        if not data:
+            raise ValidationError("This field is required")
+        return data
 
 
 class CaseDetailUpdateForm(CaseCreateForm):

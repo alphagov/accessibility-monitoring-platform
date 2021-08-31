@@ -44,8 +44,8 @@ TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
 
 ENFORCEMENT_BODY_DEFAULT = "ehrc"
 ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
-    ("ecni", "Equality Commission Northern Ireland"),
     (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
+    ("ecni", "Equality Commission Northern Ireland"),
 ]
 
 BOOLEAN_DEFAULT = "no"

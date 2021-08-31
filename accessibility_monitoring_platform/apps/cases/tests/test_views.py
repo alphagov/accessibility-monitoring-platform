@@ -351,6 +351,74 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     assertContains(response, expected_content, html=True)
 
 
+def test_create_case_shows_error_messages(admin_client):
+    """
+    Test that the create case page shows the expected error messages
+    """
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": "gov.uk",
+            "save_exit": "Save and exit",
+        },
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-grid-column-full govuk-form-group">
+            <label class="govuk-label"
+                for="id_home_page_url"><b>Full URL</b>
+            </label>
+            <div class="govuk-error-message">
+                <ul class="errorlist">
+                    <li>URL must start with http:// or https://</li>
+                </ul>
+            </div>
+            <p class="govuk-body-m"></p>
+            <input type="text" name="home_page_url" value="gov.uk" class="govuk-input" required id="id_home_page_url">
+        </div>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<div class="govuk-grid-column-full govuk-form-group">
+            <label class="govuk-label"
+                for="id_enforcement_body"><b>Which equalities body will check the case?</b>
+            </label>
+            <div class="govuk-error-message"><ul class="errorlist"><li>This field is required</li></ul></div>
+            <p class="govuk-body-m"></p>
+            <div class="govuk-radios">
+                <div class="govuk-radios__item">
+                    <input
+                        class="govuk-radios__input"
+                        type="radio"
+                        name="enforcement_body"
+                            value="ehrc"
+                             id="id_enforcement_body_0"
+                    >
+                    <label class="govuk-label govuk-radios__label" for="id_enforcement_body_0">
+                        Equality and Human Rights Commission
+                    </label>
+                </div>
+                <div class="govuk-radios__item">
+                    <input
+                        class="govuk-radios__input"
+                        type="radio"
+                        name="enforcement_body"
+                        value="ecni"
+                        id="id_enforcement_body_1"
+                    >
+                    <label class="govuk-label govuk-radios__label" for="id_enforcement_body_1">
+                        Equality Commission Northern Ireland
+                    </label>
+                </div>
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
 @pytest.mark.parametrize(
     "button_name, expected_redirect_url",
     [
@@ -367,6 +435,7 @@ def test_create_case_redirects_based_on_button_pressed(
         reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             button_name: "Button value",
         },
     )
@@ -393,6 +462,7 @@ def test_create_case_shows_duplicate_cases(admin_client):
         reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
         },
     )
@@ -422,6 +492,7 @@ def test_create_case_can_create_duplicate_cases(
         f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
             button_name: "Button value",
         },
@@ -496,6 +567,7 @@ def test_case_edit_redirects_based_on_button_pressed(
         reverse(case_edit_path, kwargs={"pk": case.id}),
         {
             "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
             button_name: "Button value",
         },
     )
@@ -1116,7 +1188,7 @@ def test_case_details_includes_link_to_report(admin_client):
 
 def test_case_details_includes_no_link_to_report(admin_client):
     """
-    Test that the case details page contains a no link to the report if none is set
+    Test that the case details page contains no link to the report if none is set
     """
     case: Case = Case.objects.create()
 

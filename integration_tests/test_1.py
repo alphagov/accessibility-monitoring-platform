@@ -222,6 +222,9 @@ class TestCaseCreation(TestCases):
             ORGANISATION_NAME
         )
         self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
         self.driver.find_element_by_name("save_exit").click()
         self.assertTrue(
             '<h1 class="govuk-heading-xl">Create case</h1>' in self.driver.page_source
@@ -270,6 +273,9 @@ class TestCaseUpdates(TestCases):
             ORGANISATION_NAME
         )
         self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
         self.driver.find_element_by_name("save_exit").click()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
 
@@ -838,6 +844,9 @@ class TestCaseDelete(TestCases):
         self.driver.find_element_by_name("home_page_url").send_keys(
             HOME_PAGE_URL_TO_DELETE
         )
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
         self.driver.find_element_by_name("save_exit").click()
 
     def test_delete_case(self):
