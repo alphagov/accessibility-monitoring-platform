@@ -55,7 +55,7 @@ SORT_CHOICES = [
 page_completed_field = forms.BooleanField(
     label="Mark this page as completed",
     widget=AMPBooleanCheckboxWidget(
-        attrs={"label": "Page completed?"},
+        attrs={"label": "Page completed"},
     ),
     required=False,
 )
