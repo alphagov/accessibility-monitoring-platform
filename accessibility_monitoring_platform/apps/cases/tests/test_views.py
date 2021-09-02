@@ -768,6 +768,7 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     assertContains(
         response,
         f'<div id="event-name-hint" class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        html=True,
     )
 
 
