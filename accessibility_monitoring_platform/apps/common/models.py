@@ -30,6 +30,7 @@ class IssueReport(models.Model):
         related_name="issue_report_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
+    complete = models.BooleanField(default=False)
 
     def __str__(self):
         return f"#{self.id} {self.page_title}"
