@@ -31,7 +31,6 @@ TEST_RESULTS_URL = "https://test-results.com"
 ACCESSIBILITY_STATEMENT_STATUS = "missing"
 ACCESSIBILITY_STATEMENT_NOTES = """I am
 a multiline
-
 accessibility statement note, I am"""
 WEBSITE_COMPLIANCE_NOTES = """I am
 a multiline
