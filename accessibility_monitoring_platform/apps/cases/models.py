@@ -63,8 +63,8 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
+    ("compliant", "Compliant"),
+    ("not-compliant", "Not compliant"),
     ("other", "Other"),
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Unknown"),
 ]
