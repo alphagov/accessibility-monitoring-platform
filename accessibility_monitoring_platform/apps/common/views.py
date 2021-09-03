@@ -71,7 +71,11 @@ class IssueReportView(FormView):
     def send_mail(self, issue_report: IssueReport) -> None:
         subject = f"Platform issue on {issue_report.page_title}"
         message = (
-            f"Reported by: {issue_report.created_by}\n\n{issue_report.description}"
+            f"""Reported by: {issue_report.created_by}
+
+            URL: https://{self.request.get_host()}{issue_report.page_url}
+
+            {issue_report.description}"""
         )
         send_mail(
             subject=subject,
