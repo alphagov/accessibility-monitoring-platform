@@ -31,6 +31,8 @@ class IssueReport(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
+    trello_ticket = models.CharField(max_length=200, default="", blank=True)
+    notes = models.TextField(default="", blank=True)
 
     def __str__(self):
         return f"#{self.id} {self.page_title}"
