@@ -203,7 +203,7 @@ def test_amp_char_field_wide_widget_attrs():
 def test_amp_text_field_widget_attrs():
     """Check AMPTextField widget attr defaults"""
     field: AMPTextField = AMPTextField(label="Label text")
-    assert field.widget.attrs == {"class": "govuk-textarea", "cols": "40", "rows": "2"}
+    assert field.widget.attrs == {"class": "govuk-textarea", "cols": "40", "rows": "4"}
 
 
 def test_amp_choice_field_widget_attrs():

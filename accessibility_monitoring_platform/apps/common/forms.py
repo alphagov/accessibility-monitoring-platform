@@ -165,7 +165,7 @@ class AMPTextField(forms.CharField):
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
-            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
+            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "4"}),
         )
         super().__init__(*args, **kwargs)
 
