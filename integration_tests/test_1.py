@@ -332,7 +332,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("trello_url").send_keys(TRELLO_URL)
         self.driver.find_element_by_name("notes").send_keys(CASE_DETAILS_NOTES)
-        self.driver.find_element_by_css_selector("#id_is_case_details_complete").click()
+        self.driver.find_element_by_css_selector("#id_case_details_complete_date").click()
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
@@ -361,7 +361,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("form-0-email").send_keys(EMAIL)
         self.driver.find_element_by_name("form-0-notes").send_keys(CONTACT_NOTES)
         self.driver.find_element_by_css_selector(
-            "#id_is_contact_details_complete"
+            "#id_contact_details_complete_date"
         ).click()
         self.driver.find_element_by_name("save_exit").click()
 
@@ -392,7 +392,7 @@ class TestCaseUpdates(TestCases):
             WEBSITE_COMPLIANCE_NOTES
         )
         self.driver.find_element_by_css_selector(
-            "#id_is_testing_details_complete"
+            "#id_testing_details_complete_date"
         ).click()
         self.driver.find_element_by_name("save_exit").click()
 
@@ -419,7 +419,7 @@ class TestCaseUpdates(TestCases):
             REPORT_FINAL_ODT_URL
         )
         self.driver.find_element_by_css_selector(
-            "#id_is_reporting_details_complete"
+            "#id_reporting_details_complete_date"
         ).click()
         self.driver.find_element_by_name("save_exit").click()
 
@@ -467,7 +467,7 @@ class TestCaseUpdates(TestCases):
             REPORT_CORRESPONDENCE_NOTES
         )
         self.driver.find_element_by_css_selector(
-            "#id_is_report_correspondence_complete"
+            "#id_report_correspondence_complete_date"
         ).click()
 
         self.driver.find_element_by_name("save_exit").click()
@@ -549,7 +549,7 @@ class TestCaseUpdates(TestCases):
             "#id_twelve_week_response_state"
         ).click()
         self.driver.find_element_by_css_selector(
-            "#id_is_12_week_correspondence_complete"
+            "#id_twelve_week_correspondence_complete_date"
         ).click()
 
         self.driver.find_element_by_name("save_exit").click()
@@ -616,7 +616,7 @@ class TestCaseUpdates(TestCases):
 
         self.driver.find_element_by_css_selector("#id_case_completed_1").click()
         self.driver.find_element_by_css_selector(
-            "#id_is_final_decision_complete"
+            "#id_final_decision_complete_date"
         ).click()
 
         self.driver.find_element_by_name("save_exit").click()
@@ -659,7 +659,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector("#id_escalation_state_1").click()
 
         self.driver.find_element_by_css_selector(
-            "#id_is_enforcement_correspondence_complete"
+            "#id_enforcement_correspondence_complete_date"
         ).click()
 
         self.driver.find_element_by_name("save_exit").click()

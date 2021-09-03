@@ -202,10 +202,10 @@ class Case(models.Model):
     zendesk_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
-    is_case_details_complete = models.BooleanField(default=False)
+    case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
-    is_contact_details_complete = models.BooleanField(default=False)
+    contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Testing details page
     test_results_url = models.TextField(default="", blank=True)
@@ -224,7 +224,7 @@ class Case(models.Model):
         default=IS_WEBSITE_COMPLIANT_DEFAULT,
     )
     compliance_decision_notes = models.TextField(default="", blank=True)
-    is_testing_details_complete = models.BooleanField(default=False)
+    testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
@@ -248,7 +248,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
-    is_reporting_details_complete = models.BooleanField(default=False)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
     report_sent_date = models.DateField(null=True, blank=True)
@@ -256,7 +256,7 @@ class Case(models.Model):
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
-    is_report_correspondence_complete = models.BooleanField(default=False)
+    report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Report followup dates page
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
@@ -279,7 +279,7 @@ class Case(models.Model):
     twelve_week_response_state = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    is_12_week_correspondence_complete = models.BooleanField(default=False)
+    twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # 12 week correspondence dates
     # report_followup_week_12_due_date from report followup dates page
@@ -313,7 +313,7 @@ class Case(models.Model):
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
     completed_date = models.DateTimeField(null=True, blank=True)
-    is_final_decision_complete = models.BooleanField(default=False)
+    final_decision_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body correspondence page
     psb_appeal_notes = models.TextField(default="", blank=True)
@@ -324,7 +324,7 @@ class Case(models.Model):
         choices=ESCALATION_STATE_CHOICES,
         default=DEFAULT_ESCALATION_STATE,
     )
-    is_enforcement_correspondence_complete = models.BooleanField(default=False)
+    enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Delete case page
     is_deleted = models.BooleanField(default=False)

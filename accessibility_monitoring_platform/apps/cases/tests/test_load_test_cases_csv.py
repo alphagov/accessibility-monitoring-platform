@@ -256,14 +256,6 @@ def test_create_case_creates_a_case():
         "no_psb_contact": "False",
         "report_is_approved": "False",
         "report_is_ready_to_review": "False",
-        "is_case_details_complete": "False",
-        "is_contact_details_complete": "False",
-        "is_testing_details_complete": "False",
-        "is_reporting_details_complete": "False",
-        "is_report_correspondence_complete": "False",
-        "is_12_week_correspondence_complete": "False",
-        "is_final_decision_complete": "False",
-        "is_enforcement_correspondence_complete": "False",
     }
 
     get_data: Callable = partial(get_data_from_row, row=row, users={}, sectors={})

@@ -896,14 +896,14 @@ def test_preferred_contact_displayed(admin_client):
 @pytest.mark.parametrize(
     "flag_name, section_name",
     [
-        ("is_case_details_complete", "Case details"),
-        ("is_contact_details_complete", "Contact details"),
-        ("is_testing_details_complete", "Testing details"),
-        ("is_reporting_details_complete", "Report details"),
-        ("is_report_correspondence_complete", "Report correspondence"),
-        ("is_12_week_correspondence_complete", "12 week correspondence"),
-        ("is_final_decision_complete", "Final decision"),
-        ("is_enforcement_correspondence_complete", "Equality body correspondence"),
+        ("case_details_complete_date", "Case details"),
+        ("contact_details_complete_date", "Contact details"),
+        ("testing_details_complete_date", "Testing details"),
+        ("reporting_details_complete_date", "Report details"),
+        ("report_correspondence_complete_date", "Report correspondence"),
+        ("twelve_week_correspondence_complete_date", "12 week correspondence"),
+        ("final_decision_complete_date", "Final decision"),
+        ("enforcement_correspondence_complete_date", "Equality body correspondence"),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
@@ -913,7 +913,7 @@ def test_section_complete_check_displayed_in_contents(
     Test that the section complete tick is displayed in contents
     """
     case: Case = Case.objects.create()
-    setattr(case, flag_name, True)
+    setattr(case, flag_name, TODAY)
     case.save()
 
     response: HttpResponse = admin_client.get(
@@ -933,32 +933,32 @@ def test_section_complete_check_displayed_in_contents(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-case-details", "is_case_details_complete", "Case details"),
+        ("cases:edit-case-details", "case_details_complete_date", "Case details"),
         (
             "cases:edit-contact-details",
-            "is_contact_details_complete",
+            "contact_details_complete_date",
             "Contact details",
         ),
-        ("cases:edit-test-results", "is_testing_details_complete", "Testing details"),
+        ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
-            "is_reporting_details_complete",
+            "reporting_details_complete_date",
             "Report details",
         ),
         (
             "cases:edit-report-correspondence",
-            "is_report_correspondence_complete",
+            "report_correspondence_complete_date",
             "Report correspondence",
         ),
         (
             "cases:edit-twelve-week-correspondence",
-            "is_12_week_correspondence_complete",
+            "twelve_week_correspondence_complete_date",
             "12 week correspondence",
         ),
-        ("cases:edit-final-decision", "is_final_decision_complete", "Final decision"),
+        ("cases:edit-final-decision", "final_decision_complete_date", "Final decision"),
         (
             "cases:edit-enforcement-body-correspondence",
-            "is_enforcement_correspondence_complete",
+            "enforcement_correspondence_complete_date",
             "Equality body correspondence",
         ),
     ],
@@ -970,7 +970,7 @@ def test_section_complete_check_displayed_in_steps(
     Test that the section complete tick is displayed in list of steps
     """
     case: Case = Case.objects.create()
-    setattr(case, flag_name, True)
+    setattr(case, flag_name, TODAY)
     case.save()
 
     response: HttpResponse = admin_client.get(
