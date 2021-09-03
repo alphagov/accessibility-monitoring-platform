@@ -228,12 +228,13 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=TEST_STATUS_CHOICES,
     )
     accessibility_statement_state = AMPChoiceRadioField(
-        label="Is the accessibility statement compliant?",
+        label="Initial accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     is_website_compliant = AMPChoiceRadioField(
-        label="Is the website compliant?", choices=IS_WEBSITE_COMPLIANT_CHOICES
+        label="Initial compliance decision",
+        choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
     is_testing_details_complete = page_completed_field
