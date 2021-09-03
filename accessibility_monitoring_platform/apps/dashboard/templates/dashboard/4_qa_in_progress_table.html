@@ -27,7 +27,7 @@
                     <td class="govuk-table__cell govuk-!-width-one-quarter">
                         {% if show_all_cases %}
                             {% if item.auditor %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}" class="govuk-link"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
+                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}" class="govuk-link"> {{item.reviewer.first_name}} {{item.reviewer.last_name}} </a>
                             {% else %}
                                 No auditor
                             {% endif %}
