@@ -41,6 +41,9 @@ class Migration(migrations.Migration):
             if save_case:
                 case.save()
 
+    def dummy_reverse(apps, schema_editor):
+        pass
+
     operations = [
-        migrations.RunPython(populate_completion_dates),
+        migrations.RunPython(populate_completion_dates, reverse_code=dummy_reverse),
     ]
