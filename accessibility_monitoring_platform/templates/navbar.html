@@ -5,7 +5,7 @@
     <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
     <ul class="govuk-list nav-menu-list">
         <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Cases</a></li>
+        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
         <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
         <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
     </ul>
