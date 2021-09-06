@@ -312,7 +312,7 @@ def test_restore_case_view(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("cases:case-list", '<h1 class="govuk-heading-xl">Cases</h1>'),
+        ("cases:case-list", '<h1 class="govuk-heading-xl">Search</h1>'),
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )

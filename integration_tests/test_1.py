@@ -211,7 +211,7 @@ class TestCaseCreation(TestCases):
         self.driver.find_element_by_css_selector("#id_is_complaint").click()
         self.driver.find_element_by_name("save_exit").click()
         self.assertTrue(
-            '<h1 class="govuk-heading-xl">Cases</h1>' in self.driver.page_source
+            '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source
         )
         self.assertTrue(ORGANISATION_NAME in self.driver.page_source)
 
@@ -860,7 +860,7 @@ class TestCaseDelete(TestCases):
 
         self.driver.find_element_by_name("delete").click()
 
-        self.assertTrue(">Cases</h1>" in self.driver.page_source)
+        self.assertTrue(">Search</h1>" in self.driver.page_source)
         self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
 
     def test_restore_deleted_case(self):
