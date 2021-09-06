@@ -3,7 +3,7 @@ Tests for automated statuses
 """
 from datetime import datetime
 import pytest
-from ..models import Case, Contact
+from ..models import Case
 from django.contrib.auth.models import User
 
 
@@ -17,20 +17,6 @@ def test_case_status_unassigned():
     )
     assert case.status == "unassigned-case"
 
-
-@pytest.mark.django_db
-def test_case_status_new_case():
-    """Test case returns new-case for status"""
-    user = User.objects.create()
-    case = Case.objects.create(
-        created=datetime.now().tzinfo,
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-        auditor=user,
-    )
-    assert case.status == "new-case"
-
-
 @pytest.mark.django_db
 def test_case_status_test_in_progress():
     """Test case returns test-in-progress for status"""
@@ -41,7 +27,6 @@ def test_case_status_test_in_progress():
         organisation_name="org name",
         auditor=user,
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "test-in-progress"
 
@@ -57,7 +42,6 @@ def test_case_status_report_in_progress():
         auditor=user,
         test_status="complete",
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "report-in-progress"
 
@@ -74,7 +58,6 @@ def test_case_status_qa_in_progress():
         test_status="complete",
         report_review_status="ready-to-review",
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "qa-in-progress"
 
@@ -92,7 +75,6 @@ def test_case_status_report_ready_to_send():
         report_review_status="ready-to-review",
         report_approved_status="yes",
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "report-ready-to-send"
 
@@ -111,7 +93,6 @@ def test_case_status_in_report_correspondence():
         report_approved_status="yes",
         report_sent_date=datetime.now(),
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "in-report-correspondence"
 
@@ -131,7 +112,6 @@ def test_case_status_in_probation_period():
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "in-probation-period"
 
@@ -152,7 +132,6 @@ def test_case_status_in_12_week_correspondence():
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "in-12-week-correspondence"
 
@@ -174,7 +153,6 @@ def test_case_status_final_decision_due():
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "final-decision-due"
 
@@ -197,7 +175,6 @@ def test_case_status_in_correspondence_with_equalities_body():
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed="escalated",
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.status == "in-correspondence-with-equalities-body"
 
@@ -214,7 +191,6 @@ def test_case_qa_status_unassigned_qa_case():
         test_status="complete",
         report_review_status="ready-to-review",
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.qa_status == "unassigned-qa-case"
 
@@ -233,7 +209,6 @@ def test_case_qa_status_in_qa():
         report_review_status="ready-to-review",
         reviewer=user2,
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.qa_status == "in-qa"
 
@@ -253,6 +228,5 @@ def test_case_qa_status_qa_approved():
         report_approved_status="yes",
         reviewer=user2,
     )
-    Contact.objects.create(case=case)
     case.save()
     assert case.qa_status == "qa-approved"

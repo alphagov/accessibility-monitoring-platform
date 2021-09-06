@@ -381,8 +381,6 @@ class Case(models.Model):
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
-        elif self.contact_exists is False:
-            return "new-case"
         elif self.test_status != "complete" and self.report_sent_date is None:
             return "test-in-progress"
         elif (

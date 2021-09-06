@@ -46,8 +46,11 @@ class DashboardView(TemplateView):
             "reports_in_progress": user_entries.filter(
                 status="report-in-progress"
             ),
+            "ready_for_qa": user_entries.filter(
+                qa_status="unassigned-qa-case"
+            ),
             "qa_in_progress": user_entries.filter(
-                status="qa-in-progress"
+                qa_status="in-qa"
             ),
             "requires_your_review": qa_entries.filter(
                 qa_status="in-qa"

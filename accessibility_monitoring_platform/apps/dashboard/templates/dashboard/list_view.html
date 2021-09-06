@@ -32,18 +32,6 @@
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-new-cases">
-                    New cases - {{ sorted_cases.new_case.count }}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-default-content-new-cases table-padding" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-new-cases">
-            {% include "./1_new_cases_table.html" with table_data=sorted_cases.new_case %}
-        </div>
-    </div>
-    <div class="govuk-accordion__section ">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-test-in-progress">
                     Tests in progress - {{ sorted_cases.test_in_progress.count }}
                 </span>
@@ -65,20 +53,18 @@
             {% include "./3_reports_in_progress_table.html" with table_data=sorted_cases.reports_in_progress %}
         </div>
     </div>
-    {% if show_all_cases %}
-        <div class="govuk-accordion__section ">
-            <div class="govuk-accordion__section-header">
-                <h2 class="govuk-accordion__section-heading">
-                    <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
-                        Report ready for QA - {{ sorted_cases.ready_for_qa.count }}
-                    </span>
-                </h2>
-            </div>
-            <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
-                {% include "./13_ready_to_qa.html" with table_data=sorted_cases.ready_for_qa %}
-            </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
+                    Report ready for QA - {{ sorted_cases.ready_for_qa.count }}
+                </span>
+            </h2>
         </div>
-    {% endif %}
+        <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
+            {% include "./13_ready_to_qa.html" with table_data=sorted_cases.ready_for_qa %}
+        </div>
+    </div>
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
