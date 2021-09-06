@@ -49,6 +49,9 @@ class IssueReportAdmin(admin.ModelAdmin):
 
         return response
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Sector)
