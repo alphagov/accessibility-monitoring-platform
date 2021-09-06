@@ -93,6 +93,21 @@ def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_clie
     assertNotContains(response, "Not Deleted")
 
 
+def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
+    """Test that Cases where Report is ready to QA can be filtered by status"""
+    Case.objects.create(organisation_name="Excluded")
+    Case.objects.create(organisation_name="Included", report_review_status="ready-to-review")
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:case-list")}?status=unassigned-qa-case'
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
 def test_case_list_view_filters_by_case_number(admin_client):
     """Test that the case list view page can be filtered by case number"""
     included_case: Case = Case.objects.create(organisation_name="Included")

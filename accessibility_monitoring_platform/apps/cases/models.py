@@ -14,6 +14,7 @@ from django.utils import timezone
 from ..common.utils import extract_domain_from_url
 from ..common.models import Sector
 
+STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "new-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
@@ -21,6 +22,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     (STATUS_DEFAULT, "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
+    (STATUS_READY_TO_QA, "Report ready to QA"),
     ("qa-in-progress", "QA in progress"),
     ("report-ready-to-send", "Report ready to send"),
     ("in-report-correspondence", "In report correspondence"),
@@ -422,7 +424,7 @@ class Case(models.Model):
             and self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
         ):
-            return "unassigned-qa-case"
+            return STATUS_READY_TO_QA
         elif (
             self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
