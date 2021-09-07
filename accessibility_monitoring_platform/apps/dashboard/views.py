@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import TemplateView
 
-from ..cases.models import Case
+from ..cases.models import Case, STATUS_READY_TO_QA
 
 
 class DashboardView(TemplateView):
@@ -85,7 +85,7 @@ class DashboardView(TemplateView):
                 "your_cases": len(user_entries.exclude(status="complete")),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned-qa-case")
+                    all_entries.filter(qa_status=STATUS_READY_TO_QA)
                 ),
                 "today": date.today(),
             }
@@ -113,7 +113,7 @@ class DashboardView(TemplateView):
                 status="report-in-progress"
             ),
             "ready_for_qa": all_entries.filter(
-                qa_status="unassigned-qa-case"
+                qa_status=STATUS_READY_TO_QA
             ),
             "qa_in_progress": all_entries.filter(
                 qa_status="in-qa"
@@ -148,7 +148,7 @@ class DashboardView(TemplateView):
                 "your_cases": len(user_entries.exclude(status="complete")),
                 "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
                 "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status="unassigned-qa-case")
+                    all_entries.filter(qa_status=STATUS_READY_TO_QA)
                 ),
                 "today": date.today(),
                 "show_all_cases": True,
