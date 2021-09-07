@@ -112,12 +112,12 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("escalated", "The audit needs to be sent to the relevant equalities body"),
+    ("further-action-required", "The audit needs to be sent to the relevant equalities body"),
     (
         "no-action",
-        "The case requires no further action",
+        "The audit does not need to be sent to the equality body",
     ),
-    (DEFAULT_CASE_COMPLETED, "Decision not reached"),
+    (DEFAULT_CASE_COMPLETED, "Not selected"),
 ]
 
 DEFAULT_ESCALATION_STATE: str = "not-started"
@@ -323,7 +323,7 @@ class Case(models.Model):
     compliance_decision_notes_final = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
-        max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
+        max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
     completed_date = models.DateTimeField(null=True, blank=True)
     final_decision_complete_date = models.DateField(null=True, blank=True)
