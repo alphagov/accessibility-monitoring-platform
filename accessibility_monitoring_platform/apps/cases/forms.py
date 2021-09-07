@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
-    AMPBooleanCheckboxWidget,
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPUserModelChoiceField,
@@ -20,6 +19,7 @@ from ..common.forms import (
     AMPChoiceCheckboxField,
     AMPDateField,
     AMPDateSentField,
+    AMPDatePageCompleteField,
     AMPDateRangeForm,
     AMPURLField,
 )
@@ -51,14 +51,6 @@ SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
 ]
-
-page_completed_field = forms.BooleanField(
-    label="Mark this page as completed",
-    widget=AMPBooleanCheckboxWidget(
-        attrs={"label": "Page completed"},
-    ),
-    required=False,
-)
 
 
 class CaseSearchForm(AMPDateRangeForm):
@@ -145,7 +137,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
-    is_case_details_complete = page_completed_field
+    case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -165,7 +157,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "zendesk_url",
             "trello_url",
             "notes",
-            "is_case_details_complete",
+            "case_details_complete_date",
         ]
 
 
@@ -208,12 +200,12 @@ class CaseContactsUpdateForm(forms.ModelForm):
     Form for updating test results
     """
 
-    is_contact_details_complete = page_completed_field
+    contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
-            "is_contact_details_complete",
+            "contact_details_complete_date",
         ]
 
 
@@ -237,7 +229,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
-    is_testing_details_complete = page_completed_field
+    testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -248,7 +240,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
             "accessibility_statement_notes",
             "is_website_compliant",
             "compliance_decision_notes",
-            "is_testing_details_complete",
+            "testing_details_complete_date",
         ]
 
 
@@ -268,7 +260,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
-    is_reporting_details_complete = page_completed_field
+    reporting_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -280,7 +272,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
             "reviewer_notes",
             "report_final_pdf_url",
             "report_final_odt_url",
-            "is_reporting_details_complete",
+            "reporting_details_complete_date",
         ]
 
 
@@ -294,7 +286,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
     correspondence_notes = AMPTextField(label="Correspondence notes")
-    is_report_correspondence_complete = page_completed_field
+    report_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -304,7 +296,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
             "report_followup_week_4_sent_date",
             "report_acknowledged_date",
             "correspondence_notes",
-            "is_report_correspondence_complete",
+            "report_correspondence_complete_date",
         ]
 
 
@@ -363,7 +355,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
     )
-    is_12_week_correspondence_complete = page_completed_field
+    twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -374,7 +366,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
             "twelve_week_correspondence_acknowledged_date",
             "correspondence_notes",
             "twelve_week_response_state",
-            "is_12_week_correspondence_complete",
+            "twelve_week_correspondence_complete_date",
         ]
 
 
@@ -435,7 +427,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Case completed?",
         choices=CASE_COMPLETED_CHOICES,
     )
-    is_final_decision_complete = page_completed_field
+    final_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -450,7 +442,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "compliance_decision_notes_final",
             "compliance_email_sent_date",
             "case_completed",
-            "is_final_decision_complete",
+            "final_decision_complete_date",
         ]
 
 
@@ -470,7 +462,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         label="Equalities body correspondence completed?",
         choices=ESCALATION_STATE_CHOICES,
     )
-    is_enforcement_correspondence_complete = page_completed_field
+    enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -479,7 +471,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_correspondence_notes",
             "escalation_state",
-            "is_enforcement_correspondence_complete",
+            "enforcement_correspondence_complete_date",
         ]
 
 
