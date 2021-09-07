@@ -66,6 +66,7 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
+    ("partially-compliant", "Partially compliant"),
     ("not-compliant", "Not compliant"),
     ("not-found", "Not found"),
     ("other", "Other"),
@@ -76,7 +77,14 @@ IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     ("other", "Other"),
     ("no-further-action", "No further action"),
-    (IS_WEBSITE_COMPLIANT_DEFAULT, "Unknown"),
+    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
+]
+
+RECOMMENDATION_DEFAULT: str = "unknown"
+RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
+    ("other", "No recommendation was made"),
+    ("no-further-action", "No further action"),
+    (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
 REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
@@ -305,10 +313,10 @@ class Case(models.Model):
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
-    is_website_compliant_final = models.CharField(
+    recommendation_for_enforcement = models.CharField(
         max_length=20,
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
-        default=IS_WEBSITE_COMPLIANT_DEFAULT,
+        choices=RECOMMENDATION_CHOICES,
+        default=RECOMMENDATION_DEFAULT,
     )
     compliance_decision_notes_final = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
@@ -582,7 +590,7 @@ class Case(models.Model):
             "retested_website_date",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
-            "is_website_compliant_final",
+            "recommendation_for_enforcement",
             "compliance_decision_notes_final",
             "is_disproportionate_claimed",
             "compliance_email_sent_date",

@@ -41,6 +41,7 @@ from .models import (
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
+    RECOMMENDATION_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -413,9 +414,9 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement notes",
         help_text="If non compliant also add link to copy of non compliant accessibility statement",
     )
-    is_website_compliant_final = AMPChoiceRadioField(
-        label="Final compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+    recommendation_for_enforcement = AMPChoiceRadioField(
+        label="Enforcement recommendation",
+        choices=RECOMMENDATION_CHOICES,
     )
     compliance_decision_notes_final = AMPTextField(
         label="Final compliance decision notes"
@@ -438,7 +439,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "disproportionate_notes",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
-            "is_website_compliant_final",
+            "recommendation_for_enforcement",
             "compliance_decision_notes_final",
             "compliance_email_sent_date",
             "case_completed",

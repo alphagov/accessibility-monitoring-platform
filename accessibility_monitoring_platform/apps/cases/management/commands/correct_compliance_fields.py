@@ -12,7 +12,7 @@ class Command(BaseCommand):
             if item.accessibility_statement_state_final == "no":
                 item.accessibility_statement_state_final = "not-compliant"
 
-            if item.is_website_compliant_final == "no_further_action":
-                item.is_website_compliant_final = "no-further-action"
+            if item.recommendation_for_enforcement == "no_further_action":
+                item.recommendation_for_enforcement = "no-further-action"
 
             item.save()

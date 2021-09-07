@@ -595,7 +595,7 @@ class TestCaseUpdates(TestCases):
             "accessibility_statement_notes_final"
         ).send_keys(ACCESSIBILITY_STATEMENT_NOTES_FINAL)
         self.driver.find_element_by_css_selector(
-            "#id_is_website_compliant_final_1"
+            "#id_recommendation_for_enforcement_1"
         ).click()
         self.driver.find_element_by_name("compliance_decision_notes_final").send_keys(
             COMPLIANCE_DECISION_NOTES_FINAL
