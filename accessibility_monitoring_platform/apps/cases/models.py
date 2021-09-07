@@ -66,7 +66,6 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
-    ("partially-compliant", "Partially compliant"),
     ("not-compliant", "Not compliant"),
     ("not-found", "Not found"),
     ("other", "Other"),
@@ -75,8 +74,11 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
+    ("compliant", "Compliant"),
+    ("not-compliant", "Not compliant"),
+    ("partially-compliant", "Partially compliant"),
+    ("not-found", "Not found"),
     ("other", "Other"),
-    ("no-further-action", "No further action"),
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
 ]
 
