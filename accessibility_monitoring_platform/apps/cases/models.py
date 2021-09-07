@@ -67,8 +67,9 @@ ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("not-compliant", "Not compliant"),
+    ("not-found", "Not found"),
     ("other", "Other"),
-    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Unknown"),
+    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not selected"),
 ]
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
