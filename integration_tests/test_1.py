@@ -183,7 +183,7 @@ class TestCases(SeleniumTest):
         """Setup selenium test environment; Login and navigate to Cases list"""
         super().setUp()
         self.login()
-        self.driver.find_element_by_link_text("Cases").click()
+        self.driver.find_element_by_link_text("Search").click()
 
 
 class TestCaseCreation(TestCases):
@@ -211,7 +211,7 @@ class TestCaseCreation(TestCases):
         self.driver.find_element_by_css_selector("#id_is_complaint").click()
         self.driver.find_element_by_name("save_exit").click()
         self.assertTrue(
-            '<h1 class="govuk-heading-xl">Cases</h1>' in self.driver.page_source
+            '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source
         )
         self.assertTrue(ORGANISATION_NAME in self.driver.page_source)
 
@@ -860,12 +860,12 @@ class TestCaseDelete(TestCases):
 
         self.driver.find_element_by_name("delete").click()
 
-        self.assertTrue(">Cases</h1>" in self.driver.page_source)
+        self.assertTrue(">Search</h1>" in self.driver.page_source)
         self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
 
     def test_restore_deleted_case(self):
         """Tests whether deleted case can be restored"""
-        self.driver.find_element_by_link_text("Cases").click()
+        self.driver.find_element_by_link_text("Search").click()
         self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
 
         select = Select(self.driver.find_element_by_id("id_status"))
