@@ -13,29 +13,79 @@ UPDATE cases_case
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0006_website_compliance'),
+        ("cases", "0006_website_compliance"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='accessibility_statement_state',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('not-compliant', 'Not compliant'), ('not-found', 'Not found'), ('other', 'Other'), ('unknown', 'Not selected')], default='unknown', max_length=200),
+            model_name="case",
+            name="accessibility_statement_state",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("not-found", "Not found"),
+                    ("other", "Other"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='accessibility_statement_state_final',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('not-compliant', 'Not compliant'), ('not-found', 'Not found'), ('other', 'Other'), ('unknown', 'Not selected')], default='unknown', max_length=200),
+            model_name="case",
+            name="accessibility_statement_state_final",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("not-found", "Not found"),
+                    ("other", "Other"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='case_completed',
-            field=models.CharField(choices=[('further-action-required', 'The audit needs to be sent to the relevant equalities body'), ('no-action', 'The audit does not need to be sent to the equality body'), ('no-decision', 'Not selected')], default='no-decision', max_length=30),
+            model_name="case",
+            name="case_completed",
+            field=models.CharField(
+                choices=[
+                    (
+                        "further-action-required",
+                        "The audit needs to be sent to the relevant equalities body",
+                    ),
+                    (
+                        "no-action",
+                        "The audit does not need to be sent to the equality body",
+                    ),
+                    ("no-decision", "Not selected"),
+                ],
+                default="no-decision",
+                max_length=30,
+            ),
         ),
         migrations.RunSQL(UPDATE_SQL, reverse_sql=""),
         migrations.AlterField(
-            model_name='case',
-            name='is_website_compliant',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('not-compliant', 'Not compliant'), ('partially-compliant', 'Partially compliant'), ('not-found', 'Not found'), ('other', 'Other'), ('unknown', 'Not selected')], default='unknown', max_length=20),
+            model_name="case",
+            name="is_website_compliant",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("partially-compliant", "Partially compliant"),
+                    ("not-found", "Not found"),
+                    ("other", "Other"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=20,
+            ),
+        ),
+        migrations.RenameField(
+            model_name="case",
+            old_name="compliance_decision_notes_final",
+            new_name="recommendation_notes",
         ),
     ]

@@ -332,7 +332,9 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("trello_url").send_keys(TRELLO_URL)
         self.driver.find_element_by_name("notes").send_keys(CASE_DETAILS_NOTES)
-        self.driver.find_element_by_css_selector("#id_case_details_complete_date").click()
+        self.driver.find_element_by_css_selector(
+            "#id_case_details_complete_date"
+        ).click()
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)

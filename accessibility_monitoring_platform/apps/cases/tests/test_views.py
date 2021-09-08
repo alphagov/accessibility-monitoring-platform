@@ -96,7 +96,9 @@ def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_clie
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
-    Case.objects.create(organisation_name="Included", report_review_status="ready-to-review")
+    Case.objects.create(
+        organisation_name="Included", report_review_status="ready-to-review"
+    )
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=unassigned-qa-case'

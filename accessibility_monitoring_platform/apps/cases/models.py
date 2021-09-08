@@ -112,7 +112,10 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("further-action-required", "The audit needs to be sent to the relevant equalities body"),
+    (
+        "further-action-required",
+        "The audit needs to be sent to the relevant equalities body",
+    ),
     (
         "no-action",
         "The audit does not need to be sent to the equality body",
@@ -320,7 +323,7 @@ class Case(models.Model):
         choices=RECOMMENDATION_CHOICES,
         default=RECOMMENDATION_DEFAULT,
     )
-    compliance_decision_notes_final = models.TextField(default="", blank=True)
+    recommendation_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
         max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED

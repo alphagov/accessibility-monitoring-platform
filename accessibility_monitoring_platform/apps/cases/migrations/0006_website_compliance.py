@@ -25,38 +25,100 @@ UPDATE cases_case
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0005_statement_state_data'),
+        ("cases", "0005_statement_state_data"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='recommendation_for_enforcement',
-            field=models.CharField(choices=[('other', 'No recommendation was made'), ('no-further-action', 'No further action'), ('unknown', 'Not selected')], default='unknown', max_length=20),
+            model_name="case",
+            name="recommendation_for_enforcement",
+            field=models.CharField(
+                choices=[
+                    ("other", "No recommendation was made"),
+                    ("no-further-action", "No further action"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=20,
+            ),
         ),
         migrations.RunSQL(UPDATE_SQL, reverse_sql=""),
         migrations.RemoveField(
-            model_name='case',
-            name='is_website_compliant_final',
+            model_name="case",
+            name="is_website_compliant_final",
         ),
         migrations.AlterField(
-            model_name='case',
-            name='accessibility_statement_state',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('partially-compliant', 'Partially compliant'), ('not-compliant', 'Not compliant'), ('not-found', 'Not found'), ('other', 'Other'), ('unknown', 'Not selected')], default='unknown', max_length=200),
+            model_name="case",
+            name="accessibility_statement_state",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("partially-compliant", "Partially compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("not-found", "Not found"),
+                    ("other", "Other"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='accessibility_statement_state_final',
-            field=models.CharField(choices=[('compliant', 'Compliant'), ('partially-compliant', 'Partially compliant'), ('not-compliant', 'Not compliant'), ('not-found', 'Not found'), ('other', 'Other'), ('unknown', 'Not selected')], default='unknown', max_length=200),
+            model_name="case",
+            name="accessibility_statement_state_final",
+            field=models.CharField(
+                choices=[
+                    ("compliant", "Compliant"),
+                    ("partially-compliant", "Partially compliant"),
+                    ("not-compliant", "Not compliant"),
+                    ("not-found", "Not found"),
+                    ("other", "Other"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='is_website_compliant',
-            field=models.CharField(choices=[('other', 'Other'), ('no-further-action', 'No further action'), ('unknown', 'Not selected')], default='unknown', max_length=20),
+            model_name="case",
+            name="is_website_compliant",
+            field=models.CharField(
+                choices=[
+                    ("other", "Other"),
+                    ("no-further-action", "No further action"),
+                    ("unknown", "Not selected"),
+                ],
+                default="unknown",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='status',
-            field=models.CharField(choices=[('', 'All'), ('unknown', 'Unknown'), ('unassigned-case', 'Unassigned case'), ('new-case', 'New case'), ('test-in-progress', 'Test in progress'), ('report-in-progress', 'Report in progress'), ('unassigned-qa-case', 'Report ready to QA'), ('qa-in-progress', 'QA in progress'), ('report-ready-to-send', 'Report ready to send'), ('in-report-correspondence', 'In report correspondence'), ('in-probation-period', 'In probation period'), ('in-12-week-correspondence', 'In 12 week correspondence'), ('final-decision-due', 'Final decision due'), ('in-correspondence-with-equalities-body', 'In correspondence with equalities body'), ('complete', 'Complete'), ('deleted', 'Deleted')], default='new-case', max_length=200),
+            model_name="case",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("", "All"),
+                    ("unknown", "Unknown"),
+                    ("unassigned-case", "Unassigned case"),
+                    ("new-case", "New case"),
+                    ("test-in-progress", "Test in progress"),
+                    ("report-in-progress", "Report in progress"),
+                    ("unassigned-qa-case", "Report ready to QA"),
+                    ("qa-in-progress", "QA in progress"),
+                    ("report-ready-to-send", "Report ready to send"),
+                    ("in-report-correspondence", "In report correspondence"),
+                    ("in-probation-period", "In probation period"),
+                    ("in-12-week-correspondence", "In 12 week correspondence"),
+                    ("final-decision-due", "Final decision due"),
+                    (
+                        "in-correspondence-with-equalities-body",
+                        "In correspondence with equalities body",
+                    ),
+                    ("complete", "Complete"),
+                    ("deleted", "Deleted"),
+                ],
+                default="new-case",
+                max_length=200,
+            ),
         ),
     ]

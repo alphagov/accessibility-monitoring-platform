@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0004_auto_20210903_1219'),
+        ("common", "0004_auto_20210903_1219"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issuereport',
-            name='trello_ticket',
-            field=models.CharField(blank=True, default='', max_length=200),
+            model_name="issuereport",
+            name="trello_ticket",
+            field=models.CharField(blank=True, default="", max_length=200),
         ),
     ]

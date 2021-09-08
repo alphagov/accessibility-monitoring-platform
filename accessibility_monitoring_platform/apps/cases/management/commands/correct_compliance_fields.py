@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     """Correcting compliance fields"""
+
     def handle(self, *args, **options):
         for item in Case.objects.all():
             if item.accessibility_statement_state_final == "yes":

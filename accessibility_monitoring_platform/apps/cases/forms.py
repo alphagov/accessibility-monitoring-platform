@@ -226,8 +226,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     is_website_compliant = AMPChoiceRadioField(
-        label="Initial compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES
+        label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
@@ -418,9 +417,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Enforcement recommendation",
         choices=RECOMMENDATION_CHOICES,
     )
-    compliance_decision_notes_final = AMPTextField(
-        label="Final compliance decision notes"
-    )
+    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )
@@ -440,7 +437,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "recommendation_for_enforcement",
-            "compliance_decision_notes_final",
+            "recommendation_notes",
             "compliance_email_sent_date",
             "case_completed",
             "final_decision_complete_date",
