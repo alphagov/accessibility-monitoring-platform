@@ -33,6 +33,7 @@ class IntegrationTestsSettingsType(TypedDict):
     headless: bool
     ignore_docker: bool
     s3_objects: List[S3ObjectsPathsType]
+    s3_bucket: str
 
 
 def validate_json_dict(data: Any, class_type: Any) -> None:

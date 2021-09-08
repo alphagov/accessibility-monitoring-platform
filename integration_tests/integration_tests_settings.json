@@ -23,5 +23,6 @@
             "s3_path": "fixtures/20210903_sector.json",
             "local_path": "./data/s3_files/20210903_sector.json"
         }
-    ]
+    ],
+    "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
 }

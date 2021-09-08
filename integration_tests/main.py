@@ -32,6 +32,7 @@ if __name__ == "__main__":
 
     for S3object in settings["s3_objects"]:
         download_s3_object(
+            s3_bucket=settings["s3_bucket"],
             s3_path=S3object["s3_path"],
             local_path=S3object["local_path"],
         )

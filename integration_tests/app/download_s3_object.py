@@ -12,10 +12,9 @@ s3_client = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY_S3_STORE"),
     region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE"),
 )
-BUCKET: str = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
 
 
-def download_s3_object(s3_path: str, local_path: str) -> None:
+def download_s3_object(s3_bucket: str, s3_path: str, local_path: str) -> None:
     """Downloads S3 object
 
     Args:
@@ -26,7 +25,7 @@ def download_s3_object(s3_path: str, local_path: str) -> None:
         temp = "/".join(local_path.split("/")[:-1])
         Path(temp).mkdir(parents=True, exist_ok=True)
         s3_client.download_file(
-            BUCKET,
+            s3_bucket,
             s3_path,
             local_path
         )
