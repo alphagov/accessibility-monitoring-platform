@@ -165,7 +165,7 @@ class AMPTextField(forms.CharField):
         kwargs.setdefault("required", False)
         kwargs.setdefault(
             "widget",
-            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "2"}),
+            forms.Textarea(attrs={"class": "govuk-textarea", "rows": "4"}),
         )
         super().__init__(*args, **kwargs)
 
@@ -250,12 +250,24 @@ class AMPDateField(forms.DateField):
 
 
 class AMPDateSentField(forms.DateField):
-    """Checkbox input field in the style of GDS design system"""
+    """Checkbox input field in the style of GDS design system. Stores today's date when ticked."""
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault("required", False)
         kwargs.setdefault("widget", AMPDateCheckboxWidget(attrs={"label": "Sent?"}))
         kwargs.setdefault("help_text", "None")
+        super().__init__(*args, **kwargs)
+
+
+class AMPDatePageCompleteField(forms.DateField):
+    """Checkbox input field in the style of GDS design system. Stores today's date when ticked."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("label", "Mark this page as completed")
+        kwargs.setdefault(
+            "widget", AMPDateCheckboxWidget(attrs={"label": "Page complete"})
+        )
         super().__init__(*args, **kwargs)
 
 

@@ -27,7 +27,7 @@ from ..common.utils import (
     get_field_names_for_export,
     get_id_from_button_name,
 )
-from .models import Case, Contact
+from .models import Case, Contact, STATUS_READY_TO_QA
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -200,6 +200,10 @@ class CaseListView(ListView):
 
         if filters.get("status", "") != "deleted":
             filters["is_deleted"] = False
+
+        if filters.get("status", "") == STATUS_READY_TO_QA:
+            filters["qa_status"] = STATUS_READY_TO_QA
+            del filters["status"]
 
         if "auditor_id" in filters and filters["auditor_id"] == "none":
             filters["auditor_id"] = None

@@ -16,6 +16,20 @@ class IssueReportAdmin(admin.ModelAdmin):
     search_fields = ["page_url", "page_title", "description"]
     list_display = ["page_title", "created_by", "created", "complete", "description"]
     list_filter = ["complete", "created_by"]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("page_title", "page_url"),
+                    ("created_by", "created"),
+                    ("description",),
+                    ("trello_ticket", "complete"),
+                    ("notes",),
+                )
+            },
+        ),
+    )
 
     actions = ["export_as_csv"]
 
@@ -34,6 +48,9 @@ class IssueReportAdmin(admin.ModelAdmin):
             writer.writerow([getattr(obj, field) for field in field_names])
 
         return response
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 admin.site.register(IssueReport, IssueReportAdmin)

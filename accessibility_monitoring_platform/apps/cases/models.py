@@ -14,6 +14,7 @@ from django.utils import timezone
 from ..common.utils import extract_domain_from_url
 from ..common.models import Sector
 
+STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "new-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
@@ -21,6 +22,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     (STATUS_DEFAULT, "New case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
+    (STATUS_READY_TO_QA, "Report ready to QA"),
     ("qa-in-progress", "QA in progress"),
     ("report-ready-to-send", "Report ready to send"),
     ("in-report-correspondence", "In report correspondence"),
@@ -63,10 +65,11 @@ TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
+    ("compliant", "Compliant"),
+    ("not-compliant", "Not compliant"),
+    ("not-found", "Not found"),
     ("other", "Other"),
-    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Unknown"),
+    (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not selected"),
 ]
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
@@ -202,10 +205,10 @@ class Case(models.Model):
     zendesk_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
-    is_case_details_complete = models.BooleanField(default=False)
+    case_details_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
-    is_contact_details_complete = models.BooleanField(default=False)
+    contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Testing details page
     test_results_url = models.TextField(default="", blank=True)
@@ -224,7 +227,7 @@ class Case(models.Model):
         default=IS_WEBSITE_COMPLIANT_DEFAULT,
     )
     compliance_decision_notes = models.TextField(default="", blank=True)
-    is_testing_details_complete = models.BooleanField(default=False)
+    testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
@@ -248,7 +251,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
-    is_reporting_details_complete = models.BooleanField(default=False)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
     report_sent_date = models.DateField(null=True, blank=True)
@@ -256,7 +259,7 @@ class Case(models.Model):
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
-    is_report_correspondence_complete = models.BooleanField(default=False)
+    report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Report followup dates page
     report_followup_week_1_due_date = models.DateField(null=True, blank=True)
@@ -279,7 +282,7 @@ class Case(models.Model):
     twelve_week_response_state = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    is_12_week_correspondence_complete = models.BooleanField(default=False)
+    twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # 12 week correspondence dates
     # report_followup_week_12_due_date from report followup dates page
@@ -313,7 +316,7 @@ class Case(models.Model):
         max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
     completed_date = models.DateTimeField(null=True, blank=True)
-    is_final_decision_complete = models.BooleanField(default=False)
+    final_decision_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body correspondence page
     psb_appeal_notes = models.TextField(default="", blank=True)
@@ -324,7 +327,7 @@ class Case(models.Model):
         choices=ESCALATION_STATE_CHOICES,
         default=DEFAULT_ESCALATION_STATE,
     )
-    is_enforcement_correspondence_complete = models.BooleanField(default=False)
+    enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Delete case page
     is_deleted = models.BooleanField(default=False)
@@ -381,8 +384,6 @@ class Case(models.Model):
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
-        elif self.contact_exists is False:
-            return "new-case"
         elif self.test_status != "complete" and self.report_sent_date is None:
             return "test-in-progress"
         elif (
@@ -422,7 +423,7 @@ class Case(models.Model):
             and self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
         ):
-            return "unassigned-qa-case"
+            return STATUS_READY_TO_QA
         elif (
             self.report_review_status == "ready-to-review"
             and self.report_approved_status != "yes"
