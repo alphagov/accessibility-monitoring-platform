@@ -1,7 +1,6 @@
 """
 Python script to orchestrate the integration tests
 """
-import sys
 import time
 from app.check_docker_django_has_started import check_docker_django_has_started
 from app.download_s3_object import download_s3_object
