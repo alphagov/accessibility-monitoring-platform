@@ -93,6 +93,21 @@ def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_clie
     assertNotContains(response, "Not Deleted")
 
 
+def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
+    """Test that Cases where Report is ready to QA can be filtered by status"""
+    Case.objects.create(organisation_name="Excluded")
+    Case.objects.create(organisation_name="Included", report_review_status="ready-to-review")
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:case-list")}?status=unassigned-qa-case'
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
 def test_case_list_view_filters_by_case_number(admin_client):
     """Test that the case list view page can be filtered by case number"""
     included_case: Case = Case.objects.create(organisation_name="Included")
@@ -312,7 +327,7 @@ def test_restore_case_view(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
-        ("cases:case-list", '<h1 class="govuk-heading-xl">Cases</h1>'),
+        ("cases:case-list", '<h1 class="govuk-heading-xl">Search</h1>'),
         ("cases:case-create", '<h1 class="govuk-heading-xl">Create case</h1>'),
     ],
 )
@@ -896,14 +911,14 @@ def test_preferred_contact_displayed(admin_client):
 @pytest.mark.parametrize(
     "flag_name, section_name",
     [
-        ("is_case_details_complete", "Case details"),
-        ("is_contact_details_complete", "Contact details"),
-        ("is_testing_details_complete", "Testing details"),
-        ("is_reporting_details_complete", "Report details"),
-        ("is_report_correspondence_complete", "Report correspondence"),
-        ("is_12_week_correspondence_complete", "12 week correspondence"),
-        ("is_final_decision_complete", "Final decision"),
-        ("is_enforcement_correspondence_complete", "Equality body correspondence"),
+        ("case_details_complete_date", "Case details"),
+        ("contact_details_complete_date", "Contact details"),
+        ("testing_details_complete_date", "Testing details"),
+        ("reporting_details_complete_date", "Report details"),
+        ("report_correspondence_complete_date", "Report correspondence"),
+        ("twelve_week_correspondence_complete_date", "12 week correspondence"),
+        ("final_decision_complete_date", "Final decision"),
+        ("enforcement_correspondence_complete_date", "Equality body correspondence"),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
@@ -913,7 +928,7 @@ def test_section_complete_check_displayed_in_contents(
     Test that the section complete tick is displayed in contents
     """
     case: Case = Case.objects.create()
-    setattr(case, flag_name, True)
+    setattr(case, flag_name, TODAY)
     case.save()
 
     response: HttpResponse = admin_client.get(
@@ -933,32 +948,32 @@ def test_section_complete_check_displayed_in_contents(
 @pytest.mark.parametrize(
     "step_url, flag_name, step_name",
     [
-        ("cases:edit-case-details", "is_case_details_complete", "Case details"),
+        ("cases:edit-case-details", "case_details_complete_date", "Case details"),
         (
             "cases:edit-contact-details",
-            "is_contact_details_complete",
+            "contact_details_complete_date",
             "Contact details",
         ),
-        ("cases:edit-test-results", "is_testing_details_complete", "Testing details"),
+        ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
-            "is_reporting_details_complete",
+            "reporting_details_complete_date",
             "Report details",
         ),
         (
             "cases:edit-report-correspondence",
-            "is_report_correspondence_complete",
+            "report_correspondence_complete_date",
             "Report correspondence",
         ),
         (
             "cases:edit-twelve-week-correspondence",
-            "is_12_week_correspondence_complete",
+            "twelve_week_correspondence_complete_date",
             "12 week correspondence",
         ),
-        ("cases:edit-final-decision", "is_final_decision_complete", "Final decision"),
+        ("cases:edit-final-decision", "final_decision_complete_date", "Final decision"),
         (
             "cases:edit-enforcement-body-correspondence",
-            "is_enforcement_correspondence_complete",
+            "enforcement_correspondence_complete_date",
             "Equality body correspondence",
         ),
     ],
@@ -970,7 +985,7 @@ def test_section_complete_check_displayed_in_steps(
     Test that the section complete tick is displayed in list of steps
     """
     case: Case = Case.objects.create()
-    setattr(case, flag_name, True)
+    setattr(case, flag_name, TODAY)
     case.save()
 
     response: HttpResponse = admin_client.get(

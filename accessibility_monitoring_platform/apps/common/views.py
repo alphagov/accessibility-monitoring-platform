@@ -4,7 +4,7 @@ Common views
 from typing import Any, Dict
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -31,12 +31,13 @@ class ContactAdminView(FormView):
         subject = cleaned_data.get("subject")
         message = cleaned_data.get("message")
         if subject or message:
-            send_mail(
+            email: EmailMessage = EmailMessage(
                 subject=subject,
-                message=message,
+                body=message,
                 from_email=self.request.user.email,
-                recipient_list=[settings.CONTACT_ADMIN_EMAIL],
+                to=[settings.CONTACT_ADMIN_EMAIL],
             )
+            email.send()
 
 
 class IssueReportView(FormView):
@@ -69,17 +70,14 @@ class IssueReportView(FormView):
         return redirect(issue_report.page_url)
 
     def send_mail(self, issue_report: IssueReport) -> None:
-        subject = f"Platform issue on {issue_report.page_title}"
-        message = (
-            f"""Reported by: {issue_report.created_by}
+        email: EmailMessage = EmailMessage(
+            subject=f"Platform issue on {issue_report.page_title}",
+            body=f"""<p>Reported by: {issue_report.created_by}</p>
+<p>URL: https://{self.request.get_host()}{issue_report.page_url}</p>
 
-            URL: https://{self.request.get_host()}{issue_report.page_url}
-
-            {issue_report.description}"""
-        )
-        send_mail(
-            subject=subject,
-            message=message,
+{issue_report.description}""",
             from_email=self.request.user.email,
-            recipient_list=[settings.CONTACT_ADMIN_EMAIL],
+            to=[settings.CONTACT_ADMIN_EMAIL],
         )
+        email.content_subtype = "html"
+        email.send()

@@ -29,12 +29,12 @@ EXTRA_LABELS = {
 }
 
 EXCLUDED_FIELDS = [
-    "is_case_details_complete",
-    "is_testing_details_complete",
-    "is_reporting_details_complete",
-    "is_report_correspondence_complete",
-    "is_final_decision_complete",
-    "is_enforcement_correspondence_complete",
+    "case_details_complete_date",
+    "testing_details_complete_date",
+    "reporting_details_complete_date",
+    "report_correspondence_complete_date",
+    "final_decision_complete_date",
+    "enforcement_correspondence_complete_date",
 ]
 
 
