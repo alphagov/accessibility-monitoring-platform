@@ -596,7 +596,7 @@ class Case(models.Model):
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "recommendation_for_enforcement",
-            "compliance_decision_notes_final",
+            "recommendation_notes",
             "is_disproportionate_claimed",
             "compliance_email_sent_date",
         ]
