@@ -7,6 +7,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+from app.parse_json import parse_integration_tests_json
+
+settings = parse_integration_tests_json()
 
 ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
@@ -136,7 +139,8 @@ class SeleniumTest(unittest.TestCase):
     def setUp(self):
         """Setup selenium test environment"""
         options: Options = Options()
-        options.add_argument("--headless")
+        if settings['headless']:
+            options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
             executable_path="./integration_tests/chromedriver", chrome_options=options

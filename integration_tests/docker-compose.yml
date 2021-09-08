@@ -1,7 +1,7 @@
 version: "3.7"
 services:
     db:
-        image: postgres:12.2
+        image: postgres:11.12
         restart: always
         environment:
             POSTGRES_DB: postgres
@@ -13,19 +13,19 @@ services:
         command: -p 5433
 
     web:
-        image: "django_amp_two:latest"
+        image: "django_amp:latest"
         command: >
             bash -c "
             sleep 5;
             psql postgres://admin:secret@db:5433/postgres -c \"create database accessibility_monitoring_app;\";
             psql postgres://admin:secret@db:5433/postgres -c \"create database a11ymon;\";
-            export PGPASSWORD='secret'; pg_restore --no-privileges --no-owner -h db -p 5433 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_210216.pgadmin-backup;
-            psql -h db -p 5433 -U admin -d a11ymon -c \"ALTER SCHEMA a11ymon_mini RENAME TO a11ymon\";
-            psql -Atx postgres://admin:secret@db:5433/a11ymon -c \"\COPY pubsecweb.nuts_conversion FROM './data/s3_files/Local_Authority_District_(December_2018)_to_NUTS3_to_NUTS2_to_NUTS1_(January_2018)_Lookup_in_United_Kingdom.csv' DELIMITER ',' CSV HEADER;\";
+            python3 manage.py collectstatic --noinput;
             python3 manage.py migrate websites --database=pubsecweb_db;
             python3 manage.py migrate;
-            python3 manage.py loaddata ./data/s3_files/20210604_auth_data.json;
-            python3 manage.py runserver 0.0.0.0:8001;
+            python3 manage.py recache_statuses;
+            python3 manage.py loaddata /data/20210604_auth_data.json;
+            python3 manage.py loaddata ./data/s3_files/20210903_sector.json;
+            waitress-serve --port=8001 accessibility_monitoring_platform.wsgi:application;
             "
         ports:
             - "8001:8001"
@@ -37,6 +37,8 @@ services:
             - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
             - SECRET_KEY='123456789'
             - DEBUG=TRUE
+            - PORT='8001'
         links:
             - "db:db"
-
+        volumes:
+            - ../data/s3_files:/data/
