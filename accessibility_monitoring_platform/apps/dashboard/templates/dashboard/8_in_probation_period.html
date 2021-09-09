@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 {% if table_data.count == 0 %}
-   <p class="govuk-body"> There are currently no new cases </p>
+   <p class="govuk-body">There are currently no cases in report acknowledged waiting for 12 week deadline</p>
 {% else %}
     <table class="govuk-table case-dashboard">
         <thead class="govuk-table__head">
@@ -42,7 +42,7 @@
                                 {% if item.report_followup_week_12_due_date < today %}
                                     Overdue
                                 {% else %}
-                                    In probation period
+                                    Report acknowledged waiting for 12 week deadline
                                 {% endif %}
                             </a>
                         {% endif %}

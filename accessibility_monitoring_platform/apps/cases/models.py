@@ -25,9 +25,9 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     (STATUS_READY_TO_QA, "Report ready to QA"),
     ("qa-in-progress", "QA in progress"),
     ("report-ready-to-send", "Report ready to send"),
-    ("in-report-correspondence", "In report correspondence"),
-    ("in-probation-period", "In probation period"),
-    ("in-12-week-correspondence", "In 12 week correspondence"),
+    ("in-report-correspondence", "Report sent"),
+    ("in-probation-period", "Report acknowledged waiting for 12 week deadline"),
+    ("in-12-week-correspondence", "After 12 week correspondence"),
     ("final-decision-due", "Final decision due"),
     (
         "in-correspondence-with-equalities-body",
