@@ -343,11 +343,11 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_date = AMPDateField(label="12 week deadline requested")
+    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week followup")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week deadline request acknowledged"
+        label="12 week update received"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
