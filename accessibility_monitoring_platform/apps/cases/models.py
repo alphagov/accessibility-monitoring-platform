@@ -77,7 +77,6 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("not-compliant", "Not compliant"),
     ("partially-compliant", "Partially compliant"),
-    ("not-found", "Not found"),
     ("other", "Other"),
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
 ]
