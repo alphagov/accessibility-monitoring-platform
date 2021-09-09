@@ -1015,7 +1015,7 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
         response,
         '<div id="event-name-hint" class="govuk-hint">'
         f'The retest form can be found in the <a href="{test_results_url}"'
-        ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+        ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
     )
 
