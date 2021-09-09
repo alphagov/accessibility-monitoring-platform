@@ -74,9 +74,19 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
+    ("compliant", "Compliant"),
+    ("not-compliant", "Not compliant"),
+    ("partially-compliant", "Partially compliant"),
+    ("not-found", "Not found"),
     ("other", "Other"),
+    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
+]
+
+RECOMMENDATION_DEFAULT: str = "unknown"
+RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     ("no-further-action", "No further action"),
-    (IS_WEBSITE_COMPLIANT_DEFAULT, "Unknown"),
+    ("other", "No recommendation made"),
+    (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
 REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
@@ -102,12 +112,9 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("escalated", "The audit needs to be sent to the relevant equalities body"),
-    (
-        "no-action",
-        "The case requires no further action",
-    ),
-    (DEFAULT_CASE_COMPLETED, "Decision not reached"),
+    ("further-action-required", "Yes"),
+    ("no-action", "No"),
+    (DEFAULT_CASE_COMPLETED, "Not selected"),
 ]
 
 DEFAULT_ESCALATION_STATE: str = "not-started"
@@ -305,15 +312,15 @@ class Case(models.Model):
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
-    is_website_compliant_final = models.CharField(
+    recommendation_for_enforcement = models.CharField(
         max_length=20,
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
-        default=IS_WEBSITE_COMPLIANT_DEFAULT,
+        choices=RECOMMENDATION_CHOICES,
+        default=RECOMMENDATION_DEFAULT,
     )
-    compliance_decision_notes_final = models.TextField(default="", blank=True)
+    recommendation_notes = models.TextField(default="", blank=True)
     compliance_email_sent_date = models.DateField(null=True, blank=True)
     case_completed = models.CharField(
-        max_length=20, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
+        max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
     completed_date = models.DateTimeField(null=True, blank=True)
     final_decision_complete_date = models.DateField(null=True, blank=True)
@@ -551,29 +558,29 @@ class Case(models.Model):
             self.twelve_week_1_week_chaser_due_date > now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1 week chaser coming up"
+            return "1 week followup coming up"
         elif (
             self.twelve_week_update_requested_date < now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1 week chaser due"
+            return "1 week followup due"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date > now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
-            return "4 week chaser coming up"
+            return "4 week followup coming up"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date < now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
-            return "4 week chaser due"
+            return "4 week followup due"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_sent_date
         ):
-            return "4 week chaser sent"
+            return "4 week followup sent"
         return "Unknown"
 
     @property
@@ -582,8 +589,8 @@ class Case(models.Model):
             "retested_website_date",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
-            "is_website_compliant_final",
-            "compliance_decision_notes_final",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
             "is_disproportionate_claimed",
             "compliance_email_sent_date",
         ]
