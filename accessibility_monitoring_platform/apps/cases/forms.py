@@ -422,7 +422,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Compliance email sent to public sector body?"
     )
     case_completed = AMPChoiceRadioField(
-        label="Case completed?",
+        label="Case completed and needs to be sent to EHRC or ECNI?",
         choices=CASE_COMPLETED_CHOICES,
     )
     final_decision_complete_date = AMPDatePageCompleteField()
