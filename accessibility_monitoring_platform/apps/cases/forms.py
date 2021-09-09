@@ -41,6 +41,7 @@ from .models import (
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
+    RECOMMENDATION_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -225,8 +226,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     is_website_compliant = AMPChoiceRadioField(
-        label="Initial compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES
+        label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
@@ -413,18 +413,16 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement notes",
         help_text="If non compliant also add link to copy of non compliant accessibility statement",
     )
-    is_website_compliant_final = AMPChoiceRadioField(
-        label="Final compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+    recommendation_for_enforcement = AMPChoiceRadioField(
+        label="Enforcement recommendation",
+        choices=RECOMMENDATION_CHOICES,
     )
-    compliance_decision_notes_final = AMPTextField(
-        label="Final compliance decision notes"
-    )
+    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )
     case_completed = AMPChoiceRadioField(
-        label="Case completed?",
+        label="Case completed and needs to be sent to EHRC or ECNI?",
         choices=CASE_COMPLETED_CHOICES,
     )
     final_decision_complete_date = AMPDatePageCompleteField()
@@ -438,8 +436,8 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "disproportionate_notes",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
-            "is_website_compliant_final",
-            "compliance_decision_notes_final",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
             "compliance_email_sent_date",
             "case_completed",
             "final_decision_complete_date",
