@@ -84,8 +84,8 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
 
 RECOMMENDATION_DEFAULT: str = "unknown"
 RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
-    ("other", "No recommendation was made"),
     ("no-further-action", "No further action"),
+    ("other", "No recommendation made"),
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
