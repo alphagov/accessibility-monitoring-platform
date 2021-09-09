@@ -71,7 +71,7 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
                 invalid_fields.append(key)
 
     if invalid_fields:  # Detects if the types in JSON are incorrect
-        type_guide = ""
+        type_guide: str = ""
         for field in invalid_fields:
             type_guide += f"""\n    - {field} should be {class_type.__dict__["__annotations__"][field]} is currently {type(data[field])}"""
         raise Exception(f"""Types in integration settings json were invalid: {type_guide}""")
@@ -88,12 +88,12 @@ def parse_integration_tests_json(settings_path: Union[str, None] = None) -> Inte
         IntegrationTestsSettingsType: Settings data as dictionary
     """
     if settings_path is None:
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        path = Path(dir_path)
+        dir_path: str = os.path.dirname(os.path.realpath(__file__))
+        path: Path = Path(dir_path)
         settings_path = f"{path.parent.absolute()}/integration_tests_settings.json"
 
     with open(file=settings_path) as fp:
-        contents = fp.read()
+        contents: str = fp.read()
     settings: IntegrationTestsSettingsType = json.loads(contents)
     validate_json_dict(settings, IntegrationTestsSettingsType)
     print(">>> Integration test settings loaded correctly")

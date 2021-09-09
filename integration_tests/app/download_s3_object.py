@@ -22,7 +22,7 @@ def download_s3_object(s3_bucket: str, s3_path: str, local_path: str) -> None:
         local_path (str): Path of the local path
     """
     if os.path.exists(local_path) is False:
-        temp = "/".join(local_path.split("/")[:-1])
+        temp: str = "/".join(local_path.split("/")[:-1])
         Path(temp).mkdir(parents=True, exist_ok=True)
         s3_client.download_file(
             s3_bucket,

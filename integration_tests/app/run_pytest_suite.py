@@ -48,7 +48,7 @@ def import_testresults(path_for_xml_results: str) -> PyTestResults:
         PyTestResults: Pytest results as dictionary
     """
     with open(path_for_xml_results) as fp:
-        contents = fp.read()
+        contents: str = fp.read()
     os.remove(path_for_xml_results)
     res: str = json.dumps(xmltodict.parse(contents))
     res = res.replace("@", "").replace("#", "")
