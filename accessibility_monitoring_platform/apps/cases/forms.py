@@ -258,8 +258,8 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
     )
     reviewer_notes = AMPTextField(label="QA notes")
-    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     reporting_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -270,8 +270,8 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
             "reviewer",
             "report_approved_status",
             "reviewer_notes",
-            "report_final_pdf_url",
             "report_final_odt_url",
+            "report_final_pdf_url",
             "reporting_details_complete_date",
         ]
 
