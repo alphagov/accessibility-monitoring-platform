@@ -333,7 +333,6 @@ class TestCaseUpdates(TestCases):
             "input[type='radio'][value='england']"
         ).click()
         self.driver.find_element_by_css_selector("#id_is_complaint").click()
-        self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("trello_url").send_keys(TRELLO_URL)
         self.driver.find_element_by_name("notes").send_keys(CASE_DETAILS_NOTES)
         self.driver.find_element_by_css_selector(
@@ -344,7 +343,6 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(SERVICE_NAME in self.driver.page_source)
         self.assertTrue(ENFORCEMENT_BODY_LABEL in self.driver.page_source)
-        self.assertTrue(ZENDESK_URL in self.driver.page_source)
         self.assertTrue(TRELLO_URL in self.driver.page_source)
         self.assertTrue(CASE_DETAILS_NOTES in self.driver.page_source)
 
@@ -469,6 +467,7 @@ class TestCaseUpdates(TestCases):
             REPORT_ACKNOWLEGED_DATE_YYYY
         )
 
+        self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("correspondence_notes").send_keys(
             REPORT_CORRESPONDENCE_NOTES
         )
@@ -481,6 +480,7 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("31/12/2020" in self.driver.page_source)
         self.assertTrue("01/04/2021" in self.driver.page_source)
+        self.assertTrue(ZENDESK_URL in self.driver.page_source)
         self.assertTrue(REPORT_CORRESPONDENCE_NOTES in self.driver.page_source)
 
         # Check due dates have been calculated

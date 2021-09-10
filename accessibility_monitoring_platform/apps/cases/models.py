@@ -15,19 +15,18 @@ from ..common.utils import extract_domain_from_url
 from ..common.models import Sector
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
-STATUS_DEFAULT = "new-case"
+STATUS_DEFAULT = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
-    ("unassigned-case", "Unassigned case"),
-    (STATUS_DEFAULT, "New case"),
+    (STATUS_DEFAULT, "Unassigned case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
     (STATUS_READY_TO_QA, "Report ready to QA"),
     ("qa-in-progress", "QA in progress"),
     ("report-ready-to-send", "Report ready to send"),
-    ("in-report-correspondence", "In report correspondence"),
-    ("in-probation-period", "In probation period"),
-    ("in-12-week-correspondence", "In 12 week correspondence"),
+    ("in-report-correspondence", "Report sent"),
+    ("in-probation-period", "Report acknowledged waiting for 12 week deadline"),
+    ("in-12-week-correspondence", "After 12 week correspondence"),
     ("final-decision-due", "Final decision due"),
     (
         "in-correspondence-with-equalities-body",
@@ -77,7 +76,6 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
     ("not-compliant", "Not compliant"),
     ("partially-compliant", "Partially compliant"),
-    ("not-found", "Not found"),
     ("other", "Other"),
     (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
 ]
@@ -209,7 +207,6 @@ class Case(models.Model):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    zendesk_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
     case_details_complete_date = models.DateField(null=True, blank=True)
@@ -265,6 +262,7 @@ class Case(models.Model):
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
+    zendesk_url = models.TextField(default="", blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
@@ -311,6 +309,7 @@ class Case(models.Model):
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
+    accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
     recommendation_for_enforcement = models.CharField(
         max_length=20,
@@ -660,6 +659,9 @@ class Contact(models.Model):
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-preferred", "-id"]
 
     @property
     def name(self):
