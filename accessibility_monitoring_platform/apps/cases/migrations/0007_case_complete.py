@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 UPDATE_SQL = """
 UPDATE cases_case
-   SET case_completed = 'further-action-required'
+   SET case_completed = 'further-action'
  WHERE case_completed = 'escalated'
 ;
 """
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[
                     (
-                        "further-action-required",
+                        "further-action",
                         "The audit needs to be sent to the relevant equalities body",
                     ),
                     (
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                     ("no-decision", "Not selected"),
                 ],
                 default="no-decision",
-                max_length=30,
+                max_length=20,
             ),
         ),
         migrations.RunSQL(UPDATE_SQL, reverse_sql=""),

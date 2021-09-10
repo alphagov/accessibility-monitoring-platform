@@ -110,7 +110,7 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("further-action-required", "Yes"),
+    ("further-action", "Yes"),
     ("no-action", "No"),
     (DEFAULT_CASE_COMPLETED, "Not selected"),
 ]
@@ -311,6 +311,11 @@ class Case(models.Model):
     )
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
+    is_website_compliant_final = models.CharField(
+        max_length=20,
+        choices=RECOMMENDATION_CHOICES,
+        default=RECOMMENDATION_DEFAULT,
+    )
     recommendation_for_enforcement = models.CharField(
         max_length=20,
         choices=RECOMMENDATION_CHOICES,
