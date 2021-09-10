@@ -660,6 +660,9 @@ class Contact(models.Model):
     created_by = models.CharField(max_length=200, default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ["-preferred", "-id"]
+
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"

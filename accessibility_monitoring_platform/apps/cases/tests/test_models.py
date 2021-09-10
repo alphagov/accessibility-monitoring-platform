@@ -118,6 +118,35 @@ def test_contact_created_timestamp_is_not_updated():
     assert updated_contact.created == original_created_timestamp
 
 
+@pytest.mark.django_db
+def test_most_recently_created_contact_returned_first():
+    """Test the contacts are returned in most recently created order"""
+    case: Case = Case.objects.create()
+    contact1: Contact = Contact.objects.create(case=case)
+    contact2: Contact = Contact.objects.create(case=case)
+
+    contacts: List[Contact] = list(Contact.objects.filter(case=case))
+
+    assert contacts[0].id == contact2.id
+    assert contacts[1].id == contact1.id
+
+
+@pytest.mark.django_db
+def test_preferred_contact_returned_first():
+    """
+    Test the contacts are returned in most recently created order with preferred contact first
+    """
+    case: Case = Case.objects.create()
+    preferred_contact: Contact = Contact.objects.create(case=case, preferred="yes")
+    contact1: Contact = Contact.objects.create(case=case)
+    contact2: Contact = Contact.objects.create(case=case)
+
+    contacts: List[Contact] = list(Contact.objects.filter(case=case))
+
+    assert contacts[0].id == preferred_contact.id
+    assert contacts[1].id == contact2.id
+    assert contacts[2].id == contact1.id
+
 @pytest.mark.parametrize(
     "compliance_email_sent_date, expected_psb_appeal_deadline",
     [
