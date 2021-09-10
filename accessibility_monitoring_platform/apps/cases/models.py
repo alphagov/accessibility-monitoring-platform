@@ -15,11 +15,10 @@ from ..common.utils import extract_domain_from_url
 from ..common.models import Sector
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
-STATUS_DEFAULT = "new-case"
+STATUS_DEFAULT = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
-    ("unassigned-case", "Unassigned case"),
-    (STATUS_DEFAULT, "New case"),
+    (STATUS_DEFAULT, "Unassigned case"),
     ("test-in-progress", "Test in progress"),
     ("report-in-progress", "Report in progress"),
     (STATUS_READY_TO_QA, "Report ready to QA"),
