@@ -133,9 +133,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
         choices=PSB_LOCATION_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
-    trello_url = AMPURLField(label="Trello ticket URL")
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -155,7 +152,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "psb_location",
             "sector",
             "is_complaint",
-            "zendesk_url",
             "trello_url",
             "notes",
             "case_details_complete_date",
@@ -285,6 +281,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_correspondence_complete_date = AMPDatePageCompleteField()
 
@@ -295,6 +292,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
             "report_acknowledged_date",
+            "zendesk_url",
             "correspondence_notes",
             "report_correspondence_complete_date",
         ]

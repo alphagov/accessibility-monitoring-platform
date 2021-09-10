@@ -208,7 +208,6 @@ class Case(models.Model):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    zendesk_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
     case_details_complete_date = models.DateField(null=True, blank=True)
@@ -264,6 +263,7 @@ class Case(models.Model):
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
     report_acknowledged_date = models.DateField(null=True, blank=True)
+    zendesk_url = models.TextField(default="", blank=True)
     correspondence_notes = models.TextField(default="", blank=True)
     report_correspondence_complete_date = models.DateField(null=True, blank=True)
 
