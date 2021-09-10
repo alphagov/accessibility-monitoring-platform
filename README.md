@@ -89,7 +89,7 @@ adr new -s 9 Use Rust for performance-critical functionality
 ---
 ## Testing
 
-There is currently two types of automated testing; unit, and integration testing.
+There is currently three types of automated testing; unit, integration and lighthouse testing.
 
 Static files need to be collected by Django before starting unit tests. The tests will fail unless this step is completed. This can be executed with
 
@@ -112,6 +112,20 @@ make int_test
 ```
 
 The make command will start a docker-compose stack and execute python unit tests located in integration tests. If you are writing integration tests, the stack can be started with `make dockerstack`, and starting the tests with `int_test_no_docker`.
+
+N.B. Lighthouse tests are not implemented at this time.
+
+Lighthouse testing can be started with
+
+```
+make lighthouse_audit
+```
+
+This will crawl the web app with and without authentication, compile a list of webpages in the app, audit each webpage with Google Lighthouse, and then write the topline figures to `lighthouse-tests/results_auth.json` and `lighthouse-tests/results_noAuth.json`. It is best to aim for at least a 100% accessibility score.
+
+Individual pages can be added to `lighthouse-tests/specific-domains.txt`.
+
+Lighthouse won't catch all issues but will ensure a consistent level of quality.
 
 ---
 

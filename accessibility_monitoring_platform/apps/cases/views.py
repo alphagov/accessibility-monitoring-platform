@@ -601,7 +601,7 @@ class CaseFinalDecisionUpdateView(UpdateView):
             if form.instance.test_results_url:
                 form.fields["retested_website_date"].help_text = mark_safe(
                     f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
-                    ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
+                    ' class="govuk-link govuk-link--no-visited-state">test results</a>'
                 )
         return form
 

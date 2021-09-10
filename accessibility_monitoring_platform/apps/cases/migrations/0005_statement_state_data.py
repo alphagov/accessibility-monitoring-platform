@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-UPDATE_SQL = """
+UPDATE_SQL =  """
 UPDATE cases_case SET accessibility_statement_state = 'compliant' WHERE accessibility_statement_state = 'yes';
 UPDATE cases_case SET accessibility_statement_state = 'not-compliant' WHERE accessibility_statement_state = 'no';
 UPDATE cases_case SET accessibility_statement_state_final = 'compliant' WHERE accessibility_statement_state_final = 'yes';
@@ -13,7 +13,9 @@ UPDATE cases_case SET accessibility_statement_state_final = 'not-compliant' WHER
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cases", "0004_auto_20210903_0831"),
+        ('cases', '0004_auto_20210903_0831'),
     ]
 
-    operations = [migrations.RunSQL(UPDATE_SQL, reverse_sql="")]
+    operations = [
+        migrations.RunSQL(UPDATE_SQL, reverse_sql="")
+    ]

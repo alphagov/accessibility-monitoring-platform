@@ -17,7 +17,6 @@ def test_case_status_unassigned():
     )
     assert case.status == "unassigned-case"
 
-
 @pytest.mark.django_db
 def test_case_status_test_in_progress():
     """Test case returns test-in-progress for status"""

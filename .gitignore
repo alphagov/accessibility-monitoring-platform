@@ -18,7 +18,6 @@ data/s3_files/*
 data/localstack-data/*
 filehash.txt
 20210823_cleaned_case_record.csv
-**/data/s3_files/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

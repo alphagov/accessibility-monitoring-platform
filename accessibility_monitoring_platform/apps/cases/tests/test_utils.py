@@ -17,7 +17,7 @@ from ...common.forms import (
     AMPModelChoiceField,
     AMPTextField,
     AMPURLField,
-    AMPAuditorModelChoiceField,
+    AMPUserModelChoiceField,
 )
 from ..models import Case, TEST_TYPE_CHOICES
 from ..utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date
@@ -69,7 +69,7 @@ class CaseForm(forms.ModelForm):
     Form for testing extract_labels_and_values
     """
 
-    auditor = AMPAuditorModelChoiceField(label=AUDITOR_LABEL)
+    auditor = AMPUserModelChoiceField(label=AUDITOR_LABEL)
     sector = AMPModelChoiceField(label=SECTOR_LABEL, queryset=Sector.objects.all())
     test_type = AMPChoiceRadioField(label=TEST_TYPE_LABEL, choices=TEST_TYPE_CHOICES)
     home_page_url = AMPURLField(

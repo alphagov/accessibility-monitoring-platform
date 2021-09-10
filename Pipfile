@@ -15,7 +15,6 @@ boto3 = "*"
 selenium = "~=3.141.0"
 libsass = "*"
 rcssmin = "*"
-xmltodict = "*"
 
 [dev-packages]
 flake8 = "*"
