@@ -7,9 +7,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
-from app.parse_json import parse_integration_tests_json
-
-settings = parse_integration_tests_json()
 
 ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
@@ -79,9 +76,9 @@ disproportionate burden note, I am"""
 ACCESSIBILITY_STATEMENT_NOTES_FINAL = """I am
 a multiline
 accessibility statement final note, I am"""
-RECOMMENDATION_NOTES = """I am
+COMPLIANCE_DECISION_NOTES_FINAL = """I am
 a multiline
-recommendation note, I am"""
+compliance decision final note, I am"""
 COMPLIANCE_EMAIL_SENT_DATE_DD = "13"
 COMPLIANCE_EMAIL_SENT_DATE_MM = "8"
 COMPLIANCE_EMAIL_SENT_DATE_YYYY = "2021"
@@ -139,8 +136,7 @@ class SeleniumTest(unittest.TestCase):
     def setUp(self):
         """Setup selenium test environment"""
         options: Options = Options()
-        if settings['headless']:
-            options.add_argument("--headless")
+        options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
             executable_path="./integration_tests/chromedriver", chrome_options=options
@@ -333,16 +329,16 @@ class TestCaseUpdates(TestCases):
             "input[type='radio'][value='england']"
         ).click()
         self.driver.find_element_by_css_selector("#id_is_complaint").click()
+        self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("trello_url").send_keys(TRELLO_URL)
         self.driver.find_element_by_name("notes").send_keys(CASE_DETAILS_NOTES)
-        self.driver.find_element_by_css_selector(
-            "#id_case_details_complete_date"
-        ).click()
+        self.driver.find_element_by_css_selector("#id_case_details_complete_date").click()
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(SERVICE_NAME in self.driver.page_source)
         self.assertTrue(ENFORCEMENT_BODY_LABEL in self.driver.page_source)
+        self.assertTrue(ZENDESK_URL in self.driver.page_source)
         self.assertTrue(TRELLO_URL in self.driver.page_source)
         self.assertTrue(CASE_DETAILS_NOTES in self.driver.page_source)
 
@@ -467,7 +463,6 @@ class TestCaseUpdates(TestCases):
             REPORT_ACKNOWLEGED_DATE_YYYY
         )
 
-        self.driver.find_element_by_name("zendesk_url").send_keys(ZENDESK_URL)
         self.driver.find_element_by_name("correspondence_notes").send_keys(
             REPORT_CORRESPONDENCE_NOTES
         )
@@ -480,7 +475,6 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("31/12/2020" in self.driver.page_source)
         self.assertTrue("01/04/2021" in self.driver.page_source)
-        self.assertTrue(ZENDESK_URL in self.driver.page_source)
         self.assertTrue(REPORT_CORRESPONDENCE_NOTES in self.driver.page_source)
 
         # Check due dates have been calculated
@@ -601,10 +595,10 @@ class TestCaseUpdates(TestCases):
             "accessibility_statement_notes_final"
         ).send_keys(ACCESSIBILITY_STATEMENT_NOTES_FINAL)
         self.driver.find_element_by_css_selector(
-            "#id_recommendation_for_enforcement_1"
+            "#id_is_website_compliant_final_1"
         ).click()
-        self.driver.find_element_by_name("recommendation_notes").send_keys(
-            RECOMMENDATION_NOTES
+        self.driver.find_element_by_name("compliance_decision_notes_final").send_keys(
+            COMPLIANCE_DECISION_NOTES_FINAL
         )
 
         self.driver.find_element_by_name("compliance_email_sent_date_0").clear()
@@ -631,7 +625,7 @@ class TestCaseUpdates(TestCases):
         self.assertTrue("01/08/2021" in self.driver.page_source)
         self.assertTrue(DISPROPORTIONATE_NOTES in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES_FINAL in self.driver.page_source)
-        self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
+        self.assertTrue(COMPLIANCE_DECISION_NOTES_FINAL in self.driver.page_source)
         self.assertTrue("13/08/2021" in self.driver.page_source)
 
     def test_update_case_edit_enforcement_body_correspondence(self):

@@ -37,6 +37,9 @@ class DashboardView(TemplateView):
             "unknown": user_entries.filter(
                 status="unknown"
             ),
+            "new_case": user_entries.filter(
+                status="new-case"
+            ),
             "test_in_progress": user_entries.filter(
                 status="test-in-progress"
             ),

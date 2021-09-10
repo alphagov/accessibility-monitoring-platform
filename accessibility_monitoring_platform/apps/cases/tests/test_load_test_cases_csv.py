@@ -274,4 +274,4 @@ def test_load_test_cases_csv_command():
     call_command("load_test_cases_csv", "--initial")
 
     assert Case.objects.count() == 21
-    assert Contact.objects.count() == 6
+    assert Contact.objects.count() == 7

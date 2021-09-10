@@ -39,18 +39,6 @@
             <td class="govuk-table__cell  govuk-!-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Zendesk ticket URL</th>
-            <td class="govuk-table__cell  govuk-!-width-one-half">
-                {% if case.zendesk_url %}
-                    <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                        {{ case.zendesk_url }}
-                    </a>
-                {% else %}
-                    None
-                {% endif %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Correspondence notes</th>
             <td class="govuk-table__cell">
                 {% if case.correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.correspondence_notes }}</p>{% endif %}

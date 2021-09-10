@@ -39,7 +39,6 @@
                             </div>
 
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_state_final %}
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_screenshot_url %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_notes_final %}
 
                             <div class="govuk-form-group">
@@ -58,8 +57,8 @@
                                 </div>
                             </div>
 
-                            {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
-                            {% include 'common/amp_field.html' with field=form.recommendation_notes %}
+                            {% include 'common/amp_field.html' with field=form.is_website_compliant_final %}
+                            {% include 'common/amp_field.html' with field=form.compliance_decision_notes_final %}
                             {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
                             {% include 'common/amp_field.html' with field=form.case_completed %}
                             {% include 'common/amp_field.html' with field=form.final_decision_complete_date %}
