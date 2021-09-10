@@ -147,6 +147,7 @@ def test_preferred_contact_returned_first():
     assert contacts[1].id == contact2.id
     assert contacts[2].id == contact1.id
 
+
 @pytest.mark.parametrize(
     "compliance_email_sent_date, expected_psb_appeal_deadline",
     [

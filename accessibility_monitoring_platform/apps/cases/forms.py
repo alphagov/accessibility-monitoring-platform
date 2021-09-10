@@ -407,9 +407,11 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
+    accessibility_statement_screenshot_url = AMPURLField(
+        label="Link to accessibility statement screenshot"
+    )
     accessibility_statement_notes_final = AMPTextField(
         label="Final accessibility statement notes",
-        help_text="If non compliant also add link to copy of non compliant accessibility statement",
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation",
@@ -433,6 +435,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "is_disproportionate_claimed",
             "disproportionate_notes",
             "accessibility_statement_state_final",
+            "accessibility_statement_screenshot_url",
             "accessibility_statement_notes_final",
             "recommendation_for_enforcement",
             "recommendation_notes",
