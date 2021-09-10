@@ -2,12 +2,15 @@
 Utility functions for cases app
 """
 
+import csv
 from dataclasses import dataclass
 from datetime import date
-from typing import ClassVar, List, Union
+from typing import Any, ClassVar, List, Union
 
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
+from django.http import HttpResponse
 
 from ..common.forms import AMPTextField, AMPURLField
 
@@ -35,6 +38,62 @@ EXCLUDED_FIELDS = [
     "report_correspondence_complete_date",
     "final_decision_complete_date",
     "enforcement_correspondence_complete_date",
+]
+
+CONTACT_NAME_COLUMN_NUMBER = 3
+JOB_TITLE_COLUMN_NUMBER = 4
+CONTACT_DETAIL_COLUMN_NUMBER = 5
+CONTACT_NOTES_COLUMN_NUMBER = 6
+
+COLUMN_NUMBER_BY_FIELD: dict = {
+    "id": 0,
+    "created": 1,
+    "organisation_name": 2,
+    "is_complaint": 7,
+    "report_final_pdf_url": 8,
+    "report_sent_date": 9,
+    "report_acknowledged_date": 10,
+    "report_followup_week_12_due_date": 11,
+    "psb_progress_notes": 12,
+    "is_disproportionate_claimed": 13,
+    "disproportionate_notes": 14,
+    "accessibility_statement_state_final": 15,
+    "accessibility_statement_notes_final": 16,
+    "accessibility_statement_notes_final": 17,
+    #"accessibility_statement_screenshot_url": 17,
+    "is_website_compliant": 18,
+    "compliance_decision_notes": 19,
+    "retested_website_date": 20,
+    "compliance_email_sent_date": 21,
+    "psb_location": 22,
+    "home_page_url": 23,
+}
+
+COLUMNS_FOR_EHRC = [
+    "Case No.",
+    "Date",
+    "Website",
+    "Contact name",
+    "Job title",
+    "Contact detail",
+    "Contect notes",
+    "Is it a complaint?",
+    "Link to report",
+    "Report sent on",
+    "Report acknowledged",
+    "Followup date - 12 week deadline",
+    "Summary of progress made / response from PSB",
+    "Disproportionate Burden Claimed?",
+    "Disproportionate Burden Notes",
+    "Accessibility Statement Decision",
+    "Notes on accessibility statement",
+    "Link to new saved screen shot of accessibility statement if not compliant",
+    "Compliance Decision",
+    "Compliance Decision Notes",
+    "Retest date",
+    "Decision email sent?",
+    "Country",
+    "Home page URL",
 ]
 
 
@@ -107,3 +166,36 @@ def get_sent_date(
         return None
     date_on_db: date = getattr(case_from_db, sent_date_name)
     return date_on_db if date_on_db else date_on_form
+
+
+def download_ehrc_cases(
+    cases: QuerySet[Case],
+    filename: str = "ehrc_cases.csv",
+) -> HttpResponse:
+    """Given a Case queryset, download the data in csv format for EHRC"""
+    response: Any = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+
+    writer: Any = csv.writer(response)
+    writer.writerow(COLUMNS_FOR_EHRC)
+
+    output: List[List[str]] = []
+    for case in cases:
+        row = ["" for _ in COLUMNS_FOR_EHRC]
+        for field_name, column_number in COLUMN_NUMBER_BY_FIELD.items():
+            row[column_number] = getattr(case, field_name)
+
+        contacts = list(case.contact_set.filter(is_deleted=False))
+        contact_name = "\n".join([f"{contact.first_name} {contact.last_name}" for contact in contacts])
+        job_title = "\n".join([contact.job_title for contact in contacts])
+        contact_detail = "\n".join([contact.email for contact in contacts])
+        contact_notes = "\n\n".join([contact.notes for contact in contacts])
+        row[CONTACT_NAME_COLUMN_NUMBER] = contact_name
+        row[JOB_TITLE_COLUMN_NUMBER] = job_title
+        row[CONTACT_DETAIL_COLUMN_NUMBER] = contact_detail
+        row[CONTACT_NOTES_COLUMN_NUMBER] = contact_notes
+        output.append(row)
+
+    writer.writerows(output)
+
+    return response

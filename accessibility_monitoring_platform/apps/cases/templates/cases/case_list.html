@@ -14,34 +14,43 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
+            </div>
             <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-one-half">
-                        <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
-                    </div>
-                    <div class="govuk-grid-column-one-half">
-                        <div class="govuk-button-group no-bottom-margin">
-                            <a
-                                href="{% url 'cases:case-create' %}"
-                                role="button"
-                                draggable="false"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            >
-                                Create case
-                            </a>
-                            <a
-                                href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                role="button"
-                                draggable="false"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            >
-                                Export to CSV
-                            </a>
-                        </div>
-                    </div>
+                <div class="govuk-button-group no-bottom-margin">
+                    <a
+                        href="{% url 'cases:case-create' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Create case
+                    </a>
+                    <a
+                        href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Export to CSV
+                    </a>
+                    <a
+                        href="{% url 'cases:export-ehrc-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        EHRC export
+                    </a>
                 </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
                 {% if cases %}
                     {% include "common/pagination_controls.html" %}
                     <table class="govuk-table">
