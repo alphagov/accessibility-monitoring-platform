@@ -311,11 +311,6 @@ class Case(models.Model):
     )
     accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
-    is_website_compliant_final = models.CharField(
-        max_length=20,
-        choices=RECOMMENDATION_CHOICES,
-        default=RECOMMENDATION_DEFAULT,
-    )
     recommendation_for_enforcement = models.CharField(
         max_length=20,
         choices=RECOMMENDATION_CHOICES,
