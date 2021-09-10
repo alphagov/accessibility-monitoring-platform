@@ -1,16 +1,18 @@
 """
 Forms - cases
 """
-from typing import Any
+from typing import Any, List, Tuple
 
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 
 from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
-    AMPUserModelChoiceField,
+    AMPAuditorModelChoiceField,
+    AMPQAAuditorModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
@@ -54,6 +56,17 @@ SORT_CHOICES = [
 ]
 
 
+def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[int, str]]:
+    """Return a list of user ids and names, with an additional none option, for use in search"""
+    user_choices_with_none: List[Tuple[int, str]] = [
+        ("", "-----"),
+        ("none", "Unassigned"),
+    ]
+    for user in user_query.order_by("first_name", "last_name"):
+        user_choices_with_none.append((user.id, user.get_full_name()))
+    return user_choices_with_none
+
+
 class CaseSearchForm(AMPDateRangeForm):
     """
     Form for searching for cases
@@ -70,15 +83,12 @@ class CaseSearchForm(AMPDateRangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        user_choices_with_none = [
-            ("", "-----"),
-            ("none", "Unassigned"),
-        ]
-        for user in User.objects.all().order_by("first_name", "last_name"):
-            user_choices_with_none.append((user.id, user.get_full_name()))
-
-        self.fields["auditor"].choices = user_choices_with_none
-        self.fields["reviewer"].choices = user_choices_with_none
+        self.fields["auditor"].choices = get_search_user_choices(
+            User.objects.filter(groups__name="Auditor")
+        )
+        self.fields["reviewer"].choices = get_search_user_choices(
+            User.objects.filter(groups__name="QA auditor")
+        )
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -126,7 +136,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
-    auditor = AMPUserModelChoiceField(label="Auditor")
+    auditor = AMPAuditorModelChoiceField(label="Auditor")
     service_name = AMPCharFieldWide(label="Website, app or service name")
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
@@ -249,7 +259,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     report_review_status = AMPChoiceRadioField(
         label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
     )
-    reviewer = AMPUserModelChoiceField(label="QA Auditor")
+    reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
     )
