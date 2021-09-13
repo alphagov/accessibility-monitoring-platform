@@ -210,22 +210,42 @@ class AMPModelChoiceField(forms.ModelChoiceField):
         super().__init__(*args, **kwargs)
 
 
-class AMPUserModelChoiceField(AMPModelChoiceField):
+class AMPAuditorModelChoiceField(AMPModelChoiceField):
     """
     Model choice input field in the style of GDS design system.
 
-    Uses User model. Uses user's full name as label.
+    Uses User model. Uses user's full name as label. Only members of Auditor group returned.
     """
 
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault(
-            "queryset", User.objects.all().order_by("first_name", "last_name")
+            "queryset",
+            User.objects.filter(groups__name="Auditor").order_by(
+                "first_name", "last_name"
+            ),
         )
         super().__init__(*args, **kwargs)
 
-    def label_from_instance(self, user):
+    def label_from_instance(self, obj):
         """Return full name from user"""
-        return user.get_full_name()
+        return obj.get_full_name()
+
+
+class AMPQAAuditorModelChoiceField(AMPAuditorModelChoiceField):
+    """
+    Model choice input field in the style of GDS design system.
+
+    Uses User model. Uses user's full name as label. Only members of QA auditor group returned.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault(
+            "queryset",
+            User.objects.filter(groups__name="QA auditor").order_by(
+                "first_name", "last_name"
+            ),
+        )
+        super().__init__(*args, **kwargs)
 
 
 class AMPModelMultipleChoiceField(forms.ModelMultipleChoiceField):

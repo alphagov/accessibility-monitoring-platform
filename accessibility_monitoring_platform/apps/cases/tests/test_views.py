@@ -8,7 +8,7 @@ from typing import List
 
 from pytest_django.asserts import assertContains, assertNotContains
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
@@ -38,6 +38,13 @@ FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DA
 TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
 TODAY = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
+
+
+def add_user_to_auditor_groups(user: User) -> None:
+    auditor_group: Group = Group.objects.create(name="Auditor")
+    qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+    auditor_group.user_set.add(user)
+    qa_auditor_group.user_set.add(user)
 
 
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
@@ -96,7 +103,9 @@ def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_clie
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
-    Case.objects.create(organisation_name="Included", report_review_status="ready-to-review")
+    Case.objects.create(
+        organisation_name="Included", report_review_status="ready-to-review"
+    )
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=unassigned-qa-case'
@@ -191,6 +200,8 @@ def test_case_list_view_string_filters(
 def test_case_list_view_user_filters(field_name, url_parameter_name, admin_client):
     """Test that the case list view page can be filtered by user"""
     user: User = User.objects.create()
+    add_user_to_auditor_groups(user)
+
     included_case: Case = Case.objects.create(organisation_name="Included")
     setattr(included_case, field_name, user)
     included_case.save()
@@ -268,6 +279,7 @@ def test_case_export_list_view(admin_client):
 def test_case_export_list_view_respects_filters(admin_client):
     """Test that the case export list view includes only filtered data"""
     user: User = User.objects.create()
+    add_user_to_auditor_groups(user)
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
@@ -1015,7 +1027,7 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
         response,
         '<div id="event-name-hint" class="govuk-hint">'
         f'The retest form can be found in the <a href="{test_results_url}"'
-        ' class="govuk-link govuk-link--no-visited-state">test results</a>'
+        ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
     )
 

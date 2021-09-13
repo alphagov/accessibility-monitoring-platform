@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0003_issuereport_complete'),
+        ("common", "0003_issuereport_complete"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issuereport',
-            name='notes',
-            field=models.TextField(blank=True, default=''),
+            model_name="issuereport",
+            name="notes",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='issuereport',
-            name='trello_ticket',
-            field=models.CharField(default='', max_length=200),
+            model_name="issuereport",
+            name="trello_ticket",
+            field=models.CharField(default="", max_length=200),
         ),
     ]
