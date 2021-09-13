@@ -110,7 +110,7 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("further-action-required", "Yes"),
+    ("further-action", "Yes"),
     ("no-action", "No"),
     (DEFAULT_CASE_COMPLETED, "Not selected"),
 ]

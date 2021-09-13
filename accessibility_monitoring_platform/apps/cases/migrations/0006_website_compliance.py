@@ -17,7 +17,7 @@ UPDATE cases_case
 ;
 UPDATE cases_case
    SET recommendation_for_enforcement = 'no-further-action'
- WHERE is_website_compliant_final = 'no_further_action'
+ WHERE is_website_compliant_final = 'no-further-action'
 ;
 """
 
@@ -43,10 +43,10 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunSQL(UPDATE_SQL, reverse_sql=""),
-        migrations.RemoveField(
-            model_name="case",
-            name="is_website_compliant_final",
-        ),
+        # migrations.RemoveField(
+        #     model_name="case",
+        #     name="is_website_compliant_final",
+        # ),
         migrations.AlterField(
             model_name="case",
             name="accessibility_statement_state",
