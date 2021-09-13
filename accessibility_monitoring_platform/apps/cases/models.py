@@ -211,9 +211,6 @@ class Case(models.Model):
     notes = models.TextField(default="", blank=True)
     case_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Contact details page
-    contact_details_complete_date = models.DateField(null=True, blank=True)
-
     # Testing details page
     test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
@@ -256,6 +253,9 @@ class Case(models.Model):
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
     reporting_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Contact details page
+    contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
     report_sent_date = models.DateField(null=True, blank=True)

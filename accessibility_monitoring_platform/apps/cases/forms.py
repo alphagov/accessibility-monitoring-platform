@@ -168,54 +168,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
         ]
 
 
-class CaseContactUpdateForm(forms.ModelForm):
-    """
-    Form for updating a contact
-    """
-
-    first_name = AMPCharFieldWide(label="First name")
-    last_name = AMPCharFieldWide(label="Last name")
-    job_title = AMPCharFieldWide(label="Job title")
-    email = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
-    )
-    notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = Case
-        fields = [
-            "first_name",
-            "last_name",
-            "job_title",
-            "email",
-            "preferred",
-            "notes",
-        ]
-
-
-CaseContactFormset: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=0
-)
-CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
-    Contact, CaseContactUpdateForm, extra=1
-)
-
-
-class CaseContactsUpdateForm(forms.ModelForm):
-    """
-    Form for updating test results
-    """
-
-    contact_details_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "contact_details_complete_date",
-        ]
-
-
 class CaseTestResultsUpdateForm(forms.ModelForm):
     """
     Form for updating test results
@@ -279,6 +231,54 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
             "report_final_odt_url",
             "report_final_pdf_url",
             "reporting_details_complete_date",
+        ]
+
+
+class CaseContactUpdateForm(forms.ModelForm):
+    """
+    Form for updating a contact
+    """
+
+    first_name = AMPCharFieldWide(label="First name")
+    last_name = AMPCharFieldWide(label="Last name")
+    job_title = AMPCharFieldWide(label="Job title")
+    email = AMPCharFieldWide(label="Email")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=PREFERRED_CHOICES
+    )
+    notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = Case
+        fields = [
+            "first_name",
+            "last_name",
+            "job_title",
+            "email",
+            "preferred",
+            "notes",
+        ]
+
+
+CaseContactFormset: Any = forms.modelformset_factory(
+    Contact, CaseContactUpdateForm, extra=0
+)
+CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
+    Contact, CaseContactUpdateForm, extra=1
+)
+
+
+class CaseContactsUpdateForm(forms.ModelForm):
+    """
+    Form for updating test results
+    """
+
+    contact_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "contact_details_complete_date",
         ]
 
 
