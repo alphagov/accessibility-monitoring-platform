@@ -715,7 +715,7 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
         cleaned_data=case_search_form.cleaned_data,
         field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
     )
-    return download_ehrc_cases(cases=Case.objects.filter(**filters))
+    return download_ehrc_cases(cases=Case.objects.filter(**filters).order_by("id"))
 
 
 def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
