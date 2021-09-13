@@ -1,16 +1,18 @@
 """
 Forms - cases
 """
-from typing import Any
+from typing import Any, List, Tuple
 
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 
 from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
-    AMPUserModelChoiceField,
+    AMPAuditorModelChoiceField,
+    AMPQAAuditorModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
@@ -41,6 +43,7 @@ from .models import (
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
+    RECOMMENDATION_CHOICES,
 )
 
 status_choices = STATUS_CHOICES
@@ -51,6 +54,17 @@ SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
 ]
+
+
+def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[int, str]]:
+    """Return a list of user ids and names, with an additional none option, for use in search"""
+    user_choices_with_none: List[Tuple[int, str]] = [
+        ("", "-----"),
+        ("none", "Unassigned"),
+    ]
+    for user in user_query.order_by("first_name", "last_name"):
+        user_choices_with_none.append((user.id, user.get_full_name()))
+    return user_choices_with_none
 
 
 class CaseSearchForm(AMPDateRangeForm):
@@ -69,15 +83,12 @@ class CaseSearchForm(AMPDateRangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        user_choices_with_none = [
-            ("", "-----"),
-            ("none", "Unassigned"),
-        ]
-        for user in User.objects.all().order_by("first_name", "last_name"):
-            user_choices_with_none.append((user.id, user.get_full_name()))
-
-        self.fields["auditor"].choices = user_choices_with_none
-        self.fields["reviewer"].choices = user_choices_with_none
+        self.fields["auditor"].choices = get_search_user_choices(
+            User.objects.filter(groups__name="Auditor")
+        )
+        self.fields["reviewer"].choices = get_search_user_choices(
+            User.objects.filter(groups__name="QA auditor")
+        )
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -125,16 +136,13 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
-    auditor = AMPUserModelChoiceField(label="Auditor")
+    auditor = AMPAuditorModelChoiceField(label="Auditor")
     service_name = AMPCharFieldWide(label="Website, app or service name")
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
         choices=PSB_LOCATION_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
-    trello_url = AMPURLField(label="Trello ticket URL")
-    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -154,7 +162,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
             "psb_location",
             "sector",
             "is_complaint",
-            "zendesk_url",
             "trello_url",
             "notes",
             "case_details_complete_date",
@@ -225,8 +232,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     )
     accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
     is_website_compliant = AMPChoiceRadioField(
-        label="Initial compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES
+        label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
     compliance_decision_notes = AMPTextField(label="Compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
@@ -253,13 +259,13 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     report_review_status = AMPChoiceRadioField(
         label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
     )
-    reviewer = AMPUserModelChoiceField(label="QA Auditor")
+    reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
     )
     reviewer_notes = AMPTextField(label="QA notes")
-    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     reporting_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -270,8 +276,8 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
             "reviewer",
             "report_approved_status",
             "reviewer_notes",
-            "report_final_pdf_url",
             "report_final_odt_url",
+            "report_final_pdf_url",
             "reporting_details_complete_date",
         ]
 
@@ -285,6 +291,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
     report_acknowledged_date = AMPDateField(label="Report acknowledged")
+    zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_correspondence_complete_date = AMPDatePageCompleteField()
 
@@ -295,6 +302,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
             "report_acknowledged_date",
+            "zendesk_url",
             "correspondence_notes",
             "report_correspondence_complete_date",
         ]
@@ -343,11 +351,11 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_date = AMPDateField(label="12 week deadline requested")
-    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week chaser")
-    twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week chaser")
+    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
+    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week followup")
+    twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week deadline request acknowledged"
+        label="12 week update received"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
@@ -409,22 +417,22 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         label="Final accessibility statement decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
+    accessibility_statement_screenshot_url = AMPURLField(
+        label="Link to accessibility statement screenshot"
+    )
     accessibility_statement_notes_final = AMPTextField(
         label="Final accessibility statement notes",
-        help_text="If non compliant also add link to copy of non compliant accessibility statement",
     )
-    is_website_compliant_final = AMPChoiceRadioField(
-        label="Final compliance decision",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+    recommendation_for_enforcement = AMPChoiceRadioField(
+        label="Enforcement recommendation",
+        choices=RECOMMENDATION_CHOICES,
     )
-    compliance_decision_notes_final = AMPTextField(
-        label="Final compliance decision notes"
-    )
+    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
     compliance_email_sent_date = AMPDateField(
         label="Compliance email sent to public sector body?"
     )
     case_completed = AMPChoiceRadioField(
-        label="Case completed?",
+        label="Case completed and needs to be sent to EHRC or ECNI?",
         choices=CASE_COMPLETED_CHOICES,
     )
     final_decision_complete_date = AMPDatePageCompleteField()
@@ -437,9 +445,10 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
             "is_disproportionate_claimed",
             "disproportionate_notes",
             "accessibility_statement_state_final",
+            "accessibility_statement_screenshot_url",
             "accessibility_statement_notes_final",
-            "is_website_compliant_final",
-            "compliance_decision_notes_final",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
             "compliance_email_sent_date",
             "case_completed",
             "final_decision_complete_date",

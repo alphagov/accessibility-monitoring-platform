@@ -1,5 +1,3 @@
-ENVFILE=.env
-
 init:
 	pip install --upgrade pip \
 		&& pip install pipenv \
@@ -8,16 +6,7 @@ init:
 		&& python3 -c 'from pulp import *; pulp()' \
 		&& mkdir -p data \
 		&& docker-compose up -d \
-		&& source .env \
-		&& eval `cat $(ENVFILE)` && \
-			export AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION_S3_STORE}" \
-			export AWS_ACCESS_KEY_ID="$${AWS_ACCESS_KEY_ID_S3_STORE}" \
-			export AWS_SECRET_ACCESS_KEY="$${AWS_SECRET_ACCESS_KEY_S3_STORE}" \
-		&& [ -f "./data/s3_files/20210604_auth_data.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/20210604_auth_data.json ./data/s3_files/20210604_auth_data.json \
-		&& [ -f "./data/s3_files/region_and_sector.json" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/fixtures/region_and_sector.json ./data/s3_files/region_and_sector.json \
-		&& [ -f "./data/s3_files/pubsecweb_20210615.pgadmin-backup" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/pubsecweb/pubsecweb_20210615.pgadmin-backup ./data/s3_files/pubsecweb_20210615.pgadmin-backup \
-		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql.zip" ] && echo "file exists" || aws s3 cp s3://paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914/a11ymon/a11ymon_mini_20210527.sql.zip ./data/s3_files/a11ymon_mini_20210527.sql.zip \
-		&& [ -f "./data/s3_files/a11ymon_mini_20210527.sql" ] && echo "file exists" || unzip -o ./data/s3_files/a11ymon_mini_20210527.sql.zip \
+		&& sh download_s3_files.sh \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database a11ymon;" \
 		&& export PGPASSWORD=secret; pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_20210615.pgadmin-backup \
@@ -26,7 +15,7 @@ init:
 		&& ./manage.py migrate websites --database=pubsecweb_db \
 		&& ./manage.py migrate \
 		&& python3 manage.py loaddata ./data/s3_files/20210604_auth_data.json \
-		&& python3 manage.py loaddata ./data/s3_files/region_and_sector.json \
+		&& python3 manage.py loaddata ./data/s3_files/20210903_sector.json \
 		&& echo "email is admin@email.com and password is secret"
 
 start:
@@ -55,10 +44,6 @@ test:
 		&& coverage report --skip-covered \
 		&& coverage erase
 
-# Currently out of use
-# lighthouse_audit:
-# 	node lighthouse-tests/lighthouse-test.js
-
 local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
@@ -68,15 +53,3 @@ perm_for_chrome:
 
 int_test:
 	python3 integration_tests/main.py
-
-int_test_no_docker:
-	python3 integration_tests/main.py --ignore-docker
-
-dockerstack:
-	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
-	docker build -t django_amp -f - . < docker/django_app.Dockerfile
-	docker-compose -f docker/int_tests.docker-compose.yml up
-
-dockerstack_stop:
-	docker-compose -f docker/int_tests.docker-compose.yml down
-	docker-compose -f docker/int_tests.docker-compose.yml down --volumes
