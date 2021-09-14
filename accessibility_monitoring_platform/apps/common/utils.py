@@ -16,6 +16,7 @@ from django.db.models import QuerySet
 from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
+
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]

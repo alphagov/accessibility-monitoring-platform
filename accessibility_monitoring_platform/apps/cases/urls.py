@@ -9,6 +9,7 @@ from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.cases.views import (
     export_cases,
     export_single_case,
+    export_ehrc_cases,
     CaseCreateView,
     CaseContactFormsetUpdateView,
     CaseDetailView,
@@ -30,6 +31,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
 app_name: str = "cases"
 urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
+    path("export-as-ehrc-csv/", login_required(export_ehrc_cases), name="export-ehrc-cases"),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),
     path(
         "<int:pk>/export-as-csv/",
