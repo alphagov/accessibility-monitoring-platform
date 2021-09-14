@@ -359,9 +359,9 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
             '<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
         ),
         ("cases:edit-case-details", "<li>Case details</li>"),
-        ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
+        ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
     ],
 )
@@ -532,18 +532,18 @@ def test_create_case_can_create_duplicate_cases(
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
-        ("cases:edit-case-details", "save_continue", "cases:edit-contact-details"),
+        ("cases:edit-case-details", "save_continue", "cases:edit-test-results"),
         ("cases:edit-case-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-contact-details", "save_continue", "cases:edit-test-results"),
-        ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-test-results", "save_exit", "cases:case-detail"),
         (
             "cases:edit-report-details",
             "save_continue",
-            "cases:edit-report-correspondence",
+            "cases:edit-contact-details",
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
+        ("cases:edit-contact-details", "save_continue", "cases:edit-report-correspondence"),
+        ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
         (
             "cases:edit-report-correspondence",
@@ -961,16 +961,16 @@ def test_section_complete_check_displayed_in_contents(
     "step_url, flag_name, step_name",
     [
         ("cases:edit-case-details", "case_details_complete_date", "Case details"),
-        (
-            "cases:edit-contact-details",
-            "contact_details_complete_date",
-            "Contact details",
-        ),
         ("cases:edit-test-results", "testing_details_complete_date", "Testing details"),
         (
             "cases:edit-report-details",
             "reporting_details_complete_date",
             "Report details",
+        ),
+        (
+            "cases:edit-contact-details",
+            "contact_details_complete_date",
+            "Contact details",
         ),
         (
             "cases:edit-report-correspondence",
