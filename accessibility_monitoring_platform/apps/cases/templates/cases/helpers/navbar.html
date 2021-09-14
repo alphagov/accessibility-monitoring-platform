@@ -8,11 +8,6 @@
                 {% if case.case_details_complete_date %}&check;{% endif %}
             </li>
             <li>
-                <a href="#contact-details" class="govuk-link govuk-link--no-visited-state">
-                    Contact details{% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                {% if case.contact_details_complete_date %}&check;{% endif %}
-            </li>
-            <li>
                 <a href="#testing-details" class="govuk-link govuk-link--no-visited-state">
                     Testing details{% if case.testing_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.testing_details_complete_date %}&check;{% endif %}
@@ -21,6 +16,11 @@
                 <a href="#report-details" class="govuk-link govuk-link--no-visited-state">
                     Report details{% if case.reporting_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if case.reporting_details_complete_date %}&check;{% endif %}
+            </li>
+            <li>
+                <a href="#contact-details" class="govuk-link govuk-link--no-visited-state">
+                    Contact details{% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                {% if case.contact_details_complete_date %}&check;{% endif %}
             </li>
             <li>
                 <a href="#report-correspondence" class="govuk-link govuk-link--no-visited-state">
@@ -57,16 +57,6 @@
                 {% if case.case_details_complete_date %}&check;{% endif %}
             </li>
             <li>
-                {% if current_page == 'edit-contacts' %}
-                    Contact details
-                    {% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}
-                {% else %}
-                    <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Contact details{% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                {% endif %}
-                {% if case.contact_details_complete_date %}&check;{% endif %}
-            </li>
-            <li>
                 {% if current_page == 'edit-test-results' %}
                     Testing details
                     {% if case.testing_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}
@@ -85,6 +75,16 @@
                         Report details{% if case.reporting_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if case.reporting_details_complete_date %}&check;{% endif %}
+            </li>
+            <li>
+                {% if current_page == 'edit-contacts' %}
+                    Contact details
+                    {% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                {% else %}
+                    <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Contact details{% if case.contact_details_complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                {% endif %}
+                {% if case.contact_details_complete_date %}&check;{% endif %}
             </li>
             <li>
                 {% if current_page == 'edit-report-correspondence' %}

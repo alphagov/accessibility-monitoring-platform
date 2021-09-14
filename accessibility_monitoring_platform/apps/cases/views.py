@@ -47,7 +47,7 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
     DEFAULT_SORT,
 )
-from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date
+from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, download_ehrc_cases
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -288,6 +288,48 @@ class CaseDetailUpdateView(UpdateView):
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
             url = reverse_lazy(
+                "cases:edit-test-results", kwargs={"pk": self.object.id}
+            )
+        return url
+
+
+class CaseTestResultsUpdateView(UpdateView):
+    """
+    View to update case test results
+    """
+
+    model: Case = Case
+    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
+    context_object_name: str = "case"
+    template_name: str = "cases/forms/test_results.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
+                "cases:edit-report-details", kwargs={"pk": self.object.id}
+            )
+        return url
+
+
+class CaseReportDetailsUpdateView(UpdateView):
+    """
+    View to update case report details
+    """
+
+    model: Case = Case
+    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
+    context_object_name: str = "case"
+    template_name: str = "cases/forms/report_details.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        else:
+            url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}
             )
         return url
@@ -345,7 +387,7 @@ class CaseContactFormsetUpdateView(UpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
-            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:edit-report-correspondence", kwargs={"pk": self.object.id})
         elif "add_contact" in self.request.POST:
             url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:
@@ -358,48 +400,6 @@ class CaseContactFormsetUpdateView(UpdateView):
                 )
             else:
                 url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
-        return url
-
-
-class CaseTestResultsUpdateView(UpdateView):
-    """
-    View to update case test results
-    """
-
-    model: Case = Case
-    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
-    context_object_name: str = "case"
-    template_name: str = "cases/forms/test_results.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
-        else:
-            url = reverse_lazy(
-                "cases:edit-report-details", kwargs={"pk": self.object.id}
-            )
-        return url
-
-
-class CaseReportDetailsUpdateView(UpdateView):
-    """
-    View to update case report details
-    """
-
-    model: Case = Case
-    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
-    context_object_name: str = "case"
-    template_name: str = "cases/forms/report_details.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
-        else:
-            url = reverse_lazy(
-                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
-            )
         return url
 
 
@@ -697,6 +697,25 @@ def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
         filename=f"case_#{pk}.csv",
         include_contact=True,
     )
+
+
+def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
+    """
+    View to export cases to send to an enforcement body
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form.is_valid()
+    filters: Dict[str, Any] = build_filters(
+        cleaned_data=case_search_form.cleaned_data,
+        field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+    )
+    return download_ehrc_cases(cases=Case.objects.filter(**filters).order_by("id"))
 
 
 def restore_case(request: HttpRequest, pk: int) -> HttpResponse:

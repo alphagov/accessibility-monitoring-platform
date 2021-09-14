@@ -291,13 +291,13 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("save_continue").click()
 
-        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
         self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_name("save_continue").click()
+
+        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(
