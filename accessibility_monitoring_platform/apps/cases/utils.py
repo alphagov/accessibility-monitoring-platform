@@ -5,24 +5,27 @@ Utility functions for cases app
 import csv
 from dataclasses import dataclass
 from datetime import date
-from typing import Any, ClassVar, List, Union
+from typing import Any, ClassVar, Dict, List, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 
 from ..common.forms import AMPTextField, AMPURLField
+from ..common.utils import build_filters
 
 from .forms import (
     CaseDetailUpdateForm,
+    CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
     CaseReportCorrespondenceUpdateForm,
     CaseFinalDecisionUpdateForm,
+    DEFAULT_SORT,
 )
 
-from .models import Case
+from .models import Case, STATUS_READY_TO_QA
 
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",
@@ -38,6 +41,14 @@ EXCLUDED_FIELDS = [
     "report_correspondence_complete_date",
     "final_decision_complete_date",
     "enforcement_correspondence_complete_date",
+]
+
+CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
+    ("auditor", "auditor_id"),
+    ("reviewer", "reviewer_id"),
+    ("status", "status"),
+    ("start_date", "created__gte"),
+    ("end_date", "created__lte"),
 ]
 
 CONTACT_NAME_COLUMN_NUMBER = 3
@@ -165,6 +176,45 @@ def get_sent_date(
         return None
     date_on_db: date = getattr(case_from_db, sent_date_name)
     return date_on_db if date_on_db else date_on_form
+
+
+def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
+    """Return a queryset of Cases filtered by the values in CaseSearchForm"""
+    filters: Dict = {}
+    search_query = Q()
+    sort_by: str = DEFAULT_SORT
+
+    if hasattr(form, "cleaned_data"):
+        filters: Dict[str, Any] = build_filters(
+            cleaned_data=form.cleaned_data,
+            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+        )
+        sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
+        if not sort_by:
+            sort_by: str = DEFAULT_SORT
+        if form.cleaned_data["search"]:
+            search: str = form.cleaned_data["search"]
+            search_query = (
+                Q(organisation_name__icontains=search)
+                | Q(home_page_url__icontains=search)
+                | Q(id__icontains=search)
+                | Q(psb_location__icontains=search)
+                | Q(sector__name__icontains=search)
+            )
+
+    if filters.get("status", "") != "deleted":
+        filters["is_deleted"] = False
+
+    if filters.get("status", "") == STATUS_READY_TO_QA:
+        filters["qa_status"] = STATUS_READY_TO_QA
+        del filters["status"]
+
+    if "auditor_id" in filters and filters["auditor_id"] == "none":
+        filters["auditor_id"] = None
+    if "reviewer_id" in filters and filters["reviewer_id"] == "none":
+        filters["reviewer_id"] = None
+
+    return Case.objects.filter(search_query, **filters).order_by(sort_by)
 
 
 def download_ehrc_cases(

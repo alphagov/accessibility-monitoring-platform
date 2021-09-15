@@ -20,14 +20,15 @@ from ...common.forms import (
     AMPAuditorModelChoiceField,
 )
 from ..models import Case, TEST_TYPE_CHOICES
-from ..utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date
+from ..utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, filter_cases
 
-AUDITOR_LABEL = "Auditor"
-SECTOR_LABEL = "Sector"
-TEST_TYPE_LABEL = "Test type"
-HOME_PAGE_URL_LABEL = "Full URL"
-NOTES_LABEL = "Notes"
-REPORT_SENT_ON_LABEL = "Report sent on"
+AUDITOR_LABEL: str = "Auditor"
+SECTOR_LABEL: str = "Sector"
+TEST_TYPE_LABEL: str = "Test type"
+HOME_PAGE_URL_LABEL: str = "Full URL"
+NOTES_LABEL: str = "Notes"
+REPORT_SENT_ON_LABEL: str = "Report sent on"
+ORGANISATION_NAME: str = "Organisation name one"
 
 
 @dataclass
@@ -168,3 +169,15 @@ def test_extract_labels_and_values_with_no_values_set():
         label=REPORT_SENT_ON_LABEL,
         value=None,
     )
+
+
+@pytest.mark.django_db
+def test_case_filtered_by_search_string():
+    """Test that searching for cases is reflected in the queryset"""
+    Case.objects.create(organisation_name=ORGANISATION_NAME)
+    form: MockForm = MockForm(cleaned_data={"search": ORGANISATION_NAME})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].organisation_name == ORGANISATION_NAME

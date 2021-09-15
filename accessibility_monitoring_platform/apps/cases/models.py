@@ -386,7 +386,7 @@ class Case(models.Model):
             return "deleted"
         elif self.case_completed == "no-action" or self.escalation_state == "no-action":
             return "complete"
-        elif self.no_psb_contact == "yes" or self.case_completed == "escalated":
+        elif self.no_psb_contact == "yes" or self.case_completed == "further-action":
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"

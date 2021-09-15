@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List
 import urllib
 
 from django.db.models import Q
@@ -20,14 +20,13 @@ from django.views.generic.list import ListView
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
-    build_filters,
     format_date,
     download_as_csv,
     extract_domain_from_url,
     get_field_names_for_export,
     get_id_from_button_name,
 )
-from .models import Case, Contact, STATUS_READY_TO_QA
+from .models import Case, Contact
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -45,17 +44,9 @@ from .forms import (
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
     CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
-    DEFAULT_SORT,
 )
-from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, download_ehrc_cases
+from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, download_ehrc_cases, filter_cases
 
-CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
-    ("auditor", "auditor_id"),
-    ("reviewer", "reviewer_id"),
-    ("status", "status"),
-    ("start_date", "created__gte"),
-    ("end_date", "created__lte"),
-]
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
@@ -176,41 +167,7 @@ class CaseListView(ListView):
         if self.form.errors:
             return Case.objects.none()
 
-        filters: Dict = {}
-        search_query = Q()
-        sort_by: str = DEFAULT_SORT
-
-        if hasattr(self.form, "cleaned_data"):
-            filters: Dict[str, Any] = build_filters(
-                cleaned_data=self.form.cleaned_data,
-                field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
-            )
-            sort_by: str = self.form.cleaned_data.get("sort_by", DEFAULT_SORT)
-            if not sort_by:
-                sort_by: str = DEFAULT_SORT
-            if self.form.cleaned_data["search"]:
-                search: str = self.form.cleaned_data["search"]
-                search_query = (
-                    Q(organisation_name__icontains=search)
-                    | Q(home_page_url__icontains=search)
-                    | Q(id__icontains=search)
-                    | Q(psb_location__icontains=search)
-                    | Q(sector__name__icontains=search)
-                )
-
-        if filters.get("status", "") != "deleted":
-            filters["is_deleted"] = False
-
-        if filters.get("status", "") == STATUS_READY_TO_QA:
-            filters["qa_status"] = STATUS_READY_TO_QA
-            del filters["status"]
-
-        if "auditor_id" in filters and filters["auditor_id"] == "none":
-            filters["auditor_id"] = None
-        if "reviewer_id" in filters and filters["reviewer_id"] == "none":
-            filters["reviewer_id"] = None
-
-        return Case.objects.filter(search_query, **filters).order_by(sort_by)
+        return filter_cases(self.form)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add field values into context"""
@@ -668,12 +625,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    filters: Dict[str, Any] = build_filters(
-        cleaned_data=case_search_form.cleaned_data,
-        field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
-    )
     return download_as_csv(
-        queryset=Case.objects.filter(**filters),
+        queryset=filter_cases(form=case_search_form),
         field_names=get_field_names_for_export(Case),
         filename="cases.csv",
         include_contact=True,
@@ -711,11 +664,7 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    filters: Dict[str, Any] = build_filters(
-        cleaned_data=case_search_form.cleaned_data,
-        field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
-    )
-    return download_ehrc_cases(cases=Case.objects.filter(**filters).order_by("id"))
+    return download_ehrc_cases(cases=filter_cases(form=case_search_form))
 
 
 def restore_case(request: HttpRequest, pk: int) -> HttpResponse:

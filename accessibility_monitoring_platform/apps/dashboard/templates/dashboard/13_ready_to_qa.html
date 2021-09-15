@@ -21,7 +21,7 @@
                 <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header amp-width-one-quarter">{{item.created|date:"d/m/Y"}}</th>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        <a href="{% url 'cases:case-detail' item.id %}" class="govuk-link"> {{item.organisation_name|truncatechars:25}} </a>
+                        <a href="{% url 'cases:edit-report-details' item.id %}" class="govuk-link"> {{item.organisation_name|truncatechars:25}} </a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{item.domain|truncatechars:25}}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
