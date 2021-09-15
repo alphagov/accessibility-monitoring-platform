@@ -3,7 +3,14 @@ Tests for automated statuses
 """
 from datetime import datetime
 import pytest
-from ..models import Case
+from ..models import (
+    Case,
+    TEST_STATUS_CHOICES,
+    REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_APPROVED_STATUS_CHOICES,
+    CASE_COMPLETED_CHOICES,
+    ESCALATION_STATE_CHOICES,
+)
 from django.contrib.auth.models import User
 
 
@@ -41,7 +48,7 @@ def test_case_status_report_in_progress():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
+        test_status=TEST_STATUS_CHOICES[0][0],
     )
     case.save()
     assert case.status == "report-in-progress"
@@ -56,8 +63,8 @@ def test_case_status_qa_in_progress():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
     )
     case.save()
     assert case.status == "qa-in-progress"
@@ -72,9 +79,9 @@ def test_case_status_report_ready_to_send():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
     )
     case.save()
     assert case.status == "report-ready-to-send"
@@ -89,9 +96,9 @@ def test_case_status_in_report_correspondence():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         report_sent_date=datetime.now(),
     )
     case.save()
@@ -107,9 +114,9 @@ def test_case_status_in_probation_period():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
@@ -126,9 +133,9 @@ def test_case_status_in_12_week_correspondence():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -146,9 +153,9 @@ def test_case_status_final_decision_due():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
@@ -167,18 +174,39 @@ def test_case_status_in_correspondence_with_equalities_body():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
-        case_completed="escalated",
+        case_completed=CASE_COMPLETED_CHOICES[0][0],
     )
     case.save()
     assert case.status == "in-correspondence-with-equalities-body"
 
+@pytest.mark.django_db
+def test_case_status_complete():
+    """Test case returns in-correspondence-with-equalities-body for status"""
+    user = User.objects.create()
+    case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        case_completed=CASE_COMPLETED_CHOICES[0][0],
+        escalation_state=ESCALATION_STATE_CHOICES[0][0]
+    )
+    case.save()
+    assert case.status == "complete"
 
 @pytest.mark.django_db
 def test_case_qa_status_unassigned_qa_case():
@@ -189,8 +217,8 @@ def test_case_qa_status_unassigned_qa_case():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
     )
     case.save()
     assert case.qa_status == "unassigned-qa-case"
@@ -206,8 +234,8 @@ def test_case_qa_status_in_qa():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
         reviewer=user2,
     )
     case.save()
@@ -224,9 +252,9 @@ def test_case_qa_status_qa_approved():
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        test_status="complete",
-        report_review_status="ready-to-review",
-        report_approved_status="yes",
+        test_status=TEST_STATUS_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
         reviewer=user2,
     )
     case.save()
