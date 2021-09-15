@@ -2,10 +2,11 @@
 Test forms of cases app
 """
 import pytest
+from typing import List, Tuple
 
 from ..forms import CaseSearchForm
 
-USER_CHOICES = [("", "-----"), ("none", "Unassigned")]
+USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
 
 
 @pytest.mark.parametrize("fieldname", ["auditor", "reviewer"])

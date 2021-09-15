@@ -22,13 +22,13 @@ from ...common.forms import (
 from ..models import Case, TEST_TYPE_CHOICES
 from ..utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, filter_cases
 
-AUDITOR_LABEL = "Auditor"
-SECTOR_LABEL = "Sector"
-TEST_TYPE_LABEL = "Test type"
-HOME_PAGE_URL_LABEL = "Full URL"
-NOTES_LABEL = "Notes"
-REPORT_SENT_ON_LABEL = "Report sent on"
-ORGANISATION_NAME = "Organisation name one"
+AUDITOR_LABEL: str = "Auditor"
+SECTOR_LABEL: str = "Sector"
+TEST_TYPE_LABEL: str = "Test type"
+HOME_PAGE_URL_LABEL: str = "Full URL"
+NOTES_LABEL: str = "Notes"
+REPORT_SENT_ON_LABEL: str = "Report sent on"
+ORGANISATION_NAME: str = "Organisation name one"
 
 
 @dataclass
