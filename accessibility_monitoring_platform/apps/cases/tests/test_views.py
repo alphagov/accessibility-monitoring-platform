@@ -1158,8 +1158,8 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <td class="govuk-table__cell amp-width-one-half">
                 <a href="{reverse("cases:case-list")}?auditor={ user.id }" rel="noreferrer noopener" class="govuk-link">
                     Joe Bloggs
                 </a>
@@ -1182,8 +1182,8 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
     )
@@ -1203,8 +1203,8 @@ def test_case_details_includes_link_to_report(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Final PDF draft
                 </a>
@@ -1227,8 +1227,8 @@ def test_case_details_includes_no_link_to_report(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
     )

@@ -15,12 +15,12 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Report sent on</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_sent_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">Report sent on</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">1 week followup due</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">{{ case.report_followup_week_1_due_date|date:"d/m/Y" }}</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">1 week followup due</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_1_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">1 week followup sent</th>
@@ -36,11 +36,11 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Report acknowledged</th>
-            <td class="govuk-table__cell  govuk-!-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_acknowledged_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Zendesk ticket URL</th>
-            <td class="govuk-table__cell  govuk-!-width-one-half">
+            <td class="govuk-table__cell amp-width-one-half">
                 {% if case.zendesk_url %}
                     <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                         {{ case.zendesk_url }}

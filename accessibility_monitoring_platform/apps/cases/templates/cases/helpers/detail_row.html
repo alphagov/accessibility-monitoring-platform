@@ -1,6 +1,6 @@
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">{{ row.label }}</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
+            <th scope="row" class="govuk-table__header amp-width-one-half">{{ row.label }}</th>
+            <td class="govuk-table__cell amp-width-one-half">
                 {% if row.label == 'Auditor' %}
                     {% if row.value %}
                         <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" rel="noreferrer noopener" class="govuk-link">
