@@ -3,7 +3,7 @@ Tests for cases models
 """
 import pytest
 from datetime import date, datetime
-from typings import List
+from typing import List
 
 from ..models import Case, Contact
 
