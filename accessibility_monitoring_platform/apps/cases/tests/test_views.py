@@ -27,16 +27,16 @@ from ..views import (
 from ...common.models import Sector
 from ...common.utils import format_date, get_field_names_for_export
 
-CONTACT_EMAIL = "test@email.com"
-DOMAIN = "domain.com"
-HOME_PAGE_URL = f"https://{DOMAIN}"
-ORGANISATION_NAME = "Organisation name"
+CONTACT_EMAIL: str = "test@email.com"
+DOMAIN: str = "domain.com"
+HOME_PAGE_URL: str = f"https://{DOMAIN}"
+ORGANISATION_NAME: str = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
-ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
-FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
-TODAY = date.today()
+ONE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
+FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+TODAY: date = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
 
