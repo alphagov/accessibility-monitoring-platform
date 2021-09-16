@@ -786,15 +786,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     assert response.status_code == 200
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
         html=True,
     )
 
@@ -1025,7 +1025,7 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
     assert response.status_code == 200
     assertContains(
         response,
-        '<div id="event-name-hint" class="govuk-hint">'
+        '<div class="govuk-hint">'
         f'The retest form can be found in the <a href="{test_results_url}"'
         ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
@@ -1043,7 +1043,7 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     assert response.status_code == 200
     assertContains(
         response,
-        '<div id="event-name-hint" class="govuk-hint">'
+        '<div class="govuk-hint">'
         "There is no test spreadsheet for this case"
         "</div>",
     )
@@ -1066,7 +1066,7 @@ def test_case_final_decision_view_contains_placeholder_no_accessibility_statemen
         response,
         """<div class="govuk-form-group">
             <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
-            <div id="event-name-hint" class="govuk-hint">
+            <div class="govuk-hint">
                 No notes for this case
             </div>
         </div>""",
@@ -1091,7 +1091,7 @@ def test_case_final_decision_view_contains_placeholder_no_compliance_decision_no
         response,
         """<div class="govuk-form-group">
             <label class="govuk-label"><b>Initial compliance notes</b></label>
-            <div id="event-name-hint" class="govuk-hint">
+            <div class="govuk-hint">
                 No notes for this case
             </div>
         </div>""",
