@@ -37,7 +37,7 @@ EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 
 EXPECTED_CHECKBOX_WIDGET_HTML: str = """
 <div class="govuk-checkboxes__item">
-    <input class="govuk-checkboxes__input" type="checkbox" name="name" label="Label text">
+    <input class="govuk-checkboxes__input" type="checkbox" name="name">
     <label class="govuk-label govuk-checkboxes__label">Label text</label>
 </div>"""
 
@@ -50,7 +50,6 @@ EXPECTED_DATE_WIDGET_HTML: str = """
                     class="govuk-input govuk-date-input__input govuk-input--width-2"
                     type="number"
                     name="name_0"
-                    label="Day"
                     class="govuk-input govuk-date-input__input govuk-input--width-2"
                     pattern="[0-9]*"
                     inputmode="numeric">
@@ -63,7 +62,6 @@ EXPECTED_DATE_WIDGET_HTML: str = """
                     class="govuk-input govuk-date-input__input govuk-input--width-2"
                     type="number"
                     name="name_1"
-                    label="Month"
                     class="govuk-input govuk-date-input__input govuk-input--width-2"
                     pattern="[0-9]*"
                     inputmode="numeric">
@@ -76,7 +74,6 @@ EXPECTED_DATE_WIDGET_HTML: str = """
                     class="govuk-input govuk-date-input__input govuk-input--width-4"
                     type="number"
                     name="name_2"
-                    label="Year"
                     class="govuk-input govuk-date-input__input govuk-input--width-4"
                     pattern="[0-9]*"
                     inputmode="numeric">
