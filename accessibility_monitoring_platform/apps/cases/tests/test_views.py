@@ -27,16 +27,16 @@ from ..views import (
 from ...common.models import Sector
 from ...common.utils import format_date, get_field_names_for_export
 
-CONTACT_EMAIL = "test@email.com"
-DOMAIN = "domain.com"
-HOME_PAGE_URL = f"https://{DOMAIN}"
-ORGANISATION_NAME = "Organisation name"
+CONTACT_EMAIL: str = "test@email.com"
+DOMAIN: str = "domain.com"
+HOME_PAGE_URL: str = f"https://{DOMAIN}"
+ORGANISATION_NAME: str = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
-ONE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
-FOUR_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-TWELVE_WEEK_FOLLOWUP_DUE_DATE = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
-TODAY = date.today()
+ONE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
+FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+TODAY: date = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
 
@@ -1158,8 +1158,8 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <td class="govuk-table__cell amp-width-one-half">
                 <a href="{reverse("cases:case-list")}?auditor={ user.id }" rel="noreferrer noopener" class="govuk-link">
                     Joe Bloggs
                 </a>
@@ -1182,8 +1182,8 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Auditor</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
     )
@@ -1203,8 +1203,8 @@ def test_case_details_includes_link_to_report(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Final PDF draft
                 </a>
@@ -1227,8 +1227,8 @@ def test_case_details_includes_no_link_to_report(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header govuk-!-width-one-half">Link to final PDF report</th>
-            <td class="govuk-table__cell govuk-!-width-one-half">None</td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
     )

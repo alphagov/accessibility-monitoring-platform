@@ -3,12 +3,13 @@ Tests for cases models
 """
 import pytest
 from datetime import date, datetime
+from typing import List
 
 from ..models import Case, Contact
 
-DOMAIN = "example.com"
-HOME_PAGE_URL = f"https://{DOMAIN}/index.html"
-ORGANISATION_NAME = "Organisation name"
+DOMAIN: str = "example.com"
+HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
+ORGANISATION_NAME: str = "Organisation name"
 
 
 @pytest.mark.django_db
