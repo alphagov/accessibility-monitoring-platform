@@ -10,7 +10,7 @@
                     value="{{ widget.value|stringformat:'s' }}"
                 {% endif %}
                 {% for name, value in widget.attrs.items %}
-                    {% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
+                    {% if value is not False and name != 'label' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
                 {% endfor %}
             >
             <label class="govuk-label govuk-checkboxes__label"{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>

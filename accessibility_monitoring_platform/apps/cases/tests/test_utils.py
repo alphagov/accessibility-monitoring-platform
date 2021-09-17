@@ -20,7 +20,12 @@ from ...common.forms import (
     AMPAuditorModelChoiceField,
 )
 from ..models import Case, TEST_TYPE_CHOICES
-from ..utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, filter_cases
+from ..utils import (
+    CaseFieldLabelAndValue,
+    extract_labels_and_values,
+    get_sent_date,
+    filter_cases,
+)
 
 AUDITOR_LABEL: str = "Auditor"
 SECTOR_LABEL: str = "Sector"

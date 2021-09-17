@@ -186,6 +186,7 @@ def test_case_status_in_correspondence_with_equalities_body():
     case.save()
     assert case.status == "in-correspondence-with-equalities-body"
 
+
 @pytest.mark.django_db
 def test_case_status_complete():
     """Test case returns in-correspondence-with-equalities-body for status"""
@@ -203,10 +204,11 @@ def test_case_status_complete():
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_CHOICES[0][0],
-        escalation_state=ESCALATION_STATE_CHOICES[0][0]
+        escalation_state=ESCALATION_STATE_CHOICES[0][0],
     )
     case.save()
     assert case.status == "complete"
+
 
 @pytest.mark.django_db
 def test_case_qa_status_unassigned_qa_case():

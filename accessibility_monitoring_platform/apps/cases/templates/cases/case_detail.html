@@ -9,7 +9,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_title }}</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_heading }}</h1>
                     {% if case.escalation_state == 'no-action' %}
                         <strong class="govuk-tag" style="position: relative; top: -5px;">
                             completed
@@ -66,6 +66,7 @@
         </div>
         <div style="position: relative; top: -15px;">
             {% include 'cases/helpers/case_title.html' %}
+            {% include "cases/helpers/messages.html" %}
         </div>
 
         {% if case.no_psb_contact == 'yes' %}

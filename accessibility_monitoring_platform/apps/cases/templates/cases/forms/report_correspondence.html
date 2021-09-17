@@ -37,7 +37,7 @@
                             {% include 'common/amp_field.html' with field=form.report_followup_week_4_sent_date %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>12 week deadline</b></label>
-                                <div id="event-name-hint" class="govuk-hint">
+                                <div class="govuk-hint">
                                     {% if case.report_followup_week_12_due_date %}
                                         Due {{ case.report_followup_week_12_due_date|date:"d/m/Y" }}
                                     {% else %}

@@ -1,8 +1,10 @@
 """
 Context processors
 """
-
 import re
+from typing import Dict
+
+from ..cases.models import Case
 
 PAGE_TITLES_BY_URL = {
     "/": "Dashboard",
@@ -32,11 +34,22 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def page_title(request):
+def page_title(request) -> Dict[str, str]:
     """Lookup the page title using URL path and place it in context for template rendering"""
     url_without_id = re.sub(r"\d+", "[id]", request.path)
+    page_heading: str = PAGE_TITLES_BY_URL.get(
+        url_without_id, "Accessibility Monitoring Platform"
+    )
+
+    page_title: str = page_heading
+    if url_without_id.startswith("/cases/[id]/"):
+        try:
+            case: Case = Case.objects.get(id=request.path.split("/")[2])
+            page_title: str = f"{case.organisation_name} | {page_heading}"
+        except Case.DoesNotExist:
+            pass
+
     return {
-        "page_title": PAGE_TITLES_BY_URL.get(
-            url_without_id, "Accessibility Monitoring Platform"
-        ),
+        "page_heading": page_heading,
+        "page_title": page_title,
     }

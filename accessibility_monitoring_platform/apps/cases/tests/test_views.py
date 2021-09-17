@@ -34,8 +34,12 @@ ORGANISATION_NAME: str = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
-FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
+    days=FOUR_WEEKS_IN_DAYS
+)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
+    days=TWELVE_WEEKS_IN_DAYS
+)
 TODAY: date = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
@@ -542,7 +546,11 @@ def test_create_case_can_create_duplicate_cases(
             "cases:edit-contact-details",
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-contact-details", "save_continue", "cases:edit-report-correspondence"),
+        (
+            "cases:edit-contact-details",
+            "save_continue",
+            "cases:edit-report-correspondence",
+        ),
         ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
         (
@@ -786,15 +794,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     assert response.status_code == 200
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div id="event-name-hint" class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
         html=True,
     )
 
@@ -1025,7 +1033,7 @@ def test_case_final_decision_view_contains_link_to_test_results_url(admin_client
     assert response.status_code == 200
     assertContains(
         response,
-        '<div id="event-name-hint" class="govuk-hint">'
+        '<div class="govuk-hint">'
         f'The retest form can be found in the <a href="{test_results_url}"'
         ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
@@ -1043,7 +1051,7 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     assert response.status_code == 200
     assertContains(
         response,
-        '<div id="event-name-hint" class="govuk-hint">'
+        '<div class="govuk-hint">'
         "There is no test spreadsheet for this case"
         "</div>",
     )
@@ -1066,7 +1074,7 @@ def test_case_final_decision_view_contains_placeholder_no_accessibility_statemen
         response,
         """<div class="govuk-form-group">
             <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
-            <div id="event-name-hint" class="govuk-hint">
+            <div class="govuk-hint">
                 No notes for this case
             </div>
         </div>""",
@@ -1091,7 +1099,7 @@ def test_case_final_decision_view_contains_placeholder_no_compliance_decision_no
         response,
         """<div class="govuk-form-group">
             <label class="govuk-label"><b>Initial compliance notes</b></label>
-            <div id="event-name-hint" class="govuk-hint">
+            <div class="govuk-hint">
                 No notes for this case
             </div>
         </div>""",
@@ -1230,5 +1238,33 @@ def test_case_details_includes_no_link_to_report(admin_client):
             <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
+        html=True,
+    )
+
+
+def test_status_change_message_shown(admin_client):
+    """Test updating the case status causes a message to be shown on the next page"""
+    user: User = User.objects.create()
+    add_user_to_auditor_groups(user)
+
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "auditor": user.id,
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "save_continue": "Save and continue",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-inset-text">
+            Status changed from 'Unassigned case' to 'Test in progress'
+        </div>""",
         html=True,
     )
