@@ -46,7 +46,13 @@ from .forms import (
     CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
 )
-from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, download_ehrc_cases, filter_cases
+from .utils import (
+    CaseFieldLabelAndValue,
+    extract_labels_and_values,
+    get_sent_date,
+    download_ehrc_cases,
+    filter_cases,
+)
 
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
@@ -62,26 +68,6 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case
         )
     return Case.objects.filter(domain=domain)
 
-
-class CaseUpdateView(UpdateView):
-    """
-    View to update case
-    """
-
-    model: Case = Case
-    context_object_name: str = "case"
-
-    def form_valid(self, form: ModelForm):
-        """Add message on change of case"""
-        old_case: Case = Case.objects.get(pk=self.object.id)
-        new_case: Case = form.save()
-        if old_case.status != new_case.status:
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                f"Status changed from '{old_case.get_status_display()}' to '{new_case.get_status_display()}'"
-            )
-        return super().form_valid(form)
 
 def calculate_report_followup_dates(
     case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
@@ -127,6 +113,28 @@ def format_due_date_help_text(due_date: date) -> str:
     if due_date is None:
         return "None"
     return f"Due {format_date(due_date)}"
+
+
+class CaseUpdateView(UpdateView):
+    """
+    View to update case
+    """
+
+    model: Case = Case
+    context_object_name: str = "case"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of case"""
+        old_case: Case = Case.objects.get(pk=self.object.id)
+        new_case: Case = form.save()
+        if old_case.status != new_case.status:
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                f"Status changed from '{old_case.get_status_display()}' to '{new_case.get_status_display()}'",
+            )
+        self.object: Case = new_case
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CaseDetailView(DetailView):
@@ -263,9 +271,7 @@ class CaseDetailUpdateView(CaseUpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
-            url = reverse_lazy(
-                "cases:edit-test-results", kwargs={"pk": self.object.id}
-            )
+            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         return url
 
 
@@ -357,7 +363,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
-            url = reverse_lazy("cases:edit-report-correspondence", kwargs={"pk": self.object.id})
+            url = reverse_lazy(
+                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
+            )
         elif "add_contact" in self.request.POST:
             url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:

@@ -6,13 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0009_auto_20210910_0849'),
+        ("cases", "0009_auto_20210910_0849"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='status',
-            field=models.CharField(choices=[('', 'All'), ('unknown', 'Unknown'), ('unassigned-case', 'Unassigned case'), ('test-in-progress', 'Test in progress'), ('report-in-progress', 'Report in progress'), ('unassigned-qa-case', 'Report ready to QA'), ('qa-in-progress', 'QA in progress'), ('report-ready-to-send', 'Report ready to send'), ('in-report-correspondence', 'Report sent'), ('in-probation-period', 'Report acknowledged waiting for 12 week deadline'), ('in-12-week-correspondence', 'After 12 week correspondence'), ('final-decision-due', 'Final decision due'), ('in-correspondence-with-equalities-body', 'In correspondence with equalities body'), ('complete', 'Complete'), ('deleted', 'Deleted')], default='unassigned-case', max_length=200),
+            model_name="case",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("", "All"),
+                    ("unknown", "Unknown"),
+                    ("unassigned-case", "Unassigned case"),
+                    ("test-in-progress", "Test in progress"),
+                    ("report-in-progress", "Report in progress"),
+                    ("unassigned-qa-case", "Report ready to QA"),
+                    ("qa-in-progress", "QA in progress"),
+                    ("report-ready-to-send", "Report ready to send"),
+                    ("in-report-correspondence", "Report sent"),
+                    (
+                        "in-probation-period",
+                        "Report acknowledged waiting for 12 week deadline",
+                    ),
+                    ("in-12-week-correspondence", "After 12 week correspondence"),
+                    ("final-decision-due", "Final decision due"),
+                    (
+                        "in-correspondence-with-equalities-body",
+                        "In correspondence with equalities body",
+                    ),
+                    ("complete", "Complete"),
+                    ("deleted", "Deleted"),
+                ],
+                default="unassigned-case",
+                max_length=200,
+            ),
         ),
     ]
