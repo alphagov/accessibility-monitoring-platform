@@ -13,6 +13,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}
@@ -27,12 +28,13 @@
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
                                                 <h2 class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
-                                                <div class="govuk-error-message">{{ contact_form.non_field_errors }}</div>
+                                                {% include 'common/form_errors.html' with errors=contact_form.non_field_errors %}
 
                                                 {% for hidden_field in contact_form.hidden_fields %}
                                                     <div class="govuk-error-message">{{ hidden_field.errors }}</div>
                                                     {{ hidden_field }}
                                                 {% endfor %}
+                                                {% include 'common/form_hidden_fields.html' with hidden_fields=contact_form.hidden_fields %}
                                             </div>
                                             {% for field in contact_form.visible_fields %}
                                                 {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}

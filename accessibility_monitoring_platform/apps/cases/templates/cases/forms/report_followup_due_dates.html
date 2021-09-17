@@ -11,6 +11,7 @@
                 {% include "cases/helpers/edit_header.html" %}
             </div>
         </div>
+        {% include 'common/error_summary.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-body">
@@ -22,7 +23,9 @@
                 <form method="post" action="{% url 'cases:edit-report-followup-due-dates' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        {% include 'common/amp_form_snippet.html' %}
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

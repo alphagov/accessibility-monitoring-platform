@@ -8,7 +8,7 @@
                 {% for field in form.visible_fields %}
                     {% for error in field.errors%}
                         <li>
-                            <a href="#{{ field.auto_id }}-error">{{ error }}</a>
+                            <a href="#{{ field.auto_id }}-label">{{ error }}</a>
                         </li>
                     {% endfor %}
                 {% endfor %}

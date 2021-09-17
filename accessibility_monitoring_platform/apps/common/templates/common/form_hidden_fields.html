@@ -1,0 +1,4 @@
+{% for hidden_field in hidden_fields %}
+    {% include 'common/form_errors.html' with errors=hidden_field.errors %}
+    {{ hidden_field }}
+{% endfor %}

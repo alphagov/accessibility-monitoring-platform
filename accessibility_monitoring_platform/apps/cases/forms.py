@@ -100,10 +100,7 @@ class CaseCreateForm(forms.ModelForm):
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
     )
-    home_page_url = AMPURLField(
-        label="Full URL",
-        required=True,
-    )
+    home_page_url = AMPURLField(label="Full URL")
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
@@ -125,11 +122,17 @@ class CaseCreateForm(forms.ModelForm):
             "is_complaint",
         ]
 
+    def clean_home_page_url(self):
+        home_page_url = self.cleaned_data.get("home_page_url")
+        if not home_page_url:
+            raise ValidationError("Full URL is required")
+        return home_page_url
+
     def clean_enforcement_body(self):
-        data = self.cleaned_data.get("enforcement_body")
-        if not data:
-            raise ValidationError("This field is required")
-        return data
+        enforcement_body = self.cleaned_data.get("enforcement_body")
+        if not enforcement_body:
+            raise ValidationError("Choose which equalities body will check the case")
+        return enforcement_body
 
 
 class CaseDetailUpdateForm(CaseCreateForm):
@@ -226,9 +229,8 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         report_draft_url = cleaned_data.get("report_draft_url")
         report_review_status = cleaned_data.get("report_review_status")
         if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
-            self.add_error("report_draft_url", "Needed if report is ready to be reviewed")
-            self.add_error("report_review_status", "Link to report draft is required if report is ready to be reviewed")
-            #raise ValidationError("Link to report draft is required if report is ready to be reviewed")
+            self.add_error("report_draft_url", "Add link to report draft, if report is ready to be reviewed")
+            self.add_error("report_review_status", "Report cannot be ready to be reviewed without a link to report draft")
         return cleaned_data
 
     class Meta:

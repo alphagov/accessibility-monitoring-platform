@@ -26,22 +26,14 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
-                    {% csrf_token %}
+            <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
+                {% csrf_token %}
 
-                    {% if form.non_field_errors %}
-                        <div class="govuk-error-message">
-                            {% for error in form.non_field_errors %}
-                                <p class="govuk-error-message">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                <div class="govuk-grid-column-full{% if duplicate_cases %} hidden-form{% endif %}">
+                    {% include 'common/amp_form_snippet.html' %}
+                </div>
 
-                    {% for hidden_field in form.hidden_fields %}
-                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                        {{ hidden_field }}
-                    {% endfor %}
+                <div class="govuk-grid-column-full">
 
                     {% if duplicate_cases %}
                         <div class="govuk-body">
@@ -64,23 +56,6 @@
                             <p class="govuk-!-font-weight-regular">{{ new_case.get_is_complaint_display }}</p>
                         </div>
                     {% endif %}
-
-                    <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
-                        {% for field in form.visible_fields %}
-                            <div class="govuk-grid-column-full govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
-                                <label class="govuk-label"
-                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                </label>
-                                <p class="govuk-body-m">{{ field.help_text }}</p>
-                                <span id="{{ field.auto_id }}-error" class="govuk-error-message">
-                                    {% for error in field.errors %}
-                                        <span class="govuk-visually-hidden">Error:</span> {{ error }}
-                                    {% endfor %}
-                                </span>
-                                {{ field }}
-                            </div>
-                        {% endfor %}
-                    </div>
 
                     {% if duplicate_cases %}
                         <h2 id="case-details" class="govuk-heading-m">Duplicate cases</h2>
@@ -111,7 +86,6 @@
                         </table>
                         <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
                     {% endif %}
-
 
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -144,8 +118,8 @@
                             </a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </main>
 </div>

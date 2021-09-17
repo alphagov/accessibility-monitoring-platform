@@ -13,6 +13,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
                 <p class="govuk-body-m">
                     <a
                         href="{% url 'cases:edit-report-followup-due-dates' case.id %}"
@@ -24,12 +25,9 @@
                 <form method="post" action="{% url 'cases:edit-report-correspondence' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+                        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
 
-                        {% for hidden_field in form.hidden_fields %}
-                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                            {{ hidden_field }}
-                        {% endfor %}
+                        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.report_sent_date %}
