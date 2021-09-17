@@ -6,17 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0010_alter_case_status'),
+        ("cases", "0010_alter_case_status"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='case',
-            name='is_website_compliant_final',
+            model_name="case",
+            name="is_website_compliant_final",
         ),
         migrations.AlterField(
-            model_name='case',
-            name='case_completed',
-            field=models.CharField(choices=[('further-action', 'Yes'), ('no-action', 'No'), ('no-decision', 'Not selected')], default='no-decision', max_length=30),
+            model_name="case",
+            name="case_completed",
+            field=models.CharField(
+                choices=[
+                    ("further-action", "Yes"),
+                    ("no-action", "No"),
+                    ("no-decision", "Not selected"),
+                ],
+                default="no-decision",
+                max_length=30,
+            ),
         ),
     ]

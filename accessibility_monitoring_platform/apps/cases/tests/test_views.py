@@ -34,8 +34,12 @@ ORGANISATION_NAME: str = "Organisation name"
 REPORT_SENT_DATE: date = date(2021, 2, 28)
 OTHER_DATE: date = date(2020, 12, 31)
 ONE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=ONE_WEEK_IN_DAYS)
-FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=FOUR_WEEKS_IN_DAYS)
-TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
+    days=FOUR_WEEKS_IN_DAYS
+)
+TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
+    days=TWELVE_WEEKS_IN_DAYS
+)
 TODAY: date = date.today()
 case_fields_to_export_str = ",".join(get_field_names_for_export(Case))
 
@@ -542,7 +546,11 @@ def test_create_case_can_create_duplicate_cases(
             "cases:edit-contact-details",
         ),
         ("cases:edit-report-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-contact-details", "save_continue", "cases:edit-report-correspondence"),
+        (
+            "cases:edit-contact-details",
+            "save_continue",
+            "cases:edit-report-correspondence",
+        ),
         ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
         ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
         (

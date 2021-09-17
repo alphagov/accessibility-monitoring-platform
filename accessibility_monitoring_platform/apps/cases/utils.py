@@ -235,7 +235,9 @@ def download_ehrc_cases(
             row[column_number] = getattr(case, field_name)
 
         contacts = list(case.contact_set.filter(is_deleted=False))
-        contact_name = "\n".join([f"{contact.first_name} {contact.last_name}" for contact in contacts])
+        contact_name = "\n".join(
+            [f"{contact.first_name} {contact.last_name}" for contact in contacts]
+        )
         job_title = "\n".join([contact.job_title for contact in contacts])
         contact_detail = "\n".join([contact.email for contact in contacts])
         contact_notes = "\n\n".join([contact.notes for contact in contacts])

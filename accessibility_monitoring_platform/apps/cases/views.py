@@ -45,7 +45,13 @@ from .forms import (
     CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
 )
-from .utils import CaseFieldLabelAndValue, extract_labels_and_values, get_sent_date, download_ehrc_cases, filter_cases
+from .utils import (
+    CaseFieldLabelAndValue,
+    extract_labels_and_values,
+    get_sent_date,
+    download_ehrc_cases,
+    filter_cases,
+)
 
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
@@ -244,9 +250,7 @@ class CaseDetailUpdateView(UpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         else:
-            url = reverse_lazy(
-                "cases:edit-test-results", kwargs={"pk": self.object.id}
-            )
+            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         return url
 
 
@@ -344,7 +348,9 @@ class CaseContactFormsetUpdateView(UpdateView):
         if "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
         elif "save_continue" in self.request.POST:
-            url = reverse_lazy("cases:edit-report-correspondence", kwargs={"pk": self.object.id})
+            url = reverse_lazy(
+                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
+            )
         elif "add_contact" in self.request.POST:
             url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
         else:
