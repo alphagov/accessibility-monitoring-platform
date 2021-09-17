@@ -28,7 +28,13 @@
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
                                                 <h2 class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
-                                                {% include 'common/amp_form_snippet.html' with form=contact_form %}
+                                                {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                                                {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                                                {% for field in contact_form.visible_fields %}
+                                                    {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}
+                                                        {% include 'common/amp_field.html' %}
+                                                    {% endif %}
+                                                {% endfor %}
                                             </div>
                                             {% if contact_form.instance.id %}
                                                 <div class="govuk-grid-column-full">
