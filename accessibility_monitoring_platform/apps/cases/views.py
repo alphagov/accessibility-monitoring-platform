@@ -6,6 +6,7 @@ from functools import partial
 from typing import Any, Callable, Dict, List
 import urllib
 
+from django.contrib import messages
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -112,6 +113,28 @@ def format_due_date_help_text(due_date: date) -> str:
     if due_date is None:
         return "None"
     return f"Due {format_date(due_date)}"
+
+
+class CaseUpdateView(UpdateView):
+    """
+    View to update case
+    """
+
+    model: Case = Case
+    context_object_name: str = "case"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of case"""
+        old_case: Case = Case.objects.get(pk=self.object.id)
+        new_case: Case = form.save()
+        if old_case.status != new_case.status:
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                f"Status changed from '{old_case.get_status_display()}' to '{new_case.get_status_display()}'",
+            )
+        self.object: Case = new_case
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CaseDetailView(DetailView):
@@ -235,14 +258,12 @@ class CaseCreateView(CreateView):
         return url
 
 
-class CaseDetailUpdateView(UpdateView):
+class CaseDetailUpdateView(CaseUpdateView):
     """
     View to update case details
     """
 
-    model: Case = Case
     form_class: CaseDetailUpdateForm = CaseDetailUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/details.html"
 
     def get_success_url(self) -> str:
@@ -254,14 +275,12 @@ class CaseDetailUpdateView(UpdateView):
         return url
 
 
-class CaseTestResultsUpdateView(UpdateView):
+class CaseTestResultsUpdateView(CaseUpdateView):
     """
     View to update case test results
     """
 
-    model: Case = Case
     form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/test_results.html"
 
     def get_success_url(self) -> str:
@@ -275,14 +294,12 @@ class CaseTestResultsUpdateView(UpdateView):
         return url
 
 
-class CaseReportDetailsUpdateView(UpdateView):
+class CaseReportDetailsUpdateView(CaseUpdateView):
     """
     View to update case report details
     """
 
-    model: Case = Case
     form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/report_details.html"
 
     def get_success_url(self) -> str:
@@ -296,14 +313,12 @@ class CaseReportDetailsUpdateView(UpdateView):
         return url
 
 
-class CaseContactFormsetUpdateView(UpdateView):
+class CaseContactFormsetUpdateView(CaseUpdateView):
     """
     View to update case contacts
     """
 
-    model: Case = Case
     form_class: CaseContactsUpdateForm = CaseContactsUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/contact_formset.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -366,14 +381,12 @@ class CaseContactFormsetUpdateView(UpdateView):
         return url
 
 
-class CaseReportCorrespondenceUpdateView(UpdateView):
+class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     """
     View to update case post report details
     """
 
-    model: Case = Case
     form_class: CaseReportCorrespondenceUpdateForm = CaseReportCorrespondenceUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/report_correspondence.html"
 
     def get_form(self):
@@ -425,16 +438,14 @@ class CaseReportCorrespondenceUpdateView(UpdateView):
             )
 
 
-class CaseReportFollowupDueDatesUpdateView(UpdateView):
+class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
     """
     View to update report followup due dates
     """
 
-    model: Case = Case
     form_class: CaseReportFollowupDueDatesUpdateForm = (
         CaseReportFollowupDueDatesUpdateForm
     )
-    context_object_name: str = "case"
     template_name: str = "cases/forms/report_followup_due_dates.html"
 
     def get_success_url(self) -> str:
@@ -444,16 +455,14 @@ class CaseReportFollowupDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
+class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     """
     View to record week twelve correspondence details
     """
 
-    model: Case = Case
     form_class: CaseTwelveWeekCorrespondenceUpdateForm = (
         CaseTwelveWeekCorrespondenceUpdateForm
     )
-    context_object_name: str = "case"
     template_name: str = "cases/forms/twelve_week_correspondence.html"
 
     def get_form(self):
@@ -510,16 +519,14 @@ class CaseTwelveWeekCorrespondenceUpdateView(UpdateView):
         return url
 
 
-class CaseTwelveWeekCorrespondenceDueDatesUpdateView(UpdateView):
+class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     """
     View to update twelve week correspondence followup due dates
     """
 
-    model: Case = Case
     form_class: CaseTwelveWeekCorrespondenceDueDatesUpdateForm = (
         CaseTwelveWeekCorrespondenceDueDatesUpdateForm
     )
-    context_object_name: str = "case"
     template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
 
     def get_success_url(self) -> str:
@@ -529,14 +536,12 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(UpdateView):
         )
 
 
-class CaseNoPSBResponseUpdateView(UpdateView):
+class CaseNoPSBResponseUpdateView(CaseUpdateView):
     """
     View to set no psb contact flag
     """
 
-    model: Case = Case
     form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/no_psb_response.html"
 
     def get_success_url(self) -> str:
@@ -547,14 +552,12 @@ class CaseNoPSBResponseUpdateView(UpdateView):
         )
 
 
-class CaseFinalDecisionUpdateView(UpdateView):
+class CaseFinalDecisionUpdateView(CaseUpdateView):
     """
     View to record final decision details
     """
 
-    model: Case = Case
     form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/final_decision.html"
 
     def get_form(self):
@@ -580,16 +583,14 @@ class CaseFinalDecisionUpdateView(UpdateView):
         return url
 
 
-class CaseEnforcementBodyCorrespondenceUpdateView(UpdateView):
+class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     """
     View to note correspondence with enforcement body
     """
 
-    model: Case = Case
     form_class: CaseEnforcementBodyCorrespondenceUpdateForm = (
         CaseEnforcementBodyCorrespondenceUpdateForm
     )
-    context_object_name: str = "case"
     template_name: str = "cases/forms/enforcement_body_correspondence.html"
 
     def get_success_url(self) -> str:
@@ -597,14 +598,12 @@ class CaseEnforcementBodyCorrespondenceUpdateView(UpdateView):
         return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
 
 
-class CaseDeleteUpdateView(UpdateView):
+class CaseDeleteUpdateView(CaseUpdateView):
     """
     View to delete case
     """
 
-    model: Case = Case
     form_class: CaseDeleteForm = CaseDeleteForm
-    context_object_name: str = "case"
     template_name: str = "cases/forms/delete.html"
 
     def form_valid(self, form: ModelForm):

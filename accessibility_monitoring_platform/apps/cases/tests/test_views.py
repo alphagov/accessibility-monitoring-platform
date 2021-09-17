@@ -1240,3 +1240,31 @@ def test_case_details_includes_no_link_to_report(admin_client):
         </tr>""",
         html=True,
     )
+
+
+def test_status_change_message_shown(admin_client):
+    """Test updating the case status causes a message to be shown on the next page"""
+    user: User = User.objects.create()
+    add_user_to_auditor_groups(user)
+
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
+        {
+            "auditor": user.id,
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "save_continue": "Save and continue",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-inset-text">
+            Status changed from 'Unassigned case' to 'Test in progress'
+        </div>""",
+        html=True,
+    )
