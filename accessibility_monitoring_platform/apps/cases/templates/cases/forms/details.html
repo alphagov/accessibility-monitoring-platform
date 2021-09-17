@@ -18,9 +18,7 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date created</b></label>

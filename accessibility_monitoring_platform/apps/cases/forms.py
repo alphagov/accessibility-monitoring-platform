@@ -229,8 +229,14 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         report_draft_url = cleaned_data.get("report_draft_url")
         report_review_status = cleaned_data.get("report_review_status")
         if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
-            self.add_error("report_draft_url", "Add link to report draft, if report is ready to be reviewed")
-            self.add_error("report_review_status", "Report cannot be ready to be reviewed without a link to report draft")
+            self.add_error(
+                "report_draft_url",
+                "Add link to report draft, if report is ready to be reviewed",
+            )
+            self.add_error(
+                "report_review_status",
+                "Report cannot be ready to be reviewed without a link to report draft",
+            )
         return cleaned_data
 
     class Meta:

@@ -11,9 +11,9 @@
                 {% include "cases/helpers/edit_header.html" %}
             </div>
         </div>
-        {% include 'common/error_summary.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-twelve-week-correspondence-due-dates' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

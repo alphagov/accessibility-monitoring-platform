@@ -28,26 +28,8 @@
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
                                                 <h2 class="govuk-heading-m">Contact {{ forloop.counter }}</h2>
-                                                {% include 'common/form_errors.html' with errors=contact_form.non_field_errors %}
-
-                                                {% for hidden_field in contact_form.hidden_fields %}
-                                                    <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                                                    {{ hidden_field }}
-                                                {% endfor %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=contact_form.hidden_fields %}
+                                                {% include 'common/amp_form_snippet.html' with form=contact_form %}
                                             </div>
-                                            {% for field in contact_form.visible_fields %}
-                                                {% if field.name != "preferred" or contacts_formset.total_form_count > 1 %}
-                                                    <div class="govuk-grid-column-full govuk-form-group">
-                                                        <label class="govuk-label"
-                                                            for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                                        </label>
-                                                        <div class="govuk-error-message">{{ field.errors }}</div>
-                                                        <p class="govuk-body-m">{{ field.help_text }}</p>
-                                                        {{ field }}
-                                                    </div>
-                                                {% endif %}
-                                            {% endfor %}
                                             {% if contact_form.instance.id %}
                                                 <div class="govuk-grid-column-full">
                                                     <input
@@ -74,9 +56,7 @@
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     />
-                    {% for field in form.visible_fields %}
-                        {% include 'common/amp_field.html' %}
-                    {% endfor %}
+                    {% include 'common/amp_form_snippet.html' %}
                     <div class="govuk-button-group">
                         <input
                             type="submit"

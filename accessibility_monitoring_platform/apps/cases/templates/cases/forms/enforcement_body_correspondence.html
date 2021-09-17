@@ -11,7 +11,6 @@
                 {% include "cases/helpers/edit_header.html" %}
             </div>
         </div>
-        {% include 'common/error_summary.html' %}
         {% if case.no_psb_contact == 'yes' %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -23,10 +22,10 @@
         {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Public sector body appeal deadline</b></label>
@@ -39,7 +38,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
