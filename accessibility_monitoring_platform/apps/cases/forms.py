@@ -42,6 +42,7 @@ from .models import (
     ENFORCEMENT_BODY_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
 )
@@ -219,6 +220,16 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     reporting_details_complete_date = AMPDatePageCompleteField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        report_draft_url = cleaned_data.get("report_draft_url")
+        report_review_status = cleaned_data.get("report_review_status")
+        if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
+            self.add_error("report_draft_url", "Needed if report is ready to be reviewed")
+            self.add_error("report_review_status", "Link to report draft is required if report is ready to be reviewed")
+            #raise ValidationError("Link to report draft is required if report is ready to be reviewed")
+        return cleaned_data
 
     class Meta:
         model = Case

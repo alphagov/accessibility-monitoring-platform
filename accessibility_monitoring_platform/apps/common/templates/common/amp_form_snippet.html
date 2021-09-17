@@ -1,5 +1,9 @@
 {% if form.non_field_errors %}
-    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+    <div class="govuk-grid-column-full govuk-error-message">
+        {% for error in form.non_field_errors %}
+            <p class="govuk-error-message">{{ error }}</p>
+        {% endfor %}
+    </div>
 {% endif %}
 
 {% for hidden_field in form.hidden_fields %}
