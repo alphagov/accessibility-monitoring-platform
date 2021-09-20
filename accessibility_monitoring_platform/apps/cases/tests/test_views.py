@@ -1262,3 +1262,46 @@ def test_status_change_message_shown(admin_client):
         </div>""",
         html=True,
     )
+
+
+def test_repost_ready_to_review_with_no_report_error_messages(admin_client):
+    """
+    Test that the report details page shows the expected error messages
+    when the report is set to ready to review while the link to report draft is empty
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        {
+            "report_draft_url": "",
+            "report_review_status": "ready-to-review",
+            "save_continue": "Save and continue",
+        },
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<ul class="govuk-list govuk-error-summary__list">
+            <li><a href="#id_report_draft_url-label">Add link to report draft, if report is ready to be reviewed</a></li>
+            <li><a href="#id_report_review_status-label">Report cannot be ready to be reviewed without a link to report draft</a></li>
+        </ul>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            Add link to report draft, if report is ready to be reviewed
+        </p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            Report cannot be ready to be reviewed without a link to report draft
+        </p>""",
+        html=True,
+    )
