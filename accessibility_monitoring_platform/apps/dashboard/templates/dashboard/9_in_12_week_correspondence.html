@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-{% if table_data.count == 0 %}
+{% if table_data|length == 0 %}
    <p class="govuk-body">There are currently no cases in after 12 week correspondence</p>
 {% else %}
     <table class="govuk-table case-dashboard">
