@@ -139,7 +139,7 @@ class SeleniumTest(unittest.TestCase):
     def setUp(self):
         """Setup selenium test environment"""
         options: Options = Options()
-        if settings['headless']:
+        if settings["headless"]:
             options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(

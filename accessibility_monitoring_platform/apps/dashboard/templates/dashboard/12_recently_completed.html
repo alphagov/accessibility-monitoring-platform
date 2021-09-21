@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-{% if table_data|length == 0 %}
+{% if cases|length == 0 %}
    <p class="govuk-body"> There are currently no recently completed cases </p>
 {% else %}
     <table class="govuk-table case-dashboard">
@@ -17,22 +17,22 @@
             </tr>
         </thead>
         <tbody class="govuk-table__body">
-            {% for item in table_data %}
+            {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-one-quarter">{{item.completed_date|date:"d/m/Y"}}</th>
+                    <th scope="row" class="govuk-table__header amp-width-one-quarter">{{case.completed_date|date:"d/m/Y"}}</th>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        <a href="{% url 'cases:case-detail' item.id %}" class="govuk-link">{{item.organisation_name|truncatechars:25}}</a>
+                        <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link">{{case.organisation_name|truncatechars:25}}</a>
                     </td>
-                    <td class="govuk-table__cell amp-width-one-quarter">{{item.domain|truncatechars:25}}</td>
+                    <td class="govuk-table__cell amp-width-one-quarter">{{case.domain|truncatechars:25}}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         {% if show_all_cases %}
-                            {% if item.auditor %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{item.auditor.id}}" class="govuk-link"> {{item.auditor.first_name}} {{item.auditor.last_name}} </a>
+                            {% if case.auditor %}
+                                <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link"> {{case.auditor.first_name}} {{case.auditor.last_name}} </a>
                             {% else %}
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-final-decision' item.id %}" class="govuk-link"> Completed </a>
+                            <a href="{% url 'cases:edit-final-decision' case.id %}" class="govuk-link"> Completed </a>
                         {% endif %}
                     </td>
                 </tr>

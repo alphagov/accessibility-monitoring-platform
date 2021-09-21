@@ -97,8 +97,8 @@ MOCK_CASES: List[MockCase] = [
     MockCase(id=5, status="test-in-progress"),
     MockCase(id=4, status="unassigned-case"),
     MockCase(id=3, status="unassigned-case"),
-    MockCase(id=2, status="unknown"),
-    MockCase(id=1, status="unknown"),
+    MockCase(id=2),
+    MockCase(id=1),
 ]
 
 EXPECTED_MOCK_CASES_BY_STATUS = {
@@ -182,8 +182,8 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(id=4, status="unassigned-case"),
     ],
     "unknown": [
-        MockCase(id=1, status="unknown"),
-        MockCase(id=2, status="unknown"),
+        MockCase(id=1),
+        MockCase(id=2),
         MockCase(id=26, qa_status="unassigned-qa-case"),
         MockCase(id=27, qa_status="unassigned-qa-case"),
         MockCase(id=28, qa_status="in-qa"),
