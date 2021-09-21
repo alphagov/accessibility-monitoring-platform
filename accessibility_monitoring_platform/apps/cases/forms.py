@@ -38,6 +38,7 @@ from .models import (
     PREFERRED_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
     BOOLEAN_CHOICES,
+    TWELVE_WEEK_RESPONSE_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     PSB_LOCATION_CHOICES,
@@ -358,10 +359,9 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
         label="12 week update received"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
-    twelve_week_response_state = AMPChoiceCheckboxField(
+    twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(attrs={"label": "No response?"}),
+        choices=TWELVE_WEEK_RESPONSE_CHOICES,
     )
     twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
 

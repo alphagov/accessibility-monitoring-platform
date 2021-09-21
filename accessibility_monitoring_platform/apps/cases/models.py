@@ -101,6 +101,13 @@ REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
+TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
+TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (TWELVE_WEEK_RESPONSE_DEFAULT, "Not selected"),
+]
+
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -285,7 +292,7 @@ class Case(models.Model):
     )
     # correspondence_notes from report correspondence page
     twelve_week_response_state = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20, choices=TWELVE_WEEK_RESPONSE_CHOICES, default=TWELVE_WEEK_RESPONSE_DEFAULT
     )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
