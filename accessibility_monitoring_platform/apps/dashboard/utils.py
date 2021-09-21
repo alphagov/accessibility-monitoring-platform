@@ -73,11 +73,7 @@ def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
 def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Case]:
     """Find all cases where the user is the reviewer and return those in QA"""
     return sorted(
-        [
-            case
-            for case in cases
-            if case.reviewer == user and case.qa_status == "in-qa"
-        ],
+        [case for case in cases if case.reviewer == user and case.qa_status == "in-qa"],
         key=lambda case: case.id,
     )
 

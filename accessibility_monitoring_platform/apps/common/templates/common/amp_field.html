@@ -1,7 +1,7 @@
 {% if field.errors %}
     <div class="govuk-form-group govuk-form-group--error">
         <label class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
-        <div class="govuk-hint">{{ field.help_text }}</div>
+        {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
         <span id="event-name-error" class="govuk-error-message">
             {% for error in field.errors %}
                 <span class="govuk-visually-hidden">Error:</span> {{ error }}
@@ -13,15 +13,15 @@
     <div class="govuk-form-group">
         {% if field.field.widget.input_type == 'radio' %}
             <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l no-bottom-margin">
-                <label class="govuk-label"><b>{{ field.label }}</b></label>
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <label class="govuk-label"><b>{{ field.label }}</b></label>
                 </legend>
-                <div class="govuk-hint">{{ field.help_text }}</div>
+                {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
                 {{ field }}
             </fieldset>
         {% else %}
             <label class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
-            <div class="govuk-hint">{{ field.help_text }}</div>
+            {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
             {{ field }}
         {% endif %}
     </div>
