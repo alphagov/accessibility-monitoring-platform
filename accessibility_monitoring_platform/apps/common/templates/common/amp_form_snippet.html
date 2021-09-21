@@ -1,14 +1,7 @@
-{% if form.non_field_errors %}
-    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
-{% endif %}
+{% include 'common/form_errors.html' with errors=form.non_field_errors %}
 
-{% for hidden_field in form.hidden_fields %}
-    <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-    {{ hidden_field }}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+{% for field in form.visible_fields %}
+    {% include 'common/amp_field.html' %}
 {% endfor %}
-
-<div class="govuk-grid-column-full">
-    {% for field in form.visible_fields %}
-        {% include 'common/amp_field.html' %}
-    {% endfor %}
-</div>
