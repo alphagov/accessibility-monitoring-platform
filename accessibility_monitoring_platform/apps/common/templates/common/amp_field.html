@@ -13,10 +13,10 @@
     <div class="govuk-form-group">
         {% if field.field.widget.input_type == 'radio' %}
             <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l no-bottom-margin">
-                <label class="govuk-label"><b>{{ field.label }}</b></label>
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <label class="govuk-label"><b>{{ field.label }}</b></label>
                 </legend>
-                <div class="govuk-hint">{{ field.help_text }}</div>
+                {% if field.html_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
                 {{ field }}
             </fieldset>
         {% else %}
