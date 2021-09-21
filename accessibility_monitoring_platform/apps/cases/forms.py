@@ -43,6 +43,7 @@ from .models import (
     ENFORCEMENT_BODY_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
+    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
 )
@@ -100,10 +101,7 @@ class CaseCreateForm(forms.ModelForm):
     organisation_name = AMPCharFieldWide(
         label="Organisation name",
     )
-    home_page_url = AMPURLField(
-        label="Full URL",
-        required=True,
-    )
+    home_page_url = AMPURLField(label="Full URL")
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
@@ -125,11 +123,17 @@ class CaseCreateForm(forms.ModelForm):
             "is_complaint",
         ]
 
+    def clean_home_page_url(self):
+        home_page_url = self.cleaned_data.get("home_page_url")
+        if not home_page_url:
+            raise ValidationError("Full URL is required")
+        return home_page_url
+
     def clean_enforcement_body(self):
-        data = self.cleaned_data.get("enforcement_body")
-        if not data:
-            raise ValidationError("This field is required")
-        return data
+        enforcement_body = self.cleaned_data.get("enforcement_body")
+        if not enforcement_body:
+            raise ValidationError("Choose which equalities body will check the case")
+        return enforcement_body
 
 
 class CaseDetailUpdateForm(CaseCreateForm):
@@ -137,7 +141,9 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
-    auditor = AMPAuditorModelChoiceField(label="Auditor")
+    auditor = AMPAuditorModelChoiceField(
+        label="Auditor", help_text="This field effects the case status"
+    )
     service_name = AMPCharFieldWide(label="Website, app or service name")
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
@@ -178,6 +184,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     test_status = AMPChoiceRadioField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
+        help_text="This field effects the case status",
     )
     accessibility_statement_state = AMPChoiceRadioField(
         label="Initial accessibility statement decision",
@@ -210,7 +217,9 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
 
     report_draft_url = AMPURLField(label="Link to report draft")
     report_review_status = AMPChoiceRadioField(
-        label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
+        label="Report ready to be reviewed?",
+        choices=REPORT_REVIEW_STATUS_CHOICES,
+        help_text="This field effects the case status",
     )
     reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
@@ -220,6 +229,21 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     reporting_details_complete_date = AMPDatePageCompleteField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        report_draft_url = cleaned_data.get("report_draft_url")
+        report_review_status = cleaned_data.get("report_review_status")
+        if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
+            self.add_error(
+                "report_draft_url",
+                "Add link to report draft, if report is ready to be reviewed",
+            )
+            self.add_error(
+                "report_review_status",
+                "Report cannot be ready to be reviewed without a link to report draft",
+            )
+        return cleaned_data
 
     class Meta:
         model = Case
@@ -288,10 +312,14 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating report correspondence details
     """
 
-    report_sent_date = AMPDateField(label="Report sent on")
+    report_sent_date = AMPDateField(
+        label="Report sent on", help_text="This field effects the case status"
+    )
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
-    report_acknowledged_date = AMPDateField(label="Report acknowledged")
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged", help_text="This field effects the case status"
+    )
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_correspondence_complete_date = AMPDatePageCompleteField()
@@ -352,11 +380,13 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
+    twelve_week_update_requested_date = AMPDateField(
+        label="12 week update requested", help_text="This field effects the case status"
+    )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week followup")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week update received"
+        label="12 week update received", help_text="This field effects the case status"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceRadioField(
@@ -434,6 +464,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     case_completed = AMPChoiceRadioField(
         label="Case completed and needs to be sent to EHRC or ECNI?",
         choices=CASE_COMPLETED_CHOICES,
+        help_text="This field effects the case status",
     )
     final_decision_complete_date = AMPDatePageCompleteField()
 
@@ -470,6 +501,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     escalation_state = AMPChoiceRadioField(
         label="Equalities body correspondence completed?",
         choices=ESCALATION_STATE_CHOICES,
+        help_text="This field effects the case status",
     )
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 

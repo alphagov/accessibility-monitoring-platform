@@ -13,16 +13,12 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-case-details' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-error-message">{{ form.non_field_errors }}</div>
-
-                        {% for hidden_field in form.hidden_fields %}
-                            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                            {{ hidden_field }}
-                        {% endfor %}
-
+                        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date created</b></label>

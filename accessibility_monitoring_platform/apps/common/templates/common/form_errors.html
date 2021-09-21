@@ -1,0 +1,7 @@
+{% if errors %}
+    <div class="govuk-error-message">
+        {% for error in errors %}
+            <p class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span>{{ error }}</p>
+        {% endfor %}
+    </div>
+{% endif %}

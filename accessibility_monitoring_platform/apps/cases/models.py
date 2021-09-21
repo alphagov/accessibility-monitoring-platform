@@ -88,8 +88,9 @@ RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
 ]
 
 REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
+REPORT_READY_TO_REVIEW = "ready-to-review"
 REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("ready-to-review", "Yes"),
+    (REPORT_READY_TO_REVIEW, "Yes"),
     ("in-progress", "In progress"),
     (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
 ]
