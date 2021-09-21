@@ -140,7 +140,9 @@ class CaseDetailUpdateForm(CaseCreateForm):
     Form for updating case details fields
     """
 
-    auditor = AMPAuditorModelChoiceField(label="Auditor")
+    auditor = AMPAuditorModelChoiceField(
+        label="Auditor", help_text="This field effects the case status"
+    )
     service_name = AMPCharFieldWide(label="Website, app or service name")
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
@@ -181,6 +183,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     test_status = AMPChoiceRadioField(
         label="Test status",
         choices=TEST_STATUS_CHOICES,
+        help_text="This field effects the case status",
     )
     accessibility_statement_state = AMPChoiceRadioField(
         label="Initial accessibility statement decision",
@@ -213,7 +216,9 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
 
     report_draft_url = AMPURLField(label="Link to report draft")
     report_review_status = AMPChoiceRadioField(
-        label="Report ready to be reviewed?", choices=REPORT_REVIEW_STATUS_CHOICES
+        label="Report ready to be reviewed?",
+        choices=REPORT_REVIEW_STATUS_CHOICES,
+        help_text="This field effects the case status",
     )
     reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
@@ -306,10 +311,14 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating report correspondence details
     """
 
-    report_sent_date = AMPDateField(label="Report sent on")
+    report_sent_date = AMPDateField(
+        label="Report sent on", help_text="This field effects the case status"
+    )
     report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
     report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
-    report_acknowledged_date = AMPDateField(label="Report acknowledged")
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged", help_text="This field effects the case status"
+    )
     zendesk_url = AMPURLField(label="Zendesk ticket URL")
     correspondence_notes = AMPTextField(label="Correspondence notes")
     report_correspondence_complete_date = AMPDatePageCompleteField()
@@ -370,11 +379,13 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     Form for updating week twelve correspondence details
     """
 
-    twelve_week_update_requested_date = AMPDateField(label="12 week update requested")
+    twelve_week_update_requested_date = AMPDateField(
+        label="12 week update requested", help_text="This field effects the case status"
+    )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week followup")
     twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4 week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week update received"
+        label="12 week update received", help_text="This field effects the case status"
     )
     correspondence_notes = AMPTextField(label="Correspondence notes")
     twelve_week_response_state = AMPChoiceCheckboxField(
@@ -453,6 +464,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     case_completed = AMPChoiceRadioField(
         label="Case completed and needs to be sent to EHRC or ECNI?",
         choices=CASE_COMPLETED_CHOICES,
+        help_text="This field effects the case status",
     )
     final_decision_complete_date = AMPDatePageCompleteField()
 
@@ -489,6 +501,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     escalation_state = AMPChoiceRadioField(
         label="Equalities body correspondence completed?",
         choices=ESCALATION_STATE_CHOICES,
+        help_text="This field effects the case status",
     )
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
