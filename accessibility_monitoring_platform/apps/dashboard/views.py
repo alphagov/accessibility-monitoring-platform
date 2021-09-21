@@ -31,7 +31,11 @@ class DashboardView(TemplateView):
         all_cases: List[Case] = list(Case.objects.all())
 
         show_all_cases: bool = self.request.GET.get("view") == "View all cases"
-        cases: List[Case] = all_cases if show_all_cases else [case for case in all_cases if case.auditor == user]
+        cases: List[Case] = (
+            all_cases
+            if show_all_cases
+            else [case for case in all_cases if case.auditor == user]
+        )
 
         cases_by_status: Dict[str, List[Case]] = group_cases_by_status(cases=cases)
         cases_by_status.update(group_cases_by_qa_status(cases=cases))

@@ -14,7 +14,7 @@ from ..cases.models import Case, STATUS_READY_TO_QA
 def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     """Group cases by status values; Sort by a specific column"""
     cases_by_status: Dict[str, List[Case]] = {}
-    for key, status, sortattr in [
+    for key, status, field_to_sort_by in [
         ("unknown", "unknown", "id"),
         ("unassigned_cases", "unassigned-case", "id"),
         ("test_in_progress", "test-in-progress", "id"),
@@ -46,12 +46,11 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
             "report_followup_week_12_due_date",
         ),
     ]:
-        filtered_cases: List[Case] = [case for case in cases if case.status == status]
         cases_by_status[key] = sorted(
-            filtered_cases,
+            [case for case in cases if case.status == status],
             key=lambda case: (
-                getattr(case, sortattr) is None,
-                getattr(case, sortattr),
+                getattr(case, field_to_sort_by) is None,
+                getattr(case, field_to_sort_by),
             ),
         )
     return cases_by_status
@@ -60,25 +59,25 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
 def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
     """Group cases by qa_status values; Sort by a specific column"""
     cases_by_status: Dict[str, List[Case]] = {}
-    for key, qa_status, sortattr in [
+    for key, qa_status, field_to_sort_by in [
         ("ready_for_qa", STATUS_READY_TO_QA, "id"),
         ("qa_in_progress", "in-qa", "id"),
     ]:
-        filtered_cases: List[Case] = [
-            case for case in cases if case.qa_status == qa_status
-        ]
         cases_by_status[key] = sorted(
-            filtered_cases,
-            key=lambda case: getattr(case, sortattr),
+            [case for case in cases if case.qa_status == qa_status],
+            key=lambda case: getattr(case, field_to_sort_by),
         )
     return cases_by_status
 
 
 def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Case]:
     """Find all cases where the user is the reviewer and return those in QA"""
-    qa_cases: List[Case] = [case for case in cases if case.reviewer == user]
     return sorted(
-        [case for case in qa_cases if case.qa_status == "in-qa"],
+        [
+            case
+            for case in cases
+            if case.reviewer == user and case.qa_status == "in-qa"
+        ],
         key=lambda case: case.id,
     )
 
@@ -86,13 +85,12 @@ def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Ca
 def return_recently_completed_cases(cases: List[Case]) -> List[Case]:
     """Find cases which are complete and were completed in the last 30 days"""
     thirty_days_ago: datetime = timezone.now() - timedelta(30)
-    filtered_cases: List[Case] = [
-        case
-        for case in cases
-        if case.status == "complete" and case.completed_date >= thirty_days_ago
-    ]
     return sorted(
-        filtered_cases,
+        [
+            case
+            for case in cases
+            if case.status == "complete" and case.completed_date >= thirty_days_ago
+        ],
         key=lambda case: (
             case.completed_date is None,
             case.completed_date,
