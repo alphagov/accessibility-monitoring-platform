@@ -399,7 +399,6 @@ def test_create_case_shows_error_messages(admin_client):
         response,
         """<div class="govuk-form-group govuk-form-group--error">
             <label id="id_home_page_url-label" class="govuk-label" for="id_home_page_url"><b>Full URL</b></label>
-            <div class="govuk-hint"></div>
             <div class="govuk-error-message">
                 <p class="govuk-error-message">
                     <span class="govuk-visually-hidden">Error:</span>
@@ -417,7 +416,6 @@ def test_create_case_shows_error_messages(admin_client):
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--l no-bottom-margin">
                     <label class="govuk-label"><b>Which equalities body will check the case?</b></label>
                 </legend>
-                <div class="govuk-hint"></div>
                 <div class="govuk-error-message">
                     <p class="govuk-error-message">
                         <span class="govuk-visually-hidden">Error:</span>
