@@ -156,7 +156,6 @@ ENFORCEMENT_BODY_INTERESTED_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_INTERESTED_DEFAULT, "Not selected"),
 ]
 
-
 PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
