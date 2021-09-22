@@ -397,47 +397,18 @@ def test_create_case_shows_error_messages(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        """<div class="govuk-form-group govuk-form-group--error">
-            <label id="id_home_page_url-label" class="govuk-label" for="id_home_page_url"><b>Full URL</b></label>
-            <div class="govuk-error-message">
-                <p class="govuk-error-message">
-                    <span class="govuk-visually-hidden">Error:</span>
-                    URL must start with http:// or https://
-                </p>
-            </div>
-            <input type="text" name="home_page_url" value="gov.uk" class="govuk-input" id="id_home_page_url">
-        </div>""",
+        """<p class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            URL must start with http:// or https://
+        </p>""",
         html=True,
     )
     assertContains(
         response,
-        """<div class="govuk-form-group govuk-form-group--error">
-            <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l no-bottom-margin">
-                    <label class="govuk-label"><b>Which equalities body will check the case?</b></label>
-                </legend>
-                <div class="govuk-error-message">
-                    <p class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span>
-                        Choose which equalities body will check the case
-                    </p>
-                </div>
-                <div class="govuk-radios">
-                    <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" type="radio" name="enforcement_body" value="ehrc" id="id_enforcement_body_0">
-                        <label class="govuk-label govuk-radios__label" for="id_enforcement_body_0">
-                            Equality and Human Rights Commission
-                        </label>
-                    </div>
-                    <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" type="radio" name="enforcement_body" value="ecni" id="id_enforcement_body_1">
-                        <label class="govuk-label govuk-radios__label" for="id_enforcement_body_1">
-                            Equality Commission Northern Ireland
-                        </label>
-                    </div>
-                </div>
-            </fieldset>
-        </div>""",
+        """<p class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            Choose which equalities body will check the case
+        </p>""",
         html=True,
     )
 
