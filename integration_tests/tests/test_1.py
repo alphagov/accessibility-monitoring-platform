@@ -659,6 +659,7 @@ class TestCaseUpdates(TestCases):
             "sent_to_enforcement_body_sent_date_2"
         ).send_keys(SENT_TO_ENFORCEMENT_BODY_SENT_DATE_YYYY)
 
+        self.driver.find_element_by_css_selector("#id_enforcement_body_interested_1").click()
         self.driver.find_element_by_name(
             "enforcement_body_correspondence_notes"
         ).send_keys(ENFORCEMENT_BODY_CORRESPONDENCE_NOTES)

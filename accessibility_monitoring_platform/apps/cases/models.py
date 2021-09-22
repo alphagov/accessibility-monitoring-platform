@@ -149,6 +149,14 @@ QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("qa_approved", "QA approved"),
 ]
 
+ENFORCEMENT_BODY_INTERESTED_DEFAULT: str = "not-selected"
+ENFORCEMENT_BODY_INTERESTED_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (ENFORCEMENT_BODY_INTERESTED_DEFAULT, "Not selected"),
+]
+
+
 PREFERRED_DEFAULT: str = "unknown"
 PREFERRED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -337,6 +345,11 @@ class Case(models.Model):
     # Equality body correspondence page
     psb_appeal_notes = models.TextField(default="", blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_interested = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
+        default=ENFORCEMENT_BODY_INTERESTED_DEFAULT,
+    )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
         max_length=20,

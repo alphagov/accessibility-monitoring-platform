@@ -34,6 +34,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     DELETE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
+    ENFORCEMENT_BODY_INTERESTED_CHOICES,
     ESCALATION_STATE_CHOICES,
     PREFERRED_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
@@ -495,6 +496,10 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )
+    enforcement_body_interested = AMPChoiceRadioField(
+        label="Equality body pursuing this case?",
+        choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
+    )
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
@@ -510,6 +515,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         fields = [
             "psb_appeal_notes",
             "sent_to_enforcement_body_sent_date",
+            "enforcement_body_interested",
             "enforcement_body_correspondence_notes",
             "escalation_state",
             "enforcement_correspondence_complete_date",
