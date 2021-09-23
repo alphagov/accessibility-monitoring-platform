@@ -15,12 +15,9 @@
                 <form method="post" action="{% url 'contact-admin' %}">
                     {% csrf_token %}
 
-                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
 
-                    {% for hidden_field in form.hidden_fields %}
-                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                        {{ hidden_field }}
-                    {% endfor %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
                     <div class="govuk-grid-row">
                         {% for field in form.visible_fields %}
@@ -28,8 +25,8 @@
                                 <label class="govuk-label"
                                     for="{{ field.auto_id }}"><b>{{ field.label }}</b>
                                 </label>
-                                <div class="govuk-error-message">{{ field.errors }}</div>
                                 <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {% include 'common/form_errors.html' with errors=field.errors %}
                                 {{ field }}
                             </div>
                         {% endfor %}
