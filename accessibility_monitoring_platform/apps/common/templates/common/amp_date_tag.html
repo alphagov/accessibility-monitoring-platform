@@ -1,7 +1,7 @@
-{% if tense == "past" %}
-    <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|date:"d/m/Y" }}</strong>
-{% elif tense == "present" %}
-    <strong class="govuk-tag govuk-tag--yellow">{{ date_to_tag|date:"d/m/Y" }}</strong>
+{% if tense == "future" %}
+    <strong>{{ date_to_tag|date:"d/m/Y" }}</strong>
 {% else %}
-    {{ date_to_tag|date:"d/m/Y" }}
+    <strong class="govuk-tag govuk-tag--{% if tense == "past" %}red{% else %}yellow{% endif %}">
+        {{ date_to_tag|date:"d/m/Y" }}
+    </strong>
 {% endif %}

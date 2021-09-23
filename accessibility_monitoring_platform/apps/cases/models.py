@@ -417,8 +417,6 @@ class Case(models.Model):
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
             return self.twelve_week_4_week_chaser_due_date
-        if self.status == "final-decision-due":
-            return self.report_followup_week_12_due_date
 
     @property
     def next_action_due_date_tense(self):
