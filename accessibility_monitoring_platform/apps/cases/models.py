@@ -102,6 +102,13 @@ REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
 
+TWELVE_WEEK_RESPONSE_DEFAULT = "not-selected"
+TWELVE_WEEK_RESPONSE_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (TWELVE_WEEK_RESPONSE_DEFAULT, "Not selected"),
+]
+
 IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
@@ -140,6 +147,13 @@ QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unassigned_qa_case", "Unassigned QA case"),
     ("in_qa", "In QA"),
     ("qa_approved", "QA approved"),
+]
+
+ENFORCEMENT_BODY_INTERESTED_DEFAULT: str = "not-selected"
+ENFORCEMENT_BODY_INTERESTED_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (ENFORCEMENT_BODY_INTERESTED_DEFAULT, "Not selected"),
 ]
 
 PREFERRED_DEFAULT: str = "unknown"
@@ -286,7 +300,9 @@ class Case(models.Model):
     )
     # correspondence_notes from report correspondence page
     twelve_week_response_state = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+        max_length=20,
+        choices=TWELVE_WEEK_RESPONSE_CHOICES,
+        default=TWELVE_WEEK_RESPONSE_DEFAULT,
     )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
@@ -328,6 +344,11 @@ class Case(models.Model):
     # Equality body correspondence page
     psb_appeal_notes = models.TextField(default="", blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
+    enforcement_body_interested = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
+        default=ENFORCEMENT_BODY_INTERESTED_DEFAULT,
+    )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     escalation_state = models.CharField(
         max_length=20,
