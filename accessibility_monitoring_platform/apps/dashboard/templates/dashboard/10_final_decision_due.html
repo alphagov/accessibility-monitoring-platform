@@ -20,11 +20,7 @@
             {% for case in cases %}
                 <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header amp-width-one-quarter">
-                        {% if case.report_followup_week_12_due_date < today %}
-                            {{case.report_followup_week_12_due_date|timesince}} ago
-                        {% else %}
-                            {{case.report_followup_week_12_due_date}}
-                        {% endif %}
+                        {{ case.report_followup_week_12_due_date|date:"d/m/Y" }}
                     </th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link"> {{case.organisation_name|truncatechars:25}} </a>

@@ -403,6 +403,32 @@ class Case(models.Model):
             f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
         )
 
+    @property
+    def next_action_due_date(self):
+        if self.status == "in-report-correspondence":
+            if self.report_followup_week_1_sent_date is None:
+                return self.report_followup_week_1_due_date
+            if self.report_followup_week_4_sent_date is None:
+                return self.report_followup_week_4_due_date
+            return self.report_followup_week_12_due_date
+        if self.status == "in-probation-period":
+            return self.report_followup_week_12_due_date
+        if self.status == "in-12-week-correspondence":
+            if self.twelve_week_1_week_chaser_sent_date is None:
+                return self.twelve_week_1_week_chaser_due_date
+            return self.twelve_week_4_week_chaser_due_date
+        if self.status == "final-decision-due":
+            return self.report_followup_week_12_due_date
+
+    @property
+    def next_action_due_date_tense(self):
+        today = date.today()
+        if self.next_action_due_date < today:
+            return "past"
+        if self.next_action_due_date == today:
+            return "present"
+        return "future"
+
     def set_status(self):
         if self.is_deleted:
             return "deleted"
