@@ -571,7 +571,7 @@ class Case(models.Model):
             return "1 week followup coming up"
         elif (
             self.report_followup_week_1_due_date
-            and self.report_followup_week_1_due_date < now
+            and self.report_followup_week_1_due_date <= now
             and self.report_followup_week_1_sent_date is None
         ):
             return "1 week followup due"
@@ -585,7 +585,7 @@ class Case(models.Model):
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_due_date
-            and self.report_followup_week_4_due_date < now
+            and self.report_followup_week_4_due_date <= now
             and self.report_followup_week_4_sent_date is None
         ):
             return "4 week followup due"
