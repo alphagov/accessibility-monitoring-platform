@@ -2,7 +2,10 @@
 
 {% extends 'base.html' %}
 
+{% load comments %}
+
 {% block content %}
+
 <div class="govuk-width-container">
     <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
@@ -41,6 +44,7 @@
                         </div>
                     </div>
                 </form>
+                {% comments_app request=request case_id=case.id page="report_details" %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/navbar.html' with current_page='edit-report-details' %}

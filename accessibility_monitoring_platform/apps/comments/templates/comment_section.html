@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<div style="padding-top: 20px; border-top: 2px solid grey;">
+    <h2 class="govuk-heading-l" id="comments"> Discussion </h2>
+    <form  method="post" action="{% url 'comments:post-comment' %}">
+        {% csrf_token %}
+        {% for hidden_field in contact_form.hidden_fields %}
+            <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+            {{ hidden_field }}
+        {% endfor %}
+
+        {% for field in contact_form.visible_fields %}
+            {% include 'common/amp_field.html' %}
+        {% endfor %}
+
+        <input
+            type="submit"
+            value="Submit comment"
+            name="submit_comment"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />
+    </form>
+    <p style="margin-top: 20px;" class="govuk-heading-m"> {{comments|length}} comments </p>
+    {% for item in comments %}
+        {% if item.hidden != True  %}
+            {% include "./comment_row.html" with counter=forloop.counter comment=item %}
+        {% endif %}
+    {% endfor %}
+</div>
