@@ -3,14 +3,21 @@ Views for dashboard.
 
 Home should be the only view for dashboard.
 """
-from datetime import date, timedelta
+from datetime import date
+from typing import Dict, List
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.views.generic import TemplateView
 
-from ..cases.models import Case, STATUS_READY_TO_QA
+from ..cases.models import Case
+
+from .utils import (
+    group_cases_by_status,
+    group_cases_by_qa_status,
+    return_cases_requiring_user_review,
+    return_recently_completed_cases,
+)
 
 
 class DashboardView(TemplateView):
@@ -21,134 +28,47 @@ class DashboardView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)
-        if self.request.GET.get("view") == "View all cases":
-            context["page_title"] = "All cases"
-            return self.show_all_cases(context, user)
-        context["page_title"] = "Your cases"
-        return self.user_view(context, user)
+        all_cases: List[Case] = list(Case.objects.all())
 
-    def user_view(self, context, user):
-        """Shows and filters user cases"""
-        all_entries = Case.objects.all()
-        user_entries = Case.objects.filter(auditor=user).order_by("created")
-        qa_entries = Case.objects.filter(reviewer=user).order_by("created")
-
-        sorted_cases = {
-            "unknown": user_entries.filter(
-                status="unknown"
-            ),
-            "test_in_progress": user_entries.filter(
-                status="test-in-progress"
-            ),
-            "reports_in_progress": user_entries.filter(
-                status="report-in-progress"
-            ),
-            "ready_for_qa": user_entries.filter(
-                qa_status="unassigned-qa-case"
-            ),
-            "qa_in_progress": user_entries.filter(
-                qa_status="in-qa"
-            ),
-            "requires_your_review": qa_entries.filter(
-                qa_status="in-qa"
-            ),
-            "report_ready_to_send": user_entries.filter(
-                status="report-ready-to-send"
-            ),
-            "in_report_correspondence": user_entries.filter(
-                status="in-report-correspondence"
-            ).order_by("report_sent_date"),
-            "in_probation_period": user_entries.filter(
-                status="in-probation-period"
-            ).order_by("report_followup_week_12_due_date"),
-            "in_12_week_correspondence": user_entries.filter(
-                status="in-12-week-correspondence"
-            ),
-            "final_decision_due": user_entries.filter(
-                status="final-decision-due"
-            ),
-            "in_correspondence_with_equalities_body": user_entries.filter(
-                status="in-correspondence-with-equalities-body"
-            ),
-            "recently_completed": user_entries.filter(
-                status="complete",
-                completed_date__gte=timezone.now() - timedelta(30)
-            ),
-        }
-        context.update(
-            {
-                "sorted_cases": sorted_cases,
-                "total_cases": len(all_entries.exclude(status="complete")),
-                "your_cases": len(user_entries.exclude(status="complete")),
-                "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
-                "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status=STATUS_READY_TO_QA)
-                ),
-                "today": date.today(),
-            }
+        show_all_cases: bool = self.request.GET.get("view") == "View all cases"
+        cases: List[Case] = (
+            all_cases
+            if show_all_cases
+            else [case for case in all_cases if case.auditor == user]
         )
-        return context
 
-    def show_all_cases(self, context, user):
-        """Shows and filters all cases"""
-        all_entries = Case.objects.all()
-        user_entries = Case.objects.filter(auditor=user).order_by("created")
-        sorted_cases = {
-            "unknown": all_entries.filter(
-                status="unknown"
-            ),
-            "unassigned_cases": all_entries.filter(
-                status="unassigned-case"
-            ),
-            "new_case": all_entries.filter(
-                status="new-case"
-            ),
-            "test_in_progress": all_entries.filter(
-                status="test-in-progress"
-            ),
-            "reports_in_progress": all_entries.filter(
-                status="report-in-progress"
-            ),
-            "ready_for_qa": all_entries.filter(
-                qa_status=STATUS_READY_TO_QA
-            ),
-            "qa_in_progress": all_entries.filter(
-                qa_status="in-qa"
-            ),
-            "report_ready_to_send": all_entries.filter(
-                status="report-ready-to-send"
-            ),
-            "in_report_correspondence": all_entries.filter(
-                status="in-report-correspondence"
-            ).order_by("report_sent_date"),
-            "in_probation_period": all_entries.filter(
-                status="in-probation-period"
-            ).order_by("report_followup_week_12_due_date"),
-            "in_12_week_correspondence": all_entries.filter(
-                status="in-12-week-correspondence"
-            ),
-            "final_decision_due": all_entries.filter(
-                status="final-decision-due"
-            ),
-            "in_correspondence_with_equalities_body": all_entries.filter(
-                status="in-correspondence-with-equalities-body"
-            ),
-            "recently_completed": all_entries.filter(
-                status="complete",
-                completed_date__gte=timezone.now() - timedelta(30)
-            ),
-        }
+        cases_by_status: Dict[str, List[Case]] = group_cases_by_status(cases=cases)
+        cases_by_status.update(group_cases_by_qa_status(cases=cases))
+
+        cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
+            cases=all_cases, user=user
+        )
+        cases_by_status["recently_completed"] = return_recently_completed_cases(
+            cases=cases
+        )
+
+        incomplete_cases: List[Case] = [
+            case for case in all_cases if case.status != "complete"
+        ]
+
         context.update(
             {
-                "sorted_cases": sorted_cases,
-                "total_cases": len(all_entries.exclude(status="complete")),
-                "your_cases": len(user_entries.exclude(status="complete")),
-                "unassigned_cases": len(all_entries.filter(status="unassigned-case")),
-                "unassigned_qa_cases": len(
-                    all_entries.filter(qa_status=STATUS_READY_TO_QA)
+                "cases_by_status": cases_by_status,
+                "total_incomplete_cases": len(incomplete_cases),
+                "total_your_active_cases": len(
+                    [case for case in incomplete_cases if case.auditor == user]
                 ),
+                "total_unassigned_cases": len(
+                    [
+                        case
+                        for case in incomplete_cases
+                        if case.status == "unassigned-case"
+                    ]
+                ),
+                "total_ready_to_qa_cases": len(cases_by_status["ready_for_qa"]),
                 "today": date.today(),
-                "show_all_cases": True,
+                "show_all_cases": show_all_cases,
+                "page_title": "All cases" if show_all_cases else "Your cases",
             }
         )
         return context

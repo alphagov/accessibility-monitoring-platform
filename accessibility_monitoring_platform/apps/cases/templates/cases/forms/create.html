@@ -11,6 +11,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">{{ page_heading }}</h1>
+                {% include 'common/error_summary.html' %}
                 {% if duplicate_cases %}
                     <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
                 {% else %}
@@ -25,16 +26,14 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
-                    {% csrf_token %}
+            <form method="post" action="{% url 'cases:case-create' %}{% if duplicate_cases %}?allow_duplicate_cases=True{% endif %}">
+                {% csrf_token %}
 
-                    <div class="govuk-error-message">{{ form.non_field_errors }}</div>
+                <div class="govuk-grid-column-full{% if duplicate_cases %} hidden-form{% endif %}">
+                    {% include 'common/amp_form_snippet.html' %}
+                </div>
 
-                    {% for hidden_field in form.hidden_fields %}
-                        <div class="govuk-error-message">{{ hidden_field.errors }}</div>
-                        {{ hidden_field }}
-                    {% endfor %}
+                <div class="govuk-grid-column-full">
 
                     {% if duplicate_cases %}
                         <div class="govuk-body">
@@ -57,19 +56,6 @@
                             <p class="govuk-!-font-weight-regular">{{ new_case.get_is_complaint_display }}</p>
                         </div>
                     {% endif %}
-
-                    <div class="{% if duplicate_cases %}hidden-form{% else %}govuk-grid-row{% endif %}">
-                        {% for field in form.visible_fields %}
-                            <div class="govuk-grid-column-full govuk-form-group">
-                                <label class="govuk-label"
-                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
-                                </label>
-                                <div class="govuk-error-message">{{ field.errors }}</div>
-                                <p class="govuk-body-m">{{ field.help_text }}</p>
-                                {{ field }}
-                            </div>
-                        {% endfor %}
-                    </div>
 
                     {% if duplicate_cases %}
                         <h2 id="case-details" class="govuk-heading-m">Duplicate cases</h2>
@@ -100,7 +86,6 @@
                         </table>
                         <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
                     {% endif %}
-
 
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -133,8 +118,8 @@
                             </a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </main>
 </div>
