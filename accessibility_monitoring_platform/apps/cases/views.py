@@ -298,7 +298,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     """
     View to update case report details
     """
-
+    model: Case = Case
     form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
     template_name: str = "cases/forms/report_details.html"
 
