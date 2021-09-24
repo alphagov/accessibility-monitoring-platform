@@ -2,6 +2,7 @@
 Utility functions for cases app
 """
 
+from collections import namedtuple
 import csv
 from dataclasses import dataclass
 from datetime import date
@@ -51,59 +52,70 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("end_date", "created__lte"),
 ]
 
-CONTACT_NAME_COLUMN_NUMBER = 3
-JOB_TITLE_COLUMN_NUMBER = 4
-CONTACT_DETAIL_COLUMN_NUMBER = 5
-CONTACT_NOTES_COLUMN_NUMBER = 6
+CONTACT_NAME_COLUMN_NAME = "Contact name"
+JOB_TITLE_COLUMN_NAME = "Job title"
+CONTACT_DETAIL_COLUMN_NAME = "Contact detail"
+CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 
-COLUMN_NUMBER_BY_FIELD: dict = {
-    "id": 0,
-    "created": 1,
-    "organisation_name": 2,
-    "is_complaint": 7,
-    "report_final_pdf_url": 8,
-    "report_sent_date": 9,
-    "report_acknowledged_date": 10,
-    "report_followup_week_12_due_date": 11,
-    "psb_progress_notes": 12,
-    "is_disproportionate_claimed": 13,
-    "disproportionate_notes": 14,
-    "accessibility_statement_state_final": 15,
-    "accessibility_statement_notes_final": 16,
-    "accessibility_statement_screenshot_url": 17,
-    "recommendation_for_enforcement": 18,
-    "recommendation_notes": 19,
-    "retested_website_date": 20,
-    "compliance_email_sent_date": 21,
-    "psb_location": 22,
-    "home_page_url": 23,
-}
+ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
 COLUMNS_FOR_EHRC = [
-    "Case No.",
-    "Date",
-    "Website",
-    "Contact name",
-    "Job title",
-    "Contact detail",
-    "Contact notes",
-    "Is it a complaint?",
-    "Link to report",
-    "Report sent on",
-    "Report acknowledged",
-    "Followup date - 12 week deadline",
-    "Summary of progress made / response from PSB",
-    "Disproportionate Burden Claimed?",
-    "Disproportionate Burden Notes",
-    "Accessibility Statement Decision",
-    "Notes on accessibility statement",
-    "Link to new saved screen shot of accessibility statement if not compliant",
-    "Enforcement recommendation",
-    "Enforcement recommendation notes",
-    "Retest date",
-    "Decision email sent?",
-    "Country",
-    "Home page URL",
+    ColumnAndFieldNames(column_name="Case No.", field_name="id"),
+    ColumnAndFieldNames(column_name="Date", field_name="created"),
+    ColumnAndFieldNames(column_name="Website", field_name="organisation_name"),
+    ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name=CONTACT_NOTES_COLUMN_NUMBER, field_name=None),
+    ColumnAndFieldNames(column_name="Is it a complaint?", field_name="is_complaint"),
+    ColumnAndFieldNames(
+        column_name="Link to report", field_name="report_final_pdf_url"
+    ),
+    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
+    ColumnAndFieldNames(
+        column_name="Report acknowledged", field_name="report_acknowledged_date"
+    ),
+    ColumnAndFieldNames(
+        column_name="Followup date - 12 week deadline",
+        field_name="report_followup_week_12_due_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Summary of progress made / response from PSB",
+        field_name="psb_progress_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Disproportionate Burden Claimed?",
+        field_name="is_disproportionate_claimed",
+    ),
+    ColumnAndFieldNames(
+        column_name="Disproportionate Burden Notes", field_name="disproportionate_notes"
+    ),
+    ColumnAndFieldNames(
+        column_name="Accessibility Statement Decision",
+        field_name="accessibility_statement_state_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="Notes on accessibility statement",
+        field_name="accessibility_statement_notes_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="Link to new saved screen shot of accessibility statement if not compliant",
+        field_name="accessibility_statement_screenshot_url",
+    ),
+    ColumnAndFieldNames(
+        column_name="Enforcement recommendation",
+        field_name="recommendation_for_enforcement",
+    ),
+    ColumnAndFieldNames(
+        column_name="Enforcement recommendation notes",
+        field_name="recommendation_notes",
+    ),
+    ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
+    ColumnAndFieldNames(
+        column_name="Decision email sent?", field_name="compliance_email_sent_date"
+    ),
+    ColumnAndFieldNames(column_name="Country", field_name="psb_location"),
+    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
 ]
 
 
@@ -226,27 +238,34 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(COLUMNS_FOR_EHRC)
+    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC])
 
     output: List[List[str]] = []
     for case in cases:
-        row = ["" for _ in COLUMNS_FOR_EHRC]
-        for field_name, column_number in COLUMN_NUMBER_BY_FIELD.items():
-            row[column_number] = getattr(case, field_name)
-
         contacts = list(case.contact_set.filter(is_deleted=False))
-        contact_name = "\n".join(
-            [f"{contact.first_name} {contact.last_name}" for contact in contacts]
-        )
-        job_title = "\n".join([contact.job_title for contact in contacts])
-        contact_detail = "\n".join([contact.email for contact in contacts])
-        contact_notes = "\n\n".join([contact.notes for contact in contacts])
-        row[CONTACT_NAME_COLUMN_NUMBER] = contact_name
-        row[JOB_TITLE_COLUMN_NUMBER] = job_title
-        row[CONTACT_DETAIL_COLUMN_NUMBER] = contact_detail
-        row[CONTACT_NOTES_COLUMN_NUMBER] = contact_notes
+        row = []
+        for column in COLUMNS_FOR_EHRC:
+            if column.field_name is None:
+                if column.column_name == CONTACT_NAME_COLUMN_NAME:
+                    row.append(
+                        "\n".join(
+                            [
+                                f"{contact.first_name} {contact.last_name}"
+                                for contact in contacts
+                            ]
+                        )
+                    )
+                elif column.column_name == JOB_TITLE_COLUMN_NAME:
+                    row.append("\n".join([contact.job_title for contact in contacts]))
+                elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:
+                    row.append("\n".join([contact.email for contact in contacts]))
+                elif column.column_name == CONTACT_NOTES_COLUMN_NUMBER:
+                    row.append("\n\n".join([contact.notes for contact in contacts]))
+                else:
+                    row.append(f"No data found for {column}")
+            else:
+                row.append(getattr(case, column.field_name))
         output.append(row)
-
     writer.writerows(output)
 
     return response
