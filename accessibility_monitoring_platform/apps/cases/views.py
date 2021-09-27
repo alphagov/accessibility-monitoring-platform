@@ -127,6 +127,9 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         old_case: Case = Case.objects.get(pk=self.object.id)
         new_case: Case = form.save()
+        if old_case.home_page_url != new_case.home_page_url:
+            new_case.domain = extract_domain_from_url(new_case.home_page_url)
+            new_case.save()
         if old_case.status != new_case.status:
             messages.add_message(
                 self.request,
