@@ -2,7 +2,7 @@
 Tests for cases models
 """
 import pytest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List
 
 from ..models import Case, Contact
@@ -178,3 +178,111 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
 def test_formatted_home_page_url(url, expected_formatted_url):
     case: Case = Case(home_page_url=url)
     assert case.formatted_home_page_url == expected_formatted_url
+
+
+def test_next_action_due_date_for_in_report_correspondence():
+    """
+    Check that the next_action_due_date is correctly calculated
+    when case status is in report correspondence.
+    """
+    any_old_date: date = date(2020, 4, 1)
+    report_followup_week_1_due_date: date = date(2020, 1, 1)
+    report_followup_week_4_due_date: date = date(2020, 1, 4)
+    report_followup_week_12_due_date: date = date(2020, 1, 12)
+
+    case: Case = Case(
+        status="in-report-correspondence",
+        report_followup_week_1_sent_date=any_old_date,
+        report_followup_week_4_sent_date=any_old_date,
+        report_followup_week_1_due_date=report_followup_week_1_due_date,
+        report_followup_week_4_due_date=report_followup_week_4_due_date,
+        report_followup_week_12_due_date=report_followup_week_12_due_date,
+    )
+    assert case.next_action_due_date == report_followup_week_12_due_date
+
+    case.report_followup_week_4_sent_date = None
+    assert case.next_action_due_date == report_followup_week_4_due_date
+
+    case.report_followup_week_1_sent_date = None
+    assert case.next_action_due_date == report_followup_week_1_due_date
+
+
+def test_next_action_due_date_for_in_probation_period():
+    """
+    Check that the next_action_due_date is correctly calculated
+    when case status is in probation period.
+    """
+    report_followup_week_12_due_date: date = date(2020, 1, 12)
+
+    case: Case = Case(
+        status="in-probation-period",
+        report_followup_week_12_due_date=report_followup_week_12_due_date,
+    )
+    assert case.next_action_due_date == report_followup_week_12_due_date
+
+
+def test_next_action_due_date_for_in_12_week_correspondence():
+    """
+    Check that the next_action_due_date is correctly calculated
+    when case status is in 12-week correspondence.
+    """
+    any_old_date: date = date(2020, 4, 1)
+    twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
+    twelve_week_4_week_chaser_due_date: date = date(2020, 1, 4)
+
+    case: Case = Case(
+        status="in-12-week-correspondence",
+        twelve_week_1_week_chaser_sent_date=any_old_date,
+        twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
+        twelve_week_4_week_chaser_due_date=twelve_week_4_week_chaser_due_date,
+    )
+    assert case.next_action_due_date == twelve_week_4_week_chaser_due_date
+
+    case.twelve_week_1_week_chaser_sent_date = None
+    assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        "unknown",
+        "unassigned-case",
+        "test-in-progress",
+        "report-in-progress",
+        "unassigned-qa-case",
+        "qa-in-progress",
+        "report-ready-to-send",
+        "final-decision-due",
+        "in-correspondence-with-equalities-body",
+        "complete",
+        "deleted",
+    ],
+)
+def test_next_action_due_date_not_set(status):
+    """
+    Check that the next_action_due_date is correctly calculated
+    when case status is in probation period.
+    """
+    twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
+    report_followup_week_12_due_date: date = date(2020, 1, 12)
+
+    case: Case = Case(
+        status=status,
+        report_followup_week_12_due_date=report_followup_week_12_due_date,
+        twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
+    )
+    assert case.next_action_due_date is None
+
+
+@pytest.mark.parametrize(
+    "report_followup_week_12_due_date, expected_tense",
+    [
+        (datetime.now().date() - timedelta(days=1), "past"),
+        (datetime.now().date(), "present"),
+        (datetime.now().date() + timedelta(days=1), "future"),
+    ],
+)
+def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
+    """Check that the calculated next_action_due_date is correctly reported"""
+    case: Case = Case(status="in-probation-period", report_followup_week_12_due_date=report_followup_week_12_due_date)
+    assert case.next_action_due_date_tense == expected_tense
