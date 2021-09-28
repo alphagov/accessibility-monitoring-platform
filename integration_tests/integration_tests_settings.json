@@ -1,6 +1,6 @@
 {
-    "name": "int_tests v0.1",
-    "date": "20210907",
+    "name": "int_tests v0.1.2",
+    "date": "20210928",
     "docker_compose_path": "./integration_tests/docker-compose.yml",
     "docker_images_paths": [
         {
@@ -24,5 +24,6 @@
             "local_path": "./data/s3_files/20210903_sector.json"
         }
     ],
-    "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
+    "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
+    "chrome_version": "93.0.4577.63"
 }
