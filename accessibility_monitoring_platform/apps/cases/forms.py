@@ -70,6 +70,19 @@ def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[int, str]]
     return user_choices_with_none
 
 
+class NavBarSearchForm(forms.Form):
+    """
+    Form for searching for cases in the top menu bar
+    """
+
+    search = AMPCharField(
+        widget=forms.TextInput(attrs={
+            "class": "govuk-input govuk-input--width-10",
+            "placeholder": "Search",
+        })
+    )
+
+
 class CaseSearchForm(AMPDateRangeForm):
     """
     Form for searching for cases

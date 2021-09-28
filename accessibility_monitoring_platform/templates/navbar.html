@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 
 {% if user.is_authenticated %}
-<div class="topnavmenu">
-    <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
-    <ul class="govuk-list nav-menu-list">
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
-        <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
-    </ul>
+<div class="govuk-grid-row topnavmenu">
+    <div class="govuk-grid-column-one-half">
+        <form method="get" action="{% url 'cases:case-list' %}" class="cases-margin-top">
+            <span class="govuk-visually-hidden">Search:</span>
+            {{ nav_bar_form.search }}
+        </form>
+    </div>
+    <div class="govuk-grid-column-one-half">
+            <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
+            <ul class="govuk-list nav-menu-list">
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
+                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
+            </ul>
+    </div>
 </div>
 {% else %}
 <div class="topnavmenu">
