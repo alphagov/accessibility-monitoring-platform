@@ -25,5 +25,5 @@
         }
     ],
     "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
-    "chrome_version": "latest"
+    "chrome_version": "93.0.4577.63"
 }
