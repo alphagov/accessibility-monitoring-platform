@@ -129,13 +129,13 @@ class CaseUpdateView(UpdateView):
         old_case: Case = Case.objects.get(pk=self.object.id)
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
+        self.object.save()
         if old_case.status != self.object.status:
             messages.add_message(
                 self.request,
                 messages.INFO,
                 f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",
             )
-        self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
