@@ -143,7 +143,8 @@ class SeleniumTest(unittest.TestCase):
             options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
-            executable_path="./integration_tests/chromedriver", chrome_options=options
+            executable_path=f"""./integration_tests/chromedriver_{settings["chrome_version"]}""",
+            chrome_options=options
         )
 
     def login(self):
