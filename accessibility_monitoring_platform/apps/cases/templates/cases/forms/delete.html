@@ -29,7 +29,9 @@
                 <form method="post" action="{% url 'cases:delete-case' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
-                        {% include 'common/amp_form_snippet.html' %}
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

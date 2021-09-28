@@ -12,7 +12,7 @@ lighthouse-tests/results_auth.json
 *.pyc
 requirements.txt
 ./docker/data/
-chromedriver
+chromedriver**
 .vscode/settings.json
 data/s3_files/*
 data/localstack-data/*

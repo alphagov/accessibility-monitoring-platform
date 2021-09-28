@@ -892,20 +892,20 @@ def test_preferred_contact_displayed(admin_client):
 
 
 @pytest.mark.parametrize(
-    "flag_name, section_name",
+    "flag_name, section_name, edit_url_name",
     [
-        ("case_details_complete_date", "Case details"),
-        ("contact_details_complete_date", "Contact details"),
-        ("testing_details_complete_date", "Testing details"),
-        ("reporting_details_complete_date", "Report details"),
-        ("report_correspondence_complete_date", "Report correspondence"),
-        ("twelve_week_correspondence_complete_date", "12 week correspondence"),
-        ("final_decision_complete_date", "Final decision"),
-        ("enforcement_correspondence_complete_date", "Equality body correspondence"),
+        ("case_details_complete_date", "Case details", "edit-case-details"),
+        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
+        ("testing_details_complete_date", "Testing details", "edit-test-results"),
+        ("reporting_details_complete_date", "Report details", "edit-report-details"),
+        ("report_correspondence_complete_date", "Report correspondence", "edit-report-correspondence"),
+        ("twelve_week_correspondence_complete_date", "12 week correspondence", "edit-twelve-week-correspondence"),
+        ("final_decision_complete_date", "Final decision", "edit-final-decision"),
+        ("enforcement_correspondence_complete_date", "Equality body correspondence", "edit-enforcement-body-correspondence"),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
-    flag_name, section_name, admin_client
+    flag_name, section_name, edit_url_name, admin_client
 ):
     """
     Test that the section complete tick is displayed in contents
@@ -913,6 +913,7 @@ def test_section_complete_check_displayed_in_contents(
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
     case.save()
+    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -922,8 +923,15 @@ def test_section_complete_check_displayed_in_contents(
 
     assertContains(
         response,
-        f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">'
-        f'{section_name}<span class="govuk-visually-hidden">complete</span></a> &check;',
+        f"""<li>
+            <a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">
+            {section_name}<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span>
+            </a>
+            &check;
+        </li>""",
         html=True,
     )
 

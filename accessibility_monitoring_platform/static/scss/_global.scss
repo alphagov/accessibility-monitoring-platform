@@ -31,3 +31,26 @@ body {
 .amp-width-one-quarter {
     width:25%;
 }
+
+.amp-alert-icon {
+    font-family: "GDS Transport",arial,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 700;
+    box-sizing: border-box;
+    display: inline-block;
+    position: absolute;
+    min-width: 25px;
+    min-height: 25px;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    color: #ffffff;
+    background: #0b0c0c;
+    font-size: 1.5rem;
+    line-height: 1;
+    text-align: center;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    forced-color-adjust: none;
+}

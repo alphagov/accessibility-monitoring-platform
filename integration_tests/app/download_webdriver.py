@@ -1,4 +1,5 @@
 """ integration tests - download_webdriver - Function for downloading the Chrome webdriver"""
+from typing import Union
 import platform
 import os
 import shutil
@@ -8,15 +9,18 @@ import zipfile
 from app.download_file import download_file
 
 
-def download_webdriver() -> None:
+def download_webdriver(chrome_version: Union[str, None] = None) -> None:
     """Downloads and prepares the selenium driver"""
+    print(">>> Change chrome_version to latest in settings to use the latest Chrome")
 
-    webdriver_path: str = "integration_tests/chromedriver"
+    webdriver_path: str = f"integration_tests/chromedriver_{chrome_version}"
     if os.path.isfile(webdriver_path):
         return
 
-    page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-    chrome_version: str = page.read().decode("utf-8")
+    if chrome_version == "latest":
+        page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+        chrome_version = page.read().decode("utf-8")
+
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
     webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/{chrome_version}/chromedriver_{library}.zip"
     target_path: str = "./integration_tests/chromedriver.zip"
@@ -25,6 +29,7 @@ def download_webdriver() -> None:
     target_path_unzip: str = "./integration_tests/chromedriver"
     with zipfile.ZipFile(target_path, "r") as zip_ref:
         zip_ref.extractall(target_path_unzip)
+    os.remove(path="integration_tests/chromedriver.zip")
 
     os.rename(
         src="integration_tests/chromedriver/chromedriver",
@@ -33,10 +38,9 @@ def download_webdriver() -> None:
     shutil.rmtree(path="integration_tests/chromedriver")
     os.rename(
         src="integration_tests/chromedriver2",
-        dst="integration_tests/chromedriver"
+        dst=webdriver_path
     )
-    os.remove(path="integration_tests/chromedriver.zip")
 
-    os.system(command="chmod 755 integration_tests/chromedriver")
+    os.system(command=f"chmod 755 {webdriver_path}")
 
     print(">>> chromedriver now ready")
