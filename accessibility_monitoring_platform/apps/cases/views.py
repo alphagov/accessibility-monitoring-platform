@@ -125,18 +125,17 @@ class CaseUpdateView(UpdateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
+        self.object: Case = form.save(commit=False)
         old_case: Case = Case.objects.get(pk=self.object.id)
-        new_case: Case = form.save()
-        if old_case.home_page_url != new_case.home_page_url:
-            new_case.domain = extract_domain_from_url(new_case.home_page_url)
-            new_case.save()
-        if old_case.status != new_case.status:
+        if "home_page_url" in form.changed_data:
+            self.object.domain = extract_domain_from_url(self.object.home_page_url)
+        if old_case.status != self.object.status:
             messages.add_message(
                 self.request,
                 messages.INFO,
-                f"Status changed from '{old_case.get_status_display()}' to '{new_case.get_status_display()}'",
+                f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",
             )
-        self.object: Case = new_case
+        self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
