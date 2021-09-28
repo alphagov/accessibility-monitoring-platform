@@ -45,7 +45,7 @@ if __name__ == "__main__":
             endpoint=settings["testing_endpoint"]
         )
 
-    download_webdriver()
+    download_webdriver(chrome_version=settings["chrome_version"])
 
     run_pytest_suite(
         path_for_xml_results=settings["path_for_xml_results"],
