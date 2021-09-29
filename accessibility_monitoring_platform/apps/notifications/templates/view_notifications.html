@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <a href="{{request.session.comment_endpoint}}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper dashboard">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">
+                    {% if show_all_notifications %}
+                        All notifications ({{notifications.count}})
+                    {% else %}
+                        Unread notifications ({{notifications.count}})
+                    {% endif %}
+                </h1>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% if show_all_notifications %}
+                    <form method="get" action="{% url 'notifications:notifications-list' %}">
+                        <input
+                            type="submit"
+                            value="View unread notifications"
+                            name="view"
+                            class="govuk-button govuk-button--secondary float-right"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% else %}
+                    <form method="get" action="{% url 'notifications:notifications-list' %}">
+                        <input
+                            type="submit"
+                            value="View all notifications"
+                            name="view"
+                            class="govuk-button govuk-button--secondary float-right"
+                            data-module="govuk-button"
+                        />
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% for message in messages %}
+            <div class="govuk-inset-text">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% if notifications|length == 0 %}
+            <p class="govuk-body"> You have no unread notifications </p>
+        {% else %}
+            <table class="govuk-table case-dashboard">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Page</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Description</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Remove notification</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for notification in notifications %}
+                        <tr class="govuk-table__row ">
+                            <th scope="row" class="govuk-table__header amp-width-one-quarter">{{notification.created_date|date:"d/m/Y"}}</th>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                <a href="{{notification.endpoint}}" class="govuk-link"> {{notification.list_description}} </a>
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-quarter"> {{notification.body}} </td>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                <a href="{% url 'notifications:remove-notification' notification.id %}" class="govuk-link"> Remove </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}

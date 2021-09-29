@@ -1,4 +1,4 @@
-"""Template tag for comment component """
+"""Template tag for comment component"""
 from typing import TypedDict
 from django import template
 from django.http import HttpRequest

@@ -1,29 +1,47 @@
 """
 Form - UpdateUserForm for users
 """
-
+from typing import List, Tuple
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 from ..models import EmailInclusionList
 from typing import Any
+from ...common.forms import (
+    AMPChoiceCheckboxWidget,
+    AMPCharFieldWide,
+    AMPChoiceCheckboxField,
+)
+
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
+    ("no", "No"),
+    ("yes", "Yes"),
+]
 
 
 class UpdateUserForm(forms.ModelForm):
     """ Custom user update user form """
 
-    first_name: forms.CharField = forms.CharField(required=True, max_length=150)
+    email_notifications: AMPChoiceCheckboxField = AMPChoiceCheckboxField(
+        label="Enable email notifications?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Mark the checkbox to enable email notifications"}
+        ),
+    )
 
-    last_name: forms.CharField = forms.CharField(required=True, max_length=150)
+    first_name: AMPCharFieldWide = AMPCharFieldWide(required=True, max_length=150)
 
-    email: forms.CharField = forms.CharField(
+    last_name: AMPCharFieldWide = AMPCharFieldWide(required=True, max_length=150)
+
+    email: AMPCharFieldWide = AMPCharFieldWide(
         required=True,
         max_length=150,
         help_text="You'll need this email address to sign in to your account",
     )
 
-    email_confirm: forms.CharField = forms.CharField(
+    email_confirm: AMPCharFieldWide = AMPCharFieldWide(
         required=True,
         max_length=150,
         label="Confirm your email address",
@@ -41,6 +59,7 @@ class UpdateUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
+            "email_notifications",
             "first_name",
             "last_name",
             "email",

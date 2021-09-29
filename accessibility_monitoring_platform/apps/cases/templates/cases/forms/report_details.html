@@ -4,6 +4,8 @@
 
 {% load comments %}
 
+{% load notifications %}
+
 {% block content %}
 
 <div class="govuk-width-container">
@@ -47,6 +49,7 @@
                         </div>
                     </div>
                 </form>
+                {% read_notification request=request %}
                 {% comments_app request=request case_id=case.id page="report_details" %}
             </div>
             <div class="govuk-grid-column-one-third">
