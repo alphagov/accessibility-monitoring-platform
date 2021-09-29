@@ -1282,3 +1282,91 @@ def test_repost_ready_to_review_with_no_report_error_messages(admin_client):
         </p>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "useful_link, edit_url_name",
+    [
+        ("zendesk_url", "edit-case-details"),
+        ("trello_url", "edit-contact-details"),
+        ("zendesk_url", "edit-test-results"),
+        ("trello_url", "edit-report-details"),
+        ("zendesk_url", "edit-report-correspondence"),
+        ("trello_url", "edit-twelve-week-correspondence"),
+        ("zendesk_url", "edit-final-decision"),
+        ("trello_url", "edit-enforcement-body-correspondence"),
+    ],
+)
+def test_useful_links_displayed_in_edit(
+    useful_link, edit_url_name, admin_client
+):
+    """
+    Test that the useful links are displayed on all edit pages
+    """
+    case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
+    setattr(case, useful_link, f"https://{useful_link}.com")
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to website
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    if useful_link == "trello_url":
+        assertContains(
+            response,
+            """<li>
+                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>""",
+            html=True,
+        )
+        assertNotContains(
+            response,
+            """<li>
+                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Zendesk
+                </a>
+            </li>""",
+            html=True,
+        )
+    else:
+        assertNotContains(
+            response,
+            """<li>
+                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>""",
+            html=True,
+        )
+        assertContains(
+            response,
+            """<li>
+                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Zendesk
+                </a>
+            </li>""",
+            html=True,
+        )
+
+    assertContains(
+        response,
+        """<li>
+            <label class="govuk-label"><b>Status</b></label>
+            <p class="govuk-body-m">Unassigned case</p>
+        </li>""",
+        html=True,
+    )
