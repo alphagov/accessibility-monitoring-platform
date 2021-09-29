@@ -4,7 +4,7 @@ Context processors
 import re
 from typing import Dict
 
-from ..cases.forms import TopMenuSearchForm
+from .forms import AMPTopMenuForm
 from ..cases.models import Case
 
 PAGE_TITLES_BY_URL = {
@@ -56,5 +56,5 @@ def platform_page(request) -> Dict[str, str]:
     return {
         "page_heading": page_heading,
         "page_title": page_title,
-        "nav_bar_form": TopMenuSearchForm(),
+        "top_menu_form": AMPTopMenuForm(),
     }

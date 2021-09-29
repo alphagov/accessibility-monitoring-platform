@@ -371,6 +371,9 @@ class Case(models.Model):
         max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
     )
 
+    class Meta:
+        ordering = ["-id"]
+
     def __str__(self):
         return str(f"{self.organisation_name} | #{self.id}")
 
