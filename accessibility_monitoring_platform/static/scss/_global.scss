@@ -54,3 +54,13 @@ body {
     user-select: none;
     forced-color-adjust: none;
 }
+
+.amp-search {
+    border: 0;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #000;
+}

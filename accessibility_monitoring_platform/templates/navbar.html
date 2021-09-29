@@ -3,9 +3,21 @@
 {% if user.is_authenticated %}
 <div class="govuk-grid-row topnavmenu">
     <div class="govuk-grid-column-one-half">
-        <form method="get" action="{% url 'cases:case-list' %}" class="cases-margin-top">
-            <span class="govuk-visually-hidden">Search:</span>
-            {{ nav_bar_form.search }}
+        <form method="get" action="{% url 'cases:case-list' %}">
+            <div class="govuk-form-group no-bottom-margin">
+                <div class="govuk-input__wrapper">
+                    <span class="govuk-visually-hidden">Search:</span>
+                    {{ nav_bar_form.search }}
+                    <div class="govuk-input__suffix amp-search" aria-hidden="true">
+                        <input
+                            type="image"
+                            name="submit"
+                            alt="Submit search"
+                            src="https://ahernp.com/media/img/magnifying_glass_icon_40x40.png"
+                        >
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
     <div class="govuk-grid-column-one-half">
