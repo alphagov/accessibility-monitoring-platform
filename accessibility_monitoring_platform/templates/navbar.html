@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 
+<div class="topnavmenu">
 {% if user.is_authenticated %}
-<div class="govuk-grid-row topnavmenu">
-    <div class="govuk-grid-column-one-half">
-        <form method="get" action="{% url 'cases:case-list' %}">
-            <div class="govuk-form-group no-bottom-margin">
-                <div class="govuk-input__wrapper">
-                    <span class="govuk-visually-hidden">Search:</span>
-                    {{ nav_bar_form.search }}
-                    <div class="govuk-input__suffix amp-search" aria-hidden="true">
-                        <input type="image" alt="Submit search" src='data:image/svg+xml;utf8,
-                        <svg stroke="white" stroke-width="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-  <line x1="23" y1="25" x2="30" y2="33"/>
-  <circle cx="19" cy="20" r="8" />
-</svg>'>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <form method="get" action="{% url 'cases:case-list' %}">
+                <div class="govuk-form-group no-bottom-margin">
+                    <div class="govuk-input__wrapper">
+                        <span class="govuk-visually-hidden">Search:</span>
+                        {{ nav_bar_form.search }}
+                        <button class="govuk-input__suffix amp-search" aria-hidden="true">
+                                <svg stroke="white" stroke-width="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+                                    <line x1="22" y1="23" x2="29" y2="31"/>
+                                    <circle cx="18" cy="18" r="8" />
+                                </svg>
+                        </button>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+        <div class="govuk-grid-column-one-half">
+                <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
+                <ul class="govuk-list nav-menu-list">
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
+                </ul>
+        </div>
     </div>
-    <div class="govuk-grid-column-one-half">
-            <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
-            <ul class="govuk-list nav-menu-list">
-                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
-                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
-                <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
-            </ul>
-    </div>
-</div>
 {% else %}
-<div class="topnavmenu">
     <ul class="govuk-list nav-menu-list">
         <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
         <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'login' %}">Sign in</a></li>
     </ul>
-</div>
 {% endif %}
+</div>
