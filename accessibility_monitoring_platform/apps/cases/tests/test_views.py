@@ -898,10 +898,22 @@ def test_preferred_contact_displayed(admin_client):
         ("contact_details_complete_date", "Contact details", "edit-contact-details"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
-        ("report_correspondence_complete_date", "Report correspondence", "edit-report-correspondence"),
-        ("twelve_week_correspondence_complete_date", "12 week correspondence", "edit-twelve-week-correspondence"),
+        (
+            "report_correspondence_complete_date",
+            "Report correspondence",
+            "edit-report-correspondence",
+        ),
+        (
+            "twelve_week_correspondence_complete_date",
+            "12 week correspondence",
+            "edit-twelve-week-correspondence",
+        ),
         ("final_decision_complete_date", "Final decision", "edit-final-decision"),
-        ("enforcement_correspondence_complete_date", "Equality body correspondence", "edit-enforcement-body-correspondence"),
+        (
+            "enforcement_correspondence_complete_date",
+            "Equality body correspondence",
+            "edit-enforcement-body-correspondence",
+        ),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
@@ -1297,9 +1309,7 @@ def test_repost_ready_to_review_with_no_report_error_messages(admin_client):
         ("trello_url", "edit-enforcement-body-correspondence"),
     ],
 )
-def test_useful_links_displayed_in_edit(
-    useful_link, edit_url_name, admin_client
-):
+def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):
     """
     Test that the useful links are displayed on all edit pages
     """
