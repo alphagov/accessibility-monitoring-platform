@@ -27,7 +27,7 @@ class Comments(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
-    endpoint = models.TextField(default=False)
+    path = models.TextField(default=False)
 
     class Meta:
         ordering: List[str] = ["created_date"]

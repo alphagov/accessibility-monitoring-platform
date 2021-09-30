@@ -16,7 +16,7 @@ class Notifications(models.Model):
     body = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
-    endpoint = models.TextField(default=False)
+    path = models.TextField(default=False)
     list_description = models.TextField(default=False)
 
     class Meta:

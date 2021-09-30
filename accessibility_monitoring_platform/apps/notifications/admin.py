@@ -12,7 +12,7 @@ class NotificationsAdmin(admin.ModelAdmin):
     search_fields = [
         "user__email",
         "body",
-        "endpoint",
+        "path",
         "list_description",
     ]
     list_display = [
@@ -20,7 +20,7 @@ class NotificationsAdmin(admin.ModelAdmin):
         "body",
         "created_date",
         "read",
-        "endpoint",
+        "path",
         "list_description",
     ]
 

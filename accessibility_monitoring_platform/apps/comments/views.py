@@ -29,7 +29,7 @@ def save_comment_history(obj: Comments) -> bool:
 
 def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     users_on_thread: QuerySet = Comments.objects.filter(
-        endpoint=request.session.get("comment_endpoint"),
+        path=request.session.get("comment_path"),
         hidden=False,
     ).values_list(
         "user",
@@ -47,8 +47,8 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     if (
         obj.case
         and obj.case.reviewer
-        and request.session.get("comment_endpoint")
-        and "edit-report-details" in str(request.session.get("comment_endpoint"))
+        and request.session.get("comment_path")
+        and "edit-report-details" in str(request.session.get("comment_path"))
     ):
         users_on_thread_list_int.append(obj.case.reviewer.id)
 
@@ -63,7 +63,7 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
         add_notification(
             user=target_user,
             body=f"{request.user.first_name} {request.user.last_name} left a message in discussion",
-            endpoint=str(request.session.get("comment_endpoint")),
+            path=str(request.session.get("comment_path")),
             list_description=f"{obj.case.organisation_name} | {obj.page.replace('_', ' ').capitalize() }",
             request=request,
         )
@@ -83,16 +83,16 @@ class CommentsPostView(FormView):
 
         obj.user = self.request.user
         obj.page = self.request.session.get("comment_page")
-        obj.endpoint = self.request.session.get("comment_endpoint")
+        obj.path = self.request.session.get("comment_path")
         if self.request.session.get("case_id"):
             obj.case = Case.objects.get(pk=self.request.session.get("case_id"))
         obj.save()
 
         add_comment_notification(self.request, obj)
 
-        endpoint: Union[str, None] = self.request.session.get("comment_endpoint")
-        if endpoint:
-            return HttpResponseRedirect(f"{endpoint}#comments")
+        path: Union[str, None] = self.request.session.get("comment_path")
+        if path:
+            return HttpResponseRedirect(f"{path}#comments")
         return HttpResponseRedirect("/")
 
 
@@ -110,9 +110,9 @@ class CommentDeleteView(View):
         else:
             messages.error(request, "An error occured")
 
-        endpoint: Union[str, None] = self.request.session.get("comment_endpoint")
-        if endpoint:
-            return HttpResponseRedirect(endpoint)
+        path: Union[str, None] = self.request.session.get("comment_path")
+        if path:
+            return HttpResponseRedirect(path)
         return HttpResponseRedirect("/")
 
 
@@ -140,7 +140,7 @@ class CommentEditView(UpdateView):
         obj.save()
 
         messages.success(self.request, "Comment succesfully updated")
-        endpoint: Union[str, None] = self.request.session.get("comment_endpoint")
-        if endpoint:
-            return HttpResponseRedirect(endpoint)
+        path: Union[str, None] = self.request.session.get("comment_path")
+        if path:
+            return HttpResponseRedirect(path)
         return HttpResponseRedirect("/")

@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="govuk-width-container">
-    <a href="{{request.session.comment_endpoint}}" class="govuk-back-link">Back</a>
+    <a href="{{request.session.comment_path}}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper dashboard">
         <div class="govuk-body">
             <h1 class="govuk-heading-xl">Edit comment</h1>
@@ -29,7 +29,7 @@
                     data-module="govuk-button"
                 />
                 <a
-                    href="{{request.session.comment_endpoint}}#comments"
+                    href="{{request.session.comment_path}}#comments"
                     class="govuk-link govuk-link--no-visited-state"
                 >
                     Cancel

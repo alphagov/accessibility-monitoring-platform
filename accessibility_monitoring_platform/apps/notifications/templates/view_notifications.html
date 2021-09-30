@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="govuk-width-container">
-    <a href="{{request.session.comment_endpoint}}" class="govuk-back-link">Back</a>
+    <a href="{{request.session.comment_path}}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper dashboard">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
@@ -63,7 +63,7 @@
                         <tr class="govuk-table__row ">
                             <th scope="row" class="govuk-table__header amp-width-one-quarter">{{notification.created_date|date:"d/m/Y"}}</th>
                             <td class="govuk-table__cell amp-width-one-quarter">
-                                <a href="{{notification.endpoint}}" class="govuk-link"> {{notification.list_description}} </a>
+                                <a href="{{notification.path}}" class="govuk-link"> {{notification.list_description}} </a>
                             </td>
                             <td class="govuk-table__cell amp-width-one-quarter"> {{notification.body}} </td>
                             <td class="govuk-table__cell amp-width-one-quarter">

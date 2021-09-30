@@ -30,7 +30,7 @@ def notifications_count(request: HttpRequest) -> int:
 
 @register.simple_tag()
 def read_notification(request: HttpRequest) -> str:
-    """Will read the endpoint and user from the request and remove the notification
+    """Will read the path and user from the request and remove the notification
     if a notification exists
 
     Parameters
@@ -44,7 +44,7 @@ def read_notification(request: HttpRequest) -> str:
     """
     notifications: Any = Notifications.objects.filter(
         user=request.user,
-        endpoint=request.path,
+        path=request.path,
         read=False
     )
     for notification in notifications:

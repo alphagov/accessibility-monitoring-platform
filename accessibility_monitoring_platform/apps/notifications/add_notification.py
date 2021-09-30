@@ -11,14 +11,14 @@ class EmailContextType(TypedDict):
     user: User
     list_description: str
     body: str
-    endpoint: str
+    path: str
     request: HttpRequest
 
 
 def add_notification(
     user: User,
     body: str,
-    endpoint: str,
+    path: str,
     list_description: str,
     request: HttpRequest
 ) -> Notifications:
@@ -30,8 +30,8 @@ def add_notification(
         user object
     body : str
         Message to user for notification
-    endpoint : str
-        The endpoint where the notification exists
+    path : str
+        The path where the notification exists
     list_description : str
         Description of the location of the notification
     request : HttpRequest
@@ -45,7 +45,7 @@ def add_notification(
     notification: Notifications = Notifications(
         user=user,
         body=body,
-        endpoint=endpoint,
+        path=path,
         list_description=list_description
     )
     notification.save()
@@ -59,7 +59,7 @@ def add_notification(
             "user": user,
             "list_description": list_description,
             "body": body,
-            "endpoint": endpoint,
+            "path": path,
             "request": request,
         }
         text_content: str = plaintext.render(context)
