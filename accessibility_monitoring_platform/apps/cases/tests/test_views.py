@@ -846,10 +846,10 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 @pytest.mark.django_db
 def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     """Test find_duplicate_cases returns matching cases"""
-    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
     organisation_name_case: Case = Case.objects.create(
         organisation_name=ORGANISATION_NAME
     )
+    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
     duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
 
