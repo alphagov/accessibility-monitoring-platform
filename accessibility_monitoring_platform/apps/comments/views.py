@@ -28,7 +28,8 @@ def save_comment_history(obj: Comments) -> bool:
 
 
 def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
-    """ Will notify all users in a comment thread if they have commented. Will also notify the QA auditor if
+    """
+    Will notify all users in a comment thread if they have commented. Will also notify the QA auditor if
     the comment section is in "edit-report-details"
 
     Parameters
