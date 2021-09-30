@@ -28,6 +28,21 @@ def save_comment_history(obj: Comments) -> bool:
 
 
 def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
+    """ Will notify all users in a comment thread if they have commented. Will also notify the QA auditor if
+    the comment section is in "edit-report-details"
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Django request
+    obj : Comments
+        Comments object
+
+    Returns
+    -------
+    bool
+        Returns true if function is successful
+    """
     users_on_thread: QuerySet = Comments.objects.filter(
         path=request.session.get("comment_path"),
         hidden=False,
