@@ -38,6 +38,7 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     obj : Comments
         Comments object
 
+
     Returns
     -------
     bool
