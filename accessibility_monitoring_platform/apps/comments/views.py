@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from accessibility_monitoring_platform.apps.cases.models import Case
 from .models import Comments, CommentsHistory
 from .forms import SubmitCommentForm, EditCommentForm
-from ..notifications.add_notification import add_notification
+from ..notifications.utils import add_notification
 
 
 def save_comment_history(obj: Comments) -> bool:
