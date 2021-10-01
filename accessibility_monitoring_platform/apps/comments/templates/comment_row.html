@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 
-<div style="padding: 20px 0px 40px 0px; border-top: 2px solid lightgrey;">
+<div style="padding: 20px 0px 60px 0px; border-top: 2px solid lightgrey;">
     <div style="width: 100%; display: inline-block;">
         <div style="float: left; vertical-align: middle;">
             <p class="govuk-body" id="comments{{counter}}">
-                <b class="govuk-body-l govuk-!-font-weight-bold">{{item.user.first_name}} {{item.user.last_name}} </b> 
-                on {{item.created_date|date:'d/m/Y H:i'}} 
-            </p> 
+                <b class="govuk-body-l govuk-!-font-weight-bold">{{item.user.first_name}} {{item.user.last_name}} </b>
+                on {{item.created_date|date:'d/m/Y H:i'}}
+            </p>
         </div>
 
-        
+
     </div>
     <p class="govuk-body">
         {{item.body}}
     </p>
     {% if request.user == item.user  %}
-        <div>
-            <a style="float: left; margin-right: 10px;" href="{% url 'comments:edit-comment' item.id %}" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Edit comment
-            </a>
-            <form method="post" action="{% url 'comments:remove-comment' item.id %}">
-                {% csrf_token %}
+        <form method="post" action="{% url 'comments:remove-comment' item.id %}">
+            {% csrf_token %}
+            <div class="govuk-grid-column-full govuk-button-group">
+                <a
+                    href="{% url 'comments:edit-comment' item.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Edit comment
+                </a>
                 <input
                     type="submit"
                     value="Remove comment"
@@ -28,12 +31,12 @@
                     class="govuk-button govuk-button--secondary"
                     data-module="govuk-button"
                 />
-            </form>
-        </div>
+            </div>
+        </form>
     {% endif %}
     <div>
         <a style="float: left" href="{{item.path}}#comments{{item.id}}" class="govuk-link govuk-link--no-visited-state">Link to this comment</a>
-        {% if item.updated_date  %} 
+        {% if item.updated_date  %}
             <p style="float: left" class="govuk-body-s">
                 &nbsp | Last edited {{item.updated_date|date:'d/m/Y H:i'}}
             </p>
