@@ -1,4 +1,4 @@
-"""Template tag for comment component """
+"""Template tag for comment component"""
 from typing import TypedDict
 from django import template
 from django.http import HttpRequest
@@ -32,11 +32,11 @@ def comments_app(request: HttpRequest, case_id: int, page: str) -> CommentContex
         CommentContextType: Contains the comments, the request, and comment form
     """
     request.session["comment_page"] = page
-    request.session["comment_endpoint"] = request.path
+    request.session["comment_path"] = request.path
     request.session["case_id"] = case_id
     form: SubmitCommentForm = SubmitCommentForm()
     comments = Comments.objects.filter(
-        endpoint=request.path,
+        path=request.path,
         hidden=False
     ).order_by(
         "-created_date"

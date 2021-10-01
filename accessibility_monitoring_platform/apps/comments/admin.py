@@ -14,7 +14,7 @@ class CommentsAdmin(admin.ModelAdmin):
         "page",
         "body",
         "hidden",
-        "endpoint",
+        "path",
         "updated",
     ]
     list_display = [
@@ -23,7 +23,7 @@ class CommentsAdmin(admin.ModelAdmin):
         "page",
         "body",
         "hidden",
-        "endpoint",
+        "path",
     ]
 
 

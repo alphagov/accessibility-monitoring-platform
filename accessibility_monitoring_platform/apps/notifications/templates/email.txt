@@ -1,0 +1,6 @@
+Hello {{ user.first_name }} {{ user.last_name }}
+
+You have a new notification in the Accessibility Monitoring Platform
+
+{{ list_description }}
+{{ body }}

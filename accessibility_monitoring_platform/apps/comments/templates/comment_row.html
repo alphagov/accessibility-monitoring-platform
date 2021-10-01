@@ -32,7 +32,7 @@
         </div>
     {% endif %}
     <div>
-        <a style="float: left" href="{{item.endpoint}}#comments{{item.id}}" class="govuk-link govuk-link--no-visited-state">Link to this comment</a>
+        <a style="float: left" href="{{item.path}}#comments{{item.id}}" class="govuk-link govuk-link--no-visited-state">Link to this comment</a>
         {% if item.updated_date  %} 
             <p style="float: left" class="govuk-body-s">
                 &nbsp | Last edited {{item.updated_date|date:'d/m/Y H:i'}}

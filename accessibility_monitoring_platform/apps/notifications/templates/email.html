@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+
+<div class="govuk-body">
+    <p> Hello <strong>{{ user.first_name }} {{ user.last_name }}</strong> </p>
+    <p> You have a new notification in the Accessibility Monitoring Platform </p>
+
+    <a href="{{ request.get_host }}{{path}}"> <p> {{ list_description }}</p> </a>
+    <p> {{ body }}</p>
+</div>
