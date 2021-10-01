@@ -20,7 +20,6 @@ filehash.txt
 20210823_cleaned_case_record.csv
 **/data/s3_files/*
 cases.csv
-test_cases.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
