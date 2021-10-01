@@ -85,7 +85,9 @@ def return_recently_completed_cases(cases: List[Case]) -> List[Case]:
         [
             case
             for case in cases
-            if case.status == "complete" and case.completed_date >= thirty_days_ago
+            if case.status == "complete"
+            and case.completed_date
+            and case.completed_date >= thirty_days_ago
         ],
         key=lambda case: (
             case.completed_date is None,

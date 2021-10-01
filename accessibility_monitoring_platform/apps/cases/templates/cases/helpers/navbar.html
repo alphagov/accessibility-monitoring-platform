@@ -23,5 +23,31 @@
             {% include './navbar_step.html' with edit_name='cases:edit-final-decision' name='Final decision' complete=case.final_decision_complete_date %}
             {% include './navbar_step.html' with edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
         </ul>
+        <h2 class="govuk-heading-m">Frequently used links</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to website
+                </a>
+            </li>
+            {% if case.zendesk_url %}
+                <li>
+                    <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Zendesk
+                    </a>
+                </li>
+            {% endif %}
+            {% if case.trello_url %}
+                <li>
+                    <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Trello
+                    </a>
+                </li>
+            {% endif %}
+            <li>
+                <label class="govuk-label"><b>Status</b></label>
+                <p class="govuk-body-m">{{ case.get_status_display }}</p>
+            </li>
+        </ul>
     {% endif %}
 </nav>

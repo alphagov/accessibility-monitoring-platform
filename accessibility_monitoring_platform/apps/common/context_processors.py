@@ -4,6 +4,7 @@ Context processors
 import re
 from typing import Dict
 
+from .forms import AMPTopMenuForm
 from ..cases.models import Case
 
 PAGE_TITLES_BY_URL = {
@@ -34,8 +35,11 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def page_title(request) -> Dict[str, str]:
-    """Lookup the page title using URL path and place it in context for template rendering"""
+def platform_page(request) -> Dict[str, str]:
+    """
+    Lookup the page title using URL path and place it in context for template rendering.
+    Also include search form for top menu.
+    """
     url_without_id = re.sub(r"\d+", "[id]", request.path)
     page_heading: str = PAGE_TITLES_BY_URL.get(
         url_without_id, "Accessibility Monitoring Platform"
@@ -52,4 +56,5 @@ def page_title(request) -> Dict[str, str]:
     return {
         "page_heading": page_heading,
         "page_title": page_title,
+        "top_menu_form": AMPTopMenuForm(),
     }

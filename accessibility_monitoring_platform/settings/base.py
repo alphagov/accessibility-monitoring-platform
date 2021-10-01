@@ -83,7 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "accessibility_monitoring_platform.apps.common.context_processors.page_title",
+                "accessibility_monitoring_platform.apps.common.context_processors.platform_page",
             ],
         },
     },
@@ -139,9 +139,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-gb"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 

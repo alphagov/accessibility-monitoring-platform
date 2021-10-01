@@ -342,3 +342,16 @@ class AMPIssueReportForm(forms.ModelForm):
             "page_title",
             "description",
         ]
+
+
+class AMPTopMenuForm(forms.Form):
+    """
+    Form for searching for cases in the top menu bar
+    """
+
+    search = AMPCharField(
+        widget=forms.TextInput(attrs={
+            "class": "govuk-input govuk-input--width-10",
+            "placeholder": "Search",
+        })
+    )

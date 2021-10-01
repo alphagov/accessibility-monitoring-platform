@@ -284,5 +284,8 @@ def test_next_action_due_date_not_set(status):
 )
 def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
     """Check that the calculated next_action_due_date is correctly reported"""
-    case: Case = Case(status="in-probation-period", report_followup_week_12_due_date=report_followup_week_12_due_date)
+    case: Case = Case(
+        status="in-probation-period",
+        report_followup_week_12_due_date=report_followup_week_12_due_date,
+    )
     assert case.next_action_due_date_tense == expected_tense
