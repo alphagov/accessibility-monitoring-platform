@@ -80,5 +80,4 @@ URL: https://{self.request.get_host()}{issue_report.page_url}
             from_email=self.request.user.email,
             to=[settings.CONTACT_ADMIN_EMAIL],
         )
-        email.content_subtype = "html"
         email.send()

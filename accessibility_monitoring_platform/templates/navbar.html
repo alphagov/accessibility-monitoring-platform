@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 
+{% load notifications %}
+
 <div class="topnavmenu">
 {% if user.is_authenticated %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-one-quarter">
             <form method="get" action="{% url 'cases:case-list' %}">
                 <div class="govuk-form-group no-bottom-margin">
                     <div class="govuk-input__wrapper">
@@ -21,11 +23,12 @@
                 </div>
             </form>
         </div>
-        <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-column-three-quarters">
                 <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
                 <ul class="govuk-list nav-menu-list">
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Notifications ({% notifications_count request=request %})</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
                 </ul>

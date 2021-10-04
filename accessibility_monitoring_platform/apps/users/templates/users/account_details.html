@@ -12,8 +12,25 @@
                 <div class="govuk-inset-text">{{ message }}</div>
             {% endfor %}
         {% endif %}
-
-        {% include "forms/default.html" %}
+        <form method="post">
+            {% csrf_token %}
+            {% include 'common/amp_field.html' with field=form.email_notifications %}
+            {% include 'common/amp_field.html' with field=form.first_name %}
+            {% include 'common/amp_field.html' with field=form.last_name %}
+            {% include 'common/amp_field.html' with field=form.email %}
+            {% include 'common/amp_field.html' with field=form.email_confirm %}
+            <div class="form_default">
+                <div class="form-group form-field-default" errorid="loginStatusUsername">
+                    <label class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ form.password.label }}</label>
+                    {% if form.password.help_text %}<div class="govuk-hint">{{ form.password.help_text }}</div>{% endif %}
+                    {% include 'common/field_errors.html' with errors=form.password.errors %}
+                    {{form.password}}
+                </div>
+                <div class="form-space"> </div>
+            </div>
+            
+            <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+        </form>
     </main>
 </div>
 {% endblock %}
