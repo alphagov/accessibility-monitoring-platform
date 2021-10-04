@@ -21,7 +21,7 @@
             data-module="govuk-button"
         />
     </form>
-    <p style="margin-top: 20px;" class="govuk-heading-m"> {{comments|length}} comments </p>
+    <p style="margin-top: 20px;" class="govuk-heading-m"> {{comments|length}} comment{% if comments|length == 1 %}{% else %}s{% endif %}</p>
     {% for item in comments %}
         {% if item.hidden != True  %}
             {% include "./comment_row.html" with counter=forloop.counter comment=item %}
