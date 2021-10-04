@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import UpdateUserForm
-from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
+# from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
 
 
 class AccountDetailsContext(TypedDict):
@@ -32,11 +32,11 @@ def account_details(request: HttpRequest) -> HttpResponse:
     """
     request_temp: Any = request
     user: User = get_object_or_404(User, id=request_temp.user.id)
-    notification_settings = NotificationsSettings.objects.get(user=user)
+    # notification_settings = NotificationsSettings.objects.get(user=user)
 
     initial = model_to_dict(user)
     initial["email_confirm"] = initial["email"]
-    initial["email_notifications"] = notification_settings.email_notifications_enabled
+    # initial["email_notifications"] = notification_settings.email_notifications_enabled
 
     form: UpdateUserForm = UpdateUserForm(
         data=request.POST or None, request=request, initial=initial
@@ -50,8 +50,8 @@ def account_details(request: HttpRequest) -> HttpResponse:
             user.last_name = form.cleaned_data["last_name"]
             user.save()
 
-            notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
-            notification_settings.save()
+            # notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
+            # notification_settings.save()
 
             login(request, user)
             messages.success(request, "Successfully saved details!")
