@@ -1325,6 +1325,13 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assertContains(
         response,
+        """<h2 class="govuk-heading-m">Case status</h2>
+            <p class="govuk-body-m">Unassigned case</p>""",
+        html=True,
+    )
+
+    assertContains(
+        response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Link to website
@@ -1371,12 +1378,3 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
             </li>""",
             html=True,
         )
-
-    assertContains(
-        response,
-        """<li>
-            <label class="govuk-label"><b>Status</b></label>
-            <p class="govuk-body-m">Unassigned case</p>
-        </li>""",
-        html=True,
-    )
