@@ -79,7 +79,7 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
         target_user = User.objects.get(id=target_user_id)
         add_notification(
             user=target_user,
-            body=f"{request.user.first_name} {request.user.last_name} left a message in discussion",
+            body=f"{request.user.first_name} {request.user.last_name} left a message in discussion:\n\n{obj.body}",
             path=str(request.session.get("comment_path")),
             list_description=f"{obj.case.organisation_name} | {obj.page.replace('_', ' ').capitalize() }",
             request=request,

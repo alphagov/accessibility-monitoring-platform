@@ -18,7 +18,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-#from ..notifications.utils import read_notification
+from ..notifications.utils import read_notification
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
@@ -309,7 +309,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        # read_notification(self.request)
+        read_notification(self.request)
         return context
 
     def get_success_url(self) -> str:

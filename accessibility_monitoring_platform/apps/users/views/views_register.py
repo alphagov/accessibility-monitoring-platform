@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import CustomUserCreationForm
-# from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
+from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
 
 
 class RegisterContext(TypedDict):
@@ -39,7 +39,7 @@ def register(request: HttpRequest) -> HttpResponse:
             user: User = form.save()
             user.username = form.cleaned_data["email"]
             user.save()
-            # NotificationsSettings(user=user).save()
+            NotificationsSettings(user=user).save()
             login(request, user)
             return redirect(reverse("dashboard:home"))
 
