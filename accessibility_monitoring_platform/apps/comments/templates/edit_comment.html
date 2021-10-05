@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <a href="{{request.session.comment_path}}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper dashboard">
+        <div class="govuk-body">
+            <h1 class="govuk-heading-xl">Edit comment</h1>
+        </div>
+        <form method="post" action="{% url 'comments:edit-comment' comment.id %}">
+            {% csrf_token %}
+            {% for hidden_field in form.hidden_fields %}
+                <div class="govuk-error-message">{{ hidden_field.errors }}</div>
+                {{ hidden_field }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+                {% include 'common/amp_field.html' %}
+            {% endfor %}
+            <div style="padding-left: 0px;" class="govuk-grid-column-full govuk-button-group">
+                <input
+                    type="submit"
+                    value="Save comment"
+                    name="save_comment"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button"
+                />
+                <a
+                    href="{{request.session.comment_path}}#comments"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </main>
+</div>
+
+{% endblock %}

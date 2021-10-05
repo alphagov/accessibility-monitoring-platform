@@ -18,6 +18,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
+#from ..notifications.utils import read_notification
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
@@ -125,15 +126,17 @@ class CaseUpdateView(UpdateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
+        self.object: Case = form.save(commit=False)
         old_case: Case = Case.objects.get(pk=self.object.id)
-        new_case: Case = form.save()
-        if old_case.status != new_case.status:
+        if "home_page_url" in form.changed_data:
+            self.object.domain = extract_domain_from_url(self.object.home_page_url)
+        self.object.save()
+        if old_case.status != self.object.status:
             messages.add_message(
                 self.request,
                 messages.INFO,
-                f"Status changed from '{old_case.get_status_display()}' to '{new_case.get_status_display()}'",
+                f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",
             )
-        self.object: Case = new_case
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -299,8 +302,15 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     View to update case report details
     """
 
+    model: Case = Case
     form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
     template_name: str = "cases/forms/report_details.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        # read_notification(self.request)
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

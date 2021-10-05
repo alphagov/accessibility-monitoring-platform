@@ -7,10 +7,12 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import HttpResponse
 from ..models import EmailInclusionList
+# from ...notifications.models import NotificationsSettings
 from typing import TypedDict, List
 
 
 class FormRequestAccountDetails(TypedDict):
+    email_notifications_enabled: str
     first_name: str
     last_name: str
     email: str
@@ -45,6 +47,7 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="testuser")
         user.set_password("12345")
         user.save()
+        # NotificationsSettings(user=user).save()
 
     def test_account_details_loads_correctly_with_auth(self):
         """ Tests if a user is logged in and can access account details """
@@ -65,9 +68,11 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
         user.save()
+        # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
         data: FormRequestAccountDetails = {
+            "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "admin@email.com",
@@ -88,9 +93,11 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
         user.save()
+        # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
         data: FormRequestAccountDetails = {
+            "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "admin2@email.com",

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.dashboard",
     "accessibility_monitoring_platform.apps.users",
     "accessibility_monitoring_platform.apps.websites",
+    # "accessibility_monitoring_platform.apps.notifications",
+    # "accessibility_monitoring_platform.apps.comments",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -81,7 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "accessibility_monitoring_platform.apps.common.context_processors.page_title",
+                "accessibility_monitoring_platform.apps.common.context_processors.platform_page",
             ],
         },
     },
@@ -137,9 +139,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-gb"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 
@@ -168,3 +170,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CONTACT_ADMIN_EMAIL = "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

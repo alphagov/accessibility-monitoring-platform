@@ -846,10 +846,10 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 @pytest.mark.django_db
 def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     """Test find_duplicate_cases returns matching cases"""
-    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
     organisation_name_case: Case = Case.objects.create(
         organisation_name=ORGANISATION_NAME
     )
+    domain_case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
 
     duplicate_cases: List[Case] = list(find_duplicate_cases(url, domain))
 
@@ -892,20 +892,32 @@ def test_preferred_contact_displayed(admin_client):
 
 
 @pytest.mark.parametrize(
-    "flag_name, section_name",
+    "flag_name, section_name, edit_url_name",
     [
-        ("case_details_complete_date", "Case details"),
-        ("contact_details_complete_date", "Contact details"),
-        ("testing_details_complete_date", "Testing details"),
-        ("reporting_details_complete_date", "Report details"),
-        ("report_correspondence_complete_date", "Report correspondence"),
-        ("twelve_week_correspondence_complete_date", "12 week correspondence"),
-        ("final_decision_complete_date", "Final decision"),
-        ("enforcement_correspondence_complete_date", "Equality body correspondence"),
+        ("case_details_complete_date", "Case details", "edit-case-details"),
+        ("contact_details_complete_date", "Contact details", "edit-contact-details"),
+        ("testing_details_complete_date", "Testing details", "edit-test-results"),
+        ("reporting_details_complete_date", "Report details", "edit-report-details"),
+        (
+            "report_correspondence_complete_date",
+            "Report correspondence",
+            "edit-report-correspondence",
+        ),
+        (
+            "twelve_week_correspondence_complete_date",
+            "12 week correspondence",
+            "edit-twelve-week-correspondence",
+        ),
+        ("final_decision_complete_date", "Final decision", "edit-final-decision"),
+        (
+            "enforcement_correspondence_complete_date",
+            "Equality body correspondence",
+            "edit-enforcement-body-correspondence",
+        ),
     ],
 )
 def test_section_complete_check_displayed_in_contents(
-    flag_name, section_name, admin_client
+    flag_name, section_name, edit_url_name, admin_client
 ):
     """
     Test that the section complete tick is displayed in contents
@@ -913,6 +925,7 @@ def test_section_complete_check_displayed_in_contents(
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
     case.save()
+    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -922,8 +935,15 @@ def test_section_complete_check_displayed_in_contents(
 
     assertContains(
         response,
-        f'<a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">'
-        f'{section_name}<span class="govuk-visually-hidden">complete</span></a> &check;',
+        f"""<li>
+            <a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">
+            {section_name}<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span>
+            </a>
+            &check;
+        </li>""",
         html=True,
     )
 
@@ -1272,5 +1292,91 @@ def test_repost_ready_to_review_with_no_report_error_messages(admin_client):
             <span class="govuk-visually-hidden">Error:</span>
             Report cannot be ready to be reviewed without a link to report draft
         </p>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "useful_link, edit_url_name",
+    [
+        ("zendesk_url", "edit-case-details"),
+        ("trello_url", "edit-contact-details"),
+        ("zendesk_url", "edit-test-results"),
+        ("trello_url", "edit-report-details"),
+        ("zendesk_url", "edit-report-correspondence"),
+        ("trello_url", "edit-twelve-week-correspondence"),
+        ("zendesk_url", "edit-final-decision"),
+        ("trello_url", "edit-enforcement-body-correspondence"),
+    ],
+)
+def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):
+    """
+    Test that the useful links are displayed on all edit pages
+    """
+    case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
+    setattr(case, useful_link, f"https://{useful_link}.com")
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<li>
+            <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to website
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    if useful_link == "trello_url":
+        assertContains(
+            response,
+            """<li>
+                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>""",
+            html=True,
+        )
+        assertNotContains(
+            response,
+            """<li>
+                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Zendesk
+                </a>
+            </li>""",
+            html=True,
+        )
+    else:
+        assertNotContains(
+            response,
+            """<li>
+                <a href="https://trello_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>""",
+            html=True,
+        )
+        assertContains(
+            response,
+            """<li>
+                <a href="https://zendesk_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Zendesk
+                </a>
+            </li>""",
+            html=True,
+        )
+
+    assertContains(
+        response,
+        """<li>
+            <label class="govuk-label"><b>Status</b></label>
+            <p class="govuk-body-m">Unassigned case</p>
+        </li>""",
         html=True,
     )
