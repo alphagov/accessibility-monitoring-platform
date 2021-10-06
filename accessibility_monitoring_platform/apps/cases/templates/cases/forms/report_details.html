@@ -21,9 +21,24 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-report-details' case.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/amp_field.html' with field=form.report_draft_url %}
+                            {% include 'common/amp_field.html' with field=form.report_review_status %}
+
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Auditor</b></label>
+                                <div class="govuk-hint">{{ case.auditor.get_full_name }}</div>
+                            </div>
+
+                            {% include 'common/amp_field.html' with field=form.reviewer %}
+                            {% include 'common/amp_field.html' with field=form.report_approved_status %}
+                            {% include 'common/amp_field.html' with field=form.reviewer_notes %}
+                            {% include 'common/amp_field.html' with field=form.report_final_odt_url %}
+                            {% include 'common/amp_field.html' with field=form.report_final_pdf_url %}
+                            {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
