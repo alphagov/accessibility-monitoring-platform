@@ -1,6 +1,6 @@
 """Add notification function for notification app"""
 from typing import Any, TypedDict
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template.loader import get_template
 from .models import Notifications, NotificationsSettings
 from django.contrib.auth.models import User
@@ -53,8 +53,6 @@ def add_notification(
     email_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)
 
     if email_settings.email_notifications_enabled:
-        plaintext: Any = get_template("email.txt")
-        htmly: Any = get_template("email.html")
         context: EmailContextType = {
             "user": user,
             "list_description": list_description,
@@ -62,17 +60,16 @@ def add_notification(
             "path": path,
             "request": request,
         }
-        text_content: str = plaintext.render(context)
-        html_content: str = htmly.render(context)
-        subject: str = f"You have a new notification in the monitoring platform : {list_description}"
-        msg: EmailMultiAlternatives = EmailMultiAlternatives(
-            subject,
-            text_content,
+        template: str = get_template("email.txt")
+        content: str = template.render(context)
+        email: EmailMessage = EmailMessage(
+            subject=f"You have a new notification in the monitoring platform : {list_description}",
+            body=content,
             from_email="accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk",
             to=[user.email],
         )
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        email.content_subtype = "html"
+        email.send()
     return notification
 
 

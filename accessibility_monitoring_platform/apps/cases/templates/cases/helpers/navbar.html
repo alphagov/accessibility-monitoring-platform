@@ -12,6 +12,8 @@
             {% include './navbar_content.html' with id='equality-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
         </ul>
     {% else %}
+        <h2 class="govuk-heading-m">Case status</h2>
+        <p class="govuk-body-m">{{ case.get_status_display }}</p>
         <h2 class="govuk-heading-m">Case steps</h2>
         <ul class="govuk-list">
             {% include './navbar_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
@@ -25,6 +27,11 @@
         </ul>
         <h2 class="govuk-heading-m">Frequently used links</h2>
         <ul class="govuk-list">
+            <li>
+                <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                    View case details
+                </a>
+            </li>
             <li>
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Link to website
@@ -44,10 +51,6 @@
                     </a>
                 </li>
             {% endif %}
-            <li>
-                <label class="govuk-label"><b>Status</b></label>
-                <p class="govuk-body-m">{{ case.get_status_display }}</p>
-            </li>
         </ul>
     {% endif %}
 </nav>
