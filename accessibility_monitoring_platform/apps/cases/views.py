@@ -128,21 +128,27 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         self.object: Case = form.save(commit=False)
         old_case: Case = Case.objects.get(pk=self.object.id)
+
         if (
             old_case.report_approved_status != self.object.report_approved_status
             and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and hasattr(self.request.user, "auditor")
             and self.request.user.auditor.active_qa_auditor
         ):
             self.object.reviewer = self.request.user
+
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
+
         self.object.save()
+
         if old_case.status != self.object.status:
             messages.add_message(
                 self.request,
                 messages.INFO,
                 f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",
             )
+
         return HttpResponseRedirect(self.get_success_url())
 
 
