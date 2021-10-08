@@ -69,6 +69,7 @@ def account_details(request: HttpRequest) -> HttpResponse:
     context: AccountDetailsContext = {
         "form": form,
         "form_groups": ["last_name", "email_confirm"],
+        "is_qa_auditor": user.groups.filter(name="QA auditor").exists(),
     }
 
     return render(request, "users/account_details.html", context)

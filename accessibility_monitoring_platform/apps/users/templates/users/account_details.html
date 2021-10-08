@@ -14,7 +14,9 @@
         {% endif %}
         <form method="post">
             {% csrf_token %}
-            {% include 'common/amp_field.html' with field=form.active_qa_auditor %}
+            {% if is_qa_auditor %}
+                {% include 'common/amp_field.html' with field=form.active_qa_auditor %}
+            {% endif %}
             {% include 'common/amp_field.html' with field=form.email_notifications %}
             {% include 'common/amp_field.html' with field=form.first_name %}
             {% include 'common/amp_field.html' with field=form.last_name %}
