@@ -7,6 +7,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for user in User.objects.all():
             if not NotificationsSettings.objects.filter(user=user):
-                NotificationsSettings(
-                    user=user
-                ).save()
+                NotificationsSettings(user=user).save()

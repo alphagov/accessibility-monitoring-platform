@@ -18,7 +18,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-#from ..notifications.utils import read_notification
+# from ..notifications.utils import read_notification
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
@@ -28,7 +28,7 @@ from ..common.utils import (
     get_field_names_for_export,
     get_id_from_button_name,
 )
-from .models import Case, Contact
+from .models import Case, Contact, REPORT_APPROVED_STATUS_APPROVED
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -128,6 +128,12 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         self.object: Case = form.save(commit=False)
         old_case: Case = Case.objects.get(pk=self.object.id)
+        if (
+            old_case.report_approved_status != self.object.report_approved_status
+            and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and self.request.user.auditor.active_qa_auditor
+        ):
+            self.object.reviewer = self.request.user
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
         self.object.save()

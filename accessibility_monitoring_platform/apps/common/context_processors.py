@@ -5,11 +5,9 @@ import re
 from typing import Dict
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
 
 from .forms import AMPTopMenuForm
 from ..cases.models import Case
-from ..users.models import Auditor
 
 PAGE_TITLES_BY_URL = {
     "/": "Dashboard",
@@ -61,5 +59,5 @@ def platform_page(request) -> Dict[str, str]:
         "page_heading": page_heading,
         "page_title": page_title,
         "top_menu_form": AMPTopMenuForm(),
-        "qa_auditors": User.objects.filter(auditor__active_qa_auditor=True)
+        "qa_auditors": User.objects.filter(auditor__active_qa_auditor=True),
     }

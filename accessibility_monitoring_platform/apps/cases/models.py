@@ -96,8 +96,9 @@ REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
 ]
 
 REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
+REPORT_APPROVED_STATUS_APPROVED: str = "yes"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
+    (REPORT_APPROVED_STATUS_APPROVED, "Yes"),
     ("in-progress", "Further work is needed"),
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
