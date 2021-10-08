@@ -413,7 +413,7 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("report_draft_url").send_keys(REPORT_DRAFT_URL)
         self.driver.find_element_by_css_selector("#id_report_review_status_1").click()
-        self.driver.find_element_by_css_selector("#id_report_approved_status_0").click()
+        self.driver.find_element_by_css_selector("#id_report_approved_status_1").click()
         self.driver.find_element_by_name("reviewer_notes").send_keys(
             REPORT_REVIEWER_NOTES
         )
