@@ -34,10 +34,14 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
         ("View+all+cases", "Unassigned QA cases"),
     ],
 )
-def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_client, admin_user):
+def test_dashboard_shows_qa_auditors(
+    dashboard_view, expected_qa_column, admin_client, admin_user
+):
     """Tests if dashboard views are showing the expected QA auditors column"""
     Auditor.objects.create(user=admin_user, active_qa_auditor=True)
-    response: HttpResponse = admin_client.get(f'{reverse("dashboard:home")}?view={dashboard_view}')
+    response: HttpResponse = admin_client.get(
+        f'{reverse("dashboard:home")}?view={dashboard_view}'
+    )
 
     assert response.status_code == 200
     assertContains(response, expected_qa_column)
