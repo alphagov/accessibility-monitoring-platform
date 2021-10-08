@@ -69,6 +69,7 @@ class UpdateUserFormTestCase(TestCase):
             "email": "admin2@email.com",
             "email_confirm": "admin2@email.com",
             "password": "12345",
+            "active_qa_auditor": "yes",
         }
 
         form: UpdateUserForm = UpdateUserForm(
