@@ -51,8 +51,8 @@ class DockerBroker:
         """
         for docker_image in self.docker_images_paths:
             os.system(f"docker build -t {docker_image['tag']} -f - . < {docker_image['path']}")
-        os.system(f"docker-compose -f {self.docker_compose_path} down --volumes")
-        os.system(f"docker-compose -f {self.docker_compose_path} up -d")
+        os.system(f"docker compose -f {self.docker_compose_path} down --volumes")
+        os.system(f"docker compose -f {self.docker_compose_path} up -d")
         return self
 
     def down(self) -> DockerBroker:
@@ -61,6 +61,6 @@ class DockerBroker:
         Returns:
             DockerBroker: Returns self
         """
-        os.system(f"docker-compose -f {self.docker_compose_path} down")
-        os.system(f"docker-compose -f {self.docker_compose_path} down --volumes")
+        os.system(f"docker compose -f {self.docker_compose_path} down")
+        os.system(f"docker compose -f {self.docker_compose_path} down --volumes")
         return self

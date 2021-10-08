@@ -1,7 +1,7 @@
 ---
 applications:
 - name: accessibility-monitoring-platform-test
-  memory: 512M
+  memory: 128M
   instances: 1
   buildpacks:
     - python_buildpack

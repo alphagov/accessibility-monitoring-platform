@@ -24,3 +24,9 @@ docker-compose.yml
 gulpfile.babel.js
 Makefile
 README.md
+
+integration_tests/*
+deploy_feature_to_paas/*
+.github/*
+.pytest_cache/*
+pulp/*
