@@ -32,7 +32,12 @@
                                 <label class="govuk-label"><b>Auditor</b></label>
                                 <div class="govuk-hint">{{ case.auditor.get_full_name }}</div>
                             </div>
-
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Active QA auditor{% if qa_auditors|length != 1 %}s{% endif %}</b></label>
+                                {% for qa_auditor in qa_auditors %}
+                                    <div class="govuk-hint">{{ qa_auditor.get_full_name }}</div>
+                                {% endfor %}
+                            </div>
                             {% include 'common/amp_field.html' with field=form.reviewer %}
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
                             {% include 'common/amp_field.html' with field=form.reviewer_notes %}

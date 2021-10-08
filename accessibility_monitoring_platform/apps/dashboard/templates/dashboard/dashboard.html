@@ -67,10 +67,22 @@
             </div>
             <div class="govuk-grid-column-one-quarter leftborder">
                 <div class="govuk-body-m">
-                    Unassigned QA cases
+                    {% if show_all_cases %}
+                        Unassigned QA cases
+                    {% else %}
+                        Active QA{% if qa_auditors|length != 1 %}s{% endif %}
+                    {% endif%}
                 </div>
                 <div class="govuk-heading-xl no-bottom-margin">
-                    {{total_ready_to_qa_cases}}
+                    {% if show_all_cases %}
+                        {{total_ready_to_qa_cases}}
+                    {% else %}
+                        {% if qa_auditors|length == 1 %}
+                            {{ qa_auditors.0.first_name }}
+                        {% else %}
+                            {{ qa_auditors|length }}
+                        {% endif %}
+                    {% endif%}
                 </div>
             </div>
         </div>
