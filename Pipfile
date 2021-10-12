@@ -16,7 +16,6 @@ selenium = "~=3.141.0"
 libsass = "*"
 rcssmin = "*"
 xmltodict = "*"
-pexpect = "*"
 
 [dev-packages]
 flake8 = "*"
