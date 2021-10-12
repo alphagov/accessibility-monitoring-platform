@@ -1,3 +1,4 @@
+from typing import Any, List
 import os
 from dotenv import load_dotenv
 import boto3
@@ -6,7 +7,7 @@ from pathlib import Path
 
 if __name__ == "__main__":
     load_dotenv()
-    s3_bucket = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
+    s3_bucket: str = "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914"
     s3_client = boto3.client(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID_S3_STORE"),
@@ -14,14 +15,16 @@ if __name__ == "__main__":
         region_name=os.getenv("AWS_DEFAULT_REGION_S3_STORE"),
     )
 
-    file_name = ""
-    s3_path = ""
+    file_name: str = ""
+    s3_path: str = ""
     if os.getenv("DB_BACKUP"):
-        print(os.getenv("DB_BACKUP"))
-        filename = os.getenv("DB_BACKUP").split("/")[-1]
-        s3_path = os.getenv("DB_BACKUP")
+        # Gets specific db backup if DB_BACKUP has S3 path
+        if isinstance(os.getenv("DB_BACKUP"), str):
+            s3_path = str(os.getenv("DB_BACKUP"))
+            filename = s3_path.rsplit("/", maxsplit=1)[-1]
     else:
-        db_backups = []
+        # Else it justs get the latest production backup
+        db_backups: List[Any] = []
         for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
             if "deploy_feature_to_paas_db_back/" in key["Key"] and "production" in key["Key"]:
                 db_backups.append(key)
@@ -30,7 +33,7 @@ if __name__ == "__main__":
         s3_path = db_backups[-1]["Key"]
 
     Path("./data/s3_files/").mkdir(parents=True, exist_ok=True)
-    local_path = f"./data/s3_files/{file_name}"
+    local_path: str = f"./data/s3_files/{file_name}"
 
     if not os.path.isfile(local_path):
         print(f">>> downloading {s3_path}")
