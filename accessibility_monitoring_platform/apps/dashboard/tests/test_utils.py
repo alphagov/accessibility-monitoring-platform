@@ -83,11 +83,11 @@ MOCK_CASES: List[MockCase] = [
         status="in-probation-period",
         next_action_due_date=SECOND_DATE,
     ),
-    MockCase(
-        id=15, status="in-probation-period", next_action_due_date=FIRST_DATE
-    ),
+    MockCase(id=15, status="in-probation-period", next_action_due_date=FIRST_DATE),
     MockCase(id=14, status="in-probation-period"),
-    MockCase(id=13, status="in-report-correspondence", next_action_due_date=SECOND_DATE),
+    MockCase(
+        id=13, status="in-report-correspondence", next_action_due_date=SECOND_DATE
+    ),
     MockCase(id=12, status="in-report-correspondence", next_action_due_date=FIRST_DATE),
     MockCase(id=11, status="in-report-correspondence"),
     MockCase(id=10, status="report-ready-to-send"),
@@ -162,7 +162,9 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
             next_action_due_date=date(2021, 1, 1),
         ),
         MockCase(
-            id=13, status="in-report-correspondence", next_action_due_date=date(2021, 2, 1)
+            id=13,
+            status="in-report-correspondence",
+            next_action_due_date=date(2021, 2, 1),
         ),
         MockCase(id=11, status="in-report-correspondence"),
     ],
