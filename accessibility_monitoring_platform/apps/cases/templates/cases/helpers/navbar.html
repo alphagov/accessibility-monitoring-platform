@@ -12,9 +12,17 @@
             {% include './navbar_content.html' with id='equality-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
         </ul>
     {% else %}
-        <h2 class="govuk-heading-m">Case status</h2>
+        <h2 class="govuk-heading-m bottom-margin-5">Auditor</h2>
+        <p class="govuk-body-m">
+            {% if case.auditor %}
+                {{ case.auditor.get_full_name }}
+            {% else %}
+                None
+            {% endif %}
+        </p>
+        <h2 class="govuk-heading-m bottom-margin-5">Case status</h2>
         <p class="govuk-body-m">{{ case.get_status_display }}</p>
-        <h2 class="govuk-heading-m">Case steps</h2>
+        <h2 class="govuk-heading-m bottom-margin-5">Case steps</h2>
         <ul class="govuk-list">
             {% include './navbar_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
             {% include './navbar_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
@@ -25,7 +33,7 @@
             {% include './navbar_step.html' with edit_name='cases:edit-final-decision' name='Final decision' complete=case.final_decision_complete_date %}
             {% include './navbar_step.html' with edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
         </ul>
-        <h2 class="govuk-heading-m">Frequently used links</h2>
+        <h2 class="govuk-heading-m  bottom-margin-5">Frequently used links</h2>
         <ul class="govuk-list">
             <li>
                 <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
