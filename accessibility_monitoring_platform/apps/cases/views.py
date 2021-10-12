@@ -18,7 +18,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-#from ..notifications.utils import read_notification
+# from ..notifications.utils import read_notification
 
 from ..common.typing import IntOrNone
 from ..common.utils import (
