@@ -17,6 +17,8 @@ omit =
         */migrations/*
         */admin.py
         */pulp/*
+        */stack_tests/*
+        */deploy_feature_to_paas/*
 
 
 [report]

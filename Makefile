@@ -35,8 +35,8 @@ sync:
 
 test:
 	python manage.py collectstatic --noinput \
+		&& coverage run -m -p pytest --ignore="stack_tests/" \
 		&& coverage run --source='.' -p manage.py test \
-		&& coverage run -m -p pytest \
 		&& coverage combine \
 		&& coverage report --skip-covered \
 		&& coverage erase
