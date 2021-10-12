@@ -132,8 +132,6 @@ class CaseUpdateView(UpdateView):
         if (
             old_case.report_approved_status != self.object.report_approved_status
             and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
-            and hasattr(self.request.user, "auditor")
-            and self.request.user.auditor.active_qa_auditor
         ):
             self.object.reviewer = self.request.user
 

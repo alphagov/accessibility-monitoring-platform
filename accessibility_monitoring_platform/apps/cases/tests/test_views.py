@@ -1381,14 +1381,13 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         )
 
 
-def test_case_reviewer_updated_when_active_qa_auditor_sets_report_approved(
+def test_case_reviewer_updated_when_active_user_sets_report_approved(
     admin_client, admin_user
 ):
     """
     Test that the case QA auditor is set to the current user when report is approved
     and the current user is an active QA auditor
     """
-    Auditor.objects.create(user=admin_user, active_qa_auditor=True)
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
@@ -1402,29 +1401,6 @@ def test_case_reviewer_updated_when_active_qa_auditor_sets_report_approved(
     assert response.status_code == 302
     updated_case: Case = Case.objects.get(pk=case.id)
     assert updated_case.reviewer == admin_user
-
-
-def test_case_reviewer_not_updated_when_report_approved_by_non_active_qa_auditor(
-    admin_client, admin_user
-):
-    """
-    Test that the case QA auditor is not set when report is approved
-    and the current user is not an active QA auditor
-    """
-    Auditor.objects.create(user=admin_user, active_qa_auditor=False)
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
-        {
-            "report_approved_status": "yes",
-            "save_continue": "Save and continue",
-        },
-    )
-
-    assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)
-    assert updated_case.reviewer is None
 
 
 def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_client):
