@@ -23,17 +23,17 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
         (
             "in_report_correspondence",
             "in-report-correspondence",
-            "report_sent_date",
+            "next_action_due_date",
         ),
         (
             "in_probation_period",
             "in-probation-period",
-            "report_followup_week_12_due_date",
+            "next_action_due_date",
         ),
         (
             "in_12_week_correspondence",
             "in-12-week-correspondence",
-            "report_followup_week_12_due_date",
+            "next_action_due_date",
         ),
         (
             "final_decision_due",
