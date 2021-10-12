@@ -23,7 +23,7 @@ if __name__ == "__main__":
     else:
         db_backups = []
         for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
-            if "deploy_feature_to_paas_db_back/" in key["Key"]:
+            if "deploy_feature_to_paas_db_back/" in key["Key"] and "production" in key["Key"]:
                 db_backups.append(key)
         db_backups.sort(key=lambda x: x["LastModified"])
         file_name = db_backups[-1]["Key"].split("/")[-1]
@@ -39,3 +39,10 @@ if __name__ == "__main__":
             s3_path,
             local_path
         )
+
+    os.system(
+        "psql "
+        "postgres://admin:secret@localhost:5432/accessibility_monitoring_app "
+        "< "
+        f"{local_path}"
+    )

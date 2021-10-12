@@ -73,7 +73,7 @@ def run_pytest_suite(path_for_xml_results: str, test_dir: str) -> bool:
 
     pytest.main([
         f"{test_dir}",
-        f"--junit-xml={path_for_xml_results}"
+        f"--junit-xml={path_for_xml_results}",
     ])
 
     pytest_results: PyTestResults = import_testresults(path_for_xml_results=path_for_xml_results)

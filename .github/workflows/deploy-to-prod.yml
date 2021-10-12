@@ -99,7 +99,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install cf7-cli
 
+    - name: Staging
+      run: |
+        python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
+        python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
+        python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
+
     - name: Push to cf
       run: |
         cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
         cf push -f manifest-prod.yml
+
+    - name: Smoke tests
+      run: |
+        python3 stack_tests/main.py -s ./stack_tests/smoke_tests_prod_env_settings.json

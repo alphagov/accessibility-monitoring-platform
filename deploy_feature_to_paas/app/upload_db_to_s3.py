@@ -1,16 +1,21 @@
+"""Function to upload file to s3"""
 import logging
+from typing import Union
 import boto3
 from botocore.exceptions import ClientError
 import os
 
 
-def upload_db_to_s3(file_name, bucket, object_name=None):
+def upload_db_to_s3(file_name: str, bucket: str, object_name: Union[str, None]=None):
     """Upload a file to an S3 bucket
 
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file_name is used
-    :return: True if file was uploaded, else False
+    Args:
+        file_name: File to upload
+        bucket: Bucket to upload to
+        object_name: S3 object name. If not specified then file_name is used
+    
+    return:
+        True if file was uploaded, else False
     """
     s3_client = boto3.client(
         "s3",

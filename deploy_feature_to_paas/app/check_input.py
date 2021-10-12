@@ -1,5 +1,6 @@
-
+""" check_input - Check details with user before deploying to PaaS"""
 import sys
+from typing import Any
 
 
 class BColours:
@@ -14,7 +15,7 @@ class BColours:
     UNDERLINE = "\033[4m"
 
 
-def check_input(args, config):
+def check_input(args: Any, config: Any):
     if not args.force and args.build_direction == "up":
         print(BColours.WARNING + "This script will create a new environment:" + BColours.ENDC)
         print("---")
@@ -34,11 +35,11 @@ def check_input(args, config):
 
         while True:
             print("Do you wish to continue?:[y/n] ", end="", flush=True)
-            x = input().lower()
-            if (x == "yes" or x == "y"):
+            x: str = input().lower()
+            if (x in ("yes", "y")):
                 print(BColours.OKGREEN + "Building new environment in PaaS!" + BColours.ENDC)
                 break
-            elif (x == "no" or x == "n"):
+            elif (x in ("no", "n")):
                 print(">>> Aborting build")
                 sys.exit()
 

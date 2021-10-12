@@ -5,16 +5,14 @@ init:
 		&& pipenv install -d \
 		&& npm i \
 		&& python -c 'from pulp import *; pulp()' \
-		&& python download_db_backup.py \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
-		&& psql postgres://admin:secret@localhost:5432/accessibility_monitoring_app < ./data/s3_files/20211006T1623_monitoring-platform-test_monitoring-platform-default-db.sql \
-		&& psql postgres://admin:secret@localhost:5432/accessibility_monitoring_app < ./data/s3_files/20211006T1623_monitoring-platform-test_monitoring-platform-default-db.sql \
+		&& python prepare_local_db.py \
 		&& ./manage.py migrate \
 		&& echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin@email.com', 'admin@email.com', 'secret')" | python manage.py shell \
 		&& echo "email: admin@email.com & password: secret"
 
 clean_local:
-	docker compose down
+	docker-compose down
 	rm -rf ./data
 
 start:
@@ -47,11 +45,16 @@ local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
 
-perm_for_chrome:
-	chmod 755 integration_tests/chromedriver
-
 int_test:
 	python3 stack_tests/main.py
 
-smoke_test:
-	python3 stack_tests/main.py -s stack_tests/smoke_tests_settings.json 
+deploy_prototype:
+	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json
+
+breakdown_prototype:
+	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_feature_settings.json
+
+staging_env:
+	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
+	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
+	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json

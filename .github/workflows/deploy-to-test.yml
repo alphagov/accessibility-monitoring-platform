@@ -101,6 +101,9 @@ jobs:
 
     - name: Push to cf
       run: |
-        pwd
         cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-test
         cf push -f manifest-test.yml
+
+    - name: Smoke tests
+      run: |
+        python3 stack_tests/main.py -s ./stack_tests/smoke_tests_test_env_settings.json

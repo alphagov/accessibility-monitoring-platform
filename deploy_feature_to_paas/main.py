@@ -1,3 +1,4 @@
+from typing import Union
 import argparse
 from dotenv import load_dotenv
 import time
@@ -8,7 +9,10 @@ from datetime import datetime
 from app.BuildEnv import BuildEnv
 from app.CopyDB import CopyDB
 from app.upload_db_to_s3 import upload_db_to_s3
-from app.parse_json import parse_settings_json
+from app.parse_json import (
+    parse_settings_json,
+    SettingsType,
+)
 from app.check_input import check_input
 
 
@@ -38,19 +42,29 @@ parser.add_argument(
 )
 
 
+def check_if_login() -> bool:
+    process = subprocess.Popen(
+        "cf spaces".split(),
+        stdout=subprocess.PIPE
+    )
+    output = process.communicate()[0]
+    if "FAILED" in output.decode("utf-8"):
+        raise Exception(f"""Error not logged into CF - {output.decode("utf-8")}""")
+    return True
+
 
 if __name__ == "__main__":
     load_dotenv()
     print(">>> deploys_feature_to_paas creates a new environment in PaaS for testing new features")
-    start = time.time()
+    start: float = time.time()
     args = parser.parse_args()
-    config = parse_settings_json(args.settings_json)
+    config: SettingsType = parse_settings_json(args.settings_json)
 
     if config["space_name"] == "git_branch":
         print(">>> Creating space name from git branch")
-        git_branch_name = subprocess.check_output(["git", "branch", "--show-current"]).decode("utf-8")
-        user = os.environ.get("USER")
-        user_anon = user[:4] if user else "unknown"
+        git_branch_name: str = subprocess.check_output(["git", "branch", "--show-current"]).decode("utf-8")
+        user: Union[str, None] = os.environ.get("USER")
+        user_anon: str = user[:4] if user else "unknown"
         config["space_name"] = f"{user_anon}--{git_branch_name}".replace("\n", "")
         config["app_name"] = git_branch_name.replace("\n", "")
 
@@ -60,6 +74,8 @@ if __name__ == "__main__":
         "secret_key": get_random_secret_key(),
         "db": config["db_name"],
     }
+
+    check_if_login()
 
     check_input(args, config)
 

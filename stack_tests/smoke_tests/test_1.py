@@ -1,131 +1,29 @@
 """
 Test template for integration tests
 """
-import time
 import unittest
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.keys import Keys
+
 from dotenv import load_dotenv
-# from selenium.webdriver.support.ui import Select
 from app.parse_json import parse_integration_tests_json
+import argparse
 
-settings = parse_integration_tests_json(settings_path='./stack_tests/smoke_tests_settings.json')
+parser = argparse.ArgumentParser(description="Settings for integration tests")
 
-load_dotenv()
+parser.add_argument(
+    "-s"
+    "--settings-json",
+    dest="settings_json",
+    help="Path for json settings"
+)
 
-# ORGANISATION_NAME = "Example Organisation"
-# HOME_PAGE_URL = "https://example.com"
-# ENFORCEMENT_BODY_VALUE = "ehrc"
-# ENFORCEMENT_BODY_LABEL = "Equality and Human Rights Commission"
-# SERVICE_NAME = "Service name"
-# ZENDESK_URL = "https://zendesk.com"
-# TRELLO_URL = "https://trello.com"
-# CASE_DETAILS_NOTES = """I am
-# a multiline
-# case details note, I am"""
+args = parser.parse_args()
 
-# CONTACT_FIRST_NAME = "Contact first name"
-# CONTACT_LAST_NAME = "Contact last name"
-# CONTACT_JOB_TITLE = "Contact title"
-# EMAIL = "contact_email@example.com"
-# CONTACT_NOTES = """I am
-# a multiline
-# contact note, I am"""
-
-# TEST_RESULTS_URL = "https://test-results.com"
-# ACCESSIBILITY_STATEMENT_STATUS = "missing"
-# ACCESSIBILITY_STATEMENT_NOTES = """I am
-# a multiline
-# accessibility statement note, I am"""
-# WEBSITE_COMPLIANCE_NOTES = """I am
-# a multiline
-# accessibility statement note, I am"""
-
-
-# REPORT_DRAFT_URL = "https://report-draft.com"
-# REPORT_REVIEWER_NOTES = """I am
-# a multiline
-# report reviewer note, I am"""
-# REPORT_FINAL_PDF_URL = "https://report-final-pdf.com"
-# REPORT_FINAL_ODT_URL = "https://report-final-odt.com"
-
-# REPORT_SENT_DATE_DD = "31"
-# REPORT_SENT_DATE_MM = "12"
-# REPORT_SENT_DATE_YYYY = "2020"
-# REPORT_ACKNOWLEGED_DATE_DD = "1"
-# REPORT_ACKNOWLEGED_DATE_MM = "4"
-# REPORT_ACKNOWLEGED_DATE_YYYY = "2021"
-# REPORT_CORRESPONDENCE_NOTES = """I am
-# a multiline
-# report correspondence note, I am"""
-
-# TWELVE_WEEK_UPDATE_REQUESTED_DD = "1"
-# TWELVE_WEEK_UPDATE_REQUESTED_MM = "3"
-# TWELVE_WEEK_UPDATE_REQUESTED_YYYY = "2021"
-# TWELVE_WEEK_ACKNOWLEGED_DATE_DD = "1"
-# TWELVE_WEEK_ACKNOWLEGED_DATE_MM = "7"
-# TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY = "2021"
-# TWELVE_WEEK_CORRESPONDENCE_NOTES = """I am
-# a multiline
-# 12 week correspondence note, I am"""
-
-# PSB_PROGRESS_NOTES = """I am
-# a multiline
-# public sector body progress note, I am"""
-# RETESTED_WEBSITE_DD = "1"
-# RETESTED_WEBSITE_MM = "8"
-# RETESTED_WEBSITE_YYYY = "2021"
-# DISPROPORTIONATE_NOTES = """I am
-# a multiline
-# disproportionate burden note, I am"""
-# ACCESSIBILITY_STATEMENT_NOTES_FINAL = """I am
-# a multiline
-# accessibility statement final note, I am"""
-# RECOMMENDATION_NOTES = """I am
-# a multiline
-# recommendation note, I am"""
-# COMPLIANCE_EMAIL_SENT_DATE_DD = "13"
-# COMPLIANCE_EMAIL_SENT_DATE_MM = "8"
-# COMPLIANCE_EMAIL_SENT_DATE_YYYY = "2021"
-
-# PSB_APPEAL_NOTES = """I am
-# a multiline
-# public sector body appeal note, I am"""
-# SENT_TO_ENFORCEMENT_BODY_SENT_DATE_DD = "15"
-# SENT_TO_ENFORCEMENT_BODY_SENT_DATE_MM = "8"
-# SENT_TO_ENFORCEMENT_BODY_SENT_DATE_YYYY = "2021"
-# ENFORCEMENT_BODY_CORRESPONDENCE_NOTES = """I am
-# a multiline
-# enforcement body correspondence note, I am"""
-
-# REPORT_FOLLOWUP_WEEK_1_DUE_DATE_DD = "16"
-# REPORT_FOLLOWUP_WEEK_1_DUE_DATE_MM = "8"
-# REPORT_FOLLOWUP_WEEK_1_DUE_DATE_YYYY = "2021"
-# REPORT_FOLLOWUP_WEEK_4_DUE_DATE_DD = "20"
-# REPORT_FOLLOWUP_WEEK_4_DUE_DATE_MM = "8"
-# REPORT_FOLLOWUP_WEEK_4_DUE_DATE_YYYY = "2021"
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE_DD = "31"
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE_MM = "8"
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE_YYYY = "2021"
-
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_DD = "13"
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_MM = "7"
-# REPORT_FOLLOWUP_WEEK_12_DUE_DATE2_YYYY = "2021"
-# TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_DD = "20"
-# TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_MM = "7"
-# TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_YYYY = "2021"
-# TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_DD = "24"
-# TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_MM = "7"
-# TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_YYYY = "2021"
-
-# DELETE_NOTES = """I am
-# a multiline
-# deletion note, I am"""
-
-# ORGANISATION_NAME_TO_DELETE = "Example Organisation to Delete"
-# HOME_PAGE_URL_TO_DELETE = "https://example-to-delete.com"
+settings = parse_integration_tests_json(settings_path=args.settings_json)
 
 
 class SeleniumTest(unittest.TestCase):
@@ -140,6 +38,8 @@ class SeleniumTest(unittest.TestCase):
         Login to platform
     """
 
+    settings = ""
+
     def setUp(self):
         """Setup selenium test environment"""
         options: Options = Options()
@@ -153,7 +53,15 @@ class SeleniumTest(unittest.TestCase):
 
     def login(self):
         """Login in to platform"""
-        print(settings["testing_endpoint"])
+        load_dotenv()
+        if (
+            os.getenv("SMOKE_TESTS_USERNAME") is None
+            or os.getenv("SMOKE_TESTS_PASSWORD") is None
+            or os.getenv("SMOKE_TESTS_USERNAME") == ""
+            or os.getenv("SMOKE_TESTS_PASSWORD") == ""
+        ):
+            raise Exception("Missing SMOKE_TESTS_USERNAME and SMOKE_TESTS_PASSWORD from .env")
+
         self.driver.get(f"""{settings["testing_endpoint"]}accounts/login/?next=/""")
         self.driver.find_element_by_name("username").send_keys(
             os.getenv("SMOKE_TESTS_USERNAME")
@@ -161,7 +69,7 @@ class SeleniumTest(unittest.TestCase):
         self.driver.find_element_by_name("password").send_keys(
             os.getenv("SMOKE_TESTS_PASSWORD")
         )
-        self.driver.find_element_by_xpath('//input[@value="Submit"]').click()
+        self.driver.find_element_by_xpath("""//input[@value="Submit"]""").click()
 
 
 class TestLogin(SeleniumTest):
@@ -178,9 +86,10 @@ class TestLogin(SeleniumTest):
         """Tests whether user can login"""
         self.login()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">Your cases</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Your cases</h1>""" in self.driver.page_source,
             True,
         )
+
 
 class TestDashboard(SeleniumTest):
     """
@@ -195,14 +104,14 @@ class TestDashboard(SeleniumTest):
     def test_dashboard(self):
         """Tests whether user can login"""
         self.login()
-        self.driver.find_element_by_xpath('//input[@value="View all cases"]').click()
+        self.driver.find_element_by_xpath("""//input[@value="View all cases"]""").click()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">All cases</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">All cases</h1>""" in self.driver.page_source,
             True,
         )
-        self.driver.find_element_by_xpath('//input[@value="View your cases"]').click()
+        self.driver.find_element_by_xpath("""//input[@value="View your cases"]""").click()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">Your cases</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Your cases</h1>""" in self.driver.page_source,
             True,
         )
 
@@ -220,18 +129,24 @@ class TestSearch(SeleniumTest):
     def test_search(self):
         """Tests whether user can login"""
         self.login()
-        # self.driver.find_element_by_xpath('//input[@value="View all cases"]').click()
+        # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
         self.driver.find_element_by_link_text("Search").click()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
             True,
         )
         self.driver.find_element_by_name("search").send_keys("1")
-        self.driver.find_element_by_xpath('//input[@value="Search"]').click()
+        self.driver.find_element_by_xpath("""//input[@value="Search"]""").click()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
             True,
         )
+        self.driver.find_element_by_link_text("Next").click()
+        self.assertEqual(
+            """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
+            True,
+        )
+
 
 class TestAccountDetails(SeleniumTest):
     """
@@ -246,15 +161,47 @@ class TestAccountDetails(SeleniumTest):
     def test_search(self):
         """Tests whether user can login"""
         self.login()
-        # self.driver.find_element_by_xpath('//input[@value="View all cases"]').click()
-        self.driver.find_element_by_link_text("Search").click()
+        # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
+        self.driver.find_element_by_link_text("Account details").click()
         self.assertEqual(
-            '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Account details</h1>""" in self.driver.page_source,
             True,
         )
-        # self.driver.find_element_by_name("search").send_keys("1")
-        # self.driver.find_element_by_xpath('//input[@value="Search"]').click()
-        # self.assertEqual(
-        #     '<h1 class="govuk-heading-xl">Search</h1>' in self.driver.page_source,
-        #     True,
-        # )
+
+
+class TestCaseView(SeleniumTest):
+    """
+    Test case for integration tests of Case view
+
+    Methods
+    -------
+    test_case_view()
+        Tests whether users can access case view
+    """
+
+    def test_case_view(self):
+        """Tests whether user can view cases"""
+        self.login()
+        self.driver.find_element_by_link_text("Search").click()
+
+        self.driver.find_element_by_name("search").send_keys("Met Office")
+
+        self.driver.find_element_by_name("search").send_keys(Keys.RETURN)
+        self.driver.find_element_by_link_text("Met Office").click()
+        self.assertEqual("View case" in self.driver.page_source, True)
+
+        pages_to_test = [
+            ("Edit case details", "Edit case | Case details"),
+            ("Edit testing details", "Edit case | Testing details"),
+            ("Edit report details", "Edit case | Report details"),
+            ("Edit contact details", "Edit case | Contact details"),
+            ("Edit report correspondence", "Edit case | Report correspondence"),
+            ("Edit 12 week correspondence", "Edit case | 12 week correspondence"),
+            ("Edit final decision", "Edit case | Final decision"),
+            ("Edit equality body correspondence", "Edit case | Equality body correspondence"),
+        ]
+
+        for page in pages_to_test:
+            self.driver.find_element_by_link_text(page[0]).click()
+            self.assertEqual(page[1] in self.driver.page_source, True)
+            self.driver.back()
