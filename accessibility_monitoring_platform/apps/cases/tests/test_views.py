@@ -1326,7 +1326,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assertContains(
         response,
-        """<h2 class="govuk-heading-m">Case status</h2>
+        """<h2 class="govuk-heading-m bottom-margin-5">Case status</h2>
             <p class="govuk-body-m">Unassigned case</p>""",
         html=True,
     )
@@ -1425,3 +1425,31 @@ def test_case_reviewer_not_updated_when_report_approved_by_non_active_qa_auditor
     assert response.status_code == 302
     updated_case: Case = Case.objects.get(pk=case.id)
     assert updated_case.reviewer is None
+
+
+def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_client):
+    """
+    Test that the case final decision view contains a warning if the website and accessibility statement
+    are compliant
+    """
+    case: Case = Case.objects.create(
+        is_website_compliant="compliant", accessibility_statement_state="compliant"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                The public sector body website is compliant and has no issues with the accessibility statement.
+                The case can be marked as completed with no further action.
+            </strong>
+        </div>""",
+        html=True,
+    )
