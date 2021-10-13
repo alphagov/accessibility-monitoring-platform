@@ -603,23 +603,27 @@ class Case(models.Model):
     def twelve_week_correspondence_progress(self):
         now = date.today()
         if (
-            self.twelve_week_1_week_chaser_due_date > now
+            self.twelve_week_1_week_chaser_due_date
+            and self.twelve_week_1_week_chaser_due_date > now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1 week followup coming up"
         elif (
-            self.twelve_week_update_requested_date < now
+            self.twelve_week_update_requested_date
+            and self.twelve_week_update_requested_date < now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1 week followup due"
         elif (
             self.twelve_week_1_week_chaser_sent_date
+            and self.twelve_week_4_week_chaser_due_date
             and self.twelve_week_4_week_chaser_due_date > now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
             return "4 week followup coming up"
         elif (
             self.twelve_week_1_week_chaser_sent_date
+            and self.twelve_week_4_week_chaser_due_date
             and self.twelve_week_4_week_chaser_due_date < now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
