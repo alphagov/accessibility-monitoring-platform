@@ -8,8 +8,20 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
 from app.parse_json import parse_integration_tests_json
+import argparse
 
-settings = parse_integration_tests_json()
+parser = argparse.ArgumentParser(description="Settings for integration tests")
+
+parser.add_argument(
+    "-s"
+    "--settings-json",
+    dest="settings_json",
+    help="Path for json settings"
+)
+
+args = parser.parse_args()
+
+settings = parse_integration_tests_json(settings_path=args.settings_json)
 
 ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
@@ -143,8 +155,8 @@ class SeleniumTest(unittest.TestCase):
             options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
-            executable_path=f"""./integration_tests/chromedriver_{settings["chrome_version"]}""",
-            chrome_options=options
+            executable_path=f"""./stack_tests/chromedriver_{settings["chrome_version"]}""",
+            options=options
         )
 
     def login(self):

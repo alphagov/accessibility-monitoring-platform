@@ -29,9 +29,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         python3 -c 'from pulp import *; pulp()'
-        python manage.py collectstatic --noinput
-        python3 manage.py test ./accessibility_monitoring_platform/apps/websites
-        pytest
+        make test
 
   int-test:
     needs: test
@@ -55,7 +53,7 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         pipenv lock -r > requirements.txt
-        python3 integration_tests/main.py
+        make int_test
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
         AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
@@ -101,6 +99,9 @@ jobs:
 
     - name: Push to cf
       run: |
-        pwd
         cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-test
         cf push -f manifest-test.yml
+
+    - name: Smoke tests
+      run: |
+        python3 stack_tests/main.py -s ./stack_tests/smoke_tests_test_env_settings.json
