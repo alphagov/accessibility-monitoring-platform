@@ -19,12 +19,15 @@ from ...common.forms import (
     AMPURLField,
     AMPAuditorModelChoiceField,
 )
-from ..models import Case, TEST_TYPE_CHOICES
+from ..models import Case, Contact, TEST_TYPE_CHOICES
 from ..utils import (
     CaseFieldLabelAndValue,
     extract_labels_and_values,
     get_sent_date,
     filter_cases,
+    ColumnAndFieldNames,
+    format_case_field,
+    format_contacts,
 )
 
 AUDITOR_LABEL: str = "Auditor"
@@ -34,6 +37,23 @@ HOME_PAGE_URL_LABEL: str = "Full URL"
 NOTES_LABEL: str = "Notes"
 REPORT_SENT_ON_LABEL: str = "Report sent on"
 ORGANISATION_NAME: str = "Organisation name one"
+
+CONTACTS = [
+    Contact(
+        first_name="First 1",
+        last_name="Last 1",
+        job_title="Job title 1",
+        email="email1",
+        notes="notes1",
+    ),
+    Contact(
+        first_name="First 2",
+        last_name="Last 2",
+        job_title="Job title 2",
+        email="email2",
+        notes="notes2",
+    ),
+]
 
 
 @dataclass
@@ -186,3 +206,61 @@ def test_case_filtered_by_search_string():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.parametrize(
+    "column, case_value, expected_formatted_value",
+    [
+        (
+            ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
+            "simplified",
+            "Simplified",
+        ),
+        (
+            ColumnAndFieldNames(
+                column_name="Report sent on", field_name="report_sent_date"
+            ),
+            date(2020, 12, 31),
+            "31/12/2020",
+        ),
+        (
+            ColumnAndFieldNames(
+                column_name="Enforcement recommendation",
+                field_name="recommendation_for_enforcement",
+            ),
+            "no-action",
+            "No action",
+        ),
+    ],
+)
+def test_format_case_field(column, case_value, expected_formatted_value):
+    """Test that case fields are formatted correctly"""
+    case: Case = Case()
+    setattr(case, column.field_name, case_value)
+    assert expected_formatted_value == format_case_field(case, column)
+
+
+@pytest.mark.parametrize(
+    "column, expected_formatted_value",
+    [
+        (
+            ColumnAndFieldNames(column_name="Contact name", field_name=None),
+            "First 1 Last 1\nFirst 2 Last 2",
+        ),
+        (
+            ColumnAndFieldNames(column_name="Job title", field_name=None),
+            "Job title 1\nJob title 2",
+        ),
+        (
+            ColumnAndFieldNames(column_name="Contact detail", field_name=None),
+            "email1\nemail2",
+        ),
+        (
+            ColumnAndFieldNames(column_name="Contact notes", field_name=None),
+            "notes1\n\nnotes2",
+        ),
+    ],
+)
+def test_format_contacts(column, expected_formatted_value):
+    """Test that contacts fields values are contatenated"""
+    assert expected_formatted_value == format_contacts(CONTACTS, column)
