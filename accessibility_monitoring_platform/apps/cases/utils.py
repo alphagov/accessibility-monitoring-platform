@@ -5,7 +5,7 @@ Utility functions for cases app
 from collections import namedtuple
 import csv
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Any, ClassVar, Dict, List, Tuple, Union
 
 from django import forms
@@ -60,9 +60,11 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
 COLUMNS_FOR_EHRC = [
+    ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
     ColumnAndFieldNames(column_name="Case No.", field_name="id"),
     ColumnAndFieldNames(column_name="Date", field_name="created"),
     ColumnAndFieldNames(column_name="Website", field_name="organisation_name"),
+    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
     ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
@@ -114,8 +116,7 @@ COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(
         column_name="Decision email sent?", field_name="compliance_email_sent_date"
     ),
-    ColumnAndFieldNames(column_name="Country", field_name="psb_location"),
-    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
+    ColumnAndFieldNames(column_name="Which equality body will check the case", field_name="enforcement_body"),
 ]
 
 
@@ -264,7 +265,11 @@ def download_ehrc_cases(
                 else:
                     row.append(f"No data found for {column}")
             else:
-                row.append(getattr(case, column.field_name))
+                value: Any = getattr(case, column.field_name)
+                if isinstance(value, date) or isinstance(value, datetime):
+                    row.append(value.strftime("%d/%m/%Y"))
+                else:
+                    row.append(value)
         output.append(row)
     writer.writerows(output)
 
