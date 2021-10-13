@@ -424,7 +424,7 @@ class Case(models.Model):
     @property
     def next_action_due_date_tense(self):
         today = date.today()
-        if self.next_action_due_date < today:
+        if self.next_action_due_date and self.next_action_due_date < today:
             return "past"
         if self.next_action_due_date == today:
             return "present"
