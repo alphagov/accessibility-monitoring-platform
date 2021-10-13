@@ -13,7 +13,7 @@ def download_webdriver(chrome_version: Union[str, None] = None) -> None:
     """Downloads and prepares the selenium driver"""
     print(">>> Change chrome_version to latest in settings to use the latest Chrome")
 
-    webdriver_path: str = f"integration_tests/chromedriver_{chrome_version}"
+    webdriver_path: str = f"stack_tests/chromedriver_{chrome_version}"
     if os.path.isfile(webdriver_path):
         return
 
@@ -23,21 +23,21 @@ def download_webdriver(chrome_version: Union[str, None] = None) -> None:
 
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
     webdriver_zip: str = f"https://chromedriver.storage.googleapis.com/{chrome_version}/chromedriver_{library}.zip"
-    target_path: str = "./integration_tests/chromedriver.zip"
+    target_path: str = "./stack_tests/chromedriver.zip"
     download_file(url=webdriver_zip, file_name=target_path)
 
-    target_path_unzip: str = "./integration_tests/chromedriver"
+    target_path_unzip: str = "./stack_tests/chromedriver"
     with zipfile.ZipFile(target_path, "r") as zip_ref:
         zip_ref.extractall(target_path_unzip)
-    os.remove(path="integration_tests/chromedriver.zip")
+    os.remove(path="stack_tests/chromedriver.zip")
 
     os.rename(
-        src="integration_tests/chromedriver/chromedriver",
-        dst="integration_tests/chromedriver2",
+        src="stack_tests/chromedriver/chromedriver",
+        dst="stack_tests/chromedriver2",
     )
-    shutil.rmtree(path="integration_tests/chromedriver")
+    shutil.rmtree(path="stack_tests/chromedriver")
     os.rename(
-        src="integration_tests/chromedriver2",
+        src="stack_tests/chromedriver2",
         dst=webdriver_path
     )
 

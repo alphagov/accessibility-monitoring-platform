@@ -16,15 +16,12 @@ services:
         image: "django_amp:latest"
         command: >
             bash -c "
-            sleep 5;
+            sleep 10;
             psql postgres://admin:secret@db:5433/postgres -c \"create database accessibility_monitoring_app;\";
-            psql postgres://admin:secret@db:5433/postgres -c \"create database a11ymon;\";
             python3 manage.py collectstatic --noinput;
-            python3 manage.py migrate websites --database=pubsecweb_db;
             python3 manage.py migrate;
+            echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\'admin@email.com\', \'admin@email.com\', \'secret\')\" | python3 manage.py shell;
             python3 manage.py recache_statuses;
-            python3 manage.py loaddata /data/20210604_auth_data.json;
-            python3 manage.py loaddata /data/20210903_sector.json;
             waitress-serve --port=8001 accessibility_monitoring_platform.wsgi:application;
             "
         ports:
@@ -40,5 +37,3 @@ services:
             - PORT='8001'
         links:
             - "db:db"
-        volumes:
-            - ../data/s3_files:/data/
