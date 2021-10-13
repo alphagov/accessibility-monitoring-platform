@@ -119,6 +119,14 @@ COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(column_name="Which equality body will check the case", field_name="enforcement_body"),
 ]
 
+CAPITALISE_FIELDS = [
+    "test_type",
+    "is_complaint",
+    "is_disproportionate_claimed",
+    "accessibility_statement_state_final",
+    "recommendation_for_enforcement",
+]
+
 
 @dataclass
 class CaseFieldLabelAndValue:
@@ -234,7 +242,7 @@ def download_ehrc_cases(
     cases: QuerySet[Case],
     filename: str = "ehrc_cases.csv",
 ) -> HttpResponse:
-    """Given a Case queryset, download the data in csv format for EHRC"""
+    """Given a Case queryset, download the data in csv format for EHRC and ECNI"""
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
@@ -265,11 +273,16 @@ def download_ehrc_cases(
                 else:
                     row.append(f"No data found for {column}")
             else:
-                value: Any = getattr(case, column.field_name)
+                value: Any = getattr(case, column.field_name, "")
                 if isinstance(value, date) or isinstance(value, datetime):
                     row.append(value.strftime("%d/%m/%Y"))
                 else:
-                    row.append(value)
+                    if column.field_name == "enforcement_body":
+                        row.append(value.upper())
+                    elif column.field_name in CAPITALISE_FIELDS:
+                        row.append(value.capitalize().replace("-", " "))
+                    else:
+                        row.append(value)
         output.append(row)
     writer.writerows(output)
 
