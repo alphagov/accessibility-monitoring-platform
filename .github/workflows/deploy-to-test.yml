@@ -79,6 +79,7 @@ jobs:
         pip install --upgrade pip
         pip install pipenv
         pipenv install -d
+        pipenv install
         export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}"
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
@@ -104,4 +105,5 @@ jobs:
 
     - name: Smoke tests
       run: |
+        source venv/bin/activate
         python3 stack_tests/main.py -s ./stack_tests/smoke_tests_test_env_settings.json
