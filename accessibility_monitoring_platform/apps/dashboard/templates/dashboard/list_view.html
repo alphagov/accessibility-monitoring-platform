@@ -57,7 +57,6 @@
         </div>
     </div>
     {% endif %}
-    {% if show_all_cases %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
@@ -70,7 +69,6 @@
             {% include "./1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
         </div>
     </div>
-    {% endif %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
