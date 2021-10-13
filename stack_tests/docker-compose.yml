@@ -37,5 +37,3 @@ services:
             - PORT='8001'
         links:
             - "db:db"
-        volumes:
-            - ../data/s3_files:/data/
