@@ -54,6 +54,9 @@ class SeleniumTest(unittest.TestCase):
     def login(self):
         """Login in to platform"""
         load_dotenv()
+        print(">>>")
+        print(os.getenv("SMOKE_TESTS_PASSWORD"))
+        print(">>>")
         if (
             os.getenv("SMOKE_TESTS_USERNAME") is None
             or os.getenv("SMOKE_TESTS_PASSWORD") is None
