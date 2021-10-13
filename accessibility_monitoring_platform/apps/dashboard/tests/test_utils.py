@@ -34,6 +34,10 @@ class MockCase:
 
 MOCK_CASES: List[MockCase] = [
     MockCase(
+        id=30,
+        status="qa-in-progress",
+    ),
+    MockCase(
         id=29,
         qa_status="in-qa",
     ),
@@ -176,6 +180,9 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(id=7, status="report-in-progress"),
         MockCase(id=8, status="report-in-progress"),
     ],
+    "qa_in_progress": [
+        MockCase(id=30, status="qa-in-progress"),
+    ],
     "test_in_progress": [
         MockCase(id=5, status="test-in-progress"),
         MockCase(id=6, status="test-in-progress"),
@@ -195,10 +202,6 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
 }
 
 EXPECTED_MOCK_CASES_BY_QA_STATUS = {
-    "qa_in_progress": [
-        MockCase(id=28, qa_status="in-qa"),
-        MockCase(id=29, qa_status="in-qa"),
-    ],
     "ready_for_qa": [
         MockCase(id=26, qa_status="unassigned-qa-case"),
         MockCase(id=27, qa_status="unassigned-qa-case"),
