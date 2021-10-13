@@ -231,13 +231,21 @@ def test_case_filtered_by_search_string():
             "no-action",
             "No action",
         ),
+        (
+            ColumnAndFieldNames(
+                column_name="Which equality body will check the case",
+                field_name="enforcement_body",
+            ),
+            "ehrc",
+            "EHRC",
+        ),
     ],
 )
 def test_format_case_field(column, case_value, expected_formatted_value):
     """Test that case fields are formatted correctly"""
     case: Case = Case()
     setattr(case, column.field_name, case_value)
-    assert expected_formatted_value == format_case_field(case, column)
+    assert expected_formatted_value == format_case_field(case=case, column=column)
 
 
 @pytest.mark.parametrize(
@@ -263,4 +271,4 @@ def test_format_case_field(column, case_value, expected_formatted_value):
 )
 def test_format_contacts(column, expected_formatted_value):
     """Test that contacts fields values are contatenated"""
-    assert expected_formatted_value == format_contacts(CONTACTS, column)
+    assert expected_formatted_value == format_contacts(contacts=CONTACTS, column=column)
