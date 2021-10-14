@@ -29,9 +29,14 @@ class MockCase:
     report_followup_week_12_due_date: date = None
     reviewer: str = None
     completed_date: date = None
+    next_action_due_date: date = None
 
 
 MOCK_CASES: List[MockCase] = [
+    MockCase(
+        id=30,
+        status="qa-in-progress",
+    ),
     MockCase(
         id=29,
         qa_status="in-qa",
@@ -69,25 +74,25 @@ MOCK_CASES: List[MockCase] = [
     MockCase(
         id=19,
         status="in-12-week-correspondence",
-        report_followup_week_12_due_date=SECOND_DATE,
+        next_action_due_date=SECOND_DATE,
     ),
     MockCase(
         id=18,
         status="in-12-week-correspondence",
-        report_followup_week_12_due_date=FIRST_DATE,
+        next_action_due_date=FIRST_DATE,
     ),
     MockCase(id=17, status="in-12-week-correspondence"),
     MockCase(
         id=16,
         status="in-probation-period",
-        report_followup_week_12_due_date=SECOND_DATE,
+        next_action_due_date=SECOND_DATE,
     ),
-    MockCase(
-        id=15, status="in-probation-period", report_followup_week_12_due_date=FIRST_DATE
-    ),
+    MockCase(id=15, status="in-probation-period", next_action_due_date=FIRST_DATE),
     MockCase(id=14, status="in-probation-period"),
-    MockCase(id=13, status="in-report-correspondence", report_sent_date=SECOND_DATE),
-    MockCase(id=12, status="in-report-correspondence", report_sent_date=FIRST_DATE),
+    MockCase(
+        id=13, status="in-report-correspondence", next_action_due_date=SECOND_DATE
+    ),
+    MockCase(id=12, status="in-report-correspondence", next_action_due_date=FIRST_DATE),
     MockCase(id=11, status="in-report-correspondence"),
     MockCase(id=10, status="report-ready-to-send"),
     MockCase(id=9, status="report-ready-to-send"),
@@ -119,12 +124,12 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(
             id=18,
             status="in-12-week-correspondence",
-            report_followup_week_12_due_date=date(2021, 1, 1),
+            next_action_due_date=date(2021, 1, 1),
         ),
         MockCase(
             id=19,
             status="in-12-week-correspondence",
-            report_followup_week_12_due_date=date(2021, 2, 1),
+            next_action_due_date=date(2021, 2, 1),
         ),
         MockCase(id=17, status="in-12-week-correspondence"),
     ],
@@ -145,12 +150,12 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(
             id=15,
             status="in-probation-period",
-            report_followup_week_12_due_date=date(2021, 1, 1),
+            next_action_due_date=date(2021, 1, 1),
         ),
         MockCase(
             id=16,
             status="in-probation-period",
-            report_followup_week_12_due_date=date(2021, 2, 1),
+            next_action_due_date=date(2021, 2, 1),
         ),
         MockCase(id=14, status="in-probation-period"),
     ],
@@ -158,10 +163,12 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(
             id=12,
             status="in-report-correspondence",
-            report_sent_date=date(2021, 1, 1),
+            next_action_due_date=date(2021, 1, 1),
         ),
         MockCase(
-            id=13, status="in-report-correspondence", report_sent_date=date(2021, 2, 1)
+            id=13,
+            status="in-report-correspondence",
+            next_action_due_date=date(2021, 2, 1),
         ),
         MockCase(id=11, status="in-report-correspondence"),
     ],
@@ -172,6 +179,9 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
     "reports_in_progress": [
         MockCase(id=7, status="report-in-progress"),
         MockCase(id=8, status="report-in-progress"),
+    ],
+    "qa_in_progress": [
+        MockCase(id=30, status="qa-in-progress"),
     ],
     "test_in_progress": [
         MockCase(id=5, status="test-in-progress"),
@@ -192,10 +202,6 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
 }
 
 EXPECTED_MOCK_CASES_BY_QA_STATUS = {
-    "qa_in_progress": [
-        MockCase(id=28, qa_status="in-qa"),
-        MockCase(id=29, qa_status="in-qa"),
-    ],
     "ready_for_qa": [
         MockCase(id=26, qa_status="unassigned-qa-case"),
         MockCase(id=27, qa_status="unassigned-qa-case"),

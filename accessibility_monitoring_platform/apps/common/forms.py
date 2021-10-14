@@ -350,8 +350,10 @@ class AMPTopMenuForm(forms.Form):
     """
 
     search = AMPCharField(
-        widget=forms.TextInput(attrs={
-            "class": "govuk-input govuk-input--width-10",
-            "placeholder": "Search",
-        })
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input govuk-input--width-10",
+                "placeholder": "Search",
+            }
+        )
     )

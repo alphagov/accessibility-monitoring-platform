@@ -1,9 +1,9 @@
-{% if tense == "past" %}
+{% if tense == "future" %}
+    <strong>{{ date_to_tag|date:"d/m/Y" }}</strong>
+{% else %}
     <div>
         <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|date:"d/m/Y" }}</strong>
-        <span class="govuk-visually-hidden">overdue</span>
+        <span class="govuk-visually-hidden">{% if tense == "past" %}over{% endif %}due</span>
         <span class="amp-alert-icon" aria-hidden="true">!</span>
     </div>
-{% else %}
-    <strong>{{ date_to_tag|date:"d/m/Y" }}</strong>
 {% endif %}
