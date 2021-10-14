@@ -29,6 +29,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         python3 -c 'from pulp import *; pulp()'
+        python manage.py collectstatic --noinput
         make test
 
   int-test:
