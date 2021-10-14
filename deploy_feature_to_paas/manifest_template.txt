@@ -1,0 +1,14 @@
+---
+applications:
+- name: $app_name
+  memory: 128M
+  instances: 1
+  buildpacks:
+    - python_buildpack
+  services:
+    - $db
+  env:
+    DEBUG: FALSE
+    ALLOWED_HOSTS: '$url.london.cloudapps.digital'
+    DISABLE_COLLECTSTATIC: 1
+    SECRET_KEY: '$secret_key'

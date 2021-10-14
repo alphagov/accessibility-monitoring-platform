@@ -11,7 +11,7 @@ from app.DockerBroker import DockerBroker
 from app.parse_json import IntegrationTestsSettingsType
 import argparse
 
-parser = argparse.ArgumentParser(description="Process some integers.")
+parser = argparse.ArgumentParser(description="Settings for integration tests")
 
 parser.add_argument(
     "-s"
