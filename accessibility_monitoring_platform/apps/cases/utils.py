@@ -117,7 +117,7 @@ COLUMNS_FOR_EHRC = [
         column_name="Decision email sent?", field_name="compliance_email_sent_date"
     ),
     ColumnAndFieldNames(
-        column_name="Which equality body will check the case",
+        column_name="Equality body",
         field_name="enforcement_body",
     ),
 ]
