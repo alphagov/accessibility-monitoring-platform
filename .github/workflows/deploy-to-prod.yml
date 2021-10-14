@@ -31,7 +31,7 @@ jobs:
         python3 -c 'from pulp import *; pulp()'
         python manage.py collectstatic --noinput
         python3 manage.py test ./accessibility_monitoring_platform/apps/websites
-        pytest
+        make test
 
   int-test:
     needs: test
