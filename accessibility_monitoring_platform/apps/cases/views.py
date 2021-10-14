@@ -282,7 +282,7 @@ class CaseDetailUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#case-details'
         else:
             url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
         return url
@@ -299,7 +299,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#testing-details'
         else:
             url = reverse_lazy(
                 "cases:edit-report-details", kwargs={"pk": self.object.id}
@@ -325,7 +325,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'
         else:
             url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}
@@ -381,7 +381,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#contact-details'
         elif "save_continue" in self.request.POST:
             url = reverse_lazy(
                 "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
@@ -451,7 +451,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-correspondence'
         else:
             return reverse_lazy(
                 "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}
@@ -530,7 +530,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#12-week-correspondence'
         else:
             url = reverse_lazy(
                 "cases:edit-final-decision",
@@ -594,7 +594,7 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#final-decision'
         else:
             url = reverse_lazy(
                 "cases:edit-enforcement-body-correspondence",
@@ -615,7 +615,7 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+        return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#equality-body-correspondence'
 
 
 class CaseDeleteUpdateView(CaseUpdateView):

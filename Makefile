@@ -1,22 +1,19 @@
 init:
-	pip install --upgrade pip \
+	docker-compose up -d \
+		&& pip install --upgrade pip \
 		&& pip install pipenv \
 		&& pipenv install -d \
 		&& npm i \
-		&& python3 -c 'from pulp import *; pulp()' \
-		&& mkdir -p data \
-		&& docker-compose up -d \
-		&& sh download_s3_files.sh \
+		&& python -c 'from pulp import *; pulp()' \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
-		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database a11ymon;" \
-		&& export PGPASSWORD=secret; pg_restore --no-privileges --no-owner -h localhost -p 5432 -U admin -d a11ymon -1 ./data/s3_files/pubsecweb_20210615.pgadmin-backup \
-		&& psql -h localhost -p 5432 -U admin -d a11ymon < ./data/s3_files/a11ymon_mini_20210527.sql \
-		&& psql -h localhost -p 5432 -U admin -d a11ymon -c "ALTER SCHEMA a11ymon_mini RENAME TO a11ymon" \
-		&& ./manage.py migrate websites --database=pubsecweb_db \
+		&& python prepare_local_db.py \
 		&& ./manage.py migrate \
-		&& python3 manage.py loaddata ./data/s3_files/20210604_auth_data.json \
-		&& python3 manage.py loaddata ./data/s3_files/20210903_sector.json \
-		&& echo "email is admin@email.com and password is secret"
+		&& echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin@email.com', 'admin@email.com', 'secret')" | python manage.py shell \
+		&& echo "email: admin@email.com & password: secret"
+
+clean_local:
+	docker-compose down
+	rm -rf ./data
 
 start:
 	python manage.py runserver 8081
@@ -38,8 +35,8 @@ sync:
 
 test:
 	python manage.py collectstatic --noinput \
+		&& coverage run -m -p pytest --ignore="stack_tests/" \
 		&& coverage run --source='.' -p manage.py test \
-		&& coverage run -m -p pytest \
 		&& coverage combine \
 		&& coverage report --skip-covered \
 		&& coverage erase
@@ -48,8 +45,16 @@ local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
 
-perm_for_chrome:
-	chmod 755 integration_tests/chromedriver
-
 int_test:
-	python3 integration_tests/main.py
+	python3 stack_tests/main.py
+
+deploy_prototype:
+	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json
+
+breakdown_prototype:
+	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_feature_settings.json
+
+staging_env:
+	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
+	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
+	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json

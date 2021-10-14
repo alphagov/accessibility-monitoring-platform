@@ -1,40 +1,30 @@
-"""integration tests - parse_json - parses settings json for integrations tests"""
+""" parse_json - parses settings json"""
 import os
 from pathlib import Path
 from typing import Any, TypedDict, Union, List
 import json
-from app.DockerBroker import DockerImagesPathsType
 
 
-class S3ObjectsPathsType(TypedDict):
-    """Dictionary type for S3 objects paths
-
-    Args:
-        TypedDict ([type]): type for S3 object paths
-    """
-    s3_path: str
-    local_path: str
-
-
-class IntegrationTestsSettingsType(TypedDict):
-    """Dictionary type for integration tests settings
+class SettingsType(TypedDict):
+    """Dictionary type for settings
 
     Args:
         TypedDict ([type]): Type for integration test object
     """
     name: str
     date: str
-    docker_compose_path: str
-    docker_images_paths: List[DockerImagesPathsType]
-    testing_endpoint: str
-    connect_attempts: int
-    test_dir: str
-    path_for_xml_results: str
-    headless: bool
-    ignore_docker: bool
-    s3_objects: List[S3ObjectsPathsType]
+    space_name: str
+    app_name: str
+    db_name: str
+    db_ping_attempts: int
+    db_ping_interval: int
+    template_path: str
+    temp_manifest_path: str
+    db_space_to_copy: str
+    db_instance_to_copy: str
+    temp_db_copy_path: str
     s3_bucket: str
-    chrome_version: str
+    backup_db: bool
 
 
 def validate_json_dict(data: Any, class_type: Any) -> None:
@@ -78,26 +68,26 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
         raise Exception(f"""Types in integration settings json were invalid: {type_guide}""")
 
 
-def parse_integration_tests_json(settings_path: Union[str, None] = None) -> IntegrationTestsSettingsType:
-    """Loads integrations settings json. Defaults to ./integration_tests/integration_tests_settings.json if
+def parse_settings_json(settings_path: Union[str, None] = None) -> SettingsType:
+    """Loads integrations settings json. Defaults to ./stack_tests/integration_tests_settings.json if
     no file name is given.
 
     Args:
         settings_path (Union[str, None], optional): Path for integrations settings file. Defaults to None.
 
     Returns:
-        IntegrationTestsSettingsType: Settings data as dictionary
+        SettingsType: Settings data as dictionary
     """
     if settings_path is None:
         dir_path: str = os.path.dirname(os.path.realpath(__file__))
         path: Path = Path(dir_path)
-        settings_path = f"{path.parent.absolute()}/integration_tests_settings.json"
+        settings_path = f"{path.parent.absolute()}/deploy_feature_settings.json"
 
     with open(file=settings_path) as fp:
         contents: str = fp.read()
-    settings: IntegrationTestsSettingsType = json.loads(contents)
-    validate_json_dict(settings, IntegrationTestsSettingsType)
-    print(">>> Integration test settings loaded correctly")
+    settings: SettingsType = json.loads(contents)
+    validate_json_dict(settings, SettingsType)
+    print(">>> Settings loaded correctly")
     print(f">>> loaded from {settings_path}")
     print(f""">>> using {settings["name"]}""")
     print(f""">>> date {settings["date"]}""")

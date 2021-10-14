@@ -26,9 +26,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         python3 -c 'from pulp import pulp; pulp()'
-        python3 manage.py collectstatic --noinput
-        python3 manage.py test ./accessibility_monitoring_platform/apps/websites
-        pytest
+        make test
 
   int-test:
     needs: test
@@ -52,7 +50,7 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         pipenv lock -r > requirements.txt
-        python3 integration_tests/main.py
+        make int_test
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
         AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
