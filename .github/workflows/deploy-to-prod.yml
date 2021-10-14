@@ -112,6 +112,9 @@ jobs:
       env: 
         SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
         SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+        AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
+        AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
+        AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
 
     # - name: Push to cf
     #   run: |
