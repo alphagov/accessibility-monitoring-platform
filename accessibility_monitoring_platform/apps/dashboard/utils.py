@@ -20,6 +20,7 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
         ("test_in_progress", "test-in-progress", "id"),
         ("reports_in_progress", "report-in-progress", "id"),
         ("report_ready_to_send", "report-ready-to-send", "id"),
+        ("qa_in_progress", "qa-in-progress", "id"),
         (
             "in_report_correspondence",
             "in-report-correspondence",
@@ -61,7 +62,6 @@ def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
     cases_by_status: Dict[str, List[Case]] = {}
     for key, qa_status, field_to_sort_by in [
         ("ready_for_qa", STATUS_READY_TO_QA, "id"),
-        ("qa_in_progress", "in-qa", "id"),
     ]:
         cases_by_status[key] = sorted(
             [case for case in cases if case.qa_status == qa_status],
