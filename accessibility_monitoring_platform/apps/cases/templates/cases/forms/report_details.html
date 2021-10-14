@@ -28,11 +28,6 @@
                             {% include 'common/amp_field.html' with field=form.report_draft_url %}
                             {% include 'common/amp_field.html' with field=form.report_review_status %}
 
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Auditor</b></label>
-                                <div class="govuk-hint">{{ case.auditor.get_full_name }}</div>
-                            </div>
-
                             {% include 'common/amp_field.html' with field=form.reviewer %}
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
                             {% include 'common/amp_field.html' with field=form.reviewer_notes %}
