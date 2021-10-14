@@ -101,6 +101,7 @@ jobs:
     - name: Staging
       run: |
         source venv/bin/activate
+        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
         export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}"
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
