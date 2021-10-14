@@ -497,66 +497,109 @@ def test_create_case_can_create_duplicate_cases(
 
 
 @pytest.mark.parametrize(
-    "case_edit_path, button_name, expected_redirect_path",
+    "case_edit_path, button_name, expected_redirect_path, expected_page_anchor",
     [
-        ("cases:edit-case-details", "save_continue", "cases:edit-test-results"),
-        ("cases:edit-case-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
-        ("cases:edit-test-results", "save_exit", "cases:case-detail"),
+        ("cases:edit-case-details", "save_continue", "cases:edit-test-results", ""),
+        ("cases:edit-case-details", "save_exit", "cases:case-detail", "#case-details"),
+        ("cases:edit-test-results", "save_continue", "cases:edit-report-details", ""),
+        (
+            "cases:edit-test-results",
+            "save_exit",
+            "cases:case-detail",
+            "#testing-details",
+        ),
         (
             "cases:edit-report-details",
             "save_continue",
             "cases:edit-contact-details",
+            "",
         ),
-        ("cases:edit-report-details", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-report-details",
+            "save_exit",
+            "cases:case-detail",
+            "#report-details",
+        ),
         (
             "cases:edit-contact-details",
             "save_continue",
             "cases:edit-report-correspondence",
+            "",
         ),
-        ("cases:edit-contact-details", "save_exit", "cases:case-detail"),
-        ("cases:edit-report-correspondence", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-contact-details",
+            "save_exit",
+            "cases:case-detail",
+            "#contact-details",
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "save_exit",
+            "cases:case-detail",
+            "#report-correspondence",
+        ),
         (
             "cases:edit-report-correspondence",
             "save_continue",
             "cases:edit-twelve-week-correspondence",
+            "",
         ),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",
             "cases:edit-report-correspondence",
+            "",
         ),
-        ("cases:edit-twelve-week-correspondence", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "save_exit",
+            "cases:case-detail",
+            "#12-week-correspondence",
+        ),
         (
             "cases:edit-twelve-week-correspondence",
             "save_continue",
             "cases:edit-final-decision",
+            "",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
             "save_return",
             "cases:edit-twelve-week-correspondence",
+            "",
         ),
         (
             "cases:edit-no-psb-response",
             "save_continue",
             "cases:edit-enforcement-body-correspondence",
+            "",
         ),
-        ("cases:edit-final-decision", "save_exit", "cases:case-detail"),
+        (
+            "cases:edit-final-decision",
+            "save_exit",
+            "cases:case-detail",
+            "#final-decision",
+        ),
         (
             "cases:edit-final-decision",
             "save_continue",
             "cases:edit-enforcement-body-correspondence",
+            "",
         ),
         (
             "cases:edit-enforcement-body-correspondence",
             "save_exit",
             "cases:case-detail",
+            "#equality-body-correspondence",
         ),
     ],
 )
 def test_case_edit_redirects_based_on_button_pressed(
-    case_edit_path, button_name, expected_redirect_path, admin_client
+    case_edit_path,
+    button_name,
+    expected_redirect_path,
+    expected_page_anchor,
+    admin_client,
 ):
     """Test that a successful case update redirects based on the button pressed"""
     case: Case = Case.objects.create()
@@ -570,7 +613,10 @@ def test_case_edit_redirects_based_on_button_pressed(
         },
     )
     assert response.status_code == 302
-    assert response.url == reverse(expected_redirect_path, kwargs={"pk": case.id})
+    assert (
+        response.url
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}{expected_page_anchor}'
+    )
 
 
 def test_add_contact_form_appears(admin_client):
@@ -1325,6 +1371,13 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assertContains(
         response,
+        """<h2 class="govuk-heading-m bottom-margin-5">Case status</h2>
+            <p class="govuk-body-m">Unassigned case</p>""",
+        html=True,
+    )
+
+    assertContains(
+        response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Link to website
@@ -1372,11 +1425,30 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
             html=True,
         )
 
+
+def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_client):
+    """
+    Test that the case final decision view contains a warning if the website and accessibility statement
+    are compliant
+    """
+    case: Case = Case.objects.create(
+        is_website_compliant="compliant", accessibility_statement_state="compliant"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-final-decision", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
     assertContains(
         response,
-        """<li>
-            <label class="govuk-label"><b>Status</b></label>
-            <p class="govuk-body-m">Unassigned case</p>
-        </li>""",
+        """<div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                The public sector body website is compliant and has no issues with the accessibility statement.
+                The case can be marked as completed with no further action.
+            </strong>
+        </div>""",
         html=True,
     )

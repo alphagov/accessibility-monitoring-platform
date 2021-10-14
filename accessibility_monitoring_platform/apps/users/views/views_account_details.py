@@ -32,6 +32,12 @@ def account_details(request: HttpRequest) -> HttpResponse:
     """
     request_temp: Any = request
     user: User = get_object_or_404(User, id=request_temp.user.id)
+
+    if not NotificationsSettings.objects.filter(user=user).exists():
+        NotificationsSettings(
+            user=user,
+            email_notifications_enabled=False,
+        ).save()
     notification_settings = NotificationsSettings.objects.get(user=user)
 
     initial = model_to_dict(user)

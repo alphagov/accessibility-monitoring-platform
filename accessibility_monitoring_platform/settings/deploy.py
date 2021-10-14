@@ -21,6 +21,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-EMAIL_BACKEND = "accessibility_monitoring_platform.email.NotifyEmailBackend"
-EMAIL_NOTIFY_API_KEY = os.getenv("EMAIL_NOTIFY_API_KEY")
-EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
+if os.getenv("EMAIL_NOTIFY_API_KEY") and os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE"):
+    EMAIL_BACKEND = "accessibility_monitoring_platform.email.NotifyEmailBackend"
+    EMAIL_NOTIFY_API_KEY = os.getenv("EMAIL_NOTIFY_API_KEY")
+    EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

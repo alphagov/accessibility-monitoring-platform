@@ -119,16 +119,18 @@ else:
     DATABASES["default"] = dj_database_url.parse(
         database_credentials["monitoring-platform-default-db"]
     )
-    DATABASES["pubsecweb_db"] = dj_database_url.parse(
-        database_credentials["a11ymon-postgres"]
-    )
-    DATABASES["pubsecweb_db"]["OPTIONS"] = {
-        "options": "-c search_path=pubsecweb,public"
-    }
-    DATABASES["a11ymon_db"] = dj_database_url.parse(
-        database_credentials["a11ymon-postgres"]
-    )
-    DATABASES["a11ymon_db"]["OPTIONS"] = {"options": "-c search_path=a11ymon,public"}
+
+    if "a11ymon-postgres" in database_credentials:
+        DATABASES["pubsecweb_db"] = dj_database_url.parse(
+            database_credentials["a11ymon-postgres"]
+        )
+        DATABASES["pubsecweb_db"]["OPTIONS"] = {
+            "options": "-c search_path=pubsecweb,public"
+        }
+        DATABASES["a11ymon_db"] = dj_database_url.parse(
+            database_credentials["a11ymon-postgres"]
+        )
+        DATABASES["a11ymon_db"]["OPTIONS"] = {"options": "-c search_path=a11ymon,public"}
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 

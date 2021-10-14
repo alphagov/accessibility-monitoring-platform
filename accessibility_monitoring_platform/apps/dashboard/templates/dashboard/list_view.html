@@ -1,5 +1,35 @@
 <!DOCTYPE html>
 
+<h2 class="govuk-heading-m">QA cases</h2>
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
+                    Report ready for QA - {{ cases_by_status.ready_for_qa|length }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
+            {% include "./13_ready_to_qa.html" with cases=cases_by_status.ready_for_qa %}
+        </div>
+    </div>
+    {% if not show_all_cases %}
+        <div class="govuk-accordion__section ">
+            <div class="govuk-accordion__section-header">
+                <h2 class="govuk-accordion__section-heading">
+                    <span class="govuk-accordion__section-button" id="accordion-default-heading-requires-your-review">
+                        Cases assigned to you for QA - {{ cases_by_status.requires_your_review|length }}
+                    </span>
+                </h2>
+            </div>
+            <div id="accordion-default-content-requires-your-review" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-requires-your-review">
+                {% include "./5_requires_your_review.html" with cases=cases_by_status.requires_your_review %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+<h2 class="govuk-heading-m">Audit cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
     {% if cases_by_status.unknown %}
     <div class="govuk-accordion__section ">
@@ -15,7 +45,6 @@
         </div>
     </div>
     {% endif %}
-    {% if show_all_cases %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
@@ -28,7 +57,6 @@
             {% include "./1_new_cases_table.html" with cases=cases_by_status.unassigned_cases %}
         </div>
     </div>
-    {% endif %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
@@ -56,18 +84,6 @@
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
-                    Report ready for QA - {{ cases_by_status.ready_for_qa|length }}
-                </span>
-            </h2>
-        </div>
-        <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
-            {% include "./13_ready_to_qa.html" with cases=cases_by_status.ready_for_qa %}
-        </div>
-    </div>
-    <div class="govuk-accordion__section ">
-        <div class="govuk-accordion__section-header">
-            <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-qa-in-progress">
                     QA in progress - {{ cases_by_status.qa_in_progress|length }}
                 </span>
@@ -77,20 +93,6 @@
             {% include "./4_qa_in_progress_table.html" with cases=cases_by_status.qa_in_progress %}
         </div>
     </div>
-    {% if show_all_cases == false %}
-        <div class="govuk-accordion__section ">
-            <div class="govuk-accordion__section-header">
-                <h2 class="govuk-accordion__section-heading">
-                    <span class="govuk-accordion__section-button" id="accordion-default-heading-requires-your-review">
-                        Cases assigned to you for QA - {{ cases_by_status.requires_your_review|length }}
-                    </span>
-                </h2>
-            </div>
-            <div id="accordion-default-content-requires-your-review" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-requires-your-review">
-                {% include "./5_requires_your_review.html" with cases=cases_by_status.requires_your_review %}
-            </div>
-        </div>
-    {% endif %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">

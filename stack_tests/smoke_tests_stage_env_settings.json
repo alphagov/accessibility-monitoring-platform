@@ -1,0 +1,15 @@
+{
+    "name": "smoke_tests v0.1.0",
+    "date": "20211008",
+    "docker_compose_path": "",
+    "docker_images_paths": [],
+    "testing_endpoint": "https://accessibility-monitoring-platform-staging.london.cloudapps.digital/",
+    "connect_attempts": 30,
+    "test_dir": "./stack_tests/smoke_tests/",
+    "path_for_xml_results": "./result.xml",
+    "headless": true,
+    "ignore_docker": true,
+    "s3_objects": [],
+    "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
+    "chrome_version": "93.0.4577.63"
+}
