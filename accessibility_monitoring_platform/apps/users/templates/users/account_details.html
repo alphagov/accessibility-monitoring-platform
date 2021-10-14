@@ -14,7 +14,6 @@
         {% endif %}
         <form method="post">
             {% csrf_token %}
-            {% include 'common/amp_field.html' with field=form.email_notifications %}
             {% include 'common/amp_field.html' with field=form.first_name %}
             {% include 'common/amp_field.html' with field=form.last_name %}
             {% include 'common/amp_field.html' with field=form.email %}
