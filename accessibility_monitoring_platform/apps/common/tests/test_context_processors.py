@@ -53,14 +53,18 @@ def test_page_title_and_heading_for_case_page(admin_client):
     assertContains(response, f"<title>{ORGANISATION_NAME} | View case</title>")
     assertContains(
         response,
-        f'<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
+        '<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
     )
 
 
-def test_platform_page():
+def test_platform_page_returns_prototype_and_page_names():
     """Check prototype name, page heading and title added to context"""
-    mock_request = MockRequest(path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/")
-    platform_page_context: dict[str, Union[str, AMPTopMenuForm]] = platform_page(mock_request)
+    mock_request = MockRequest(
+        path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/"
+    )
+    platform_page_context: Dict[str, Union[str, AMPTopMenuForm]] = platform_page(
+        mock_request
+    )
 
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"
