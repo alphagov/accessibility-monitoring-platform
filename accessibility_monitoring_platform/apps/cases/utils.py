@@ -5,7 +5,7 @@ Utility functions for cases app
 from collections import namedtuple
 import csv
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Any, ClassVar, Dict, List, Tuple, Union
 
 from django import forms
@@ -26,7 +26,7 @@ from .forms import (
     DEFAULT_SORT,
 )
 
-from .models import Case, STATUS_READY_TO_QA
+from .models import Case, Contact, STATUS_READY_TO_QA
 
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",
@@ -60,9 +60,11 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
 COLUMNS_FOR_EHRC = [
+    ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
     ColumnAndFieldNames(column_name="Case No.", field_name="id"),
     ColumnAndFieldNames(column_name="Date", field_name="created"),
     ColumnAndFieldNames(column_name="Website", field_name="organisation_name"),
+    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
     ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
     ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
@@ -114,8 +116,18 @@ COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(
         column_name="Decision email sent?", field_name="compliance_email_sent_date"
     ),
-    ColumnAndFieldNames(column_name="Country", field_name="psb_location"),
-    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
+    ColumnAndFieldNames(
+        column_name="Equality body",
+        field_name="enforcement_body",
+    ),
+]
+
+CAPITALISE_FIELDS = [
+    "test_type",
+    "is_complaint",
+    "is_disproportionate_claimed",
+    "accessibility_statement_state_final",
+    "recommendation_for_enforcement",
 ]
 
 
@@ -229,11 +241,44 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
     return Case.objects.filter(search_query, **filters).order_by(sort_by)
 
 
+def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str:
+    """
+    For a contact-related field, concatenate the values for all the contacts
+    and return as a single string.
+    """
+    if column.column_name == CONTACT_NAME_COLUMN_NAME:
+        return "\n".join(
+            [f"{contact.first_name} {contact.last_name}" for contact in contacts]
+        )
+    elif column.column_name == JOB_TITLE_COLUMN_NAME:
+        return "\n".join([contact.job_title for contact in contacts])
+    elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:
+        return "\n".join([contact.email for contact in contacts])
+    elif column.column_name == CONTACT_NOTES_COLUMN_NUMBER:
+        return "\n\n".join([contact.notes for contact in contacts])
+    return ""
+
+
+def format_case_field(case: Case, column: ColumnAndFieldNames) -> str:
+    """
+    For a case field, return the value, suitably formatted.
+    """
+    value: Any = getattr(case, column.field_name, "")
+    if isinstance(value, date) or isinstance(value, datetime):
+        return value.strftime("%d/%m/%Y")
+    elif column.field_name == "enforcement_body":
+        return value.upper()
+    elif column.field_name in CAPITALISE_FIELDS:
+        return value.capitalize().replace("-", " ")
+    else:
+        return value
+
+
 def download_ehrc_cases(
     cases: QuerySet[Case],
     filename: str = "ehrc_cases.csv",
 ) -> HttpResponse:
-    """Given a Case queryset, download the data in csv format for EHRC"""
+    """Given a Case queryset, download the data in csv format for EHRC and ECNI"""
     response: Any = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
@@ -242,29 +287,13 @@ def download_ehrc_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts = list(case.contact_set.filter(is_deleted=False))
+        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
         row = []
         for column in COLUMNS_FOR_EHRC:
             if column.field_name is None:
-                if column.column_name == CONTACT_NAME_COLUMN_NAME:
-                    row.append(
-                        "\n".join(
-                            [
-                                f"{contact.first_name} {contact.last_name}"
-                                for contact in contacts
-                            ]
-                        )
-                    )
-                elif column.column_name == JOB_TITLE_COLUMN_NAME:
-                    row.append("\n".join([contact.job_title for contact in contacts]))
-                elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:
-                    row.append("\n".join([contact.email for contact in contacts]))
-                elif column.column_name == CONTACT_NOTES_COLUMN_NUMBER:
-                    row.append("\n\n".join([contact.notes for contact in contacts]))
-                else:
-                    row.append(f"No data found for {column}")
+                row.append(format_contacts(contacts=contacts, column=column))
             else:
-                row.append(getattr(case, column.field_name))
+                row.append(format_case_field(case=case, column=column))
         output.append(row)
     writer.writerows(output)
 
