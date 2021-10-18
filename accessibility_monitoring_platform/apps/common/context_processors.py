@@ -2,9 +2,10 @@
 Context processors
 """
 import re
-from typing import Dict
+from typing import Dict, Union
 
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 
 from .forms import AMPTopMenuForm
 from ..cases.models import Case
@@ -37,7 +38,7 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def platform_page(request) -> Dict[str, str]:
+def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, QuerySet[User]]]:
     """
     Lookup the page title using URL path and place it in context for template rendering.
     Also include search form for top menu.
@@ -55,9 +56,22 @@ def platform_page(request) -> Dict[str, str]:
         except Case.DoesNotExist:
             pass
 
+    absolute_uri: str = request.build_absolute_uri()
+    if (
+        "localhost" in absolute_uri
+        or "accessibility-monitoring-platform-production.london.cloudapps.digital"
+        in absolute_uri
+        or "accessibility-monitoring-platform-test.london.cloudapps.digital"
+        in absolute_uri
+    ):
+        prototype_name: str = ""
+    else:
+        prototype_name: str = absolute_uri.split(".")[0].replace("https://", "")
+
     return {
         "page_heading": page_heading,
         "page_title": page_title,
         "top_menu_form": AMPTopMenuForm(),
         "qa_auditors": User.objects.filter(auditor__active_qa_auditor=True),
+        "prototype_name": prototype_name,
     }
