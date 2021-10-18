@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.test.client import RequestFactory
 from django.contrib.auth.models import User
-from typing import TypedDict
+from typing import Optional, TypedDict
 from ..models import EmailInclusionList
 from ..forms import UpdateUserForm
 
@@ -19,6 +19,7 @@ class FormRequestAccountDetails(TypedDict):
     email: str
     email_confirm: str
     password: str
+    active_qa_auditor: Optional[int]
 
 
 class UpdateUserFormTestCase(TestCase):
@@ -69,7 +70,6 @@ class UpdateUserFormTestCase(TestCase):
             "email": "admin2@email.com",
             "email_confirm": "admin2@email.com",
             "password": "12345",
-            "active_qa_auditor": "yes",
         }
 
         form: UpdateUserForm = UpdateUserForm(

@@ -38,7 +38,7 @@ def test_dashboard_shows_qa_auditors(
     dashboard_view, expected_qa_column, admin_client, admin_user
 ):
     """Tests if dashboard views are showing the expected QA auditors column"""
-    Auditor.objects.create(user=admin_user, active_qa_auditor=True)
+    Auditor.objects.create(user=admin_user, active_qa_auditor=admin_user)
     response: HttpResponse = admin_client.get(
         f'{reverse("dashboard:home")}?view={dashboard_view}'
     )
