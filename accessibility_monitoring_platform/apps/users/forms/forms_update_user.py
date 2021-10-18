@@ -12,6 +12,7 @@ from ...common.forms import (
     AMPChoiceCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
+    AMPQAAuditorModelChoiceField,
 )
 
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
@@ -23,13 +24,7 @@ BOOLEAN_CHOICES: List[Tuple[str, str]] = [
 class UpdateUserForm(forms.ModelForm):
     """ Custom user update user form """
 
-    active_qa_auditor: AMPChoiceCheckboxField = AMPChoiceCheckboxField(
-        label="Active QA auditor",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Active QA auditor?"}
-        ),
-    )
+    active_qa_auditor: AMPQAAuditorModelChoiceField = AMPQAAuditorModelChoiceField(label="Active QA auditor")
     email_notifications: AMPChoiceCheckboxField = AMPChoiceCheckboxField(
         label="Enable email notifications?",
         choices=BOOLEAN_CHOICES,

@@ -7,13 +7,13 @@ from pytest_django.asserts import assertContains
 from typing import Dict, Union
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
 from django.urls import reverse
 
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
 from ...cases.models import Case
+from ...dashboard.views import DashboardView
 from ...users.models import Auditor
 
 ORGANISATION_NAME: str = "Organisation name two"
@@ -75,11 +75,14 @@ def test_top_menu_form_present(admin_client):
 
 
 @pytest.mark.django_db
-def test_active_qa_auditor_present(admin_client):
+def test_active_qa_auditor_present(rf):
     """Test active QA auditor present"""
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
-    Auditor.objects.create(user=user, active_qa_auditor=True)
-    response: HttpResponse = admin_client.get("/")
+    Auditor.objects.create(user=user, active_qa_auditor=user)
+
+    request: HttpResponseBase = rf.get("/")
+    request.user = user
+    response: HttpResponseBase = DashboardView.as_view()(request)
 
     assert response.status_code == 200
     assertContains(
@@ -94,7 +97,7 @@ def test_platform_page_returns_prototype_and_page_names():
     mock_request = MockRequest(
         path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/"
     )
-    platform_page_context: Dict[str, Union[str, AMPTopMenuForm, QuerySet[User]]] = platform_page(
+    platform_page_context: Dict[str, Union[str, AMPTopMenuForm]] = platform_page(
         mock_request
     )
 

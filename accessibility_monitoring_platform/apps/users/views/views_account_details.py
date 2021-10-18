@@ -18,6 +18,7 @@ from accessibility_monitoring_platform.apps.users.models import Auditor
 class AccountDetailsContext(TypedDict):
     form: UpdateUserForm
     form_groups: List[str]
+    is_qa_auditor: bool
 
 
 @login_required
@@ -58,8 +59,7 @@ def account_details(request: HttpRequest) -> HttpResponse:
 
             # notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
             # notification_settings.save()
-            auditor.active_qa_auditor = (form.cleaned_data["active_qa_auditor"] == "yes")
-            auditor.save()
+            Auditor.objects.all().update(active_qa_auditor=form.cleaned_data["active_qa_auditor"])
 
             login(request, user)
             messages.success(request, "Successfully saved details!")

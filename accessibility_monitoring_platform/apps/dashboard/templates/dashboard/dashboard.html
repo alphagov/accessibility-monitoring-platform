@@ -70,18 +70,14 @@
                     {% if show_all_cases %}
                         Unassigned QA cases
                     {% else %}
-                        Active QA{% if qa_auditors|length != 1 %}s{% endif %}
+                        Active QA
                     {% endif%}
                 </div>
                 <div class="govuk-heading-xl no-bottom-margin">
                     {% if show_all_cases %}
                         {{total_ready_to_qa_cases}}
                     {% else %}
-                        {% if qa_auditors|length == 1 %}
-                            {{ qa_auditors.0.first_name }}
-                        {% else %}
-                            {{ qa_auditors|length }}
-                        {% endif %}
+                        {{ request.user.auditor.active_qa_auditor.first_name }}
                     {% endif%}
                 </div>
             </div>
