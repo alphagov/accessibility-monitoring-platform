@@ -31,7 +31,7 @@
             {% endif %}
         </div>
         <div style="position:fixed;right:5px;top:95%;transform-origin:top right;-webkit-transform:rotate(90deg);opacity:0.3;font-size:6vmax;z-index:1;font-family:sans-serif;">
-            PLATFORM
+            {% if prototype_name %}{{ prototype_name }}{% else %}PLATFORM{% endif %}
         </div>
     {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
