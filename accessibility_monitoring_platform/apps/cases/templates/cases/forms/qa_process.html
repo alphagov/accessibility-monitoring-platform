@@ -22,8 +22,18 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Link to report draft</b></label>
+                                {% if case.report_draft_url %}
+                                    <a href="{{ case.report_draft_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        Link to report draft
+                                    </a>
+                                {% else %}
+                                    <div class="govuk-hint">None</div>
+                                {% endif %}
+                            </div>
+                            <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Active QA auditor</b></label>
-                                <div class="govuk-hint">{{ platform.active_qa_auditor }}</div>
+                                <div class="govuk-hint">{{ platform.active_qa_auditor.get_full_name }}</div>
                             </div>
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
                             {% include 'common/amp_field.html' with field=form.reviewer_notes %}
