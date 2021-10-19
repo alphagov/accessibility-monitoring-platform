@@ -63,7 +63,7 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm]]:
     ):
         prototype_name: str = ""
     else:
-        prototype_name: str = absolute_uri.split(".")[0].replace("https://", "")
+        prototype_name: str = absolute_uri.split(".")[0].replace("https://", "").replace("http://", "")
 
     return {
         "page_heading": page_heading,
