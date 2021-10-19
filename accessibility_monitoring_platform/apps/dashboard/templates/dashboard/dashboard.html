@@ -76,8 +76,10 @@
                 <div class="govuk-heading-xl no-bottom-margin">
                     {% if show_all_cases %}
                         {{total_ready_to_qa_cases}}
+                    {% elif platform.active_qa_auditor %}
+                        {{ platform.active_qa_auditor.first_name }}
                     {% else %}
-                        {{ request.user.auditor.active_qa_auditor.first_name }}
+                        None
                     {% endif%}
                 </div>
             </div>

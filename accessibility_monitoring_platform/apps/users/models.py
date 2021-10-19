@@ -19,19 +19,3 @@ class EmailInclusionList(models.Model):
     def __str__(self):
         return str(self.inclusion_email)
 
-
-class Auditor(models.Model):
-    """
-    Extra attributes for users who are auditors
-    """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    active_qa_auditor = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="auditor_active_qa_auditor",
-        blank=True,
-        null=True,
-    )
-
-    def __str__(self):
-        return str(self.user)

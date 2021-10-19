@@ -1,14 +1,17 @@
 """
 Tests for view - users
 """
+from typing import TypedDict, List
 
 from django.test import TestCase
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.http import HttpResponse
-from ..models import Auditor, EmailInclusionList
+
+from ..models import EmailInclusionList
+from ...common.models import Platform
+from ...common.utils import get_platform_settings
 # from ...notifications.models import NotificationsSettings
-from typing import TypedDict, List
 
 
 class FormRequestAccountDetails(TypedDict):
@@ -91,8 +94,8 @@ class UserViewTests(TestCase):
         self.assertContains(response, "Account details")
         messages: List[str] = [str(x) for x in list(response.context["messages"])]
         self.assertEqual(messages[0], "Successfully saved details!")
-        auditor: Auditor = Auditor.objects.get(user=user)
-        self.assertTrue(auditor.active_qa_auditor == user)
+        platform: Platform = get_platform_settings()
+        self.assertTrue(platform.active_qa_auditor == user)
 
     def test_account_details_post_errors_appear(self):
         """ Tests if error message appears if there is a mistake in the form """

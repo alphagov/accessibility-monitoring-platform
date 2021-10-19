@@ -7,14 +7,14 @@ from pytest_django.asserts import assertContains
 from typing import Dict, Union
 
 from django.contrib.auth.models import User
-from django.http.response import HttpResponse, HttpResponseBase
+from django.http.response import HttpResponse
 from django.urls import reverse
 
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
 from ...cases.models import Case
-from ...dashboard.views import DashboardView
-from ...users.models import Auditor
+from ...common.models import Platform
+from ...common.utils import get_platform_settings
 
 ORGANISATION_NAME: str = "Organisation name two"
 USER_FIRST_NAME: str = "Userone"
@@ -75,14 +75,14 @@ def test_top_menu_form_present(admin_client):
 
 
 @pytest.mark.django_db
-def test_active_qa_auditor_present(rf):
+def test_active_qa_auditor_present(admin_client):
     """Test active QA auditor present"""
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
-    Auditor.objects.create(user=user, active_qa_auditor=user)
+    platform: Platform = get_platform_settings()
+    platform.active_qa_auditor = user
+    platform.save()
 
-    request: HttpResponseBase = rf.get("/")
-    request.user = user
-    response: HttpResponseBase = DashboardView.as_view()(request)
+    response: HttpResponse = admin_client.get("/")
 
     assert response.status_code == 200
     assertContains(
@@ -92,8 +92,9 @@ def test_active_qa_auditor_present(rf):
     )
 
 
+@pytest.mark.django_db
 def test_platform_page_returns_prototype_and_page_names():
-    """Check prototype name, page heading and title added to context"""
+    """Check prototype name, page heading and title and platform settings added to context"""
     mock_request = MockRequest(
         path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/"
     )
@@ -104,3 +105,4 @@ def test_platform_page_returns_prototype_and_page_names():
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"
     assert platform_page_context["prototype_name"] == "prototype-name"
+    assert platform_page_context["platform"] is not None

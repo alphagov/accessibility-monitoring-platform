@@ -6,6 +6,8 @@ from typing import Dict, Union
 
 from .forms import AMPTopMenuForm
 from ..cases.models import Case
+from ..common.models import Platform
+from ..common.utils import get_platform_settings
 
 PAGE_TITLES_BY_URL = {
     "/": "Dashboard",
@@ -35,10 +37,10 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm]]:
+def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
     """
     Lookup the page title using URL path and place it in context for template rendering.
-    Also include search form for top menu.
+    Also include search form for top menu, name of prototype and platform settings.
     """
     url_without_id = re.sub(r"\d+", "[id]", request.path)
     page_heading: str = PAGE_TITLES_BY_URL.get(
@@ -65,9 +67,12 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm]]:
     else:
         prototype_name: str = absolute_uri.split(".")[0].replace("https://", "").replace("http://", "")
 
+    platform: Platform = get_platform_settings()
+
     return {
         "page_heading": page_heading,
         "page_title": page_title,
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
+        "platform": platform,
     }

@@ -26,7 +26,6 @@ from ..views import (
 )
 from ...common.models import Sector
 from ...common.utils import format_date, get_field_names_for_export
-from ...users.models import Auditor
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"

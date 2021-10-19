@@ -36,3 +36,19 @@ class IssueReport(models.Model):
 
     def __str__(self):
         return f"#{self.id} {self.page_title}"
+
+
+class Platform(models.Model):
+    """
+    Settings for platform as a whole
+    """
+    active_qa_auditor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="platform_active_qa_auditor",
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"Active QA auditor is {self.active_qa_auditor}"

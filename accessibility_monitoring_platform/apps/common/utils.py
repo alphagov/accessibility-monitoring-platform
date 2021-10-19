@@ -17,6 +17,7 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
+from .models import Platform
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
@@ -140,3 +141,8 @@ def validate_url(url: str) -> None:
 def format_date(date_to_format: date) -> str:
     """Format a date as a string"""
     return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
+
+
+def get_platform_settings() -> Platform:
+    """Return the platform-wide settings"""
+    return Platform.objects.get(pk=1)

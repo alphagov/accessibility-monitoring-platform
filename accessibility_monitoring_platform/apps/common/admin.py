@@ -6,7 +6,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import IssueReport, Sector
+from .models import IssueReport, Platform, Sector
 
 
 class IssueReportAdmin(admin.ModelAdmin):
@@ -54,4 +54,5 @@ class IssueReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(IssueReport, IssueReportAdmin)
+admin.site.register(Platform)
 admin.site.register(Sector)
