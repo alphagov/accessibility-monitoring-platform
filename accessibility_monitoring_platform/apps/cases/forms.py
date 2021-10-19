@@ -107,6 +107,11 @@ class CaseCreateForm(forms.ModelForm):
         label="Which equalities body will check the case?",
         choices=ENFORCEMENT_BODY_CHOICES,
     )
+    psb_location = AMPChoiceRadioField(
+        label="Public sector body location",
+        choices=PSB_LOCATION_CHOICES,
+    )
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
         choices=BOOLEAN_CHOICES,
@@ -121,6 +126,8 @@ class CaseCreateForm(forms.ModelForm):
             "organisation_name",
             "home_page_url",
             "enforcement_body",
+            "psb_location",
+            "sector",
             "is_complaint",
         ]
 
@@ -146,11 +153,6 @@ class CaseDetailUpdateForm(CaseCreateForm):
         label="Auditor", help_text="This field affects the case status"
     )
     service_name = AMPCharFieldWide(label="Website, app or service name")
-    psb_location = AMPChoiceRadioField(
-        label="Public sector body location",
-        choices=PSB_LOCATION_CHOICES,
-    )
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
