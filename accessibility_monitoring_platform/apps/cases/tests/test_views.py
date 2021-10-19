@@ -365,6 +365,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
         ("cases:edit-report-details", "<li>Report details</li>"),
+        ("cases:edit-qa-process", "<li>QA process</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
     ],
@@ -511,7 +512,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-report-details",
             "save_continue",
-            "cases:edit-contact-details",
+            "cases:edit-qa-process",
             "",
         ),
         (
@@ -519,6 +520,18 @@ def test_create_case_can_create_duplicate_cases(
             "save_exit",
             "cases:case-detail",
             "#report-details",
+        ),
+        (
+            "cases:edit-qa-process",
+            "save_continue",
+            "cases:edit-contact-details",
+            "",
+        ),
+        (
+            "cases:edit-qa-process",
+            "save_exit",
+            "cases:case-detail",
+            "#qa-process",
         ),
         (
             "cases:edit-contact-details",
@@ -736,7 +749,7 @@ def test_updating_report_sent_date(admin_client):
 
 def test_report_followup_due_dates_not_changed(admin_client):
     """
-    Test that populating the report sent date does not update existing report followup due dates
+    Test that populating the report sent date updates existing report followup due dates
     """
     case: Case = Case.objects.create(
         report_followup_week_1_due_date=OTHER_DATE,
@@ -745,7 +758,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -757,21 +770,21 @@ def test_report_followup_due_dates_not_changed(admin_client):
 
     case_from_db: Case = Case.objects.get(pk=case.id)
 
-    assert case_from_db.report_followup_week_1_due_date == OTHER_DATE
-    assert case_from_db.report_followup_week_4_due_date == OTHER_DATE
-    assert case_from_db.report_followup_week_12_due_date == OTHER_DATE
+    assert case_from_db.report_followup_week_1_due_date != OTHER_DATE
+    assert case_from_db.report_followup_week_4_due_date != OTHER_DATE
+    assert case_from_db.report_followup_week_12_due_date != OTHER_DATE
 
 
 def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     admin_client,
 ):
     """
-    Test that updating the report sent date does not populate report followup due dates
+    Test that updating the report sent date populates report followup due dates
     """
     case: Case = Case.objects.create(report_sent_date=OTHER_DATE)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -783,9 +796,9 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
 
     case_from_db: Case = Case.objects.get(pk=case.id)
 
-    assert case_from_db.report_followup_week_1_due_date is None
-    assert case_from_db.report_followup_week_4_due_date is None
-    assert case_from_db.report_followup_week_12_due_date is None
+    assert case_from_db.report_followup_week_1_due_date is not None
+    assert case_from_db.report_followup_week_4_due_date is not None
+    assert case_from_db.report_followup_week_12_due_date is not None
 
 
 def test_case_report_correspondence_view_contains_followup_due_dates(admin_client):
@@ -944,6 +957,7 @@ def test_preferred_contact_displayed(admin_client):
         ("contact_details_complete_date", "Contact details", "edit-contact-details"),
         ("testing_details_complete_date", "Testing details", "edit-test-results"),
         ("reporting_details_complete_date", "Report details", "edit-report-details"),
+        ("qa_process_complete_date", "QA process", "edit-qa-process"),
         (
             "report_correspondence_complete_date",
             "Report correspondence",
@@ -1004,6 +1018,7 @@ def test_section_complete_check_displayed_in_contents(
             "reporting_details_complete_date",
             "Report details",
         ),
+        ("cases:edit-qa-process", "qa_process_complete_date", "QA process"),
         (
             "cases:edit-contact-details",
             "contact_details_complete_date",
@@ -1349,6 +1364,7 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
         ("trello_url", "edit-contact-details"),
         ("zendesk_url", "edit-test-results"),
         ("trello_url", "edit-report-details"),
+        ("trello_url", "edit-qa-process"),
         ("zendesk_url", "edit-report-correspondence"),
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-final-decision"),
@@ -1426,17 +1442,16 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         )
 
 
-def test_case_reviewer_updated_when_active_user_sets_report_approved(
+def test_case_reviewer_updated_when_report_approved(
     admin_client, admin_user
 ):
     """
     Test that the case QA auditor is set to the current user when report is approved
-    and the current user is an active QA auditor
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
         {
             "report_approved_status": "yes",
             "save_continue": "Save and continue",

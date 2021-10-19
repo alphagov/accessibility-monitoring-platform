@@ -23,6 +23,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-no-psb-response/": "Edit case | Public sector body is unresponsive",
     "/cases/[id]/edit-report-correspondence/": "Edit case | Report correspondence",
     "/cases/[id]/edit-report-details/": "Edit case | Report details",
+    "/cases/[id]/edit-qa-process/": "Edit case | QA process",
     "/cases/[id]/edit-report-followup-due-dates/": "Edit case | Report followup dates",
     "/cases/[id]/edit-test-results/": "Edit case | Testing details",
     "/cases/[id]/edit-twelve-week-correspondence-due-dates/": "Edit case | 12 week correspondence dates",

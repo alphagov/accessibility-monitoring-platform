@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Type
 import urllib
 
 from django.contrib import messages
@@ -38,6 +38,7 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
+    CaseQAProcessUpdateForm,
     CaseReportCorrespondenceUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
     CaseDeleteForm,
@@ -70,9 +71,7 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case
     return Case.objects.filter(domain=domain)
 
 
-def calculate_report_followup_dates(
-    case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
-) -> CaseReportCorrespondenceUpdateForm:
+def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
     """Calculate followup dates based on a report sent date"""
     if report_sent_date is None:
         case.report_followup_week_1_due_date = None
@@ -91,14 +90,11 @@ def calculate_report_followup_dates(
     return case
 
 
-def calculate_twelve_week_chaser_dates(
-    case: CaseTwelveWeekCorrespondenceUpdateForm,
-    twelve_week_update_requested_date: date,
-) -> CaseTwelveWeekCorrespondenceUpdateForm:
+def calculate_twelve_week_chaser_dates(case: Case, twelve_week_update_requested_date: date) -> Case:
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
         case.twelve_week_1_week_chaser_due_date = None
-        case.twelve_week_3_week_chaser_due_date = None
+        case.twelve_week_4_week_chaser_due_date = None
     else:
         case.twelve_week_1_week_chaser_due_date = (
             twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
@@ -121,7 +117,7 @@ class CaseUpdateView(UpdateView):
     View to update case
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "case"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -155,7 +151,7 @@ class CaseDetailView(DetailView):
     View of details of a single case
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -179,6 +175,7 @@ class CaseDetailView(DetailView):
         )
         context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
+        context["qa_process_rows"] = get_rows(form=CaseQAProcessUpdateForm())
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
@@ -191,7 +188,7 @@ class CaseListView(ListView):
     View of list of cases
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "cases"
     paginate_by: int = 10
 
@@ -229,8 +226,8 @@ class CaseCreateView(CreateView):
     View to create a case
     """
 
-    model: Case = Case
-    form_class: CaseCreateForm = CaseCreateForm
+    model: Type[Case] = Case
+    form_class: Type[CaseCreateForm] = CaseCreateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/create.html"
 
@@ -276,7 +273,7 @@ class CaseDetailUpdateView(CaseUpdateView):
     View to update case details
     """
 
-    form_class: CaseDetailUpdateForm = CaseDetailUpdateForm
+    form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
 
     def get_success_url(self) -> str:
@@ -293,7 +290,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     View to update case test results
     """
 
-    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
+    form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
     def get_success_url(self) -> str:
@@ -312,8 +309,8 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     View to update case report details
     """
 
-    model: Case = Case
-    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
+    model: Type[Case] = Case
+    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
     template_name: str = "cases/forms/report_details.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -328,6 +325,26 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
             url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'
         else:
             url = reverse_lazy(
+                "cases:edit-qa-process", kwargs={"pk": self.object.id}
+            )
+        return url
+
+
+class CaseQAProcessUpdateView(CaseUpdateView):
+    """
+    View to update QA process
+    """
+
+    model: Type[Case] = Case
+    form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
+    template_name: str = "cases/forms/qa_process.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#qa-process'
+        else:
+            url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}
             )
         return url
@@ -338,7 +355,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
     View to update case contacts
     """
 
-    form_class: CaseContactsUpdateForm = CaseContactsUpdateForm
+    form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
     template_name: str = "cases/forms/contact_formset.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -406,7 +423,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     View to update case post report details
     """
 
-    form_class: CaseReportCorrespondenceUpdateForm = CaseReportCorrespondenceUpdateForm
+    form_class: Type[CaseReportCorrespondenceUpdateForm] = CaseReportCorrespondenceUpdateForm
     template_name: str = "cases/forms/report_correspondence.html"
 
     def get_form(self):
@@ -463,7 +480,7 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
     View to update report followup due dates
     """
 
-    form_class: CaseReportFollowupDueDatesUpdateForm = (
+    form_class: Type[CaseReportFollowupDueDatesUpdateForm] = (
         CaseReportFollowupDueDatesUpdateForm
     )
     template_name: str = "cases/forms/report_followup_due_dates.html"
@@ -480,7 +497,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     View to record week twelve correspondence details
     """
 
-    form_class: CaseTwelveWeekCorrespondenceUpdateForm = (
+    form_class: Type[CaseTwelveWeekCorrespondenceUpdateForm] = (
         CaseTwelveWeekCorrespondenceUpdateForm
     )
     template_name: str = "cases/forms/twelve_week_correspondence.html"
@@ -544,7 +561,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     View to update twelve week correspondence followup due dates
     """
 
-    form_class: CaseTwelveWeekCorrespondenceDueDatesUpdateForm = (
+    form_class: Type[CaseTwelveWeekCorrespondenceDueDatesUpdateForm] = (
         CaseTwelveWeekCorrespondenceDueDatesUpdateForm
     )
     template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
@@ -561,7 +578,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
     View to set no psb contact flag
     """
 
-    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    form_class: Type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
     template_name: str = "cases/forms/no_psb_response.html"
 
     def get_success_url(self) -> str:
@@ -577,7 +594,7 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
     View to record final decision details
     """
 
-    form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
+    form_class: Type[CaseFinalDecisionUpdateForm] = CaseFinalDecisionUpdateForm
     template_name: str = "cases/forms/final_decision.html"
 
     def get_form(self):
@@ -608,7 +625,7 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     View to note correspondence with enforcement body
     """
 
-    form_class: CaseEnforcementBodyCorrespondenceUpdateForm = (
+    form_class: Type[CaseEnforcementBodyCorrespondenceUpdateForm] = (
         CaseEnforcementBodyCorrespondenceUpdateForm
     )
     template_name: str = "cases/forms/enforcement_body_correspondence.html"
@@ -623,7 +640,7 @@ class CaseDeleteUpdateView(CaseUpdateView):
     View to delete case
     """
 
-    form_class: CaseDeleteForm = CaseDeleteForm
+    form_class: Type[CaseDeleteForm] = CaseDeleteForm
     template_name: str = "cases/forms/delete.html"
 
     def form_valid(self, form: ModelForm):
@@ -648,7 +665,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: Type[CaseSearchForm] = CaseSearchForm(request.GET)
     case_search_form.is_valid()
     return download_as_csv(
         queryset=filter_cases(form=case_search_form),
@@ -687,7 +704,7 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: Type[CaseSearchForm] = CaseSearchForm(request.GET)
     case_search_form.is_valid()
     return download_ehrc_cases(cases=filter_cases(form=case_search_form))
 

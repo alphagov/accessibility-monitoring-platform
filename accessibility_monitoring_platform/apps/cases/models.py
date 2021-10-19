@@ -253,6 +253,10 @@ class Case(models.Model):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         default=REPORT_REVIEW_STATUS_DEFAULT,
     )
+    report_notes = models.TextField(default="", blank=True)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
+
+    # QA process
     reviewer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -268,7 +272,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
-    reporting_details_complete_date = models.DateField(null=True, blank=True)
+    qa_process_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
     contact_details_complete_date = models.DateField(null=True, blank=True)
