@@ -39,6 +39,7 @@ EXCLUDED_FIELDS = [
     "case_details_complete_date",
     "testing_details_complete_date",
     "reporting_details_complete_date",
+    "qa_process_complete_date",
     "report_correspondence_complete_date",
     "final_decision_complete_date",
     "enforcement_correspondence_complete_date",

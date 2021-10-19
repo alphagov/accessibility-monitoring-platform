@@ -170,12 +170,22 @@ class CaseDetailView(DetailView):
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)
 
+        qa_process_rows: List[CaseFieldLabelAndValue] = get_rows(form=CaseQAProcessUpdateForm())
+        if self.object.reviewer:
+            qa_process_rows.insert(1,
+                CaseFieldLabelAndValue(
+                    label="QA Auditor who approved report",
+                    value=self.object.reviewer.get_full_name(),
+                )
+            )
+
+
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
         context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
-        context["qa_process_rows"] = get_rows(form=CaseQAProcessUpdateForm())
+        context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
