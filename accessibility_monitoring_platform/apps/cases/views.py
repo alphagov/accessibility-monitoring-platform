@@ -27,7 +27,8 @@ from ..common.utils import (  # type: ignore
     extract_domain_from_url,
     get_field_names_for_export,
     get_id_from_button_name,
-    record_model_event,
+    record_model_update_event,
+    record_model_create_event,
 )
 from .models import Case, Contact
 from .forms import (
@@ -128,7 +129,7 @@ class CaseUpdateView(UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
         self.object: Case = form.save(commit=False)
-        record_model_event(user=self.request.user, model_object=self.object)  # type: ignore
+        record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
         old_case: Case = Case.objects.get(pk=self.object.id)
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
@@ -250,7 +251,7 @@ class CaseCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        record_model_event(user=self.request.user, model_object=self.object)  # type: ignore
+        record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
         if "save_continue_case" in self.request.POST:
             url = reverse_lazy("cases:edit-case-details", kwargs={"pk": self.object.id})
         elif "save_new_case" in self.request.POST:
@@ -360,8 +361,11 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             for contact in contacts:
                 if not contact.case_id:
                     contact.case_id = case.id
-                record_model_event(user=self.request.user, model_object=contact)  # type: ignore
-                contact.save()
+                    contact.save()
+                    record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore
+                else:
+                    record_model_update_event(user=self.request.user, model_object=contact)  # type: ignore
+                    contact.save()
         contact_id_to_delete: IntOrNone = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
@@ -370,7 +374,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
             contact_to_delete.is_deleted = True
             contact_to_delete.save()
-            record_model_event(user=self.request.user, model_object=contact_to_delete)  # type: ignore
+            record_model_update_event(user=self.request.user, model_object=contact_to_delete)  # type: ignore
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -625,7 +629,7 @@ class CaseDeleteUpdateView(CaseUpdateView):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
         case.is_deleted = True
-        record_model_event(user=self.request.user, model_object=case)  # type: ignore
+        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
         case.save()
         return HttpResponseRedirect(self.get_success_url())
 

@@ -146,14 +146,16 @@ def format_date(date_to_format: date) -> str:
     return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
 
 
-def record_model_event(user: User, model_object: models.Model):
+def record_model_update_event(user: User, model_object: models.Model) -> None:
     """Record model create or update event"""
     value: Dict[str, str] = {}
-    if model_object.id:  # type: ignore
-        old_model = model_object.__class__.objects.get(pk=model_object.id)  # type: ignore
-        value["old"] = serializers.serialize("json", [old_model])
-        value["new"] = serializers.serialize("json", [model_object])
-        Event.objects.create(created_by=user, parent=model_object, value=json.dumps(value))
-    else:
-        value["new"] = serializers.serialize("json", [model_object])
-        Event.objects.create(created_by=user, parent=model_object, type=EVENT_TYPE_MODEL_CREATE, value=json.dumps(value))
+    old_model = model_object.__class__.objects.get(pk=model_object.id)  # type: ignore
+    value["old"] = serializers.serialize("json", [old_model])
+    value["new"] = serializers.serialize("json", [model_object])
+    Event.objects.create(created_by=user, parent=model_object, value=json.dumps(value))
+
+
+def record_model_create_event(user: User, model_object: models.Model) -> None:
+    """Record model create or update event"""
+    value: Dict[str, str] = {"new": serializers.serialize("json", [model_object])}
+    Event.objects.create(created_by=user, parent=model_object, type=EVENT_TYPE_MODEL_CREATE, value=json.dumps(value))
