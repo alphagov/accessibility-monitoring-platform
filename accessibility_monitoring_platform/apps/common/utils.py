@@ -9,6 +9,7 @@ from typing import (
     Dict,
     List,
     Tuple,
+    Type,
 )
 
 from django.contrib.auth.models import User
@@ -26,7 +27,7 @@ from .typing import IntOrNone, StringOrNone
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
 
-def get_field_names_for_export(model: models.Model) -> List[str]:
+def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
     """
     Returns a list of names of all the fields in a model.
     Exclude those representing reverse relationships.
@@ -158,4 +159,9 @@ def record_model_update_event(user: User, model_object: models.Model) -> None:
 def record_model_create_event(user: User, model_object: models.Model) -> None:
     """Record model create or update event"""
     value: Dict[str, str] = {"new": serializers.serialize("json", [model_object])}
-    Event.objects.create(created_by=user, parent=model_object, type=EVENT_TYPE_MODEL_CREATE, value=json.dumps(value))
+    Event.objects.create(
+        created_by=user,
+        parent=model_object,
+        type=EVENT_TYPE_MODEL_CREATE,
+        value=json.dumps(value),
+    )

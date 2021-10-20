@@ -7,6 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 EVENT_TYPE_DEFAULT = "model_update"
+EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT
 EVENT_TYPE_MODEL_CREATE = "model_create"
 EVENT_TYPES = {
     EVENT_TYPE_DEFAULT: "Model update",

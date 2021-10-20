@@ -444,8 +444,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
                     sent_date_name,
                     get_sent_date(form, case_from_db, sent_date_name),
                 )
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
@@ -523,8 +522,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                     sent_date_name,
                     get_sent_date(form, case_from_db, sent_date_name),
                 )
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
