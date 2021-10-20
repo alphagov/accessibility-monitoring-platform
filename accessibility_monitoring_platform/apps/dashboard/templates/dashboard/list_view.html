@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 
+{% load user_tags %}
+
+{% if request.user|has_group:"QA auditor" %}
 <h2 class="govuk-heading-m">QA cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
     <div class="govuk-accordion__section ">
@@ -29,6 +32,7 @@
         </div>
     {% endif %}
 </div>
+{% endif %}
 <h2 class="govuk-heading-m">Audit cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
     {% if cases_by_status.unknown %}
