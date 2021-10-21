@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import UpdateUserForm
+from accessibility_monitoring_platform.apps.common.utils import record_model_update_event
 # from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
 
 
@@ -48,6 +49,7 @@ def account_details(request: HttpRequest) -> HttpResponse:
             user.email = form.cleaned_data["email"]
             user.first_name = form.cleaned_data["first_name"]
             user.last_name = form.cleaned_data["last_name"]
+            record_model_update_event(user=request.user, model_object=user)  # type: ignore
             user.save()
 
             # notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")

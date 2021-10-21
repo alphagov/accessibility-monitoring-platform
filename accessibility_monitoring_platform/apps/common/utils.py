@@ -2,14 +2,18 @@
 from datetime import date, datetime
 import re
 import csv
+import json
 import pytz
 from typing import (
     Any,
     Dict,
     List,
     Tuple,
+    Type,
 )
 
+from django.contrib.auth.models import User
+from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
@@ -17,12 +21,13 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
+from .models import Event, EVENT_TYPE_MODEL_CREATE
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
 
-def get_field_names_for_export(model: models.Model) -> List[str]:
+def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
     """
     Returns a list of names of all the fields in a model.
     Exclude those representing reverse relationships.
@@ -64,7 +69,7 @@ def download_as_csv(
             row.append(value)
 
         if include_contact:
-            contacts = list(item.contact_set.filter(is_deleted=False))
+            contacts = list(item.contact_set.filter(is_deleted=False))  # type: ignore
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)
@@ -85,7 +90,7 @@ def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> In
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
-    key_names: Dict[str] = [
+    key_names: List[str] = [
         key for key in querydict.keys() if key.startswith(button_name_prefix)
     ]
     object_id: IntOrNone = None
@@ -140,3 +145,23 @@ def validate_url(url: str) -> None:
 def format_date(date_to_format: date) -> str:
     """Format a date as a string"""
     return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
+
+
+def record_model_update_event(user: User, model_object: models.Model) -> None:
+    """Record model create or update event"""
+    value: Dict[str, str] = {}
+    old_model = model_object.__class__.objects.get(pk=model_object.id)  # type: ignore
+    value["old"] = serializers.serialize("json", [old_model])
+    value["new"] = serializers.serialize("json", [model_object])
+    Event.objects.create(created_by=user, parent=model_object, value=json.dumps(value))
+
+
+def record_model_create_event(user: User, model_object: models.Model) -> None:
+    """Record model create or update event"""
+    value: Dict[str, str] = {"new": serializers.serialize("json", [model_object])}
+    Event.objects.create(
+        created_by=user,
+        parent=model_object,
+        type=EVENT_TYPE_MODEL_CREATE,
+        value=json.dumps(value),
+    )
