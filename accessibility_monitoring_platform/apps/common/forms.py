@@ -15,6 +15,23 @@ DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.U
 DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
 
 
+class VersionForm(forms.ModelForm):
+    """
+    Form for checking version has not changed
+    """
+    version = forms.IntegerField(widget=forms.HiddenInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        version_on_form: int = int(cleaned_data.get("version"))  # type: ignore
+        if version_on_form != self.instance.version:
+            self.add_error(
+                None,
+                f"{self.instance} has changed since this page loaded",
+            )
+        return cleaned_data
+
+
 class AMPRadioSelectWidget(forms.RadioSelect):
     """Widget for GDS design system radio button fields"""
 

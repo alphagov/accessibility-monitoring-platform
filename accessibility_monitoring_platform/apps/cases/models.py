@@ -181,6 +181,7 @@ class Case(models.Model):
     Model for Case
     """
 
+    version = models.IntegerField(default=0)
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -389,6 +390,7 @@ class Case(models.Model):
             self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
+        self.version += 1
         super().save(*args, **kwargs)
 
     @property

@@ -17,8 +17,6 @@
                 <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}
-                    <div class="govuk-error-message">{{ contacts_formset.non_form_errors }}</div>
-
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
                         {% if contacts_formset.forms %}

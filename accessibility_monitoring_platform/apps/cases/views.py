@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Type
 import urllib
 
 from django.contrib import messages
@@ -72,9 +72,7 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case
     return Case.objects.filter(domain=domain)
 
 
-def calculate_report_followup_dates(
-    case: CaseReportCorrespondenceUpdateForm, report_sent_date: date
-) -> CaseReportCorrespondenceUpdateForm:
+def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
     """Calculate followup dates based on a report sent date"""
     if report_sent_date is None:
         case.report_followup_week_1_due_date = None
@@ -94,13 +92,13 @@ def calculate_report_followup_dates(
 
 
 def calculate_twelve_week_chaser_dates(
-    case: CaseTwelveWeekCorrespondenceUpdateForm,
+    case: Case,
     twelve_week_update_requested_date: date,
-) -> CaseTwelveWeekCorrespondenceUpdateForm:
+) -> Case:
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
         case.twelve_week_1_week_chaser_due_date = None
-        case.twelve_week_3_week_chaser_due_date = None
+        case.twelve_week_4_week_chaser_due_date = None
     else:
         case.twelve_week_1_week_chaser_due_date = (
             twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
@@ -123,14 +121,14 @@ class CaseUpdateView(UpdateView):
     View to update case
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "case"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
         self.object: Case = form.save(commit=False)
         record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
-        old_case: Case = Case.objects.get(pk=self.object.id)
+        old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
         self.object.save()
@@ -138,7 +136,7 @@ class CaseUpdateView(UpdateView):
             messages.add_message(
                 self.request,
                 messages.INFO,
-                f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",
+                f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore
             )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -148,24 +146,24 @@ class CaseDetailView(DetailView):
     View of details of a single case
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "case"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["contacts"] = self.object.contact_set.filter(is_deleted=False)
+        context["contacts"] = self.object.contact_set.filter(is_deleted=False)  # type: ignore
         case_details_prefix: List[CaseFieldLabelAndValue] = [
             CaseFieldLabelAndValue(
                 label="Date created",
-                value=self.object.created,
+                value=self.object.created,  # type: ignore
                 type=CaseFieldLabelAndValue.DATE_TYPE,
             ),
             CaseFieldLabelAndValue(
-                label="Status", value=self.object.get_status_display()
+                label="Status", value=self.object.get_status_display()  # type: ignore
             ),
         ]
-        get_rows: Callable = partial(extract_labels_and_values, case=self.object)
+        get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
@@ -184,7 +182,7 @@ class CaseListView(ListView):
     View of list of cases
     """
 
-    model: Case = Case
+    model: Type[Case] = Case
     context_object_name: str = "cases"
     paginate_by: int = 10
 
@@ -213,7 +211,7 @@ class CaseListView(ListView):
         }
 
         context["form"] = self.form
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
         return context
 
 
@@ -222,8 +220,8 @@ class CaseCreateView(CreateView):
     View to create a case
     """
 
-    model: Case = Case
-    form_class: CaseCreateForm = CaseCreateForm
+    model: Type[Case] = Case
+    form_class: Type[CaseCreateForm] = CaseCreateForm
     context_object_name: str = "case"
     template_name: str = "cases/forms/create.html"
 
@@ -253,14 +251,14 @@ class CaseCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
         if "save_continue_case" in self.request.POST:
-            url = reverse_lazy("cases:edit-case-details", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:edit-case-details", kwargs={"pk": self.object.id})  # type: ignore
         elif "save_new_case" in self.request.POST:
             url = reverse_lazy("cases:case-create")
         elif "save_exit" in self.request.POST:
             url = reverse_lazy("cases:case-list")
         else:
             url = reverse_lazy(
-                "cases:edit-contact-details", kwargs={"pk": self.object.id}
+                "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
             )
         return url
 
@@ -270,15 +268,15 @@ class CaseDetailUpdateView(CaseUpdateView):
     View to update case details
     """
 
-    form_class: CaseDetailUpdateForm = CaseDetailUpdateForm
+    form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#case-details'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#case-details'  # type: ignore
         else:
-            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})
+            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})  # type: ignore
         return url
 
 
@@ -287,16 +285,16 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     View to update case test results
     """
 
-    form_class: CaseTestResultsUpdateForm = CaseTestResultsUpdateForm
+    form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#testing-details'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#testing-details'  # type: ignore
         else:
             url = reverse_lazy(
-                "cases:edit-report-details", kwargs={"pk": self.object.id}
+                "cases:edit-report-details", kwargs={"pk": self.object.id}  # type: ignore
             )
         return url
 
@@ -306,8 +304,8 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     View to update case report details
     """
 
-    model: Case = Case
-    form_class: CaseReportDetailsUpdateForm = CaseReportDetailsUpdateForm
+    model: Type[Case] = Case
+    form_class: Type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
     template_name: str = "cases/forms/report_details.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -319,10 +317,10 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'  # type: ignore
         else:
             url = reverse_lazy(
-                "cases:edit-contact-details", kwargs={"pk": self.object.id}
+                "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
             )
         return url
 
@@ -332,7 +330,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
     View to update case contacts
     """
 
-    form_class: CaseContactsUpdateForm = CaseContactsUpdateForm
+    form_class: Type[CaseContactsUpdateForm] = CaseContactsUpdateForm
     template_name: str = "cases/forms/contact_formset.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -341,7 +339,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(  # type: ignore
                 is_deleted=False
             )
             if "add_extra" in self.request.GET:
@@ -359,8 +357,8 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_formset.is_valid():
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
-                if not contact.case_id:
-                    contact.case_id = case.id
+                if not contact.case_id:  # type: ignore
+                    contact.case_id = case.id  # type: ignore
                     contact.save()
                     record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore
                 else:
@@ -380,23 +378,23 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#contact-details'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#contact-details'  # type: ignore
         elif "save_continue" in self.request.POST:
             url = reverse_lazy(
-                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
+                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}  # type: ignore
             )
         elif "add_contact" in self.request.POST:
-            url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"
+            url = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"  # type: ignore
         else:
             contact_id_to_delete: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:
                 url = reverse_lazy(
-                    "cases:edit-contact-details", kwargs={"pk": self.object.id}
+                    "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
                 )
             else:
-                url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})
+                url = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})  # type: ignore
         return url
 
 
@@ -405,7 +403,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     View to update case post report details
     """
 
-    form_class: CaseReportCorrespondenceUpdateForm = CaseReportCorrespondenceUpdateForm
+    form_class: Type[CaseReportCorrespondenceUpdateForm] = CaseReportCorrespondenceUpdateForm
     template_name: str = "cases/forms/report_correspondence.html"
 
     def get_form(self):
@@ -428,8 +426,8 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
         """
-        self.object: CaseReportCorrespondenceUpdateForm = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        self.object: Case = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)  # type: ignore
         if "report_sent_date" in form.changed_data:
             self.object = calculate_report_followup_dates(
                 case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
@@ -449,10 +447,10 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-correspondence'
+            return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-correspondence'  # type: ignore
         else:
             return reverse_lazy(
-                "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}
+                "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}  # type: ignore
             )
 
 
@@ -461,7 +459,7 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
     View to update report followup due dates
     """
 
-    form_class: CaseReportFollowupDueDatesUpdateForm = (
+    form_class: Type[CaseReportFollowupDueDatesUpdateForm] = (
         CaseReportFollowupDueDatesUpdateForm
     )
     template_name: str = "cases/forms/report_followup_due_dates.html"
@@ -469,7 +467,7 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
-            "cases:edit-report-correspondence", kwargs={"pk": self.object.id}
+            "cases:edit-report-correspondence", kwargs={"pk": self.object.id}  # type: ignore
         )
 
 
@@ -478,7 +476,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     View to record week twelve correspondence details
     """
 
-    form_class: CaseTwelveWeekCorrespondenceUpdateForm = (
+    form_class: Type[CaseTwelveWeekCorrespondenceUpdateForm] = (  # type: ignore
         CaseTwelveWeekCorrespondenceUpdateForm
     )
     template_name: str = "cases/forms/twelve_week_correspondence.html"
@@ -503,8 +501,8 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         Recalculate chaser dates if twelve week update requested date has changed;
         Otherwise set sent dates based on chaser date checkboxes.
         """
-        self.object: CaseTwelveWeekCorrespondenceUpdateForm = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)
+        self.object: Case = form.save(commit=False)
+        case_from_db: Case = Case.objects.get(pk=self.object.id)  # type: ignore
         if "twelve_week_update_requested_date" in form.changed_data:
             self.object = calculate_twelve_week_chaser_dates(
                 case=self.object,
@@ -520,18 +518,18 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 setattr(
                     self.object,
                     sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
+                    get_sent_date(form, case_from_db, sent_date_name),  # type: ignore
                 )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#12-week-correspondence'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#12-week-correspondence'  # type: ignore
         else:
             url = reverse_lazy(
                 "cases:edit-final-decision",
-                kwargs={"pk": self.object.id},
+                kwargs={"pk": self.object.id},  # type: ignore
             )
         return url
 
@@ -541,7 +539,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     View to update twelve week correspondence followup due dates
     """
 
-    form_class: CaseTwelveWeekCorrespondenceDueDatesUpdateForm = (
+    form_class: Type[CaseTwelveWeekCorrespondenceDueDatesUpdateForm] = (
         CaseTwelveWeekCorrespondenceDueDatesUpdateForm
     )
     template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
