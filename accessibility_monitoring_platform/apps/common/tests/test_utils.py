@@ -8,10 +8,17 @@ import io
 import pytz
 from typing import Any, Dict, List, Tuple
 
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
+from ..models import (
+    Event,
+    EVENT_TYPE_MODEL_CREATE,
+    EVENT_TYPE_MODEL_UPDATE,
+)
 from ..utils import (
     build_filters,
     download_as_csv,
@@ -20,6 +27,8 @@ from ..utils import (
     convert_date_to_datetime,
     validate_url,
     format_date,
+    record_model_create_event,
+    record_model_update_event,
 )
 
 
@@ -42,7 +51,7 @@ CSV_FILENAME: str = "filename.csv"
 def get_csv_response() -> HttpResponse:
     """Call download_as_csv and return response"""
     return download_as_csv(
-        queryset=MOCK_QUERYSET,
+        queryset=MOCK_QUERYSET,  # type: ignore
         field_names=MOCK_MODEL_FIELDS,
         filename=CSV_FILENAME,
     )
@@ -119,7 +128,7 @@ def test_get_id_from_button_name():
 def test_get_non_numeric_suffix_from_button_name():
     """Tests that the a non-integer button name suffix returns None"""
     button_name_prefix: str = "prefix_"
-    button_id: int = "not_a_number"
+    button_id: str = "not_a_number"
     button_name: str = f"{button_name_prefix}{button_id}"
     querydict: QueryDict = QueryDict(f"meh=val&{button_name}=1&a=2&c=3")
     assert (
@@ -202,3 +211,28 @@ def test_validate_url_raises_validation_error():
 def test_format_date():
     """Test format_date returns date strings in uk format dd/mm/yyyy"""
     assert format_date(date(2020, 12, 31)) == "31/12/2020"
+
+
+@pytest.mark.django_db
+def test_record_model_create_event():
+    """Test creation of model create event"""
+    user: User = User.objects.create()
+    record_model_create_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
+
+    assert event.type == EVENT_TYPE_MODEL_CREATE
+
+
+@pytest.mark.django_db
+def test_record_model_update_event():
+    """Test creation of model update event"""
+    user: User = User.objects.create()
+    record_model_update_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
+
+    assert event.type == EVENT_TYPE_MODEL_UPDATE
+

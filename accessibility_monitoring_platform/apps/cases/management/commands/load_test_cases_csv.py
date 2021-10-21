@@ -4,7 +4,7 @@ This command adds historic case data.
 import csv
 from datetime import date, datetime
 from functools import partial
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -46,8 +46,8 @@ def get_string_from_row(
 
 
 def get_integer_from_row(row: Dict[str, str], column_name: str = "id") -> int:
-    id_str: str = row.get(column_name)
-    return int(id_str)
+    id_str: Optional[str] = row.get(column_name)
+    return int(id_str)  # type: ignore
 
 
 def get_date_from_row(row: Dict[str, str], column_name: str) -> Union[date, None]:
@@ -76,7 +76,7 @@ def get_datetime_from_row(
 
 
 def get_or_create_user_from_row(
-    row: Dict[str, str], users: List[User], column_name: str
+    row: Dict[str, str], users: Dict[str, User], column_name: str
 ) -> Union[User, None]:
     user_email: Union[str, None] = row.get(column_name)
     if user_email and user_email not in users:
@@ -96,22 +96,23 @@ def get_or_create_user_from_row(
 def get_or_create_sector_from_row(
     row: Dict[str, str], sectors: Dict[str, Sector]
 ) -> Union[Sector, None]:
-    sector_name: Union[Sector, None] = row.get("sector")
-    if sector_name and sector_name not in sectors:
-        sector: Sector = Sector.objects.create(name=sector_name)
-        sectors[sector_name] = sector
-        return sector
-    else:
-        return sectors.get(sector_name)
+    sector_name: Union[str, None] = row.get("sector")
+    if sector_name:
+        if sector_name not in sectors:
+            sector: Sector = Sector.objects.create(name=sector_name)
+            sectors[sector_name] = sector
+            return sector
+        else:
+            return sectors.get(sector_name)
     return None
 
 
 def get_data_from_row(
     row: Dict[str, str],
-    users: List[User],
-    sectors: List[Sector],
+    users: Dict[str, User],
+    sectors: Dict[str, Sector],
     field: models.Field,
-) -> Union[str, bool, int, date, datetime, User, Sector]:
+) -> Union[str, bool, int, date, datetime, User, Sector, None]:
     if isinstance(field, (models.CharField, models.TextField)):
         return get_string_from_row(
             row=row, column_name=field.name, default=field.default
