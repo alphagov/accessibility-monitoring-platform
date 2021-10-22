@@ -49,6 +49,24 @@ class IssueReport(models.Model):
         return f"#{self.id} {self.page_title}"  # type: ignore
 
 
+class Platform(models.Model):
+    """
+    Settings for platform as a whole
+    """
+
+    active_qa_auditor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="platform_active_qa_auditor",
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"Active QA auditor is {self.active_qa_auditor}"
+        return f"#{self.id} {self.page_title}"  # type: ignore
+
+
 class Event(models.Model):
     """
     Model to records events on platform

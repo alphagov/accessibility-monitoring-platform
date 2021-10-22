@@ -21,7 +21,7 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from .models import Event, EVENT_TYPE_MODEL_CREATE
+from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
@@ -40,7 +40,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
 
 
 def download_as_csv(
-    queryset: QuerySet,
+    queryset: QuerySet[Any],
     field_names: List[str],
     filename: str = "download.csv",
     include_contact: bool = False,
@@ -145,6 +145,11 @@ def validate_url(url: str) -> None:
 def format_date(date_to_format: date) -> str:
     """Format a date as a string"""
     return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
+
+
+def get_platform_settings() -> Platform:
+    """Return the platform-wide settings"""
+    return Platform.objects.get(pk=1)
 
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:
