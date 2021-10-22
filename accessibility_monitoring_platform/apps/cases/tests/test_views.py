@@ -320,7 +320,7 @@ def test_delete_case_view(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse("cases:delete-case", kwargs={"pk": case.id}),  # type: ignore
-        {"version": 1,},
+        {"version": case.version,},
     )
 
     assert response.status_code == 302
@@ -337,7 +337,7 @@ def test_restore_case_view(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse("cases:restore-case", kwargs={"pk": case.id}),  # type: ignore
-        {"version": 1,},
+        {"version": case.version,},
     )
 
     assert response.status_code == 302
@@ -630,7 +630,7 @@ def test_case_edit_redirects_based_on_button_pressed(
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
-            "version": 1,
+            "version": case.version,
             button_name: "Button value",
         },
     )
@@ -648,7 +648,7 @@ def test_add_contact_form_appears(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
-            "version": 1,
+            "version": case.version,
             "add_contact": "Button value",
         },
         follow=True,
@@ -674,7 +674,7 @@ def test_add_contact(admin_client):
             "form-0-job_title": "",
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Save and continue",
         },
         follow=True,
@@ -694,7 +694,7 @@ def test_delete_contact(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
-            "version": 1,
+            "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
         follow=True,
@@ -745,7 +745,7 @@ def test_updating_report_sent_date(admin_client):
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -776,7 +776,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -803,7 +803,7 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -853,7 +853,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -877,7 +877,7 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -899,7 +899,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
         {
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -1318,7 +1318,7 @@ def test_status_change_message_shown(admin_client):
             "auditor": user.id,  # type: ignore
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Save and continue",
         },
         follow=True,
@@ -1346,7 +1346,7 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
         {
             "report_draft_url": "",
             "report_review_status": "ready-to-review",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Save and continue",
         },
     )
@@ -1473,7 +1473,7 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
         {
             "report_approved_status": "yes",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Save and continue",
         },
     )
@@ -1559,7 +1559,7 @@ def test_updating_case_create_event(admin_client):
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Button value",
         },
     )
@@ -1588,7 +1588,7 @@ def test_add_contact_also_creates_event(admin_client):
             "form-0-job_title": "",
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
-            "version": 1,
+            "version": case.version,
             "save_continue": "Save and continue",
         },
         follow=True,
@@ -1612,7 +1612,7 @@ def test_delete_contact_adds_update_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
-            "version": 1,
+            "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
         follow=True,
