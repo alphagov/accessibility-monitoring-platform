@@ -1,0 +1,21 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="qa-process" class="govuk-heading-l">QA process</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'cases:edit-qa-process' case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit QA process
+            </a>
+        </div>
+    </div>
+</div>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        {% for row in qa_process_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
+    </tbody>
+</table>

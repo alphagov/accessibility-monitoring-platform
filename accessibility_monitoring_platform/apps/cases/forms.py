@@ -13,7 +13,6 @@ from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
-    AMPQAAuditorModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
@@ -227,13 +226,7 @@ class CaseReportDetailsUpdateForm(VersionForm):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         help_text="This field affects the case status",
     )
-    reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
-    report_approved_status = AMPChoiceRadioField(
-        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
-    )
-    reviewer_notes = AMPTextField(label="QA notes")
-    report_final_odt_url = AMPURLField(label="Link to final ODT report")
-    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    report_notes = AMPTextField(label="Report details notes")
     reporting_details_complete_date = AMPDatePageCompleteField()
 
     def clean(self):
@@ -257,16 +250,36 @@ class CaseReportDetailsUpdateForm(VersionForm):
             "version",
             "report_draft_url",
             "report_review_status",
-            "reviewer",
-            "report_approved_status",
-            "reviewer_notes",
-            "report_final_odt_url",
-            "report_final_pdf_url",
+            "report_notes",
             "reporting_details_complete_date",
         ]
 
 
-class CaseContactUpdateForm(VersionForm):
+class CaseQAProcessUpdateForm(forms.ModelForm):
+    """
+    Form for updating QA process
+    """
+
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
+    )
+    reviewer_notes = AMPTextField(label="QA notes")
+    report_final_odt_url = AMPURLField(label="Link to final ODT report")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    qa_process_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "report_approved_status",
+            "reviewer_notes",
+            "report_final_odt_url",
+            "report_final_pdf_url",
+            "qa_process_complete_date",
+        ]
+
+
+class CaseContactUpdateForm(forms.ModelForm):
     """
     Form for updating a contact
     """
@@ -283,7 +296,6 @@ class CaseContactUpdateForm(VersionForm):
     class Meta:
         model = Case
         fields = [
-            "version",
             "first_name",
             "last_name",
             "job_title",

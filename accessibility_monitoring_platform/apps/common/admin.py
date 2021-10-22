@@ -6,7 +6,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import Event, IssueReport, Sector
+from .models import Event, IssueReport, Platform, Sector
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -76,4 +76,5 @@ class IssueReportAdmin(admin.ModelAdmin):
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
+admin.site.register(Platform)
 admin.site.register(Sector)

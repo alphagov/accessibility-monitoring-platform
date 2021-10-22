@@ -16,6 +16,7 @@ from django.http.request import QueryDict
 
 from ..models import (
     Event,
+    Platform,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
@@ -27,6 +28,7 @@ from ..utils import (
     convert_date_to_datetime,
     validate_url,
     format_date,
+    get_platform_settings,
     record_model_create_event,
     record_model_update_event,
 )
@@ -211,6 +213,14 @@ def test_validate_url_raises_validation_error():
 def test_format_date():
     """Test format_date returns date strings in uk format dd/mm/yyyy"""
     assert format_date(date(2020, 12, 31)) == "31/12/2020"
+
+
+@pytest.mark.django_db
+def test_get_platform_settings():
+    """Test get_platform_settings returns the platform settings row"""
+    platform: Platform = get_platform_settings()
+
+    assert platform.id == 1  # type: ignore
 
 
 @pytest.mark.django_db

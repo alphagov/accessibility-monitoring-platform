@@ -12,6 +12,7 @@ from ...common.forms import (
     AMPChoiceCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
+    AMPQAAuditorModelChoiceField,
 )
 
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
@@ -23,6 +24,7 @@ BOOLEAN_CHOICES: List[Tuple[str, str]] = [
 class UpdateUserForm(forms.ModelForm):
     """ Custom user update user form """
 
+    active_qa_auditor: AMPQAAuditorModelChoiceField = AMPQAAuditorModelChoiceField(label="Active QA auditor")
     email_notifications: AMPChoiceCheckboxField = AMPChoiceCheckboxField(
         label="Enable email notifications?",
         choices=BOOLEAN_CHOICES,
@@ -30,23 +32,18 @@ class UpdateUserForm(forms.ModelForm):
             attrs={"label": "Mark the checkbox to enable email notifications"}
         ),
     )
-
     first_name: AMPCharFieldWide = AMPCharFieldWide(required=True, max_length=150)
-
     last_name: AMPCharFieldWide = AMPCharFieldWide(required=True, max_length=150)
-
     email: AMPCharFieldWide = AMPCharFieldWide(
         required=True,
         max_length=150,
         help_text="You'll need this email address to sign in to your account",
     )
-
     email_confirm: AMPCharFieldWide = AMPCharFieldWide(
         required=True,
         max_length=150,
         label="Confirm your email address",
     )
-
     password: forms.CharField = forms.CharField(
         widget=forms.PasswordInput,
         help_text="Enter your password to confirm the update",
@@ -59,6 +56,7 @@ class UpdateUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
+            "active_qa_auditor",
             "email_notifications",
             "first_name",
             "last_name",

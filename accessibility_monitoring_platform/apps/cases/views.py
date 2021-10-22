@@ -30,7 +30,7 @@ from ..common.utils import (  # type: ignore
     record_model_update_event,
     record_model_create_event,
 )
-from .models import Case, Contact
+from .models import Case, Contact, REPORT_APPROVED_STATUS_APPROVED
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -40,6 +40,7 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
+    CaseQAProcessUpdateForm,
     CaseReportCorrespondenceUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
     CaseDeleteForm,
@@ -92,8 +93,7 @@ def calculate_report_followup_dates(case: Case, report_sent_date: date) -> Case:
 
 
 def calculate_twelve_week_chaser_dates(
-    case: Case,
-    twelve_week_update_requested_date: date,
+    case: Case, twelve_week_update_requested_date: date
 ) -> Case:
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
@@ -129,15 +129,25 @@ class CaseUpdateView(UpdateView):
         self.object: Case = form.save(commit=False)
         record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
         old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+
+        if (
+            old_case.report_approved_status != self.object.report_approved_status
+            and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+        ):
+            self.object.reviewer = self.request.user
+
         if "home_page_url" in form.changed_data:
             self.object.domain = extract_domain_from_url(self.object.home_page_url)
+
         self.object.save()
+
         if old_case.status != self.object.status:
             messages.add_message(
                 self.request,
                 messages.INFO,
                 f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore
             )
+
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -165,11 +175,24 @@ class CaseDetailView(DetailView):
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
+        qa_process_rows: List[CaseFieldLabelAndValue] = get_rows(
+            form=CaseQAProcessUpdateForm()
+        )
+        qa_auditor_name: str = self.object.reviewer.get_full_name() if self.object.reviewer else "None"  # type: ignore
+        qa_process_rows.insert(
+            1,
+            CaseFieldLabelAndValue(
+                label="QA Auditor who approved report",
+                value=qa_auditor_name,
+            ),
+        )
+
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
         context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
+        context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
@@ -318,6 +341,26 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'  # type: ignore
+        else:
+            url = reverse_lazy(
+                "cases:edit-qa-process", kwargs={"pk": self.object.id}  # type: ignore
+            )
+        return url
+
+
+class CaseQAProcessUpdateView(CaseUpdateView):
+    """
+    View to update QA process
+    """
+
+    model: Type[Case] = Case
+    form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
+    template_name: str = "cases/forms/qa_process.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#qa-process'  # type: ignore
         else:
             url = reverse_lazy(
                 "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
@@ -480,7 +523,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
 
     form_class: Type[
         CaseTwelveWeekCorrespondenceUpdateForm
-    ] = CaseTwelveWeekCorrespondenceUpdateForm  # type: ignore
+    ] = CaseTwelveWeekCorrespondenceUpdateForm
     template_name: str = "cases/forms/twelve_week_correspondence.html"
 
     def get_form(self):
@@ -704,4 +747,4 @@ def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
     case: Case = get_object_or_404(Case, id=pk)
     case.is_deleted = False
     case.save()
-    return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))
+    return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore

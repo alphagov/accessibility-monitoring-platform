@@ -29,7 +29,9 @@ from ..management.commands.load_test_cases_csv import (
 from ..models import Case, Contact
 
 USER_NAME: str = "user.name@example.com"
+USER_1: User = User(email=USER_NAME)
 SECTOR_NAME: str = "Sector Name"
+SECTOR_1: Sector = Sector(name=SECTOR_NAME)
 
 
 @pytest.mark.django_db
@@ -159,8 +161,9 @@ def test_get_or_create_user_from_row_creates_user():
 
     assert User.objects.count() == 0
 
-    user: User = get_or_create_user_from_row(row=row, users=users, column_name="column")
+    user: Union[User, None] = get_or_create_user_from_row(row=row, users=users, column_name="column")
 
+    assert user is not None
     assert user.username == USER_NAME
     assert User.objects.count() == 1
 
@@ -191,8 +194,9 @@ def test_get_or_create_sector_from_row_creates_sector():
 
     assert Sector.objects.count() == 0
 
-    sector: Sector = get_or_create_sector_from_row(row=row, sectors=sectors)
+    sector: Union[Sector, None] = get_or_create_sector_from_row(row=row, sectors=sectors)
 
+    assert sector is not None
     assert sector.name == SECTOR_NAME
     assert Sector.objects.count() == 1
 
@@ -210,11 +214,11 @@ def test_get_or_create_sector_from_row_creates_sector():
         ),
         (
             models.ForeignKey(name="auditor", to=User, on_delete=models.DO_NOTHING),
-            "user1",
+            USER_1,
         ),
         (
             models.ForeignKey(name="sector", to=Sector, on_delete=models.DO_NOTHING),
-            "sector1",
+            SECTOR_1,
         ),
     ],
 )
@@ -229,8 +233,8 @@ def test_get_data_from_row(field, expected_value):
         "auditor": USER_NAME,
         "sector": SECTOR_NAME,
     }
-    users: Dict[str, str] = {USER_NAME: "user1"}
-    sectors: dict[str, str] = {SECTOR_NAME: "sector1"}
+    users: Dict[str, User] = {USER_NAME: USER_1}
+    sectors: dict[str, Sector] = {SECTOR_NAME: SECTOR_1}
 
     assert (
         get_data_from_row(
@@ -256,6 +260,7 @@ def test_create_case_creates_a_case():
         "no_psb_contact": "False",
         "report_is_approved": "False",
         "report_is_ready_to_review": "False",
+        "version": "0",
     }
 
     get_data: Callable = partial(get_data_from_row, row=row, users={}, sectors={})
@@ -265,7 +270,7 @@ def test_create_case_creates_a_case():
     case: Case = create_case(get_data)
 
     assert Case.objects.count() == 1
-    assert case.id == int(case_id)
+    assert case.id == int(case_id)  # type: ignore
 
 
 @pytest.mark.django_db

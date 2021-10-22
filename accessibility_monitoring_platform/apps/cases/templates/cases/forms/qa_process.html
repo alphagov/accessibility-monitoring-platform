@@ -2,10 +2,6 @@
 
 {% extends 'base.html' %}
 
-{% comment %}
-{% load comments %}
-{% endcomment %}
-
 {% block content %}
 
 <div class="govuk-width-container">
@@ -19,15 +15,31 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-report-details' case.id %}">
+                <form method="post" action="{% url 'cases:edit-qa-process' case.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.report_draft_url %}
-                            {% include 'common/amp_field.html' with field=form.report_review_status %}
-                            {% include 'common/amp_field.html' with field=form.report_notes %}
-                            {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Link to report draft</b></label>
+                                {% if case.report_draft_url %}
+                                    <a href="{{ case.report_draft_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        Link to report draft
+                                    </a>
+                                {% else %}
+                                    <div class="govuk-hint">None</div>
+                                {% endif %}
+                            </div>
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"><b>Active QA auditor</b></label>
+                                <div class="govuk-hint">{{ platform.active_qa_auditor.get_full_name }}</div>
+                            </div>
+                            {% include 'common/amp_field.html' with field=form.report_approved_status %}
+                            {% include 'common/amp_field.html' with field=form.reviewer_notes %}
+                            {% include 'common/amp_field.html' with field=form.report_final_odt_url %}
+                            {% include 'common/amp_field.html' with field=form.report_final_pdf_url %}
+                            {% include 'common/amp_field.html' with field=form.qa_process_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -53,12 +65,9 @@
                         </div>
                     </div>
                 </form>
-                {% comment %}
-                {% comments_app request=request case_id=case.id page="report_details" %}
-                {% endcomment %}
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/navbar.html' with current_page='cases:edit-report-details' %}
+                {% include 'cases/helpers/navbar.html' with current_page='cases:edit-qa-process' %}
             </div>
         </div>
     </main>
