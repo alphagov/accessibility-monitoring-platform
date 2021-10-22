@@ -726,7 +726,7 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"{self.email} (Case #{self.case.id})")
+        return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs):
         if not self.id:  # type: ignore

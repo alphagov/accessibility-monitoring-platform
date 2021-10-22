@@ -289,3 +289,13 @@ def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_t
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
     assert case.next_action_due_date_tense == expected_tense
+
+
+@pytest.mark.django_db
+def test_case_save_increments_version():
+    """Test that saving a Case increments its version"""
+    case: Case = Case.objects.create()
+    old_version: int = case.version
+    case.save()
+
+    assert case.version == old_version + 1

@@ -400,7 +400,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_formset.is_valid():
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
-                if not contact.case:
+                if not contact.case_id:  # type: ignore
                     contact.case = case
                     contact.save()
                     record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore

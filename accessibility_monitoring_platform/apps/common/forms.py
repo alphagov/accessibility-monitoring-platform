@@ -24,7 +24,7 @@ class VersionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        version_on_form: int = int(cleaned_data.get("version"))  # type: ignore
+        version_on_form: int = int(cleaned_data.get("version", 0))  # type: ignore
         if version_on_form != self.instance.version:
             self.add_error(
                 None,

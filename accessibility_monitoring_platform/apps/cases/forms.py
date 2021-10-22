@@ -255,7 +255,7 @@ class CaseReportDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseQAProcessUpdateForm(forms.ModelForm):
+class CaseQAProcessUpdateForm(VersionForm):
     """
     Form for updating QA process
     """
@@ -271,6 +271,7 @@ class CaseQAProcessUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_approved_status",
             "reviewer_notes",
             "report_final_odt_url",

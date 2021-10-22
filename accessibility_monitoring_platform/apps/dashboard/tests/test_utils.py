@@ -1,4 +1,6 @@
 """Test dashboard utility functions"""
+import pytest
+
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import List, Union
@@ -224,7 +226,7 @@ def test_group_cases_by_qa_status():
 
 def test_return_cases_requiring_user_review():
     """Test cases in QA for a specific user are returned"""
-    user: User = User.objects.create()
+    user: User = User()
 
     mock_case_1: MockCase = MockCase(id=1, reviewer=user, qa_status="in-qa")
     mock_case_2: MockCase = MockCase(id=2, reviewer=user, qa_status="in-qa")

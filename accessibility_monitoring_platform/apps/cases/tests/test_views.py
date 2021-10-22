@@ -1561,8 +1561,6 @@ def test_updating_case_create_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
         {
-            "report_followup_week_1_sent_date": "on",
-            "report_followup_week_4_sent_date": "on",
             "version": case.version,
             "save_continue": "Button value",
         },
@@ -1627,3 +1625,29 @@ def test_delete_contact_adds_update_event(admin_client):
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)  # type: ignore
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
+
+
+def test_update_case_checks_version(admin_client):
+    """Test that updating a case shows an error if the version of the case has changed"""
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        {
+            "version": case.version - 1,
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li class="govuk-error-message">
+                    {ORGANISATION_NAME} | #1 has changed since this page loaded
+                </li>
+            </ul>
+        </div>""",
+        html=True,
+    )
