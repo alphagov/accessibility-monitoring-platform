@@ -403,7 +403,9 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     View to update case post report details
     """
 
-    form_class: Type[CaseReportCorrespondenceUpdateForm] = CaseReportCorrespondenceUpdateForm
+    form_class: Type[
+        CaseReportCorrespondenceUpdateForm
+    ] = CaseReportCorrespondenceUpdateForm
     template_name: str = "cases/forms/report_correspondence.html"
 
     def get_form(self):
@@ -459,9 +461,9 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
     View to update report followup due dates
     """
 
-    form_class: Type[CaseReportFollowupDueDatesUpdateForm] = (
+    form_class: Type[
         CaseReportFollowupDueDatesUpdateForm
-    )
+    ] = CaseReportFollowupDueDatesUpdateForm
     template_name: str = "cases/forms/report_followup_due_dates.html"
 
     def get_success_url(self) -> str:
@@ -476,9 +478,9 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     View to record week twelve correspondence details
     """
 
-    form_class: Type[CaseTwelveWeekCorrespondenceUpdateForm] = (  # type: ignore
+    form_class: Type[
         CaseTwelveWeekCorrespondenceUpdateForm
-    )
+    ] = CaseTwelveWeekCorrespondenceUpdateForm  # type: ignore
     template_name: str = "cases/forms/twelve_week_correspondence.html"
 
     def get_form(self):
@@ -539,15 +541,15 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     View to update twelve week correspondence followup due dates
     """
 
-    form_class: Type[CaseTwelveWeekCorrespondenceDueDatesUpdateForm] = (
+    form_class: Type[
         CaseTwelveWeekCorrespondenceDueDatesUpdateForm
-    )
+    ] = CaseTwelveWeekCorrespondenceDueDatesUpdateForm
     template_name: str = "cases/forms/twelve_week_correspondence_due_dates.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
-            "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}
+            "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}  # type: ignore
         )
 
 
@@ -556,14 +558,14 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
     View to set no psb contact flag
     """
 
-    form_class: CaseNoPSBContactUpdateForm = CaseNoPSBContactUpdateForm
+    form_class: Type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
     template_name: str = "cases/forms/no_psb_response.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         return reverse_lazy(
             "cases:edit-enforcement-body-correspondence",
-            kwargs={"pk": self.object.id},
+            kwargs={"pk": self.object.id},  # type: ignore
         )
 
 
@@ -572,7 +574,7 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
     View to record final decision details
     """
 
-    form_class: CaseFinalDecisionUpdateForm = CaseFinalDecisionUpdateForm
+    form_class: Type[CaseFinalDecisionUpdateForm] = CaseFinalDecisionUpdateForm
     template_name: str = "cases/forms/final_decision.html"
 
     def get_form(self):
@@ -589,11 +591,11 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         if "save_exit" in self.request.POST:
-            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#final-decision'
+            url = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#final-decision'  # type: ignore
         else:
             url = reverse_lazy(
                 "cases:edit-enforcement-body-correspondence",
-                kwargs={"pk": self.object.id},
+                kwargs={"pk": self.object.id},  # type: ignore
             )
         return url
 
@@ -603,14 +605,14 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     View to note correspondence with enforcement body
     """
 
-    form_class: CaseEnforcementBodyCorrespondenceUpdateForm = (
+    form_class: Type[
         CaseEnforcementBodyCorrespondenceUpdateForm
-    )
+    ] = CaseEnforcementBodyCorrespondenceUpdateForm
     template_name: str = "cases/forms/enforcement_body_correspondence.html"
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#equality-body-correspondence'
+        return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#equality-body-correspondence'  # type: ignore
 
 
 class CaseDeleteUpdateView(CaseUpdateView):
@@ -618,7 +620,7 @@ class CaseDeleteUpdateView(CaseUpdateView):
     View to delete case
     """
 
-    form_class: CaseDeleteForm = CaseDeleteForm
+    form_class: Type[CaseDeleteForm] = CaseDeleteForm
     template_name: str = "cases/forms/delete.html"
 
     def form_valid(self, form: ModelForm):

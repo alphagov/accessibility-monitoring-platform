@@ -19,6 +19,7 @@ class VersionForm(forms.ModelForm):
     """
     Form for checking version has not changed
     """
+
     version = forms.IntegerField(widget=forms.HiddenInput)
 
     def clean(self):

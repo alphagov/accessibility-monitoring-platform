@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from ..common.forms import (
+    VersionForm,
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
@@ -92,23 +93,6 @@ class CaseSearchForm(AMPDateRangeForm):
         self.fields["reviewer"].choices = get_search_user_choices(
             User.objects.filter(groups__name="QA auditor")
         )
-
-
-class VersionForm(forms.ModelForm):
-    """
-    Form for checking version has not changed
-    """
-    version = forms.IntegerField(widget=forms.HiddenInput)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        version_on_form: int = int(cleaned_data.get("version"))  # type: ignore
-        if version_on_form != self.instance.version:
-            self.add_error(
-                None,
-                f"{self.instance} has changed since this page loaded",
-            )
-        return cleaned_data
 
 
 class CaseCreateForm(forms.ModelForm):

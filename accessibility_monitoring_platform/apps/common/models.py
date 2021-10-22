@@ -74,3 +74,18 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["-created"]
+
+
+class VersionModel(models.Model):
+    """
+    Model subclassed to add versioning
+    """
+
+    version = models.IntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.version += 1
+        super().save(*args, **kwargs)

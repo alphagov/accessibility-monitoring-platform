@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector
+from ..common.models import Sector, VersionModel
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "unassigned-case"
@@ -176,12 +176,11 @@ MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
 
-class Case(models.Model):
+class Case(VersionModel):
     """
     Model for Case
     """
 
-    version = models.IntegerField(default=0)
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -390,7 +389,6 @@ class Case(models.Model):
             self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
-        self.version += 1
         super().save(*args, **kwargs)
 
     @property

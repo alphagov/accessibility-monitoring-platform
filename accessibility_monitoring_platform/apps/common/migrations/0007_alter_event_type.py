@@ -6,13 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0006_event'),
+        ("common", "0006_event"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='type',
-            field=models.CharField(choices=[('model_update', 'Model update'), ('model_create', 'Model create')], default='model_update', max_length=100),
+            model_name="event",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("model_update", "Model update"),
+                    ("model_create", "Model create"),
+                ],
+                default="model_update",
+                max_length=100,
+            ),
         ),
     ]
