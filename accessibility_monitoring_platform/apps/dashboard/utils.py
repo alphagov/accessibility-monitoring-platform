@@ -74,7 +74,7 @@ def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Ca
     """Find all cases where the user is the reviewer and return those in QA"""
     return sorted(
         [case for case in cases if case.reviewer == user and case.qa_status == "in-qa"],
-        key=lambda case: case.id,
+        key=lambda case: case.id,  # type: ignore
     )
 
 

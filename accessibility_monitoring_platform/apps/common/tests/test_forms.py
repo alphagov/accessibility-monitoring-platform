@@ -81,7 +81,7 @@ EXPECTED_DATE_WIDGET_HTML: str = """
         </div>
 </div>"""
 
-BOOLEAN_CHOICES: List[Tuple[bool, str]] = [
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
 ]
@@ -166,7 +166,7 @@ def test_amp_field_is_not_required(field_class):
 )
 def test_amp_field_uses_expected_widget(field_class, expected_widget):
     """Check field uses expected widget"""
-    field: forms.field = field_class(label="Label text")
+    field: forms.Field = field_class(label="Label text")
     assert isinstance(field.widget, expected_widget)
 
 

@@ -161,7 +161,9 @@ def test_get_or_create_user_from_row_creates_user():
 
     assert User.objects.count() == 0
 
-    user: Union[User, None] = get_or_create_user_from_row(row=row, users=users, column_name="column")
+    user: Union[User, None] = get_or_create_user_from_row(
+        row=row, users=users, column_name="column"
+    )
 
     assert user is not None
     assert user.username == USER_NAME
@@ -194,7 +196,9 @@ def test_get_or_create_sector_from_row_creates_sector():
 
     assert Sector.objects.count() == 0
 
-    sector: Union[Sector, None] = get_or_create_sector_from_row(row=row, sectors=sectors)
+    sector: Union[Sector, None] = get_or_create_sector_from_row(
+        row=row, sectors=sectors
+    )
 
     assert sector is not None
     assert sector.name == SECTOR_NAME

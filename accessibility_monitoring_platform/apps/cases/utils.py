@@ -21,7 +21,6 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
-    CaseReportCorrespondenceUpdateForm,
     CaseFinalDecisionUpdateForm,
     DEFAULT_SORT,
 )
@@ -136,7 +135,7 @@ CAPITALISE_FIELDS = [
 class CaseFieldLabelAndValue:
     """Data to use in html table row of View case page"""
 
-    value: Union[str, date]
+    value: Union[str, date, None]
     label: Union[str, None]
     type: str = "text"
     extra_label: str = ""

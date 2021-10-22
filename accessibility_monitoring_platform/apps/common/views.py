@@ -1,7 +1,7 @@
 """
 Common views
 """
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -28,13 +28,13 @@ class ContactAdminView(FormView):
         return super().form_valid(form)
 
     def send_mail(self, cleaned_data: Dict[str, str]) -> None:
-        subject = cleaned_data.get("subject")
-        message = cleaned_data.get("message")
+        subject: str = cleaned_data.get("subject", "")
+        message: str = cleaned_data.get("message", "")
         if subject or message:
             email: EmailMessage = EmailMessage(
                 subject=subject,
                 body=message,
-                from_email=self.request.user.email,
+                from_email=self.request.user.email,  # type: ignore
                 to=[settings.CONTACT_ADMIN_EMAIL],
             )
             email.send()
@@ -45,7 +45,7 @@ class IssueReportView(FormView):
     Save user feedback
     """
 
-    form_class = AMPIssueReportForm
+    form_class: Type[AMPIssueReportForm] = AMPIssueReportForm
     template_name: str = "common/issue_report.html"
     success_url = reverse_lazy("dashboard:home")
 
@@ -77,7 +77,7 @@ class IssueReportView(FormView):
 URL: https://{self.request.get_host()}{issue_report.page_url}
 
 {issue_report.description}""",
-            from_email=self.request.user.email,
+            from_email=self.request.user.email,  # type: ignore
             to=[settings.CONTACT_ADMIN_EMAIL],
         )
         email.send()

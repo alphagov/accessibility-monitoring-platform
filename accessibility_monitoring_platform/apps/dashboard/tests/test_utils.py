@@ -1,8 +1,9 @@
 """Test dashboard utility functions"""
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import List
+from typing import List, Union
 
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from ...cases.models import Case
@@ -25,11 +26,11 @@ class MockCase:
     id: int
     status: str = "unknown"
     qa_status: str = "unknown"
-    report_sent_date: date = None
-    report_followup_week_12_due_date: date = None
-    reviewer: str = None
-    completed_date: date = None
-    next_action_due_date: date = None
+    report_sent_date: Union[date, None] = None
+    report_followup_week_12_due_date: Union[date, None] = None
+    reviewer: Union[User, str, None] = None
+    completed_date: Union[date, None] = None
+    next_action_due_date: Union[date, None] = None
 
 
 MOCK_CASES: List[MockCase] = [
@@ -211,23 +212,23 @@ EXPECTED_MOCK_CASES_BY_QA_STATUS = {
 
 def test_group_cases_by_status():
     """Test cases are grouped by status and sorted"""
-    assert group_cases_by_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_STATUS
+    assert group_cases_by_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_STATUS  # type: ignore
 
 
 def test_group_cases_by_qa_status():
     """Test cases are grouped by qa_status and sorted"""
     assert (
-        group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS
+        group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
     )
 
 
 def test_return_cases_requiring_user_review():
     """Test cases in QA for a specific user are returned"""
-    user: str = "user"
+    user: User = User.objects.create()
 
     mock_case_1: MockCase = MockCase(id=1, reviewer=user, qa_status="in-qa")
     mock_case_2: MockCase = MockCase(id=2, reviewer=user, qa_status="in-qa")
-    all_cases: List[Case] = [
+    all_cases: List[Case] = [  # type: ignore
         mock_case_2,
         MockCase(id=3),
         mock_case_1,
@@ -250,7 +251,7 @@ def test_return_recently_completed_cases():
     mock_case_2: MockCase = MockCase(
         id=2, completed_date=twenty_eight_days_ago, status="complete"
     )
-    all_cases: List[Case] = [
+    all_cases: List[Case] = [  # type: ignore
         mock_case_2,
         MockCase(id=3, completed_date=thirty_one_days_ago, status="complete"),
         mock_case_1,

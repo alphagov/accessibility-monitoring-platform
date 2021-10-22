@@ -320,7 +320,9 @@ def test_delete_case_view(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse("cases:delete-case", kwargs={"pk": case.id}),  # type: ignore
-        {"version": case.version,},
+        {
+            "version": case.version,
+        },
     )
 
     assert response.status_code == 302
@@ -337,7 +339,9 @@ def test_restore_case_view(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse("cases:restore-case", kwargs={"pk": case.id}),  # type: ignore
-        {"version": case.version,},
+        {
+            "version": case.version,
+        },
     )
 
     assert response.status_code == 302

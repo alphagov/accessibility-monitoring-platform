@@ -8,8 +8,10 @@ from typing import (
     Any,
     Dict,
     List,
+    Match,
     Tuple,
     Type,
+    Union,
 )
 
 from django.contrib.auth.models import User
@@ -57,19 +59,19 @@ def download_as_csv(
 
     output: List[List[str]] = []
     for item in queryset:
-        row = []
+        row: List[str] = []
         for field_name in field_names:
-            item_attr = getattr(item, field_name)
+            item_attr: Any = getattr(item, field_name)
             if hasattr(item_attr, "all"):
-                value = ",".join(
+                value: str = ",".join(
                     [str(related_item) for related_item in item_attr.all()]
                 )
             else:
-                value = item_attr
+                value: str = str(item_attr)
             row.append(value)
 
         if include_contact:
-            contacts = list(item.contact_set.filter(is_deleted=False))  # type: ignore
+            contacts: List[Contact] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)
@@ -81,8 +83,11 @@ def download_as_csv(
     return response
 
 
-def extract_domain_from_url(url):
-    domain_match = re.search("https?://([A-Za-z_0-9.-]+).*", url)
+def extract_domain_from_url(url: str) -> str:
+    """Extract and return domain string from url string"""
+    domain_match: Union[Match[str], None] = re.search(
+        "https?://([A-Za-z_0-9.-]+).*", url
+    )
     return domain_match.group(1) if domain_match else ""
 
 
