@@ -12,7 +12,6 @@ from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
-    AMPQAAuditorModelChoiceField,
     AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
@@ -59,9 +58,9 @@ SORT_CHOICES = [
 ]
 
 
-def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[int, str]]:
+def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]:
     """Return a list of user ids and names, with an additional none option, for use in search"""
-    user_choices_with_none: List[Tuple[int, str]] = [
+    user_choices_with_none: List[Tuple[str, str]] = [
         ("", "-----"),
         ("none", "Unassigned"),
     ]
@@ -224,13 +223,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         help_text="This field affects the case status",
     )
-    reviewer = AMPQAAuditorModelChoiceField(label="QA Auditor")
-    report_approved_status = AMPChoiceRadioField(
-        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
-    )
-    reviewer_notes = AMPTextField(label="QA notes")
-    report_final_odt_url = AMPURLField(label="Link to final ODT report")
-    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    report_notes = AMPTextField(label="Report details notes")
     reporting_details_complete_date = AMPDatePageCompleteField()
 
     def clean(self):
@@ -253,12 +246,32 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         fields = [
             "report_draft_url",
             "report_review_status",
-            "reviewer",
+            "report_notes",
+            "reporting_details_complete_date",
+        ]
+
+
+class CaseQAProcessUpdateForm(forms.ModelForm):
+    """
+    Form for updating QA process
+    """
+
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
+    )
+    reviewer_notes = AMPTextField(label="QA notes")
+    report_final_odt_url = AMPURLField(label="Link to final ODT report")
+    report_final_pdf_url = AMPURLField(label="Link to final PDF report")
+    qa_process_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
             "report_approved_status",
             "reviewer_notes",
             "report_final_odt_url",
             "report_final_pdf_url",
-            "reporting_details_complete_date",
+            "qa_process_complete_date",
         ]
 
 

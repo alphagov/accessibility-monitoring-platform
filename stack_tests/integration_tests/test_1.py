@@ -53,6 +53,10 @@ accessibility statement note, I am"""
 
 
 REPORT_DRAFT_URL = "https://report-draft.com"
+REPORT_NOTES = """I am
+a multiline
+report note, I am"""
+
 REPORT_REVIEWER_NOTES = """I am
 a multiline
 report reviewer note, I am"""
@@ -270,6 +274,8 @@ class TestCaseUpdates(TestCases):
         Tests whether testing details can be updated
     test_update_case_edit_report_details()
         Tests whether report details can be updated
+    test_update_case_edit_qa_process()
+        Tests whether QA process can be updated
     test_update_case_edit_report_correspondence()
         Tests whether report correspondence can be updated
     test_update_case_edit_12_week_correspondence()
@@ -308,6 +314,9 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
+        self.driver.find_element_by_name("save_continue").click()
+
+        self.assertTrue(">Edit case | QA process</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
@@ -425,7 +434,25 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("report_draft_url").send_keys(REPORT_DRAFT_URL)
         self.driver.find_element_by_css_selector("#id_report_review_status_1").click()
-        self.driver.find_element_by_css_selector("#id_report_approved_status_0").click()
+        self.driver.find_element_by_name("report_notes").send_keys(
+            REPORT_NOTES
+        )
+
+        self.driver.find_element_by_css_selector(
+            "#id_reporting_details_complete_date"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(REPORT_DRAFT_URL in self.driver.page_source)
+        self.assertTrue(REPORT_NOTES in self.driver.page_source)
+
+    def test_update_case_edit_qa_process(self):
+        """Tests whether QA process can be updated"""
+        self.driver.find_element_by_link_text("Edit QA process").click()
+
+        self.assertTrue(">Edit case | QA process</h1>" in self.driver.page_source)
+        self.driver.find_element_by_css_selector("#id_report_approved_status_1").click()
         self.driver.find_element_by_name("reviewer_notes").send_keys(
             REPORT_REVIEWER_NOTES
         )
@@ -436,12 +463,11 @@ class TestCaseUpdates(TestCases):
             REPORT_FINAL_ODT_URL
         )
         self.driver.find_element_by_css_selector(
-            "#id_reporting_details_complete_date"
+            "#id_qa_process_complete_date"
         ).click()
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue(REPORT_DRAFT_URL in self.driver.page_source)
         self.assertTrue(REPORT_REVIEWER_NOTES in self.driver.page_source)
         self.assertTrue(REPORT_FINAL_PDF_URL in self.driver.page_source)
         self.assertTrue(REPORT_FINAL_ODT_URL in self.driver.page_source)

@@ -1,6 +1,7 @@
 """
 Tests for view - dashboard
 """
+import pytest
 from pytest_django.asserts import assertContains
 
 from django.urls import reverse
@@ -22,3 +23,20 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
 
     assert response.status_code == 302
     assert response.url == f"/accounts/login/?next={url}"
+
+
+@pytest.mark.parametrize(
+    "dashboard_view, expected_qa_column",
+    [
+        ("View+your+cases", "On call"),
+        ("View+all+cases", "Unassigned QA cases"),
+    ],
+)
+def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_client):
+    """Tests if dashboard views are showing the expected QA auditors column"""
+    response: HttpResponse = admin_client.get(
+        f'{reverse("dashboard:home")}?view={dashboard_view}'
+    )
+
+    assert response.status_code == 200
+    assertContains(response, expected_qa_column)
