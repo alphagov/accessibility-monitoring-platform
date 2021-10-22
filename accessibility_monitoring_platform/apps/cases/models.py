@@ -380,7 +380,7 @@ class Case(models.Model):
         ordering = ["-id"]
 
     def __str__(self):
-        return str(f"{self.organisation_name} | #{self.id}")
+        return str(f"{self.organisation_name} | #{self.id}")  # type: ignore
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -408,7 +408,7 @@ class Case(models.Model):
     @property
     def title(self):
         return str(
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"  # type: ignore
         )
 
     @property
@@ -511,7 +511,7 @@ class Case(models.Model):
             if getattr(self, field):
                 progress += percentage_increase
 
-        if Contact.objects.filter(case_id=self.id).exists():
+        if Contact.objects.filter(case_id=self.id).exists():  # type: ignore
             progress += percentage_increase
 
         return str(progress) + "%"
@@ -689,7 +689,7 @@ class Case(models.Model):
 
     @property
     def contact_exists(self):
-        return Contact.objects.filter(case_id=self.id).exists()
+        return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
     def psb_appeal_deadline(self):
@@ -729,6 +729,6 @@ class Contact(models.Model):
         return str(f"{self.email} (Case #{self.case.id})")
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.id:  # type: ignore
             self.created = timezone.now()
         super().save(*args, **kwargs)
