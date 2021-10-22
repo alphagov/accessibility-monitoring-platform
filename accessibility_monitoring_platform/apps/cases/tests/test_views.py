@@ -1449,9 +1449,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         )
 
 
-def test_case_reviewer_updated_when_report_approved(
-    admin_client, admin_user
-):
+def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     """
     Test that the case QA auditor is set to the current user when report is approved
     """

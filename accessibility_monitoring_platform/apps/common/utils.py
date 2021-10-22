@@ -40,7 +40,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
 
 
 def download_as_csv(
-    queryset: QuerySet,
+    queryset: QuerySet[Any],
     field_names: List[str],
     filename: str = "download.csv",
     include_contact: bool = False,

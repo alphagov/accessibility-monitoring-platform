@@ -53,6 +53,7 @@ class Platform(models.Model):
     """
     Settings for platform as a whole
     """
+
     active_qa_auditor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

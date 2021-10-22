@@ -66,7 +66,9 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
     ):
         prototype_name: str = ""
     else:
-        prototype_name: str = absolute_uri.split(".")[0].replace("https://", "").replace("http://", "")
+        prototype_name: str = (
+            absolute_uri.split(".")[0].replace("https://", "").replace("http://", "")
+        )
 
     platform: Platform = get_platform_settings()
 

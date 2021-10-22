@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0013_alter_case_options'),
+        ("cases", "0013_alter_case_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='qa_process_complete_date',
+            model_name="case",
+            name="qa_process_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='case',
-            name='report_notes',
-            field=models.TextField(blank=True, default=''),
+            model_name="case",
+            name="report_notes",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

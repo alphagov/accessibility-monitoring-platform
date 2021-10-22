@@ -14,20 +14,44 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('common', '0006_event'),
+        ("common", "0006_event"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='type',
-            field=models.CharField(choices=[('model_update', 'Model update'), ('model_create', 'Model create')], default='model_update', max_length=100),
+            model_name="event",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("model_update", "Model update"),
+                    ("model_create", "Model create"),
+                ],
+                default="model_update",
+                max_length=100,
+            ),
         ),
         migrations.CreateModel(
-            name='Platform',
+            name="Platform",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('active_qa_auditor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='platform_active_qa_auditor', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "active_qa_auditor",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="platform_active_qa_auditor",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.RunSQL(INSERT_SQL, reverse_sql=""),

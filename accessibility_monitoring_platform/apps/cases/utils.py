@@ -137,7 +137,7 @@ class CaseFieldLabelAndValue:
     """Data to use in html table row of View case page"""
 
     value: Union[str, date]
-    label: str
+    label: Union[str, None]
     type: str = "text"
     extra_label: str = ""
     DATE_TYPE: ClassVar[str] = "date"
@@ -188,7 +188,7 @@ def extract_labels_and_values(
 
 
 def get_sent_date(
-    form: CaseReportCorrespondenceUpdateForm, case_from_db: Case, sent_date_name: str
+    form: forms.ModelForm, case_from_db: Case, sent_date_name: str
 ) -> Union[date, None]:
     """
     Work out what value to save in a sent date field on the case.
@@ -205,7 +205,7 @@ def get_sent_date(
 
 def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
-    filters: Dict = {}
+    filters: Dict = {}  # type: ignore
     search_query = Q()
     sort_by: str = DEFAULT_SORT
 
@@ -288,7 +288,7 @@ def download_ehrc_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
+        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))  # type: ignore
         row = []
         for column in COLUMNS_FOR_EHRC:
             if column.field_name is None:

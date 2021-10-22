@@ -245,4 +245,3 @@ def test_record_model_update_event():
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
-
