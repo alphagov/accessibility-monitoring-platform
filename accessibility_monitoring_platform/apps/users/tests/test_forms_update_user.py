@@ -2,15 +2,16 @@
 Tests for update user form - users
 """
 
-from django.test import TestCase
-from django.urls import reverse
-from django.test.client import RequestFactory
-from django.contrib.auth.models import User
-from typing import Optional, TypedDict
-from ..models import EmailInclusionList
-from ..forms import UpdateUserForm
+from typing import Dict, Optional, TypedDict
 
+from django.contrib.auth.models import User
 from django.http import HttpRequest
+from django.test import TestCase
+from django.test.client import RequestFactory
+from django.urls import reverse
+
+from ..forms import UpdateUserForm
+from ..models import EmailInclusionList
 
 
 class FormRequestAccountDetails(TypedDict):
@@ -64,7 +65,7 @@ class UpdateUserFormTestCase(TestCase):
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "admin2@email.com",
@@ -91,7 +92,7 @@ class UpdateUserFormTestCase(TestCase):
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "UNREGISTERED@email.com",
@@ -125,7 +126,7 @@ class UpdateUserFormTestCase(TestCase):
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "OLD_EMAIL@email.com",
@@ -154,7 +155,7 @@ class UpdateUserFormTestCase(TestCase):
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "admin2@email.com",
@@ -183,7 +184,7 @@ class UpdateUserFormTestCase(TestCase):
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
             "email": "admin2@email.com",

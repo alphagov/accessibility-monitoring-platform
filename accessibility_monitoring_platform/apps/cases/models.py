@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector
+from ..common.models import Sector, VersionModel
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "unassigned-case"
@@ -177,7 +177,7 @@ MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
 
-class Case(models.Model):
+class Case(VersionModel):
     """
     Model for Case
     """
@@ -726,7 +726,7 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"{self.email} (Case #{self.case.id})")
+        return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs):
         if not self.id:  # type: ignore

@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from ..common.forms import (
+    VersionForm,
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
@@ -65,7 +66,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]
         ("none", "Unassigned"),
     ]
     for user in user_query.order_by("first_name", "last_name"):
-        user_choices_with_none.append((user.id, user.get_full_name()))
+        user_choices_with_none.append((user.id, user.get_full_name()))  # type: ignore
     return user_choices_with_none
 
 
@@ -143,7 +144,7 @@ class CaseCreateForm(forms.ModelForm):
         return enforcement_body
 
 
-class CaseDetailUpdateForm(CaseCreateForm):
+class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     """
     Form for updating case details fields
     """
@@ -163,6 +164,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "auditor",
             "home_page_url",
             "organisation_name",
@@ -177,7 +179,7 @@ class CaseDetailUpdateForm(CaseCreateForm):
         ]
 
 
-class CaseTestResultsUpdateForm(forms.ModelForm):
+class CaseTestResultsUpdateForm(VersionForm):
     """
     Form for updating test results
     """
@@ -202,6 +204,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "test_results_url",
             "test_status",
             "accessibility_statement_state",
@@ -212,7 +215,7 @@ class CaseTestResultsUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseReportDetailsUpdateForm(forms.ModelForm):
+class CaseReportDetailsUpdateForm(VersionForm):
     """
     Form for updating report details
     """
@@ -244,6 +247,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_draft_url",
             "report_review_status",
             "report_notes",
@@ -251,7 +255,7 @@ class CaseReportDetailsUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseQAProcessUpdateForm(forms.ModelForm):
+class CaseQAProcessUpdateForm(VersionForm):
     """
     Form for updating QA process
     """
@@ -267,6 +271,7 @@ class CaseQAProcessUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_approved_status",
             "reviewer_notes",
             "report_final_odt_url",
@@ -309,7 +314,7 @@ CaseContactFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
-class CaseContactsUpdateForm(forms.ModelForm):
+class CaseContactsUpdateForm(VersionForm):
     """
     Form for updating test results
     """
@@ -319,11 +324,12 @@ class CaseContactsUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "contact_details_complete_date",
         ]
 
 
-class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
+class CaseReportCorrespondenceUpdateForm(VersionForm):
     """
     Form for updating report correspondence details
     """
@@ -343,6 +349,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
@@ -353,7 +360,7 @@ class CaseReportCorrespondenceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
+class CaseReportFollowupDueDatesUpdateForm(VersionForm):
     """
     Form for updating report followup due dates
     """
@@ -365,13 +372,14 @@ class CaseReportFollowupDueDatesUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_followup_week_1_due_date",
             "report_followup_week_4_due_date",
             "report_followup_week_12_due_date",
         ]
 
 
-class CaseNoPSBContactUpdateForm(forms.ModelForm):
+class CaseNoPSBContactUpdateForm(VersionForm):
     """
     Form for archiving a case
     """
@@ -387,11 +395,12 @@ class CaseNoPSBContactUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "no_psb_contact",
         ]
 
 
-class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
+class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     """
     Form for updating week twelve correspondence details
     """
@@ -414,6 +423,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "twelve_week_update_requested_date",
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
@@ -424,7 +434,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
+class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
     """
     Form for updating twelve week correspondence followup due dates
     """
@@ -436,13 +446,14 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "report_followup_week_12_due_date",
             "twelve_week_1_week_chaser_due_date",
             "twelve_week_4_week_chaser_due_date",
         ]
 
 
-class CaseFinalDecisionUpdateForm(forms.ModelForm):
+class CaseFinalDecisionUpdateForm(VersionForm):
     """
     Form for updating case final decision details
     """
@@ -487,6 +498,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "psb_progress_notes",
             "retested_website_date",
             "is_disproportionate_claimed",
@@ -502,7 +514,7 @@ class CaseFinalDecisionUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
+class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     """
     Form for recording correspondence with enforcement body
     """
@@ -528,6 +540,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "psb_appeal_notes",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_interested",
@@ -537,7 +550,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(forms.ModelForm):
         ]
 
 
-class CaseDeleteForm(forms.ModelForm):
+class CaseDeleteForm(VersionForm):
     """
     Form for archiving a case
     """
@@ -551,6 +564,7 @@ class CaseDeleteForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
+            "version",
             "delete_reason",
             "delete_notes",
         ]

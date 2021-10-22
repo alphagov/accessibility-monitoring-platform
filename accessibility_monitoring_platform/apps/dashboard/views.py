@@ -27,7 +27,7 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        user: User = get_object_or_404(User, id=self.request.user.id)
+        user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
         all_cases: List[Case] = list(Case.objects.all())
 
         show_all_cases: bool = self.request.GET.get("view") == "View all cases"

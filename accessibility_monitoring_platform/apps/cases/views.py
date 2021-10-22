@@ -401,7 +401,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
                 if not contact.case_id:  # type: ignore
-                    contact.case_id = case.id  # type: ignore
+                    contact.case = case
                     contact.save()
                     record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore
                 else:
@@ -563,7 +563,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 setattr(
                     self.object,
                     sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
+                    get_sent_date(form, case_from_db, sent_date_name),  # type: ignore
                 )
         return super().form_valid(form)
 

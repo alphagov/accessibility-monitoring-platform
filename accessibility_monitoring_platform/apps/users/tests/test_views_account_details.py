@@ -1,7 +1,7 @@
 """
 Tests for view - users
 """
-from typing import TypedDict, List
+from typing import Dict, TypedDict, List
 
 from django.test import TestCase
 from django.contrib.auth.models import Group, User
@@ -77,8 +77,8 @@ class UserViewTests(TestCase):
         # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
-        data: FormRequestAccountDetails = {
-            "active_qa_auditor": user.id,
+        data: Dict[str, str] = {
+            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
@@ -105,8 +105,8 @@ class UserViewTests(TestCase):
         # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
-        data: FormRequestAccountDetails = {
-            "active_qa_auditor": user.id,
+        data: Dict[str, str] = {
+            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
