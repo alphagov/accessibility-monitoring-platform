@@ -28,7 +28,7 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
 @pytest.mark.parametrize(
     "dashboard_view, expected_qa_column",
     [
-        ("View+your+cases", "Active QA"),
+        ("View+your+cases", "On call"),
         ("View+all+cases", "Unassigned QA cases"),
     ],
 )
