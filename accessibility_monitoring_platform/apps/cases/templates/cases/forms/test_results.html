@@ -14,6 +14,17 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <div class="govuk-button-group no-bottom-margin">
+                    <a
+                        href="{% url 'checks:check-create' %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Create test
+                    </a>
+                </div>
                 <form method="post" action="{% url 'cases:edit-test-results' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

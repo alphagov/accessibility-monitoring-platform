@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                <div class="govuk-button-group" style="display: flex;">
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_heading }}</h1>
+                    {% if case.escalation_state == 'no-action' %}
+                        <strong class="govuk-tag" style="position: relative; top: -5px;">
+                            completed
+                        </strong>
+                    {% elif case.is_deleted %}
+                        <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
+                            deleted
+                        </strong>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
+                    <a href="{% url 'cases:edit-case-details' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Edit case
+                    </a>
+                    <a
+                        href="{% url 'cases:case-export-single' case.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Export to CSV
+                    </a>
+                    {% if case.is_deleted %}
+                        <a
+                            href="{% url 'cases:restore-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--warning"
+                            data-module="govuk-button"
+                        >
+                            Restore
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'cases:delete-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Delete case
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; top: -15px;">
+            {% include 'cases/helpers/case_title.html' %}
+            {% include "cases/helpers/messages.html" %}
+        </div>
+
+        {% if case.no_psb_contact == 'yes' %}
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    Public sector body is unresponsive and has been moved to equalities bodies correspondence
+                </strong>
+            </div>
+        {% endif %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'cases/helpers/navbar.html' with current_page='view-details' %}
+                {% include 'cases/details/case_details.html' %}
+                {% include 'cases/details/testing_details.html' %}
+                {% include 'cases/details/report_details.html' %}
+                {% include 'cases/details/qa_process.html' %}
+                {% include 'cases/details/contact_details.html' %}
+                {% include 'cases/details/report_correspondence.html' %}
+                {% include 'cases/details/twelve_week_correspondence.html' %}
+                {% include 'cases/details/final_decision.html' %}
+                {% include 'cases/details/equality_bodies_correspondence.html' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
