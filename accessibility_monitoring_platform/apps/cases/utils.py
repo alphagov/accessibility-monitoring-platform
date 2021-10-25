@@ -43,6 +43,7 @@ EXCLUDED_FIELDS = [
     "report_correspondence_complete_date",
     "final_decision_complete_date",
     "enforcement_correspondence_complete_date",
+    "version",
 ]
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -120,6 +121,10 @@ COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(
         column_name="Equality body",
         field_name="enforcement_body",
+    ),
+    ColumnAndFieldNames(
+        column_name="Date sent to equality body",
+        field_name="sent_to_enforcement_body_sent_date",
     ),
 ]
 
