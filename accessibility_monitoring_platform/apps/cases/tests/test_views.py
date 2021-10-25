@@ -1562,6 +1562,7 @@ def test_updating_case_create_event(admin_client):
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
         {
             "version": case.version,
+            "report_correspondence_complete_date": "on",
             "save_continue": "Button value",
         },
     )
