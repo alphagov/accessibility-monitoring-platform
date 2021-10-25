@@ -84,7 +84,7 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
 
     assert (
         get_sent_date(
-            form=mock_form, case_from_db=mock_case, sent_date_name="sent_date"
+            form=mock_form, case_from_db=mock_case, sent_date_name="sent_date"  # type: ignore
         )
         == expected_date
     )
@@ -134,7 +134,7 @@ def test_extract_labels_and_values():
     )
 
     labels_and_values: List[CaseFieldLabelAndValue] = extract_labels_and_values(
-        case=case, form=CaseForm()
+        case=case, form=CaseForm()  # type: ignore
     )
 
     assert len(labels_and_values) == 6
@@ -142,10 +142,10 @@ def test_extract_labels_and_values():
         label=AUDITOR_LABEL, value=auditor.get_full_name()
     )
     assert labels_and_values[1] == CaseFieldLabelAndValue(
-        label=SECTOR_LABEL, value=sector
+        label=SECTOR_LABEL, value=sector.name
     )
     assert labels_and_values[2] == CaseFieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
     )
     assert labels_and_values[3] == CaseFieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -169,7 +169,7 @@ def test_extract_labels_and_values_with_no_values_set():
     case: Case = Case()
 
     labels_and_values: List[CaseFieldLabelAndValue] = extract_labels_and_values(
-        case=case, form=CaseForm()
+        case=case, form=CaseForm()  # type: ignore
     )
 
     assert len(labels_and_values) == 6
@@ -180,7 +180,7 @@ def test_extract_labels_and_values_with_no_values_set():
         label=SECTOR_LABEL, value="Unknown"
     )
     assert labels_and_values[2] == CaseFieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
     )
     assert labels_and_values[3] == CaseFieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -202,7 +202,7 @@ def test_case_filtered_by_search_string():
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     form: MockForm = MockForm(cleaned_data={"search": ORGANISATION_NAME})
 
-    filtered_cases: List[Case] = list(filter_cases(form))
+    filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME

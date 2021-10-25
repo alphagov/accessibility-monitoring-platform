@@ -126,28 +126,28 @@ class CaseUpdateView(UpdateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
-        self.object: Case = form.save(commit=False)
-        record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
-        old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+        if form.changed_data:
+            self.object: Case = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
 
-        if (
-            old_case.report_approved_status != self.object.report_approved_status
-            and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
-        ):
-            self.object.reviewer = self.request.user
+            if (
+                old_case.report_approved_status != self.object.report_approved_status
+                and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            ):
+                self.object.reviewer = self.request.user
 
-        if "home_page_url" in form.changed_data:
-            self.object.domain = extract_domain_from_url(self.object.home_page_url)
+            if "home_page_url" in form.changed_data:
+                self.object.domain = extract_domain_from_url(self.object.home_page_url)
 
-        self.object.save()
+            self.object.save()
 
-        if old_case.status != self.object.status:
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore
-            )
-
+            if old_case.status != self.object.status:
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore
+                )
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -401,7 +401,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
                 if not contact.case_id:  # type: ignore
-                    contact.case_id = case.id  # type: ignore
+                    contact.case = case
                     contact.save()
                     record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore
                 else:
@@ -563,7 +563,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 setattr(
                     self.object,
                     sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),
+                    get_sent_date(form, case_from_db, sent_date_name),  # type: ignore
                 )
         return super().form_valid(form)
 

@@ -14,6 +14,7 @@ from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 
 from ..common.forms import AMPTextField, AMPURLField
+from ..common.models import Sector
 from ..common.utils import build_filters
 
 from .forms import (
@@ -21,7 +22,6 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
-    CaseReportCorrespondenceUpdateForm,
     CaseFinalDecisionUpdateForm,
     DEFAULT_SORT,
 )
@@ -136,7 +136,7 @@ CAPITALISE_FIELDS = [
 class CaseFieldLabelAndValue:
     """Data to use in html table row of View case page"""
 
-    value: Union[str, date]
+    value: Union[str, date, Sector, None]
     label: Union[str, None]
     type: str = "text"
     extra_label: str = ""
@@ -166,6 +166,8 @@ def extract_labels_and_values(
             value = value.get_full_name()
         elif field_name == "sector" and value is None:
             value = "Unknown"
+        elif isinstance(value, Sector):
+            value = str(value)
         elif isinstance(field, forms.ModelChoiceField):
             pass
         elif isinstance(field, forms.ChoiceField):

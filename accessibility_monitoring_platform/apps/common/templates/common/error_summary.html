@@ -5,6 +5,9 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
+                {% for error in form.non_field_errors %}
+                    <li class="govuk-error-message">{{ error }}</li>
+                {% endfor %}
                 {% for field in form.visible_fields %}
                     {% for error in field.errors%}
                         <li>

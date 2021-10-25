@@ -51,7 +51,7 @@ def test_page_title_present(url, page_title, admin_client):
 def test_page_title_and_heading_for_case_page(admin_client):
     """Page title and heading for case page present"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    url: str = reverse("cases:case-detail", kwargs={"pk": case.id})
+    url: str = reverse("cases:case-detail", kwargs={"pk": case.id})  # type: ignore
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
@@ -98,9 +98,9 @@ def test_platform_page_returns_prototype_and_page_names():
     mock_request = MockRequest(
         path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/"
     )
-    platform_page_context: Dict[str, Union[str, AMPTopMenuForm]] = platform_page(
-        mock_request
-    )
+    platform_page_context: Dict[
+        str, Union[str, AMPTopMenuForm, Platform]
+    ] = platform_page(mock_request)
 
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"
