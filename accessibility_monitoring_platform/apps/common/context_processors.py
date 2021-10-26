@@ -42,7 +42,9 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform, Case, None]]:
+def platform_page(
+    request,
+) -> Dict[str, Union[str, AMPTopMenuForm, Platform, Case, None]]:
     """
     Lookup the page title using URL path and place it in context for template rendering.
     Also include search form for top menu, name of prototype and platform settings.

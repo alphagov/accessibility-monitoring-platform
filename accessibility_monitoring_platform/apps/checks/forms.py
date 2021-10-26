@@ -43,7 +43,9 @@ class CheckCreateForm(forms.ModelForm):
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
     is_exemption = AMPChoiceRadioField(label="Exemptions?", choices=EXEMPTION_CHOICES)
     notes = AMPTextField(label="Notes")
-    type = AMPChoiceRadioField(label="Initital test or equality body retest?", choices=CHECK_TYPE_CHOICES)
+    type = AMPChoiceRadioField(
+        label="Initital test or equality body retest?", choices=CHECK_TYPE_CHOICES
+    )
 
     class Meta:
         model = Check

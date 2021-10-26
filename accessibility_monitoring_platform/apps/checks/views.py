@@ -13,7 +13,13 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .forms import CheckCreateForm, CheckUpdateMetadataForm, CheckUpdatePagesForm
-from .models import Check, Page, EXEMPTION_DEFAULT, PAGE_TYPE_DEFAULT, MANDATORY_PAGE_TYPES
+from .models import (
+    Check,
+    Page,
+    EXEMPTION_DEFAULT,
+    PAGE_TYPE_DEFAULT,
+    MANDATORY_PAGE_TYPES,
+)
 
 from ..cases.models import Case
 from ..common.utils import (  # type: ignore
@@ -81,6 +87,7 @@ class CheckCreateView(CreateView):
             url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.case.id})  # type: ignore
         return url
 
+
 class CheckDetailView(DetailView):
     """
     View of details of a single check
@@ -134,7 +141,7 @@ class CheckMetadataUpdateView(CheckUpdateView):
                 kwargs={
                     "pk": self.object.id,  # type: ignore
                     "case_id": self.object.case.id,  # type: ignore
-                }
+                },
             )
         return url
 
@@ -163,7 +170,7 @@ class CheckPagesUpdateView(CheckUpdateView):
                 kwargs={
                     "pk": self.object.id,  # type: ignore
                     "case_id": self.object.case.id,  # type: ignore
-                }
+                },
             )
         return url
 

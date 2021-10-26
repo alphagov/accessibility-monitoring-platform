@@ -47,6 +47,7 @@ MANDATORY_PAGE_TYPES: List[str] = [
     PAGE_TYPE_FORM,
 ]
 
+
 class Check(VersionModel):
     """
     Model for test/check
@@ -67,7 +68,9 @@ class Check(VersionModel):
         max_length=20, choices=EXEMPTION_CHOICES, default=EXEMPTION_DEFAULT
     )
     notes = models.TextField(default="", blank=True)
-    type = models.CharField(max_length=20, choices=CHECK_TYPE_CHOICES, default=CHECK_TYPE_DEFAULT)
+    type = models.CharField(
+        max_length=20, choices=CHECK_TYPE_CHOICES, default=CHECK_TYPE_DEFAULT
+    )
     check_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # pages page
@@ -80,7 +83,10 @@ class Check(VersionModel):
         return str(f"{self.description} | #{self.id}")  # type: ignore
 
     def get_absolute_url(self):
-        return reverse("checks:edit-check-metadata", kwargs={"pk": self.pk, "case_id": self.case.pk})
+        return reverse(
+            "checks:edit-check-metadata",
+            kwargs={"pk": self.pk, "case_id": self.case.pk},
+        )
 
 
 class Page(VersionModel):
@@ -88,10 +94,14 @@ class Page(VersionModel):
     Model for test/check page
     """
 
-    parent_check = models.ForeignKey(Check, on_delete=models.CASCADE, related_name="page_check")
+    parent_check = models.ForeignKey(
+        Check, on_delete=models.CASCADE, related_name="page_check"
+    )
     is_deleted = models.BooleanField(default=False)
 
-    type = models.CharField(max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_DEFAULT)
+    type = models.CharField(
+        max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_DEFAULT
+    )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
     not_found = models.BooleanField(default=False)
@@ -103,4 +113,7 @@ class Page(VersionModel):
         return str(f"{self.parent_check} | {self.type} | #{self.pk}")  # type: ignore
 
     def get_absolute_url(self):
-        return reverse("checks:edit-check-page", kwargs={"pk": self.check.pk, "case_id": self.check.case.pk })
+        return reverse(
+            "checks:edit-check-page",
+            kwargs={"pk": self.check.pk, "case_id": self.check.case.pk},
+        )

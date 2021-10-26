@@ -173,9 +173,7 @@ def test_extract_labels_and_values_with_no_values_set():
     )
 
     assert len(labels_and_values) == 6
-    assert labels_and_values[0] == FieldLabelAndValue(
-        label=AUDITOR_LABEL, value=None
-    )
+    assert labels_and_values[0] == FieldLabelAndValue(label=AUDITOR_LABEL, value=None)
     assert labels_and_values[1] == FieldLabelAndValue(
         label=SECTOR_LABEL, value="Unknown"
     )
