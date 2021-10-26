@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .forms import CheckCreateForm, CheckUpdateMetadataForm, CheckUpdatePagesForm
+from .forms import CheckCreateForm, CheckUpdateMetadataForm, CheckUpdatePagesForm, CheckPageFormset, CheckPageFormsetOneExtra
 from .models import (
     Check,
     Page,
@@ -154,9 +154,50 @@ class CheckPagesUpdateView(CheckUpdateView):
     form_class: Type[CheckUpdatePagesForm] = CheckUpdatePagesForm
     template_name: str = "checks/forms/pages.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            pages_formset = CheckPageFormset(self.request.POST)
+        else:
+            pages: QuerySet[Contact] = self.object.page_check.filter(  # type: ignore
+                is_deleted=False
+            )
+            if "add_extra" in self.request.GET:
+                pages_formset = CheckPageFormsetOneExtra(queryset=pages)
+            else:
+                pages_formset = CheckPageFormset(queryset=pages)
+        context["pages_formset"] = pages_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        pages_formset = context["pages_formset"]
+        check: Check = form.save()
+        if pages_formset.is_valid():
+            pages: List[Page] = pages_formset.save(commit=False)
+            for page in pages:
+                if not page.check_id:  # type: ignore
+                    page.parent_check = check
+                    page.save()
+                    record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+                else:
+                    record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                    page.save()
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
+        if "save_exit" in self.request.POST:
+            url = reverse_lazy(
+                "checks:edit-check-pages",
+                kwargs={
+                    "pk": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                },
+            )
+        elif "save_continue" in self.request.POST:
             url = reverse_lazy(
                 "checks:edit-check-pages",
                 kwargs={
@@ -165,13 +206,7 @@ class CheckPagesUpdateView(CheckUpdateView):
                 },
             )
         else:
-            url = reverse_lazy(
-                "checks:check-detail",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url = f"{reverse_lazy('checks:edit-check-pages', kwargs={'pk': self.object.id, 'case_id': self.object.case.id})}?add_extra=true"  # type: ignore
         return url
 
 

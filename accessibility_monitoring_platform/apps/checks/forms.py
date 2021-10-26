@@ -10,23 +10,18 @@ from django.db.models import QuerySet
 
 from ..common.forms import (
     VersionForm,
-    AMPChoiceCheckboxWidget,
-    AMPModelChoiceField,
-    AMPAuditorModelChoiceField,
-    AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPDateField,
-    AMPDateSentField,
     AMPDatePageCompleteField,
-    AMPDateRangeForm,
     AMPURLField,
 )
 from .models import (
     Check,
+    Page,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
     CHECK_TYPE_CHOICES,
@@ -79,6 +74,31 @@ class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
             "check_metadata_complete_date",
         ]
 
+
+class CheckPageUpdateForm(forms.ModelForm):
+    """
+    Form for updating a page
+    """
+
+    name = AMPCharFieldWide(label="Page name")
+    url = AMPURLField(label="URL")
+    not_found = AMPChoiceCheckboxField(label="Not found?")
+
+    class Meta:
+        model = Page
+        fields = [
+            "name",
+            "url",
+            "not_found",
+        ]
+
+
+CheckPageFormset: Any = forms.modelformset_factory(
+    Page, CheckPageUpdateForm, extra=0
+)
+CheckPageFormsetOneExtra: Any = forms.modelformset_factory(
+    Page, CheckPageUpdateForm, extra=1
+)
 
 class CheckUpdatePagesForm(VersionForm):
     """
