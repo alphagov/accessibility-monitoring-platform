@@ -33,7 +33,7 @@ from .models import (
 )
 
 
-class CheckCreateForm(VersionForm):
+class CheckCreateForm(forms.ModelForm):
     """
     Form for creating a check
     """
@@ -48,7 +48,6 @@ class CheckCreateForm(VersionForm):
     class Meta:
         model = Check
         fields: List[str] = [
-            "version",
             "date_of_test",
             "description",
             "screen_size",
@@ -58,7 +57,7 @@ class CheckCreateForm(VersionForm):
         ]
 
 
-class CheckUpdateMetadataForm(CheckCreateForm):
+class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
     """
     Form for editing check metadata
     """
