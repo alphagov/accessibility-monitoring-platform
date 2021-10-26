@@ -37,6 +37,7 @@ PAGE_TITLES_BY_URL = {
     "/websites/": "Query domain register",
     "/cases/[id]/checks/create/": "Edit test | Create test",
     "/cases/[id]/checks/[id]/view/": "View test",
+    "/cases/[id]/checks/[id]/edit-check-metadata/": "Edit test | Test metadata",
 }
 
 

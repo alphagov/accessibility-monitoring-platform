@@ -3,7 +3,6 @@ Utilities for checks app
 """
 
 from datetime import date
-from functools import partial
 from typing import List, Union
 
 from django import forms
@@ -15,6 +14,7 @@ from ..common.utils import FieldLabelAndValue
 
 EXTRA_LABELS = {}
 EXCLUDED_FIELDS: List[str] = [
+    "version",
     "check_metadata_complete_date",
 ]
 

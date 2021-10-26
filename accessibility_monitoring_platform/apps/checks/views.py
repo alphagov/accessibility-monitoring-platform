@@ -5,7 +5,7 @@ from functools import partial
 from typing import Any, Dict, List, Type
 
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
@@ -22,6 +22,24 @@ from ..common.utils import (  # type: ignore
     record_model_create_event,
 )
 from .utils import extract_labels_and_values
+
+
+class CheckUpdateView(UpdateView):
+    """
+    View to update check
+    """
+
+    model: Type[Check] = Check
+    context_object_name: str = "check"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add event on change of check"""
+        if form.changed_data:
+            self.object: Check = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class CheckCreateView(CreateView):
     """
@@ -89,14 +107,33 @@ class CheckDetailView(DetailView):
         return context
 
 
-class CheckMetadataUpdateView(UpdateView):
+class CheckMetadataUpdateView(CheckUpdateView):
     """
     View to update check metadata
     """
 
-    model: Type[Check] = Check
-    context_object_name: str = "check"
+    form_class: Type[CheckUpdateMetadataForm] = CheckUpdateMetadataForm
     template_name: str = "checks/forms/metadata.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url = reverse_lazy(
+                "checks:edit-check-pages",
+                kwargs={
+                    "pk": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                },
+            )
+        else:
+            url = reverse_lazy(
+                "checks:check-detail",
+                kwargs={
+                    "pk": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                }
+            )
+        return url
 
 
 class CheckListView(ListView):

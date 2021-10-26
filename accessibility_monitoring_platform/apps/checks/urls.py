@@ -23,11 +23,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/view/", login_required(CheckDetailView.as_view()), name="check-detail"
     ),
     path(
-        "<int:pk>/edit-check-metadata/",
-        login_required(CheckMetadataUpdateView.as_view()),
-        name="edit-check-metadata",
-    ),
-    path(
         "<int:pk>/delete-check/",
         login_required(delete_check),
         name="delete-check",
@@ -36,5 +31,15 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/restore-check/",
         login_required(restore_check),
         name="restore-check",
+    ),
+    path(
+        "<int:pk>/edit-check-metadata/",
+        login_required(CheckMetadataUpdateView.as_view()),
+        name="edit-check-metadata",
+    ),
+    path(
+        "<int:pk>/edit-check-pages/",
+        login_required(CheckMetadataUpdateView.as_view()),
+        name="edit-check-pages",
     ),
 ]
