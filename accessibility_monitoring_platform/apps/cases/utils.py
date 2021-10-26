@@ -4,9 +4,8 @@ Utility functions for cases app
 
 from collections import namedtuple
 import csv
-from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, ClassVar, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
@@ -15,7 +14,7 @@ from django.http import HttpResponse
 
 from ..common.forms import AMPTextField, AMPURLField
 from ..common.models import Sector
-from ..common.utils import build_filters
+from ..common.utils import build_filters, FieldLabelAndValue
 
 from .forms import (
     CaseDetailUpdateForm,
@@ -132,20 +131,6 @@ CAPITALISE_FIELDS = [
 ]
 
 
-@dataclass
-class CaseFieldLabelAndValue:
-    """Data to use in html table row of View case page"""
-
-    value: Union[str, date, Sector, None]
-    label: Union[str, None]
-    type: str = "text"
-    extra_label: str = ""
-    DATE_TYPE: ClassVar[str] = "date"
-    NOTES_TYPE: ClassVar[str] = "notes"
-    URL_TYPE: ClassVar[str] = "url"
-    TEXT_TYPE: ClassVar[str] = "text"
-
-
 def extract_labels_and_values(
     case: Case,
     form: Union[
@@ -154,13 +139,13 @@ def extract_labels_and_values(
         CaseReportDetailsUpdateForm,
         CaseFinalDecisionUpdateForm,
     ],
-) -> List[CaseFieldLabelAndValue]:
+) -> List[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
-    display_rows: List[CaseFieldLabelAndValue] = []
+    display_rows: List[FieldLabelAndValue] = []
     for field_name, field in form.fields.items():
         if field_name in EXCLUDED_FIELDS:
             continue
-        type_of_value = CaseFieldLabelAndValue.TEXT_TYPE
+        type_of_value = FieldLabelAndValue.TEXT_TYPE
         value = getattr(case, field_name)
         if isinstance(value, User):
             value = value.get_full_name()
@@ -173,13 +158,13 @@ def extract_labels_and_values(
         elif isinstance(field, forms.ChoiceField):
             value = getattr(case, f"get_{field_name}_display")()
         elif isinstance(field, AMPURLField):
-            type_of_value = CaseFieldLabelAndValue.URL_TYPE
+            type_of_value = FieldLabelAndValue.URL_TYPE
         elif isinstance(field, AMPTextField):
-            type_of_value = CaseFieldLabelAndValue.NOTES_TYPE
+            type_of_value = FieldLabelAndValue.NOTES_TYPE
         elif isinstance(value, date):
-            type_of_value = CaseFieldLabelAndValue.DATE_TYPE
+            type_of_value = FieldLabelAndValue.DATE_TYPE
         display_rows.append(
-            CaseFieldLabelAndValue(
+            FieldLabelAndValue(
                 type=type_of_value,
                 label=field.label,
                 value=value,

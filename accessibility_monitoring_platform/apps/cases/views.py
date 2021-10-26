@@ -22,6 +22,7 @@ from django.views.generic.list import ListView
 
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
+    FieldLabelAndValue,
     format_date,
     download_as_csv,
     extract_domain_from_url,
@@ -51,7 +52,6 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
 )
 from .utils import (
-    CaseFieldLabelAndValue,
     extract_labels_and_values,
     get_sent_date,
     download_ehrc_cases,
@@ -164,25 +164,25 @@ class CaseDetailView(DetailView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["contacts"] = self.object.contact_set.filter(is_deleted=False)  # type: ignore
-        case_details_prefix: List[CaseFieldLabelAndValue] = [
-            CaseFieldLabelAndValue(
+        case_details_prefix: List[FieldLabelAndValue] = [
+            FieldLabelAndValue(
                 label="Date created",
                 value=self.object.created,  # type: ignore
-                type=CaseFieldLabelAndValue.DATE_TYPE,
+                type=FieldLabelAndValue.DATE_TYPE,
             ),
-            CaseFieldLabelAndValue(
+            FieldLabelAndValue(
                 label="Status", value=self.object.get_status_display()  # type: ignore
             ),
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
-        qa_process_rows: List[CaseFieldLabelAndValue] = get_rows(
+        qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
         )
         qa_auditor_name: str = self.object.reviewer.get_full_name() if self.object.reviewer else "None"  # type: ignore
         qa_process_rows.insert(
             1,
-            CaseFieldLabelAndValue(
+            FieldLabelAndValue(
                 label="QA Auditor who approved report",
                 value=qa_auditor_name,
             ),

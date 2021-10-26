@@ -1,4 +1,5 @@
 """ Common utility functions """
+from dataclasses import dataclass
 from datetime import date, datetime
 import re
 import csv
@@ -6,6 +7,7 @@ import json
 import pytz
 from typing import (
     Any,
+    ClassVar,
     Dict,
     List,
     Match,
@@ -27,6 +29,20 @@ from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
 from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
+
+
+@dataclass
+class FieldLabelAndValue:
+    """Data to use in html table row of view details pages"""
+
+    value: Union[str, date, None]
+    label: Union[str, None]
+    type: str = "text"
+    extra_label: str = ""
+    DATE_TYPE: ClassVar[str] = "date"
+    NOTES_TYPE: ClassVar[str] = "notes"
+    URL_TYPE: ClassVar[str] = "url"
+    TEXT_TYPE: ClassVar[str] = "text"
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:

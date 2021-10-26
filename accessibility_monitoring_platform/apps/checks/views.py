@@ -1,7 +1,8 @@
 """
 Views for checks app (called tests by users)
 """
-from typing import Type
+from functools import partial
+from typing import Any, Dict, List, Type
 
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse
@@ -11,14 +12,16 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .forms import CheckCreateForm
+from .forms import CheckCreateForm, CheckUpdateMetadataForm
 from .models import Check, EXEMPTION_DEFAULT, TYPE_DEFAULT
-from ..cases.models import Case
 
+from ..cases.models import Case
 from ..common.utils import (  # type: ignore
+    FieldLabelAndValue,
     record_model_update_event,
     record_model_create_event,
 )
+from .utils import extract_labels_and_values
 
 class CheckCreateView(CreateView):
     """
@@ -28,7 +31,7 @@ class CheckCreateView(CreateView):
     model: Type[Check] = Check
     context_object_name: str = "check"
     form_class: Type[CheckCreateForm] = CheckCreateForm
-    template_name: str = "checks/create_form.html"
+    template_name: str = "checks/forms/create.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
@@ -66,14 +69,34 @@ class CheckDetailView(DetailView):
     model: Type[Check] = Check
     context_object_name: str = "check"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        get_rows: Callable = partial(extract_labels_and_values, check=self.object)  # type: ignore
 
-class CheckUpdateView(UpdateView):
+        check_metadata_rows: List[FieldLabelAndValue] = get_rows(
+            form=CheckUpdateMetadataForm()
+        )
+        check_metadata_rows.insert(
+            1,
+            FieldLabelAndValue(
+                label="Auditor",
+                value=self.object.case.auditor,  # type: ignore
+            ),
+        )
+
+        context["check_metadata_rows"] = check_metadata_rows
+        return context
+
+
+class CheckMetadataUpdateView(UpdateView):
     """
-    View to update check
+    View to update check metadata
     """
 
     model: Type[Check] = Check
     context_object_name: str = "check"
+    template_name: str = "checks/forms/metadata.html"
 
 
 class CheckListView(ListView):

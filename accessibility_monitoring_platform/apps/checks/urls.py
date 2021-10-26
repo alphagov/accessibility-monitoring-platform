@@ -10,7 +10,7 @@ from .views import (
     CheckCreateView,
     CheckDetailView,
     CheckListView,
-    CheckUpdateView,
+    CheckMetadataUpdateView,
     delete_check,
     restore_check,
 )
@@ -24,7 +24,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-check-metadata/",
-        login_required(CheckUpdateView.as_view()),
+        login_required(CheckMetadataUpdateView.as_view()),
         name="edit-check-metadata",
     ),
     path(

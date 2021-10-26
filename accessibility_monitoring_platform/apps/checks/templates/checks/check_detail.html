@@ -59,27 +59,10 @@
             {% include "cases/helpers/messages.html" %}
         </div>
 
-        {% if case.no_psb_contact == 'yes' %}
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">Warning</span>
-                    Public sector body is unresponsive and has been moved to equalities bodies correspondence
-                </strong>
-            </div>
-        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'cases/helpers/navbar.html' with current_page='view-details' %}
-                {% include 'cases/details/case_details.html' %}
-                {% include 'cases/details/testing_details.html' %}
-                {% include 'cases/details/report_details.html' %}
-                {% include 'cases/details/qa_process.html' %}
-                {% include 'cases/details/contact_details.html' %}
-                {% include 'cases/details/report_correspondence.html' %}
-                {% include 'cases/details/twelve_week_correspondence.html' %}
-                {% include 'cases/details/final_decision.html' %}
-                {% include 'cases/details/equality_bodies_correspondence.html' %}
+                {% include 'checks/helpers/navbar.html' with current_page='view-check' %}
+                {% include 'checks/details/metadata.html' %}
             </div>
         </div>
     </main>
