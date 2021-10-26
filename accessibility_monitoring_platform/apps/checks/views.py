@@ -12,8 +12,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .forms import CheckCreateForm, CheckUpdateMetadataForm
-from .models import Check, EXEMPTION_DEFAULT, TYPE_DEFAULT
+from .forms import CheckCreateForm, CheckUpdateMetadataForm, CheckUpdatePagesForm
+from .models import Check, Page, EXEMPTION_DEFAULT, PAGE_TYPE_DEFAULT, MANDATORY_PAGE_TYPES
 
 from ..cases.models import Case
 from ..common.utils import (  # type: ignore
@@ -61,12 +61,14 @@ class CheckCreateView(CreateView):
         """Initialise form fields"""
         form = super().get_form()
         form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
-        form.fields["type"].initial = TYPE_DEFAULT
+        form.fields["type"].initial = PAGE_TYPE_DEFAULT
         return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
+        for page_type in MANDATORY_PAGE_TYPES:
+            Page.objects.create(parent_check=self.object, type=page_type)  # type: ignore
         if "save_continue" in self.request.POST:
             url = reverse_lazy(
                 "checks:edit-check-metadata",
@@ -104,6 +106,7 @@ class CheckDetailView(DetailView):
         )
 
         context["check_metadata_rows"] = check_metadata_rows
+        context["pages"] = self.object.page_check.filter(is_deleted=False)  # type: ignore
         return context
 
 
@@ -136,14 +139,33 @@ class CheckMetadataUpdateView(CheckUpdateView):
         return url
 
 
-class CheckListView(ListView):
+class CheckPagesUpdateView(CheckUpdateView):
     """
-    View of list of checks
+    View to update check pages
     """
 
-    model: Type[Check] = Check
-    context_object_name: str = "checks"
-    paginate_by: int = 10
+    form_class: Type[CheckUpdatePagesForm] = CheckUpdatePagesForm
+    template_name: str = "checks/forms/pages.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url = reverse_lazy(
+                "checks:edit-check-pages",
+                kwargs={
+                    "pk": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                },
+            )
+        else:
+            url = reverse_lazy(
+                "checks:check-detail",
+                kwargs={
+                    "pk": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                }
+            )
+        return url
 
 
 def delete_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:

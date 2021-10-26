@@ -38,6 +38,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/checks/create/": "Edit test | Create test",
     "/cases/[id]/checks/[id]/view/": "View test",
     "/cases/[id]/checks/[id]/edit-check-metadata/": "Edit test | Test metadata",
+    "/cases/[id]/checks/[id]/edit-check-pages/": "Edit test | Pages",
 }
 
 

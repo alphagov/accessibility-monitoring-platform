@@ -29,7 +29,7 @@ from .models import (
     Check,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
-    TYPE_CHOICES,
+    CHECK_TYPE_CHOICES,
 )
 
 
@@ -43,7 +43,7 @@ class CheckCreateForm(forms.ModelForm):
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
     is_exemption = AMPChoiceRadioField(label="Exemptions?", choices=EXEMPTION_CHOICES)
     notes = AMPTextField(label="Notes")
-    type = AMPChoiceRadioField(label="Initital test or equality body retest?", choices=TYPE_CHOICES)
+    type = AMPChoiceRadioField(label="Initital test or equality body retest?", choices=CHECK_TYPE_CHOICES)
 
     class Meta:
         model = Check
@@ -75,4 +75,19 @@ class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
             "notes",
             "type",
             "check_metadata_complete_date",
+        ]
+
+
+class CheckUpdatePagesForm(VersionForm):
+    """
+    Form for editing check pages page
+    """
+
+    check_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Check
+        fields: List[str] = [
+            "version",
+            "check_pages_complete_date",
         ]

@@ -9,15 +9,14 @@ from django.urls.resolvers import URLPattern
 from .views import (
     CheckCreateView,
     CheckDetailView,
-    CheckListView,
     CheckMetadataUpdateView,
+    CheckPagesUpdateView,
     delete_check,
     restore_check,
 )
 
 app_name: str = "checks"
 urlpatterns: List[URLPattern] = [
-    path("", login_required(CheckListView.as_view()), name="check-list"),
     path("create/", login_required(CheckCreateView.as_view()), name="check-create"),
     path(
         "<int:pk>/view/", login_required(CheckDetailView.as_view()), name="check-detail"
@@ -39,7 +38,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-check-pages/",
-        login_required(CheckMetadataUpdateView.as_view()),
+        login_required(CheckPagesUpdateView.as_view()),
         name="edit-check-pages",
     ),
 ]

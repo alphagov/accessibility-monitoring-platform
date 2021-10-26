@@ -20,23 +20,39 @@ EXEMPTION_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     (EXEMPTION_DEFAULT, "Unknown"),
 ]
-TYPE_DEFAULT = "initial"
-TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TYPE_DEFAULT, "Initial"),
+CHECK_TYPE_DEFAULT = "initial"
+CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (CHECK_TYPE_DEFAULT, "Initial"),
     ("eq-retest", "Equality body retest"),
 ]
-
+PAGE_TYPE_DEFAULT = "page"
+PAGE_TYPE_HOME = "home"
+PAGE_TYPE_CONTACT = "contact"
+PAGE_TYPE_STATEMENT = "statement"
+PAGE_TYPE_PDF = "pdf"
+PAGE_TYPE_FORM = "form"
+PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (PAGE_TYPE_DEFAULT, "Page"),
+    (PAGE_TYPE_HOME, "Home page"),
+    (PAGE_TYPE_CONTACT, "Contact page"),
+    (PAGE_TYPE_STATEMENT, "Accessibility statement"),
+    (PAGE_TYPE_PDF, "PDF"),
+    ("form", "A form"),
+]
+MANDATORY_PAGE_TYPES: List[str] = [
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_STATEMENT,
+    PAGE_TYPE_PDF,
+    PAGE_TYPE_FORM,
+]
 
 class Check(VersionModel):
     """
     Model for test/check
     """
 
-    case = models.ForeignKey(
-        Case,
-        on_delete=models.CASCADE,
-        related_name="check_case",
-    )
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="check_case")
     is_deleted = models.BooleanField(default=False)
 
     # metadata page
@@ -51,8 +67,11 @@ class Check(VersionModel):
         max_length=20, choices=EXEMPTION_CHOICES, default=EXEMPTION_DEFAULT
     )
     notes = models.TextField(default="", blank=True)
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_DEFAULT)
+    type = models.CharField(max_length=20, choices=CHECK_TYPE_CHOICES, default=CHECK_TYPE_DEFAULT)
     check_metadata_complete_date = models.DateField(null=True, blank=True)
+
+    # pages page
+    check_pages_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -61,4 +80,27 @@ class Check(VersionModel):
         return str(f"{self.description} | #{self.id}")  # type: ignore
 
     def get_absolute_url(self):
-        return reverse("checks:check-metadata", kwargs={"pk": self.pk})
+        return reverse("checks:edit-check-metadata", kwargs={"pk": self.pk, "case_id": self.case.pk})
+
+
+class Page(VersionModel):
+    """
+    Model for test/check page
+    """
+
+    parent_check = models.ForeignKey(Check, on_delete=models.CASCADE, related_name="page_check")
+    is_deleted = models.BooleanField(default=False)
+
+    type = models.CharField(max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_DEFAULT)
+    name = models.TextField(default="", blank=True)
+    url = models.TextField(default="", blank=True)
+    not_found = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return str(f"{self.parent_check} | {self.type} | #{self.pk}")  # type: ignore
+
+    def get_absolute_url(self):
+        return reverse("checks:edit-check-page", kwargs={"pk": self.check.pk, "case_id": self.check.case.pk })
