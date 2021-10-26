@@ -19,9 +19,9 @@ from ...common.forms import (
     AMPURLField,
     AMPAuditorModelChoiceField,
 )
+from ...common.utils import FieldLabelAndValue
 from ..models import Case, Contact, TEST_TYPE_CHOICES
 from ..utils import (
-    CaseFieldLabelAndValue,
     extract_labels_and_values,
     get_sent_date,
     filter_cases,
@@ -133,32 +133,32 @@ def test_extract_labels_and_values():
         report_sent_date=date(2020, 4, 1),
     )
 
-    labels_and_values: List[CaseFieldLabelAndValue] = extract_labels_and_values(
+    labels_and_values: List[FieldLabelAndValue] = extract_labels_and_values(
         case=case, form=CaseForm()  # type: ignore
     )
 
     assert len(labels_and_values) == 6
-    assert labels_and_values[0] == CaseFieldLabelAndValue(
+    assert labels_and_values[0] == FieldLabelAndValue(
         label=AUDITOR_LABEL, value=auditor.get_full_name()
     )
-    assert labels_and_values[1] == CaseFieldLabelAndValue(
+    assert labels_and_values[1] == FieldLabelAndValue(
         label=SECTOR_LABEL, value=sector.name
     )
-    assert labels_and_values[2] == CaseFieldLabelAndValue(
+    assert labels_and_values[2] == FieldLabelAndValue(
         label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
     )
-    assert labels_and_values[3] == CaseFieldLabelAndValue(
+    assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
         value=case.home_page_url,
-        type=CaseFieldLabelAndValue.URL_TYPE,
+        type=FieldLabelAndValue.URL_TYPE,
     )
-    assert labels_and_values[4] == CaseFieldLabelAndValue(
-        label=NOTES_LABEL, value=case.notes, type=CaseFieldLabelAndValue.NOTES_TYPE
+    assert labels_and_values[4] == FieldLabelAndValue(
+        label=NOTES_LABEL, value=case.notes, type=FieldLabelAndValue.NOTES_TYPE
     )
-    assert labels_and_values[5] == CaseFieldLabelAndValue(
+    assert labels_and_values[5] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
         value=case.report_sent_date,
-        type=CaseFieldLabelAndValue.DATE_TYPE,
+        type=FieldLabelAndValue.DATE_TYPE,
     )
 
 
@@ -168,29 +168,29 @@ def test_extract_labels_and_values_with_no_values_set():
     """
     case: Case = Case()
 
-    labels_and_values: List[CaseFieldLabelAndValue] = extract_labels_and_values(
+    labels_and_values: List[FieldLabelAndValue] = extract_labels_and_values(
         case=case, form=CaseForm()  # type: ignore
     )
 
     assert len(labels_and_values) == 6
-    assert labels_and_values[0] == CaseFieldLabelAndValue(
+    assert labels_and_values[0] == FieldLabelAndValue(
         label=AUDITOR_LABEL, value=None
     )
-    assert labels_and_values[1] == CaseFieldLabelAndValue(
+    assert labels_and_values[1] == FieldLabelAndValue(
         label=SECTOR_LABEL, value="Unknown"
     )
-    assert labels_and_values[2] == CaseFieldLabelAndValue(
+    assert labels_and_values[2] == FieldLabelAndValue(
         label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
     )
-    assert labels_and_values[3] == CaseFieldLabelAndValue(
+    assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
         value="",
-        type=CaseFieldLabelAndValue.URL_TYPE,
+        type=FieldLabelAndValue.URL_TYPE,
     )
-    assert labels_and_values[4] == CaseFieldLabelAndValue(
-        label=NOTES_LABEL, value="", type=CaseFieldLabelAndValue.NOTES_TYPE
+    assert labels_and_values[4] == FieldLabelAndValue(
+        label=NOTES_LABEL, value="", type=FieldLabelAndValue.NOTES_TYPE
     )
-    assert labels_and_values[5] == CaseFieldLabelAndValue(
+    assert labels_and_values[5] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
         value=None,
     )
