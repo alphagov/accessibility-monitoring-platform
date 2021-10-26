@@ -6,7 +6,7 @@ from typing import List, Tuple
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import Case
+from ..cases.models import Case, DELETE_DECISION_CHOICES, DELETE_DECISION_DEFAULT
 from ..common.models import VersionModel
 
 SCREEN_SIZE_DEFAULT = "15in"
@@ -32,12 +32,14 @@ class Check(VersionModel):
     Model for test/check
     """
 
-    # metadata page
     case = models.ForeignKey(
         Case,
         on_delete=models.CASCADE,
         related_name="check_case",
     )
+    is_deleted = models.BooleanField(default=False)
+
+    # metadata page
     date_of_test = models.DateTimeField(null=True, blank=True)
     description = models.TextField(default="", blank=True)
     screen_size = models.CharField(

@@ -11,6 +11,8 @@ from .views import (
     CheckDetailView,
     CheckListView,
     CheckUpdateView,
+    delete_check,
+    restore_check,
 )
 
 app_name: str = "checks"
@@ -24,5 +26,15 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-check-metadata/",
         login_required(CheckUpdateView.as_view()),
         name="edit-check-metadata",
+    ),
+    path(
+        "<int:pk>/delete-check/",
+        login_required(delete_check),
+        name="delete-check",
+    ),
+    path(
+        "<int:pk>/restore-check/",
+        login_required(restore_check),
+        name="restore-check",
     ),
 ]

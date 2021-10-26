@@ -315,7 +315,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["checks"] = self.object.check_case.all()  # type: ignore
+        context["checks"] = self.object.check_case.filter(is_deleted=False)  # type: ignore
         return context
 
     def get_success_url(self) -> str:

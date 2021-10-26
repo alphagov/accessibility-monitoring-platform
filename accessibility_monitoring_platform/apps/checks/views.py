@@ -4,7 +4,8 @@ Views for checks app (called tests by users)
 from typing import Type
 
 from django.forms.models import ModelForm
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
@@ -83,3 +84,39 @@ class CheckListView(ListView):
     model: Type[Check] = Check
     context_object_name: str = "checks"
     paginate_by: int = 10
+
+
+def delete_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+    """
+    Delete check
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of case
+        pk (int): Id of check to delete
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    check: Check = get_object_or_404(Check, id=pk)
+    check.is_deleted = True
+    check.save()
+    return redirect(reverse_lazy("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
+
+
+def restore_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+    """
+    Restore deleted check
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of case
+        pk (int): Id of check to restore
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    check: Check = get_object_or_404(Check, id=pk)
+    check.is_deleted = False
+    check.save()
+    return redirect(reverse_lazy("checks:check-detail", kwargs={"case_id": case_id, "pk": check.id}))  # type: ignore
