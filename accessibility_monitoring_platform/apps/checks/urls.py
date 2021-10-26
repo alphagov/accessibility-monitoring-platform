@@ -21,8 +21,8 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/view/", login_required(CheckDetailView.as_view()), name="check-detail"
     ),
     path(
-        "<int:pk>/edit-check/",
+        "<int:pk>/edit-check-metadata/",
         login_required(CheckUpdateView.as_view()),
-        name="edit-check",
+        name="edit-check-metadata",
     ),
 ]

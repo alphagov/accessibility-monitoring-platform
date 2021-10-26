@@ -312,6 +312,12 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["checks"] = self.object.check_case.all()  # type: ignore
+        return context
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:

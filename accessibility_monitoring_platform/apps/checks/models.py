@@ -22,7 +22,7 @@ EXEMPTION_CHOICES: List[Tuple[str, str]] = [
 ]
 TYPE_DEFAULT = "initial"
 TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TYPE_DEFAULT, "Unknown"),
+    (TYPE_DEFAULT, "Initial"),
     ("eq-retest", "Equality body retest"),
 ]
 

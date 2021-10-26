@@ -43,7 +43,25 @@ class CheckCreateForm(forms.ModelForm):
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
     is_exemption = AMPChoiceRadioField(label="Exemptions?", choices=EXEMPTION_CHOICES)
     notes = AMPTextField(label="Notes")
-    type = AMPChoiceRadioField(label="Exemptions?", choices=TYPE_CHOICES)
+    type = AMPChoiceRadioField(label="Initital test or equality body retest?", choices=TYPE_CHOICES)
+
+    class Meta:
+        model = Check
+        fields: List[str] = [
+            "date_of_test",
+            "description",
+            "screen_size",
+            "is_exemption",
+            "notes",
+            "type",
+        ]
+
+
+class CheckUpdateMetadataForm(CheckCreateForm):
+    """
+    Form for editing check metadata
+    """
+
     check_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -57,4 +75,3 @@ class CheckCreateForm(forms.ModelForm):
             "type",
             "check_metadata_complete_date",
         ]
-

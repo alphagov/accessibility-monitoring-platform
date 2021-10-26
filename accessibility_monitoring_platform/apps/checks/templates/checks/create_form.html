@@ -6,57 +6,47 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">{{ page_heading }}</h1>
+                {% include "cases/helpers/edit_header.html" %}
                 {% include 'common/error_summary.html' %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <form method="post" action="{% url 'checks:check-create' %}">
-                {% csrf_token %}
-
+        <form method="post" action="{% url 'checks:check-create' case.id %}">
+            {% csrf_token %}
+            <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     {% include 'common/amp_form_snippet.html' %}
                 </div>
 
-                <div class="govuk-grid-column-full">
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and continue case"
-                                name="save_continue_case"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and create another case"
-                                name="save_new_case"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:case-list' %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
-                        </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Save and continue case"
+                            name="save_continue"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        />
+                        <input
+                            type="submit"
+                            value="Save and exit"
+                            name="save_exit"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        />
+                        <a
+                            href="{% url 'cases:edit-test-results' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Cancel
+                        </a>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </main>
 </div>
 {% endblock %}

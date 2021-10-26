@@ -35,10 +35,11 @@ PAGE_TITLES_BY_URL = {
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
     "/websites/": "Query domain register",
+    "/cases/[id]/checks/create/": "Edit test | Create test",
 }
 
 
-def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
+def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform, Case, None]]:
     """
     Lookup the page title using URL path and place it in context for template rendering.
     Also include search form for top menu, name of prototype and platform settings.
@@ -49,10 +50,11 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
     )
 
     page_title: str = page_heading
+    case: Union[Case, None] = None
     if url_without_id.startswith("/cases/[id]/"):
         try:
-            case: Case = Case.objects.get(id=request.path.split("/")[2])
-            page_title: str = f"{case.organisation_name} | {page_heading}"
+            case = Case.objects.get(id=request.path.split("/")[2])
+            page_title: str = f"{case.organisation_name} | {page_heading}"  # type: ignore
         except Case.DoesNotExist:
             pass
 
@@ -78,4 +80,5 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
         "platform": platform,
+        "case": case,
     }
