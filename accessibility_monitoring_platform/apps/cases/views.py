@@ -191,7 +191,7 @@ class CaseDetailView(DetailView):
                             "case_id": check.case.id,  # type: ignore
                         },
                     ),
-                    extra_label=check.get_type_display()  # type: ignore
+                    extra_label=check.get_type_display(),  # type: ignore
                 )
             )
 
@@ -210,7 +210,9 @@ class CaseDetailView(DetailView):
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
-        context["testing_details_rows"] = check_rows + get_rows(form=CaseTestResultsUpdateForm())
+        context["testing_details_rows"] = check_rows + get_rows(
+            form=CaseTestResultsUpdateForm()
+        )
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())

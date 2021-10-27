@@ -12,7 +12,13 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .forms import CheckCreateForm, CheckUpdateMetadataForm, CheckUpdatePagesForm, CheckPageFormset, CheckPageFormsetOneExtra
+from .forms import (
+    CheckCreateForm,
+    CheckUpdateMetadataForm,
+    CheckUpdatePagesForm,
+    CheckPageFormset,
+    CheckPageFormsetOneExtra,
+)
 from .models import (
     Check,
     Page,

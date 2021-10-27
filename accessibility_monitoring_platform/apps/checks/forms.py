@@ -93,12 +93,11 @@ class CheckPageUpdateForm(forms.ModelForm):
         ]
 
 
-CheckPageFormset: Any = forms.modelformset_factory(
-    Page, CheckPageUpdateForm, extra=0
-)
+CheckPageFormset: Any = forms.modelformset_factory(Page, CheckPageUpdateForm, extra=0)
 CheckPageFormsetOneExtra: Any = forms.modelformset_factory(
     Page, CheckPageUpdateForm, extra=1
 )
+
 
 class CheckUpdatePagesForm(VersionForm):
     """
