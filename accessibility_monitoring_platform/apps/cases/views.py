@@ -20,6 +20,7 @@ from django.views.generic.list import ListView
 
 # from ..notifications.utils import read_notification
 
+from ..checks.models import Check
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
     FieldLabelAndValue,
@@ -176,6 +177,24 @@ class CaseDetailView(DetailView):
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
+        checks: QuerySet[Check] = self.object.check_case.filter(is_deleted=False)  # type: ignore
+        check_rows: List[FieldLabelAndValue] = []
+        for count, check in enumerate(checks, start=1):
+            check_rows.append(
+                FieldLabelAndValue(
+                    type=FieldLabelAndValue.URL_TYPE,
+                    label=f"Test {count}",
+                    value=reverse_lazy(
+                        "checks:check-detail",
+                        kwargs={
+                            "pk": check.id,  # type: ignore
+                            "case_id": check.case.id,  # type: ignore
+                        },
+                    ),
+                    extra_label=check.get_type_display()  # type: ignore
+                )
+            )
+
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
         )
@@ -191,7 +210,7 @@ class CaseDetailView(DetailView):
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
-        context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
+        context["testing_details_rows"] = check_rows + get_rows(form=CaseTestResultsUpdateForm())
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
