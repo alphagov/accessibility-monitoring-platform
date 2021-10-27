@@ -208,7 +208,6 @@ class Case(VersionModel):
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
-    service_name = models.TextField(default="", blank=True)
     psb_location = models.CharField(
         max_length=20,
         choices=PSB_LOCATION_CHOICES,

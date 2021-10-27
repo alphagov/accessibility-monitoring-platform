@@ -152,7 +152,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
-    service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -168,7 +167,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "auditor",
             "home_page_url",
             "organisation_name",
-            "service_name",
             "enforcement_body",
             "psb_location",
             "sector",
