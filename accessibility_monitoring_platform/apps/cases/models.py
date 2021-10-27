@@ -303,7 +303,7 @@ class Case(VersionModel):
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
-    # correspondence_notes from report correspondence page
+    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_response_state = models.CharField(
         max_length=20,
         choices=TWELVE_WEEK_RESPONSE_CHOICES,

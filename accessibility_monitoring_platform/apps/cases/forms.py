@@ -413,7 +413,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     twelve_week_correspondence_acknowledged_date = AMPDateField(
         label="12 week update received", help_text="This field affects the case status"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
+    twelve_week_correspondence_notes = AMPTextField(label="12 week correspondence notes")
     twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
         choices=TWELVE_WEEK_RESPONSE_CHOICES,
@@ -428,7 +428,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_4_week_chaser_sent_date",
             "twelve_week_correspondence_acknowledged_date",
-            "correspondence_notes",
+            "twelve_week_correspondence_notes",
             "twelve_week_response_state",
             "twelve_week_correspondence_complete_date",
         ]
