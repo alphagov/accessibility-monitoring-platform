@@ -587,7 +587,7 @@ class TestCaseUpdates(TestCases):
             "twelve_week_correspondence_acknowledged_date_2"
         ).send_keys(TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY)
 
-        self.driver.find_element_by_name("correspondence_notes").send_keys(
+        self.driver.find_element_by_name("twelve_week_correspondence_notes").send_keys(
             TWELVE_WEEK_CORRESPONDENCE_NOTES
         )
         self.driver.find_element_by_css_selector(
