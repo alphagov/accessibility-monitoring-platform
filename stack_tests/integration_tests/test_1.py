@@ -27,7 +27,6 @@ ORGANISATION_NAME = "Example Organisation"
 HOME_PAGE_URL = "https://example.com"
 ENFORCEMENT_BODY_VALUE = "ehrc"
 ENFORCEMENT_BODY_LABEL = "Equality and Human Rights Commission"
-SERVICE_NAME = "Service name"
 ZENDESK_URL = "https://zendesk.com"
 TRELLO_URL = "https://trello.com"
 CASE_DETAILS_NOTES = """I am
@@ -347,7 +346,6 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_link_text("Edit case details").click()
 
         self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("service_name").send_keys(SERVICE_NAME)
         self.driver.find_element_by_css_selector(
             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
         ).click()
@@ -363,7 +361,6 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_exit").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue(SERVICE_NAME in self.driver.page_source)
         self.assertTrue(ENFORCEMENT_BODY_LABEL in self.driver.page_source)
         self.assertTrue(TRELLO_URL in self.driver.page_source)
         self.assertTrue(CASE_DETAILS_NOTES in self.driver.page_source)
