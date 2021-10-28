@@ -152,7 +152,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
-    service_name = AMPCharFieldWide(label="Website, app or service name")
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -168,7 +167,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "auditor",
             "home_page_url",
             "organisation_name",
-            "service_name",
             "enforcement_body",
             "psb_location",
             "sector",
@@ -261,7 +259,9 @@ class CaseQAProcessUpdateForm(VersionForm):
     """
 
     report_approved_status = AMPChoiceRadioField(
-        label="Report approved?", choices=REPORT_APPROVED_STATUS_CHOICES
+        label="Report approved?",
+        choices=REPORT_APPROVED_STATUS_CHOICES,
+        help_text="This field affects the case status",
     )
     reviewer_notes = AMPTextField(label="QA notes")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
@@ -387,6 +387,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to move this case to the equality bodies correspondence stage?",
         choices=BOOLEAN_CHOICES,
+        help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Move this case onto equality bodies correspondence stage?"}
         ),
