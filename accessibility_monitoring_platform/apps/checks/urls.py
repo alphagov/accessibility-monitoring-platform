@@ -11,6 +11,9 @@ from .views import (
     CheckDetailView,
     CheckMetadataUpdateView,
     CheckPagesUpdateView,
+    CheckManualUpdateView,
+    CheckAxeUpdateView,
+    CheckPdfUpdateView,
     delete_check,
     restore_check,
 )
@@ -40,5 +43,20 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-check-pages/",
         login_required(CheckPagesUpdateView.as_view()),
         name="edit-check-pages",
+    ),
+    path(
+        "<int:pk>/edit-check-manual/",
+        login_required(CheckManualUpdateView.as_view()),
+        name="edit-check-manual",
+    ),
+    path(
+        "<int:pk>/edit-check-axe/",
+        login_required(CheckAxeUpdateView.as_view()),
+        name="edit-check-axe",
+    ),
+    path(
+        "<int:pk>/edit-check-pdf/",
+        login_required(CheckPdfUpdateView.as_view()),
+        name="edit-check-pdf",
     ),
 ]

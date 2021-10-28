@@ -39,6 +39,9 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/checks/[id]/view/": "View test",
     "/cases/[id]/checks/[id]/edit-check-metadata/": "Edit test | Test metadata",
     "/cases/[id]/checks/[id]/edit-check-pages/": "Edit test | Pages",
+    "/cases/[id]/checks/[id]/edit-check-manual/": "Edit test | Manual tests",
+    "/cases/[id]/checks/[id]/edit-check-axe/": "Edit test | Axe and colour contrast tests",
+    "/cases/[id]/checks/[id]/edit-check-pdf/": "Edit test | PDF tests",
 }
 
 

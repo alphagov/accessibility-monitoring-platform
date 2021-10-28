@@ -4,12 +4,18 @@
         <ul class="govuk-list">
             {% include './navbar_content.html' with id='check-metadata' edit_name='checks:edit-check-metadata' name='Test metadata' complete=check.check_metadata_complete_date %}
             {% include './navbar_content.html' with id='check-pages' edit_name='checks:edit-check-pages' name='Pages' complete=check.check_pages_complete_date %}
+            {% include './navbar_content.html' with id='check-manual' edit_name='checks:edit-check-manual' name='Manual tests' complete=check.check_manual_complete_date %}
+            {% include './navbar_content.html' with id='check-axe' edit_name='checks:edit-check-axe' name='Axe and colour contrast tests' complete=check.check_axe_complete_date %}
+            {% include './navbar_content.html' with id='check-pdf' edit_name='checks:edit-check-pdf' name='PDF tests' complete=check.check_pdf_complete_date %}
         </ul>
     {% else %}
         <h2 class="govuk-heading-m bottom-margin-5">Test steps</h2>
         <ul class="govuk-list">
             {% include './navbar_step.html' with edit_name='checks:edit-check-metadata' name='Test metadata' complete=check.check_metadata_complete_date %}
             {% include './navbar_step.html' with edit_name='checks:edit-check-pages' name='Pages' complete=check.check_pages_complete_date %}
+            {% include './navbar_step.html' with edit_name='checks:edit-check-manual' name='Manual tests' complete=check.check_manual_complete_date %}
+            {% include './navbar_step.html' with edit_name='checks:edit-check-axe' name='Axe and colour contrast tests' complete=check.check_axe_complete_date %}
+            {% include './navbar_step.html' with edit_name='checks:edit-check-pdf' name='PDF tests' complete=check.check_pdf_complete_date %}
         </ul>
         <h2 class="govuk-heading-m  bottom-margin-5">Frequently used links</h2>
         <ul class="govuk-list">

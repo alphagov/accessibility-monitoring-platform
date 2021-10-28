@@ -135,3 +135,48 @@ class CheckUpdatePagesForm(VersionForm):
             "version",
             "check_pages_complete_date",
         ]
+
+
+class CheckUpdateManualForm(VersionForm):
+    """
+    Form for editing manual checks
+    """
+
+    check_manual_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Check
+        fields: List[str] = [
+            "version",
+            "check_manual_complete_date",
+        ]
+
+
+class CheckUpdateAxeForm(VersionForm):
+    """
+    Form for editing axe checks
+    """
+
+    check_axe_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Check
+        fields: List[str] = [
+            "version",
+            "check_axe_complete_date",
+        ]
+
+
+class CheckUpdatePdfForm(VersionForm):
+    """
+    Form for editing pdf checks
+    """
+
+    check_pdf_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Check
+        fields: List[str] = [
+            "version",
+            "check_pdf_complete_date",
+        ]

@@ -76,6 +76,15 @@ class Check(VersionModel):
     # pages page
     check_pages_complete_date = models.DateField(null=True, blank=True)
 
+    # manual page
+    check_manual_complete_date = models.DateField(null=True, blank=True)
+
+    # axe page
+    check_axe_complete_date = models.DateField(null=True, blank=True)
+
+    # pdf page
+    check_pdf_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

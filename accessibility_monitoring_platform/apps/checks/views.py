@@ -18,6 +18,9 @@ from .forms import (
     CheckStandardPageFormset,
     CheckExtraPageFormset,
     CheckExtraPageFormsetOneExtra,
+    CheckUpdateManualForm,
+    CheckUpdateAxeForm,
+    CheckUpdatePdfForm,
 )
 from .models import (
     Check,
@@ -43,6 +46,53 @@ STANDARD_PAGE_HEADERS: List[str] = [
     "PDF",
     "A Form",
 ]
+
+
+def get_check_url(url_name: str, check: Check) -> str:
+    """Return url string for name and check"""
+    return reverse_lazy(
+        f"checks:{url_name}",
+        kwargs={
+            "pk": check.id,  # type: ignore
+            "case_id": check.case.id,  # type: ignore
+        },
+    )
+
+
+def delete_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+    """
+    Delete check
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of case
+        pk (int): Id of check to delete
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    check: Check = get_object_or_404(Check, id=pk)
+    check.is_deleted = True
+    check.save()
+    return redirect(reverse_lazy("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
+
+
+def restore_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+    """
+    Restore deleted check
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of case
+        pk (int): Id of check to restore
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    check: Check = get_object_or_404(Check, id=pk)
+    check.is_deleted = False
+    check.save()
+    return redirect(reverse_lazy("checks:check-detail", kwargs={"case_id": case_id, "pk": check.id}))  # type: ignore
 
 
 class CheckUpdateView(UpdateView):
@@ -89,17 +139,12 @@ class CheckCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
         for page_type in MANDATORY_PAGE_TYPES:
-            Page.objects.create(parent_check=self.object, type=page_type)  # type: ignore
+            page: Page = Page.objects.create(parent_check=self.object, type=page_type)  # type: ignore
+            record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
         if "save_continue" in self.request.POST:
-            url = reverse_lazy(
-                "checks:edit-check-metadata",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url: str = get_check_url(url_name="edit-check-metadata", check=self.object)  # type: ignore
         else:
-            url = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.case.id})  # type: ignore
+            url: str = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.case.id})  # type: ignore
         return url
 
 
@@ -144,15 +189,9 @@ class CheckMetadataUpdateView(CheckUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            url: str = reverse_lazy(
-                "checks:edit-check-pages",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url: str = get_check_url(url_name="edit-check-pages", check=self.object)  # type: ignore
         else:
-            url: str = f"""{reverse_lazy("checks:check-detail", kwargs={"pk": self.object.id, "case_id": self.object.case.id})}"""  # type: ignore
+            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
         return url
 
 
@@ -243,51 +282,59 @@ class CheckPagesUpdateView(CheckUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url: str = f"""{reverse_lazy("checks:check-detail", kwargs={"pk": self.object.id, "case_id": self.object.case.id})}#check-pages"""  # type: ignore
+            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
         elif "save_continue" in self.request.POST:
-            url = reverse_lazy(
-                "checks:edit-check-pages",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url: str = get_check_url(url_name="edit-check-manual", check=self.object)  # type: ignore
         else:
-            url: str = f"{reverse_lazy('checks:edit-check-pages', kwargs={'pk': self.object.id, 'case_id': self.object.case.id})}?add_extra=true"  # type: ignore
+            url: str = get_check_url(url_name="edit-check-pages", check=self.object)  # type: ignore
         return url
 
 
-def delete_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+class CheckManualUpdateView(CheckUpdateView):
     """
-    Delete check
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        case_id (int): Id of case
-        pk (int): Id of check to delete
-
-    Returns:
-        HttpResponse: Django HttpResponse
+    View to update manual checks
     """
-    check: Check = get_object_or_404(Check, id=pk)
-    check.is_deleted = True
-    check.save()
-    return redirect(reverse_lazy("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
 
+    form_class: Type[CheckUpdateManualForm] = CheckUpdateManualForm
+    template_name: str = "checks/forms/manual.html"
 
-def restore_check(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_check_url(url_name="edit-check-axe", check=self.object)  # type: ignore
+        else:
+            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+        return url
+
+class CheckAxeUpdateView(CheckUpdateView):
     """
-    Restore deleted check
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        case_id (int): Id of case
-        pk (int): Id of check to restore
-
-    Returns:
-        HttpResponse: Django HttpResponse
+    View to update axe checks
     """
-    check: Check = get_object_or_404(Check, id=pk)
-    check.is_deleted = False
-    check.save()
-    return redirect(reverse_lazy("checks:check-detail", kwargs={"case_id": case_id, "pk": check.id}))  # type: ignore
+
+    form_class: Type[CheckUpdateAxeForm] = CheckUpdateAxeForm
+    template_name: str = "checks/forms/axe.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_check_url(url_name="edit-check-pdf", check=self.object)  # type: ignore
+        else:
+            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+        return url
+
+
+class CheckPdfUpdateView(CheckUpdateView):
+    """
+    View to update pdf checks
+    """
+
+    form_class: Type[CheckUpdatePdfForm] = CheckUpdatePdfForm
+    template_name: str = "checks/forms/pdf.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_check_url(url_name="edit-check-pdf", check=self.object)  # type: ignore
+        else:
+            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+        return url
