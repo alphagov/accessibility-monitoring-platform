@@ -632,6 +632,10 @@ def test_case_edit_redirects_based_on_button_pressed(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "version": case.version,
@@ -652,6 +656,10 @@ def test_add_contact_form_appears(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             "add_contact": "Button value",
         },
@@ -698,6 +706,10 @@ def test_delete_contact(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
@@ -1615,6 +1627,10 @@ def test_delete_contact_adds_update_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
