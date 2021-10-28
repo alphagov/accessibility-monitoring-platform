@@ -435,6 +435,8 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 else:
                     record_model_update_event(user=self.request.user, model_object=contact)  # type: ignore
                     contact.save()
+        else:
+            return super().form_invalid(form)
         contact_id_to_delete: IntOrNone = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
@@ -442,8 +444,8 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_id_to_delete is not None:
             contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
             contact_to_delete.is_deleted = True
-            contact_to_delete.save()
             record_model_update_event(user=self.request.user, model_object=contact_to_delete)  # type: ignore
+            contact_to_delete.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

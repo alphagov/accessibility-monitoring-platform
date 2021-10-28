@@ -6,7 +6,7 @@ from typing import List, Tuple
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import Case, DELETE_DECISION_CHOICES, DELETE_DECISION_DEFAULT
+from ..cases.models import Case, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
 from ..common.models import VersionModel
 
 SCREEN_SIZE_DEFAULT = "15in"
@@ -25,19 +25,19 @@ CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_TYPE_DEFAULT, "Initial"),
     ("eq-retest", "Equality body retest"),
 ]
-PAGE_TYPE_DEFAULT = "page"
+PAGE_TYPE_EXTRA = "extra"
 PAGE_TYPE_HOME = "home"
 PAGE_TYPE_CONTACT = "contact"
 PAGE_TYPE_STATEMENT = "statement"
 PAGE_TYPE_PDF = "pdf"
 PAGE_TYPE_FORM = "form"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (PAGE_TYPE_DEFAULT, "Page"),
+    (PAGE_TYPE_EXTRA, "Page"),
     (PAGE_TYPE_HOME, "Home page"),
     (PAGE_TYPE_CONTACT, "Contact page"),
     (PAGE_TYPE_STATEMENT, "Accessibility statement"),
     (PAGE_TYPE_PDF, "PDF"),
-    ("form", "A form"),
+    (PAGE_TYPE_FORM, "A form"),
 ]
 MANDATORY_PAGE_TYPES: List[str] = [
     PAGE_TYPE_HOME,
@@ -100,11 +100,14 @@ class Page(VersionModel):
     is_deleted = models.BooleanField(default=False)
 
     type = models.CharField(
-        max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_DEFAULT
+        max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_EXTRA
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
-    not_found = models.BooleanField(default=False)
+    not_found = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["id"]

@@ -1,11 +1,9 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List, Tuple
+from typing import Any, List
 
 from django import forms
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from ..common.forms import (
@@ -15,10 +13,12 @@ from ..common.forms import (
     AMPChoiceField,
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
     AMPURLField,
 )
+from ..cases.models import BOOLEAN_CHOICES
 from .models import (
     Check,
     Page,
@@ -75,14 +75,33 @@ class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
         ]
 
 
-class CheckPageUpdateForm(forms.ModelForm):
+class CheckExtraPageUpdateForm(forms.ModelForm):
     """
-    Form for updating a page
+    Form for updating an extra page
     """
 
     name = AMPCharFieldWide(label="Page name")
     url = AMPURLField(label="URL")
+
+    class Meta:
+        model = Page
+        fields = [
+            "name",
+            "url",
+        ]
+
+
+class CheckStandardPageUpdateForm(CheckExtraPageUpdateForm):
+    """
+    Form for updating a standard page (one of the 5 types of page in every check)
+    """
+
     not_found = AMPChoiceCheckboxField(label="Not found?")
+    not_found = AMPChoiceCheckboxField(
+        label="Not found?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(),
+    )
 
     class Meta:
         model = Page
@@ -93,9 +112,14 @@ class CheckPageUpdateForm(forms.ModelForm):
         ]
 
 
-CheckPageFormset: Any = forms.modelformset_factory(Page, CheckPageUpdateForm, extra=0)
-CheckPageFormsetOneExtra: Any = forms.modelformset_factory(
-    Page, CheckPageUpdateForm, extra=1
+CheckStandardPageFormset: Any = forms.modelformset_factory(
+    Page, CheckStandardPageUpdateForm, extra=0
+)
+CheckExtraPageFormset: Any = forms.modelformset_factory(
+    Page, CheckExtraPageUpdateForm, extra=0
+)
+CheckExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
+    Page, CheckExtraPageUpdateForm, extra=1
 )
 
 

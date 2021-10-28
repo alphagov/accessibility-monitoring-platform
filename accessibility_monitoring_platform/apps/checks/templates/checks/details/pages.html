@@ -14,10 +14,26 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% for page in pages %}
+        {% for page in standard_pages %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header amp-width-one-half">
                     {{ page.get_type_display }}
+                </th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if page.url %}
+                        <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            {% if page.name %}{{ page.name }}{% else %}{{ page.get_type_display }}{% endif %}
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for page in extra_pages %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">
+                    {{ page.get_type_display }} {{ forloop.counter }}
                 </th>
                 <td class="govuk-table__cell amp-width-one-half">
                     {% if page.url %}

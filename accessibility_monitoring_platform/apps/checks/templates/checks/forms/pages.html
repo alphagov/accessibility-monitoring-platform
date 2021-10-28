@@ -15,42 +15,74 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
+                {% include 'common/error_summary.html' with form=standard_pages_formset %}
+                {% include 'common/error_summary.html' with form=extra_pages_formset %}
                 <form method="post" action="{% url 'checks:edit-check-pages' case.id check.id %}">
                     {% csrf_token %}
+                    {{ standard_pages_formset.management_form }}
+                    {{ extra_pages_formset.management_form }}
 
-                    {{ pages_formset.management_form }}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
-                        {% if pages_formset.forms %}
-                            {% for page_form in pages_formset %}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                <h2 class="govuk-heading-m">
-                                                    {% if page.instance %}
-                                                        {{ page.instance.get_type_display }}
-                                                    {% else %}
-                                                        Page {{ forloop.counter }}
-                                                    {% endif %}
-                                                </h2>
-                                                {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
-                                                {% for field in page_form.visible_fields %}
-                                                    {% include 'common/amp_field.html' %}
-                                                {% endfor %}
-                                            </div>
+                        {% for page_form in standard_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 class="govuk-heading-m">
+                                                {% if forloop.counter == 1%}{{ standard_page_headers.0 }}
+                                                {% elif forloop.counter == 2%}{{ standard_page_headers.1 }}
+                                                {% elif forloop.counter == 3%}{{ standard_page_headers.2 }}
+                                                {% elif forloop.counter == 4%}{{ standard_page_headers.3 }}
+                                                {% elif forloop.counter == 5%}{{ standard_page_headers.4 }}
+                                                {% endif %}
+                                            </h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
                                         </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <p class="govuk-body-l">No pages have been entered</p>
-                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for page_form in extra_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 class="govuk-heading-m">Page {{ forloop.counter }}</h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
+                                        </div>
+                                        {% if page_form.instance.id %}
+                                            <div class="govuk-grid-column-full">
+                                                <input
+                                                    type="submit"
+                                                    value="Remove page"
+                                                    name="remove_extra_page_{{ page_form.instance.id }}"
+                                                    class="govuk-button govuk-button--secondary"
+                                                    data-module="govuk-button" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
 
+                    <input
+                        type="submit"
+                        value="Save and create additional page"
+                        name="add_extra"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    />
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}

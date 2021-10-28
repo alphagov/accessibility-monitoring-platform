@@ -2,7 +2,7 @@
 Views for checks app (called tests by users)
 """
 from functools import partial
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Type, Union
 
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -10,30 +10,39 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
 
 from .forms import (
     CheckCreateForm,
     CheckUpdateMetadataForm,
     CheckUpdatePagesForm,
-    CheckPageFormset,
-    CheckPageFormsetOneExtra,
+    CheckStandardPageFormset,
+    CheckExtraPageFormset,
+    CheckExtraPageFormsetOneExtra,
 )
 from .models import (
     Check,
     Page,
     EXEMPTION_DEFAULT,
-    PAGE_TYPE_DEFAULT,
+    PAGE_TYPE_EXTRA,
     MANDATORY_PAGE_TYPES,
 )
 
 from ..cases.models import Case
 from ..common.utils import (  # type: ignore
     FieldLabelAndValue,
+    get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
 )
 from .utils import extract_labels_and_values
+
+STANDARD_PAGE_HEADERS: List[str] = [
+    "Home Page",
+    "Contact Page",
+    "Accessibility Statement",
+    "PDF",
+    "A Form",
+]
 
 
 class CheckUpdateView(UpdateView):
@@ -73,7 +82,7 @@ class CheckCreateView(CreateView):
         """Initialise form fields"""
         form = super().get_form()
         form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
-        form.fields["type"].initial = PAGE_TYPE_DEFAULT
+        form.fields["type"].initial = PAGE_TYPE_EXTRA
         return form
 
     def get_success_url(self) -> str:
@@ -119,7 +128,8 @@ class CheckDetailView(DetailView):
         )
 
         context["check_metadata_rows"] = check_metadata_rows
-        context["pages"] = self.object.page_check.filter(is_deleted=False)  # type: ignore
+        context["standard_pages"] = self.object.page_check.filter(is_deleted=False).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
+        context["extra_pages"] = self.object.page_check.filter(is_deleted=False, type=PAGE_TYPE_EXTRA)  # type: ignore
         return context
 
 
@@ -164,40 +174,83 @@ class CheckPagesUpdateView(CheckUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
-            pages_formset = CheckPageFormset(self.request.POST)
+            standard_pages_formset = CheckStandardPageFormset(
+                self.request.POST, prefix="standard"
+            )
+            extra_pages_formset = CheckExtraPageFormset(
+                self.request.POST, prefix="extra"
+            )
         else:
-            pages: QuerySet[Contact] = self.object.page_check.filter(  # type: ignore
+            standard_pages: QuerySet[Page] = self.object.page_check.filter(  # type: ignore
                 is_deleted=False
+            ).exclude(
+                type=PAGE_TYPE_EXTRA
+            )
+            extra_pages: QuerySet[Page] = self.object.page_check.filter(  # type: ignore
+                is_deleted=False, type=PAGE_TYPE_EXTRA
+            )
+
+            standard_pages_formset = CheckStandardPageFormset(
+                queryset=standard_pages, prefix="standard"
             )
             if "add_extra" in self.request.GET:
-                pages_formset = CheckPageFormsetOneExtra(queryset=pages)
+                extra_pages_formset = CheckExtraPageFormsetOneExtra(
+                    queryset=extra_pages, prefix="extra"
+                )
             else:
-                pages_formset = CheckPageFormset(queryset=pages)
-        context["pages_formset"] = pages_formset
+                extra_pages_formset = CheckExtraPageFormset(
+                    queryset=extra_pages, prefix="extra"
+                )
+        context["standard_pages_formset"] = standard_pages_formset
+        context["extra_pages_formset"] = extra_pages_formset
+        context["standard_page_headers"] = STANDARD_PAGE_HEADERS
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        pages_formset = context["pages_formset"]
+        standard_pages_formset = context["standard_pages_formset"]
+        extra_pages_formset = context["extra_pages_formset"]
         check: Check = form.save()
-        if pages_formset.is_valid():
-            pages: List[Page] = pages_formset.save(commit=False)
+
+        if standard_pages_formset.is_valid():
+            pages: List[Page] = standard_pages_formset.save(commit=False)
             for page in pages:
-                if not page.check_id:  # type: ignore
+                record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                page.save()
+        else:
+            return super().form_invalid(form)
+
+        if extra_pages_formset.is_valid():
+            pages: List[Page] = extra_pages_formset.save(commit=False)
+            for page in pages:
+                if not page.parent_check_id:  # type: ignore
                     page.parent_check = check
                     page.save()
                     record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
                 else:
                     record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
                     page.save()
+        else:
+            return super().form_invalid(form)
+
+        page_id_to_delete: Union[int, None] = get_id_from_button_name(
+            button_name_prefix="remove_extra_page_",
+            querydict=self.request.POST,
+        )
+        if page_id_to_delete is not None:
+            page_to_delete: Page = Page.objects.get(id=page_id_to_delete)
+            page_to_delete.is_deleted = True
+            record_model_update_event(user=self.request.user, model_object=page_to_delete)  # type: ignore
+            page_to_delete.save()
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             url = reverse_lazy(
-                "checks:edit-check-pages",
+                "checks:check-detail",
                 kwargs={
                     "pk": self.object.id,  # type: ignore
                     "case_id": self.object.case.id,  # type: ignore
