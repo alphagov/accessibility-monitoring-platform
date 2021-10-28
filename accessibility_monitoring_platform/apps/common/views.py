@@ -21,7 +21,7 @@ class ContactAdminView(FormView):
 
     form_class = AMPContactAdminForm
     template_name: str = "common/contact_admin.html"
-    success_url = reverse_lazy("dashboard:home")
+    success_url: str = reverse_lazy("dashboard:home")
 
     def form_valid(self, form):
         self.send_mail(form.cleaned_data)
@@ -47,7 +47,7 @@ class IssueReportView(FormView):
 
     form_class: Type[AMPIssueReportForm] = AMPIssueReportForm
     template_name: str = "common/issue_report.html"
-    success_url = reverse_lazy("dashboard:home")
+    success_url: str = reverse_lazy("dashboard:home")
 
     def get(self, request, *args, **kwargs):
         """Populate form"""

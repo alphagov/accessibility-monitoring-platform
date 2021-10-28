@@ -1,4 +1,6 @@
 """Views for notifications app"""
+from typing import Any, Dict
+
 from django.views.generic import ListView
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -24,7 +26,7 @@ class NotificationsView(ListView):
         ):
             view_all = True
 
-        filter_dict = {"user": self.request.user}
+        filter_dict: Dict[str, Any] = {"user": self.request.user}
 
         if not view_all:
             filter_dict["read"] = False

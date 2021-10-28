@@ -4,7 +4,6 @@ Forms - checks (called tests by users)
 from typing import Any, List
 
 from django import forms
-from django.db.models import QuerySet
 
 from ..common.forms import (
     VersionForm,

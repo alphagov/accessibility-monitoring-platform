@@ -1,10 +1,17 @@
 """
 Models for common data used across project
 """
+from typing import List, Tuple
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+BOOLEAN_DEFAULT = "no"
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
+    ("no", "No"),
+    ("yes", "Yes"),
+]
 
 EVENT_TYPE_DEFAULT = "model_update"
 EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT

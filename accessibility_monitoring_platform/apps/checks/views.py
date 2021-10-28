@@ -80,7 +80,7 @@ class CheckCreateView(CreateView):
 
     def get_form(self):
         """Initialise form fields"""
-        form = super().get_form()
+        form: ModelForm[Check] = super().get_form()  # type: ignore
         form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
         form.fields["type"].initial = PAGE_TYPE_EXTRA
         return form
@@ -144,7 +144,7 @@ class CheckMetadataUpdateView(CheckUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            url = reverse_lazy(
+            url: str = reverse_lazy(
                 "checks:edit-check-pages",
                 kwargs={
                     "pk": self.object.id,  # type: ignore
@@ -152,13 +152,7 @@ class CheckMetadataUpdateView(CheckUpdateView):
                 },
             )
         else:
-            url = reverse_lazy(
-                "checks:check-detail",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url: str = f"""{reverse_lazy("checks:check-detail", kwargs={"pk": self.object.id, "case_id": self.object.case.id})}"""  # type: ignore
         return url
 
 
@@ -174,31 +168,29 @@ class CheckPagesUpdateView(CheckUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
-            standard_pages_formset = CheckStandardPageFormset(
+            standard_pages_formset: CheckStandardPageFormset = CheckStandardPageFormset(
                 self.request.POST, prefix="standard"
             )
-            extra_pages_formset = CheckExtraPageFormset(
+            extra_pages_formset: CheckExtraPageFormset = CheckExtraPageFormset(
                 self.request.POST, prefix="extra"
             )
         else:
-            standard_pages: QuerySet[Page] = self.object.page_check.filter(  # type: ignore
-                is_deleted=False
-            ).exclude(
+            standard_pages: QuerySet[Page] = self.object.page_check.exclude(  # type: ignore
                 type=PAGE_TYPE_EXTRA
             )
             extra_pages: QuerySet[Page] = self.object.page_check.filter(  # type: ignore
                 is_deleted=False, type=PAGE_TYPE_EXTRA
             )
 
-            standard_pages_formset = CheckStandardPageFormset(
+            standard_pages_formset: CheckStandardPageFormset = CheckStandardPageFormset(
                 queryset=standard_pages, prefix="standard"
             )
             if "add_extra" in self.request.GET:
-                extra_pages_formset = CheckExtraPageFormsetOneExtra(
-                    queryset=extra_pages, prefix="extra"
+                extra_pages_formset: CheckExtraPageFormsetOneExtra = (
+                    CheckExtraPageFormsetOneExtra(queryset=extra_pages, prefix="extra")
                 )
             else:
-                extra_pages_formset = CheckExtraPageFormset(
+                extra_pages_formset: CheckExtraPageFormset = CheckExtraPageFormset(
                     queryset=extra_pages, prefix="extra"
                 )
         context["standard_pages_formset"] = standard_pages_formset
@@ -209,8 +201,10 @@ class CheckPagesUpdateView(CheckUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        standard_pages_formset = context["standard_pages_formset"]
-        extra_pages_formset = context["extra_pages_formset"]
+        standard_pages_formset: CheckStandardPageFormset = context[
+            "standard_pages_formset"
+        ]
+        extra_pages_formset: CheckExtraPageFormset = context["extra_pages_formset"]
         check: Check = form.save()
 
         if standard_pages_formset.is_valid():
@@ -249,13 +243,7 @@ class CheckPagesUpdateView(CheckUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url = reverse_lazy(
-                "checks:check-detail",
-                kwargs={
-                    "pk": self.object.id,  # type: ignore
-                    "case_id": self.object.case.id,  # type: ignore
-                },
-            )
+            url: str = f"""{reverse_lazy("checks:check-detail", kwargs={"pk": self.object.id, "case_id": self.object.case.id})}#check-pages"""  # type: ignore
         elif "save_continue" in self.request.POST:
             url = reverse_lazy(
                 "checks:edit-check-pages",
@@ -265,7 +253,7 @@ class CheckPagesUpdateView(CheckUpdateView):
                 },
             )
         else:
-            url = f"{reverse_lazy('checks:edit-check-pages', kwargs={'pk': self.object.id, 'case_id': self.object.case.id})}?add_extra=true"  # type: ignore
+            url: str = f"{reverse_lazy('checks:edit-check-pages', kwargs={'pk': self.object.id, 'case_id': self.object.case.id})}?add_extra=true"  # type: ignore
         return url
 
 

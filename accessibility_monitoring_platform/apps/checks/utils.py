@@ -3,7 +3,7 @@ Utilities for checks app
 """
 
 from datetime import date
-from typing import List, Union
+from typing import List
 
 from django import forms
 
@@ -21,9 +21,7 @@ EXCLUDED_FIELDS: List[str] = [
 
 def extract_labels_and_values(
     check: Check,
-    form: Union[
-        CheckUpdateMetadataForm,
-    ],
+    form: CheckUpdateMetadataForm,
 ) -> List[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: List[FieldLabelAndValue] = []

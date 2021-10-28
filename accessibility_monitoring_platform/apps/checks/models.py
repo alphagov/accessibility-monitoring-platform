@@ -6,8 +6,8 @@ from typing import List, Tuple
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import Case, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
-from ..common.models import VersionModel
+from ..cases.models import Case
+from ..common.models import VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
 
 SCREEN_SIZE_DEFAULT = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [

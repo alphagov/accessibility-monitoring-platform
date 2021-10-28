@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector, VersionModel
+from ..common.models import Sector, VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "unassigned-case"
@@ -47,12 +47,6 @@ ENFORCEMENT_BODY_DEFAULT = "ehrc"
 ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
     ("ecni", "Equality Commission Northern Ireland"),
-]
-
-BOOLEAN_DEFAULT = "no"
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
 ]
 
 TEST_STATUS_DEFAULT = "not-started"
