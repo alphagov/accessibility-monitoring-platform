@@ -142,6 +142,7 @@ class WcagTest(VersionModel):
     """
     Model for WCAG tests captured by the platform
     """
+
     type = models.CharField(
         max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
     )
@@ -152,6 +153,7 @@ class WcagTest(VersionModel):
 
     def __str__(self):
         return str(f"{self.type} | {self.name}")
+
 
 class CheckTest(VersionModel):
     """
@@ -169,11 +171,13 @@ class CheckTest(VersionModel):
         WcagTest, on_delete=models.CASCADE, related_name="test_wcagtest"
     )
 
-    failed = models.CharField(max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT)
+    failed = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     notes = models.TextField(default="", blank=True)
+
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
         return str(f"{self.parent_check} | {self.wcag_test} | #{self.pk}")
-

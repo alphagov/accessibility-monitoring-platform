@@ -181,7 +181,7 @@ class CheckDetailView(DetailView):
             1,
             FieldLabelAndValue(
                 label="Auditor",
-                value=self.object.case.auditor,  # type: ignore
+                value=self.object.case.auditor.get_full_name(),  # type: ignore
             ),
         )
 
@@ -190,7 +190,10 @@ class CheckDetailView(DetailView):
         context["extra_pages"] = self.object.page_check.filter(is_deleted=False, type=PAGE_TYPE_EXTRA)  # type: ignore
 
         pdf_check_tests: QuerySet[CheckTest] = CheckTest.objects.filter(parent_check=self.object, type=TEST_TYPE_PDF, failed="yes")  # type: ignore
-        context["check_pdf_rows"] = [FieldLabelAndValue(label=check_test.wcag_test.name, value=check_test.notes) for check_test in pdf_check_tests]
+        context["check_pdf_rows"] = [
+            FieldLabelAndValue(label=check_test.wcag_test.name, value=check_test.notes)
+            for check_test in pdf_check_tests
+        ]
 
         return context
 
@@ -323,6 +326,7 @@ class CheckManualUpdateView(CheckUpdateView):
             url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
         return url
 
+
 class CheckAxeUpdateView(CheckUpdateView):
     """
     View to update axe checks
@@ -360,9 +364,15 @@ class CheckPdfUpdateView(CheckUpdateView):
                 type=TEST_TYPE_PDF
             )
 
-            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(queryset=check_tests)
+            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(
+                queryset=check_tests
+            )
         for check_tests_form in check_tests_formset.forms:
-            check_tests_form.fields['failed'].label = check_tests_form.instance.wcag_test.name
+            check_tests_form.fields["failed"].label = ""
+            check_tests_form.fields["failed"].widget.attrs = {
+                "label": check_tests_form.instance.wcag_test.name
+            }
+            check_tests_form.fields["notes"].label = ""
         context["check_tests_formset"] = check_tests_formset
         return context
 
