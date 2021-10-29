@@ -21,6 +21,7 @@ from ..cases.models import BOOLEAN_CHOICES
 from .models import (
     Check,
     Page,
+    CheckTest,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
     CHECK_TYPE_CHOICES,
@@ -95,7 +96,6 @@ class CheckStandardPageUpdateForm(CheckExtraPageUpdateForm):
     Form for updating a standard page (one of the 5 types of page in every check)
     """
 
-    not_found = AMPChoiceCheckboxField(label="Not found?")
     not_found = AMPChoiceCheckboxField(
         label="Not found?",
         choices=BOOLEAN_CHOICES,
@@ -180,3 +180,29 @@ class CheckUpdatePdfForm(VersionForm):
             "version",
             "check_pdf_complete_date",
         ]
+
+
+class CheckTestUpdateForm(VersionForm):
+    """
+    Form for updating a single check test
+    """
+
+    failed = AMPChoiceCheckboxField(
+        label="Failed?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(),
+    )
+    notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = CheckTest
+        fields = [
+            "version",
+            "failed",
+            "notes",
+        ]
+
+
+CheckTestUpdateFormset: Any = forms.modelformset_factory(
+    CheckTest, CheckTestUpdateForm, extra=0
+)

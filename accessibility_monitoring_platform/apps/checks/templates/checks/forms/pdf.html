@@ -15,10 +15,16 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
+                {% include 'common/error_summary.html' with form=check_tests_formset %}
                 <form method="post" action="{% url 'checks:edit-check-pdf' case.id check.id %}">
                     {% csrf_token %}
+                    {{ check_tests_formset.management_form }}
                     <div class="govuk-grid-row">
+                        {% for form in check_tests_formset %}
+                            <div class="govuk-grid-column-full">
+                                {% include 'common/amp_form_snippet.html' %}
+                            </div>
+                        {% endfor %}
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>

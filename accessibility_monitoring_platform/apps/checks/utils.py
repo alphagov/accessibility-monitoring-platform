@@ -16,6 +16,10 @@ EXTRA_LABELS = {}
 EXCLUDED_FIELDS: List[str] = [
     "version",
     "check_metadata_complete_date",
+    "check_pages_complete_date",
+    "check_manual_complete_date",
+    "check_axe_complete_date",
+    "check_pdf_complete_date",
 ]
 
 

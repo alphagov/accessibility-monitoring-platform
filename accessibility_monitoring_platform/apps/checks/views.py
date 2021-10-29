@@ -5,6 +5,7 @@ from functools import partial
 from typing import Any, Dict, List, Type, Union
 
 from django.forms.models import ModelForm
+from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -21,10 +22,14 @@ from .forms import (
     CheckUpdateManualForm,
     CheckUpdateAxeForm,
     CheckUpdatePdfForm,
+    CheckTestUpdateFormset,
 )
 from .models import (
     Check,
     Page,
+    WcagTest,
+    CheckTest,
+    TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
     PAGE_TYPE_EXTRA,
     MANDATORY_PAGE_TYPES,
@@ -141,6 +146,14 @@ class CheckCreateView(CreateView):
         for page_type in MANDATORY_PAGE_TYPES:
             page: Page = Page.objects.create(parent_check=self.object, type=page_type)  # type: ignore
             record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+        pdf_wcag_tests: QuerySet[WcagTest] = WcagTest.objects.filter(type=TEST_TYPE_PDF)
+        for wcag_test in pdf_wcag_tests:
+            check_test: CheckTest = CheckTest.objects.create(
+                parent_check=self.object,  # type: ignore
+                type=TEST_TYPE_PDF,
+                wcag_test=wcag_test,
+            )
+            record_model_create_event(user=self.request.user, model_object=check_test)  # type: ignore
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-metadata", check=self.object)  # type: ignore
         else:
@@ -175,6 +188,10 @@ class CheckDetailView(DetailView):
         context["check_metadata_rows"] = check_metadata_rows
         context["standard_pages"] = self.object.page_check.filter(is_deleted=False).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
         context["extra_pages"] = self.object.page_check.filter(is_deleted=False, type=PAGE_TYPE_EXTRA)  # type: ignore
+
+        pdf_check_tests: QuerySet[CheckTest] = CheckTest.objects.filter(parent_check=self.object, type=TEST_TYPE_PDF, failed="yes")  # type: ignore
+        context["check_pdf_rows"] = [FieldLabelAndValue(label=check_test.wcag_test.name, value=check_test.notes) for check_test in pdf_check_tests]
+
         return context
 
 
@@ -331,10 +348,42 @@ class CheckPdfUpdateView(CheckUpdateView):
     form_class: Type[CheckUpdatePdfForm] = CheckUpdatePdfForm
     template_name: str = "checks/forms/pdf.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(
+                self.request.POST
+            )
+        else:
+            check_tests: QuerySet[CheckTest] = self.object.test_check.filter(  # type: ignore
+                type=TEST_TYPE_PDF
+            )
+
+            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(queryset=check_tests)
+        for check_tests_form in check_tests_formset.forms:
+            check_tests_form.fields['failed'].label = check_tests_form.instance.wcag_test.name
+        context["check_tests_formset"] = check_tests_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        check_tests_formset: CheckTestUpdateFormset = context["check_tests_formset"]
+
+        if check_tests_formset.is_valid():
+            check_tests: List[Page] = check_tests_formset.save(commit=False)
+            for check_test in check_tests:
+                record_model_update_event(user=self.request.user, model_object=check_test)  # type: ignore
+                check_test.save()
+        else:
+            return super().form_invalid(form)
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-pdf", check=self.object)  # type: ignore
         else:
-            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+            url: str = f'{get_check_url(url_name="check-detail", check=self.object)}#check-pdf'  # type: ignore
         return url
