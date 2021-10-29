@@ -3,7 +3,6 @@
     "model": "checks.wcagtest",
     "pk": 1,
     "fields": {
-        "version": 1,
         "type": "pdf",
         "name": "WCAG 1.4.3 Contrast (Minimum)"
     }
@@ -12,7 +11,6 @@
     "model": "checks.wcagtest",
     "pk": 2,
     "fields": {
-        "version": 2,
         "type": "pdf",
         "name": "WCAG 2.4.2 Page titled"
     }
@@ -21,7 +19,6 @@
     "model": "checks.wcagtest",
     "pk": 3,
     "fields": {
-        "version": 1,
         "type": "pdf",
         "name": "WCAG 3.1.1 Language of Page"
     }
@@ -30,7 +27,6 @@
     "model": "checks.wcagtest",
     "pk": 4,
     "fields": {
-        "version": 1,
         "type": "pdf",
         "name": "WCAG 1.3.1 Info and Relationships"
     }
@@ -39,7 +35,6 @@
     "model": "checks.wcagtest",
     "pk": 5,
     "fields": {
-        "version": 1,
         "type": "pdf",
         "name": "WCAG 1.1.1 Non-text content"
     }

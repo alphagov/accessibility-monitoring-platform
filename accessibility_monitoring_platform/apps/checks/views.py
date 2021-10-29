@@ -211,7 +211,7 @@ class CheckMetadataUpdateView(CheckUpdateView):
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-pages", check=self.object)  # type: ignore
         else:
-            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+            url: str = f'{get_check_url(url_name="check-detail", check=self.object)}#check-metadata'  # type: ignore
         return url
 
 
@@ -302,9 +302,11 @@ class CheckPagesUpdateView(CheckUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+            url: str = f'{get_check_url(url_name="check-detail", check=self.object)}#check-pages'  # type: ignore
         elif "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-manual", check=self.object)  # type: ignore
+        elif "add_extra" in self.request.POST:
+            url: str = f'{get_check_url(url_name="edit-check-pages", check=self.object)}?add_extra=true'  # type: ignore
         else:
             url: str = get_check_url(url_name="edit-check-pages", check=self.object)  # type: ignore
         return url
@@ -323,7 +325,7 @@ class CheckManualUpdateView(CheckUpdateView):
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-axe", check=self.object)  # type: ignore
         else:
-            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+            url: str = f'{get_check_url(url_name="check-detail", check=self.object)}#check-manual'  # type: ignore
         return url
 
 
@@ -340,7 +342,7 @@ class CheckAxeUpdateView(CheckUpdateView):
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-pdf", check=self.object)  # type: ignore
         else:
-            url: str = get_check_url(url_name="check-detail", check=self.object)  # type: ignore
+            url: str = f'{get_check_url(url_name="check-detail", check=self.object)}#check-axe'  # type: ignore
         return url
 
 

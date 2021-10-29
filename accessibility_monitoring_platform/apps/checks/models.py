@@ -138,7 +138,7 @@ class Page(VersionModel):
         )
 
 
-class WcagTest(VersionModel):
+class WcagTest(models.Model):
     """
     Model for WCAG tests captured by the platform
     """
