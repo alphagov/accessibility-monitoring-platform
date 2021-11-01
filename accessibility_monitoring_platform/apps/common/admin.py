@@ -6,11 +6,32 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import IssueReport, Sector
+from .models import Event, IssueReport, Platform, Sector
+
+
+class EventAdmin(admin.ModelAdmin):
+    """Django admin configuration for Event model"""
+
+    readonly_fields = ["content_type", "object_id", "value", "created", "created_by"]
+    search_fields = ["value", "created_by"]
+    list_display = ["content_type", "object_id", "type", "created", "created_by"]
+    list_filter = ["type", "content_type"]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("content_type", "object_id"),
+                    ("created_by", "created"),
+                    ("value",),
+                )
+            },
+        ),
+    )
 
 
 class IssueReportAdmin(admin.ModelAdmin):
-    """Django admin configuration for Case model"""
+    """Django admin configuration for IssueReport model"""
 
     readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
     search_fields = ["page_url", "page_title", "description"]
@@ -39,9 +60,9 @@ class IssueReportAdmin(admin.ModelAdmin):
         meta = self.model._meta
         field_names = [field.name for field in meta.fields]
 
-        response = HttpResponse(content_type="text/csv")
+        response: HttpResponse = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename={}.csv".format(meta)
-        writer = csv.writer(response)
+        writer = csv.writer(response)  # type: ignore
 
         writer.writerow(field_names)
         for obj in queryset:
@@ -53,5 +74,7 @@ class IssueReportAdmin(admin.ModelAdmin):
         return False
 
 
+admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
+admin.site.register(Platform)
 admin.site.register(Sector)

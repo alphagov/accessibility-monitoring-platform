@@ -3,6 +3,17 @@ Models for common data used across project
 """
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+EVENT_TYPE_DEFAULT = "model_update"
+EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT
+EVENT_TYPE_MODEL_CREATE = "model_create"
+EVENT_TYPES = {
+    EVENT_TYPE_DEFAULT: "Model update",
+    EVENT_TYPE_MODEL_CREATE: "Model create",
+}
+EVENT_TYPE_CHOICES = [(key, value) for key, value in EVENT_TYPES.items()]
 
 
 class Sector(models.Model):
@@ -35,4 +46,64 @@ class IssueReport(models.Model):
     notes = models.TextField(default="", blank=True)
 
     def __str__(self):
-        return f"#{self.id} {self.page_title}"
+        return f"#{self.id} {self.page_title}"  # type: ignore
+
+
+class Platform(models.Model):
+    """
+    Settings for platform as a whole
+    """
+
+    active_qa_auditor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="platform_active_qa_auditor",
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"Active QA auditor is {self.active_qa_auditor}"
+        return f"#{self.id} {self.page_title}"  # type: ignore
+
+
+class Event(models.Model):
+    """
+    Model to records events on platform
+    """
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    parent = GenericForeignKey("content_type", "object_id")
+    type = models.CharField(
+        max_length=100, choices=EVENT_TYPE_CHOICES, default=EVENT_TYPE_DEFAULT
+    )
+    value = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="event_created_by_user",
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"#{self.parent} {self.type}"
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class VersionModel(models.Model):
+    """
+    Model subclassed to add versioning
+    """
+
+    version = models.IntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.version += 1
+        super().save(*args, **kwargs)

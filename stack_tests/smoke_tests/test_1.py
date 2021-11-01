@@ -197,6 +197,7 @@ class TestCaseView(SeleniumTest):
             ("Edit case details", "Edit case | Case details"),
             ("Edit testing details", "Edit case | Testing details"),
             ("Edit report details", "Edit case | Report details"),
+            ("Edit QA process", "Edit case | QA process"),
             ("Edit contact details", "Edit case | Contact details"),
             ("Edit report correspondence", "Edit case | Report correspondence"),
             ("Edit 12 week correspondence", "Edit case | 12 week correspondence"),

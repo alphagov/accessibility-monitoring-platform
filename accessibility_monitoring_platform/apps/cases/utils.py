@@ -14,6 +14,7 @@ from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 
 from ..common.forms import AMPTextField, AMPURLField
+from ..common.models import Sector
 from ..common.utils import build_filters
 
 from .forms import (
@@ -21,7 +22,6 @@ from .forms import (
     CaseSearchForm,
     CaseTestResultsUpdateForm,
     CaseReportDetailsUpdateForm,
-    CaseReportCorrespondenceUpdateForm,
     CaseFinalDecisionUpdateForm,
     DEFAULT_SORT,
 )
@@ -39,9 +39,11 @@ EXCLUDED_FIELDS = [
     "case_details_complete_date",
     "testing_details_complete_date",
     "reporting_details_complete_date",
+    "qa_process_complete_date",
     "report_correspondence_complete_date",
     "final_decision_complete_date",
     "enforcement_correspondence_complete_date",
+    "version",
 ]
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -120,6 +122,10 @@ COLUMNS_FOR_EHRC = [
         column_name="Equality body",
         field_name="enforcement_body",
     ),
+    ColumnAndFieldNames(
+        column_name="Date sent to equality body",
+        field_name="sent_to_enforcement_body_sent_date",
+    ),
 ]
 
 CAPITALISE_FIELDS = [
@@ -135,8 +141,8 @@ CAPITALISE_FIELDS = [
 class CaseFieldLabelAndValue:
     """Data to use in html table row of View case page"""
 
-    value: Union[str, date]
-    label: str
+    value: Union[str, date, Sector, None]
+    label: Union[str, None]
     type: str = "text"
     extra_label: str = ""
     DATE_TYPE: ClassVar[str] = "date"
@@ -165,6 +171,8 @@ def extract_labels_and_values(
             value = value.get_full_name()
         elif field_name == "sector" and value is None:
             value = "Unknown"
+        elif isinstance(value, Sector):
+            value = str(value)
         elif isinstance(field, forms.ModelChoiceField):
             pass
         elif isinstance(field, forms.ChoiceField):
@@ -187,7 +195,7 @@ def extract_labels_and_values(
 
 
 def get_sent_date(
-    form: CaseReportCorrespondenceUpdateForm, case_from_db: Case, sent_date_name: str
+    form: forms.ModelForm, case_from_db: Case, sent_date_name: str
 ) -> Union[date, None]:
     """
     Work out what value to save in a sent date field on the case.
@@ -204,7 +212,7 @@ def get_sent_date(
 
 def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
-    filters: Dict = {}
+    filters: Dict = {}  # type: ignore
     search_query = Q()
     sort_by: str = DEFAULT_SORT
 
@@ -287,7 +295,7 @@ def download_ehrc_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
+        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))  # type: ignore
         row = []
         for column in COLUMNS_FOR_EHRC:
             if column.field_name is None:

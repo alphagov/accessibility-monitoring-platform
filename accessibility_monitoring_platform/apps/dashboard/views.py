@@ -4,7 +4,7 @@ Views for dashboard.
 Home should be the only view for dashboard.
 """
 from datetime import date
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -27,10 +27,14 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        user: User = get_object_or_404(User, id=self.request.user.id)
+        user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
         all_cases: List[Case] = list(Case.objects.all())
 
-        show_all_cases: bool = self.request.GET.get("view") == "View all cases"
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        if view_url_param is None:
+            show_all_cases: bool = self.request.user.groups.filter(name="QA auditor").exists()  # type: ignore
+        else:
+            show_all_cases: bool = view_url_param == "View all cases"
         cases: List[Case] = (
             all_cases
             if show_all_cases

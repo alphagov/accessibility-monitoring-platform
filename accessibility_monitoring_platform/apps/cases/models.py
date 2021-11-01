@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector
+from ..common.models import Sector, VersionModel
 
 STATUS_READY_TO_QA = "unassigned-qa-case"
 STATUS_DEFAULT = "unassigned-case"
@@ -96,8 +96,9 @@ REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
 ]
 
 REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
+REPORT_APPROVED_STATUS_APPROVED: str = "yes"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
+    (REPORT_APPROVED_STATUS_APPROVED, "Yes"),
     ("in-progress", "Further work is needed"),
     (REPORT_APPROVED_STATUS_DEFAULT, "Not started"),
 ]
@@ -176,7 +177,7 @@ MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
 
-class Case(models.Model):
+class Case(VersionModel):
     """
     Model for Case
     """
@@ -207,7 +208,6 @@ class Case(models.Model):
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
     organisation_name = models.TextField(default="", blank=True)
-    service_name = models.TextField(default="", blank=True)
     psb_location = models.CharField(
         max_length=20,
         choices=PSB_LOCATION_CHOICES,
@@ -252,6 +252,10 @@ class Case(models.Model):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         default=REPORT_REVIEW_STATUS_DEFAULT,
     )
+    report_notes = models.TextField(default="", blank=True)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
+
+    # QA process
     reviewer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -267,7 +271,7 @@ class Case(models.Model):
     reviewer_notes = models.TextField(default="", blank=True)
     report_final_pdf_url = models.TextField(default="", blank=True)
     report_final_odt_url = models.TextField(default="", blank=True)
-    reporting_details_complete_date = models.DateField(null=True, blank=True)
+    qa_process_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
     contact_details_complete_date = models.DateField(null=True, blank=True)
@@ -298,7 +302,7 @@ class Case(models.Model):
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
-    # correspondence_notes from report correspondence page
+    twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_response_state = models.CharField(
         max_length=20,
         choices=TWELVE_WEEK_RESPONSE_CHOICES,
@@ -375,7 +379,7 @@ class Case(models.Model):
         ordering = ["-id"]
 
     def __str__(self):
-        return str(f"{self.organisation_name} | #{self.id}")
+        return str(f"{self.organisation_name} | #{self.id}")  # type: ignore
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -403,7 +407,7 @@ class Case(models.Model):
     @property
     def title(self):
         return str(
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"  # type: ignore
         )
 
     @property
@@ -506,7 +510,7 @@ class Case(models.Model):
             if getattr(self, field):
                 progress += percentage_increase
 
-        if Contact.objects.filter(case_id=self.id).exists():
+        if Contact.objects.filter(case_id=self.id).exists():  # type: ignore
             progress += percentage_increase
 
         return str(progress) + "%"
@@ -684,7 +688,7 @@ class Case(models.Model):
 
     @property
     def contact_exists(self):
-        return Contact.objects.filter(case_id=self.id).exists()
+        return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
     def psb_appeal_deadline(self):
@@ -721,9 +725,9 @@ class Contact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return str(f"{self.email} (Case #{self.case.id})")
+        return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.id:  # type: ignore
             self.created = timezone.now()
         super().save(*args, **kwargs)

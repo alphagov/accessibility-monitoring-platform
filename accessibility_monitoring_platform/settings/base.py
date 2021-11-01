@@ -38,7 +38,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 # Application definition
 
@@ -107,7 +107,7 @@ if UNDER_TEST:
     }
 else:
     DATABASE_SERVICE_NAMES = ["monitoring-platform-default-db", "a11ymon-postgres"]
-    json_acceptable_string = os.getenv("VCAP_SERVICES").replace("'", '"')
+    json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
     vcap_services = json.loads(json_acceptable_string)
 
     database_credentials = {
@@ -124,13 +124,13 @@ else:
         DATABASES["pubsecweb_db"] = dj_database_url.parse(
             database_credentials["a11ymon-postgres"]
         )
-        DATABASES["pubsecweb_db"]["OPTIONS"] = {
+        DATABASES["pubsecweb_db"]["OPTIONS"] = {  # type: ignore
             "options": "-c search_path=pubsecweb,public"
         }
         DATABASES["a11ymon_db"] = dj_database_url.parse(
             database_credentials["a11ymon-postgres"]
         )
-        DATABASES["a11ymon_db"]["OPTIONS"] = {"options": "-c search_path=a11ymon,public"}
+        DATABASES["a11ymon_db"]["OPTIONS"] = {"options": "-c search_path=a11ymon,public"}  # type: ignore
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 

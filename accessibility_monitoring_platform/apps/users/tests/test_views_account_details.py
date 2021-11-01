@@ -1,17 +1,21 @@
 """
 Tests for view - users
 """
+from typing import Dict, TypedDict, List
 
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.http import HttpResponse
+
 from ..models import EmailInclusionList
-from ...notifications.models import NotificationsSettings
-from typing import TypedDict, List
+from ...common.models import Platform
+from ...common.utils import get_platform_settings
+# from ...notifications.models import NotificationsSettings
 
 
 class FormRequestAccountDetails(TypedDict):
+    active_qa_auditor: int
     email_notifications_enabled: str
     first_name: str
     last_name: str
@@ -68,10 +72,13 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
         user.save()
-        NotificationsSettings(user=user).save()
+        qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+        user.groups.add(qa_auditor_group)
+        # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
+            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
@@ -87,6 +94,8 @@ class UserViewTests(TestCase):
         self.assertContains(response, "Account details")
         messages: List[str] = [str(x) for x in list(response.context["messages"])]
         self.assertEqual(messages[0], "Successfully saved details!")
+        platform: Platform = get_platform_settings()
+        self.assertTrue(platform.active_qa_auditor == user)
 
     def test_account_details_post_errors_appear(self):
         """ Tests if error message appears if there is a mistake in the form """
@@ -96,7 +105,8 @@ class UserViewTests(TestCase):
         NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
-        data: FormRequestAccountDetails = {
+        data: Dict[str, str] = {
+            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
