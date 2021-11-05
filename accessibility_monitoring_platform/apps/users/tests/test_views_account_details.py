@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from ..models import EmailInclusionList
 from ...common.models import Platform
 from ...common.utils import get_platform_settings
-# from ...notifications.models import NotificationsSettings
+from ...notifications.models import NotificationsSettings
 
 
 class FormRequestAccountDetails(TypedDict):
@@ -74,7 +74,6 @@ class UserViewTests(TestCase):
         user.save()
         qa_auditor_group: Group = Group.objects.create(name="QA auditor")
         user.groups.add(qa_auditor_group)
-        # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
         data: Dict[str, str] = {
