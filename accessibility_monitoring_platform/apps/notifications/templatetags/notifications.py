@@ -21,7 +21,7 @@ def notifications_count(request: HttpRequest) -> int:
     int
         Number of notifications
     """
-    count: QuerySet = Notifications.objects.filter(
+    count: QuerySet[Notifications] = Notifications.objects.filter(
         user=request.user,
         read=False,
     )
@@ -42,7 +42,7 @@ def read_notification(request: HttpRequest) -> str:
     str
         Returns empty string to avoid outputting to html template
     """
-    notifications: Any = Notifications.objects.filter(
+    notifications: QuerySet[Notifications] = Notifications.objects.filter(
         user=request.user,
         path=request.path,
         read=False

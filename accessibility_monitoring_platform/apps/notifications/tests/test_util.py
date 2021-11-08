@@ -6,24 +6,7 @@ from django.test import RequestFactory
 from django.core.handlers.wsgi import WSGIRequest
 from ..models import Notifications, NotificationsSettings
 from ..utils import read_notification, add_notification
-
-USER_PASSWORD = "12345"
-
-
-def create_user() -> User:
-    """Creates a user and auto increments the email/username
-
-    Returns:
-        User: A user model
-    """
-    num: int = len(User.objects.all())
-    user: User = User.objects.create(
-        username=f"user{num}@email.com",
-        email=f"user{num}@email.com"
-    )
-    user.set_password(USER_PASSWORD)
-    user.save()
-    return user
+from .create_user import create_user
 
 
 @pytest.mark.django_db

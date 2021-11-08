@@ -88,7 +88,7 @@ def read_notification(request: HttpRequest) -> None:
     ----------
     request : HttpRequest
     """
-    notifications: QuerySet = Notifications.objects.filter(
+    notifications: QuerySet[Notifications] = Notifications.objects.filter(
         user=request.user,
         path=request.path,
         read=False

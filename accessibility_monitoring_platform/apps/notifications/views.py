@@ -17,7 +17,7 @@ class NotificationsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        notifications: QuerySet = Notifications.objects.filter(user=self.request.user)
+        notifications: QuerySet[Notifications] = Notifications.objects.filter(user=self.request.user)
         context["notifications"] = notifications
         context["unread_notifications"] = len(notifications.filter(read=False))
         return context

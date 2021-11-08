@@ -44,7 +44,7 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     bool
         Returns true if function is successful
     """
-    users_on_thread: QuerySet = Comments.objects.filter(
+    users_on_thread: QuerySet[Comments] = Comments.objects.filter(
         path=request.session.get("comment_path"),
         hidden=False,
     ).values_list(

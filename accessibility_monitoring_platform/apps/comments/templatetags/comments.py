@@ -10,7 +10,7 @@ register = template.Library()
 
 
 class CommentContextType(TypedDict):
-    comments: QuerySet
+    comments: QuerySet[Comments]
     request: HttpRequest
     contact_form: SubmitCommentForm
 
@@ -35,7 +35,7 @@ def comments_app(request: HttpRequest, case_id: int, page: str) -> CommentContex
     request.session["comment_path"] = request.path
     request.session["case_id"] = case_id
     form: SubmitCommentForm = SubmitCommentForm()
-    comments = Comments.objects.filter(
+    comments: QuerySet[Comments] = Comments.objects.filter(
         path=request.path,
         hidden=False
     ).order_by(
