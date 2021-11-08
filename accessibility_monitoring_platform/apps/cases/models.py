@@ -50,10 +50,10 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
 ]
 
 TESTING_METHODOLOGY_PLATFORM: str = "platform"
-TESTING_METHODOLOGY_DEFAULT: str = TESTING_METHODOLOGY_PLATFORM
+TESTING_METHODOLOGY_DEFAULT: str = "spreadsheet"
 TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
     (TESTING_METHODOLOGY_PLATFORM, "Platform"),
-    ("spreadsheet", "Testing spreadsheet"),
+    (TESTING_METHODOLOGY_DEFAULT, "Testing spreadsheet"),
 ]
 
 
