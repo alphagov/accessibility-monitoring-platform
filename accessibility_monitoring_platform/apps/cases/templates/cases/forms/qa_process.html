@@ -2,6 +2,10 @@
 
 {% extends 'base.html' %}
 
+{% load notifications %}
+
+{% load comments %}
+
 {% block content %}
 
 <div class="govuk-width-container">
@@ -65,6 +69,8 @@
                         </div>
                     </div>
                 </form>
+                {% comments_app request=request case_id=case.id page="qa_process" %}
+                {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/navbar.html' with current_page='cases:edit-qa-process' %}
