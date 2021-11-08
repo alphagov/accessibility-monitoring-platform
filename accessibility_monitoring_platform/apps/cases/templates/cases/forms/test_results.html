@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -15,46 +15,48 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <div class="govuk-button-group no-bottom-margin">
-                    <a
-                        href="{% url 'checks:check-create' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Create test
-                    </a>
-                </div>
-                {% if checks %}
-                    <table class="govuk-table">
-                        <tbody class="govuk-table__body">
-                        {% for check in checks %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-full">
-                                            <h2 class="govuk-heading-m cases-sub-heading">
-                                                <a href="{% url 'checks:check-detail' case.id check.id %}"
-                                                    style="font-weight:normal"
-                                                    class="govuk-link">
-                                                    {{ check.get_type_display }}
-                                                </a>
-                                            </h2>
-                                            <p class="govuk-body-m">{{ check.description }}</p>
+                {% if case.testing_methodology == 'platform' %}
+                    <div class="govuk-button-group no-bottom-margin">
+                        <a
+                            href="{% url 'checks:check-create' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Create test
+                        </a>
+                    </div>
+                    {% if checks %}
+                        <table class="govuk-table">
+                            <tbody class="govuk-table__body">
+                            {% for check in checks %}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-full">
+                                                <h2 class="govuk-heading-m cases-sub-heading">
+                                                    <a href="{% url 'checks:check-detail' case.id check.id %}"
+                                                        style="font-weight:normal"
+                                                        class="govuk-link">
+                                                        {{ check.get_type_display }}
+                                                    </a>
+                                                </h2>
+                                                <p class="govuk-body-m">{{ check.description }}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="govuk-grid-row">
-                                        <div class="govuk-grid-column-one-half">
-                                            <p class="govuk-body-m cases-sub-heading">Test created</p>
-                                            <p class="govuk-body-m">{{ check.date_of_test|date:"d/m/Y" }}</p>
+                                        <div class="govuk-grid-row">
+                                            <div class="govuk-grid-column-one-half">
+                                                <p class="govuk-body-m cases-sub-heading">Test created</p>
+                                                <p class="govuk-body-m">{{ check.date_of_test|date:"d/m/Y" }}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 {% endif %}
                 <form method="post" action="{% url 'cases:edit-test-results' case.id %}">
                     {% csrf_token %}

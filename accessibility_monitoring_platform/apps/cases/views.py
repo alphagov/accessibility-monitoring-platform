@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Type
 import urllib
 
 from django.contrib import messages
+from django import forms
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -32,7 +33,7 @@ from ..common.utils import (  # type: ignore
     record_model_update_event,
     record_model_create_event,
 )
-from .models import Case, Contact, REPORT_APPROVED_STATUS_APPROVED
+from .models import Case, Contact, REPORT_APPROVED_STATUS_APPROVED, TESTING_METHODOLOGY_PLATFORM
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -177,23 +178,26 @@ class CaseDetailView(DetailView):
         ]
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
-        checks: QuerySet[Check] = self.object.check_case.filter(is_deleted=False)  # type: ignore
-        check_rows: List[FieldLabelAndValue] = []
-        for count, check in enumerate(checks, start=1):
-            check_rows.append(
-                FieldLabelAndValue(
-                    type=FieldLabelAndValue.URL_TYPE,
-                    label=f"Test {count}",
-                    value=reverse_lazy(
-                        "checks:check-detail",
-                        kwargs={
-                            "pk": check.id,  # type: ignore
-                            "case_id": check.case.id,  # type: ignore
-                        },
-                    ),
-                    extra_label=check.get_type_display(),  # type: ignore
+        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
+            checks: QuerySet[Check] = self.object.check_case.filter(is_deleted=False)  # type: ignore
+            testing_details_rows: List[FieldLabelAndValue] = []
+            for count, check in enumerate(checks, start=1):
+                testing_details_rows.append(
+                    FieldLabelAndValue(
+                        type=FieldLabelAndValue.URL_TYPE,
+                        label=f"Test {count}",
+                        value=reverse_lazy(
+                            "checks:check-detail",
+                            kwargs={
+                                "pk": check.id,  # type: ignore
+                                "case_id": check.case.id,  # type: ignore
+                            },
+                        ),
+                        extra_label=check.get_type_display(),  # type: ignore
+                    )
                 )
-            )
+        else:
+            testing_details_rows: List[FieldLabelAndValue] = get_rows(form=CaseTestResultsUpdateForm())
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
@@ -210,9 +214,7 @@ class CaseDetailView(DetailView):
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
-        context["testing_details_rows"] = check_rows + get_rows(
-            form=CaseTestResultsUpdateForm()
-        )
+        context["testing_details_rows"] = testing_details_rows
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
@@ -336,8 +338,24 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["checks"] = self.object.check_case.filter(is_deleted=False)  # type: ignore
+        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
+            context["checks"] = self.object.check_case.filter(is_deleted=False)  # type: ignore
         return context
+
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "test_results_url",
+                "test_status",
+                "accessibility_statement_state",
+                "accessibility_statement_notes",
+                "is_website_compliant",
+                "compliance_decision_notes",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

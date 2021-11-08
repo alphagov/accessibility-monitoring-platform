@@ -42,6 +42,7 @@ from .models import (
     TWELVE_WEEK_RESPONSE_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
+    TESTING_METHODOLOGY_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_READY_TO_REVIEW,
@@ -152,6 +153,11 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
+    testing_methodology = AMPChoiceRadioField(
+        label="Testing methodology?",
+        choices=TESTING_METHODOLOGY_CHOICES,
+    )
+
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -168,6 +174,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "home_page_url",
             "organisation_name",
             "enforcement_body",
+            "testing_methodology",
             "psb_location",
             "sector",
             "is_complaint",
