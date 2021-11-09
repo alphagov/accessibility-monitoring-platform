@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'checks:edit-check-axe' case.id check.id %}" class="govuk-back-link">Back</a>
@@ -59,22 +61,14 @@
         </div>
     </main>
 </div>
-<script type="text/javascript">
-function setTextareaDisplay(checkboxElement, textareaElement) {
-    if (checkboxElement.checked) {
-        textareaElement.classList.remove("hidden-form");
-    } else {
-        textareaElement.classList.add("hidden-form");
-    };
-};
+{% endblock %}
 
-(function() {
-    [...Array(5).keys()].forEach(index => {
-        const checkboxElement = document.getElementById(`id_form-${index}-failed`);
-        const textareaElement = document.getElementById(`id_form-${index}-notes`);
-        setTextareaDisplay(checkboxElement, textareaElement)
-        checkboxElement.addEventListener("change", () => setTextareaDisplay(checkboxElement, textareaElement));
-    });
-})();
-</script>
+{% block extrascript %}
+    <script src="{% static 'js/checks.js' %}"></script>
+    <script type="module">
+        (function() {
+            const numberOfFailedNotes = {{ check_tests_formset.total_form_count }};
+            platform.addTogglesToFailedNotes(numberOfFailedNotes);
+        })();
+    </script>
 {% endblock %}
