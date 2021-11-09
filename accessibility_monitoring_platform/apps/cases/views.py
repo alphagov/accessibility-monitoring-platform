@@ -178,14 +178,6 @@ class CaseDetailView(DetailView):
         qa_process_rows: List[CaseFieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
         )
-        qa_auditor_name: str = self.object.reviewer.get_full_name() if self.object.reviewer else "None"  # type: ignore
-        qa_process_rows.insert(
-            1,
-            CaseFieldLabelAndValue(
-                label="QA Auditor who approved report",
-                value=qa_auditor_name,
-            ),
-        )
 
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
