@@ -1668,3 +1668,66 @@ def test_update_case_checks_version(admin_client):
         </div>""",
         html=True,
     )
+
+
+def test_testing_details_shows_checks_version_if_methodology_is_platform(admin_client):
+    """
+    Test that the edit testing details page shows the create test button
+    and does not show the link to test results field when testing methodology is platform.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    create_check_url: str = reverse("checks:check-create", kwargs={"case_id": case.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{create_check_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+                Create test
+        </a>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
+            <b>Link to test results</b>
+        </label>""",
+        html=True,
+    )
+
+def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet(admin_client):
+    """
+    Test that the edit testing details page does not show the create test button
+    and does show the link to test results field when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(testing_methodology="spreadsheet")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    create_check_url: str = reverse("checks:check-create", kwargs={"case_id": case.id})  # type: ignore
+    assertNotContains(
+        response,
+        f"""<a href="{create_check_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+                Create test
+        </a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
+            <b>Link to test results</b>
+        </label>""",
+        html=True,
+    )
