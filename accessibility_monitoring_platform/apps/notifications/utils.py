@@ -1,10 +1,11 @@
 """Add notification function for notification app"""
-from typing import Any, TypedDict
+from typing import TypedDict
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
-from .models import Notifications, NotificationsSettings
 from django.contrib.auth.models import User
 from django.http import HttpRequest
+from django.db.models import QuerySet
+from .models import Notifications, NotificationsSettings
 
 
 class EmailContextType(TypedDict):
@@ -49,8 +50,14 @@ def add_notification(
         list_description=list_description
     )
     notification.save()
-
-    email_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)
+    if NotificationsSettings.objects.filter(pk=user.id).exists():  # type: ignore
+        email_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)  # type: ignore
+    else:
+        email_settings: NotificationsSettings = NotificationsSettings(
+            user=user,
+            email_notifications_enabled=False,
+        )
+        email_settings.save()
 
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
@@ -61,7 +68,7 @@ def add_notification(
             "request": request,
         }
         template: str = get_template("email.txt")
-        content: str = template.render(context)
+        content: str = template.render(context)  # type: ignore
         email: EmailMessage = EmailMessage(
             subject=f"You have a new notification in the monitoring platform : {list_description}",
             body=content,
@@ -81,11 +88,11 @@ def read_notification(request: HttpRequest) -> None:
     ----------
     request : HttpRequest
     """
-    notifications: Any = Notifications.objects.filter(
+    notifications: QuerySet[Notifications] = Notifications.objects.filter(
         user=request.user,
         path=request.path,
         read=False
     )
     for notification in notifications:
-        notification.read = True
+        notification.read = True  # type: ignore
         notification.save()

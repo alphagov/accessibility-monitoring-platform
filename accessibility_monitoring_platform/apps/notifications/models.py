@@ -41,3 +41,6 @@ class NotificationsSettings (models.Model):
     class Meta:
         verbose_name: str = "NotificationSetting"
         verbose_name_plural: str = "NotificationSettings"
+
+    def __str__(self) -> str:
+        return f"{self.user} - email_notifications_enabled is {self.email_notifications_enabled}"

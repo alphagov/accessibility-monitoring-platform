@@ -1,6 +1,6 @@
 {
   "python.linting.pylintEnabled": true,
-  "python.linting.enabled": false,
+  "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
   "javascript.validate.enable": false,
   "workbench.colorCustomizations": {

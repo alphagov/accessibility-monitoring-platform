@@ -4,7 +4,11 @@ URLS for notifications
 
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from accessibility_monitoring_platform.apps.notifications.views import NotificationsView, HideNotificationView
+from accessibility_monitoring_platform.apps.notifications.views import (
+    NotificationsView,
+    HideNotificationView,
+    UnhideNotificationView
+)
 
 
 app_name = "notifications"
@@ -15,8 +19,13 @@ urlpatterns = [
         name="notifications-list"
     ),
     path(
-        "<int:pk>/remove-notification/",
+        "<int:pk>/hide-notification/",
         login_required(HideNotificationView.as_view()),
-        name="remove-notification"
+        name="hide-notification"
+    ),
+    path(
+        "<int:pk>/unhide-notification/",
+        login_required(UnhideNotificationView.as_view()),
+        name="unhide-notification"
     ),
 ]

@@ -112,7 +112,7 @@ if __name__ == "__main__":
         db_ping_interval=config["db_ping_interval"],
         manifest_path=config["temp_db_copy_path"],
         backup_location="./backup.sql"
-    )
+    ) 
     build_env.start()
 
     if args.build_direction == "up":

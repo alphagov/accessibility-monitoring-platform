@@ -4,6 +4,7 @@ from typing import Any, Dict
 from django.views.generic import ListView
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from .models import Notifications
 
@@ -18,23 +19,9 @@ class NotificationsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        view_all: bool = False
-        if (
-            self.request.GET
-            and self.request.GET["view"]
-            and self.request.GET["view"] == "View all notifications"
-        ):
-            view_all = True
-
-        filter_dict: Dict[str, Any] = {"user": self.request.user}
-
-        if not view_all:
-            filter_dict["read"] = False
-
-        notifications = Notifications.objects.filter(**filter_dict)
-
+        notifications: QuerySet[Notifications] = Notifications.objects.filter(user=self.request.user)
         context["notifications"] = notifications
-        context["show_all_notifications"] = view_all
+        context["unread_notifications"] = len(notifications.filter(read=False))
         return context
 
 
@@ -51,6 +38,25 @@ class HideNotificationView(ListView):
             notifications.read = True
             notifications.save()
             messages.success(request, "Notification marked as seen")
+        else:
+            messages.error(request, "An error occured")
+
+        return HttpResponseRedirect(reverse_lazy("notifications:notifications-list"))
+
+
+class UnhideNotificationView(ListView):
+    """
+    Unhides notification
+    """
+    model = Notifications
+
+    def get(self, request, pk):
+        """ Unhides a notification """
+        notifications: Notifications = Notifications.objects.get(pk=pk)
+        if notifications.user.id == request.user.id:  # Checks whether the comment was posted by user
+            notifications.read = False
+            notifications.save()
+            messages.success(request, "Notification marked as unseen")
         else:
             messages.error(request, "An error occured")
 
