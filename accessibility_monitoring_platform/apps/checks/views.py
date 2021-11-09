@@ -177,13 +177,14 @@ class CheckDetailView(DetailView):
         check_metadata_rows: List[FieldLabelAndValue] = get_rows(
             form=CheckUpdateMetadataForm()
         )
-        check_metadata_rows.insert(
-            1,
-            FieldLabelAndValue(
-                label="Auditor",
-                value=self.object.case.auditor.get_full_name(),  # type: ignore
-            ),
-        )
+        if self.object.case.auditor:  # type: ignore
+            check_metadata_rows.insert(
+                1,
+                FieldLabelAndValue(
+                    label="Auditor",
+                    value=self.object.case.auditor.get_full_name(),  # type: ignore
+                ),
+            )
 
         context["check_metadata_rows"] = check_metadata_rows
         context["standard_pages"] = self.object.page_check.filter(is_deleted=False).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore

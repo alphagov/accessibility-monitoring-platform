@@ -6,11 +6,23 @@ function setTextareaDisplay(checkboxElement, textareaElement) {
     };
 };
 
-export function addTogglesToFailedNotes(numberOfFailedNotes) {
-    [...Array(numberOfFailedNotes).keys()].forEach(index => {
-        const checkboxElement = document.getElementById(`id_form-${index}-failed`);
-        const textareaElement = document.getElementById(`id_form-${index}-notes`);
-        setTextareaDisplay(checkboxElement, textareaElement)
-        checkboxElement.addEventListener("change", () => setTextareaDisplay(checkboxElement, textareaElement));
-    });
+function addTogglesToFailedNotes(numberOfFailedNotes) {
+    let index = 0;
+    let checkboxElement = document.getElementById(`id_form-${index}-failed`);
+    let textareaElement = document.getElementById(`id_form-${index}-notes`);
+    while (checkboxElement !== null && textareaElement !== null) {
+        setTextareaDisplay(checkboxElement, textareaElement);
+        (function(checkboxElement, textareaElement) {
+            checkboxElement.addEventListener("change", () => {
+                setTextareaDisplay(checkboxElement, textareaElement);
+            });
+        })(checkboxElement, textareaElement);
+        index++;
+        checkboxElement = document.getElementById(`id_form-${index}-failed`);
+        textareaElement = document.getElementById(`id_form-${index}-notes`);
+    };
 };
+
+(function() {
+    addTogglesToFailedNotes();
+})();

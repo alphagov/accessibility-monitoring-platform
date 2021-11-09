@@ -4,7 +4,7 @@ const UglifyJS = require('uglify-js')
 
 const myArgs = process.argv.slice(2)
 
-const b = browserify({ entries: myArgs[0], standalone: 'platform' })
+const b = browserify({ entries: myArgs[0] })
 
 const res = b.transform(babelify, { presets: ['@babel/preset-env'] })
 res.bundle((err, buffer) => {

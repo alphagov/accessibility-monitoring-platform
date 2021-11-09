@@ -65,10 +65,4 @@
 
 {% block extrascript %}
     <script src="{% static 'js/checks.js' %}"></script>
-    <script type="module">
-        (function() {
-            const numberOfFailedNotes = {{ check_tests_formset.total_form_count }};
-            platform.addTogglesToFailedNotes(numberOfFailedNotes);
-        })();
-    </script>
 {% endblock %}
