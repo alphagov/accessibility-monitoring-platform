@@ -1701,7 +1701,10 @@ def test_testing_details_shows_checks_version_if_methodology_is_platform(admin_c
         html=True,
     )
 
-def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet(admin_client):
+
+def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet(
+    admin_client,
+):
     """
     Test that the edit testing details page does not show the create test button
     and does show the link to test results field when testing methodology is spreadsheet.

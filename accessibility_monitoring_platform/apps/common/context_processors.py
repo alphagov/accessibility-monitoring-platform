@@ -35,13 +35,13 @@ PAGE_TITLES_BY_URL = {
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
     "/websites/": "Query domain register",
-    "/cases/[id]/checks/create/": "Edit test | Create test",
-    "/cases/[id]/checks/[id]/view/": "View test",
-    "/cases/[id]/checks/[id]/edit-check-metadata/": "Edit test | Test metadata",
-    "/cases/[id]/checks/[id]/edit-check-pages/": "Edit test | Pages",
-    "/cases/[id]/checks/[id]/edit-check-manual/": "Edit test | Manual tests",
-    "/cases/[id]/checks/[id]/edit-check-axe/": "Edit test | Axe and colour contrast tests",
-    "/cases/[id]/checks/[id]/edit-check-pdf/": "Edit test | PDF tests",
+    "/cases/[id]/audits/create/": "Edit test | Create test",
+    "/cases/[id]/audits/[id]/view/": "View test",
+    "/cases/[id]/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
+    "/cases/[id]/audits/[id]/edit-audit-pages/": "Edit test | Pages",
+    "/cases/[id]/audits/[id]/edit-audit-manual/": "Edit test | Manual tests",
+    "/cases/[id]/audits/[id]/edit-audit-axe/": "Edit test | Axe and colour contrast tests",
+    "/cases/[id]/audits/[id]/edit-audit-pdf/": "Edit test | PDF tests",
 }
 
 

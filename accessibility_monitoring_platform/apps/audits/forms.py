@@ -19,16 +19,16 @@ from ..common.forms import (
 )
 from ..cases.models import BOOLEAN_CHOICES
 from .models import (
-    Check,
+    Audit,
     Page,
-    CheckTest,
+    PageTest,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
-    CHECK_TYPE_CHOICES,
+    AUDIT_TYPE_CHOICES,
 )
 
 
-class CheckCreateForm(forms.ModelForm):
+class AuditCreateForm(forms.ModelForm):
     """
     Form for creating a check
     """
@@ -39,11 +39,11 @@ class CheckCreateForm(forms.ModelForm):
     is_exemption = AMPChoiceRadioField(label="Exemptions?", choices=EXEMPTION_CHOICES)
     notes = AMPTextField(label="Notes")
     type = AMPChoiceRadioField(
-        label="Initital test or equality body retest?", choices=CHECK_TYPE_CHOICES
+        label="Initital test or equality body retest?", choices=AUDIT_TYPE_CHOICES
     )
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "date_of_test",
             "description",
@@ -54,15 +54,15 @@ class CheckCreateForm(forms.ModelForm):
         ]
 
 
-class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
+class AuditUpdateMetadataForm(AuditCreateForm, VersionForm):
     """
     Form for editing check metadata
     """
 
-    check_metadata_complete_date = AMPDatePageCompleteField()
+    audit_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "version",
             "date_of_test",
@@ -71,11 +71,11 @@ class CheckUpdateMetadataForm(CheckCreateForm, VersionForm):
             "is_exemption",
             "notes",
             "type",
-            "check_metadata_complete_date",
+            "audit_metadata_complete_date",
         ]
 
 
-class CheckExtraPageUpdateForm(forms.ModelForm):
+class AuditExtraPageUpdateForm(forms.ModelForm):
     """
     Form for updating an extra page
     """
@@ -91,7 +91,7 @@ class CheckExtraPageUpdateForm(forms.ModelForm):
         ]
 
 
-class CheckStandardPageUpdateForm(CheckExtraPageUpdateForm):
+class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
     """
     Form for updating a standard page (one of the 5 types of page in every check)
     """
@@ -111,78 +111,78 @@ class CheckStandardPageUpdateForm(CheckExtraPageUpdateForm):
         ]
 
 
-CheckStandardPageFormset: Any = forms.modelformset_factory(
-    Page, CheckStandardPageUpdateForm, extra=0
+AuditStandardPageFormset: Any = forms.modelformset_factory(
+    Page, AuditStandardPageUpdateForm, extra=0
 )
-CheckExtraPageFormset: Any = forms.modelformset_factory(
-    Page, CheckExtraPageUpdateForm, extra=0
+AuditExtraPageFormset: Any = forms.modelformset_factory(
+    Page, AuditExtraPageUpdateForm, extra=0
 )
-CheckExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
-    Page, CheckExtraPageUpdateForm, extra=1
+AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
+    Page, AuditExtraPageUpdateForm, extra=1
 )
 
 
-class CheckUpdatePagesForm(VersionForm):
+class AuditUpdatePagesForm(VersionForm):
     """
     Form for editing check pages page
     """
 
-    check_pages_complete_date = AMPDatePageCompleteField()
+    audit_pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "version",
-            "check_pages_complete_date",
+            "audit_pages_complete_date",
         ]
 
 
-class CheckUpdateManualForm(VersionForm):
+class AuditUpdateManualForm(VersionForm):
     """
     Form for editing manual checks
     """
 
-    check_manual_complete_date = AMPDatePageCompleteField()
+    audit_manual_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "version",
-            "check_manual_complete_date",
+            "audit_manual_complete_date",
         ]
 
 
-class CheckUpdateAxeForm(VersionForm):
+class AuditUpdateAxeForm(VersionForm):
     """
     Form for editing axe checks
     """
 
-    check_axe_complete_date = AMPDatePageCompleteField()
+    audit_axe_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "version",
-            "check_axe_complete_date",
+            "audit_axe_complete_date",
         ]
 
 
-class CheckUpdatePdfForm(VersionForm):
+class AuditUpdatePdfForm(VersionForm):
     """
     Form for editing pdf checks
     """
 
-    check_pdf_complete_date = AMPDatePageCompleteField()
+    audit_pdf_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Check
+        model = Audit
         fields: List[str] = [
             "version",
-            "check_pdf_complete_date",
+            "audit_pdf_complete_date",
         ]
 
 
-class CheckTestUpdateForm(VersionForm):
+class PageTestUpdateForm(VersionForm):
     """
     Form for updating a single check test
     """
@@ -195,7 +195,7 @@ class CheckTestUpdateForm(VersionForm):
     notes = AMPTextField(label="Violation details")
 
     class Meta:
-        model = CheckTest
+        model = PageTest
         fields = [
             "version",
             "failed",
@@ -203,6 +203,6 @@ class CheckTestUpdateForm(VersionForm):
         ]
 
 
-CheckTestUpdateFormset: Any = forms.modelformset_factory(
-    CheckTest, CheckTestUpdateForm, extra=0
+PageTestUpdateFormset: Any = forms.modelformset_factory(
+    PageTest, PageTestUpdateForm, extra=0
 )

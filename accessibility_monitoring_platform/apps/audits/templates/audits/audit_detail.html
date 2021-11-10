@@ -10,7 +10,7 @@
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
                     <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_heading }}</h1>
-                    {% if check.is_deleted %}
+                    {% if audit.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
                             deleted
                         </strong>
@@ -22,7 +22,7 @@
                     <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
-                    <a href="{% url 'checks:edit-check-metadata' case.id check.id %}"
+                    <a href="{% url 'audits:edit-audit-metadata' case.id audit.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"
@@ -30,9 +30,9 @@
                     >
                         Edit test
                     </a>
-                    {% if check.is_deleted %}
+                    {% if audit.is_deleted %}
                         <a
-                            href="{% url 'checks:restore-check' case.id check.id %}"
+                            href="{% url 'audits:restore-audit' case.id audit.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--warning"
@@ -42,7 +42,7 @@
                         </a>
                     {% else %}
                         <a
-                            href="{% url 'checks:delete-check' case.id check.id %}"
+                            href="{% url 'audits:delete-audit' case.id audit.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--secondary"
@@ -61,12 +61,12 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'checks/helpers/navbar.html' with current_page='view-check' %}
-                {% include 'checks/details/metadata.html' %}
-                {% include 'checks/details/pages.html' %}
-                {% include 'checks/details/manual.html' %}
-                {% include 'checks/details/axe.html' %}
-                {% include 'checks/details/pdf.html' %}
+                {% include 'audits/helpers/navbar.html' with current_page='view-audit' %}
+                {% include 'audits/details/metadata.html' %}
+                {% include 'audits/details/pages.html' %}
+                {% include 'audits/details/manual.html' %}
+                {% include 'audits/details/axe.html' %}
+                {% include 'audits/details/pdf.html' %}
             </div>
         </div>
     </main>

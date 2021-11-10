@@ -1,5 +1,5 @@
 """
-Models - checks (called tests by the users)
+Models - audits (called tests by the users)
 """
 from typing import List, Tuple
 
@@ -20,9 +20,9 @@ EXEMPTION_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     (EXEMPTION_DEFAULT, "Unknown"),
 ]
-CHECK_TYPE_DEFAULT: str = "initial"
-CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (CHECK_TYPE_DEFAULT, "Initial"),
+AUDIT_TYPE_DEFAULT: str = "initial"
+AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (AUDIT_TYPE_DEFAULT, "Initial"),
     ("eq-retest", "Equality body retest"),
 ]
 PAGE_TYPE_EXTRA: str = "extra"
@@ -65,12 +65,12 @@ TEST_SUB_TYPE_CHOICES: List[Tuple[str, str]] = [
 ]
 
 
-class Check(VersionModel):
+class Audit(VersionModel):
     """
-    Model for test/check
+    Model for test
     """
 
-    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="check_case")
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="audit_case")
     is_deleted = models.BooleanField(default=False)
 
     # metadata page
@@ -86,21 +86,21 @@ class Check(VersionModel):
     )
     notes = models.TextField(default="", blank=True)
     type = models.CharField(
-        max_length=20, choices=CHECK_TYPE_CHOICES, default=CHECK_TYPE_DEFAULT
+        max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
     )
-    check_metadata_complete_date = models.DateField(null=True, blank=True)
+    audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # pages page
-    check_pages_complete_date = models.DateField(null=True, blank=True)
+    audit_pages_complete_date = models.DateField(null=True, blank=True)
 
     # manual page
-    check_manual_complete_date = models.DateField(null=True, blank=True)
+    audit_manual_complete_date = models.DateField(null=True, blank=True)
 
     # axe page
-    check_axe_complete_date = models.DateField(null=True, blank=True)
+    audit_axe_complete_date = models.DateField(null=True, blank=True)
 
     # pdf page
-    check_pdf_complete_date = models.DateField(null=True, blank=True)
+    audit_pdf_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -110,18 +110,18 @@ class Check(VersionModel):
 
     def get_absolute_url(self):
         return reverse(
-            "checks:edit-check-metadata",
+            "audits:edit-audit-metadata",
             kwargs={"pk": self.pk, "case_id": self.case.pk},
         )
 
 
 class Page(VersionModel):
     """
-    Model for test/check page
+    Model for test/audit page
     """
 
-    parent_check = models.ForeignKey(
-        Check, on_delete=models.CASCADE, related_name="page_check"
+    audit = models.ForeignKey(
+        Audit, on_delete=models.CASCADE, related_name="page_audit"
     )
     is_deleted = models.BooleanField(default=False)
 
@@ -138,16 +138,16 @@ class Page(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.parent_check} | {self.type} | #{self.pk}")  # type: ignore
+        return str(f"{self.audit} | {self.type} | #{self.pk}")  # type: ignore
 
     def get_absolute_url(self):
         return reverse(
-            "checks:edit-check-page",
-            kwargs={"pk": self.check.pk, "case_id": self.parent_check.case.pk},
+            "audits:edit-audit-page",
+            kwargs={"pk": self.audit.pk, "case_id": self.audit.case.pk},
         )
 
 
-class WcagTest(models.Model):
+class WcagDefinition(models.Model):
     """
     Model for WCAG tests captured by the platform
     """
@@ -167,20 +167,23 @@ class WcagTest(models.Model):
         return str(f"{self.pk} | {self.type} | {self.sub_type} | {self.name}")
 
 
-class CheckTest(VersionModel):
+class PageTest(VersionModel):
     """
     Model for test result
     """
 
-    parent_check = models.ForeignKey(
-        Check, on_delete=models.CASCADE, related_name="test_check"
+    audit = models.ForeignKey(
+        Audit, on_delete=models.CASCADE, related_name="pagetest_audit"
+    )
+    page = models.ForeignKey(
+        Page, on_delete=models.CASCADE, related_name="pagetest_page"
     )
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
         max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
     )
-    wcag_test = models.ForeignKey(
-        WcagTest, on_delete=models.CASCADE, related_name="test_wcagtest"
+    wcag_definition = models.ForeignKey(
+        WcagDefinition, on_delete=models.CASCADE, related_name="pagetest_wcagdefinition"
     )
 
     failed = models.CharField(
@@ -192,4 +195,4 @@ class CheckTest(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.parent_check} | {self.wcag_test} | #{self.pk}")
+        return str(f"#{self.pk} | {self.audit} | {self.page} | {self.wcag_definition}")

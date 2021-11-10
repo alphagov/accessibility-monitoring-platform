@@ -44,7 +44,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.cases",
-    "accessibility_monitoring_platform.apps.checks",
+    "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.dashboard",
     "accessibility_monitoring_platform.apps.users",

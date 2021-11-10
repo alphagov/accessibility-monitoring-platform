@@ -10,7 +10,7 @@ from accessibility_monitoring_platform.apps.common.views import ContactAdminView
 
 urlpatterns = [
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
-    path("cases/<int:case_id>/checks/", include("accessibility_monitoring_platform.apps.checks.urls")),
+    path("cases/<int:case_id>/audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
     path("websites/", include("accessibility_monitoring_platform.apps.websites.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),

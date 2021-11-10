@@ -21,7 +21,7 @@ from django.views.generic.list import ListView
 
 from ..notifications.utils import read_notification
 
-from ..checks.models import Check
+from ..audits.models import Audit
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
     FieldLabelAndValue,
@@ -33,7 +33,12 @@ from ..common.utils import (  # type: ignore
     record_model_update_event,
     record_model_create_event,
 )
-from .models import Case, Contact, REPORT_APPROVED_STATUS_APPROVED, TESTING_METHODOLOGY_PLATFORM
+from .models import (
+    Case,
+    Contact,
+    REPORT_APPROVED_STATUS_APPROVED,
+    TESTING_METHODOLOGY_PLATFORM,
+)
 from .forms import (
     CaseCreateForm,
     CaseDetailUpdateForm,
@@ -179,25 +184,27 @@ class CaseDetailView(DetailView):
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
-            checks: QuerySet[Check] = self.object.check_case.filter(is_deleted=False)  # type: ignore
+            audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False)  # type: ignore
             testing_details_rows: List[FieldLabelAndValue] = []
-            for count, check in enumerate(checks, start=1):
+            for count, audit in enumerate(audits, start=1):
                 testing_details_rows.append(
                     FieldLabelAndValue(
                         type=FieldLabelAndValue.URL_TYPE,
                         label=f"Test {count}",
                         value=reverse_lazy(
-                            "checks:check-detail",
+                            "audits:audit-detail",
                             kwargs={
-                                "pk": check.id,  # type: ignore
-                                "case_id": check.case.id,  # type: ignore
+                                "pk": audit.id,  # type: ignore
+                                "case_id": audit.case.id,  # type: ignore
                             },
                         ),
-                        extra_label=check.get_type_display(),  # type: ignore
+                        extra_label=audit.get_type_display(),  # type: ignore
                     )
                 )
         else:
-            testing_details_rows: List[FieldLabelAndValue] = get_rows(form=CaseTestResultsUpdateForm())
+            testing_details_rows: List[FieldLabelAndValue] = get_rows(
+                form=CaseTestResultsUpdateForm()
+            )
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
@@ -339,7 +346,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-            context["checks"] = self.object.check_case.filter(is_deleted=False)  # type: ignore
+            context["audits"] = self.object.audit_case.filter(is_deleted=False)  # type: ignore
         return context
 
     def get_form(self):

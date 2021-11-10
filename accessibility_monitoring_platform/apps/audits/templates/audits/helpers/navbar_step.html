@@ -3,7 +3,7 @@
                     {{ name }}
                     {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
-                    <a href="{% url edit_name case.id check.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{% url edit_name case.id audit.id %}" class="govuk-link govuk-link--no-visited-state">
                         {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if complete %}&check;{% endif %}

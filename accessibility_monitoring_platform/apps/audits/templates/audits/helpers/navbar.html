@@ -1,0 +1,48 @@
+<nav role="navigation" style="margin-bottom:40px">
+    {% if current_page == 'view-audit' %}
+        <h2 class="govuk-heading-m">Contents</h2>
+        <ul class="govuk-list">
+            {% include './navbar_content.html' with id='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
+            {% include './navbar_content.html' with id='audit-pages' edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
+            {% include './navbar_content.html' with id='audit-manual' edit_name='audits:edit-audit-manual' name='Manual tests' complete=audit.audit_manual_complete_date %}
+            {% include './navbar_content.html' with id='audit-axe' edit_name='audits:edit-audit-axe' name='Axe and colour contrast tests' complete=audit.audit_axe_complete_date %}
+            {% include './navbar_content.html' with id='audit-pdf' edit_name='audits:edit-audit-pdf' name='PDF tests' complete=audit.audit_pdf_complete_date %}
+        </ul>
+    {% else %}
+        <h2 class="govuk-heading-m bottom-margin-5">Test steps</h2>
+        <ul class="govuk-list">
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-manual' name='Manual tests' complete=audit.audit_manual_complete_date %}
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-axe' name='Axe and colour contrast tests' complete=audit.audit_axe_complete_date %}
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-pdf' name='PDF tests' complete=audit.audit_pdf_complete_date %}
+        </ul>
+        <h2 class="govuk-heading-m  bottom-margin-5">Frequently used links</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to website
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                    Link to case view
+                </a>
+            </li>
+            {% if case.zendesk_url %}
+                <li>
+                    <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Zendesk
+                    </a>
+                </li>
+            {% endif %}
+            {% if case.trello_url %}
+                <li>
+                    <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Trello
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</nav>

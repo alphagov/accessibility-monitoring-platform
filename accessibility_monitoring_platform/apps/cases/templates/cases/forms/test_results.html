@@ -18,7 +18,7 @@
                 {% if case.testing_methodology == 'platform' %}
                     <div class="govuk-button-group no-bottom-margin">
                         <a
-                            href="{% url 'checks:check-create' case.id %}"
+                            href="{% url 'audits:audit-create' case.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--secondary"
@@ -27,28 +27,28 @@
                             Create test
                         </a>
                     </div>
-                    {% if checks %}
+                    {% if audits %}
                         <table class="govuk-table">
                             <tbody class="govuk-table__body">
-                            {% for check in checks %}
+                            {% for audit in audits %}
                                 <tr class="govuk-table__row">
                                     <td class="govuk-table__cell">
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
                                                 <h2 class="govuk-heading-m cases-sub-heading">
-                                                    <a href="{% url 'checks:check-detail' case.id check.id %}"
+                                                    <a href="{% url 'audits:audit-detail' case.id audit.id %}"
                                                         style="font-weight:normal"
                                                         class="govuk-link">
-                                                        {{ check.get_type_display }}
+                                                        {{ audit.get_type_display }}
                                                     </a>
                                                 </h2>
-                                                <p class="govuk-body-m">{{ check.description }}</p>
+                                                <p class="govuk-body-m">{{ audit.description }}</p>
                                             </div>
                                         </div>
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-one-half">
                                                 <p class="govuk-body-m cases-sub-heading">Test created</p>
-                                                <p class="govuk-body-m">{{ check.date_of_test|date:"d/m/Y" }}</p>
+                                                <p class="govuk-body-m">{{ audit.date_of_test|date:"d/m/Y" }}</p>
                                             </div>
                                         </div>
                                     </td>
