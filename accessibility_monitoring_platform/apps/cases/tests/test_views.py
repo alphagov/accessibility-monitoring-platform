@@ -1670,7 +1670,7 @@ def test_update_case_checks_version(admin_client):
     )
 
 
-def test_testing_details_shows_checks_version_if_methodology_is_platform(admin_client):
+def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_client):
     """
     Test that the edit testing details page shows the create test button
     and does not show the link to test results field when testing methodology is platform.
@@ -1683,7 +1683,7 @@ def test_testing_details_shows_checks_version_if_methodology_is_platform(admin_c
 
     assert response.status_code == 200
 
-    create_check_url: str = reverse("checks:check-create", kwargs={"case_id": case.id})  # type: ignore
+    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
     assertContains(
         response,
         f"""<a href="{create_check_url}"
@@ -1717,7 +1717,7 @@ def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet
 
     assert response.status_code == 200
 
-    create_check_url: str = reverse("checks:check-create", kwargs={"case_id": case.id})  # type: ignore
+    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
     assertNotContains(
         response,
         f"""<a href="{create_check_url}"

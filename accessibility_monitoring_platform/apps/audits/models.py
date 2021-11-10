@@ -106,7 +106,7 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return str(f"{self.description} | #{self.id}")  # type: ignore
+        return str(f"#{self.id} | {self.description}")  # type: ignore
 
     def get_absolute_url(self):
         return reverse(
@@ -138,7 +138,7 @@ class Page(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.audit} | {self.type} | #{self.pk}")  # type: ignore
+        return str(f"#{self.pk} | {self.type} | {self.name}")
 
     def get_absolute_url(self):
         return reverse(
@@ -164,7 +164,7 @@ class WcagDefinition(models.Model):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.pk} | {self.type} | {self.sub_type} | {self.name}")
+        return str(f"{self.type} | {self.sub_type} | {self.name}")
 
 
 class PageTest(VersionModel):
@@ -195,4 +195,4 @@ class PageTest(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"#{self.pk} | {self.audit} | {self.page} | {self.wcag_definition}")
+        return str(f"#{self.pk} | {self.wcag_definition}")
