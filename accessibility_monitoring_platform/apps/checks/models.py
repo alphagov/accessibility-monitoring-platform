@@ -50,9 +50,18 @@ TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
 TEST_TYPE_PDF: str = "pdf"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TEST_TYPE_MANUAL, "Manual"),
     (TEST_TYPE_AXE, "Axe"),
+    (TEST_TYPE_MANUAL, "Manual"),
     (TEST_TYPE_PDF, "PDF"),
+]
+TEST_SUB_TYPE_DEFAULT: str = "other"
+TEST_SUB_TYPE_CHOICES: List[Tuple[str, str]] = [
+    ("additional", "Additional"),
+    ("audio-visual", "Audio and Visual"),
+    ("keyboard", "Keyboard"),
+    (TEST_SUB_TYPE_DEFAULT, "Other"),
+    ("pdf", "PDF"),
+    ("zoom", "Zoom and Reflow"),
 ]
 
 
@@ -146,13 +155,16 @@ class WcagTest(models.Model):
     type = models.CharField(
         max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
     )
+    sub_type = models.CharField(
+        max_length=20, choices=TEST_SUB_TYPE_CHOICES, default=TEST_SUB_TYPE_DEFAULT
+    )
     name = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.type} | {self.name}")
+        return str(f"{self.pk} | {self.type} | {self.sub_type} | {self.name}")
 
 
 class CheckTest(VersionModel):

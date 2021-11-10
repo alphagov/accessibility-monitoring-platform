@@ -2,7 +2,7 @@
 Views for checks app (called tests by users)
 """
 from functools import partial
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Callable, Dict, List, Type, Union
 
 from django.forms.models import ModelForm
 from django.db.models.query import QuerySet
@@ -11,6 +11,14 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
+
+from ..cases.models import Case
+from ..common.utils import (
+    FieldLabelAndValue,
+    get_id_from_button_name,
+    record_model_update_event,
+    record_model_create_event,
+)
 
 from .forms import (
     CheckCreateForm,
@@ -27,22 +35,13 @@ from .forms import (
 from .models import (
     Check,
     Page,
-    WcagTest,
     CheckTest,
+    TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
     PAGE_TYPE_EXTRA,
-    MANDATORY_PAGE_TYPES,
 )
-
-from ..cases.models import Case
-from ..common.utils import (  # type: ignore
-    FieldLabelAndValue,
-    get_id_from_button_name,
-    record_model_update_event,
-    record_model_create_event,
-)
-from .utils import extract_labels_and_values
+from .utils import create_pages_and_tests_for_new_check, extract_labels_and_values
 
 STANDARD_PAGE_HEADERS: List[str] = [
     "Home Page",
@@ -143,17 +142,7 @@ class CheckCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
-        for page_type in MANDATORY_PAGE_TYPES:
-            page: Page = Page.objects.create(parent_check=self.object, type=page_type)  # type: ignore
-            record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
-        pdf_wcag_tests: QuerySet[WcagTest] = WcagTest.objects.filter(type=TEST_TYPE_PDF)
-        for wcag_test in pdf_wcag_tests:
-            check_test: CheckTest = CheckTest.objects.create(
-                parent_check=self.object,  # type: ignore
-                type=TEST_TYPE_PDF,
-                wcag_test=wcag_test,
-            )
-            record_model_create_event(user=self.request.user, model_object=check_test)  # type: ignore
+        create_pages_and_tests_for_new_check(parent_check=self.object, user=self.request.user)  # type: ignore
         if "save_continue" in self.request.POST:
             url: str = get_check_url(url_name="edit-check-metadata", check=self.object)  # type: ignore
         else:
@@ -320,6 +309,29 @@ class CheckManualUpdateView(CheckUpdateView):
 
     form_class: Type[CheckUpdateManualForm] = CheckUpdateManualForm
     template_name: str = "checks/forms/manual.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(
+                self.request.POST
+            )
+        else:
+            check_tests: QuerySet[CheckTest] = self.object.test_check.filter(  # type: ignore
+                type=TEST_TYPE_MANUAL
+            )
+
+            check_tests_formset: CheckTestUpdateFormset = CheckTestUpdateFormset(
+                queryset=check_tests
+            )
+        for check_tests_form in check_tests_formset.forms:
+            check_tests_form.fields["failed"].label = ""
+            check_tests_form.fields["failed"].widget.attrs = {
+                "label": check_tests_form.instance.wcag_test.name
+            }
+        context["check_tests_formset"] = check_tests_formset
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

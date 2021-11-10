@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'checks:edit-check-pages' case.id check.id %}" class="govuk-back-link">Back</a>
@@ -18,7 +20,58 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'checks:edit-check-manual' case.id check.id %}">
                     {% csrf_token %}
+                    {{ check_tests_formset.management_form }}
                     <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Keyboard</h2>
+                        </div>
+                        {% for form in check_tests_formset %}
+                            {% if form.instance.wcag_test.sub_type == 'keyboard' %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_form_snippet.html' %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Zoom and Reflow</h2>
+                        </div>
+                        {% for form in check_tests_formset %}
+                            {% if form.instance.wcag_test.sub_type == 'zoom' %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_form_snippet.html' %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Audio and Visual</h2>
+                        </div>
+                        {% for form in check_tests_formset %}
+                            {% if form.instance.wcag_test.sub_type == 'audio-visual' %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_form_snippet.html' %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Additional</h2>
+                        </div>
+                        {% for form in check_tests_formset %}
+                            {% if form.instance.wcag_test.sub_type == 'additional' %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_form_snippet.html' %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Other</h2>
+                        </div>
+                        {% for form in check_tests_formset %}
+                            {% if form.instance.wcag_test.sub_type == 'other' %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_form_snippet.html' %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
@@ -53,4 +106,8 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/checks.js' %}"></script>
 {% endblock %}

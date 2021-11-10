@@ -192,7 +192,7 @@ class CheckTestUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(),
     )
-    notes = AMPTextField(label="Notes")
+    notes = AMPTextField(label="Violation details")
 
     class Meta:
         model = CheckTest
