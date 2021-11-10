@@ -2,7 +2,7 @@
 Views - account_details - users
 """
 
-from typing import TypedDict, List, Any
+from typing import TypedDict, List, Any, Dict
 
 from django.contrib.auth import login
 from django.shortcuts import redirect, render, get_object_or_404
@@ -14,7 +14,7 @@ from django.http import HttpRequest, HttpResponse
 
 from accessibility_monitoring_platform.apps.users.forms import UpdateUserForm
 from accessibility_monitoring_platform.apps.common.utils import record_model_update_event
-# from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
+from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 
@@ -38,12 +38,20 @@ def account_details(request: HttpRequest) -> HttpResponse:
     """
     request_temp: Any = request
     user: User = get_object_or_404(User, id=request_temp.user.id)
-    # notification_settings = NotificationsSettings.objects.get(user=user)
+    if NotificationsSettings.objects.filter(pk=user.id).exists():  # type: ignore
+        notification_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)  # type: ignore
+    else:
+        notification_settings: NotificationsSettings = NotificationsSettings(
+            user=user,
+            email_notifications_enabled=False,
+        )
+        notification_settings.save()
+
     platform: Platform = get_platform_settings()
 
-    initial = model_to_dict(user)
+    initial: Dict[str, Any] = model_to_dict(user)
     initial["email_confirm"] = initial["email"]
-    # initial["email_notifications"] = notification_settings.email_notifications_enabled
+    initial["email_notifications"] = notification_settings.email_notifications_enabled
     initial["active_qa_auditor"] = platform.active_qa_auditor
 
     form: UpdateUserForm = UpdateUserForm(
@@ -59,8 +67,9 @@ def account_details(request: HttpRequest) -> HttpResponse:
             record_model_update_event(user=request.user, model_object=user)  # type: ignore
             user.save()
 
-            # notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
-            # notification_settings.save()
+            notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
+            notification_settings.save()
+
             active_qa_auditor: User = form.cleaned_data["active_qa_auditor"]
             if platform.active_qa_auditor != active_qa_auditor:
                 platform.active_qa_auditor = active_qa_auditor

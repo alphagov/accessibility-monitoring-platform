@@ -55,3 +55,6 @@ class CommentsHistory(models.Model):
     class Meta:
         verbose_name: str = "Comment history"
         verbose_name_plural: str = "Comments history"
+
+    def __str__(self) -> str:
+        return f"Comment {self.before} was updated to {self.after}"

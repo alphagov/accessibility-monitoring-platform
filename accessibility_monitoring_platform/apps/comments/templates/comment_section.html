@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <div style="padding-top: 20px; border-top: 2px solid grey;">
-    <h2 class="govuk-heading-l" id="comments"> Discussion </h2>
+    <h2 class="govuk-heading-l" id="comments"> Comments </h2>
     <form  method="post" action="{% url 'comments:post-comment' %}">
         {% csrf_token %}
         {% for hidden_field in contact_form.hidden_fields %}

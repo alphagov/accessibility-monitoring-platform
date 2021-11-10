@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from ..models import EmailInclusionList
 from ...common.models import Platform
 from ...common.utils import get_platform_settings
-# from ...notifications.models import NotificationsSettings
+from ...notifications.models import NotificationsSettings
 
 
 class FormRequestAccountDetails(TypedDict):
@@ -51,7 +51,7 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="testuser")
         user.set_password("12345")
         user.save()
-        # NotificationsSettings(user=user).save()
+        NotificationsSettings(user=user).save()
 
     def test_account_details_loads_correctly_with_auth(self):
         """ Tests if a user is logged in and can access account details """
@@ -74,7 +74,6 @@ class UserViewTests(TestCase):
         user.save()
         qa_auditor_group: Group = Group.objects.create(name="QA auditor")
         user.groups.add(qa_auditor_group)
-        # NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
         data: Dict[str, str] = {
@@ -102,7 +101,7 @@ class UserViewTests(TestCase):
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
         user.save()
-        # NotificationsSettings(user=user).save()
+        NotificationsSettings(user=user).save()
         self.client.login(username="joe_blogs", password="12345")
 
         data: Dict[str, str] = {

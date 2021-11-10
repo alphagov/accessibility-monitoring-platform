@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 
-{% comment %}
 {% load notifications %}
-{% endcomment %}
 
 <div class="topnavmenu">
 {% if user.is_authenticated %}
@@ -30,9 +28,7 @@
                 <ul class="govuk-list nav-menu-list">
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
-                    {% comment %}
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Notifications ({% notifications_count request=request %})</a></li>
-                    {% endcomment %}
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
                 </ul>
