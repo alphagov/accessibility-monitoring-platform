@@ -167,23 +167,23 @@ class WcagDefinition(models.Model):
         return str(f"{self.type} | {self.sub_type} | {self.name}")
 
 
-class PageTest(VersionModel):
+class CheckResult(VersionModel):
     """
     Model for test result
     """
 
     audit = models.ForeignKey(
-        Audit, on_delete=models.CASCADE, related_name="pagetest_audit"
+        Audit, on_delete=models.CASCADE, related_name="checkresult_audit"
     )
     page = models.ForeignKey(
-        Page, on_delete=models.CASCADE, related_name="pagetest_page"
+        Page, on_delete=models.CASCADE, related_name="checkresult_page"
     )
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
         max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
     )
     wcag_definition = models.ForeignKey(
-        WcagDefinition, on_delete=models.CASCADE, related_name="pagetest_wcagdefinition"
+        WcagDefinition, on_delete=models.CASCADE, related_name="checkresult_wcagdefinition"
     )
 
     failed = models.CharField(

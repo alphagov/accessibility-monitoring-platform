@@ -17,7 +17,7 @@ from .models import (
     Audit,
     Page,
     WcagDefinition,
-    PageTest,
+    CheckResult,
     MANDATORY_PAGE_TYPES,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
@@ -83,10 +83,10 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
             else non_pdf_wcag_definitons
         )
         for wcag_definition in wcag_definitons:
-            page_test: PageTest = PageTest.objects.create(
+            check_result: CheckResult = CheckResult.objects.create(
                 audit=audit,  # type: ignore
                 page=page,
                 type=wcag_definition.type,
                 wcag_definition=wcag_definition,
             )
-            record_model_create_event(user=user, model_object=page_test)  # type: ignore
+            record_model_create_event(user=user, model_object=check_result)  # type: ignore

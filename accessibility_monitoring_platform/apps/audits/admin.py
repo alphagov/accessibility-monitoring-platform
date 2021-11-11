@@ -4,7 +4,7 @@ Admin for checks (called tests by the users)
 
 from django.contrib import admin
 
-from .models import Audit, Page, PageTest, WcagDefinition
+from .models import Audit, Page, CheckResult, WcagDefinition
 
 
 class AuditAdmin(admin.ModelAdmin):
@@ -21,8 +21,8 @@ class PageAdmin(admin.ModelAdmin):
     list_display = ["type", "audit", "name", "url"]
 
 
-class PageTestAdmin(admin.ModelAdmin):
-    """Django admin configuration for PageTest model"""
+class CheckResultAdmin(admin.ModelAdmin):
+    """Django admin configuration for CheckResult model"""
 
     search_fields = ["wcag_definition"]
     list_display = ["wcag_definition", "audit", "page"]
@@ -38,5 +38,5 @@ class WcagDefinitionAdmin(admin.ModelAdmin):
 
 admin.site.register(Audit, AuditAdmin)
 admin.site.register(Page, PageAdmin)
-admin.site.register(PageTest, PageTestAdmin)
+admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)

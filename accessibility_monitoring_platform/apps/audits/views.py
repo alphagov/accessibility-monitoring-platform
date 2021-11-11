@@ -30,12 +30,12 @@ from .forms import (
     AuditUpdateManualForm,
     AuditUpdateAxeForm,
     AuditUpdatePdfForm,
-    PageTestUpdateFormset,
+    CheckResultUpdateFormset,
 )
 from .models import (
     Audit,
     Page,
-    PageTest,
+    CheckResult,
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
@@ -79,6 +79,7 @@ def delete_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.is_deleted = True
+    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     return redirect(reverse_lazy("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
 
@@ -97,6 +98,7 @@ def restore_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.is_deleted = False
+    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     return redirect(reverse_lazy("audits:audit-detail", kwargs={"case_id": case_id, "pk": audit.id}))  # type: ignore
 
@@ -136,7 +138,7 @@ class AuditCreateView(CreateView):
 
     def get_form(self):
         """Initialise form fields"""
-        form: ModelForm[Audit] = super().get_form()  # type: ignore
+        form: ModelForm = super().get_form()  # type: ignore
         form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
         form.fields["type"].initial = PAGE_TYPE_EXTRA
         return form
@@ -178,23 +180,31 @@ class AuditDetailView(DetailView):
             )
 
         context["audit_metadata_rows"] = audit_metadata_rows
-        context["standard_pages"] = self.object.page_audit.filter(is_deleted=False).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
-        context["extra_pages"] = self.object.page_audit.filter(is_deleted=False, type=PAGE_TYPE_EXTRA)  # type: ignore
+        context["standard_pages"] = self.object.page_audit.filter(  # type: ignore
+            is_deleted=False
+        ).exclude(type=PAGE_TYPE_EXTRA)
+        context["extra_pages"] = self.object.page_audit.filter(  # type: ignore
+            is_deleted=False, type=PAGE_TYPE_EXTRA
+        )
 
-        pdf_audit_manual_tests: QuerySet[PageTest] = PageTest.objects.filter(audit=self.object, type=TEST_TYPE_MANUAL, failed="yes")  # type: ignore
+        pdf_audit_manual_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit=self.object, type=TEST_TYPE_MANUAL, failed="yes"  # type: ignore
+        )
         context["audit_manual_rows"] = [
             FieldLabelAndValue(
-                label=page_test.wcag_definition.name, value=page_test.notes
+                label=check_result.wcag_definition.name, value=check_result.notes
             )
-            for page_test in pdf_audit_manual_tests
+            for check_result in pdf_audit_manual_tests
         ]
 
-        pdf_audit_pdf_tests: QuerySet[PageTest] = PageTest.objects.filter(audit=self.object, type=TEST_TYPE_PDF, failed="yes")  # type: ignore
+        pdf_audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit=self.object, type=TEST_TYPE_PDF, failed="yes"  # type: ignore
+        )
         context["audit_pdf_rows"] = [
             FieldLabelAndValue(
-                label=page_test.wcag_definition.name, value=page_test.notes
+                label=check_result.wcag_definition.name, value=check_result.notes
             )
-            for page_test in pdf_audit_pdf_tests
+            for check_result in pdf_audit_pdf_tests
         ]
 
         return context
@@ -325,36 +335,37 @@ class AuditManualUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_HOME)
+        context["page"] = page
         if self.request.POST:
-            page_tests_formset: PageTestUpdateFormset = PageTestUpdateFormset(
+            check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
                 self.request.POST
             )
         else:
-            page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_HOME)
-            page_tests: QuerySet[PageTest] = PageTest.objects.filter(  # type: ignore
+            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
                 page=page, type=TEST_TYPE_MANUAL
             )
-            page_tests_formset: PageTestUpdateFormset = PageTestUpdateFormset(
-                queryset=page_tests
+            check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
+                queryset=check_results
             )
-        for page_tests_form in page_tests_formset.forms:
-            page_tests_form.fields["failed"].label = ""
-            page_tests_form.fields["failed"].widget.attrs = {
-                "label": page_tests_form.instance.wcag_definition.name
+        for check_results_form in check_results_formset.forms:
+            check_results_form.fields["failed"].label = ""
+            check_results_form.fields["failed"].widget.attrs = {
+                "label": check_results_form.instance.wcag_definition.name
             }
-        context["page_tests_formset"] = page_tests_formset
+        context["check_results_formset"] = check_results_formset
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        page_tests_formset: PageTestUpdateFormset = context["page_tests_formset"]
+        check_results_formset: CheckResultUpdateFormset = context["check_results_formset"]
 
-        if page_tests_formset.is_valid():
-            page_tests: List[Page] = page_tests_formset.save(commit=False)
-            for page_test in page_tests:
-                record_model_update_event(user=self.request.user, model_object=page_test)  # type: ignore
-                page_test.save()
+        if check_results_formset.is_valid():
+            check_results: List[Page] = check_results_formset.save(commit=False)
+            for check_result in check_results:
+                record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
+                check_result.save()
         else:
             return super().form_invalid(form)
         return super().form_valid(form)
@@ -397,37 +408,37 @@ class AuditPdfUpdateView(AuditUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
-            page_tests_formset: PageTestUpdateFormset = PageTestUpdateFormset(
+            check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
                 self.request.POST
             )
         else:
             page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_PDF)
-            page_tests: QuerySet[PageTest] = PageTest.objects.filter(  # type: ignore
+            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
                 page=page, type=TEST_TYPE_PDF
             )
 
-            page_tests_formset: PageTestUpdateFormset = PageTestUpdateFormset(
-                queryset=page_tests
+            check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
+                queryset=check_results
             )
-        for page_tests_form in page_tests_formset.forms:
-            page_tests_form.fields["failed"].label = ""
-            page_tests_form.fields["failed"].widget.attrs = {
-                "label": page_tests_form.instance.wcag_definition.name
+        for check_results_form in check_results_formset.forms:
+            check_results_form.fields["failed"].label = ""
+            check_results_form.fields["failed"].widget.attrs = {
+                "label": check_results_form.instance.wcag_definition.name
             }
-            page_tests_form.fields["notes"].label = ""
-        context["page_tests_formset"] = page_tests_formset
+            check_results_form.fields["notes"].label = ""
+        context["check_results_formset"] = check_results_formset
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        page_tests_formset: PageTestUpdateFormset = context["page_tests_formset"]
+        check_results_formset: CheckResultUpdateFormset = context["check_results_formset"]
 
-        if page_tests_formset.is_valid():
-            page_tests: List[Page] = page_tests_formset.save(commit=False)
-            for page_test in page_tests:
-                record_model_update_event(user=self.request.user, model_object=page_test)  # type: ignore
-                page_test.save()
+        if check_results_formset.is_valid():
+            check_results: List[Page] = check_results_formset.save(commit=False)
+            for check_result in check_results:
+                record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
+                check_result.save()
         else:
             return super().form_invalid(form)
         return super().form_valid(form)

@@ -801,5 +801,6 @@ def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
     """
     case: Case = get_object_or_404(Case, id=pk)
     case.is_deleted = False
+    record_model_update_event(user=request.user, model_object=case)  # type: ignore
     case.save()
     return redirect(reverse_lazy("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore

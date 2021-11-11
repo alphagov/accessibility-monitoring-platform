@@ -14,6 +14,13 @@
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" %}
                 <h2 class="govuk-heading-m">For Home page</h2>
+                {% if page.url %}
+                    <p class="govuk-body">
+                        <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                            Open page
+                        </a>
+                    </p>
+                {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -21,12 +28,12 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-manual' case.id audit.id %}">
                     {% csrf_token %}
-                    {{ page_tests_formset.management_form }}
+                    {{ check_results_formset.management_form }}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Keyboard</h2>
                         </div>
-                        {% for form in page_tests_formset %}
+                        {% for form in check_results_formset %}
                             {% if form.instance.wcag_definition.sub_type == 'keyboard' %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}
@@ -36,7 +43,7 @@
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Zoom and Reflow</h2>
                         </div>
-                        {% for form in page_tests_formset %}
+                        {% for form in check_results_formset %}
                             {% if form.instance.wcag_definition.sub_type == 'zoom' %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}
@@ -46,7 +53,7 @@
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Audio and Visual</h2>
                         </div>
-                        {% for form in page_tests_formset %}
+                        {% for form in check_results_formset %}
                             {% if form.instance.wcag_definition.sub_type == 'audio-visual' %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}
@@ -56,7 +63,7 @@
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Additional</h2>
                         </div>
-                        {% for form in page_tests_formset %}
+                        {% for form in check_results_formset %}
                             {% if form.instance.wcag_definition.sub_type == 'additional' %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}
@@ -66,7 +73,7 @@
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Other</h2>
                         </div>
-                        {% for form in page_tests_formset %}
+                        {% for form in check_results_formset %}
                             {% if form.instance.wcag_definition.sub_type == 'other' %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}

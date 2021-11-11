@@ -21,7 +21,7 @@ from ..cases.models import BOOLEAN_CHOICES
 from .models import (
     Audit,
     Page,
-    PageTest,
+    CheckResult,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
     AUDIT_TYPE_CHOICES,
@@ -182,7 +182,7 @@ class AuditUpdatePdfForm(VersionForm):
         ]
 
 
-class PageTestUpdateForm(VersionForm):
+class CheckResultUpdateForm(VersionForm):
     """
     Form for updating a single check test
     """
@@ -195,7 +195,7 @@ class PageTestUpdateForm(VersionForm):
     notes = AMPTextField(label="Violation details")
 
     class Meta:
-        model = PageTest
+        model = CheckResult
         fields = [
             "version",
             "failed",
@@ -203,6 +203,6 @@ class PageTestUpdateForm(VersionForm):
         ]
 
 
-PageTestUpdateFormset: Any = forms.modelformset_factory(
-    PageTest, PageTestUpdateForm, extra=0
+CheckResultUpdateFormset: Any = forms.modelformset_factory(
+    CheckResult, CheckResultUpdateForm, extra=0
 )
