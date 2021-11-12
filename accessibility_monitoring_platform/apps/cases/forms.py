@@ -87,12 +87,11 @@ class CaseSearchForm(AMPDateRangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["auditor"].choices = get_search_user_choices(
+        auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
             User.objects.filter(groups__name="Auditor")
         )
-        self.fields["reviewer"].choices = get_search_user_choices(
-            User.objects.filter(groups__name="QA auditor")
-        )
+        self.fields["auditor"].choices = auditor_choices
+        self.fields["reviewer"].choices = auditor_choices
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -265,6 +264,7 @@ class CaseQAProcessUpdateForm(VersionForm):
     Form for updating QA process
     """
 
+    reviewer = AMPAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
         choices=REPORT_APPROVED_STATUS_CHOICES,
@@ -279,6 +279,7 @@ class CaseQAProcessUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "reviewer",
             "report_approved_status",
             "reviewer_notes",
             "report_final_odt_url",

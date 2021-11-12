@@ -359,7 +359,9 @@ class AuditManualUpdateView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        check_results_formset: CheckResultUpdateFormset = context["check_results_formset"]
+        check_results_formset: CheckResultUpdateFormset = context[
+            "check_results_formset"
+        ]
 
         if check_results_formset.is_valid():
             check_results: List[Page] = check_results_formset.save(commit=False)
@@ -432,7 +434,9 @@ class AuditPdfUpdateView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        check_results_formset: CheckResultUpdateFormset = context["check_results_formset"]
+        check_results_formset: CheckResultUpdateFormset = context[
+            "check_results_formset"
+        ]
 
         if check_results_formset.is_valid():
             check_results: List[Page] = check_results_formset.save(commit=False)

@@ -4,7 +4,7 @@ Tests for view - dashboard
 import pytest
 from pytest_django.asserts import assertContains
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.urls import reverse
 

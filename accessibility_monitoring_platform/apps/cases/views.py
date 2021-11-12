@@ -181,6 +181,7 @@ class CaseDetailView(DetailView):
                 label="Status", value=self.object.get_status_display()  # type: ignore
             ),
         ]
+
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
@@ -208,14 +209,6 @@ class CaseDetailView(DetailView):
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
-        )
-        qa_auditor_name: str = self.object.reviewer.get_full_name() if self.object.reviewer else "None"  # type: ignore
-        qa_process_rows.insert(
-            1,
-            FieldLabelAndValue(
-                label="QA Auditor who approved report",
-                value=qa_auditor_name,
-            ),
         )
 
         context["case_details_rows"] = case_details_prefix + get_rows(

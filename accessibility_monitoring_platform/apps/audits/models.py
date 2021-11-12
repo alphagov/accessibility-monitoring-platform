@@ -183,7 +183,9 @@ class CheckResult(VersionModel):
         max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
     )
     wcag_definition = models.ForeignKey(
-        WcagDefinition, on_delete=models.CASCADE, related_name="checkresult_wcagdefinition"
+        WcagDefinition,
+        on_delete=models.CASCADE,
+        related_name="checkresult_wcagdefinition",
     )
 
     failed = models.CharField(
