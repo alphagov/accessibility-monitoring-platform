@@ -133,7 +133,8 @@ class CaseUpdateView(UpdateView):
 
             if (
                 old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+                and self.object.report_approved_status
+                == REPORT_APPROVED_STATUS_APPROVED
             ):
                 self.object.reviewer = self.request.user
 

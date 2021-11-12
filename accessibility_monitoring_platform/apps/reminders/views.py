@@ -44,7 +44,9 @@ class ReminderCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context["case"] = Case.objects.get(pk=self.kwargs["case_id"])
         context["page_heading"] = "Edit case | Reminder"
-        context["page_title"] = f'{context["case"].organisation_name} | {context["page_heading"]}'
+        context[
+            "page_title"
+        ] = f'{context["case"].organisation_name} | {context["page_heading"]}'
         return context
 
     def get_success_url(self) -> str:
@@ -76,7 +78,9 @@ class ReminderUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context["case"] = self.object.case
         context["page_heading"] = "Edit case | Reminder"
-        context["page_title"] = f'{context["case"].organisation_name} | {context["page_heading"]}'
+        context[
+            "page_title"
+        ] = f'{context["case"].organisation_name} | {context["page_heading"]}'
         return context
 
 

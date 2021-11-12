@@ -11,22 +11,44 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('cases', '0017_remove_case_service_name'),
+        ("cases", "0017_remove_case_service_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Reminder',
+            name="Reminder",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('due_date', models.DateField()),
-                ('description', models.TextField()),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('case', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reminder_case', to='cases.case')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reminder_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("due_date", models.DateField()),
+                ("description", models.TextField()),
+                ("is_deleted", models.BooleanField(default=False)),
+                (
+                    "case",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reminder_case",
+                        to="cases.case",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reminder_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-id'],
+                "ordering": ["-id"],
             },
         ),
     ]
