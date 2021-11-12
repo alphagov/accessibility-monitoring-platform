@@ -32,13 +32,15 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            <input
-                                type="submit"
-                                value="Delete reminder"
-                                name="delete"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
+                            {% if reminder %}
+                                <input
+                                    type="submit"
+                                    value="Delete reminder"
+                                    name="delete"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                />
+                            {% endif %}
                             <a
                                 href="{% url 'cases:case-detail' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"

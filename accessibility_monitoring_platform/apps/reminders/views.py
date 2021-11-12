@@ -19,6 +19,7 @@ from ..common.utils import (
 
 from .forms import ReminderForm
 from .models import Reminder
+from .utils import add_reminder_context_data
 
 
 class ReminderCreateView(CreateView):
@@ -41,13 +42,10 @@ class ReminderCreateView(CreateView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["case"] = Case.objects.get(pk=self.kwargs["case_id"])
-        context["page_heading"] = "Edit case | Reminder"
-        context[
-            "page_title"
-        ] = f'{context["case"].organisation_name} | {context["page_heading"]}'
-        return context
+        return add_reminder_context_data(
+            context=super().get_context_data(**kwargs),
+            case_id=self.kwargs["case_id"],
+        )
 
     def get_success_url(self) -> str:
         """Record creation eventthe submit button used and act accordingly"""
@@ -75,13 +73,10 @@ class ReminderUpdateView(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["case"] = self.object.case
-        context["page_heading"] = "Edit case | Reminder"
-        context[
-            "page_title"
-        ] = f'{context["case"].organisation_name} | {context["page_heading"]}'
-        return context
+        return add_reminder_context_data(
+            context=super().get_context_data(**kwargs),
+            case_id=self.object.case.id,
+        )
 
 
 class ReminderListView(ListView):

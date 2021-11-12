@@ -28,10 +28,10 @@
                             <th scope="row" class="govuk-table__header amp-width-one-quarter">
                                 {% if reminder.overdue %}
                                     <strong class="govuk-tag govuk-tag--red">
-                                        {{reminder.due_date|date:"d/m/Y"}}
+                                        {{ reminder.due_date|date:"d/m/Y" }}
                                     </strong>
                                 {% else %}
-                                    {{reminder.due_date|date:"d/m/Y"}}
+                                    {{ reminder.due_date|date:"d/m/Y" }}
                                 {% endif %}
                             </th>
                             <td class="govuk-table__cell amp-width-one-quarter">

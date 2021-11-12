@@ -8,9 +8,10 @@ from django.contrib.auth.models import User
 
 from ...cases.models import Case
 from ..models import Reminder
-from ..utils import get_number_of_reminders_for_user
+from ..utils import add_reminder_context_data, get_number_of_reminders_for_user
 
-REMINDER_DESCRIPTION = "Reminder"
+ORGANISATION_NAME: str = "Organisation Name"
+REMINDER_DESCRIPTION: str = "Reminder"
 
 
 @pytest.mark.django_db
@@ -88,3 +89,13 @@ def test_deleted_reminders_not_counted():
         description=REMINDER_DESCRIPTION,
     )
     assert get_number_of_reminders_for_user(user) == 0
+
+
+@pytest.mark.django_db
+def test_add_reminder_context_data():
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
+    assert add_reminder_context_data(context={}, case_id=case.id) == {  # type: ignore
+        "case": case,
+        "page_heading": "Edit case | Reminder",
+        "page_title": "Organisation Name | Edit case | Reminder",
+    }
