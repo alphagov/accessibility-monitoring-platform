@@ -84,7 +84,9 @@ def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     assert updated_case.reminder.description == NEW_REMINDER_DESCRIPTION
 
 
-def test_reminders_for_user_listed(client_and_user):  # pylint: disable=redefined-outer-name
+def test_reminders_for_user_listed(
+    client_and_user,
+):  # pylint: disable=redefined-outer-name
     """
     Test that reminders in cases where the logged in user is the auditor are listed.
     """
