@@ -1,14 +1,13 @@
 """
 Context processors
 """
-from datetime import date
 import re
 from typing import Dict, Union
 
 from ..cases.models import Case
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
-from ..reminders.models import Reminder
+from ..reminders.utils import get_number_of_reminders_for_user
 
 from .forms import AMPTopMenuForm
 
@@ -76,18 +75,11 @@ def platform_page(request) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform
 
     platform: Platform = get_platform_settings()
 
-    number_of_reminders: int = 0
-    if request.user.id:
-        today: date = date.today()
-        number_of_reminders: int = Reminder.objects.filter(
-            is_deleted=False, user=request.user, due_date__lte=today
-        ).count()
-
     return {
         "page_heading": page_heading,
         "page_title": page_title,
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
         "platform": platform,
-        "number_of_reminders": number_of_reminders,
+        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
     }

@@ -5,11 +5,7 @@
             <li>
                 <a href="#case-reminder" class="govuk-link govuk-link--no-visited-state">Reminder</a>
                 |
-                {% if case.reminder %}
-                    <a href="{% url 'reminders:edit-reminder' case.reminder.id %}"
-                {% else %}
-                    <a href="{% url "reminders:reminder-create" case.id %}"
-                {% endif %}
+                <a href="{% if case.reminder %}{% url 'reminders:edit-reminder' case.reminder.id %}{% else %}{% url "reminders:reminder-create" case.id %}{% endif %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
                     Edit
