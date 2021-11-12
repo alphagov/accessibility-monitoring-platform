@@ -1359,8 +1359,16 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
     assertContains(
         response,
         """<ul class="govuk-list govuk-error-summary__list">
-            <li><a href="#id_report_draft_url-label">Add link to report draft, if report is ready to be reviewed</a></li>
-            <li><a href="#id_report_review_status-label">Report cannot be ready to be reviewed without a link to report draft</a></li>
+            <li>
+                <a href="#id_report_draft_url-label">
+                    Add link to report draft, if report is ready to be reviewed
+                </a>
+            </li>
+            <li>
+                <a href="#id_report_review_status-label">
+                    Report cannot be ready to be reviewed without a link to report draft
+                </a>
+            </li>
         </ul>""",
         html=True,
     )

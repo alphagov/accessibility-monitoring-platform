@@ -76,10 +76,12 @@ def platform_page(request) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform
 
     platform: Platform = get_platform_settings()
 
-    today: date = date.today()
-    number_of_reminders: int = Reminder.objects.filter(
-        is_deleted=False, user=request.user, due_date__lte=today
-    ).count()
+    number_of_reminders: int = 0
+    if request.user.id:
+        today: date = date.today()
+        number_of_reminders: int = Reminder.objects.filter(
+            is_deleted=False, user=request.user, due_date__lte=today
+        ).count()
 
     return {
         "page_heading": page_heading,
