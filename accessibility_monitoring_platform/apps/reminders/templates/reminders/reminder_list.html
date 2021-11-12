@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <a href="{% url 'dashboard:home' %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper dashboard">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Reminders ({{ number_of_reminders }})</h1>
+
+            </div>
+        </div>
+        {% if reminders %}
+            <table class="govuk-table case-dashboard">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Description</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Delete reminder</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for reminder in reminders %}
+                        <tr class="govuk-table__row ">
+                            <th scope="row" class="govuk-table__header amp-width-one-quarter">
+                                {% if reminder.overdue %}
+                                    <strong class="govuk-tag govuk-tag--red">
+                                        {{reminder.due_date|date:"d/m/Y"}}
+                                    </strong>
+                                {% else %}
+                                    {{reminder.due_date|date:"d/m/Y"}}
+                                {% endif %}
+                            </th>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                <a href="{% url 'cases:case-detail' reminder.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    {{ reminder.case.organisation_name }}
+                                </a>
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-quarter">{{ reminder.description }}</td>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                <a href="{% url 'reminders:delete-reminder' reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    Delete reminder
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="govuk-body"> You have no reminders </p>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}

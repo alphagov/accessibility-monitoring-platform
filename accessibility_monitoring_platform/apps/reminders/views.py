@@ -5,7 +5,9 @@ from typing import Type
 
 from django.forms.models import ModelForm
 from django.db.models.query import QuerySet
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -62,8 +64,10 @@ class ReminderUpdateView(UpdateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add event on change of reminder"""
-        if form.changed_data:
+        if form.changed_data or "delete" in self.request.POST:
             self.object: Reminder = form.save(commit=False)
+            if "delete" in self.request.POST:
+                self.object.is_deleted = True
             record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -71,6 +75,8 @@ class ReminderUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["case"] = self.object.case
+        context["page_heading"] = "Edit case | Reminder"
+        context["page_title"] = f'{context["case"].organisation_name} | {context["page_heading"]}'
         return context
 
 
@@ -85,3 +91,21 @@ class ReminderListView(ListView):
     def get_queryset(self) -> QuerySet[Case]:
         """Get undeleted reminders for logged in user"""
         return Reminder.objects.filter(user=self.request.user, is_deleted=False)
+
+
+def delete_reminder(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Delete reminder
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of reminder to delete
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    reminder: Reminder = get_object_or_404(Reminder, id=pk)
+    reminder.is_deleted = True
+    record_model_update_event(user=request.user, model_object=reminder)  # type: ignore
+    reminder.save()
+    return redirect(reverse_lazy("reminders:reminder-list"))

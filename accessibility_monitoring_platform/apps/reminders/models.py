@@ -1,6 +1,7 @@
 """
 Models - reminders
 """
+from datetime import date
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -27,3 +28,8 @@ class Reminder(models.Model):
 
     def get_absolute_url(self):
         return reverse("cases:case-detail", kwargs={"pk": self.case.id})
+
+    @property
+    def overdue(self):
+        today: date = date.today()
+        return self.due_date < today
