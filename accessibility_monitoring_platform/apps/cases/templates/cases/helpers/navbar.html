@@ -5,8 +5,8 @@
             <li>
                 <a href="#case-reminder" class="govuk-link govuk-link--no-visited-state">Reminder</a>
                 |
-                {% if reminder %}
-                    <a href="{% url 'reminders:edit-reminder' reminder.id %}"
+                {% if case.reminder %}
+                    <a href="{% url 'reminders:edit-reminder' case.reminder.id %}"
                 {% else %}
                     <a href="{% url "reminders:reminder-create" case.id %}"
                 {% endif %}
@@ -39,9 +39,9 @@
         {% if current_page != 'reminders' %}
             <h2 class="govuk-heading-m bottom-margin-5">Reminder</h2>
             <p class="govuk-body-m">
-            {% if reminder %}
-                <a href="{% url 'reminders:edit-reminder' reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                    Reminder due {{ reminder.due_date|date:"d/m/Y" }}
+            {% if case.reminder %}
+                <a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Reminder due {{ case.reminder.due_date|date:"d/m/Y" }}
                 </a>
             {% else %}
                 <a href="{% url "reminders:reminder-create" case.id %}" class="govuk-link govuk-link--no-visited-state">

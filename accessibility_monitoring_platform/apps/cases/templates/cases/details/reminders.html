@@ -4,10 +4,10 @@
     </div>
     <div class="govuk-grid-column-one-thirds">
         <div class="govuk-button-group" style="flex-direction:row-reverse">
-            {% if reminder %}
-            <a href="{% url 'reminders:edit-reminder' reminder.id %}"
+            {% if case.reminder %}
+                <a href="{% url 'reminders:edit-reminder' case.reminder.id %}"
             {% else %}
-            <a href="{% url "reminders:reminder-create" case.id %}"
+                <a href="{% url "reminders:reminder-create" case.id %}"
             {% endif %}
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
@@ -16,15 +16,17 @@
         </div>
     </div>
 </div>
-<table class="govuk-table">
-    <tbody class="govuk-table__body">
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Due date</th>
-            <th scope="row" class="govuk-table__header amp-width-one-half">Details</th>
-        </tr>
-        <tr class="govuk-table__row">
-            <td class="govuk-table__cell amp-width-one-half">{{ reminder.due_date|date:"d/m/Y" }}</td>
-            <td class="govuk-table__cell amp-width-one-half"><p class="govuk-body-m cases-notes">{{ reminder.description }}</p></td>
-        </tr>
-    </tbody>
-</table>
+{% if case.reminder %}
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Due date</th>
+                <th scope="row" class="govuk-table__header amp-width-one-half">Details</th>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell amp-width-one-half">{{ case.reminder.due_date|date:"d/m/Y" }}</td>
+                <td class="govuk-table__cell amp-width-one-half"><p class="govuk-body-m cases-notes">{{ case.reminder.description }}</p></td>
+            </tr>
+        </tbody>
+    </table>
+{% endif %}

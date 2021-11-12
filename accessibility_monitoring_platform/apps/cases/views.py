@@ -150,12 +150,6 @@ class CaseUpdateView(UpdateView):
                 )
         return HttpResponseRedirect(self.get_success_url())
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted reminder to context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["reminder"] = self.object.reminder_case.filter(is_deleted=False).first()  # type: ignore
-        return context
-
 
 class CaseDetailView(DetailView):
     """
@@ -179,7 +173,6 @@ class CaseDetailView(DetailView):
                 label="Status", value=self.object.get_status_display()  # type: ignore
             ),
         ]
-        context["reminder"] = self.object.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
