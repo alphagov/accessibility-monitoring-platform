@@ -427,12 +427,16 @@ class Case(VersionModel):
 
     @property
     def next_action_due_date_tense(self):
-        today = date.today()
+        today: date = date.today()
         if self.next_action_due_date and self.next_action_due_date < today:
             return "past"
         if self.next_action_due_date == today:
             return "present"
         return "future"
+
+    @property
+    def reminder(self):
+        return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
     def set_status(self):
         if self.is_deleted:

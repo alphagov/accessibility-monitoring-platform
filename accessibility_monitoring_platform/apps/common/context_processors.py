@@ -4,10 +4,13 @@ Context processors
 import re
 from typing import Dict, Union
 
-from .forms import AMPTopMenuForm
 from ..cases.models import Case
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
+from ..reminders.utils import get_number_of_reminders_for_user
+
+from .forms import AMPTopMenuForm
+
 
 PAGE_TITLES_BY_URL = {
     "/": "Dashboard",
@@ -38,7 +41,7 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
+def platform_page(request) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform]]:
     """
     Lookup the page title using URL path and place it in context for template rendering.
     Also include search form for top menu, name of prototype and platform settings.
@@ -78,4 +81,5 @@ def platform_page(request) -> Dict[str, Union[str, AMPTopMenuForm, Platform]]:
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
         "platform": platform,
+        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
     }

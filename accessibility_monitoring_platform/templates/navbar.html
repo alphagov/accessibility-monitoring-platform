@@ -29,6 +29,7 @@
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Notifications ({% notifications_count request=request %})</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reminders:reminder-list' %}">Reminders ({{ number_of_reminders }})</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
                 </ul>
