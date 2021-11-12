@@ -94,7 +94,9 @@ class ReminderListView(ListView):
 
     def get_queryset(self) -> QuerySet[Case]:
         """Get undeleted reminders for logged in user"""
-        return Reminder.objects.filter(user=self.request.user, is_deleted=False).order_by("due_date")
+        return Reminder.objects.filter(
+            user=self.request.user, is_deleted=False
+        ).order_by("due_date")
 
 
 def delete_reminder(request: HttpRequest, pk: int) -> HttpResponse:
