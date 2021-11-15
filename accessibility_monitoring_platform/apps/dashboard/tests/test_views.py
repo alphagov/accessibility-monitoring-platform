@@ -4,7 +4,7 @@ Tests for view - dashboard
 import pytest
 from pytest_django.asserts import assertContains
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.urls import reverse
 
@@ -50,15 +50,15 @@ def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_c
         (False, "Your cases"),
     ],
 )
-def test_dashboard_shows_all_cases_by_default_to_qa_auditors(qa_auditor, expected_view, admin_client, admin_user):
+def test_dashboard_shows_all_cases_by_default_to_qa_auditors(
+    qa_auditor, expected_view, admin_client, admin_user
+):
     """Tests dashboard shows all cases by default to members of the QA auditor group"""
     if qa_auditor:
         qa_auditor_group: Group = Group.objects.create(name="QA auditor")
         qa_auditor_group.user_set.add(admin_user)  # type: ignore
 
-    response: HttpResponse = admin_client.get(
-        f'{reverse("dashboard:home")}'
-    )
+    response: HttpResponse = admin_client.get(f'{reverse("dashboard:home")}')
 
     assert response.status_code == 200
     assertContains(response, f'<h1 class="govuk-heading-xl">{expected_view}</h1>')

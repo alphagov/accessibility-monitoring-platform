@@ -133,7 +133,8 @@ class CaseUpdateView(UpdateView):
 
             if (
                 old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+                and self.object.report_approved_status
+                == REPORT_APPROVED_STATUS_APPROVED
             ):
                 self.object.reviewer = self.request.user
 
@@ -173,18 +174,11 @@ class CaseDetailView(DetailView):
                 label="Status", value=self.object.get_status_display()  # type: ignore
             ),
         ]
+
         get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
 
         qa_process_rows: List[CaseFieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()
-        )
-        qa_auditor_name: str = self.object.reviewer.get_full_name() if self.object.reviewer else "None"  # type: ignore
-        qa_process_rows.insert(
-            1,
-            CaseFieldLabelAndValue(
-                label="QA Auditor who approved report",
-                value=qa_auditor_name,
-            ),
         )
 
         context["case_details_rows"] = case_details_prefix + get_rows(

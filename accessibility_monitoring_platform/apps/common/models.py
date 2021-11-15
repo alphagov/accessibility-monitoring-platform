@@ -64,7 +64,6 @@ class Platform(models.Model):
 
     def __str__(self):
         return f"Active QA auditor is {self.active_qa_auditor}"
-        return f"#{self.id} {self.page_title}"  # type: ignore
 
 
 class Event(models.Model):

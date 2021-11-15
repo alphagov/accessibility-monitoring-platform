@@ -21,9 +21,10 @@ USER_FIRST_NAME: str = "Userone"
 
 
 class MockRequest:
-    def __init__(self, path: str, absolute_uri: str):
+    def __init__(self, path: str, absolute_uri: str, user: User):
         self.path = path
         self.absolute_uri = absolute_uri
+        self.user = user
 
     def build_absolute_uri(self):
         return self.absolute_uri
@@ -70,7 +71,8 @@ def test_top_menu_form_present(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        '<input type="text" name="search" class="govuk-input govuk-input--width-10" placeholder="Search" maxlength="100" id="id_search">',
+        '<input type="text" name="search" class="govuk-input govuk-input--width-10"'
+        ' placeholder="Search" maxlength="100" id="id_search">',
     )
 
 
@@ -94,15 +96,22 @@ def test_active_qa_auditor_present(admin_client):
 
 @pytest.mark.django_db
 def test_platform_page_returns_prototype_and_page_names():
-    """Check prototype name, page heading and title and platform settings added to context"""
+    """
+    Check number of reminders for user, prototype name,
+    page heading and title and platform settings added to context.
+    """
+    user: User = User.objects.create(first_name=USER_FIRST_NAME)
     mock_request = MockRequest(
-        path="/", absolute_uri="https://prototype-name.london.cloudapps.digital/"
+        path="/",
+        absolute_uri="https://prototype-name.london.cloudapps.digital/",
+        user=user,
     )
     platform_page_context: Dict[
-        str, Union[str, AMPTopMenuForm, Platform]
+        str, Union[int, str, AMPTopMenuForm, Platform]
     ] = platform_page(mock_request)
 
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"
     assert platform_page_context["prototype_name"] == "prototype-name"
     assert platform_page_context["platform"] is not None
+    assert platform_page_context["number_of_reminders"] == 0
