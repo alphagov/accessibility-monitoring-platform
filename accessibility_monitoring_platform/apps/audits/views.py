@@ -377,6 +377,9 @@ class AuditManualByPageUpdateView(FormView):
         form.fields["page_manual_checks_complete_date"].widget.attrs = {
             "label": f"Record if the test on {page} is complete"
         }
+        form.fields[
+            "page_manual_checks_complete_date"
+        ].initial = page.manual_checks_complete_date
         return form
 
     def form_valid(self, form: ModelForm):

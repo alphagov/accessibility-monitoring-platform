@@ -146,9 +146,10 @@ class Page(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        if self.name:
-            return self.name
-        return self.get_type_display()  # type: ignore
+        name: str = self.name if self.name else self.get_type_display()  # type: ignore
+        if self.manual_checks_complete_date:
+            return f"{name} - Completed"
+        return name
 
     def get_absolute_url(self):
         return reverse(
