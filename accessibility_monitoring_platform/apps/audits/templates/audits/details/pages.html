@@ -28,10 +28,10 @@
                         {% endif %}
                     {% elif page.url %}
                         <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {% if page.name %}{{ page.name }}{% else %}{{ page.get_type_display }}{% endif %}
+                            {{ page }}
                         </a>
                     {% else %}
-                        {{ page.name }} URL not entered
+                        {{ page }} URL not entered
                     {% endif %}
                 </td>
             </tr>

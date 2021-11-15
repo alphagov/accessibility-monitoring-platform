@@ -9,7 +9,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 
 from ..cases.models import Case
@@ -27,7 +27,7 @@ from .forms import (
     AuditStandardPageFormset,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
-    AuditUpdateManualForm,
+    AuditUpdateByPageManualForm,
     AuditUpdateAxeForm,
     AuditUpdatePdfForm,
     CheckResultUpdateFormset,
@@ -40,7 +40,6 @@ from .models import (
     TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
     PAGE_TYPE_EXTRA,
-    PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
 )
 from .utils import create_pages_and_tests_for_new_audit, extract_labels_and_values
@@ -316,7 +315,14 @@ class AuditPagesUpdateView(AuditUpdateView):
         if "save_exit" in self.request.POST:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pages'  # type: ignore
         elif "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-manual", audit=self.object)  # type: ignore
+            url: str = reverse_lazy(
+                "audits:edit-audit-manual-by-page",
+                kwargs={
+                    "page_id": self.object.next_page.id,  # type: ignore
+                    "audit_id": self.object.id,  # type: ignore
+                    "case_id": self.object.case.id,  # type: ignore
+                },
+            )
         elif "add_extra" in self.request.POST:
             url: str = f'{get_audit_url(url_name="edit-audit-pages", audit=self.object)}?add_extra=true'  # type: ignore
         else:
@@ -324,18 +330,20 @@ class AuditPagesUpdateView(AuditUpdateView):
         return url
 
 
-class AuditManualUpdateView(AuditUpdateView):
+class AuditManualByPageUpdateView(FormView):
     """
-    View to update manual audits
+    View to update manual audits grouped by page
     """
 
-    form_class: Type[AuditUpdateManualForm] = AuditUpdateManualForm
-    template_name: str = "audits/forms/manual.html"
+    form_class: Type[AuditUpdateByPageManualForm] = AuditUpdateByPageManualForm
+    template_name: str = "audits/forms/manual_by_page.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_HOME)
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        context["audit"] = audit
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         context["page"] = page
         if self.request.POST:
             check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
@@ -356,6 +364,21 @@ class AuditManualUpdateView(AuditUpdateView):
         context["check_results_formset"] = check_results_formset
         return context
 
+    def get_form(self):
+        """Populate page choices and labels"""
+        form = super().get_form()
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        form.fields["next_page"].queryset = Page.objects.filter(audit=audit)
+        form.fields["next_page"].initial = audit.next_page
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        form.fields[
+            "page_manual_checks_complete_date"
+        ].label = f"Mark the test on {page} as complete?"
+        form.fields["page_manual_checks_complete_date"].widget.attrs = {
+            "label": f"Record if the test on {page} is complete"
+        }
+        return form
+
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
@@ -370,14 +393,44 @@ class AuditManualUpdateView(AuditUpdateView):
                 check_result.save()
         else:
             return super().form_invalid(form)
+
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+
+        if (
+            "audit_manual_complete_date" in form.cleaned_data
+            or "next_page" in form.cleaned_data
+        ):
+            audit.audit_manual_complete_date = form.cleaned_data[
+                "audit_manual_complete_date"
+            ]
+            audit.next_page = form.cleaned_data["next_page"]
+            audit.save()
+
+        if "page_manual_checks_complete_date" in form.cleaned_data:
+            page.manual_checks_complete_date = form.cleaned_data[
+                "page_manual_checks_complete_date"
+            ]
+            page.save()
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-axe", audit=self.object)  # type: ignore
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        if "save_get_next_page" in self.request.POST:
+            url: str = reverse_lazy(
+                "audits:edit-audit-manual-by-page",
+                kwargs={
+                    "page_id": audit.next_page.id,  # type: ignore
+                    "audit_id": audit.id,  # type: ignore
+                    "case_id": audit.case.id,  # type: ignore
+                },
+            )
+        elif "save_continue" in self.request.POST:
+            url: str = get_audit_url(url_name="edit-audit-axe", audit=audit)  # type: ignore
         else:
-            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-manual'  # type: ignore
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=audit)}#audit-manual'  # type: ignore
         return url
 
 

@@ -94,6 +94,13 @@ class Audit(VersionModel):
     audit_pages_complete_date = models.DateField(null=True, blank=True)
 
     # manual page
+    next_page = models.ForeignKey(
+        "Page",
+        on_delete=models.CASCADE,
+        related_name="audit_next_page",
+        null=True,
+        blank=True,
+    )
     audit_manual_complete_date = models.DateField(null=True, blank=True)
 
     # axe page
@@ -133,12 +140,15 @@ class Page(VersionModel):
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    manual_checks_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"#{self.pk} | {self.type} | {self.name}")
+        if self.name:
+            return self.name
+        return self.get_type_display()  # type: ignore
 
     def get_absolute_url(self):
         return reverse(

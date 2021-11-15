@@ -13,21 +13,42 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" %}
-                <h2 class="govuk-heading-m">For Home page</h2>
-                {% if page.url %}
-                    <p class="govuk-body">
-                        <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                            Open page
-                        </a>
-                    </p>
-                {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-manual' case.id audit.id %}">
+                <form method="post" action="{% url 'audits:edit-audit-manual-by-page' case.id audit.id page.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/amp_field.html' with field=form.next_page %}
+                        </div>
+                        <div class="govuk-grid-column-one-half">
+                            <div class="govuk-body" style="padding-top: 35px;">
+                                {% if page.url %}
+                                    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        Link to {{ page }} on website
+                                    </a>
+                                {% else %}
+                                    <p>{{ page }} URL not entered</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and get next page"
+                                name="save_get_next_page"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                    </div>
                     {{ check_results_formset.management_form }}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -81,7 +102,20 @@
                             {% endif %}
                         {% endfor %}
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/amp_field.html' with field=form.audit_page_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and go to next page"
+                                name="save_get_next_page"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                        <hr style="width:100%;">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.audit_manual_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -109,7 +143,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/navbar.html' with current_page='audits:edit-audit-manual' %}
+                {% include 'audits/helpers/navbar.html' with current_page='audits:edit-audit-manual-by-page' %}
             </div>
         </div>
     </main>

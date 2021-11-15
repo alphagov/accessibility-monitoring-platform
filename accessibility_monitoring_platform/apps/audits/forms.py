@@ -13,8 +13,10 @@ from ..common.forms import (
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
+    AMPDateCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
+    AMPModelChoiceField,
     AMPURLField,
 )
 from ..cases.models import BOOLEAN_CHOICES
@@ -137,17 +139,24 @@ class AuditUpdatePagesForm(VersionForm):
         ]
 
 
-class AuditUpdateManualForm(VersionForm):
+class AuditUpdateByPageManualForm(forms.Form):
     """
-    Form for editing manual checks
+    Form for editing manual checks for a page
     """
 
-    audit_manual_complete_date = AMPDatePageCompleteField()
+    next_page = AMPModelChoiceField(
+        label="Choose next page", queryset=Page.objects.none(), empty_label=None
+    )
+    page_manual_checks_complete_date = AMPDatePageCompleteField()
+    audit_manual_complete_date = AMPDatePageCompleteField(
+        widget=AMPDateCheckboxWidget(attrs={"label": "Manual tests completed?"}),
+    )
 
     class Meta:
         model = Audit
         fields: List[str] = [
-            "version",
+            "next_page",
+            "page_manual_checks_complete_date",
             "audit_manual_complete_date",
         ]
 

@@ -3,7 +3,7 @@ Utilities for audits app
 """
 
 from datetime import date
-from typing import List
+from typing import List, Union
 
 from django import forms
 from django.contrib.auth.models import User
@@ -19,6 +19,7 @@ from .models import (
     WcagDefinition,
     CheckResult,
     MANDATORY_PAGE_TYPES,
+    PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
 )
@@ -74,6 +75,7 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
         WcagDefinition.objects.exclude(type=TEST_TYPE_PDF)
     )
 
+    home_page: Union[Page, None] = None  # type: ignore
     for page_type in MANDATORY_PAGE_TYPES:
         page: Page = Page.objects.create(audit=audit, type=page_type)  # type: ignore
         record_model_create_event(user=user, model_object=page)  # type: ignore
@@ -90,3 +92,7 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
                 wcag_definition=wcag_definition,
             )
             record_model_create_event(user=user, model_object=check_result)  # type: ignore
+        if page_type == PAGE_TYPE_HOME:
+            home_page: Page = page
+    audit.next_page = home_page  # type: ignore
+    audit.save()
