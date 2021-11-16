@@ -13,16 +13,17 @@
     </div>
 </div>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-    {% for name, failures in audit_manual_wcag_failures %}
+    {% for wcag_definition, failures in audit_manual_wcag_failures %}
         <div class="govuk-accordion__section">
             <div class="govuk-accordion__section-header">
                 <h2 class="govuk-accordion__section-heading">
                     <span class="govuk-accordion__section-button" id="accordion-default-manual-check-{{ forloop.counter0 }}">
-                        WCAG {{ name }}
+                        WCAG {{ wcag_definition.name }}
                     </span>
                 </h2>
             </div>
             <div id="accordion-default-manual-check-{{ forloop.counter0 }}" class="govuk-accordion__section-content" aria-labelledby="accordion-default-manual-check-{{ forloop.counter0 }}">
+                <p class="govuk-body-m">{{ wcag_definition.description }}</p>
                 <table class="govuk-table view-test-accordion-table">
                     <tbody class="govuk-table__body">
                         {% for failure in failures %}

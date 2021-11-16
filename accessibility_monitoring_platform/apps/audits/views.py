@@ -191,11 +191,17 @@ class AuditDetailView(DetailView):
         ).order_by("wcag_definition__id")
         audit_manual_wcag_failures: Dict[str, List[CheckResult]] = {}
         for check_failure in audit_manual_failures:
-            if check_failure.wcag_definition.name in audit_manual_wcag_failures:
-                audit_manual_wcag_failures[check_failure.wcag_definition.name].append(check_failure)
+            if check_failure.wcag_definition in audit_manual_wcag_failures:
+                audit_manual_wcag_failures[check_failure.wcag_definition].append(
+                    check_failure
+                )
             else:
-                audit_manual_wcag_failures[check_failure.wcag_definition.name] = [check_failure]
-        context["audit_manual_wcag_failures"] = [(key, value) for key, value in audit_manual_wcag_failures.items()]
+                audit_manual_wcag_failures[check_failure.wcag_definition] = [
+                    check_failure
+                ]
+        context["audit_manual_wcag_failures"] = [
+            (key, value) for key, value in audit_manual_wcag_failures.items()
+        ]
 
         audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
             audit=self.object, type=TEST_TYPE_PDF, failed="yes"  # type: ignore
@@ -360,7 +366,7 @@ class AuditManualByPageUpdateView(FormView):
         for check_results_form in check_results_formset.forms:
             check_results_form.fields["failed"].label = ""
             check_results_form.fields["failed"].widget.attrs = {
-                "label": check_results_form.instance.wcag_definition.name
+                "label": f"{check_results_form.instance.wcag_definition.name}: {check_results_form.instance.wcag_definition.description}"
             }
         context["check_results_formset"] = check_results_formset
         return context

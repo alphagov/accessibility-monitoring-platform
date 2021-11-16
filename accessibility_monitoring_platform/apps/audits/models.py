@@ -170,6 +170,7 @@ class WcagDefinition(models.Model):
         max_length=20, choices=TEST_SUB_TYPE_CHOICES, default=TEST_SUB_TYPE_DEFAULT
     )
     name = models.TextField(default="", blank=True)
+    description = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["id"]
