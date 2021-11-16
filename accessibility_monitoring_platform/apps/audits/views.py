@@ -186,24 +186,25 @@ class AuditDetailView(DetailView):
             is_deleted=False, type=PAGE_TYPE_EXTRA
         )
 
-        pdf_audit_manual_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
+        audit_manual_failures: QuerySet[CheckResult] = CheckResult.objects.filter(
             audit=self.object, type=TEST_TYPE_MANUAL, failed="yes"  # type: ignore
-        )
-        context["audit_manual_rows"] = [
-            FieldLabelAndValue(
-                label=check_result.wcag_definition.name, value=check_result.notes
-            )
-            for check_result in pdf_audit_manual_tests
-        ]
+        ).order_by("wcag_definition__id")
+        audit_manual_wcag_failures: Dict[str, List[CheckResult]] = {}
+        for check_failure in audit_manual_failures:
+            if check_failure.wcag_definition.name in audit_manual_wcag_failures:
+                audit_manual_wcag_failures[check_failure.wcag_definition.name].append(check_failure)
+            else:
+                audit_manual_wcag_failures[check_failure.wcag_definition.name] = [check_failure]
+        context["audit_manual_wcag_failures"] = [(key, value) for key, value in audit_manual_wcag_failures.items()]
 
-        pdf_audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
+        audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
             audit=self.object, type=TEST_TYPE_PDF, failed="yes"  # type: ignore
         )
         context["audit_pdf_rows"] = [
             FieldLabelAndValue(
                 label=check_result.wcag_definition.name, value=check_result.notes
             )
-            for check_result in pdf_audit_pdf_tests
+            for check_result in audit_pdf_tests
         ]
 
         return context

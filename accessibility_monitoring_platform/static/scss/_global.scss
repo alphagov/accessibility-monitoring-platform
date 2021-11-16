@@ -68,3 +68,9 @@ body {
     color: #fff;
     background-color: #000;
 }
+
+.view-test-accordion-table > tbody > tr:last-child {
+    th, td {
+        border-bottom: none;
+    }
+}
