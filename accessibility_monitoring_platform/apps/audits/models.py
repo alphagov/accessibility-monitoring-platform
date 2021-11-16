@@ -62,6 +62,13 @@ TEST_SUB_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEST_SUB_TYPE_DEFAULT, "Other"),
     ("pdf", "PDF"),
     ("zoom", "Zoom and Reflow"),
+    ("relationship", "Relationship"),
+    ("navigation", "Navigation"),
+    ("presentation", "Presentation"),
+    ("aria", "ARIA"),
+    ("timing", "Timing"),
+    ("nontext", "Non-text"),
+    ("language", "Language"),
 ]
 
 

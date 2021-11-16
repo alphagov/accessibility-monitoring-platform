@@ -366,7 +366,8 @@ class AuditManualByPageUpdateView(FormView):
         for check_results_form in check_results_formset.forms:
             check_results_form.fields["failed"].label = ""
             check_results_form.fields["failed"].widget.attrs = {
-                "label": f"{check_results_form.instance.wcag_definition.name}: {check_results_form.instance.wcag_definition.description}"
+                "label": f"{check_results_form.instance.wcag_definition.name}: "
+                f"{check_results_form.instance.wcag_definition.description}"
             }
         context["check_results_formset"] = check_results_formset
         return context
