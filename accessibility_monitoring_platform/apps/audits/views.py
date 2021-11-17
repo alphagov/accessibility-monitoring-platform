@@ -206,6 +206,23 @@ class AuditDetailView(DetailView):
             (key, value) for key, value in audit_manual_wcag_failures.items()
         ]
 
+        audit_axe_failures: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit=self.object, type=TEST_TYPE_AXE, failed="yes"  # type: ignore
+        ).order_by("wcag_definition__id")
+        audit_axe_wcag_failures: Dict[str, List[CheckResult]] = {}
+        for check_failure in audit_axe_failures:
+            if check_failure.wcag_definition in audit_axe_wcag_failures:
+                audit_axe_wcag_failures[check_failure.wcag_definition].append(
+                    check_failure
+                )
+            else:
+                audit_axe_wcag_failures[check_failure.wcag_definition] = [
+                    check_failure
+                ]
+        context["audit_axe_wcag_failures"] = [
+            (key, value) for key, value in audit_axe_wcag_failures.items()
+        ]
+
         audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
             audit=self.object, type=TEST_TYPE_PDF, failed="yes"  # type: ignore
         )

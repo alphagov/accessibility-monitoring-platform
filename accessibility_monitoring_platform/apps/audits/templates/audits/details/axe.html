@@ -7,15 +7,34 @@
             <a href="{% url 'audits:edit-audit-axe' case.id audit.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Axe and colour contrast tests
+                Edit axe and colour contrast tests
             </a>
         </div>
     </div>
 </div>
-<table class="govuk-table">
-    <tbody class="govuk-table__body">
-        {% for row in audit_axe_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
-    </tbody>
-</table>
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default-axe">
+    {% for wcag_definition, failures in audit_axe_wcag_failures %}
+        <div class="govuk-accordion__section">
+            <div class="govuk-accordion__section-header">
+                <h2 class="govuk-accordion__section-heading">
+                    <span class="govuk-accordion__section-button" id="accordion-default-axe-check-{{ forloop.counter0 }}">
+                        WCAG {{ wcag_definition.name }}
+                    </span>
+                </h2>
+            </div>
+            <div id="accordion-default-axe-check-{{ forloop.counter0 }}" class="govuk-accordion__section-content" aria-labelledby="accordion-default-axe-check-{{ forloop.counter0 }}">
+                <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                <table class="govuk-table view-test-accordion-table">
+                    <tbody class="govuk-table__body">
+                        {% for failure in failures %}
+                            <tr class="govuk-table__row ">
+                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.page }}</th>
+                                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+</div>
