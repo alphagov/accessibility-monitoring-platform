@@ -250,6 +250,4 @@ class PageWithFailureForm(forms.Form):
         ]
 
 
-PageWithFailureFormset: Any = forms.formset_factory(
-    PageWithFailureForm, extra=0
-)
+PageWithFailureFormset: Any = forms.formset_factory(PageWithFailureForm, extra=0)

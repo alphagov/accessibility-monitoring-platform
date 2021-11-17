@@ -217,9 +217,7 @@ class AuditDetailView(DetailView):
                     check_failure
                 )
             else:
-                audit_axe_wcag_failures[check_failure.wcag_definition] = [
-                    check_failure
-                ]
+                audit_axe_wcag_failures[check_failure.wcag_definition] = [check_failure]
         context["audit_axe_wcag_failures"] = [
             (key, value) for key, value in audit_axe_wcag_failures.items()
         ]
@@ -525,9 +523,7 @@ class CheckResultView(FormView):
         if self.request.POST:
             form: CheckResultForm = CheckResultForm(self.request.POST)
         else:
-            form: CheckResultForm = CheckResultForm(data={
-                "notes": check_result.notes
-            })
+            form: CheckResultForm = CheckResultForm(data={"notes": check_result.notes})
         context["form"] = form
 
         non_pdf_pages: QuerySet[Page] = audit.page_audit.exclude(  # type: ignore
@@ -536,14 +532,20 @@ class CheckResultView(FormView):
         check_results: QuerySet[CheckResult] = CheckResult.objects.filter(
             audit=audit, wcag_definition=wcag_definition
         )
-        check_results_by_page: Dict[Page, str] = {check_result.page: check_result.failed for check_result in check_results}
+        check_results_by_page: Dict[Page, str] = {
+            check_result.page: check_result.failed for check_result in check_results
+        }
         check_results_failure_by_page: List[Dict[str, Union[Page, str]]] = []
         for non_pdf_page in non_pdf_pages:
-            check_results_failure_by_page.append({
-                "page": non_pdf_page,
-                "failure_found": check_results_by_page.get(non_pdf_page, "no"),
-            })
-        page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(initial=check_results_failure_by_page)
+            check_results_failure_by_page.append(
+                {
+                    "page": non_pdf_page,
+                    "failure_found": check_results_by_page.get(non_pdf_page, "no"),
+                }
+            )
+        page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(
+            initial=check_results_failure_by_page
+        )
         for page_with_failure_form in page_with_failure_formset.forms:
             page_with_failure_form.fields["failure_found"].label = ""
             page_with_failure_form.fields["failure_found"].widget.attrs = {

@@ -15,19 +15,9 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m bottom-margin-5">Pick next test to create for {{ audit.next_page }}</h2>
-                <ul class="govuk-list">
-                    {% for axe_check in axe_checks %}
-                        <li>
-                            <a
-                                href="{% url 'audits:edit-check-result' case.id audit.id audit.next_page.id axe_check.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                {{ axe_check.name }}{% if axe_check.description %}: {{ axe_check.description }}{% endif %}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <h2 class="govuk-heading-l">Not yet implemented</h2>
+                <h2 class="govuk-heading-m">Nothing to see here</h2>
+                <p class="govuk-body">Move along</p>
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-axe' case.id audit.id %}">
                     {% csrf_token %}
