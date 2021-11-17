@@ -24,14 +24,14 @@ class PageAdmin(admin.ModelAdmin):
 class CheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for CheckResult model"""
 
-    search_fields = ["wcag_definition"]
+    search_fields = ["wcag_definition__name"]
     list_display = ["wcag_definition", "audit", "page"]
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin):
     """Django admin configuration for WcagDefinition model"""
 
-    search_fields = ["name"]
+    search_fields = ["name", "description"]
     list_display = ["id", "type", "sub_type", "name"]
     list_filter = ["type", "sub_type"]
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'audits:edit-audit-axe' case.id audit.id %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" %}
+                <h2 class="govuk-heading-m">{{ wcag_definition }}</h2>
+                {% include 'common/error_summary.html' %}
+            </div>
+        </div>
+        <form method="post" action="{% url 'audits:check-result-create' case.id audit.id page.id wcag_definition.id %}">
+            {% csrf_token %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include 'common/amp_form_snippet.html' %}
+                </div>
+
+                <div class="govuk-grid-column-full govuk-button-group">
+                    <input
+                        type="submit"
+                        value="Save and return"
+                        name="save"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    />
+                    <a
+                        href="{% url 'audits:edit-audit-axe' case.id audit.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

@@ -32,7 +32,7 @@ from .models import (
 
 class AuditCreateForm(forms.ModelForm):
     """
-    Form for creating a check
+    Form for creating an audit
     """
 
     date_of_test = AMPDateField(label="Date of test")
@@ -215,3 +215,17 @@ class CheckResultUpdateForm(VersionForm):
 CheckResultUpdateFormset: Any = forms.modelformset_factory(
     CheckResult, CheckResultUpdateForm, extra=0
 )
+
+
+class CheckResultCreateForm(forms.ModelForm):
+    """
+    Form for creating a check result
+    """
+
+    notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = CheckResult
+        fields: List[str] = [
+            "notes",
+        ]

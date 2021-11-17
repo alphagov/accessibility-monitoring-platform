@@ -246,7 +246,7 @@
         "type": "axe",
         "sub_type": "nontext",
         "name": "1.1.1 Non-text Content",
-        "description": "ARIA progressbar nodes must have an accessible name "
+        "description": "ARIA progress bar nodes must have an accessible name "
     }
 },
 {
@@ -285,23 +285,13 @@
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
-        "name": "2.4.4 Link Purpose",
-        "description": "Can be determined from the link text or context"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 30,
-    "fields": {
-        "type": "axe",
-        "sub_type": "aria",
-        "name": "4.1.2 Name, Role, Value",
+        "name": "Info and Relationships, 2.4.4 Link Purpose and WCAG 4.1.2 Name, Role, Value",
         "description": "Active <area> elements must have alternate text"
     }
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 31,
+    "pk": 30,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -311,7 +301,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 32,
+    "pk": 31,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -321,7 +311,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 33,
+    "pk": 32,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -331,7 +321,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 34,
+    "pk": 33,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -341,7 +331,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 35,
+    "pk": 34,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -351,7 +341,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 36,
+    "pk": 35,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -361,7 +351,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 37,
+    "pk": 36,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -371,7 +361,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 38,
+    "pk": 37,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -381,7 +371,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 39,
+    "pk": 38,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -391,7 +381,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 40,
+    "pk": 39,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -401,7 +391,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 41,
+    "pk": 40,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -411,7 +401,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 42,
+    "pk": 41,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -421,7 +411,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 43,
+    "pk": 42,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -431,7 +421,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 44,
+    "pk": 43,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -441,7 +431,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 45,
+    "pk": 44,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -451,7 +441,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 46,
+    "pk": 45,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -461,7 +451,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 47,
+    "pk": 46,
     "fields": {
         "type": "axe",
         "sub_type": "timing",
@@ -471,7 +461,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 48,
+    "pk": 47,
     "fields": {
         "type": "axe",
         "sub_type": "timing",
@@ -481,7 +471,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 49,
+    "pk": 48,
     "fields": {
         "type": "axe",
         "sub_type": "timing",
@@ -491,27 +481,27 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 50,
+    "pk": 49,
     "fields": {
         "type": "axe",
         "sub_type": "navigation",
         "name": "2.4.1 Bypass Blocks",
-        "description": "Page must have means to bypass repeated blocks"
+        "description": "Page must have means to bypass repeated blocks "
     }
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 51,
+    "pk": 50,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
-        "name": "4.1.2 Name, Role, Value",
+        "name": "2.4.1 Bypass Blocks and 4.1.2 Name, Role, Value",
         "description": "Frames must have title attribute"
     }
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 52,
+    "pk": 51,
     "fields": {
         "type": "axe",
         "sub_type": "navigation",
@@ -521,7 +511,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 53,
+    "pk": 52,
     "fields": {
         "type": "axe",
         "sub_type": "navigation",
@@ -531,7 +521,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 54,
+    "pk": 53,
     "fields": {
         "type": "axe",
         "sub_type": "presentation",
@@ -541,7 +531,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 55,
+    "pk": 54,
     "fields": {
         "type": "axe",
         "sub_type": "language",
@@ -551,7 +541,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 56,
+    "pk": 55,
     "fields": {
         "type": "axe",
         "sub_type": "language",
@@ -561,7 +551,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 57,
+    "pk": 56,
     "fields": {
         "type": "axe",
         "sub_type": "language",
@@ -571,7 +561,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 58,
+    "pk": 57,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -581,7 +571,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 59,
+    "pk": 58,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -591,7 +581,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 60,
+    "pk": 59,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -601,7 +591,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 61,
+    "pk": 60,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -611,7 +601,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 62,
+    "pk": 61,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -621,7 +611,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 63,
+    "pk": 62,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -631,7 +621,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 64,
+    "pk": 63,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -641,7 +631,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 65,
+    "pk": 64,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -651,7 +641,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 66,
+    "pk": 65,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -661,7 +651,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 67,
+    "pk": 66,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -671,7 +661,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 68,
+    "pk": 67,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -681,7 +671,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 69,
+    "pk": 68,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -691,7 +681,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 70,
+    "pk": 69,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -701,7 +691,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 71,
+    "pk": 70,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -711,7 +701,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 72,
+    "pk": 71,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -721,7 +711,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 73,
+    "pk": 72,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -731,7 +721,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 74,
+    "pk": 73,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
@@ -741,7 +731,7 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 75,
+    "pk": 74,
     "fields": {
         "type": "axe",
         "sub_type": "relationship",
@@ -751,62 +741,12 @@
 },
 {
     "model": "audits.wcagdefinition",
-    "pk": 76,
+    "pk": 75,
     "fields": {
         "type": "axe",
         "sub_type": "aria",
         "name": "4.1.2 Name, Role, Value",
-        "description": "select element must have an accessible name"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 77,
-    "fields": {
-        "type": "axe",
-        "sub_type": "navigation",
-        "name": "2.4.2 Page Titled",
-        "description": "#Description"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 78,
-    "fields": {
-        "type": "axe",
-        "sub_type": "language",
-        "name": "3.1.1 Language of Page",
-        "description": "Document does not have natural language specified"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 79,
-    "fields": {
-        "type": "axe",
-        "sub_type": "relationship",
-        "name": "1.3.1 Info and Relationships",
-        "description": "Document does not have correctly marked tables"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 80,
-    "fields": {
-        "type": "axe",
-        "sub_type": "relationship",
-        "name": "1.3.1 Info and Relationships",
-        "description": "Document does not have correctly marked up formfields"
-    }
-},
-{
-    "model": "audits.wcagdefinition",
-    "pk": 81,
-    "fields": {
-        "type": "axe",
-        "sub_type": "nontext",
-        "name": "1.1.1 Non-text content",
-        "description": "Document does not have alternative text for images"
+        "description": "Select element must have an accessible name"
     }
 }
 ]

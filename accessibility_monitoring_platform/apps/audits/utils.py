@@ -8,6 +8,7 @@ from typing import List, Union
 from django import forms
 from django.contrib.auth.models import User
 
+from ..common.forms import AMPTextField
 from ..common.utils import (
     FieldLabelAndValue,
     record_model_create_event,
@@ -52,6 +53,8 @@ def extract_labels_and_values(
             value = getattr(audit, f"get_{field_name}_display")()
         elif isinstance(value, date):
             type_of_value = FieldLabelAndValue.DATE_TYPE
+        elif isinstance(field, AMPTextField):
+            type_of_value = FieldLabelAndValue.NOTES_TYPE
         display_rows.append(
             FieldLabelAndValue(
                 type=type_of_value,

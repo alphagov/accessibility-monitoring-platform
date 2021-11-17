@@ -183,7 +183,9 @@ class WcagDefinition(models.Model):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"{self.type} | {self.sub_type} | {self.name}")
+        if self.description:
+            return str(f"{self.name}: {self.description}")
+        return self.name
 
 
 class CheckResult(VersionModel):

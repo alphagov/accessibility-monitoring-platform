@@ -31,11 +31,14 @@ from .forms import (
     AuditUpdateAxeForm,
     AuditUpdatePdfForm,
     CheckResultUpdateFormset,
+    CheckResultCreateForm,
 )
 from .models import (
     Audit,
     Page,
+    WcagDefinition,
     CheckResult,
+    TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
@@ -453,6 +456,12 @@ class AuditAxeUpdateView(AuditUpdateView):
     form_class: Type[AuditUpdateAxeForm] = AuditUpdateAxeForm
     template_name: str = "audits/forms/axe.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["axe_checks"] = WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
+        return context
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -460,6 +469,50 @@ class AuditAxeUpdateView(AuditUpdateView):
         else:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-axe'  # type: ignore
         return url
+
+
+class CheckResultCreateView(CreateView):
+    """
+    View to create check results
+    """
+
+    form_class: Type[CheckResultCreateForm] = CheckResultCreateForm
+    template_name: str = "audits/forms/create_check_result.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["audit"] = Audit.objects.get(pk=self.kwargs["audit_id"])
+        context["page"] = Page.objects.get(pk=self.kwargs["page_id"])
+        context["wcag_definition"] = WcagDefinition.objects.get(
+            pk=self.kwargs["wcag_id"]
+        )
+        page_heading: str = "Edit test | Axe and colour contrast test"
+        context["page_heading"] = page_heading
+        case = Case.objects.get(pk=self.kwargs["case_id"])
+        context["page_title"] = f"{case.organisation_name} | {page_heading}"
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        self.object: CheckResult = form.save(commit=False)
+        self.object.failed = True
+        self.object.audit = context["audit"]
+        self.object.page = context["page"]
+        self.object.wcag_definition = context["wcag_definition"]
+        self.object.type = self.object.wcag_definition.type
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to specific Edit test | Axe and colour contrast tests page"""
+        return reverse_lazy(
+            "audits:edit-audit-axe",
+            kwargs={
+                "pk": self.kwargs["audit_id"],
+                "case_id": self.kwargs["case_id"],
+            },
+        )
 
 
 class AuditPdfUpdateView(AuditUpdateView):
