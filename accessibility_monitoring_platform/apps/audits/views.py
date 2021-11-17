@@ -448,7 +448,7 @@ class AuditManualByPageUpdateView(FormView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        if "save_get_next_page" in self.request.POST:
+        if "save_change_test_page" in self.request.POST:
             url: str = reverse_lazy(
                 "audits:edit-audit-manual-by-page",
                 kwargs={

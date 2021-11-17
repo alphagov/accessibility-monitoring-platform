@@ -145,7 +145,7 @@ class AuditUpdateByPageManualForm(forms.Form):
     """
 
     next_page = AMPModelChoiceField(
-        label="Choose next page", queryset=Page.objects.none(), empty_label=None
+        label="", queryset=Page.objects.none(), empty_label=None
     )
     page_manual_checks_complete_date = AMPDatePageCompleteField()
     audit_manual_complete_date = AMPDatePageCompleteField(
