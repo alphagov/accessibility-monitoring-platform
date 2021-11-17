@@ -20,7 +20,7 @@
                     {% for axe_check in axe_checks %}
                         <li>
                             <a
-                                href="{% url 'audits:check-result-create' case.id audit.id audit.next_page.id axe_check.id %}"
+                                href="{% url 'audits:edit-check-result' case.id audit.id audit.next_page.id axe_check.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 {{ axe_check.name }}{% if axe_check.description %}: {{ axe_check.description }}{% endif %}

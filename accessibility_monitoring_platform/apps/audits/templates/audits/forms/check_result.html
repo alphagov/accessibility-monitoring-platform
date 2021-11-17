@@ -11,17 +11,18 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" %}
+                <h2 class="govuk-heading-l">For {{ page }}</h2>
                 <h2 class="govuk-heading-m">{{ wcag_definition }}</h2>
                 {% include 'common/error_summary.html' %}
             </div>
         </div>
-        <form method="post" action="{% url 'audits:check-result-create' case.id audit.id page.id wcag_definition.id %}">
+        <form method="post" action="{% url 'audits:edit-check-result' case.id audit.id page.id wcag_definition.id %}">
             {% csrf_token %}
+            {{ page_with_failure_formset.management_form }}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     {% include 'common/amp_form_snippet.html' %}
                 </div>
-
                 <div class="govuk-grid-column-full govuk-button-group">
                     <input
                         type="submit"
@@ -36,6 +37,22 @@
                     >
                         Cancel
                     </a>
+                </div>
+                <div class="govuk-grid-column-full">
+                    <h2 class="govuk-heading-m bottom-margin-5">Pages with issue</h2>
+                    <ul class="govuk-list">
+                        {% for page_form in page_with_failure_formset %}
+                            <div class="govuk-grid-column-one-quarter">
+                            <li>
+                                {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                {% for field in page_form.visible_fields %}
+                                    {% include 'common/amp_field.html' %}
+                                {% endfor %}
+                            </li>
+                            </div>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </form>

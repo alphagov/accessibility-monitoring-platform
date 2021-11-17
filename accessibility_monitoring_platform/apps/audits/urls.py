@@ -13,7 +13,7 @@ from .views import (
     AuditPagesUpdateView,
     AuditManualByPageUpdateView,
     AuditAxeUpdateView,
-    CheckResultCreateView,
+    CheckResultView,
     AuditPdfUpdateView,
     delete_audit,
     restore_audit,
@@ -56,9 +56,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-axe",
     ),
     path(
-        "<int:audit_id>/pages/<int:page_id>/wcag/<int:wcag_id>/create-check-result/",
-        login_required(CheckResultCreateView.as_view()),
-        name="check-result-create",
+        "<int:audit_id>/pages/<int:page_id>/wcag/<int:wcag_id>/edit-check-result/",
+        login_required(CheckResultView.as_view()),
+        name="edit-check-result",
     ),
     path(
         "<int:pk>/edit-audit-pdf/",

@@ -31,7 +31,8 @@ from .forms import (
     AuditUpdateAxeForm,
     AuditUpdatePdfForm,
     CheckResultUpdateFormset,
-    CheckResultCreateForm,
+    CheckResultForm,
+    PageWithFailureFormset,
 )
 from .models import (
     Audit,
@@ -488,37 +489,86 @@ class AuditAxeUpdateView(AuditUpdateView):
         return url
 
 
-class CheckResultCreateView(CreateView):
+class CheckResultView(FormView):
     """
-    View to create check results
+    View to create and update a check result
     """
 
-    form_class: Type[CheckResultCreateForm] = CheckResultCreateForm
-    template_name: str = "audits/forms/create_check_result.html"
+    form_class: Type[CheckResultForm] = CheckResultForm
+    template_name: str = "audits/forms/check_result.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = Audit.objects.get(pk=self.kwargs["audit_id"])
-        context["page"] = Page.objects.get(pk=self.kwargs["page_id"])
-        context["wcag_definition"] = WcagDefinition.objects.get(
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        context["audit"] = audit
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        context["page"] = page
+        wcag_definition: WcagDefinition = WcagDefinition.objects.get(
             pk=self.kwargs["wcag_id"]
         )
+        context["wcag_definition"] = wcag_definition
+
+        check_result: Union[CheckResult, None] = CheckResult.objects.filter(  # type: ignore
+            audit=audit, page=page, wcag_definition=wcag_definition
+        ).first()
+        if check_result is None:
+            check_result: CheckResult = CheckResult.objects.create(
+                audit=audit,
+                page=page,
+                wcag_definition=wcag_definition,
+                failed=True,
+                type=wcag_definition.type,
+            )
+        context["check_result"] = check_result
+
+        if self.request.POST:
+            form: CheckResultForm = CheckResultForm(self.request.POST)
+        else:
+            form: CheckResultForm = CheckResultForm(data={
+                "notes": check_result.notes
+            })
+        context["form"] = form
+
+        non_pdf_pages: QuerySet[Page] = audit.page_audit.exclude(  # type: ignore
+            type=PAGE_TYPE_PDF
+        )
+        check_results: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit=audit, wcag_definition=wcag_definition
+        )
+        check_results_by_page: Dict[Page, str] = {check_result.page: check_result.failed for check_result in check_results}
+        check_results_failure_by_page: List[Dict[str, Union[Page, str]]] = []
+        for non_pdf_page in non_pdf_pages:
+            check_results_failure_by_page.append({
+                "page": non_pdf_page,
+                "failure_found": check_results_by_page.get(non_pdf_page, "no"),
+            })
+        page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(initial=check_results_failure_by_page)
+        for page_with_failure_form in page_with_failure_formset.forms:
+            page_with_failure_form.fields["failure_found"].label = ""
+            page_with_failure_form.fields["failure_found"].widget.attrs = {
+                "label": str(page_with_failure_form.initial["page"])
+            }
+        context["page_with_failure_formset"] = page_with_failure_formset
+
         page_heading: str = "Edit test | Axe and colour contrast test"
         context["page_heading"] = page_heading
         case = Case.objects.get(pk=self.kwargs["case_id"])
         context["page_title"] = f"{case.organisation_name} | {page_heading}"
+
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
+
         self.object: CheckResult = form.save(commit=False)
         self.object.failed = True
         self.object.audit = context["audit"]
         self.object.page = context["page"]
         self.object.wcag_definition = context["wcag_definition"]
         self.object.type = self.object.wcag_definition.type
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
