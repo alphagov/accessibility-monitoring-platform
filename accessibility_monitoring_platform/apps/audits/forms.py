@@ -222,11 +222,17 @@ class CheckResultForm(forms.ModelForm):
     Form for updating a check result
     """
 
+    failed = AMPChoiceCheckboxField(
+        label="Failed?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(),
+    )
     notes = AMPTextField(label="Notes")
 
     class Meta:
         model = CheckResult
         fields: List[str] = [
+            "failed",
             "notes",
         ]
 

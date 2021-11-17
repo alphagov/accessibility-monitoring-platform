@@ -150,8 +150,8 @@ def extract_labels_and_values(
     for field_name, field in form.fields.items():
         if field_name in EXCLUDED_FIELDS:
             continue
-        type_of_value = FieldLabelAndValue.TEXT_TYPE
-        value = getattr(case, field_name)
+        type_of_value: str = FieldLabelAndValue.TEXT_TYPE
+        value: Any = getattr(case, field_name)
         if isinstance(value, User):
             value = value.get_full_name()
         elif field_name == "sector" and value is None:

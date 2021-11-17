@@ -11,7 +11,10 @@
                     {% endif %}
                 {% elif row.type == 'url' %}
                     {% if row.value %}
-                        <a href="{{ row.value }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        <a href="{{ row.value }}"
+                            rel="noreferrer noopener"
+                            {% if row.external_url %}target="_blank"{% endif %}
+                            class="govuk-link {% if not row.external_url %}govuk-link--no-visited-state{% endif %}">
                             {% if row.extra_label %}
                                 {{ row.extra_label }}
                             {% else %}

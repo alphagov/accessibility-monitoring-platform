@@ -227,7 +227,9 @@ class AuditDetailView(DetailView):
         )
         context["audit_pdf_rows"] = [
             FieldLabelAndValue(
-                label=check_result.wcag_definition.name, value=check_result.notes
+                label=check_result.wcag_definition.name,
+                value=check_result.notes,
+                type=FieldLabelAndValue.NOTES_TYPE,
             )
             for check_result in audit_pdf_tests
         ]
@@ -523,7 +525,9 @@ class CheckResultView(FormView):
         if self.request.POST:
             form: CheckResultForm = CheckResultForm(self.request.POST)
         else:
-            form: CheckResultForm = CheckResultForm(data={"notes": check_result.notes})
+            form: CheckResultForm = CheckResultForm(
+                data={"failed": check_result.failed, "notes": check_result.notes}
+            )
         context["form"] = form
 
         non_pdf_pages: QuerySet[Page] = audit.page_audit.exclude(  # type: ignore
@@ -553,7 +557,7 @@ class CheckResultView(FormView):
             }
         context["page_with_failure_formset"] = page_with_failure_formset
 
-        page_heading: str = "Edit test | Axe and colour contrast test"
+        page_heading: str = "Edit test | Test result"
         context["page_heading"] = page_heading
         case = Case.objects.get(pk=self.kwargs["case_id"])
         context["page_title"] = f"{case.organisation_name} | {page_heading}"

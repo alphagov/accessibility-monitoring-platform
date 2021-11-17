@@ -39,6 +39,7 @@ class FieldLabelAndValue:
     label: Union[str, None]
     type: str = "text"
     extra_label: str = ""
+    external_url: bool = True
     DATE_TYPE: ClassVar[str] = "date"
     NOTES_TYPE: ClassVar[str] = "notes"
     URL_TYPE: ClassVar[str] = "url"

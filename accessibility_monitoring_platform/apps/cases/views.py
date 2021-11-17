@@ -200,6 +200,7 @@ class CaseDetailView(DetailView):
                             },
                         ),
                         extra_label=audit.get_type_display(),  # type: ignore
+                        external_url=False,
                     )
                 )
         else:
