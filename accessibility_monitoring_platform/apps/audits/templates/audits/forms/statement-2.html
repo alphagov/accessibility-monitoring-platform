@@ -23,8 +23,8 @@
                     {% if audit.accessibility_statement_backup_url %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <div class="govuk-body" style="padding-top: 35px;">
-                                    <a href="{{ udit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                <div class="govuk-body">
+                                    <a href="{{ audit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                                         Saved accessibility statement
                                     </a>
                                 </div>
@@ -33,7 +33,7 @@
                     {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.audit_statement_2_complete_date %}
+                            {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

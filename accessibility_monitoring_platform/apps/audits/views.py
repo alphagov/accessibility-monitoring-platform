@@ -241,6 +241,15 @@ class AuditDetailView(DetailView):
             for check_result in audit_pdf_tests
         ]
 
+        audit_statement_rows: List[FieldLabelAndValue] = get_rows(
+            form=AuditUpdateStatement1Form()
+        ) + get_rows(form=AuditUpdateStatement2Form())
+        context["audit_statement_rows"] = [
+            audit_statement_row
+            for audit_statement_row in audit_statement_rows
+            if audit_statement_row.value
+        ]
+
         return context
 
 

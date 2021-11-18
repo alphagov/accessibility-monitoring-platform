@@ -29,6 +29,20 @@ from .models import (
     EXEMPTION_CHOICES,
     AUDIT_TYPE_CHOICES,
     TEST_TYPE_AXE,
+    DECLARATION_STATE_CHOICES,
+    SCOPE_STATE_CHOICES,
+    COMPLIANCE_STATE_CHOICES,
+    NON_REGULATION_STATE_CHOICES,
+    DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+    CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+    PREPARATION_DATE_STATE_CHOICES,
+    METHOD_STATE_CHOICES,
+    REVIEW_STATE_CHOICES,
+    FEEDBACK_STATE_CHOICES,
+    CONTACT_INFORMATION_STATE_CHOICES,
+    ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+    ACCESS_REQUIREMENTS_STATE_CHOICES,
+    OVERALL_COMPLIANCE_STATE_CHOICES,
 )
 
 
@@ -296,12 +310,60 @@ class AuditUpdateStatement1Form(VersionForm):
     Form for editing accessibility statement 1 checks
     """
 
+    accessibility_statement_backup_url = AMPURLField(
+        label="Link to saved accessibility statement"
+    )
+    declaration_state = AMPChoiceRadioField(
+        label="Declaration", choices=DECLARATION_STATE_CHOICES
+    )
+    declaration_notes = AMPTextField(label="Notes")
+    scope_state = AMPChoiceRadioField(label="Scope", choices=SCOPE_STATE_CHOICES)
+    scope_notes = AMPTextField(label="Notes")
+    compliance_state = AMPChoiceRadioField(
+        label="Compliance Status", choices=COMPLIANCE_STATE_CHOICES
+    )
+    compliance_notes = AMPTextField(label="Notes")
+    non_regulation_state = AMPChoiceRadioField(
+        label="Non-accessible Content - non compliance with regulations",
+        choices=NON_REGULATION_STATE_CHOICES,
+    )
+    non_regulation_notes = AMPTextField(label="Notes")
+    disproportionate_burden_state = AMPChoiceRadioField(
+        label="Non-accessible Content - disproportionate burden",
+        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+    )
+    disproportionate_burden_notes = AMPTextField(label="Notes")
+    content_not_in_scope_state = AMPChoiceRadioField(
+        label="Non-accessible Content - the content is not within the scope of the applicable legislation",
+        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+    )
+    content_not_in_scope_notes = AMPTextField(label="Notes")
+    preparation_date_state = AMPChoiceRadioField(
+        label="Preparation Date",
+        choices=PREPARATION_DATE_STATE_CHOICES,
+    )
+    preparation_date_notes = AMPTextField(label="Notes")
     audit_statement_1_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
+            "accessibility_statement_backup_url",
+            "declaration_state",
+            "declaration_notes",
+            "scope_state",
+            "scope_notes",
+            "compliance_state",
+            "compliance_notes",
+            "non_regulation_state",
+            "non_regulation_notes",
+            "disproportionate_burden_state",
+            "disproportionate_burden_notes",
+            "content_not_in_scope_state",
+            "content_not_in_scope_notes",
+            "preparation_date_state",
+            "preparation_date_notes",
             "audit_statement_1_complete_date",
         ]
 
@@ -311,11 +373,52 @@ class AuditUpdateStatement2Form(VersionForm):
     Form for editing accessibility statement 2 checks
     """
 
+    method_state = AMPChoiceRadioField(
+        label="Method",
+        choices=METHOD_STATE_CHOICES,
+    )
+    method_notes = AMPTextField(label="Notes")
+    review_state = AMPChoiceRadioField(label="Review", choices=REVIEW_STATE_CHOICES)
+    review_notes = AMPTextField(label="Notes")
+    feedback_state = AMPChoiceRadioField(
+        label="Feedback", choices=FEEDBACK_STATE_CHOICES
+    )
+    feedback_notes = AMPTextField(label="Notes")
+    contact_information_state = AMPChoiceRadioField(
+        label="Contact Information", choices=CONTACT_INFORMATION_STATE_CHOICES
+    )
+    contact_information_notes = AMPTextField(label="Notes")
+    enforcement_procedure_state = AMPChoiceRadioField(
+        label="Contact Information", choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES
+    )
+    enforcement_procedure_notes = AMPTextField(label="Notes")
+    access_requirements_state = AMPChoiceRadioField(
+        label="Access Requirements", choices=ACCESS_REQUIREMENTS_STATE_CHOICES
+    )
+    access_requirements_notes = AMPTextField(label="Notes")
+    overall_compliance_state = AMPChoiceRadioField(
+        label="Overall Decision on Compliance", choices=OVERALL_COMPLIANCE_STATE_CHOICES
+    )
+    overall_compliance_notes = AMPTextField(label="Notes")
     audit_statement_2_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
+            "method_state",
+            "method_notes",
+            "review_state",
+            "review_notes",
+            "feedback_state",
+            "feedback_notes",
+            "contact_information_state",
+            "contact_information_notes",
+            "enforcement_procedure_state",
+            "enforcement_procedure_notes",
+            "access_requirements_state",
+            "access_requirements_notes",
+            "overall_compliance_state",
+            "overall_compliance_notes",
             "audit_statement_2_complete_date",
         ]
