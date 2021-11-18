@@ -116,6 +116,12 @@ class Audit(VersionModel):
     # pdf page
     audit_pdf_complete_date = models.DateField(null=True, blank=True)
 
+    # Accessibility statement 1
+    audit_statement_1_complete_date = models.DateField(null=True, blank=True)
+
+    # Accessibility statement 2
+    audit_statement_2_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

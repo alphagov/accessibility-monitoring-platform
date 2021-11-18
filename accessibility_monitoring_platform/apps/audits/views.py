@@ -31,6 +31,8 @@ from .forms import (
     AuditUpdateByPageAxeForm,
     AxeCheckResultUpdateFormset,
     AuditUpdatePdfForm,
+    AuditUpdateStatement1Form,
+    AuditUpdateStatement2Form,
     CheckResultUpdateFormset,
     CheckResultForm,
     PageWithFailureFormset,
@@ -754,7 +756,41 @@ class AuditPdfUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-pdf", audit=self.object)  # type: ignore
+            url: str = get_audit_url(url_name="edit-audit-statement-1", audit=self.object)  # type: ignore
+        else:
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pdf'  # type: ignore
+        return url
+
+
+class AuditStatement1UpdateView(AuditUpdateView):
+    """
+    View to update accessibility statement 1 audit fields
+    """
+
+    form_class: Type[AuditUpdateStatement1Form] = AuditUpdateStatement1Form
+    template_name: str = "audits/forms/statement-1.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_audit_url(url_name="edit-audit-statement-2", audit=self.object)  # type: ignore
+        else:
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pdf'  # type: ignore
+        return url
+
+
+class AuditStatement2UpdateView(AuditUpdateView):
+    """
+    View to update accessibility statement 2 audit fields
+    """
+
+    form_class: Type[AuditUpdateStatement2Form] = AuditUpdateStatement2Form
+    template_name: str = "audits/forms/statement-2.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_audit_url(url_name="edit-audit-statement-2", audit=self.object)  # type: ignore
         else:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pdf'  # type: ignore
         return url

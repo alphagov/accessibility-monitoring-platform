@@ -289,3 +289,33 @@ class AxeCheckResultUpdateForm(forms.ModelForm):
 AxeCheckResultUpdateFormset: Any = forms.modelformset_factory(
     CheckResult, AxeCheckResultUpdateForm, extra=1
 )
+
+
+class AuditUpdateStatement1Form(VersionForm):
+    """
+    Form for editing accessibility statement 1 checks
+    """
+
+    audit_statement_1_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_1_complete_date",
+        ]
+
+
+class AuditUpdateStatement2Form(VersionForm):
+    """
+    Form for editing accessibility statement 2 checks
+    """
+
+    audit_statement_2_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_2_complete_date",
+        ]

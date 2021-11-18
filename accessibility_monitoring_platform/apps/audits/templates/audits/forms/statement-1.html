@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'audits:edit-audit-pdf' case.id audit.id %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-statement-1' case.id audit.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    {% if audit.accessibility_statement_backup_url %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <div class="govuk-body" style="padding-top: 35px;">
+                                    <a href="{{ udit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        Saved accessibility statement
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.audit_statement_1_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save and continue"
+                                name="save_continue"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:audit-detail' case.id audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/navbar.html' with current_page='audits:edit-audit-statement-1' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
