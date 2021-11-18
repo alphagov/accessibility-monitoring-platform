@@ -100,3 +100,21 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
             home_page: Page = page
     audit.next_page = home_page  # type: ignore
     audit.save()
+
+
+def create_check_results_for_new_page(page: Page, user: User) -> None:
+    """
+    Create mandatory check results for new page from WcagDefinition metadata.
+    """
+    manual_wcag_definitions: List[WcagDefinition] = list(
+        WcagDefinition.objects.filter(type=TEST_TYPE_MANUAL)
+    )
+
+    for wcag_definition in manual_wcag_definitions:
+        check_result: CheckResult = CheckResult.objects.create(
+            audit=page.audit,
+            page=page,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+        record_model_create_event(user=user, model_object=check_result)  # type: ignore

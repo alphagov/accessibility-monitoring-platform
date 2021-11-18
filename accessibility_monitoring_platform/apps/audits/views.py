@@ -47,7 +47,11 @@ from .models import (
     PAGE_TYPE_EXTRA,
     PAGE_TYPE_PDF,
 )
-from .utils import create_pages_and_tests_for_new_audit, extract_labels_and_values
+from .utils import (
+    create_check_results_for_new_page,
+    create_pages_and_tests_for_new_audit,
+    extract_labels_and_values,
+)
 
 STANDARD_PAGE_HEADERS: List[str] = [
     "Home Page",
@@ -321,6 +325,7 @@ class AuditPagesUpdateView(AuditUpdateView):
                     page.audit = audit
                     page.save()
                     record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+                    create_check_results_for_new_page(page=page, user=self.request.user)  # type: ignore
                 else:
                     record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
                     page.save()
@@ -398,7 +403,9 @@ class AuditManualByPageUpdateView(FormView):
         """Populate page choices and labels"""
         form = super().get_form()
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        form.fields["next_page"].queryset = Page.objects.filter(audit=audit, is_deleted=False, not_found="no")
+        form.fields["next_page"].queryset = Page.objects.filter(
+            audit=audit, is_deleted=False, not_found="no"
+        )
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -490,15 +497,15 @@ class AuditAxeUpdateView(FormView):
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         context["page"] = page
         if self.request.POST:
-            check_results_formset: AxeCheckResultUpdateFormset = AxeCheckResultUpdateFormset(
-                self.request.POST
+            check_results_formset: AxeCheckResultUpdateFormset = (
+                AxeCheckResultUpdateFormset(self.request.POST)
             )
         else:
             check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
                 page=page, type=TEST_TYPE_AXE, is_deleted=False
             )
-            check_results_formset: AxeCheckResultUpdateFormset = AxeCheckResultUpdateFormset(
-                queryset=check_results
+            check_results_formset: AxeCheckResultUpdateFormset = (
+                AxeCheckResultUpdateFormset(queryset=check_results)
             )
         context["check_results_formset"] = check_results_formset
         return context
@@ -507,7 +514,9 @@ class AuditAxeUpdateView(FormView):
         """Populate page choices and labels"""
         form = super().get_form()
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        form.fields["next_page"].queryset = Page.objects.filter(audit=audit, is_deleted=False, not_found="no")
+        form.fields["next_page"].queryset = Page.objects.filter(
+            audit=audit, is_deleted=False, not_found="no"
+        )
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -551,9 +560,7 @@ class AuditAxeUpdateView(FormView):
             "audit_axe_complete_date" in form.cleaned_data
             or "next_page" in form.cleaned_data
         ):
-            audit.audit_axe_complete_date = form.cleaned_data[
-                "audit_axe_complete_date"
-            ]
+            audit.audit_axe_complete_date = form.cleaned_data["audit_axe_complete_date"]
             audit.next_page = form.cleaned_data["next_page"]
             audit.save()
 
@@ -568,7 +575,9 @@ class AuditAxeUpdateView(FormView):
             querydict=self.request.POST,
         )
         if check_result_id_to_delete is not None:
-            check_result_to_delete: CheckResult = CheckResult.objects.get(id=check_result_id_to_delete)
+            check_result_to_delete: CheckResult = CheckResult.objects.get(
+                id=check_result_id_to_delete
+            )
             check_result_to_delete.is_deleted = True
             record_model_update_event(user=self.request.user, model_object=check_result_to_delete)  # type: ignore
             check_result_to_delete.save()
