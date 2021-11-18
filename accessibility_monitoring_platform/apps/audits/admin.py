@@ -32,7 +32,7 @@ class WcagDefinitionAdmin(admin.ModelAdmin):
     """Django admin configuration for WcagDefinition model"""
 
     search_fields = ["name", "description"]
-    list_display = ["id", "type", "sub_type", "name"]
+    list_display = ["id", "type", "sub_type", "name", "description"]
     list_filter = ["type", "sub_type"]
 
 

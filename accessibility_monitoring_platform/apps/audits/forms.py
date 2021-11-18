@@ -24,9 +24,11 @@ from .models import (
     Audit,
     Page,
     CheckResult,
+    WcagDefinition,
     SCREEN_SIZE_CHOICES,
     EXEMPTION_CHOICES,
     AUDIT_TYPE_CHOICES,
+    TEST_TYPE_AXE,
 )
 
 
@@ -161,17 +163,24 @@ class AuditUpdateByPageManualForm(forms.Form):
         ]
 
 
-class AuditUpdateAxeForm(VersionForm):
+class AuditUpdateByPageAxeForm(forms.Form):
     """
-    Form for editing axe checks
+    Form for editing axe checks for a page
     """
 
-    audit_axe_complete_date = AMPDatePageCompleteField()
+    next_page = AMPModelChoiceField(
+        label="", queryset=Page.objects.none(), empty_label=None
+    )
+    page_axe_checks_complete_date = AMPDatePageCompleteField()
+    audit_axe_complete_date = AMPDatePageCompleteField(
+        widget=AMPDateCheckboxWidget(attrs={"label": "Axe tests completed?"}),
+    )
 
     class Meta:
         model = Audit
         fields: List[str] = [
-            "version",
+            "next_page",
+            "page_axe_checks_complete_date",
             "audit_axe_complete_date",
         ]
 
@@ -257,3 +266,26 @@ class PageWithFailureForm(forms.Form):
 
 
 PageWithFailureFormset: Any = forms.formset_factory(PageWithFailureForm, extra=0)
+
+
+class AxeCheckResultUpdateForm(forms.ModelForm):
+    """
+    Form for updating a single axe check result
+    """
+
+    wcag_definition = AMPModelChoiceField(
+        label="Violation", queryset=WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
+    )
+    notes = AMPTextField(label="Violation notes")
+
+    class Meta:
+        model = CheckResult
+        fields = [
+            "wcag_definition",
+            "notes",
+        ]
+
+
+AxeCheckResultUpdateFormset: Any = forms.modelformset_factory(
+    CheckResult, AxeCheckResultUpdateForm, extra=1
+)

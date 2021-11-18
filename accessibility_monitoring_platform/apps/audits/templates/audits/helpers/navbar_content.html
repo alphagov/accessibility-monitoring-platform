@@ -2,7 +2,7 @@
                 <a href="#{{ id }}" class="govuk-link govuk-link--no-visited-state">
                     {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 |
-                {% if edit_name == 'audits:edit-audit-manual-by-page' %}
+                {% if edit_name == 'audits:edit-audit-manual-by-page' or edit_name == 'audits:edit-audit-axe' %}
                 <a href="{% url edit_name case.id audit.id audit.next_page.id %}" class="govuk-link govuk-link--no-visited-state">
                 {% else %}
                 <a href="{% url edit_name case.id audit.id %}" class="govuk-link govuk-link--no-visited-state">

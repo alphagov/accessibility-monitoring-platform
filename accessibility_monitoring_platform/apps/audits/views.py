@@ -28,7 +28,8 @@ from .forms import (
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
     AuditUpdateByPageManualForm,
-    AuditUpdateAxeForm,
+    AuditUpdateByPageAxeForm,
+    AxeCheckResultUpdateFormset,
     AuditUpdatePdfForm,
     CheckResultUpdateFormset,
     CheckResultForm,
@@ -360,7 +361,7 @@ class AuditPagesUpdateView(AuditUpdateView):
 
 class AuditManualByPageUpdateView(FormView):
     """
-    View to update manual audits grouped by page
+    View to update manual audits for a page
     """
 
     form_class: Type[AuditUpdateByPageManualForm] = AuditUpdateByPageManualForm
@@ -397,7 +398,7 @@ class AuditManualByPageUpdateView(FormView):
         """Populate page choices and labels"""
         form = super().get_form()
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        form.fields["next_page"].queryset = Page.objects.filter(audit=audit)
+        form.fields["next_page"].queryset = Page.objects.filter(audit=audit, is_deleted=False, not_found="no")
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -419,7 +420,7 @@ class AuditManualByPageUpdateView(FormView):
         ]
 
         if check_results_formset.is_valid():
-            check_results: List[Page] = check_results_formset.save(commit=False)
+            check_results: List[CheckResult] = check_results_formset.save(commit=False)
             for check_result in check_results:
                 record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
                 check_result.save()
@@ -460,32 +461,136 @@ class AuditManualByPageUpdateView(FormView):
                 },
             )
         elif "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-axe", audit=audit)  # type: ignore
+            url: str = reverse_lazy(
+                "audits:edit-audit-axe",
+                kwargs={
+                    "page_id": audit.next_page.id,  # type: ignore
+                    "audit_id": audit.id,  # type: ignore
+                    "case_id": audit.case.id,  # type: ignore
+                },
+            )
         else:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=audit)}#audit-manual'  # type: ignore
         return url
 
 
-class AuditAxeUpdateView(AuditUpdateView):
+class AuditAxeUpdateView(FormView):
     """
-    View to update axe audits
+    View to update axe audits for a page
     """
 
-    form_class: Type[AuditUpdateAxeForm] = AuditUpdateAxeForm
+    form_class: Type[AuditUpdateByPageAxeForm] = AuditUpdateByPageAxeForm
     template_name: str = "audits/forms/axe.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["axe_checks"] = WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        context["audit"] = audit
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        context["page"] = page
+        if self.request.POST:
+            check_results_formset: AxeCheckResultUpdateFormset = AxeCheckResultUpdateFormset(
+                self.request.POST
+            )
+        else:
+            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
+                page=page, type=TEST_TYPE_AXE, is_deleted=False
+            )
+            check_results_formset: AxeCheckResultUpdateFormset = AxeCheckResultUpdateFormset(
+                queryset=check_results
+            )
+        context["check_results_formset"] = check_results_formset
         return context
+
+    def get_form(self):
+        """Populate page choices and labels"""
+        form = super().get_form()
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        form.fields["next_page"].queryset = Page.objects.filter(audit=audit, is_deleted=False, not_found="no")
+        form.fields["next_page"].initial = audit.next_page
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        form.fields[
+            "page_axe_checks_complete_date"
+        ].label = f"Mark the test on {page} as complete?"
+        form.fields["page_axe_checks_complete_date"].widget.attrs = {
+            "label": f"Record if the test on {page} is complete"
+        }
+        form.fields[
+            "page_axe_checks_complete_date"
+        ].initial = page.axe_checks_complete_date
+        return form
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        check_results_formset: AxeCheckResultUpdateFormset = context[
+            "check_results_formset"
+        ]
+
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+
+        if check_results_formset.is_valid():
+            check_results: List[CheckResult] = check_results_formset.save(commit=False)
+            for check_result in check_results:
+                if check_result.id:  # type: ignore
+                    record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
+                    check_result.save()
+                else:
+                    check_result.audit = audit
+                    check_result.page = page
+                    check_result.type = TEST_TYPE_AXE
+                    check_result.failed = "yes"
+                    check_result.save()
+                    record_model_create_event(user=self.request.user, model_object=check_result)  # type: ignore
+        else:
+            return super().form_invalid(form)
+
+        if (
+            "audit_axe_complete_date" in form.cleaned_data
+            or "next_page" in form.cleaned_data
+        ):
+            audit.audit_axe_complete_date = form.cleaned_data[
+                "audit_axe_complete_date"
+            ]
+            audit.next_page = form.cleaned_data["next_page"]
+            audit.save()
+
+        if "page_axe_checks_complete_date" in form.cleaned_data:
+            page.axe_checks_complete_date = form.cleaned_data[
+                "page_axe_checks_complete_date"
+            ]
+            page.save()
+
+        check_result_id_to_delete: Union[int, None] = get_id_from_button_name(
+            button_name_prefix="remove_check_result_",
+            querydict=self.request.POST,
+        )
+        if check_result_id_to_delete is not None:
+            check_result_to_delete: CheckResult = CheckResult.objects.get(id=check_result_id_to_delete)
+            check_result_to_delete.is_deleted = True
+            record_model_update_event(user=self.request.user, model_object=check_result_to_delete)  # type: ignore
+            check_result_to_delete.save()
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-pdf", audit=self.object)  # type: ignore
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        if "save_exit" in self.request.POST:
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=audit)}#audit-axe'  # type: ignore
+        elif "save_continue" in self.request.POST:
+            url: str = get_audit_url(url_name="edit-audit-pdf", audit=audit)
         else:
-            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-axe'  # type: ignore
+            url: str = reverse_lazy(
+                "audits:edit-audit-axe",
+                kwargs={
+                    "page_id": audit.next_page.id,  # type: ignore
+                    "audit_id": audit.id,  # type: ignore
+                    "case_id": audit.case.id,  # type: ignore
+                },
+            )
         return url
 
 

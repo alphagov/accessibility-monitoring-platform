@@ -23,6 +23,7 @@ from .models import (
     PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
+    TEST_TYPE_MANUAL,
 )
 
 EXTRA_LABELS = {}
@@ -74,8 +75,8 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
     pdf_wcag_definitons: List[WcagDefinition] = list(
         WcagDefinition.objects.filter(type=TEST_TYPE_PDF)
     )
-    non_pdf_wcag_definitons: List[WcagDefinition] = list(
-        WcagDefinition.objects.exclude(type=TEST_TYPE_PDF)
+    manual_wcag_definitions: List[WcagDefinition] = list(
+        WcagDefinition.objects.filter(type=TEST_TYPE_MANUAL)
     )
 
     home_page: Union[Page, None] = None  # type: ignore
@@ -85,7 +86,7 @@ def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
         wcag_definitons: List[WcagDefinition] = (
             pdf_wcag_definitons
             if page_type == PAGE_TYPE_PDF
-            else non_pdf_wcag_definitons
+            else manual_wcag_definitions
         )
         for wcag_definition in wcag_definitons:
             check_result: CheckResult = CheckResult.objects.create(

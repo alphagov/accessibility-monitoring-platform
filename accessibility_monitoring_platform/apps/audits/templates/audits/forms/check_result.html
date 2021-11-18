@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'audits:edit-audit-axe' case.id audit.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'audits:edit-audit-axe' case.id audit.id page.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -45,7 +45,7 @@
                         data-module="govuk-button"
                     />
                     <a
-                        href="{% url 'audits:edit-audit-axe' case.id audit.id %}"
+                        href="{% url 'audits:edit-audit-axe' case.id audit.id page.id %}"
                         class="govuk-link govuk-link--no-visited-state"
                     >
                         Cancel

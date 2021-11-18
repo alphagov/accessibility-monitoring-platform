@@ -148,14 +148,13 @@ class Page(VersionModel):
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     manual_checks_complete_date = models.DateField(null=True, blank=True)
+    axe_checks_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable=invalid-str-returned
         name: str = self.name if self.name else self.get_type_display()  # type: ignore
-        if self.manual_checks_complete_date:
-            return f"{name} - Completed"
         return name
 
     def get_absolute_url(self):
