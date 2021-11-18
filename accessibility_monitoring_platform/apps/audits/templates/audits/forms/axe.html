@@ -62,17 +62,18 @@
                                 {% include 'common/amp_form_snippet.html' %}
                             </div>
                             <div class="govuk-grid-column-full govuk-button-group">
-                                <input
-                                    type="submit"
-                                    value="Save and add violation"
-                                    name="save_change_test_page"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button" />
                                 {% if form.instance.id %}
                                     <input
                                         type="submit"
                                         value="Remove violation"
                                         name="remove_check_result_{{ form.instance.id }}"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button" />
+                                {% else %}
+                                    <input
+                                        type="submit"
+                                        value="Save and add violation"
+                                        name="save_change_test_page"
                                         class="govuk-button govuk-button--secondary"
                                         data-module="govuk-button" />
                                 {% endif %}
