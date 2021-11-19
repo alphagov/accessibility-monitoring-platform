@@ -88,7 +88,7 @@ def download_as_csv(
             row.append(value)
 
         if include_contact:
-            contacts: List[Contact] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
+            contacts: List[Any] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)

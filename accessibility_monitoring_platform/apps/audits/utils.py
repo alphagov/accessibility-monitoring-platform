@@ -8,7 +8,7 @@ from typing import List, Union
 from django import forms
 from django.contrib.auth.models import User
 
-from ..common.forms import AMPTextField
+from ..common.forms import AMPTextField, AMPURLField
 from ..common.utils import (
     FieldLabelAndValue,
     record_model_create_event,
@@ -34,6 +34,11 @@ EXCLUDED_FIELDS: List[str] = [
     "audit_manual_complete_date",
     "audit_axe_complete_date",
     "audit_pdf_complete_date",
+    "audit_statement_1_complete_date",
+    "audit_statement_2_complete_date",
+    "audit_summary_complete_date",
+    "manual_checks_complete_date",
+    "axe_checks_complete_date",
 ]
 
 
@@ -56,6 +61,8 @@ def extract_labels_and_values(
             type_of_value = FieldLabelAndValue.DATE_TYPE
         elif isinstance(field, AMPTextField):
             type_of_value = FieldLabelAndValue.NOTES_TYPE
+        elif isinstance(field, AMPURLField):
+            type_of_value = FieldLabelAndValue.URL_TYPE
         display_rows.append(
             FieldLabelAndValue(
                 type=type_of_value,

@@ -48,6 +48,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/audits/[id]/edit-audit-pdf/": "Edit test | PDF tests",
     "/cases/[id]/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
     "/cases/[id]/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
+    "/cases/[id]/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
 }
 
 

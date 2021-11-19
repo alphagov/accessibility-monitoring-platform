@@ -295,6 +295,9 @@ class Audit(VersionModel):
     overall_compliance_notes = models.TextField(default="", blank=True)
     audit_statement_2_complete_date = models.DateField(null=True, blank=True)
 
+    # Summary
+    audit_summary_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

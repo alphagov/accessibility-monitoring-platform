@@ -422,3 +422,18 @@ class AuditUpdateStatement2Form(VersionForm):
             "overall_compliance_notes",
             "audit_statement_2_complete_date",
         ]
+
+
+class AuditUpdateSummaryForm(VersionForm):
+    """
+    Form for editing audit summary
+    """
+
+    audit_summary_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_summary_complete_date",
+        ]
