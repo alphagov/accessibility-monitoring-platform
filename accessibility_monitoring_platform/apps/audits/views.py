@@ -417,7 +417,7 @@ class AuditManualByPageUpdateView(FormView):
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
         form.fields["next_page"].queryset = Page.objects.filter(
             audit=audit, is_deleted=False, not_found="no"
-        )
+        ).exclude(type=PAGE_TYPE_PDF)
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -528,7 +528,7 @@ class AuditAxeUpdateView(FormView):
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
         form.fields["next_page"].queryset = Page.objects.filter(
             audit=audit, is_deleted=False, not_found="no"
-        )
+        ).exclude(type=PAGE_TYPE_PDF)
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -834,9 +834,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
                     check_failure
                 )
             else:
-                audit_failures_by_wcag[check_failure.wcag_definition] = [
-                    check_failure
-                ]
+                audit_failures_by_wcag[check_failure.wcag_definition] = [check_failure]
             if check_failure.page in audit_failures_by_page:
                 audit_failures_by_page[check_failure.page].append(check_failure)
             else:
