@@ -14,11 +14,11 @@ from django.views.generic.detail import DetailView
 
 from ..cases.models import Case
 from ..common.utils import (
-    FieldLabelAndValue,
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
 )
+from ..common.form_extract_utils import extract_form_labels_and_values, FieldLabelAndValue
 
 from .forms import (
     AuditCreateForm,
@@ -53,7 +53,6 @@ from .models import (
 from .utils import (
     create_check_results_for_new_page,
     create_pages_and_tests_for_new_audit,
-    extract_labels_and_values,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -176,7 +175,7 @@ class AuditDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        get_rows: Callable = partial(extract_labels_and_values, audit=self.object)  # type: ignore
+        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
         audit_metadata_rows: List[FieldLabelAndValue] = get_rows(
             form=AuditUpdateMetadataForm()
@@ -884,15 +883,10 @@ class AuditSummaryUpdateView(AuditUpdateView):
             (key, value) for key, value in audit_failures_by_page.items()
         ]
 
-        get_rows: Callable = partial(extract_labels_and_values, audit=self.object)  # type: ignore
-        audit_statement_rows: List[FieldLabelAndValue] = get_rows(
+        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
+        context["audit_statement_rows"] = get_rows(
             form=AuditUpdateStatement1Form()
         ) + get_rows(form=AuditUpdateStatement2Form())
-        context["audit_statement_rows"] = [
-            audit_statement_row
-            for audit_statement_row in audit_statement_rows
-            if audit_statement_row.value
-        ]
 
         return context
 

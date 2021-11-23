@@ -2,18 +2,11 @@
 Utilities for audits app
 """
 
-from datetime import date
 from typing import List, Union
 
-from django import forms
 from django.contrib.auth.models import User
 
-from ..common.forms import AMPTextField, AMPURLField
-from ..common.utils import (
-    FieldLabelAndValue,
-    record_model_create_event,
-)
-from .forms import AuditUpdateMetadataForm
+from ..common.utils import record_model_create_event
 from .models import (
     Audit,
     Page,
@@ -25,53 +18,6 @@ from .models import (
     TEST_TYPE_PDF,
     TEST_TYPE_MANUAL,
 )
-
-EXTRA_LABELS = {}
-EXCLUDED_FIELDS: List[str] = [
-    "version",
-    "audit_metadata_complete_date",
-    "audit_pages_complete_date",
-    "audit_manual_complete_date",
-    "audit_axe_complete_date",
-    "audit_pdf_complete_date",
-    "audit_statement_1_complete_date",
-    "audit_statement_2_complete_date",
-    "audit_summary_complete_date",
-    "manual_checks_complete_date",
-    "axe_checks_complete_date",
-]
-
-
-def extract_labels_and_values(
-    audit: Audit,
-    form: AuditUpdateMetadataForm,
-) -> List[FieldLabelAndValue]:
-    """Extract field labels from form and values from case for use in html rows"""
-    display_rows: List[FieldLabelAndValue] = []
-    for field_name, field in form.fields.items():
-        if field_name in EXCLUDED_FIELDS:
-            continue
-        type_of_value = FieldLabelAndValue.TEXT_TYPE
-        value = getattr(audit, field_name)
-        if isinstance(field, forms.ModelChoiceField):
-            pass
-        elif isinstance(field, forms.ChoiceField):
-            value = getattr(audit, f"get_{field_name}_display")()
-        elif isinstance(value, date):
-            type_of_value = FieldLabelAndValue.DATE_TYPE
-        elif isinstance(field, AMPTextField):
-            type_of_value = FieldLabelAndValue.NOTES_TYPE
-        elif isinstance(field, AMPURLField):
-            type_of_value = FieldLabelAndValue.URL_TYPE
-        display_rows.append(
-            FieldLabelAndValue(
-                type=type_of_value,
-                label=field.label,
-                value=value,
-                extra_label=EXTRA_LABELS.get(field_name, ""),
-            )
-        )
-    return display_rows
 
 
 def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:

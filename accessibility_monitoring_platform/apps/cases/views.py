@@ -24,7 +24,6 @@ from ..notifications.utils import read_notification
 from ..audits.models import Audit
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
-    FieldLabelAndValue,
     format_date,
     download_as_csv,
     extract_domain_from_url,
@@ -33,6 +32,7 @@ from ..common.utils import (  # type: ignore
     record_model_update_event,
     record_model_create_event,
 )
+from ..common.form_extract_utils import extract_form_labels_and_values, FieldLabelAndValue
 from .models import (
     Case,
     Contact,
@@ -59,7 +59,6 @@ from .forms import (
     CaseEnforcementBodyCorrespondenceUpdateForm,
 )
 from .utils import (
-    extract_labels_and_values,
     get_sent_date,
     download_ehrc_cases,
     filter_cases,
@@ -154,7 +153,7 @@ class CaseUpdateView(UpdateView):
                 messages.add_message(
                     self.request,
                     messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore
+                    f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore # noqa: E
                 )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -182,7 +181,7 @@ class CaseDetailView(DetailView):
             ),
         ]
 
-        get_rows: Callable = partial(extract_labels_and_values, case=self.object)  # type: ignore
+        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
             audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False)  # type: ignore
@@ -748,7 +747,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:
+def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:  # pylint: disable=unused-argument
     """
     View to export a single case in csv format
 
