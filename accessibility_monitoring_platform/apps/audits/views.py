@@ -670,17 +670,27 @@ class CheckResultView(FormView):
             check_results_failure_by_page.append(
                 {
                     "page": non_pdf_page,
+                    "page_id": non_pdf_page.id,  # type: ignore
                     "failure_found": check_results_by_page.get(non_pdf_page, "no"),
                 }
             )
-        page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(
-            initial=check_results_failure_by_page
-        )
+
+        if self.request.POST:
+            page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(
+                self.request.POST,
+                initial=check_results_failure_by_page,
+            )
+        else:
+            page_with_failure_formset: PageWithFailureFormset = PageWithFailureFormset(
+                initial=check_results_failure_by_page
+            )
+
         for page_with_failure_form in page_with_failure_formset.forms:
             page_with_failure_form.fields["failure_found"].label = ""
             page_with_failure_form.fields["failure_found"].widget.attrs = {
                 "label": str(page_with_failure_form.initial["page"])
             }
+
         context["page_with_failure_formset"] = page_with_failure_formset
 
         page_heading: str = "Edit test | Test result"
@@ -694,12 +704,39 @@ class CheckResultView(FormView):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
 
-        self.object: CheckResult = form.save(commit=False)
-        self.object.failed = True
-        self.object.audit = context["audit"]
-        self.object.page = context["page"]
-        self.object.wcag_definition = context["wcag_definition"]
-        self.object.type = self.object.wcag_definition.type
+        audit: Audit = context["audit"]
+        page: Page = context["page"]
+        wcag_definition: WcagDefinition = context["wcag_definition"]
+
+        check_result: CheckResult = context["check_result"]
+        check_result.failed = form.cleaned_data["failed"]
+        check_result.notes = form.cleaned_data["notes"]
+        check_result.save()
+
+        formset = context["page_with_failure_formset"]
+        if formset.is_valid():
+            for form in formset:
+                #  import pdb; pdb.set_trace() # Start debugging
+                if "failure_found" in form.cleaned_data:
+                    if page.id != form.cleaned_data["page_id"]:  # type: ignore
+                        other_page: Page = Page.objects.get(form.cleaned_data["page_id"])
+                        other_check_result: Union[CheckResult, None] = CheckResult.objects.filter(  # type: ignore
+                            audit=audit, page=other_page, wcag_definition=wcag_definition
+                        ).first()
+                        if other_check_result is None:
+                            check_result: CheckResult = CheckResult.objects.create(
+                                audit=audit,
+                                page=page,
+                                wcag_definition=wcag_definition,
+                                failed=True,
+                                type=wcag_definition.type,
+                                notes=check_result.notes,
+                            )
+                        else:
+                            other_check_result.failed = True
+                            other_check_result.save()
+        else:
+            return super().form_invalid(form)
 
         return super().form_valid(form)
 
@@ -708,7 +745,8 @@ class CheckResultView(FormView):
         return reverse_lazy(
             "audits:edit-audit-axe",
             kwargs={
-                "pk": self.kwargs["audit_id"],
+                "page_id": self.kwargs["page_id"],
+                "audit_id": self.kwargs["audit_id"],
                 "case_id": self.kwargs["case_id"],
             },
         )

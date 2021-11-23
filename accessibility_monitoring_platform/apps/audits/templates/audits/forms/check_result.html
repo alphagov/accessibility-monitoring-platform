@@ -27,6 +27,7 @@
                     <h2 class="govuk-heading-m bottom-margin-5">Add result to pages</h2>
                     <p class="govuk-body-m">
                         {% for page_form in page_with_failure_formset %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
                             {% for field in page_form.visible_fields %}
                                 <span>
                                 <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>

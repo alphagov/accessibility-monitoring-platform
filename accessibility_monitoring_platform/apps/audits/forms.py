@@ -4,6 +4,7 @@ Forms - checks (called tests by users)
 from typing import Any, List
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     VersionForm,
@@ -266,6 +267,7 @@ class PageWithFailureForm(forms.Form):
     """
 
     page = forms.CharField(widget=forms.HiddenInput())
+    page_id = forms.CharField(widget=forms.HiddenInput())
     failure_found = AMPChoiceCheckboxField(
         label="Failed?",
         choices=BOOLEAN_CHOICES,
@@ -298,6 +300,12 @@ class AxeCheckResultUpdateForm(forms.ModelForm):
             "wcag_definition",
             "notes",
         ]
+
+    def clean_wcag_definition(self):
+        wcag_definition = self.cleaned_data.get("wcag_definition")
+        if not wcag_definition:
+            raise ValidationError("Please choose a violation.")
+        return wcag_definition
 
 
 AxeCheckResultUpdateFormset: Any = forms.modelformset_factory(
