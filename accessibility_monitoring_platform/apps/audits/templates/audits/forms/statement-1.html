@@ -33,7 +33,11 @@
                     {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+                            {% for field in form.visible_fields %}
+                                {% include 'common/amp_field_help_details.html' %}
+                            {% endfor %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

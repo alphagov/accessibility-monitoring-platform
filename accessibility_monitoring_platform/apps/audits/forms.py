@@ -1,7 +1,7 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List
+from typing import Any, Dict, List
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -45,6 +45,40 @@ from .models import (
     ACCESS_REQUIREMENTS_STATE_CHOICES,
     OVERALL_COMPLIANCE_STATE_CHOICES,
 )
+
+ACCESSIBILITY_STATEMENT_EXAMPLES: Dict[str, str] = {
+    "declaration_state": """[Name of organisation] is committed to making its website accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.""",
+    "scope_state": """This accessibility statement applies to [insert scope of statement, e.g. website(s)/mobile application(s) to which the statement applies, as appropriate].
+NOTE: For mobile applications, please include version information and date.""",
+    "compliance_state": """One of the following
+
+• This website is fully compliant with the Web Content Accessibility Guidelines version 2.1 AA standard.
+
+• This website is partially compliant with the Web Content Accessibility Guidelines version 2.1 AA standard, due to the non-compliances listed below.
+
+• This website is not compliant with the Web Content Accessibility Guidelines version 2.1 AA standard. The non-accessible sections are listed below.""",
+    "non_regulation_state": """[List the non-compliance(s) of the website(s)/mobile application(s), and/or, describe which section(s)/content/function(s) are not yet compliant].
+
+NOTE: Describe in non-technical terms, as far as possible, how the content is not accessible, including reference(s) to the applicable requirements in the relevant standards and/or technical specifications that are not met; e.g.: ‘The login form of the document sharing application is not fully usable by keyboard (requirement number XXX (if applicable))’""",
+    "disproportionate_burden_state": """[List non-accessible section(s)/content/function(s) for which the disproportionate burden exemption, is being temporarily invoked] and which WCAG success criteria the problem fails on""",
+    "content_not_in_scope_state": """List non-accessible section(s)/content/function(s) which is/are out of scope of the applicable legislation]. Which WCAG success criteria the problem falls on.
+[Indicate accessible alternatives, where appropriate].
+""",
+    "preparation_date_state": """This statement was prepared on [date].""",
+    "method_state": """[Indicate the method used to prepare the statement]
+You should link to a full explanation of what you tested and how you chose it. If you get a third party auditor to test your website for you, they should include sampling details in the test report - so you can just link to that.""",
+    "review_state": """[The statement was last reviewed on [insert date of latest review]. At least once per year.""",
+    "feedback_state": """[Provide a description of, and a link to, the feedback mechanism to be used to notify the public sector body of any compliance failures and to request information and content excluded from the scope of the Directive].""",
+    "contact_information_state": """[Provide the contact information of the relevant entity(ies)/unit(s)/person(s) (as appropriate) responsible for accessibility and for processing requests sent through the feedback mechanism].""",
+    "enforcement_procedure_state": """The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you’re not happy with how we respond to your complaint, contact the Equality Advisory and Support Service (EASS).
+
+[Note: if your organisation is based in Northern Ireland, refer users who want to complain to the Equalities Commission for Northern Ireland (ECNI) instead of the EASS and EHRC.]""",
+    "access_requirements_state": """The accessibility statement should be easy to find for the user.
+
+A link to the accessibility statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer.
+
+A standardised URL may be used for the accessibility statement.""",
+}
 
 
 class AuditCreateForm(forms.ModelForm):
@@ -319,36 +353,48 @@ class AuditUpdateStatement1Form(VersionForm):
     """
 
     accessibility_statement_backup_url = AMPURLField(
-        label="Link to saved accessibility statement"
+        label="Link to saved accessibility statement",
     )
     declaration_state = AMPChoiceRadioField(
-        label="Declaration", choices=DECLARATION_STATE_CHOICES
+        label="Declaration",
+        choices=DECLARATION_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["declaration_state"],
     )
     declaration_notes = AMPTextField(label="Notes")
-    scope_state = AMPChoiceRadioField(label="Scope", choices=SCOPE_STATE_CHOICES)
+    scope_state = AMPChoiceRadioField(
+        label="Scope",
+        choices=SCOPE_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["scope_state"],
+    )
     scope_notes = AMPTextField(label="Notes")
     compliance_state = AMPChoiceRadioField(
-        label="Compliance Status", choices=COMPLIANCE_STATE_CHOICES
+        label="Compliance Status",
+        choices=COMPLIANCE_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["compliance_state"],
     )
     compliance_notes = AMPTextField(label="Notes")
     non_regulation_state = AMPChoiceRadioField(
         label="Non-accessible Content - non compliance with regulations",
         choices=NON_REGULATION_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["non_regulation_state"],
     )
     non_regulation_notes = AMPTextField(label="Notes")
     disproportionate_burden_state = AMPChoiceRadioField(
         label="Non-accessible Content - disproportionate burden",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["disproportionate_burden_state"],
     )
     disproportionate_burden_notes = AMPTextField(label="Notes")
     content_not_in_scope_state = AMPChoiceRadioField(
         label="Non-accessible Content - the content is not within the scope of the applicable legislation",
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["content_not_in_scope_state"],
     )
     content_not_in_scope_notes = AMPTextField(label="Notes")
     preparation_date_state = AMPChoiceRadioField(
         label="Preparation Date",
         choices=PREPARATION_DATE_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["preparation_date_state"],
     )
     preparation_date_notes = AMPTextField(label="Notes")
     audit_statement_1_complete_date = AMPDatePageCompleteField()
@@ -384,28 +430,42 @@ class AuditUpdateStatement2Form(VersionForm):
     method_state = AMPChoiceRadioField(
         label="Method",
         choices=METHOD_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["method_state"],
     )
     method_notes = AMPTextField(label="Notes")
-    review_state = AMPChoiceRadioField(label="Review", choices=REVIEW_STATE_CHOICES)
+    review_state = AMPChoiceRadioField(
+        label="Review",
+        choices=REVIEW_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["review_state"],
+    )
     review_notes = AMPTextField(label="Notes")
     feedback_state = AMPChoiceRadioField(
-        label="Feedback", choices=FEEDBACK_STATE_CHOICES
+        label="Feedback",
+        choices=FEEDBACK_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["feedback_state"],
     )
     feedback_notes = AMPTextField(label="Notes")
     contact_information_state = AMPChoiceRadioField(
-        label="Contact Information", choices=CONTACT_INFORMATION_STATE_CHOICES
+        label="Contact Information",
+        choices=CONTACT_INFORMATION_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["contact_information_state"],
     )
     contact_information_notes = AMPTextField(label="Notes")
     enforcement_procedure_state = AMPChoiceRadioField(
-        label="Contact Information", choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES
+        label="Contact Information",
+        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["enforcement_procedure_state"],
     )
     enforcement_procedure_notes = AMPTextField(label="Notes")
     access_requirements_state = AMPChoiceRadioField(
-        label="Access Requirements", choices=ACCESS_REQUIREMENTS_STATE_CHOICES
+        label="Access Requirements",
+        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["access_requirements_state"],
     )
     access_requirements_notes = AMPTextField(label="Notes")
     overall_compliance_state = AMPChoiceRadioField(
-        label="Overall Decision on Compliance", choices=OVERALL_COMPLIANCE_STATE_CHOICES
+        label="Overall Decision on Compliance",
+        choices=OVERALL_COMPLIANCE_STATE_CHOICES,
     )
     overall_compliance_notes = AMPTextField(label="Notes")
     audit_statement_2_complete_date = AMPDatePageCompleteField()
