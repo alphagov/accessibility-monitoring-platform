@@ -44,6 +44,8 @@ from .models import (
     ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     ACCESS_REQUIREMENTS_STATE_CHOICES,
     OVERALL_COMPLIANCE_STATE_CHOICES,
+    ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+    REPORT_OPTIONS_NEXT_CHOICES,
 )
 
 ACCESSIBILITY_STATEMENT_EXAMPLES: Dict[str, str] = {
@@ -514,12 +516,124 @@ class AuditUpdateReportOptionsForm(VersionForm):
     Form for editing report options
     """
 
+    accessibility_statement_state = AMPChoiceRadioField(
+        label="Accessibility statement",
+        choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+    )
+    accessibility_statement_not_correct_format = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It was not in the correct format"}),
+    )
+    accessibility_statement_not_specific_enough = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It was not specific enough"}),
+    )
+    accessibility_statement_missing_accessibility_issues = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Accessibility issues were found during the test that were not included in the statement"}),
+    )
+    accessibility_statement_missing_mandatory_wording = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Mandatory wording is missing"}),
+    )
+    accessibility_statement_needs_more_re_disproportionate = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "We require more information covering the disproportionate burden claim"}),
+    )
+    accessibility_statement_needs_more_re_accessibility = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It required more information detailing the accessibility issues"}),
+    )
+    accessibility_statement_deadline_not_complete = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It includes a deadline of XXX for fixing XXX issues and this has not been completed"}),
+    )
+    accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It includes a deadline of XXX for fixing XXX issues and this is not sufficient"}),
+    )
+    accessibility_statement_out_of_date = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It is out of date and needs to be reviewed"}),
+    )
+    accessibility_statement_template_update = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "It is a requirement that accessibility statements are accessible. Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your full accessibility statement."}),
+    )
+    accessibility_statement_accessible = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "In 2020 the GOV.UK sample template was updated to include an extra mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to your statement."}),
+    )
+    accessibility_statement_prominent = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as per the legislative requirement."}),
+    )
+    report_options_next = AMPChoiceRadioField(
+        label="What to do next",
+        choices=REPORT_OPTIONS_NEXT_CHOICES,
+    )
+    report_next_change_statement = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "They have an acceptable statement but need to change it because of the errors we found"}),
+    )
+    report_next_no_statement = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "They don’t have a statement, or it is in the wrong format"}),
+    )
+    report_next_statement_not_right = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "They have a statement but it is not quite right"}),
+    )
+    report_next_statement_matches = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Their statement matches"}),
+    )
+    report_next_disproportionate_burden = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Disproportionate burden"}),
+    )
     audit_report_options_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
+            "accessibility_statement_state",
+            "accessibility_statement_not_correct_format",
+            "accessibility_statement_not_specific_enough",
+            "accessibility_statement_missing_accessibility_issues",
+            "accessibility_statement_missing_mandatory_wording",
+            "accessibility_statement_needs_more_re_disproportionate",
+            "accessibility_statement_needs_more_re_accessibility",
+            "accessibility_statement_deadline_not_complete",
+            "accessibility_statement_deadline_not_sufficient",
+            "accessibility_statement_out_of_date",
+            "accessibility_statement_template_update",
+            "accessibility_statement_accessible",
+            "accessibility_statement_prominent",
+            "report_options_next",
+            "report_next_change_statement",
+            "report_next_no_statement",
+            "report_next_statement_not_right",
+            "report_next_statement_matches",
+            "report_next_disproportionate_burden",
             "audit_report_options_complete_date",
         ]
 

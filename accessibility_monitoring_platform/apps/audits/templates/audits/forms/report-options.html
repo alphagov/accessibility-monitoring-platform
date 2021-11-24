@@ -19,7 +19,29 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_state %}
+                            <p class="govuk-body">An accessibility statement for the website was found but</p>
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_correct_format %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_specific_enough %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_accessibility_issues %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_need_more_re_disproportionate %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_need_more_re_accessibility %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_out_of_date %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_template_update %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_accessible %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_prominent %}
+                            {% include 'common/amp_field.html' with field=form.report_options_next %}
+                            <p class="govuk-body">Then choose all options which apply</p>
+                                {% include 'common/amp_field.html' with field=form.report_next_change_statement %}
+                                {% include 'common/amp_field.html' with field=form.report_next_no_statement %}
+                                {% include 'common/amp_field.html' with field=form.report_next_statement_not_right %}
+                                {% include 'common/amp_field.html' with field=form.report_next_statement_matches %}
+                                {% include 'common/amp_field.html' with field=form.report_next_disproportionate_burden %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

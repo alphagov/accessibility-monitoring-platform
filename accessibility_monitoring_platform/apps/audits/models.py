@@ -169,6 +169,16 @@ OVERALL_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
     (OVERALL_COMPLIANCE_STATE_DEFAULT, "Not Compliant"),
     ("no-statement", "No Statement"),
 ]
+ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
+ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
+    (ACCESSIBILITY_STATEMENT_STATE_DEFAULT, "An accessibility statement for the website was not found."),
+    ("found", "An accessibility statement for the website was found in the correct format."),
+]
+REPORT_OPTIONS_NEXT_DEFAULT: str = "errors"
+REPORT_OPTIONS_NEXT_CHOICES: List[Tuple[str, str]] = [
+    (REPORT_OPTIONS_NEXT_DEFAULT, "Errors were found"),
+    ("no-errors", "No serious errors were found"),
+]
 
 
 class Audit(VersionModel):
@@ -302,6 +312,67 @@ class Audit(VersionModel):
     audit_summary_complete_date = models.DateField(null=True, blank=True)
 
     # Report options
+    accessibility_statement_state = models.CharField(
+        max_length=20,
+        choices=ACCESSIBILITY_STATEMENT_STATE_CHOICES,
+        default=ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+    )
+    accessibility_statement_not_correct_format = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_not_specific_enough = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_missing_accessibility_issues = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_missing_mandatory_wording = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_needs_more_re_disproportionate = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_needs_more_re_accessibility = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_deadline_not_complete = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_deadline_not_sufficient = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_out_of_date = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_template_update = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_accessible = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_prominent = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_options_next = models.CharField(
+        max_length=20,
+        choices=REPORT_OPTIONS_NEXT_CHOICES,
+        default=REPORT_OPTIONS_NEXT_DEFAULT,
+    )
+    report_next_change_statement = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_next_no_statement = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_next_statement_not_right = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_next_statement_matches = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    report_next_disproportionate_burden = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Report text

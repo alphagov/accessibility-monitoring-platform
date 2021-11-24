@@ -385,7 +385,7 @@ class AuditManualByPageUpdateView(FormView):
     """
 
     form_class: Type[AuditUpdateByPageManualForm] = AuditUpdateByPageManualForm
-    template_name: str = "audits/forms/manual_by_page.html"
+    template_name: str = "audits/forms/manual.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
