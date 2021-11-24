@@ -15,6 +15,58 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-l">Report text</h2>
+                <h3 class="govuk-heading-m">Accessibility statement</h3>
+                <p class="govuk-body">{{ audit.get_accessibility_statement_state_display }}</p>
+                {% if audit.accessibility_statement_state == 'found-but' %}
+                    <ul class="govuk-list govuk-list--bullet">
+                        {% for issue in audit.report_accessibility_issues %}
+                            <li>{{ issue }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <h3 class="govuk-heading-m">What to do next</h3>
+                <p class="govuk-body">
+                    {% if audit.report_options_next == 'errors' %}
+                        You should fix the issues that were found and do your own accessibility audit
+                        to check for issues that go beyond the scope of simple accessibility testing.
+                    {% else %}
+                        You should do your own accessibility audit to check for issues that go beyond
+                        the scope of simple accessibility testing.
+                    {% endif %}
+                </p>
+                {% if audit.report_next_change_statement == 'yes' %}
+                    <p class="govuk-body">
+                        You need to review your accessibility statement to cover the issues found in
+                        this report and any others found during your own audit.
+                    </p>
+                {% endif %}
+                {% if audit.report_next_no_statement == 'yes' %}
+                    <p class="govuk-body">
+                        You need to write and publish an accessibility statement that meets the required
+                        legislative format.
+                    </p>
+                {% endif %}
+                {% if audit.report_next_statement_not_right == 'yes' %}
+                    <p class="govuk-body">
+                        You need to review your accessibility statement to cover the issues found in this report,
+                        including ones related to your accessibility statement, and any other accessibility issues
+                        found during your own site audit.
+                    </p>
+                {% endif %}
+                {% if audit.report_next_statement_matches == 'yes' %}
+                    <p class="govuk-body">
+                        You need to review your accessibility statement to cover any other issues found during your
+                        own audit.
+                    </p>
+                {% endif %}
+                {% if audit.report_next_disproportionate_burden == 'yes' %}
+                    <p class="govuk-body">
+                        A disproportionate burden assessment must have been completed before adding this section to
+                        your accessibility statement. You need to send evidence of the assessment to us for review.
+                    </p>
+                {% endif %}
+
                 <form method="post" action="{% url 'audits:edit-audit-report-text' case.id audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

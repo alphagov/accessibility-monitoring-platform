@@ -171,14 +171,43 @@ OVERALL_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
 ]
 ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
 ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
-    (ACCESSIBILITY_STATEMENT_STATE_DEFAULT, "An accessibility statement for the website was not found."),
-    ("found", "An accessibility statement for the website was found in the correct format."),
+    (
+        ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
+        "An accessibility statement for the website was not found.",
+    ),
+    (
+        "found",
+        "An accessibility statement for the website was found in the correct format.",
+    ),
+    ("found-but", "An accessibility statement for the website was found but:"),
 ]
 REPORT_OPTIONS_NEXT_DEFAULT: str = "errors"
 REPORT_OPTIONS_NEXT_CHOICES: List[Tuple[str, str]] = [
     (REPORT_OPTIONS_NEXT_DEFAULT, "Errors were found"),
     ("no-errors", "No serious errors were found"),
 ]
+
+REPORT_ACCESSIBILITY_ISSUE_TEXT = {
+    "accessibility_statement_not_correct_format": "It was not in the correct format",
+    "accessibility_statement_not_specific_enough": "It was not specific enough",
+    "accessibility_statement_missing_accessibility_issues": "Accessibility issues were found during the test that were not included in the statement",
+    "accessibility_statement_missing_mandatory_wording": "Mandatory wording is missing",
+    "accessibility_statement_needs_more_re_disproportionate": "We require more information covering the disproportionate burden claim",
+    "accessibility_statement_needs_more_re_accessibility": "It required more information detailing the accessibility issues",
+    "accessibility_statement_deadline_not_complete": "It includes a deadline of XXX for fixing XXX issues and this has not been completed",
+    "accessibility_statement_deadline_not_sufficient": "It includes a deadline of XXX for fixing XXX issues and this is not sufficient",
+    "accessibility_statement_out_of_date": "It is out of date and needs to be reviewed",
+    "accessibility_statement_template_update": "It is a requirement that accessibility statements are accessible. Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your full accessibility statement.",
+    "accessibility_statement_accessible": "In 2020 the GOV.UK sample template was updated to include an extra mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to your statement.",
+    "accessibility_statement_prominent": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as per the legislative requirement.",
+}
+REPORT_NEXT_ISSUE_TEXT = {
+    "report_next_change_statement": "They have an acceptable statement but need to change it because of the errors we found",
+    "report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
+    "report_next_statement_not_right": "They have a statement but it is not quite right",
+    "report_next_statement_matches": "Their statement matches",
+    "report_next_disproportionate_burden": "Disproportionate burden",
+}
 
 
 class Audit(VersionModel):
@@ -389,6 +418,14 @@ class Audit(VersionModel):
             "audits:edit-audit-metadata",
             kwargs={"pk": self.pk, "case_id": self.case.pk},
         )
+
+    @property
+    def report_accessibility_issues(self):
+        return [
+            value
+            for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT
+            if getattr(self, key) == "yes"
+        ]
 
     @property
     def all_pages(self):

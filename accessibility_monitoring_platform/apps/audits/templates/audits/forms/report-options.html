@@ -15,6 +15,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-m">Report text</h2>
                 <form method="post" action="{% url 'audits:edit-audit-report-options' case.id audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
@@ -22,7 +23,6 @@
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_state %}
-                            <p class="govuk-body">An accessibility statement for the website was found but</p>
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_not_correct_format %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_not_specific_enough %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_accessibility_issues %}

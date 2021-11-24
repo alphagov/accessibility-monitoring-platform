@@ -73,7 +73,9 @@ def create_check_results_for_new_page(page: Page, user: User) -> None:
         record_model_create_event(user=user, model_object=check_result)  # type: ignore
 
 
-def copy_all_pages_check_results(user: User, audit: Audit, check_results: List[CheckResult]):
+def copy_all_pages_check_results(
+    user: User, audit: Audit, check_results: List[CheckResult]
+):
     """Copy check results from the All pages page if they do not already exist"""
     for page in audit.html_pages:
         for check_result in check_results:
