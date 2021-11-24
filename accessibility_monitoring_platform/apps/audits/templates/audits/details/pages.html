@@ -14,7 +14,7 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% for page in standard_pages %}
+        {% for page in audit.standard_pages %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header amp-width-one-half">
                     {{ page.get_type_display }}
@@ -36,7 +36,7 @@
                 </td>
             </tr>
         {% endfor %}
-        {% for page in extra_pages %}
+        {% for page in audit.extra_pages %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header amp-width-one-half">
                     {{ page.get_type_display }} {{ forloop.counter }}

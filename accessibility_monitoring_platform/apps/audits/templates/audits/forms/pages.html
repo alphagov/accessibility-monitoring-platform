@@ -52,7 +52,7 @@
                                 <td class="govuk-table__cell">
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-full">
-                                            <h2 class="govuk-heading-m">Page {{ forloop.counter }}</h2>
+                                            <h2 id="extra-page-{{ forloop.counter }}" class="govuk-heading-m">Page {{ forloop.counter }}</h2>
                                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
                                             {% for field in page_form.visible_fields %}

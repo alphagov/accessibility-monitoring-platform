@@ -18,7 +18,10 @@ from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
 )
-from ..common.form_extract_utils import extract_form_labels_and_values, FieldLabelAndValue
+from ..common.form_extract_utils import (
+    extract_form_labels_and_values,
+    FieldLabelAndValue,
+)
 
 from .forms import (
     AuditCreateForm,
@@ -49,10 +52,12 @@ from .models import (
     EXEMPTION_DEFAULT,
     PAGE_TYPE_EXTRA,
     PAGE_TYPE_PDF,
+    PAGE_TYPE_ALL,
 )
 from .utils import (
     create_check_results_for_new_page,
     create_pages_and_tests_for_new_audit,
+    copy_all_pages_check_results,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -190,16 +195,14 @@ class AuditDetailView(DetailView):
             )
 
         context["audit_metadata_rows"] = audit_metadata_rows
-        context["standard_pages"] = self.object.page_audit.filter(  # type: ignore
-            is_deleted=False
-        ).exclude(type=PAGE_TYPE_EXTRA)
-        context["extra_pages"] = self.object.page_audit.filter(  # type: ignore
-            is_deleted=False, type=PAGE_TYPE_EXTRA
-        )
 
-        audit_manual_failures: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit=self.object, type=TEST_TYPE_MANUAL, failed="yes"  # type: ignore
-        ).order_by("wcag_definition__id")
+        audit_manual_failures: QuerySet[CheckResult] = (
+            CheckResult.objects.filter(
+                audit=self.object, type=TEST_TYPE_MANUAL, failed="yes"  # type: ignore
+            )
+            .exclude(page__type=PAGE_TYPE_ALL)
+            .order_by("wcag_definition__id")
+        )
         audit_manual_wcag_failures: Dict[WcagDefinition, List[CheckResult]] = {}
         for check_failure in audit_manual_failures:
             if check_failure.wcag_definition in audit_manual_wcag_failures:
@@ -214,9 +217,13 @@ class AuditDetailView(DetailView):
             (key, value) for key, value in audit_manual_wcag_failures.items()
         ]
 
-        audit_axe_failures: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit=self.object, type=TEST_TYPE_AXE, failed="yes"  # type: ignore
-        ).order_by("wcag_definition__id")
+        audit_axe_failures: QuerySet[CheckResult] = (
+            CheckResult.objects.filter(
+                audit=self.object, type=TEST_TYPE_AXE, failed="yes"  # type: ignore
+            )
+            .exclude(page__type=PAGE_TYPE_ALL)
+            .order_by("wcag_definition__id")
+        )
         audit_axe_wcag_failures: Dict[WcagDefinition, List[CheckResult]] = {}
         for check_failure in audit_axe_failures:
             if check_failure.wcag_definition in audit_axe_wcag_failures:
@@ -289,23 +296,18 @@ class AuditPagesUpdateView(AuditUpdateView):
                 self.request.POST, prefix="extra"
             )
         else:
-            standard_pages: QuerySet[Page] = self.object.page_audit.exclude(  # type: ignore
-                type=PAGE_TYPE_EXTRA
-            )
-            extra_pages: QuerySet[Page] = self.object.page_audit.filter(  # type: ignore
-                is_deleted=False, type=PAGE_TYPE_EXTRA
-            )
-
             standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
-                queryset=standard_pages, prefix="standard"
+                queryset=self.object.standard_pages, prefix="standard"
             )
             if "add_extra" in self.request.GET:
                 extra_pages_formset: AuditExtraPageFormsetOneExtra = (
-                    AuditExtraPageFormsetOneExtra(queryset=extra_pages, prefix="extra")
+                    AuditExtraPageFormsetOneExtra(
+                        queryset=self.object.extra_pages, prefix="extra"
+                    )
                 )
             else:
                 extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
-                    queryset=extra_pages, prefix="extra"
+                    queryset=self.object.extra_pages, prefix="extra"
                 )
         context["standard_pages_formset"] = standard_pages_formset
         context["extra_pages_formset"] = extra_pages_formset
@@ -414,9 +416,7 @@ class AuditManualByPageUpdateView(FormView):
         """Populate page choices and labels"""
         form = super().get_form()
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        form.fields["next_page"].queryset = Page.objects.filter(
-            audit=audit, is_deleted=False, not_found="no"
-        ).exclude(type=PAGE_TYPE_PDF)
+        form.fields["next_page"].queryset = audit.all_pages
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -436,17 +436,20 @@ class AuditManualByPageUpdateView(FormView):
         check_results_formset: CheckResultUpdateFormset = context[
             "check_results_formset"
         ]
+        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        check_results: List[CheckResult] = []
 
         if check_results_formset.is_valid():
-            check_results: List[CheckResult] = check_results_formset.save(commit=False)
+            check_results = check_results_formset.save(commit=False)
             for check_result in check_results:
                 record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
                 check_result.save()
         else:
             return super().form_invalid(form)
 
-        audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        page: Page = Page.objects.get(pk=self.kwargs["page_id"])
+        if page.type == PAGE_TYPE_ALL and check_results:
+            copy_all_pages_check_results(audit=audit, check_results=check_results)
 
         if (
             "audit_manual_complete_date" in form.cleaned_data
@@ -525,9 +528,7 @@ class AuditAxeUpdateView(FormView):
         """Populate page choices and labels"""
         form = super().get_form()
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
-        form.fields["next_page"].queryset = Page.objects.filter(
-            audit=audit, is_deleted=False, not_found="no"
-        ).exclude(type=PAGE_TYPE_PDF)
+        form.fields["next_page"].queryset = audit.all_pages
         form.fields["next_page"].initial = audit.next_page
         page: Page = Page.objects.get(pk=self.kwargs["page_id"])
         form.fields[
@@ -566,6 +567,9 @@ class AuditAxeUpdateView(FormView):
                     record_model_create_event(user=self.request.user, model_object=check_result)  # type: ignore
         else:
             return super().form_invalid(form)
+
+        if page.type == PAGE_TYPE_ALL and check_results:
+            copy_all_pages_check_results(audit=audit, check_results=check_results)
 
         if (
             "audit_axe_complete_date" in form.cleaned_data
@@ -718,9 +722,13 @@ class CheckResultView(FormView):
                 #  import pdb; pdb.set_trace() # Start debugging
                 if "failure_found" in form.cleaned_data:
                     if page.id != form.cleaned_data["page_id"]:  # type: ignore
-                        other_page: Page = Page.objects.get(form.cleaned_data["page_id"])
+                        other_page: Page = Page.objects.get(
+                            form.cleaned_data["page_id"]
+                        )
                         other_check_result: Union[CheckResult, None] = CheckResult.objects.filter(  # type: ignore
-                            audit=audit, page=other_page, wcag_definition=wcag_definition
+                            audit=audit,
+                            page=other_page,
+                            wcag_definition=wcag_definition,
                         ).first()
                         if other_check_result is None:
                             check_result: CheckResult = CheckResult.objects.create(
@@ -858,9 +866,11 @@ class AuditSummaryUpdateView(AuditUpdateView):
         view_url_param: Union[str, None] = self.request.GET.get("view")
         context["show_failures_by_page"] = view_url_param == "Page view"
 
-        check_failures: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit=self.object, failed="yes"  # type: ignore
-        ).order_by("wcag_definition__id")
+        check_failures: QuerySet[CheckResult] = (
+            CheckResult.objects.filter(audit=self.object, failed="yes")  # type: ignore
+            .exclude(page__type=PAGE_TYPE_ALL)
+            .order_by("wcag_definition__id")
+        )
 
         audit_failures_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
         audit_failures_by_page: Dict[Page, List[CheckResult]] = {}

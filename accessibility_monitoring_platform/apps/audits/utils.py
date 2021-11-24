@@ -71,3 +71,19 @@ def create_check_results_for_new_page(page: Page, user: User) -> None:
             wcag_definition=wcag_definition,
         )
         record_model_create_event(user=user, model_object=check_result)  # type: ignore
+
+
+def copy_all_pages_check_results(audit: Audit, check_results: List[CheckResult]):
+    """Copy check results from the All pages page if they do not already exist"""
+    for page in audit.html_pages:
+        for check_result in check_results:
+            other_check_result, _ = CheckResult.objects.get_or_create(  # type: ignore
+                audit=audit,
+                page=page,
+                wcag_definition=check_result.wcag_definition,
+            )
+            if not other_check_result.notes:
+                other_check_result.failed = check_result.failed
+                other_check_result.type = check_result.type
+                other_check_result.notes = check_result.notes
+                other_check_result.save()

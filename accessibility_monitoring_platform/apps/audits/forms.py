@@ -128,9 +128,34 @@ class AuditUpdateMetadataForm(AuditCreateForm, VersionForm):
         ]
 
 
+class AuditStandardPageUpdateForm(forms.ModelForm):
+    """
+    Form for updating a standard page (one of the 5 types of page in every check)
+    """
+
+    url = AMPURLField(label="URL")
+    not_found = AMPChoiceCheckboxField(
+        label="Not found?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(),
+    )
+
+    class Meta:
+        model = Page
+        fields = [
+            "url",
+            "not_found",
+        ]
+
+
+AuditStandardPageFormset: Any = forms.modelformset_factory(
+    Page, AuditStandardPageUpdateForm, extra=0
+)
+
+
 class AuditExtraPageUpdateForm(forms.ModelForm):
     """
-    Form for updating an extra page
+    Form for adding and updating an extra page
     """
 
     name = AMPCharFieldWide(label="Page name")
@@ -144,29 +169,6 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
         ]
 
 
-class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
-    """
-    Form for updating a standard page (one of the 5 types of page in every check)
-    """
-
-    not_found = AMPChoiceCheckboxField(
-        label="Not found?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
-    )
-
-    class Meta:
-        model = Page
-        fields = [
-            "name",
-            "url",
-            "not_found",
-        ]
-
-
-AuditStandardPageFormset: Any = forms.modelformset_factory(
-    Page, AuditStandardPageUpdateForm, extra=0
-)
 AuditExtraPageFormset: Any = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=0
 )

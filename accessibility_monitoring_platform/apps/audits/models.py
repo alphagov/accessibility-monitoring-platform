@@ -31,7 +31,9 @@ PAGE_TYPE_CONTACT: str = "contact"
 PAGE_TYPE_STATEMENT: str = "statement"
 PAGE_TYPE_PDF: str = "pdf"
 PAGE_TYPE_FORM: str = "form"
+PAGE_TYPE_ALL: str = "all-except-pdf"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (PAGE_TYPE_ALL, "All pages"),
     (PAGE_TYPE_EXTRA, "Page"),
     (PAGE_TYPE_HOME, "Home page"),
     (PAGE_TYPE_CONTACT, "Contact page"),
@@ -40,6 +42,7 @@ PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_FORM, "A form"),
 ]
 MANDATORY_PAGE_TYPES: List[str] = [
+    PAGE_TYPE_ALL,
     PAGE_TYPE_HOME,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_STATEMENT,
@@ -309,6 +312,22 @@ class Audit(VersionModel):
             "audits:edit-audit-metadata",
             kwargs={"pk": self.pk, "case_id": self.case.pk},
         )
+
+    @property
+    def all_pages(self):
+        return self.page_audit.filter(is_deleted=False, not_found=BOOLEAN_DEFAULT).exclude(type=PAGE_TYPE_PDF)  # type: ignore
+
+    @property
+    def html_pages(self):
+        return self.all_pages.exclude(type=PAGE_TYPE_ALL)  # type: ignore
+
+    @property
+    def standard_pages(self):
+        return self.html_pages.exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
+
+    @property
+    def extra_pages(self):
+        return self.html_pages.filter(type=PAGE_TYPE_EXTRA)  # type: ignore
 
 
 class Page(VersionModel):

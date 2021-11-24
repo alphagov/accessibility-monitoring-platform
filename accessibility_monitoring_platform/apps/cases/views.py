@@ -32,7 +32,10 @@ from ..common.utils import (  # type: ignore
     record_model_update_event,
     record_model_create_event,
 )
-from ..common.form_extract_utils import extract_form_labels_and_values, FieldLabelAndValue
+from ..common.form_extract_utils import (
+    extract_form_labels_and_values,
+    FieldLabelAndValue,
+)
 from .models import (
     Case,
     Contact,
@@ -747,7 +750,9 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_single_case(request: HttpRequest, pk: int) -> HttpResponse:  # pylint: disable=unused-argument
+def export_single_case(
+    request: HttpRequest, pk: int
+) -> HttpResponse:  # pylint: disable=unused-argument
     """
     View to export a single case in csv format
 

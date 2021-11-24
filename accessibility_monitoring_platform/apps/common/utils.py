@@ -36,7 +36,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
     """
     return [
         field.name
-        for field in model._meta.get_fields()    # pylint: disable=protected-access
+        for field in model._meta.get_fields()  # pylint: disable=protected-access
         if not isinstance(field, ManyToOneRel)
     ]
 
