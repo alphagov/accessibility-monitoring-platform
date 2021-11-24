@@ -40,6 +40,8 @@ from .forms import (
     CheckResultUpdateFormset,
     CheckResultForm,
     PageWithFailureFormset,
+    AuditUpdateReportOptionsForm,
+    AuditUpdateReportTextForm,
 )
 from .models import (
     Audit,
@@ -903,7 +905,37 @@ class AuditSummaryUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            url: str = get_audit_url(url_name="edit-audit-summary", audit=self.object)  # type: ignore
+            url: str = get_audit_url(url_name="edit-audit-report-options", audit=self.object)  # type: ignore
         else:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}'  # type: ignore
         return url
+
+
+class AuditReportOptionsUpdateView(AuditUpdateView):
+    """
+    View to update report options
+    """
+
+    form_class: Type[AuditUpdateReportOptionsForm] = AuditUpdateReportOptionsForm
+    template_name: str = "audits/forms/report-options.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            url: str = get_audit_url(url_name="edit-audit-report-text", audit=self.object)  # type: ignore
+        else:
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-report-options'  # type: ignore
+        return url
+
+
+class AuditReportTextUpdateView(AuditUpdateView):
+    """
+    View to update report text
+    """
+
+    form_class: Type[AuditUpdateReportTextForm] = AuditUpdateReportTextForm
+    template_name: str = "audits/forms/report-text.html"
+
+    def get_success_url(self) -> str:
+        """Return to audit view page"""
+        return f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-report-text'  # type: ignore

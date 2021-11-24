@@ -301,6 +301,12 @@ class Audit(VersionModel):
     # Summary
     audit_summary_complete_date = models.DateField(null=True, blank=True)
 
+    # Report options
+    audit_report_options_complete_date = models.DateField(null=True, blank=True)
+
+    # Report text
+    audit_report_text_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

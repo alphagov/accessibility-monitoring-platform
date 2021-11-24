@@ -507,3 +507,33 @@ class AuditUpdateSummaryForm(VersionForm):
             "version",
             "audit_summary_complete_date",
         ]
+
+
+class AuditUpdateReportOptionsForm(VersionForm):
+    """
+    Form for editing report options
+    """
+
+    audit_report_options_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_report_options_complete_date",
+        ]
+
+
+class AuditUpdateReportTextForm(VersionForm):
+    """
+    Form for editing report text
+    """
+
+    audit_report_text_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_report_text_complete_date",
+        ]
