@@ -34,6 +34,10 @@ class Reminder(models.Model):
         return reverse("cases:case-detail", kwargs={"pk": self.case.id})
 
     @property
-    def overdue(self):
+    def tense(self):
         today: date = date.today()
-        return self.due_date < today
+        if self.due_date and self.due_date < today:
+            return "past"
+        if self.due_date == today:
+            return "present"
+        return "future"
