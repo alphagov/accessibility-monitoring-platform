@@ -1,6 +1,8 @@
 """
 Test - reminders models
 """
+import pytest
+
 from datetime import date, timedelta
 
 from ..models import Reminder
@@ -8,19 +10,15 @@ from ..models import Reminder
 REMINDER_DESCRIPTION = "Reminder"
 
 
-def test_past_reminders_are_overdue():
-    """Past reminders are overdue"""
-    reminder: Reminder = Reminder(due_date=date.today() - timedelta(days=1))
-    assert reminder.overdue
-
-
-def test_reminder_due_today_is_not_overdue():
-    """Today's reminders are not overdue"""
-    reminder: Reminder = Reminder(due_date=date.today())
-    assert not reminder.overdue
-
-
-def test_reminder_due_in_the_future_is_not_overdue():
-    """Future reminders are not overdue"""
-    reminder: Reminder = Reminder(due_date=date.today() + timedelta(days=1))
-    assert not reminder.overdue
+@pytest.mark.parametrize(
+    "due_date, expected_tense",
+    [
+        (date.today() - timedelta(days=1), "past"),
+        (date.today(), "present"),
+        (date.today() + timedelta(days=1), "future"),
+    ],
+)
+def test_reminder_due_date_tense(due_date, expected_tense):
+    """Check that the tense is correctly reported"""
+    reminder: Reminder = Reminder(due_date=due_date, description=REMINDER_DESCRIPTION)
+    assert reminder.tense == expected_tense
