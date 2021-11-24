@@ -55,6 +55,8 @@ from .models import (
     PAGE_TYPE_EXTRA,
     PAGE_TYPE_PDF,
     PAGE_TYPE_ALL,
+    REPORT_ACCESSIBILITY_ISSUE_TEXT,
+    REPORT_NEXT_ISSUE_TEXT,
 )
 from .utils import (
     create_check_results_for_new_page,
@@ -257,6 +259,30 @@ class AuditDetailView(DetailView):
             audit_statement_row
             for audit_statement_row in audit_statement_rows
             if audit_statement_row.value
+        ]
+
+        context["audit_report_options"] = [
+            FieldLabelAndValue(
+                label=AuditUpdateReportOptionsForm.base_fields["accessibility_statement_state"].label,
+                value=self.object.get_accessibility_statement_state_display(),  # type: ignore
+            )
+        ] + [
+            FieldLabelAndValue(
+                label=label,
+                value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
+            )
+            for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
+        ] + [
+            FieldLabelAndValue(
+                label=AuditUpdateReportOptionsForm.base_fields["report_options_next"].label,
+                value=self.object.get_report_options_next_display(),  # type: ignore
+            )
+        ] + [
+            FieldLabelAndValue(
+                label=label,
+                value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
+            )
+            for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
         ]
 
         return context
