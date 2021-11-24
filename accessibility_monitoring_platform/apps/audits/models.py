@@ -423,7 +423,7 @@ class Audit(VersionModel):
     def report_accessibility_issues(self):
         return [
             value
-            for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT
+            for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
             if getattr(self, key) == "yes"
         ]
 
