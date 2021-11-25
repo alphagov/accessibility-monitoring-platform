@@ -12,10 +12,14 @@
         </div>
     </div>
 </div>
-<table class="govuk-table">
-    <tbody class="govuk-table__body">
-        {% for row in audit_pdf_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
-    </tbody>
-</table>
+{% if audit_pdf_rows %}
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+            {% for row in audit_pdf_rows %}
+                {% include 'cases/helpers/detail_row.html' with row=row %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="govuk-body">No PDF test results have been entered</p>
+{% endif %}

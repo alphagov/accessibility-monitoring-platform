@@ -437,7 +437,7 @@ class Audit(VersionModel):
 
     @property
     def standard_pages(self):
-        return self.html_pages.exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
+        return self.page_audit.filter(is_deleted=False, not_found=BOOLEAN_DEFAULT).exclude(type=PAGE_TYPE_ALL).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
 
     @property
     def extra_pages(self):
