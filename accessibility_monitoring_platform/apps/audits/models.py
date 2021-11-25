@@ -437,7 +437,7 @@ class Audit(VersionModel):
 
     @property
     def standard_pages(self):
-        return self.page_audit.filter(is_deleted=False, not_found=BOOLEAN_DEFAULT).exclude(type=PAGE_TYPE_ALL).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
+        return self.page_audit.filter(is_deleted=False).exclude(type=PAGE_TYPE_ALL).exclude(type=PAGE_TYPE_EXTRA)  # type: ignore
 
     @property
     def extra_pages(self):
@@ -469,8 +469,7 @@ class Page(VersionModel):
         ordering = ["id"]
 
     def __str__(self):  # pylint: disable=invalid-str-returned
-        name: str = self.name if self.name else self.get_type_display()  # type: ignore
-        return name
+        return self.name if self.name else self.get_type_display()  # type: ignore
 
     def get_absolute_url(self):
         return reverse(

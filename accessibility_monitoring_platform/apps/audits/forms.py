@@ -196,7 +196,7 @@ class AuditUpdatePagesForm(VersionForm):
         ]
 
 
-class AuditUpdateByPageManualForm(forms.Form):
+class AuditUpdateManualForm(forms.Form):
     """
     Form for editing manual checks for a page
     """
@@ -218,7 +218,7 @@ class AuditUpdateByPageManualForm(forms.Form):
         ]
 
 
-class AuditUpdateByPageAxeForm(forms.Form):
+class AuditUpdateAxeForm(forms.Form):
     """
     Form for editing axe checks for a page
     """

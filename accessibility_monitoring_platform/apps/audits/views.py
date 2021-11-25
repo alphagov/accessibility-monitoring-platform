@@ -31,8 +31,8 @@ from .forms import (
     AuditStandardPageFormset,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
-    AuditUpdateByPageManualForm,
-    AuditUpdateByPageAxeForm,
+    AuditUpdateManualForm,
+    AuditUpdateAxeForm,
     AxeCheckResultUpdateFormset,
     AuditUpdatePdfForm,
     AuditUpdateStatement1Form,
@@ -401,7 +401,7 @@ class AuditPagesUpdateView(AuditUpdateView):
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pages'  # type: ignore
         elif "save_continue" in self.request.POST:
             url: str = reverse_lazy(
-                "audits:edit-audit-manual-by-page",
+                "audits:edit-audit-manual",
                 kwargs={
                     "page_id": self.object.next_page.id,  # type: ignore
                     "audit_id": self.object.id,  # type: ignore
@@ -415,12 +415,12 @@ class AuditPagesUpdateView(AuditUpdateView):
         return url
 
 
-class AuditManualByPageUpdateView(FormView):
+class AuditManualUpdateView(FormView):
     """
     View to update manual audits for a page
     """
 
-    form_class: Type[AuditUpdateByPageManualForm] = AuditUpdateByPageManualForm
+    form_class: Type[AuditUpdateManualForm] = AuditUpdateManualForm
     template_name: str = "audits/forms/manual.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -512,7 +512,7 @@ class AuditManualByPageUpdateView(FormView):
         audit: Audit = Audit.objects.get(pk=self.kwargs["audit_id"])
         if "save_change_test_page" in self.request.POST:
             url: str = reverse_lazy(
-                "audits:edit-audit-manual-by-page",
+                "audits:edit-audit-manual",
                 kwargs={
                     "page_id": audit.next_page.id,  # type: ignore
                     "audit_id": audit.id,  # type: ignore
@@ -538,7 +538,7 @@ class AuditAxeUpdateView(FormView):
     View to update axe audits for a page
     """
 
-    form_class: Type[AuditUpdateByPageAxeForm] = AuditUpdateByPageAxeForm
+    form_class: Type[AuditUpdateAxeForm] = AuditUpdateAxeForm
     template_name: str = "audits/forms/axe.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:

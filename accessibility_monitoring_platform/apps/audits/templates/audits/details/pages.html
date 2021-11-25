@@ -20,19 +20,7 @@
                     {{ page.get_type_display }}
                 </th>
                 <td class="govuk-table__cell amp-width-one-half">
-                    {% if page.not_found == 'yes' %}
-                        {% if page.type == 'pdf' %}
-                            No PDF found
-                        {% else  %}
-                            No {{ page.type }} found
-                        {% endif %}
-                    {% elif page.url %}
-                        <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {{ page }}
-                        </a>
-                    {% else %}
-                        {{ page }} URL not entered
-                    {% endif %}
+                    {% include 'audits/helpers/page_link.html' %}
                 </td>
             </tr>
         {% endfor %}
@@ -42,13 +30,7 @@
                     {{ page.get_type_display }} {{ forloop.counter }}
                 </th>
                 <td class="govuk-table__cell amp-width-one-half">
-                    {% if page.url %}
-                        <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {% if page.name %}{{ page.name }}{% else %}{{ page.get_type_display }}{% endif %}
-                        </a>
-                    {% else %}
-                        {{ page.name }} URL not entered
-                    {% endif %}
+                    {% include 'audits/helpers/page_link.html' %}
                 </td>
             </tr>
         {% endfor %}

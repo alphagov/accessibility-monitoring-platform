@@ -18,6 +18,8 @@ from ..models import (
     PAGE_TYPE_ALL,
 )
 
+PAGE_NAME = "Page name"
+
 
 def create_audit_and_pages() -> Audit:
     """Create an audit with all types of page"""
@@ -86,3 +88,18 @@ def test_audit_extra_pages_returns_only_extra_pages():
 
     assert len(audit.extra_pages) == 1
     assert list(audit.extra_pages)[0].type == PAGE_TYPE_EXTRA
+
+
+@pytest.mark.django_db
+def test_page_string():
+    """
+    Test Page string is name if present otherwise type
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.all_pages[0]
+
+    assert str(page) == "Page"
+
+    page.name = PAGE_NAME
+
+    assert str(page) == PAGE_NAME

@@ -4,7 +4,7 @@
         <ul class="govuk-list">
             {% include './navbar_content.html' with id='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
             {% include './navbar_content.html' with id='audit-pages' edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
-            {% include './navbar_content.html' with id='audit-manual' edit_name='audits:edit-audit-manual-by-page' name='Manual tests' complete=audit.audit_manual_complete_date %}
+            {% include './navbar_content.html' with id='audit-manual' edit_name='audits:edit-audit-manual' name='Manual tests' complete=audit.audit_manual_complete_date %}
             {% include './navbar_content.html' with id='audit-axe' edit_name='audits:edit-audit-axe' name='Axe and colour contrast tests' complete=audit.audit_axe_complete_date %}
             {% include './navbar_content.html' with id='audit-pdf' edit_name='audits:edit-audit-pdf' name='PDF tests' complete=audit.audit_pdf_complete_date %}
             {% include './navbar_content.html' with id="audit-statement" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
@@ -18,7 +18,7 @@
         <ul class="govuk-list">
             {% include './navbar_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
             {% include './navbar_step.html' with edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
-            {% include './navbar_step.html' with edit_name='audits:edit-audit-manual-by-page' name='Manual tests' complete=audit.audit_manual_complete_date %}
+            {% include './navbar_step.html' with edit_name='audits:edit-audit-manual' name='Manual tests' complete=audit.audit_manual_complete_date %}
             {% include './navbar_step.html' with edit_name='audits:edit-audit-axe' name='Axe and colour contrast tests' complete=audit.audit_axe_complete_date %}
             {% include './navbar_step.html' with edit_name='audits:edit-audit-pdf' name='PDF tests' complete=audit.audit_pdf_complete_date %}
             {% include './navbar_step.html' with edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}

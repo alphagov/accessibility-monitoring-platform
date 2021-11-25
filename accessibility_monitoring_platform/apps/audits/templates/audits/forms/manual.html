@@ -18,7 +18,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-manual-by-page' case.id audit.id page.id %}">
+                <form method="post" action="{% url 'audits:edit-audit-manual' case.id audit.id page.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -49,12 +49,8 @@
                             <div class="govuk-body" style="padding-top: 35px;">
                                 {% if page.type == 'all-except-pdf' %}
                                     <p class="govuk-body">Entered results will be copied to all pages.</p>
-                                {% elif page.url %}
-                                    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                        {{ page }}
-                                    </a>
                                 {% else %}
-                                    <p class="govuk-body">{{ page }} URL not entered</p>
+                                    {% include 'audits/helpers/page_link.html' %}
                                 {% endif %}
                             </div>
                         </div>
@@ -153,7 +149,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/navbar.html' with current_page='audits:edit-audit-manual-by-page' %}
+                {% include 'audits/helpers/navbar.html' with current_page='audits:edit-audit-manual' %}
             </div>
         </div>
     </main>

@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'audits:edit-audit-manual-by-page' case.id audit.id audit.next_page.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'audits:edit-audit-manual' case.id audit.id audit.next_page.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -45,13 +45,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <div class="govuk-body" style="padding-top: 35px;">
-                                {% if page.url %}
-                                    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                        {{ page }}
-                                    </a>
-                                {% else %}
-                                    <p>{{ page }} URL not entered</p>
-                                {% endif %}
+                                {% include 'audits/helpers/page_link.html' %}
                             </div>
                         </div>
                     </div>
