@@ -111,7 +111,7 @@ class AuditCreateForm(forms.ModelForm):
         ]
 
 
-class AuditUpdateMetadataForm(AuditCreateForm, VersionForm):
+class AuditMetadataUpdateForm(AuditCreateForm, VersionForm):
     """
     Form for editing check metadata
     """
@@ -181,7 +181,7 @@ AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
-class AuditUpdatePagesForm(VersionForm):
+class AuditPagesUpdateForm(VersionForm):
     """
     Form for editing check pages page
     """
@@ -196,7 +196,7 @@ class AuditUpdatePagesForm(VersionForm):
         ]
 
 
-class AuditUpdateManualForm(forms.Form):
+class AuditManualUpdateForm(forms.Form):
     """
     Form for editing manual checks for a page
     """
@@ -218,7 +218,7 @@ class AuditUpdateManualForm(forms.Form):
         ]
 
 
-class AuditUpdateAxeForm(forms.Form):
+class AuditAxeUpdateForm(forms.Form):
     """
     Form for editing axe checks for a page
     """
@@ -240,7 +240,7 @@ class AuditUpdateAxeForm(forms.Form):
         ]
 
 
-class AuditUpdatePdfForm(VersionForm):
+class AuditPdfUpdateForm(VersionForm):
     """
     Form for editing pdf checks
     """
@@ -353,7 +353,7 @@ AxeCheckResultUpdateFormset: Any = forms.modelformset_factory(
 )
 
 
-class AuditUpdateStatement1Form(VersionForm):
+class AuditStatement1UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 1 checks
     """
@@ -428,7 +428,7 @@ class AuditUpdateStatement1Form(VersionForm):
         ]
 
 
-class AuditUpdateStatement2Form(VersionForm):
+class AuditStatement2UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 2 checks
     """
@@ -498,7 +498,7 @@ class AuditUpdateStatement2Form(VersionForm):
         ]
 
 
-class AuditUpdateSummaryForm(VersionForm):
+class AuditSummaryUpdateForm(VersionForm):
     """
     Form for editing audit summary
     """
@@ -513,7 +513,7 @@ class AuditUpdateSummaryForm(VersionForm):
         ]
 
 
-class AuditUpdateReportOptionsForm(VersionForm):
+class AuditReportOptionsUpdateForm(VersionForm):
     """
     Form for editing report options
     """
@@ -724,7 +724,7 @@ class AuditUpdateReportOptionsForm(VersionForm):
         ]
 
 
-class AuditUpdateReportTextForm(VersionForm):
+class AuditReportTextUpdateForm(VersionForm):
     """
     Form for editing report text
     """

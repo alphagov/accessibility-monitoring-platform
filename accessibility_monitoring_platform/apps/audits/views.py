@@ -26,23 +26,23 @@ from ..common.form_extract_utils import (
 
 from .forms import (
     AuditCreateForm,
-    AuditUpdateMetadataForm,
-    AuditUpdatePagesForm,
+    AuditMetadataUpdateForm,
+    AuditPagesUpdateForm,
     AuditStandardPageFormset,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
-    AuditUpdateManualForm,
-    AuditUpdateAxeForm,
+    AuditManualUpdateForm,
+    AuditAxeUpdateForm,
     AxeCheckResultUpdateFormset,
-    AuditUpdatePdfForm,
-    AuditUpdateStatement1Form,
-    AuditUpdateStatement2Form,
-    AuditUpdateSummaryForm,
+    AuditPdfUpdateForm,
+    AuditStatement1UpdateForm,
+    AuditStatement2UpdateForm,
+    AuditSummaryUpdateForm,
     CheckResultUpdateFormset,
     CheckResultForm,
     PageWithFailureFormset,
-    AuditUpdateReportOptionsForm,
-    AuditUpdateReportTextForm,
+    AuditReportOptionsUpdateForm,
+    AuditReportTextUpdateForm,
 )
 from .models import (
     Audit,
@@ -188,7 +188,7 @@ class AuditDetailView(DetailView):
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
         audit_metadata_rows: List[FieldLabelAndValue] = get_rows(
-            form=AuditUpdateMetadataForm()
+            form=AuditMetadataUpdateForm()
         )
         if self.object.case.auditor:  # type: ignore
             audit_metadata_rows.insert(
@@ -254,8 +254,8 @@ class AuditDetailView(DetailView):
         ]
 
         audit_statement_rows: List[FieldLabelAndValue] = get_rows(
-            form=AuditUpdateStatement1Form()
-        ) + get_rows(form=AuditUpdateStatement2Form())
+            form=AuditStatement1UpdateForm()
+        ) + get_rows(form=AuditStatement2UpdateForm())
         context["audit_statement_rows"] = [
             audit_statement_row
             for audit_statement_row in audit_statement_rows
@@ -265,7 +265,7 @@ class AuditDetailView(DetailView):
         context["audit_report_options"] = (
             [
                 FieldLabelAndValue(
-                    label=AuditUpdateReportOptionsForm.base_fields[
+                    label=AuditReportOptionsUpdateForm.base_fields[
                         "accessibility_statement_state"
                     ].label,
                     value=self.object.get_accessibility_statement_state_display(),  # type: ignore
@@ -280,7 +280,7 @@ class AuditDetailView(DetailView):
             ]
             + [
                 FieldLabelAndValue(
-                    label=AuditUpdateReportOptionsForm.base_fields[
+                    label=AuditReportOptionsUpdateForm.base_fields[
                         "report_options_next"
                     ].label,
                     value=self.object.get_report_options_next_display(),  # type: ignore
@@ -303,7 +303,7 @@ class AuditMetadataUpdateView(AuditUpdateView):
     View to update audit metadata
     """
 
-    form_class: Type[AuditUpdateMetadataForm] = AuditUpdateMetadataForm
+    form_class: Type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
     template_name: str = "audits/forms/metadata.html"
 
     def get_success_url(self) -> str:
@@ -320,7 +320,7 @@ class AuditPagesUpdateView(AuditUpdateView):
     View to update audit pages
     """
 
-    form_class: Type[AuditUpdatePagesForm] = AuditUpdatePagesForm
+    form_class: Type[AuditPagesUpdateForm] = AuditPagesUpdateForm
     template_name: str = "audits/forms/pages.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -420,7 +420,7 @@ class AuditManualUpdateView(FormView):
     View to update manual audits for a page
     """
 
-    form_class: Type[AuditUpdateManualForm] = AuditUpdateManualForm
+    form_class: Type[AuditManualUpdateForm] = AuditManualUpdateForm
     template_name: str = "audits/forms/manual.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -538,7 +538,7 @@ class AuditAxeUpdateView(FormView):
     View to update axe audits for a page
     """
 
-    form_class: Type[AuditUpdateAxeForm] = AuditUpdateAxeForm
+    form_class: Type[AuditAxeUpdateForm] = AuditAxeUpdateForm
     template_name: str = "audits/forms/axe.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -802,7 +802,7 @@ class AuditPdfUpdateView(AuditUpdateView):
     View to update pdf audits
     """
 
-    form_class: Type[AuditUpdatePdfForm] = AuditUpdatePdfForm
+    form_class: Type[AuditPdfUpdateForm] = AuditPdfUpdateForm
     template_name: str = "audits/forms/pdf.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -860,7 +860,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
     View to update accessibility statement 1 audit fields
     """
 
-    form_class: Type[AuditUpdateStatement1Form] = AuditUpdateStatement1Form
+    form_class: Type[AuditStatement1UpdateForm] = AuditStatement1UpdateForm
     template_name: str = "audits/forms/statement-1.html"
 
     def get_success_url(self) -> str:
@@ -877,7 +877,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
     View to update accessibility statement 2 audit fields
     """
 
-    form_class: Type[AuditUpdateStatement2Form] = AuditUpdateStatement2Form
+    form_class: Type[AuditStatement2UpdateForm] = AuditStatement2UpdateForm
     template_name: str = "audits/forms/statement-2.html"
 
     def get_success_url(self) -> str:
@@ -894,7 +894,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
     View to update audit summary
     """
 
-    form_class: Type[AuditUpdateSummaryForm] = AuditUpdateSummaryForm
+    form_class: Type[AuditSummaryUpdateForm] = AuditSummaryUpdateForm
     template_name: str = "audits/forms/summary.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -933,8 +933,8 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
         context["audit_statement_rows"] = get_rows(
-            form=AuditUpdateStatement1Form()
-        ) + get_rows(form=AuditUpdateStatement2Form())
+            form=AuditStatement1UpdateForm()
+        ) + get_rows(form=AuditStatement2UpdateForm())
 
         return context
 
@@ -952,7 +952,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     View to update report options
     """
 
-    form_class: Type[AuditUpdateReportOptionsForm] = AuditUpdateReportOptionsForm
+    form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
     template_name: str = "audits/forms/report-options.html"
 
     def get_success_url(self) -> str:
@@ -969,7 +969,7 @@ class AuditReportTextUpdateView(AuditUpdateView):
     View to update report text
     """
 
-    form_class: Type[AuditUpdateReportTextForm] = AuditUpdateReportTextForm
+    form_class: Type[AuditReportTextUpdateForm] = AuditReportTextUpdateForm
     template_name: str = "audits/forms/report-text.html"
 
     def get_success_url(self) -> str:
