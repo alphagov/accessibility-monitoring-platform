@@ -7,7 +7,13 @@ from django.db import models
 from django.urls import reverse
 
 from ..cases.models import Case
-from ..common.models import VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT, BOOLEAN_FALSE, BOOLEAN_TRUE
+from ..common.models import (
+    VersionModel,
+    BOOLEAN_CHOICES,
+    BOOLEAN_DEFAULT,
+    BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+)
 
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [

@@ -14,7 +14,6 @@ from ..common.forms import (
     AMPChoiceRadioField,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
-    AMPDateCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
     AMPModelChoiceField,
@@ -205,9 +204,7 @@ class AuditManualUpdateForm(forms.Form):
         label="", queryset=Page.objects.none(), empty_label=None
     )
     page_manual_checks_complete_date = AMPDatePageCompleteField()
-    audit_manual_complete_date = AMPDatePageCompleteField(
-        widget=AMPDateCheckboxWidget(attrs={"label": "Manual tests completed?"}),
-    )
+    audit_manual_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
@@ -227,9 +224,7 @@ class AuditAxeUpdateForm(forms.Form):
         label="", queryset=Page.objects.none(), empty_label=None
     )
     page_axe_checks_complete_date = AMPDatePageCompleteField()
-    audit_axe_complete_date = AMPDatePageCompleteField(
-        widget=AMPDateCheckboxWidget(attrs={"label": "Axe tests completed?"}),
-    )
+    audit_axe_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
