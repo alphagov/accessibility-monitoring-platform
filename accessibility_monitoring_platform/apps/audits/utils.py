@@ -2,21 +2,36 @@
 Utilities for audits app
 """
 
-from typing import List, Union
+from typing import Dict, Tuple, List, Union
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
+from ..common.models import BOOLEAN_TRUE
 from ..common.utils import record_model_create_event, record_model_update_event
+from ..common.form_extract_utils import (
+    extract_form_labels_and_values,
+    FieldLabelAndValue,
+)
+from .forms import (
+    AuditMetadataUpdateForm,
+    AuditStatement1UpdateForm,
+    AuditStatement2UpdateForm,
+    AuditReportOptionsUpdateForm,
+)
 from .models import (
     Audit,
     Page,
     WcagDefinition,
     CheckResult,
     MANDATORY_PAGE_TYPES,
+    PAGE_TYPE_ALL,
     PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
     TEST_TYPE_MANUAL,
+    REPORT_ACCESSIBILITY_ISSUE_TEXT,
+    REPORT_NEXT_ISSUE_TEXT,
 )
 
 
@@ -92,3 +107,103 @@ def copy_all_pages_check_results(
             other_check_result.save()
             if created:
                 record_model_create_event(user=user, model_object=check_result)
+
+
+def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from audit metadata"""
+    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit,
+        form=AuditMetadataUpdateForm(),  # type: ignore
+    )
+    if audit.case.auditor:
+        rows.insert(
+            1,
+            FieldLabelAndValue(
+                label="Auditor",
+                value=audit.case.auditor.get_full_name(),
+            ),
+        )
+    return rows
+
+
+def get_audit_check_results_by_wcag(
+    audit: Audit, test_type: str
+) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
+    """
+    Build list of check results grouped by WCAG definitons for use
+    in accordion on Test view page.
+    """
+    check_results: QuerySet[CheckResult] = (
+        CheckResult.objects.filter(audit=audit, type=test_type, failed=BOOLEAN_TRUE)
+        .exclude(page__type=PAGE_TYPE_ALL)
+        .order_by("wcag_definition__id")
+    )
+    check_result_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
+    for check_result in check_results:
+        if check_result.wcag_definition in check_result_by_wcag:
+            check_result_by_wcag[check_result.wcag_definition].append(check_result)
+        else:
+            check_result_by_wcag[check_result.wcag_definition] = [check_result]
+    return [(key, value) for key, value in check_result_by_wcag.items()]
+
+
+def get_audit_pdf_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from audit pdf failures"""
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(
+        audit=audit, type=TEST_TYPE_PDF, failed=BOOLEAN_TRUE
+    )
+    return [
+        FieldLabelAndValue(
+            label=check_result.wcag_definition.name,
+            value=check_result.notes,
+            type=FieldLabelAndValue.NOTES_TYPE,
+        )
+        for check_result in check_results
+    ]
+
+
+def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from audit statement checks"""
+    statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit,
+        form=AuditStatement1UpdateForm(),  # type: ignore
+    )
+    statement_2_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit,
+        form=AuditStatement2UpdateForm(),  # type: ignore
+    )
+    return statement_1_rows + statement_2_rows
+
+
+def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from audit report options"""
+    accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
+        label=AuditReportOptionsUpdateForm.base_fields[
+            "accessibility_statement_state"
+        ].label,
+        value=audit.get_accessibility_statement_state_display(),  # type: ignore
+    )
+    accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
+        FieldLabelAndValue(
+            label=label,
+            value=getattr(audit, f"get_{field_name}_display")(),
+        )
+        for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
+    ]
+    report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
+        label=AuditReportOptionsUpdateForm.base_fields["report_options_next"].label,
+        value=audit.get_report_options_next_display(),  # type: ignore
+    )
+    report_next_issues_rows: List[FieldLabelAndValue] = [
+        FieldLabelAndValue(
+            label=label,
+            value=getattr(audit, f"get_{field_name}_display")(),
+        )
+        for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
+    ]
+    return (
+        [accessibility_statement_state_row]
+        + accessibility_statement_issues_rows
+        + [report_options_next_row]
+        + report_next_issues_rows
+    )

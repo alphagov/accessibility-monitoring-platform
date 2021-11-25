@@ -14,7 +14,7 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% for row in audit_report_options %}
+        {% for row in audit_report_options_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}
         {% endfor %}
     </tbody>

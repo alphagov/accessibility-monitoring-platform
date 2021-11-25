@@ -21,7 +21,6 @@ from ..common.utils import (
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
-    FieldLabelAndValue,
 )
 
 from .forms import (
@@ -47,20 +46,23 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
+    AUDIT_TYPE_DEFAULT,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
-    PAGE_TYPE_EXTRA,
     PAGE_TYPE_PDF,
     PAGE_TYPE_ALL,
-    REPORT_ACCESSIBILITY_ISSUE_TEXT,
-    REPORT_NEXT_ISSUE_TEXT,
 )
 from .utils import (
     create_check_results_for_new_page,
     create_pages_and_tests_for_new_audit,
     copy_all_pages_check_results,
+    get_audit_metadata_rows,
+    get_audit_check_results_by_wcag,
+    get_audit_pdf_rows,
+    get_audit_statement_rows,
+    get_audit_report_options_rows,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -158,7 +160,7 @@ class AuditCreateView(CreateView):
         """Initialise form fields"""
         form: ModelForm = super().get_form()  # type: ignore
         form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
-        form.fields["type"].initial = PAGE_TYPE_EXTRA
+        form.fields["type"].initial = AUDIT_TYPE_DEFAULT
         return form
 
     def get_success_url(self) -> str:
@@ -183,115 +185,18 @@ class AuditDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add table rows to context for each section of page"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
+        audit: Audit = self.object  # type: ignore
 
-        audit_metadata_rows: List[FieldLabelAndValue] = get_rows(
-            form=AuditMetadataUpdateForm()
+        context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
+        context["audit_manual_wcag_failures"] = get_audit_check_results_by_wcag(
+            audit=audit, test_type=TEST_TYPE_MANUAL
         )
-        if self.object.case.auditor:  # type: ignore
-            audit_metadata_rows.insert(
-                1,
-                FieldLabelAndValue(
-                    label="Auditor",
-                    value=self.object.case.auditor.get_full_name(),  # type: ignore
-                ),
-            )
-
-        context["audit_metadata_rows"] = audit_metadata_rows
-
-        audit_manual_failures: QuerySet[CheckResult] = (
-            CheckResult.objects.filter(
-                audit=self.object, type=TEST_TYPE_MANUAL, failed=BOOLEAN_TRUE  # type: ignore
-            )
-            .exclude(page__type=PAGE_TYPE_ALL)
-            .order_by("wcag_definition__id")
+        context["audit_axe_wcag_failures"] = get_audit_check_results_by_wcag(
+            audit=audit, test_type=TEST_TYPE_AXE
         )
-        audit_manual_wcag_failures: Dict[WcagDefinition, List[CheckResult]] = {}
-        for check_failure in audit_manual_failures:
-            if check_failure.wcag_definition in audit_manual_wcag_failures:
-                audit_manual_wcag_failures[check_failure.wcag_definition].append(
-                    check_failure
-                )
-            else:
-                audit_manual_wcag_failures[check_failure.wcag_definition] = [
-                    check_failure
-                ]
-        context["audit_manual_wcag_failures"] = [
-            (key, value) for key, value in audit_manual_wcag_failures.items()
-        ]
-
-        audit_axe_failures: QuerySet[CheckResult] = (
-            CheckResult.objects.filter(
-                audit=self.object, type=TEST_TYPE_AXE, failed=BOOLEAN_TRUE  # type: ignore
-            )
-            .exclude(page__type=PAGE_TYPE_ALL)
-            .order_by("wcag_definition__id")
-        )
-        audit_axe_wcag_failures: Dict[WcagDefinition, List[CheckResult]] = {}
-        for check_failure in audit_axe_failures:
-            if check_failure.wcag_definition in audit_axe_wcag_failures:
-                audit_axe_wcag_failures[check_failure.wcag_definition].append(
-                    check_failure
-                )
-            else:
-                audit_axe_wcag_failures[check_failure.wcag_definition] = [check_failure]
-        context["audit_axe_wcag_failures"] = [
-            (key, value) for key, value in audit_axe_wcag_failures.items()
-        ]
-
-        audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit=self.object, type=TEST_TYPE_PDF, failed=BOOLEAN_TRUE  # type: ignore
-        )
-        context["audit_pdf_rows"] = [
-            FieldLabelAndValue(
-                label=check_result.wcag_definition.name,
-                value=check_result.notes,
-                type=FieldLabelAndValue.NOTES_TYPE,
-            )
-            for check_result in audit_pdf_tests
-        ]
-
-        audit_statement_rows: List[FieldLabelAndValue] = get_rows(
-            form=AuditStatement1UpdateForm()
-        ) + get_rows(form=AuditStatement2UpdateForm())
-        context["audit_statement_rows"] = [
-            audit_statement_row
-            for audit_statement_row in audit_statement_rows
-            if audit_statement_row.value
-        ]
-
-        context["audit_report_options"] = (
-            [
-                FieldLabelAndValue(
-                    label=AuditReportOptionsUpdateForm.base_fields[
-                        "accessibility_statement_state"
-                    ].label,
-                    value=self.object.get_accessibility_statement_state_display(),  # type: ignore
-                )
-            ]
-            + [
-                FieldLabelAndValue(
-                    label=label,
-                    value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
-                )
-                for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
-            ]
-            + [
-                FieldLabelAndValue(
-                    label=AuditReportOptionsUpdateForm.base_fields[
-                        "report_options_next"
-                    ].label,
-                    value=self.object.get_report_options_next_display(),  # type: ignore
-                )
-            ]
-            + [
-                FieldLabelAndValue(
-                    label=label,
-                    value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
-                )
-                for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
-            ]
-        )
+        context["audit_pdf_rows"] = get_audit_pdf_rows(audit)
+        context["audit_statement_rows"] = get_audit_statement_rows(audit)
+        context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
 
         return context
 
@@ -512,7 +417,9 @@ class AuditManualFormView(AuditPageFormView):
         if page.type == PAGE_TYPE_ALL and check_results:
             copy_all_pages_check_results(user=self.request.user, audit=audit, check_results=check_results)  # type: ignore
 
-        audit.audit_manual_complete_date = form.cleaned_data["audit_manual_complete_date"]
+        audit.audit_manual_complete_date = form.cleaned_data[
+            "audit_manual_complete_date"
+        ]
         audit.next_page = form.cleaned_data["next_page"]
         audit.save()
 
@@ -579,9 +486,7 @@ class AuditAxeFormView(AuditPageFormView):
         form = super().get_form()
         audit: Audit = self.audit
         page: Page = self.page
-        form.fields[
-            "audit_axe_complete_date"
-        ].initial = audit.audit_axe_complete_date
+        form.fields["audit_axe_complete_date"].initial = audit.audit_axe_complete_date
         form.fields[
             "page_axe_checks_complete_date"
         ].label = f"Mark the test on {page} as complete?"
@@ -702,7 +607,6 @@ class AuditPdfUpdateView(AuditUpdateView):
         check_results_formset: CheckResultUpdateFormset = context[
             "check_results_formset"
         ]
-
         if check_results_formset.is_valid():
             check_results: List[Page] = check_results_formset.save(commit=False)
             for check_result in check_results:
@@ -790,6 +694,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
                 audit_failures_by_page[check_failure.page].append(check_failure)
             else:
                 audit_failures_by_page[check_failure.page] = [check_failure]
+
         context["audit_failures_by_wcag"] = [
             (key, value) for key, value in audit_failures_by_wcag.items()
         ]
