@@ -256,7 +256,7 @@ class CheckResultUpdateForm(VersionForm):
     """
 
     failed = AMPChoiceCheckboxField(
-        label="Failed?",
+        label="",
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(),
     )
@@ -274,49 +274,6 @@ class CheckResultUpdateForm(VersionForm):
 CheckResultUpdateFormset: Any = forms.modelformset_factory(
     CheckResult, CheckResultUpdateForm, extra=0
 )
-
-
-class CheckResultForm(forms.ModelForm):
-    """
-    Form for updating a check result
-    """
-
-    failed = AMPChoiceCheckboxField(
-        label="Failed?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
-    )
-    notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = CheckResult
-        fields: List[str] = [
-            "failed",
-            "notes",
-        ]
-
-
-class PageWithFailureForm(forms.Form):
-    """
-    Form recording that a failure is on a specific page
-    """
-
-    page = forms.CharField(widget=forms.HiddenInput())
-    page_id = forms.CharField(widget=forms.HiddenInput())
-    failure_found = AMPChoiceCheckboxField(
-        label="Failed?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
-    )
-
-    class Meta:
-        fields = [
-            "page",
-            "failure_found",
-        ]
-
-
-PageWithFailureFormset: Any = forms.formset_factory(PageWithFailureForm, extra=0)
 
 
 class AxeCheckResultUpdateForm(forms.ModelForm):
