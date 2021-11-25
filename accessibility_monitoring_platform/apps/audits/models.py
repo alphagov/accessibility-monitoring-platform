@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 
 from ..cases.models import Case
-from ..common.models import VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
+from ..common.models import VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT, BOOLEAN_FALSE, BOOLEAN_TRUE
 
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
@@ -16,8 +16,8 @@ SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
 ]
 EXEMPTION_DEFAULT: str = "unknown"
 EXEMPTION_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
+    (BOOLEAN_TRUE, "Yes"),
+    (BOOLEAN_FALSE, "No"),
     (EXEMPTION_DEFAULT, "Unknown"),
 ]
 AUDIT_TYPE_DEFAULT: str = "initial"
@@ -424,7 +424,7 @@ class Audit(VersionModel):
         return [
             value
             for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
-            if getattr(self, key) == "yes"
+            if getattr(self, key) == BOOLEAN_TRUE
         ]
 
     @property

@@ -8,9 +8,11 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 BOOLEAN_DEFAULT = "no"
+BOOLEAN_FALSE = BOOLEAN_DEFAULT
+BOOLEAN_TRUE = "yes"
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
+    (BOOLEAN_FALSE, "No"),
+    (BOOLEAN_TRUE, "Yes"),
 ]
 
 EVENT_TYPE_DEFAULT = "model_update"

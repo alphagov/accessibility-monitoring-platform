@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 
 from ..cases.models import Case
+from ..common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
 from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
@@ -202,7 +203,7 @@ class AuditDetailView(DetailView):
 
         audit_manual_failures: QuerySet[CheckResult] = (
             CheckResult.objects.filter(
-                audit=self.object, type=TEST_TYPE_MANUAL, failed="yes"  # type: ignore
+                audit=self.object, type=TEST_TYPE_MANUAL, failed=BOOLEAN_TRUE  # type: ignore
             )
             .exclude(page__type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
@@ -223,7 +224,7 @@ class AuditDetailView(DetailView):
 
         audit_axe_failures: QuerySet[CheckResult] = (
             CheckResult.objects.filter(
-                audit=self.object, type=TEST_TYPE_AXE, failed="yes"  # type: ignore
+                audit=self.object, type=TEST_TYPE_AXE, failed=BOOLEAN_TRUE  # type: ignore
             )
             .exclude(page__type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
@@ -241,7 +242,7 @@ class AuditDetailView(DetailView):
         ]
 
         audit_pdf_tests: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit=self.object, type=TEST_TYPE_PDF, failed="yes"  # type: ignore
+            audit=self.object, type=TEST_TYPE_PDF, failed=BOOLEAN_TRUE  # type: ignore
         )
         context["audit_pdf_rows"] = [
             FieldLabelAndValue(
@@ -261,29 +262,38 @@ class AuditDetailView(DetailView):
             if audit_statement_row.value
         ]
 
-        context["audit_report_options"] = [
-            FieldLabelAndValue(
-                label=AuditUpdateReportOptionsForm.base_fields["accessibility_statement_state"].label,
-                value=self.object.get_accessibility_statement_state_display(),  # type: ignore
-            )
-        ] + [
-            FieldLabelAndValue(
-                label=label,
-                value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
-            )
-            for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
-        ] + [
-            FieldLabelAndValue(
-                label=AuditUpdateReportOptionsForm.base_fields["report_options_next"].label,
-                value=self.object.get_report_options_next_display(),  # type: ignore
-            )
-        ] + [
-            FieldLabelAndValue(
-                label=label,
-                value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
-            )
-            for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
-        ]
+        context["audit_report_options"] = (
+            [
+                FieldLabelAndValue(
+                    label=AuditUpdateReportOptionsForm.base_fields[
+                        "accessibility_statement_state"
+                    ].label,
+                    value=self.object.get_accessibility_statement_state_display(),  # type: ignore
+                )
+            ]
+            + [
+                FieldLabelAndValue(
+                    label=label,
+                    value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
+                )
+                for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
+            ]
+            + [
+                FieldLabelAndValue(
+                    label=AuditUpdateReportOptionsForm.base_fields[
+                        "report_options_next"
+                    ].label,
+                    value=self.object.get_report_options_next_display(),  # type: ignore
+                )
+            ]
+            + [
+                FieldLabelAndValue(
+                    label=label,
+                    value=getattr(self.object, f"get_{field_name}_display")(),  # type: ignore
+                )
+                for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
+            ]
+        )
 
         return context
 
@@ -590,7 +600,7 @@ class AuditAxeUpdateView(FormView):
                     check_result.audit = audit
                     check_result.page = page
                     check_result.type = TEST_TYPE_AXE
-                    check_result.failed = "yes"
+                    check_result.failed = BOOLEAN_TRUE
                     check_result.save()
                     record_model_create_event(user=self.request.user, model_object=check_result)  # type: ignore
         else:
@@ -702,7 +712,7 @@ class CheckResultView(FormView):
                 {
                     "page": non_pdf_page,
                     "page_id": non_pdf_page.id,  # type: ignore
-                    "failure_found": check_results_by_page.get(non_pdf_page, "no"),
+                    "failure_found": check_results_by_page.get(non_pdf_page, BOOLEAN_FALSE),
                 }
             )
 
@@ -895,7 +905,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
         context["show_failures_by_page"] = view_url_param == "Page view"
 
         check_failures: QuerySet[CheckResult] = (
-            CheckResult.objects.filter(audit=self.object, failed="yes")  # type: ignore
+            CheckResult.objects.filter(audit=self.object, failed=BOOLEAN_TRUE)  # type: ignore
             .exclude(page__type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
         )
