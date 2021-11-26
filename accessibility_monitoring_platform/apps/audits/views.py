@@ -56,7 +56,7 @@ from .models import (
 )
 from .utils import (
     create_check_results_for_new_page,
-    create_pages_and_tests_for_new_audit,
+    create_pages_and_checks_for_new_audit,
     copy_all_pages_check_results,
     get_audit_metadata_rows,
     get_audit_check_results_by_wcag,
@@ -166,7 +166,7 @@ class AuditCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
-        create_pages_and_tests_for_new_audit(audit=self.object, user=self.request.user)  # type: ignore
+        create_pages_and_checks_for_new_audit(audit=self.object, user=self.request.user)  # type: ignore
         if "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-metadata", audit=self.object)  # type: ignore
         else:

@@ -35,47 +35,34 @@ from .models import (
 )
 
 
-def create_pages_and_tests_for_new_audit(audit: Audit, user: User) -> None:
+def create_pages_and_checks_for_new_audit(audit: Audit, user: User) -> None:
     """
     Create mandatory pages for new audit.
     Create Wcag tests from WcagDefinition metadata for new audit.
     """
-    pdf_wcag_definitons: List[WcagDefinition] = list(
-        WcagDefinition.objects.filter(type=TEST_TYPE_PDF)
-    )
-    manual_wcag_definitions: List[WcagDefinition] = list(
-        WcagDefinition.objects.filter(type=TEST_TYPE_MANUAL)
-    )
 
     home_page: Union[Page, None] = None  # type: ignore
     for page_type in MANDATORY_PAGE_TYPES:
         page: Page = Page.objects.create(audit=audit, type=page_type)  # type: ignore
         record_model_create_event(user=user, model_object=page)  # type: ignore
-        wcag_definitons: List[WcagDefinition] = (
-            pdf_wcag_definitons
-            if page_type == PAGE_TYPE_PDF
-            else manual_wcag_definitions
+        test_type: str = (
+            TEST_TYPE_PDF if page_type == PAGE_TYPE_PDF else TEST_TYPE_MANUAL
         )
-        for wcag_definition in wcag_definitons:
-            check_result: CheckResult = CheckResult.objects.create(
-                audit=audit,  # type: ignore
-                page=page,
-                type=wcag_definition.type,
-                wcag_definition=wcag_definition,
-            )
-            record_model_create_event(user=user, model_object=check_result)  # type: ignore
+        create_check_results_for_new_page(page=page, user=user, test_type=test_type)
         if page_type == PAGE_TYPE_HOME:
             home_page: Page = page
     audit.next_page = home_page  # type: ignore
     audit.save()
 
 
-def create_check_results_for_new_page(page: Page, user: User) -> None:
+def create_check_results_for_new_page(
+    page: Page, user: User, test_type: str = TEST_TYPE_MANUAL
+) -> None:
     """
     Create mandatory check results for new page from WcagDefinition metadata.
     """
-    manual_wcag_definitions: List[WcagDefinition] = list(
-        WcagDefinition.objects.filter(type=TEST_TYPE_MANUAL)
+    manual_wcag_definitions: QuerySet[WcagDefinition] = WcagDefinition.objects.filter(
+        type=test_type
     )
 
     for wcag_definition in manual_wcag_definitions:
@@ -91,7 +78,7 @@ def create_check_results_for_new_page(page: Page, user: User) -> None:
 def copy_all_pages_check_results(
     user: User, audit: Audit, check_results: List[CheckResult]
 ):
-    """Copy check results from the All pages page if they do not already exist"""
+    """Copy check results from the All pages page to other html pages"""
     for page in audit.html_pages:
         for check_result in check_results:
             other_check_result, created = CheckResult.objects.get_or_create(  # type: ignore
