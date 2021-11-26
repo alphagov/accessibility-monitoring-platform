@@ -12,11 +12,24 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...cases.models import Case
-from ..models import PAGE_TYPE_EXTRA, Audit, Page
+from ..models import (
+    Audit,
+    Page,
+    WcagDefinition,
+    CheckResult,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_STATEMENT,
+    PAGE_TYPE_EXTRA,
+    TEST_TYPE_AXE,
+    TEST_TYPE_PDF,
+)
 from ..utils import create_pages_and_checks_for_new_audit
 
+WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
+WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
 EXTRA_PAGE_NAME: str = "Extra page name"
 EXTRA_PAGE_URL: str = "https://extra-page.com"
+CHECK_RESULT_NOTES: str = "Check result notes"
 
 
 def create_audit() -> Audit:
@@ -28,6 +41,8 @@ def create_audit() -> Audit:
 def create_audit_and_pages() -> Audit:
     audit: Audit = create_audit()
     user: User = User.objects.create()
+    WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
+    WcagDefinition.objects.create(type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
     create_pages_and_checks_for_new_audit(audit=audit, user=user)
     return audit
 
@@ -138,24 +153,74 @@ def test_audit_page_specific_page_loads(path_name, expected_content, admin_clien
     "path_name, button_name, expected_redirect_path_name, expected_view_page_anchor",
     [
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages", ""),
-        ("audits:edit-audit-metadata", "save_exit", "audits:audit-detail", "#audit-metadata"),
+        (
+            "audits:edit-audit-metadata",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-metadata",
+        ),
         ("audits:edit-audit-pages", "save_continue", "audits:edit-audit-manual", ""),
         ("audits:edit-audit-pages", "save_exit", "audits:audit-detail", "#audit-pages"),
         ("audits:edit-audit-manual", "save_continue", "audits:edit-audit-axe", ""),
-        ("audits:edit-audit-manual", "save_exit", "audits:audit-detail", "#audit-manual"),
+        (
+            "audits:edit-audit-manual",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-manual",
+        ),
         ("audits:edit-audit-axe", "save_continue", "audits:edit-audit-pdf", ""),
         ("audits:edit-audit-axe", "save_exit", "audits:audit-detail", "#audit-axe"),
         ("audits:edit-audit-pdf", "save_continue", "audits:edit-audit-statement-1", ""),
         ("audits:edit-audit-pdf", "save_exit", "audits:audit-detail", "#audit-pdf"),
-        ("audits:edit-audit-statement-1", "save_continue", "audits:edit-audit-statement-2", ""),
-        ("audits:edit-audit-statement-1", "save_exit", "audits:audit-detail", "#audit-statement"),
-        ("audits:edit-audit-statement-2", "save_continue", "audits:edit-audit-summary", ""),
-        ("audits:edit-audit-statement-2", "save_exit", "audits:audit-detail", "#audit-statement"),
-        ("audits:edit-audit-summary", "save_continue", "audits:edit-audit-report-options", ""),
+        (
+            "audits:edit-audit-statement-1",
+            "save_continue",
+            "audits:edit-audit-statement-2",
+            "",
+        ),
+        (
+            "audits:edit-audit-statement-1",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-statement",
+        ),
+        (
+            "audits:edit-audit-statement-2",
+            "save_continue",
+            "audits:edit-audit-summary",
+            "",
+        ),
+        (
+            "audits:edit-audit-statement-2",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-statement",
+        ),
+        (
+            "audits:edit-audit-summary",
+            "save_continue",
+            "audits:edit-audit-report-options",
+            "",
+        ),
         ("audits:edit-audit-summary", "save_exit", "audits:audit-detail", ""),
-        ("audits:edit-audit-report-options", "save_continue", "audits:edit-audit-report-text", ""),
-        ("audits:edit-audit-report-options", "save_exit", "audits:audit-detail", "#audit-report-options"),
-        ("audits:edit-audit-report-text", "save_exit", "audits:audit-detail", "#audit-report-text"),
+        (
+            "audits:edit-audit-report-options",
+            "save_continue",
+            "audits:edit-audit-report-text",
+            "",
+        ),
+        (
+            "audits:edit-audit-report-options",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-report-options",
+        ),
+        (
+            "audits:edit-audit-report-text",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-report-text",
+        ),
     ],
 )
 def test_audit_edit_redirects_based_on_button_pressed(
@@ -192,7 +257,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse(expected_redirect_path_name, kwargs=get_path_kwargs(audit=audit, path_name=expected_redirect_path_name))}{expected_view_page_anchor}'  # type: ignore
+        == f"{reverse(expected_redirect_path_name, kwargs=get_path_kwargs(audit=audit, path_name=expected_redirect_path_name))}{expected_view_page_anchor}"  # type: ignore
     )
 
 
@@ -252,3 +317,128 @@ def test_add_extra_page(admin_client):
     assert len(extra_pages) == 1
     assert extra_pages[0].name == EXTRA_PAGE_NAME
     assert extra_pages[0].url == EXTRA_PAGE_URL
+
+
+def test_delete_extra_page(admin_client):
+    """Test deleting an extra page"""
+    audit: Audit = create_audit_and_pages()
+    extra_page: Page = Page.objects.create(
+        audit=audit,
+        type=PAGE_TYPE_EXTRA,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+        {
+            "standard-TOTAL_FORMS": "0",
+            "standard-INITIAL_FORMS": "0",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_extra_page_{extra_page.id}": "Remove page",  # type: ignore
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_extra_page: Page = Page.objects.get(id=extra_page.id)  # type: ignore
+
+    assert updated_extra_page.is_deleted
+
+
+@pytest.mark.parametrize(
+    "path_name", ["audits:edit-audit-manual", "audits:edit-audit-axe"]
+)
+def test_changing_audit_next_page(path_name, admin_client):
+    """Test changing the next page of an audit"""
+    audit: Audit = create_audit_and_pages()
+    home_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+    statement_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_STATEMENT)
+
+    assert audit.next_page == home_page
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id}),  # type: ignore
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "next_page": statement_page.id,  # type: ignore
+            "save_change_test_page": "Save and change test page",  # type: ignore
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)  # type: ignore
+
+    assert updated_audit.next_page == statement_page
+
+
+def test_add_axe_check_result(admin_client):
+    """Test adding an axe check result"""
+    audit: Audit = create_audit_and_pages()
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-axe", kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}),  # type: ignore
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-wcag_definition": wcag_definition_axe.id,  # type: ignore
+            "form-0-notes": CHECK_RESULT_NOTES,
+            "version": audit.version,
+            "next_page": audit.next_page.id,
+            "save_change_test_page": "Save and add violation",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    check_result: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_AXE
+    )
+
+    assert check_result.wcag_definition == wcag_definition_axe
+    assert check_result.notes == CHECK_RESULT_NOTES
+    assert check_result.failed
+
+
+def test_delete_axe_check_result(admin_client):
+    """Test deleting an axe check result"""
+    audit: Audit = create_audit_and_pages()
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=audit.next_page,
+        type=TEST_TYPE_AXE,
+        wcag_definition=wcag_definition_axe,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-axe", kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}),  # type: ignore
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "next_page": audit.next_page.id,
+            f"remove_check_result_{check_result.id}": "Remove violation",  # type: ignore
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)  # type: ignore
+
+    assert updated_check_result.is_deleted
