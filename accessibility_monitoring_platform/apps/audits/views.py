@@ -8,7 +8,7 @@ from django.forms.models import ModelForm
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 
@@ -55,6 +55,7 @@ from .models import (
     PAGE_TYPE_ALL,
 )
 from .utils import (
+    get_audit_url,
     create_check_results_for_new_page,
     create_pages_and_checks_for_new_audit,
     copy_all_pages_check_results,
@@ -74,17 +75,6 @@ STANDARD_PAGE_HEADERS: List[str] = [
 ]
 
 
-def get_audit_url(url_name: str, audit: Audit) -> str:
-    """Return url string for name and audit"""
-    return reverse_lazy(
-        f"audits:{url_name}",
-        kwargs={
-            "pk": audit.id,  # type: ignore
-            "case_id": audit.case.id,  # type: ignore
-        },
-    )
-
-
 def delete_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
     """
     Delete audit
@@ -101,7 +91,7 @@ def delete_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
     audit.is_deleted = True
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
-    return redirect(reverse_lazy("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
+    return redirect(reverse("cases:edit-test-results", kwargs={"pk": case_id}))  # type: ignore
 
 
 def restore_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
@@ -120,7 +110,7 @@ def restore_audit(request: HttpRequest, case_id: int, pk: int) -> HttpResponse:
     audit.is_deleted = False
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
-    return redirect(reverse_lazy("audits:audit-detail", kwargs={"case_id": case_id, "pk": audit.id}))  # type: ignore
+    return redirect(reverse("audits:audit-detail", kwargs={"case_id": case_id, "pk": audit.id}))  # type: ignore
 
 
 class AuditUpdateView(UpdateView):
@@ -170,7 +160,7 @@ class AuditCreateView(CreateView):
         if "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-metadata", audit=self.object)  # type: ignore
         else:
-            url: str = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.case.id})  # type: ignore
+            url: str = reverse("cases:edit-test-results", kwargs={"pk": self.object.case.id})  # type: ignore
         return url
 
 
@@ -303,7 +293,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         if "save_exit" in self.request.POST:
             url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pages'  # type: ignore
         elif "save_continue" in self.request.POST:
-            url: str = reverse_lazy(
+            url: str = reverse(
                 "audits:edit-audit-manual",
                 kwargs={
                     "page_id": self.object.next_page.id,  # type: ignore
@@ -434,7 +424,7 @@ class AuditManualFormView(AuditPageFormView):
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.audit
         if "save_change_test_page" in self.request.POST:
-            url: str = reverse_lazy(
+            url: str = reverse(
                 "audits:edit-audit-manual",
                 kwargs={
                     "page_id": audit.next_page.id,  # type: ignore
@@ -443,7 +433,7 @@ class AuditManualFormView(AuditPageFormView):
                 },
             )
         elif "save_continue" in self.request.POST:
-            url: str = reverse_lazy(
+            url: str = reverse(
                 "audits:edit-audit-axe",
                 kwargs={
                     "page_id": audit.next_page.id,  # type: ignore
@@ -558,7 +548,7 @@ class AuditAxeFormView(AuditPageFormView):
         elif "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-pdf", audit=audit)
         else:
-            url: str = reverse_lazy(
+            url: str = reverse(
                 "audits:edit-audit-axe",
                 kwargs={
                     "page_id": audit.next_page.id,  # type: ignore
@@ -638,7 +628,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-statement-2", audit=self.object)  # type: ignore
         else:
-            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pdf'  # type: ignore
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-statement'  # type: ignore
         return url
 
 
@@ -655,7 +645,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-summary", audit=self.object)  # type: ignore
         else:
-            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-pdf'  # type: ignore
+            url: str = f'{get_audit_url(url_name="audit-detail", audit=self.object)}#audit-statement'  # type: ignore
         return url
 
 

@@ -2,10 +2,11 @@
 Utilities for audits app
 """
 
-from typing import Dict, Tuple, List, Union
+from typing import Dict, Tuple, List
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.urls import reverse
 
 from ..common.models import BOOLEAN_TRUE
 from ..common.utils import record_model_create_event, record_model_update_event
@@ -35,13 +36,23 @@ from .models import (
 )
 
 
+def get_audit_url(url_name: str, audit: Audit) -> str:
+    """Return url string for name and audit"""
+    return reverse(
+        f"audits:{url_name}",
+        kwargs={
+            "pk": audit.id,  # type: ignore
+            "case_id": audit.case.id,  # type: ignore
+        },
+    )
+
+
 def create_pages_and_checks_for_new_audit(audit: Audit, user: User) -> None:
     """
     Create mandatory pages for new audit.
     Create Wcag tests from WcagDefinition metadata for new audit.
     """
 
-    home_page: Union[Page, None] = None  # type: ignore
     for page_type in MANDATORY_PAGE_TYPES:
         page: Page = Page.objects.create(audit=audit, type=page_type)  # type: ignore
         record_model_create_event(user=user, model_object=page)  # type: ignore
@@ -49,9 +60,7 @@ def create_pages_and_checks_for_new_audit(audit: Audit, user: User) -> None:
             TEST_TYPE_PDF if page_type == PAGE_TYPE_PDF else TEST_TYPE_MANUAL
         )
         create_check_results_for_new_page(page=page, user=user, test_type=test_type)
-        if page_type == PAGE_TYPE_HOME:
-            home_page: Page = page
-    audit.next_page = home_page  # type: ignore
+    audit.next_page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)  # type: ignore
     audit.save()
 
 
