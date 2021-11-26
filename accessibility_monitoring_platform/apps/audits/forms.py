@@ -133,7 +133,7 @@ class AuditMetadataUpdateForm(AuditCreateForm, VersionForm):
 
 class AuditStandardPageUpdateForm(forms.ModelForm):
     """
-    Form for updating a standard page (one of the 5 types of page in every check)
+    Form for updating a standard page (one of the 5 types of page in every audit)
     """
 
     url = AMPURLField(label="URL")

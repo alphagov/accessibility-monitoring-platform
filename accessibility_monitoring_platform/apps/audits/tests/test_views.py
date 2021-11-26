@@ -103,6 +103,35 @@ def test_restore_audit_view(admin_client):
 
 
 @pytest.mark.parametrize(
+    "button_name, expected_redirect_url",
+    [
+        (
+            "save_continue",
+            reverse("audits:edit-audit-metadata", kwargs={"pk": 1, "case_id": 1}),
+        ),
+        ("save_exit", reverse("cases:edit-test-results", kwargs={"pk": 1})),
+    ],
+)
+def test_create_audit_redirects_based_on_button_pressed(
+    button_name, expected_redirect_url, admin_client
+):
+    """Test that audit create redirects based on the button pressed"""
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:audit-create", kwargs=path_kwargs),
+        {
+            button_name: "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == expected_redirect_url
+
+
+@pytest.mark.parametrize(
     "path_name, expected_content",
     [
         ("audits:audit-detail", "View test"),
