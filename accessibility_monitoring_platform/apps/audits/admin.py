@@ -10,21 +10,23 @@ from .models import Audit, Page, CheckResult, WcagDefinition
 class AuditAdmin(admin.ModelAdmin):
     """Django admin configuration for Audit model"""
 
-    search_fields = ["case"]
+    search_fields = ["case__organisation_name", "description"]
     list_display = ["type", "date_of_test", "case"]
+    list_filter = ["type"]
 
 
 class PageAdmin(admin.ModelAdmin):
     """Django admin configuration for Page model"""
 
-    search_fields = ["name", "url", "audit"]
+    search_fields = ["name", "url", "audit__description"]
     list_display = ["type", "audit", "name", "url"]
+    list_filter = ["type"]
 
 
 class CheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for CheckResult model"""
 
-    search_fields = ["wcag_definition__name"]
+    search_fields = ["wcag_definition__name", "audit__description", "page__name", "page__type", "page__url"]
     list_display = ["wcag_definition", "audit", "page"]
 
 

@@ -96,7 +96,7 @@ class Event(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"#{self.parent} {self.type}"
+        return f"#{self.content_type} {self.object_id} {self.type}"
 
     class Meta:
         ordering = ["-created"]
