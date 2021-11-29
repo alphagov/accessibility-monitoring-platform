@@ -282,10 +282,12 @@ def test_audit_edit_redirects_based_on_button_pressed(
     )
 
     assert response.status_code == 302
-    assert (
-        response.url
-        == f"{reverse(expected_redirect_path_name, kwargs=get_path_kwargs(audit=audit, path_name=expected_redirect_path_name))}{expected_view_page_anchor}"  # type: ignore
+
+    expected_path: str = reverse(
+        expected_redirect_path_name,
+        kwargs=get_path_kwargs(audit=audit, path_name=expected_redirect_path_name),
     )
+    assert response.url == f"{expected_path}{expected_view_page_anchor}"  # type: ignore
 
 
 def test_add_extra_page_form_appears(admin_client):

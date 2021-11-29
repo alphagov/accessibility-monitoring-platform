@@ -361,7 +361,7 @@ def create_audit_and_pages() -> Tuple[Audit, User]:
     )
     audit.case.auditor = user
     audit.case.save()
-    create_pages_and_checks_for_new_audit(audit=audit, user=user)
+    create_pages_and_checks_for_new_audit(audit=audit)
     return audit, user
 
 
@@ -381,9 +381,8 @@ def test_get_audit_url():
 def test_create_pages_and_checks_for_new_audit():
     """Test creation of related pages and check results for new audit"""
     audit: Audit = create_audit_and_wcag()
-    user: User = User.objects.create()
 
-    create_pages_and_checks_for_new_audit(audit=audit, user=user)
+    create_pages_and_checks_for_new_audit(audit=audit)
 
     new_pages: QuerySet[Page] = Page.objects.filter(audit=audit)
 
@@ -414,9 +413,8 @@ def test_create_check_results_for_new_page():
     """Test creation of check results for new page"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit, type=PAGE_TYPE_HOME)
-    user: User = User.objects.create()
 
-    create_check_results_for_new_page(page=page, user=user)
+    create_check_results_for_new_page(page=page)
 
     check_results: List[CheckResult] = list(page.checkresult_page.all())  # type: ignore
 
