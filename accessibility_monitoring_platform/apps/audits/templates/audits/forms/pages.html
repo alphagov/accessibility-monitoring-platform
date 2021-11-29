@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load common_tags %}
+
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'audits:edit-audit-metadata' case.id audit.id %}" class="govuk-back-link">Back</a>
@@ -30,12 +32,7 @@
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-full">
                                             <h2 class="govuk-heading-m">
-                                                {% if forloop.counter == 1%}{{ standard_page_headers.0 }}
-                                                {% elif forloop.counter == 2%}{{ standard_page_headers.1 }}
-                                                {% elif forloop.counter == 3%}{{ standard_page_headers.2 }}
-                                                {% elif forloop.counter == 4%}{{ standard_page_headers.3 }}
-                                                {% elif forloop.counter == 5%}{{ standard_page_headers.4 }}
-                                                {% endif %}
+                                                {{ standard_page_headers|list_item_by_index:forloop.counter0 }}
                                             </h2>
                                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}

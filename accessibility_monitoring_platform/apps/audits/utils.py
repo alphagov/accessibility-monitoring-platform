@@ -47,7 +47,7 @@ def get_audit_url(url_name: str, audit: Audit) -> str:
     )
 
 
-def create_pages_and_checks_for_new_audit(audit: Audit, user: User) -> None:
+def create_pages_and_checks_for_new_audit(audit: Audit) -> None:
     """
     Create mandatory pages for new audit.
     Create Wcag tests from WcagDefinition metadata for new audit.
@@ -55,17 +55,16 @@ def create_pages_and_checks_for_new_audit(audit: Audit, user: User) -> None:
 
     for page_type in MANDATORY_PAGE_TYPES:
         page: Page = Page.objects.create(audit=audit, type=page_type)  # type: ignore
-        record_model_create_event(user=user, model_object=page)  # type: ignore
         test_type: str = (
             TEST_TYPE_PDF if page_type == PAGE_TYPE_PDF else TEST_TYPE_MANUAL
         )
-        create_check_results_for_new_page(page=page, user=user, test_type=test_type)
+        create_check_results_for_new_page(page=page, test_type=test_type)
     audit.next_page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)  # type: ignore
     audit.save()
 
 
 def create_check_results_for_new_page(
-    page: Page, user: User, test_type: str = TEST_TYPE_MANUAL
+    page: Page, test_type: str = TEST_TYPE_MANUAL
 ) -> None:
     """
     Create mandatory check results for new page from WcagDefinition metadata.
@@ -75,13 +74,12 @@ def create_check_results_for_new_page(
     )
 
     for wcag_definition in manual_wcag_definitions:
-        check_result: CheckResult = CheckResult.objects.create(
+        CheckResult.objects.create(
             audit=page.audit,
             page=page,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
         )
-        record_model_create_event(user=user, model_object=check_result)  # type: ignore
 
 
 def copy_all_pages_check_results(

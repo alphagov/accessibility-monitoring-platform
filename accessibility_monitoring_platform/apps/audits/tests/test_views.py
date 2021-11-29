@@ -7,7 +7,6 @@ from typing import Dict, List
 
 from pytest_django.asserts import assertContains
 
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import reverse
 
@@ -40,10 +39,9 @@ def create_audit() -> Audit:
 
 def create_audit_and_pages() -> Audit:
     audit: Audit = create_audit()
-    user: User = User.objects.create()
     WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
     WcagDefinition.objects.create(type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
-    create_pages_and_checks_for_new_audit(audit=audit, user=user)
+    create_pages_and_checks_for_new_audit(audit=audit)
     return audit
 
 

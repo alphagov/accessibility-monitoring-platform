@@ -479,7 +479,7 @@ class Page(VersionModel):
 
     def get_absolute_url(self):
         return reverse(
-            "audits:edit-audit-page",
+            "audits:edit-audit-pages",
             kwargs={"pk": self.audit.pk, "case_id": self.audit.case.pk},
         )
 

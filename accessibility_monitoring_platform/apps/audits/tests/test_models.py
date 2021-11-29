@@ -55,7 +55,7 @@ def test_audit_all_pages_returns_all_pages_except_pdf():
 @pytest.mark.django_db
 def test_audit_html_pages_returns_all_pages_except_all_pages():
     """
-    Test html_pages attribute of audit does not include pages of type PDF or all pages.
+    Test html_pages attribute of audit does not include pages of types PDF or all.
     """
     audit: Audit = create_audit_and_pages()
     page_types: List[str] = [page.type for page in audit.html_pages]

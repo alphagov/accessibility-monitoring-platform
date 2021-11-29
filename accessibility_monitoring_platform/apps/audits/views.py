@@ -156,7 +156,7 @@ class AuditCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
-        create_pages_and_checks_for_new_audit(audit=self.object, user=self.request.user)  # type: ignore
+        create_pages_and_checks_for_new_audit(audit=self.object)  # type: ignore
         if "save_continue" in self.request.POST:
             url: str = get_audit_url(url_name="edit-audit-metadata", audit=self.object)  # type: ignore
         else:
@@ -269,7 +269,7 @@ class AuditPagesUpdateView(AuditUpdateView):
                     page.audit = audit
                     page.save()
                     record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
-                    create_check_results_for_new_page(page=page, user=self.request.user)  # type: ignore
+                    create_check_results_for_new_page(page=page)
                 else:
                     record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
                     page.save()
@@ -570,12 +570,13 @@ class AuditPdfUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_PDF)
+        context["page"] = page
         if self.request.POST:
             check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
                 self.request.POST
             )
         else:
-            page: Page = Page.objects.get(audit=self.object, type=PAGE_TYPE_PDF)
             check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
                 page=page, type=TEST_TYPE_PDF
             )
