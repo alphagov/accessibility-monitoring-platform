@@ -20,11 +20,13 @@ from ..models import (
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_EXTRA,
     TEST_TYPE_AXE,
+    TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
 )
 from ..utils import create_pages_and_checks_for_new_audit
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
+WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
 WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
 EXTRA_PAGE_NAME: str = "Extra page name"
 EXTRA_PAGE_URL: str = "https://extra-page.com"
@@ -290,6 +292,31 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == f"{expected_path}{expected_view_page_anchor}"  # type: ignore
 
 
+def test_standard_pages_appear_on_pages_page(admin_client):
+    """
+    Test that all the standard pages appear on the pages page
+    """
+    audit: Audit = create_audit_and_pages()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Home Page</h2>""", html=True
+    )
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Contact Page</h2>""", html=True
+    )
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",
+        html=True,
+    )
+    assertContains(response, """<h2 class="govuk-heading-m">PDF</h2>""", html=True)
+    assertContains(response, """<h2 class="govuk-heading-m">A Form</h2>""", html=True)
+
+
 def test_add_extra_page_form_appears(admin_client):
     """
     Test that pressing the save and create additional page button adds an extra page form
@@ -377,6 +404,54 @@ def test_delete_extra_page(admin_client):
     updated_extra_page: Page = Page.objects.get(id=extra_page.id)  # type: ignore
 
     assert updated_extra_page.is_deleted
+
+
+def test_manual_checks_displayed(admin_client):
+    """Test manual checks are displayed on manual page"""
+    audit: Audit = create_audit_and_pages()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, sub_type="keyboard", name=WCAG_TYPE_MANUAL_NAME
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=audit.next_page,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-manual",
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, WCAG_TYPE_MANUAL_NAME)
+
+
+def test_axe_checks_displayed(admin_client):
+    """Test manual checks are displayed on axe page"""
+    audit: Audit = create_audit_and_pages()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=audit.next_page,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-axe",
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, WCAG_TYPE_AXE_NAME)
 
 
 @pytest.mark.parametrize(
