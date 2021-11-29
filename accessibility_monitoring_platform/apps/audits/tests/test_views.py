@@ -431,7 +431,7 @@ def test_manual_checks_displayed(admin_client):
 
 
 def test_axe_checks_displayed(admin_client):
-    """Test manual checks are displayed on axe page"""
+    """Test axe checks are displayed on axe page"""
     audit: Audit = create_audit_and_pages()
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
@@ -466,7 +466,10 @@ def test_changing_audit_next_page(path_name, admin_client):
     assert audit.next_page == home_page
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id}),  # type: ignore
+        reverse(
+            path_name,
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id}  # type: ignore
+        ),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -491,7 +494,10 @@ def test_add_axe_check_result(admin_client):
     wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-axe", kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}),  # type: ignore
+        reverse(
+            "audits:edit-audit-axe",
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}  # type: ignore
+        ),
         {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -529,7 +535,10 @@ def test_delete_axe_check_result(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-axe", kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}),  # type: ignore
+        reverse(
+            "audits:edit-audit-axe",
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}  # type: ignore
+        ),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -546,3 +555,27 @@ def test_delete_axe_check_result(admin_client):
     updated_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)  # type: ignore
 
     assert updated_check_result.is_deleted
+
+
+def test_pdf_checks_displayed(admin_client):
+    """Test pdf checks are displayed on pdf page"""
+    audit: Audit = create_audit_and_pages()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=audit.next_page,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-pdf",
+            kwargs={"case_id": audit.case.id, "pk": audit.id},  # type: ignore
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(response, WCAG_TYPE_PDF_NAME)
