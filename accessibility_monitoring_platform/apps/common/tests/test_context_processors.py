@@ -1,5 +1,5 @@
 """
-Test urls of cases app
+Test context processor of common app
 """
 import pytest
 from pytest_django.asserts import assertContains
@@ -108,7 +108,7 @@ def test_platform_page_returns_prototype_and_page_names():
     )
     platform_page_context: Dict[
         str, Union[int, str, AMPTopMenuForm, Platform]
-    ] = platform_page(mock_request)
+    ] = platform_page(mock_request)  # type: ignore
 
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"

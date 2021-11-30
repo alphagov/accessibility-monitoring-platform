@@ -1,5 +1,5 @@
 """
-Tests for cases views
+Tests for common views
 """
 import pytest
 

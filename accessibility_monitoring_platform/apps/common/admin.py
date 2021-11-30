@@ -55,7 +55,7 @@ class IssueReportAdmin(admin.ModelAdmin):
     actions = ["export_as_csv"]
 
     @admin.action(description="Export selected issues as csv")
-    def export_as_csv(self, request, queryset):
+    def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
 
         meta = self.model._meta
         field_names = [field.name for field in meta.fields]
