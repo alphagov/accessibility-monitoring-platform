@@ -410,7 +410,7 @@ class AuditStatement2UpdateForm(VersionForm):
     )
     contact_information_notes = AMPTextField(label="Notes")
     enforcement_procedure_state = AMPChoiceRadioField(
-        label="Contact Information",
+        label="Enforcement Procedure",
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
         help_text=ACCESSIBILITY_STATEMENT_EXAMPLES["enforcement_procedure_state"],
     )
