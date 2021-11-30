@@ -449,6 +449,28 @@ class Audit(VersionModel):
     def extra_pages(self):
         return self.html_pages.filter(type=PAGE_TYPE_EXTRA)  # type: ignore
 
+    @property
+    def failed_check_results(self):
+        return (
+            self.checkresult_audit.filter(  # type: ignore
+                is_deleted=False, failed=BOOLEAN_TRUE
+            )
+            .exclude(page__type=PAGE_TYPE_ALL)
+            .order_by("wcag_definition__id")
+        )
+
+    @property
+    def failed_axe_check_results(self):
+        return self.failed_check_results.filter(type=TEST_TYPE_AXE)
+
+    @property
+    def failed_manual_check_results(self):
+        return self.failed_check_results.filter(type=TEST_TYPE_MANUAL)
+
+    @property
+    def failed_pdf_check_results(self):
+        return self.failed_check_results.filter(type=TEST_TYPE_PDF)
+
 
 class Page(VersionModel):
     """

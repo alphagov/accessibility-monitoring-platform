@@ -32,7 +32,6 @@ from ..utils import (
     create_check_results_for_new_page,
     copy_all_pages_check_results,
     get_audit_metadata_rows,
-    get_audit_check_results_by_wcag,
     get_audit_pdf_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
@@ -458,33 +457,6 @@ def test_get_audit_metadata_rows():
 
 
 @pytest.mark.django_db
-def test_get_audit_check_results_by_wcag():
-    """Test audit check results grouped by WCAG definition"""
-    audit, _ = create_audit_and_pages()
-    home_page: Page = audit.page_audit.get(type=PAGE_TYPE_HOME)  # type: ignore
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
-        type=TEST_TYPE_MANUAL
-    )
-    check_result_manual: CheckResult = home_page.checkresult_page.get(type=TEST_TYPE_MANUAL)  # type: ignore
-    check_result_manual.failed = BOOLEAN_TRUE
-    check_result_manual.save()
-
-    audit_check_results: List[
-        Tuple[WcagDefinition, List[CheckResult]]
-    ] = get_audit_check_results_by_wcag(audit=audit, test_type=TEST_TYPE_MANUAL)
-
-    assert len(audit_check_results) == 1
-
-    wcag_definition, check_results = audit_check_results[0]
-
-    assert wcag_definition == wcag_definition_manual
-
-    assert isinstance(check_results, list)
-    assert len(check_results) == NUMBER_OF_WCAG_PER_TYPE_OF_PAGE
-    assert check_results[0] == check_result_manual
-
-
-@pytest.mark.django_db
 def test_get_audit_pdf_rows():
     """Test audit pdf rows returned for display on View test page"""
     audit, _ = create_audit_and_pages()
@@ -593,12 +565,12 @@ def test_group_check_results_by_wcag_definition():
     assert group_check_results_by_wcag(check_results=check_results) == [
         (
             WcagDefinition.objects.get(type=TEST_TYPE_MANUAL),
-            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_MANUAL))
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_MANUAL)),
         ),
         (
             WcagDefinition.objects.get(type=TEST_TYPE_PDF),
-            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_PDF))
-        )
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_PDF)),
+        ),
     ]
 
 
@@ -620,7 +592,10 @@ def test_group_check_results_by_page():
         (all_page, list(CheckResult.objects.filter(page=all_page))),
         (home_page, list(CheckResult.objects.filter(page=home_page))),
         (contact_page, list(CheckResult.objects.filter(page=contact_page))),
-        (accessibility_statement, list(CheckResult.objects.filter(page=accessibility_statement))),
+        (
+            accessibility_statement,
+            list(CheckResult.objects.filter(page=accessibility_statement)),
+        ),
         (pdf_page, list(CheckResult.objects.filter(page=pdf_page))),
         (form_page, list(CheckResult.objects.filter(page=form_page))),
     ]

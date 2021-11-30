@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.urls import reverse
 
-from ..common.models import BOOLEAN_TRUE
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -27,7 +26,6 @@ from .models import (
     WcagDefinition,
     CheckResult,
     MANDATORY_PAGE_TYPES,
-    PAGE_TYPE_ALL,
     PAGE_TYPE_HOME,
     PAGE_TYPE_PDF,
     TEST_TYPE_PDF,
@@ -129,39 +127,15 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return rows
 
 
-def get_audit_check_results_by_wcag(
-    audit: Audit, test_type: str
-) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
-    """
-    Build list of check results grouped by WCAG definitons for use
-    in accordion on Test view page.
-    """
-    check_results: QuerySet[CheckResult] = (
-        CheckResult.objects.filter(audit=audit, type=test_type, failed=BOOLEAN_TRUE)
-        .exclude(page__type=PAGE_TYPE_ALL)
-        .order_by("wcag_definition__id")
-    )
-    check_result_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
-    for check_result in check_results:
-        if check_result.wcag_definition in check_result_by_wcag:
-            check_result_by_wcag[check_result.wcag_definition].append(check_result)
-        else:
-            check_result_by_wcag[check_result.wcag_definition] = [check_result]
-    return [(key, value) for key, value in check_result_by_wcag.items()]
-
-
 def get_audit_pdf_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit pdf failures"""
-    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(
-        audit=audit, type=TEST_TYPE_PDF, failed=BOOLEAN_TRUE
-    )
     return [
         FieldLabelAndValue(
             label=check_result.wcag_definition.name,
             value=check_result.notes,
             type=FieldLabelAndValue.NOTES_TYPE,
         )
-        for check_result in check_results
+        for check_result in audit.failed_pdf_check_results
     ]
 
 
@@ -234,7 +208,9 @@ def group_check_results_by_wcag_sub_type_labels(
     return [(key, value) for key, value in check_result_forms_by_wcag_sub_type.items()]
 
 
-def group_check_results_by_wcag(check_results: QuerySet[CheckResult]) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
+def group_check_results_by_wcag(
+    check_results: QuerySet[CheckResult],
+) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
     """
     Group check results by wcag definition and then return list of tuples
     of wcag definition and list of check results of that wcag definiton.
@@ -243,18 +219,16 @@ def group_check_results_by_wcag(check_results: QuerySet[CheckResult]) -> List[Tu
 
     for check_result in check_results:
         if check_result.wcag_definition in audit_failures_by_wcag:
-            audit_failures_by_wcag[check_result.wcag_definition].append(
-                check_result
-            )
+            audit_failures_by_wcag[check_result.wcag_definition].append(check_result)
         else:
             audit_failures_by_wcag[check_result.wcag_definition] = [check_result]
 
-    return [
-        (key, value) for key, value in audit_failures_by_wcag.items()
-    ]
+    return [(key, value) for key, value in audit_failures_by_wcag.items()]
 
 
-def group_check_results_by_page(check_results: QuerySet[CheckResult]) -> List[Tuple[Page, List[CheckResult]]]:
+def group_check_results_by_page(
+    check_results: QuerySet[CheckResult],
+) -> List[Tuple[Page, List[CheckResult]]]:
     """
     Group check results by page and then return list of tuples
     of page and list of check results of that page.
@@ -267,6 +241,4 @@ def group_check_results_by_page(check_results: QuerySet[CheckResult]) -> List[Tu
         else:
             audit_failures_by_page[check_result.page] = [check_result]
 
-    return [
-        (key, value) for key, value in audit_failures_by_page.items()
-    ]
+    return [(key, value) for key, value in audit_failures_by_page.items()]

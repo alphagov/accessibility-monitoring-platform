@@ -59,7 +59,6 @@ from .utils import (
     create_pages_and_checks_for_new_audit,
     copy_all_pages_check_results,
     get_audit_metadata_rows,
-    get_audit_check_results_by_wcag,
     get_audit_pdf_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
@@ -180,12 +179,13 @@ class AuditDetailView(DetailView):
         audit: Audit = self.object  # type: ignore
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
-        context["audit_manual_wcag_failures"] = get_audit_check_results_by_wcag(
-            audit=audit, test_type=TEST_TYPE_MANUAL
+        context["audit_axe_wcag_failures"] = group_check_results_by_wcag(
+            check_results=audit.failed_axe_check_results
         )
-        context["audit_axe_wcag_failures"] = get_audit_check_results_by_wcag(
-            audit=audit, test_type=TEST_TYPE_AXE
+        context["audit_manual_wcag_failures"] = group_check_results_by_wcag(
+            check_results=audit.failed_manual_check_results
         )
+
         context["audit_pdf_rows"] = get_audit_pdf_rows(audit)
         context["audit_statement_rows"] = get_audit_statement_rows(audit)
         context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
@@ -670,23 +670,22 @@ class AuditSummaryUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
         show_failures_by_page: bool = view_url_param == "Page view"
         context["show_failures_by_page"] = show_failures_by_page
 
-        check_failures: QuerySet[CheckResult] = (
-            CheckResult.objects.filter(audit=self.object, failed=BOOLEAN_TRUE)  # type: ignore
-            .exclude(page__type=PAGE_TYPE_ALL)
-            .order_by("wcag_definition__id")
-        )
-
         if show_failures_by_page:
-            context["audit_failures_by_page"] = group_check_results_by_page(check_results=check_failures)
+            context["audit_failures_by_page"] = group_check_results_by_page(
+                check_results=audit.failed_check_results
+            )
         else:
-            context["audit_failures_by_wcag"] = group_check_results_by_wcag(check_results=check_failures)
+            context["audit_failures_by_wcag"] = group_check_results_by_wcag(
+                check_results=audit.failed_check_results
+            )
 
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
+        get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
         context["audit_statement_rows"] = get_rows(
             form=AuditStatement1UpdateForm()
         ) + get_rows(form=AuditStatement2UpdateForm())

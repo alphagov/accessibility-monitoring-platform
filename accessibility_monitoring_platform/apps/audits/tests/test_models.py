@@ -4,11 +4,14 @@ Tests for cases models
 import pytest
 from typing import List
 
+from django.db.models.query import QuerySet
+
 from ...cases.models import Case
-from ...common.models import BOOLEAN_TRUE
+from ...common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
 from ..models import (
     Audit,
     Page,
+    CheckResult,
     PAGE_TYPE_EXTRA,
     PAGE_TYPE_HOME,
     PAGE_TYPE_CONTACT,
@@ -16,9 +19,16 @@ from ..models import (
     PAGE_TYPE_PDF,
     PAGE_TYPE_FORM,
     PAGE_TYPE_ALL,
+    TEST_TYPE_AXE,
+    TEST_TYPE_MANUAL,
+    TEST_TYPE_PDF,
+    WcagDefinition,
 )
 
 PAGE_NAME = "Page name"
+WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
+WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
+WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 
 
 def create_audit_and_pages() -> Audit:
@@ -37,6 +47,40 @@ def create_audit_and_pages() -> Audit:
         Page.objects.create(audit=audit, type=page_type)
     Page.objects.create(audit=audit, type=PAGE_TYPE_EXTRA, is_deleted=True)
     Page.objects.create(audit=audit, type=PAGE_TYPE_EXTRA, not_found=BOOLEAN_TRUE)
+    return audit
+
+
+def create_audit_and_check_results() -> Audit:
+    """Create an audit with failed check results"""
+    html_wcag_definitions: List[WcagDefinition] = [
+        WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME),
+        WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    ]
+    pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+
+    audit: Audit = create_audit_and_pages()
+    pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
+
+    for page in pages:
+        failed: str = BOOLEAN_TRUE if page.type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF] else BOOLEAN_FALSE
+        if page.type == PAGE_TYPE_PDF:
+            CheckResult.objects.create(
+                audit=audit,
+                page=page,
+                failed=failed,
+                type=pdf_wcag_definition.type,
+                wcag_definition=pdf_wcag_definition,
+            )
+        else:
+            for wcag_definition in html_wcag_definitions:
+                CheckResult.objects.create(
+                    audit=audit,
+                    page=page,
+                    failed=failed,
+                    type=wcag_definition.type,
+                    wcag_definition=wcag_definition,
+                )
+
     return audit
 
 
@@ -103,3 +147,50 @@ def test_page_string():
     page.name = PAGE_NAME
 
     assert str(page) == PAGE_NAME
+
+
+@pytest.mark.django_db
+def test_audit_failed_check_results_returns_only_failed_checks():
+    """
+    Test failed_check_results attribute of audit returns only check results where failed is "yes".
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+    assert len([check for check in audit.failed_check_results if check.failed == BOOLEAN_TRUE]) == 3
+
+
+@pytest.mark.django_db
+def test_audit_failed_axe_check_results_returns_only_axe_failed_checks():
+    """
+    Test failed_axe_check_results attribute of audit returns only axe check results where failed is "yes".
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_axe_check_results) == 1
+    assert audit.failed_axe_check_results[0].failed == BOOLEAN_TRUE
+    assert audit.failed_axe_check_results[0].type == TEST_TYPE_AXE
+
+
+@pytest.mark.django_db
+def test_audit_failed_manual_check_results_returns_only_manual_failed_checks():
+    """
+    Test failed_manual_check_results attribute of audit returns only manual check results where failed is "yes".
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_manual_check_results) == 1
+    assert audit.failed_manual_check_results[0].failed == BOOLEAN_TRUE
+    assert audit.failed_manual_check_results[0].type == TEST_TYPE_MANUAL
+
+
+@pytest.mark.django_db
+def test_audit_failed_pdf_check_results_returns_only_pdf_failed_checks():
+    """
+    Test failed_pdf_check_results attribute of audit returns only pdf check results where failed is "yes".
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_pdf_check_results) == 1
+    assert audit.failed_pdf_check_results[0].failed == BOOLEAN_TRUE
+    assert audit.failed_pdf_check_results[0].type == TEST_TYPE_PDF
