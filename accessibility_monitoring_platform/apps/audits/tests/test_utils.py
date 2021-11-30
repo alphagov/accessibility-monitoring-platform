@@ -190,7 +190,7 @@ EXPECTED_AUDIT_STATEMENT_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="Not included",
-        label="Contact Information",
+        label="Enforcement Procedure",
         type="text",
         extra_label="",
         external_url=True,
