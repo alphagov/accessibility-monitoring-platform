@@ -232,3 +232,41 @@ def group_check_results_by_wcag_sub_type_labels(
         else:
             check_result_forms_by_wcag_sub_type[sub_type_label] = [check_result_form]
     return [(key, value) for key, value in check_result_forms_by_wcag_sub_type.items()]
+
+
+def group_check_results_by_wcag(check_results: QuerySet[CheckResult]) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
+    """
+    Group check results by wcag definition and then return list of tuples
+    of wcag definition and list of check results of that wcag definiton.
+    """
+    audit_failures_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
+
+    for check_result in check_results:
+        if check_result.wcag_definition in audit_failures_by_wcag:
+            audit_failures_by_wcag[check_result.wcag_definition].append(
+                check_result
+            )
+        else:
+            audit_failures_by_wcag[check_result.wcag_definition] = [check_result]
+
+    return [
+        (key, value) for key, value in audit_failures_by_wcag.items()
+    ]
+
+
+def group_check_results_by_page(check_results: QuerySet[CheckResult]) -> List[Tuple[Page, List[CheckResult]]]:
+    """
+    Group check results by page and then return list of tuples
+    of page and list of check results of that page.
+    """
+    audit_failures_by_page: Dict[Page, List[CheckResult]] = {}
+
+    for check_result in check_results:
+        if check_result.page in audit_failures_by_page:
+            audit_failures_by_page[check_result.page].append(check_result)
+        else:
+            audit_failures_by_page[check_result.page] = [check_result]
+
+    return [
+        (key, value) for key, value in audit_failures_by_page.items()
+    ]

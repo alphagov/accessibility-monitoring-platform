@@ -37,6 +37,8 @@ from ..utils import (
     get_audit_statement_rows,
     get_audit_report_options_rows,
     group_check_results_by_wcag_sub_type_labels,
+    group_check_results_by_wcag,
+    group_check_results_by_page,
 )
 
 USER_FIRST_NAME = "John"
@@ -512,8 +514,8 @@ def test_get_audit_report_options_rows():
 
 
 @pytest.mark.django_db
-def test_group_check_results_by_wcag_sub_type_labels():
-    """Test grouping check results by wcag/check label"""
+def test_group_check_result_update_forms_by_wcag_sub_type_labels():
+    """Test grouping check result update forms by wcag definition sub-type label"""
     audit: Audit = create_audit_and_wcag()
     WcagDefinition.objects.create(
         type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME, sub_type="keyboard"
@@ -577,4 +579,48 @@ def test_group_check_results_by_wcag_sub_type_labels():
                 if form.instance.wcag_definition.sub_type == "additional"
             ],
         ),
+    ]
+
+
+@pytest.mark.django_db
+def test_group_check_results_by_wcag_definition():
+    """Test grouping check results by wcag definition"""
+    audit: Audit = create_audit_and_wcag()
+    create_pages_and_checks_for_new_audit(audit=audit)
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)  # type: ignore
+
+    assert group_check_results_by_wcag(check_results=check_results) == [
+        (
+            WcagDefinition.objects.get(type=TEST_TYPE_MANUAL),
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_MANUAL))
+        ),
+        (
+            WcagDefinition.objects.get(type=TEST_TYPE_PDF),
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_PDF))
+        )
+    ]
+
+
+@pytest.mark.django_db
+def test_group_check_results_by_page():
+    """Test grouping check results by page"""
+    audit: Audit = create_audit_and_wcag()
+    create_pages_and_checks_for_new_audit(audit=audit)
+    all_page: Page = Page.objects.get(type=PAGE_TYPE_ALL)
+    home_page: Page = Page.objects.get(type=PAGE_TYPE_HOME)
+    contact_page: Page = Page.objects.get(type=PAGE_TYPE_CONTACT)
+    accessibility_statement: Page = Page.objects.get(type=PAGE_TYPE_STATEMENT)
+    pdf_page: Page = Page.objects.get(type=PAGE_TYPE_PDF)
+    form_page: Page = Page.objects.get(type=PAGE_TYPE_FORM)
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)  # type: ignore
+
+    assert group_check_results_by_page(check_results=check_results) == [
+        (all_page, list(CheckResult.objects.filter(page=all_page))),
+        (home_page, list(CheckResult.objects.filter(page=home_page))),
+        (contact_page, list(CheckResult.objects.filter(page=contact_page))),
+        (accessibility_statement, list(CheckResult.objects.filter(page=accessibility_statement))),
+        (pdf_page, list(CheckResult.objects.filter(page=pdf_page))),
+        (form_page, list(CheckResult.objects.filter(page=form_page))),
     ]

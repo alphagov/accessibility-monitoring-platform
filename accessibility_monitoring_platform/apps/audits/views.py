@@ -44,7 +44,6 @@ from .forms import (
 from .models import (
     Audit,
     Page,
-    WcagDefinition,
     CheckResult,
     AUDIT_TYPE_DEFAULT,
     TEST_TYPE_AXE,
@@ -65,6 +64,8 @@ from .utils import (
     get_audit_statement_rows,
     get_audit_report_options_rows,
     group_check_results_by_wcag_sub_type_labels,
+    group_check_results_by_wcag,
+    group_check_results_by_page,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -671,7 +672,8 @@ class AuditSummaryUpdateView(AuditUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
-        context["show_failures_by_page"] = view_url_param == "Page view"
+        show_failures_by_page: bool = view_url_param == "Page view"
+        context["show_failures_by_page"] = show_failures_by_page
 
         check_failures: QuerySet[CheckResult] = (
             CheckResult.objects.filter(audit=self.object, failed=BOOLEAN_TRUE)  # type: ignore
@@ -679,27 +681,10 @@ class AuditSummaryUpdateView(AuditUpdateView):
             .order_by("wcag_definition__id")
         )
 
-        audit_failures_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
-        audit_failures_by_page: Dict[Page, List[CheckResult]] = {}
-
-        for check_failure in check_failures:
-            if check_failure.wcag_definition in audit_failures_by_wcag:
-                audit_failures_by_wcag[check_failure.wcag_definition].append(
-                    check_failure
-                )
-            else:
-                audit_failures_by_wcag[check_failure.wcag_definition] = [check_failure]
-            if check_failure.page in audit_failures_by_page:
-                audit_failures_by_page[check_failure.page].append(check_failure)
-            else:
-                audit_failures_by_page[check_failure.page] = [check_failure]
-
-        context["audit_failures_by_wcag"] = [
-            (key, value) for key, value in audit_failures_by_wcag.items()
-        ]
-        context["audit_failures_by_page"] = [
-            (key, value) for key, value in audit_failures_by_page.items()
-        ]
+        if show_failures_by_page:
+            context["audit_failures_by_page"] = group_check_results_by_page(check_results=check_failures)
+        else:
+            context["audit_failures_by_wcag"] = group_check_results_by_wcag(check_results=check_failures)
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
         context["audit_statement_rows"] = get_rows(
