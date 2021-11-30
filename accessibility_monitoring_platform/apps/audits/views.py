@@ -64,6 +64,7 @@ from .utils import (
     get_audit_pdf_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
+    group_check_results_by_wcag_sub_type_labels,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -365,6 +366,13 @@ class AuditManualFormView(AuditPageFormView):
                 f"{check_results_form.instance.wcag_definition.description}"
             }
         context["check_results_formset"] = check_results_formset
+
+        context[
+            "check_result_forms_by_wcag_sub_type"
+        ] = group_check_results_by_wcag_sub_type_labels(
+            check_result_update_forms=check_results_formset.forms
+        )
+
         return context
 
     def get_form(self):

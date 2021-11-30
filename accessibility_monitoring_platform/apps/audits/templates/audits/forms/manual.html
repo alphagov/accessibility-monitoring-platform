@@ -57,55 +57,15 @@
                     </div>
                     {{ check_results_formset.management_form }}
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Keyboard</h2>
-                        </div>
-                        {% for form in check_results_formset %}
-                            {% if form.instance.wcag_definition.sub_type == 'keyboard' %}
+                        {% for label, forms in check_result_forms_by_wcag_sub_type %}
+                            <div class="govuk-grid-column-full">
+                                <h2 class="govuk-heading-m">{{ label }}</h2>
+                            </div>
+                            {% for form in forms %}
                                 <div class="govuk-grid-column-full">
                                     {% include 'common/amp_form_snippet.html' %}
                                 </div>
-                            {% endif %}
-                        {% endfor %}
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Zoom and Reflow</h2>
-                        </div>
-                        {% for form in check_results_formset %}
-                            {% if form.instance.wcag_definition.sub_type == 'zoom' %}
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_form_snippet.html' %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Audio and Visual</h2>
-                        </div>
-                        {% for form in check_results_formset %}
-                            {% if form.instance.wcag_definition.sub_type == 'audio-visual' %}
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_form_snippet.html' %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Additional</h2>
-                        </div>
-                        {% for form in check_results_formset %}
-                            {% if form.instance.wcag_definition.sub_type == 'additional' %}
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_form_snippet.html' %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Other</h2>
-                        </div>
-                        {% for form in check_results_formset %}
-                            {% if form.instance.wcag_definition.sub_type == 'other' %}
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_form_snippet.html' %}
-                                </div>
-                            {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.page_manual_checks_complete_date %}

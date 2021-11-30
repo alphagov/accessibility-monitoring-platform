@@ -11,6 +11,7 @@ from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
 from ...common.models import BOOLEAN_TRUE
 
+from ..forms import CheckResultUpdateFormset
 from ..models import (
     Audit,
     CheckResult,
@@ -35,6 +36,7 @@ from ..utils import (
     get_audit_pdf_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
+    group_check_results_by_wcag_sub_type_labels,
 )
 
 USER_FIRST_NAME = "John"
@@ -507,3 +509,72 @@ def test_get_audit_report_options_rows():
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
+
+
+@pytest.mark.django_db
+def test_group_check_results_by_wcag_sub_type_labels():
+    """Test grouping check results by wcag/check label"""
+    audit: Audit = create_audit_and_wcag()
+    WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME, sub_type="keyboard"
+    )
+    WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME, sub_type="zoom"
+    )
+    WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME, sub_type="audio-visual"
+    )
+    WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME, sub_type="additional"
+    )
+    create_pages_and_checks_for_new_audit(audit=audit)
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
+        page=audit.next_page, type=TEST_TYPE_MANUAL
+    )
+    check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
+        queryset=check_results
+    )
+
+    assert group_check_results_by_wcag_sub_type_labels(check_results_formset.forms) == [
+        (
+            "Other",
+            [
+                form
+                for form in check_results_formset.forms
+                if form.instance.wcag_definition.sub_type == "other"
+            ],
+        ),
+        (
+            "Keyboard",
+            [
+                form
+                for form in check_results_formset.forms
+                if form.instance.wcag_definition.sub_type == "keyboard"
+            ],
+        ),
+        (
+            "Zoom and Reflow",
+            [
+                form
+                for form in check_results_formset.forms
+                if form.instance.wcag_definition.sub_type == "zoom"
+            ],
+        ),
+        (
+            "Audio and Visual",
+            [
+                form
+                for form in check_results_formset.forms
+                if form.instance.wcag_definition.sub_type == "audio-visual"
+            ],
+        ),
+        (
+            "Additional",
+            [
+                form
+                for form in check_results_formset.forms
+                if form.instance.wcag_definition.sub_type == "additional"
+            ],
+        ),
+    ]

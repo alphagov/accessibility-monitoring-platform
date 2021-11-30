@@ -468,7 +468,7 @@ def test_changing_audit_next_page(path_name, admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             path_name,
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id}  # type: ignore
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "0",
@@ -496,7 +496,7 @@ def test_add_axe_check_result(admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             "audits:edit-audit-axe",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}  # type: ignore
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "1",
@@ -537,7 +537,7 @@ def test_delete_axe_check_result(admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             "audits:edit-audit-axe",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id}  # type: ignore
+            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "0",

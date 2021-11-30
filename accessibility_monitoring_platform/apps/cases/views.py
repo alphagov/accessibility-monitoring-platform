@@ -187,7 +187,7 @@ class CaseDetailView(DetailView):
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
-            audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False)  # type: ignore
+            audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
             testing_details_rows: List[FieldLabelAndValue] = []
             for count, audit in enumerate(audits, start=1):
                 testing_details_rows.append(

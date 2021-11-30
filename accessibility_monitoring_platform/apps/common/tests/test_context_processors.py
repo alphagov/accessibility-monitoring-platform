@@ -108,7 +108,9 @@ def test_platform_page_returns_prototype_and_page_names():
     )
     platform_page_context: Dict[
         str, Union[int, str, AMPTopMenuForm, Platform]
-    ] = platform_page(mock_request)  # type: ignore
+    ] = platform_page(
+        mock_request
+    )  # type: ignore
 
     assert platform_page_context["page_heading"] == "Dashboard"
     assert platform_page_context["page_title"] == "Dashboard"

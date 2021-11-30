@@ -26,7 +26,13 @@ class PageAdmin(admin.ModelAdmin):
 class CheckResultAdmin(admin.ModelAdmin):
     """Django admin configuration for CheckResult model"""
 
-    search_fields = ["wcag_definition__name", "audit__description", "page__name", "page__type", "page__url"]
+    search_fields = [
+        "wcag_definition__name",
+        "audit__description",
+        "page__name",
+        "page__type",
+        "page__url",
+    ]
     list_display = ["wcag_definition", "audit", "page"]
 
 
