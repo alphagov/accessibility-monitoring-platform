@@ -194,3 +194,52 @@ def test_audit_failed_pdf_check_results_returns_only_pdf_failed_checks():
     assert len(audit.failed_pdf_check_results) == 1
     assert audit.failed_pdf_check_results[0].failed == BOOLEAN_TRUE
     assert audit.failed_pdf_check_results[0].type == TEST_TYPE_PDF
+
+
+@pytest.mark.django_db
+def test_page_all_check_results_returns_check_results():
+    """
+    Test all_check_results attribute of page returns expected check results.
+    """
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+
+    assert len(home_page.all_check_results) == 2
+    assert home_page.all_check_results[0].type == TEST_TYPE_AXE
+    assert home_page.all_check_results[1].type == TEST_TYPE_MANUAL
+
+
+@pytest.mark.django_db
+def test_page_axe_check_results_returns_only_axe_check_results():
+    """
+    Test axe_check_results attribute of page returns only axe check results.
+    """
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+
+    assert len(home_page.axe_check_results) == 1
+    assert home_page.axe_check_results[0].type == TEST_TYPE_AXE
+
+
+@pytest.mark.django_db
+def test_page_manual_check_results_returns_only_manual_check_results():
+    """
+    Test manual_check_results attribute of page returns only manual check results.
+    """
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+
+    assert len(home_page.manual_check_results) == 1
+    assert home_page.manual_check_results[0].type == TEST_TYPE_MANUAL
+
+
+@pytest.mark.django_db
+def test_page_pdf_check_results_returns_only_pdf_check_results():
+    """
+    Test pdf_check_results attribute of page returns only pdf check results.
+    """
+    audit: Audit = create_audit_and_check_results()
+    pdf_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_PDF)
+
+    assert len(pdf_page.all_check_results) == 1
+    assert pdf_page.pdf_check_results[0].type == TEST_TYPE_PDF

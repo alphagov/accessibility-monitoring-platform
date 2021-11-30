@@ -505,6 +505,22 @@ class Page(VersionModel):
             kwargs={"pk": self.audit.pk, "case_id": self.audit.case.pk},
         )
 
+    @property
+    def all_check_results(self):
+        return self.checkresult_page.filter(is_deleted=False).order_by("wcag_definition__id")  # type: ignore
+
+    @property
+    def axe_check_results(self):
+        return self.all_check_results.filter(type=TEST_TYPE_AXE)
+
+    @property
+    def manual_check_results(self):
+        return self.all_check_results.filter(type=TEST_TYPE_MANUAL)
+
+    @property
+    def pdf_check_results(self):
+        return self.all_check_results.filter(type=TEST_TYPE_PDF)
+
 
 class WcagDefinition(models.Model):
     """

@@ -5,7 +5,6 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Type, Union
 
 from django.forms.models import ModelForm
-from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -47,8 +46,6 @@ from .models import (
     CheckResult,
     AUDIT_TYPE_DEFAULT,
     TEST_TYPE_AXE,
-    TEST_TYPE_MANUAL,
-    TEST_TYPE_PDF,
     EXEMPTION_DEFAULT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_ALL,
@@ -355,11 +352,8 @@ class AuditManualFormView(AuditPageFormView):
                 self.request.POST
             )
         else:
-            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
-                page=self.page, type=TEST_TYPE_MANUAL
-            )
             check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
-                queryset=check_results
+                queryset=self.page.manual_check_results
             )
         for check_results_form in check_results_formset.forms:
             check_results_form.fields["failed"].widget.attrs = {
@@ -471,11 +465,8 @@ class AuditAxeFormView(AuditPageFormView):
                 AxeCheckResultUpdateFormset(self.request.POST)
             )
         else:
-            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
-                page=self.page, type=TEST_TYPE_AXE, is_deleted=False
-            )
             check_results_formset: AxeCheckResultUpdateFormset = (
-                AxeCheckResultUpdateFormset(queryset=check_results)
+                AxeCheckResultUpdateFormset(queryset=self.page.axe_check_results)
             )
         context["check_results_formset"] = check_results_formset
         return context
@@ -586,12 +577,8 @@ class AuditPdfUpdateView(AuditUpdateView):
                 self.request.POST
             )
         else:
-            check_results: QuerySet[CheckResult] = CheckResult.objects.filter(  # type: ignore
-                page=page, type=TEST_TYPE_PDF
-            )
-
             check_results_formset: CheckResultUpdateFormset = CheckResultUpdateFormset(
-                queryset=check_results
+                queryset=page.pdf_check_results
             )
         for check_results_form in check_results_formset.forms:
             check_results_form.fields["failed"].widget.attrs = {
