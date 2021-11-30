@@ -300,10 +300,10 @@ class AuditPagesUpdateView(AuditUpdateView):
                     "case_id": self.object.case.id,  # type: ignore
                 },
             )
-        elif "add_extra" in self.request.POST:
-            url: str = f'{get_audit_url(url_name="edit-audit-pages", audit=self.object)}?add_extra=true'  # type: ignore
         else:
             url: str = get_audit_url(url_name="edit-audit-pages", audit=self.object)  # type: ignore
+            if "add_extra" in self.request.POST:
+                url: str = f"{url}?add_extra=true"
         return url
 
 
@@ -329,7 +329,7 @@ class AuditPageFormView(FormView):
         return context
 
     def get_form(self):
-        """Populate page choices"""
+        """Populate next page select field"""
         form = super().get_form()
         form.fields["next_page"].queryset = self.audit.all_pages
         form.fields["next_page"].initial = self.audit.next_page

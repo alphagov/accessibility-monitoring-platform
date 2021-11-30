@@ -54,15 +54,23 @@ def create_audit_and_check_results() -> Audit:
     """Create an audit with failed check results"""
     html_wcag_definitions: List[WcagDefinition] = [
         WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME),
-        WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+        WcagDefinition.objects.create(
+            type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+        ),
     ]
-    pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+    )
 
     audit: Audit = create_audit_and_pages()
     pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
 
     for page in pages:
-        failed: str = BOOLEAN_TRUE if page.type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF] else BOOLEAN_FALSE
+        failed: str = (
+            BOOLEAN_TRUE
+            if page.type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
+            else BOOLEAN_FALSE
+        )
         if page.type == PAGE_TYPE_PDF:
             CheckResult.objects.create(
                 audit=audit,
@@ -157,7 +165,16 @@ def test_audit_failed_check_results_returns_only_failed_checks():
     audit: Audit = create_audit_and_check_results()
 
     assert len(audit.failed_check_results) == 3
-    assert len([check for check in audit.failed_check_results if check.failed == BOOLEAN_TRUE]) == 3
+    assert (
+        len(
+            [
+                check
+                for check in audit.failed_check_results
+                if check.failed == BOOLEAN_TRUE
+            ]
+        )
+        == 3
+    )
 
 
 @pytest.mark.django_db
