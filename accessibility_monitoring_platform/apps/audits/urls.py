@@ -25,9 +25,9 @@ from .views import (
 
 app_name: str = "audits"
 urlpatterns: List[URLPattern] = [
-    path("create/", login_required(AuditCreateView.as_view()), name="audit-create"),
+    path("create-for-case/<int:case_id>/", login_required(AuditCreateView.as_view()), name="audit-create"),
     path(
-        "<int:pk>/view/", login_required(AuditDetailView.as_view()), name="audit-detail"
+        "<int:pk>/detail/", login_required(AuditDetailView.as_view()), name="audit-detail"
     ),
     path(
         "<int:pk>/delete-audit/",

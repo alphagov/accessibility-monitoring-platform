@@ -6,7 +6,6 @@ from typing import Dict, Tuple, List
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.urls import reverse
 
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
@@ -41,17 +40,6 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
     "additional": "Additional",
     "other": "Other",
 }
-
-
-def get_audit_url(url_name: str, audit: Audit) -> str:
-    """Return url string for name and audit"""
-    return reverse(
-        f"audits:{url_name}",
-        kwargs={
-            "pk": audit.id,  # type: ignore
-            "case_id": audit.case.id,  # type: ignore
-        },
-    )
 
 
 def create_pages_and_checks_for_new_audit(audit: Audit) -> None:

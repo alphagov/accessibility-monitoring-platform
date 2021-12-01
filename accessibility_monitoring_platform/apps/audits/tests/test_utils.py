@@ -27,7 +27,6 @@ from ..models import (
     TEST_TYPE_MANUAL,
 )
 from ..utils import (
-    get_audit_url,
     create_pages_and_checks_for_new_audit,
     create_check_results_for_new_page,
     copy_all_pages_check_results,
@@ -366,18 +365,6 @@ def create_audit_and_pages() -> Tuple[Audit, User]:
     audit.case.save()
     create_pages_and_checks_for_new_audit(audit=audit)
     return audit, user
-
-
-@pytest.mark.django_db
-def test_get_audit_url():
-    """Test url string built for name and audit"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-
-    assert (
-        get_audit_url(url_name="edit-audit-metadata", audit=audit)
-        == f"/cases/{case.id}/audits/{audit.id}/edit-audit-metadata/"  # type: ignore
-    )
 
 
 @pytest.mark.django_db

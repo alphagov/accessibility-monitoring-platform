@@ -22,7 +22,7 @@
                     <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
-                    <a href="{% url 'audits:edit-audit-metadata' case.id audit.id %}"
+                    <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"
@@ -32,7 +32,7 @@
                     </a>
                     {% if audit.is_deleted %}
                         <a
-                            href="{% url 'audits:restore-audit' case.id audit.id %}"
+                            href="{% url 'audits:restore-audit' audit.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--warning"
@@ -42,7 +42,7 @@
                         </a>
                     {% else %}
                         <a
-                            href="{% url 'audits:delete-audit' case.id audit.id %}"
+                            href="{% url 'audits:delete-audit' audit.id %}"
                             role="button"
                             draggable="false"
                             class="govuk-button govuk-button--secondary"

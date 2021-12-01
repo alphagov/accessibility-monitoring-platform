@@ -36,7 +36,7 @@
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
                                                 <h2 class="govuk-heading-m cases-sub-heading">
-                                                    <a href="{% url 'audits:audit-detail' case.id audit.id %}"
+                                                    <a href="{% url 'audits:audit-detail' audit.id %}"
                                                         style="font-weight:normal"
                                                         class="govuk-link">
                                                         {{ audit.get_type_display }}
@@ -65,26 +65,7 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:case-detail' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
+                            {% include 'cases/helpers/save_cancel.html' %}
                         </div>
                     </div>
                 </form>

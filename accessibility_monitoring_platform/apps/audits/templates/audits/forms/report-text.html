@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'audits:edit-audit-report-options' case.id audit.id %}" class="govuk-back-link">Back</a>
+    <a href="{% url 'audits:edit-audit-report-options' audit.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -67,7 +67,7 @@
                     </p>
                 {% endif %}
 
-                <form method="post" action="{% url 'audits:edit-audit-report-text' case.id audit.id %}">
+                <form method="post" action="{% url 'audits:edit-audit-report-text' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -82,7 +82,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:audit-detail' case.id audit.id %}"
+                                href="{% url 'audits:audit-detail' audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel

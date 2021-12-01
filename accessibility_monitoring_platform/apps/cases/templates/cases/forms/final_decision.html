@@ -77,26 +77,7 @@
                             {% include 'common/amp_field.html' with field=form.final_decision_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save and continue"
-                                name="save_continue"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:case-detail' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel
-                            </a>
+                            {% include 'cases/helpers/save_cancel.html' %}
                         </div>
                     </div>
                 </form>

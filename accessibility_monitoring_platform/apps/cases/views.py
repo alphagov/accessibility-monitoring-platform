@@ -196,10 +196,7 @@ class CaseDetailView(DetailView):
                         label=f"Test {count}",
                         value=reverse_lazy(
                             "audits:audit-detail",
-                            kwargs={
-                                "pk": audit.id,  # type: ignore
-                                "case_id": audit.case.id,  # type: ignore
-                            },
+                            kwargs={"pk": audit.id},  # type: ignore
                         ),
                         extra_label=audit.get_type_display(),  # type: ignore
                         external_url=False,
@@ -751,8 +748,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
 
 
 def export_single_case(
-    request: HttpRequest, pk: int
-) -> HttpResponse:  # pylint: disable=unused-argument
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
     """
     View to export a single case in csv format
 

@@ -50,12 +50,10 @@ def create_audit_and_pages() -> Audit:
 def get_path_kwargs(audit: Audit, path_name: str) -> Dict[str, int]:
     if "-manual" in path_name or "-axe" in path_name:
         return {
-            "case_id": audit.case.id,  # type: ignore
             "audit_id": audit.id,  # type: ignore
             "page_id": audit.next_page.id,
         }
     return {
-        "case_id": audit.case.id,  # type: ignore
         "pk": audit.id,  # type: ignore
     }
 
@@ -65,7 +63,7 @@ def test_delete_audit_view(admin_client):
     audit: Audit = create_audit()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:delete-audit", kwargs={"pk": audit.id, "case_id": audit.case.id}),  # type: ignore
+        reverse("audits:delete-audit", kwargs={"pk": audit.id}),  # type: ignore
         {
             "version": audit.version,
         },
@@ -88,14 +86,14 @@ def test_restore_audit_view(admin_client):
     audit.save()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:restore-audit", kwargs={"pk": audit.id, "case_id": audit.case.id}),  # type: ignore
+        reverse("audits:restore-audit", kwargs={"pk": audit.id}),  # type: ignore
         {
             "version": audit.version,
         },
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:audit-detail", kwargs={"pk": audit.id, "case_id": audit.case.id})  # type: ignore
+    assert response.url == reverse("audits:audit-detail", kwargs={"pk": audit.id})  # type: ignore
 
     audit_from_db: Audit = Audit.objects.get(pk=audit.id)  # type: ignore
 
@@ -107,7 +105,7 @@ def test_restore_audit_view(admin_client):
     [
         (
             "save_continue",
-            reverse("audits:edit-audit-metadata", kwargs={"pk": 1, "case_id": 1}),
+            reverse("audits:edit-audit-metadata", kwargs={"pk": 1}),
         ),
         ("save_exit", reverse("cases:edit-test-results", kwargs={"pk": 1})),
     ],
@@ -150,7 +148,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"case_id": audit.case.id, "pk": audit.id})  # type: ignore
+        reverse(path_name, kwargs={"pk": audit.id})  # type: ignore
     )
 
     assert response.status_code == 200
@@ -170,7 +168,7 @@ def test_audit_page_specific_page_loads(path_name, expected_content, admin_clien
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id})  # type: ignore
+        reverse(path_name, kwargs={"audit_id": audit.id, "page_id": audit.next_page.id})  # type: ignore
     )
 
     assert response.status_code == 200
@@ -299,7 +297,7 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
     )
     assert response.status_code == 200
     assertContains(
@@ -324,7 +322,7 @@ def test_add_extra_page_form_appears(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -348,7 +346,7 @@ def test_add_extra_page(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -384,7 +382,7 @@ def test_delete_extra_page(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-pages", kwargs={"case_id": audit.case.id, "pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -422,7 +420,7 @@ def test_manual_checks_displayed(admin_client):
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:edit-audit-manual",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
     )
 
@@ -446,7 +444,7 @@ def test_axe_checks_displayed(admin_client):
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:edit-audit-axe",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
     )
 
@@ -468,7 +466,7 @@ def test_changing_audit_next_page(path_name, admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             path_name,
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page_id},  # type: ignore
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page_id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "0",
@@ -496,7 +494,7 @@ def test_add_axe_check_result(admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             "audits:edit-audit-axe",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "1",
@@ -537,7 +535,7 @@ def test_delete_axe_check_result(admin_client):
     response: HttpResponse = admin_client.post(
         reverse(
             "audits:edit-audit-axe",
-            kwargs={"case_id": audit.case.id, "audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
         ),
         {
             "form-TOTAL_FORMS": "0",
@@ -573,7 +571,7 @@ def test_pdf_checks_displayed(admin_client):
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:edit-audit-pdf",
-            kwargs={"case_id": audit.case.id, "pk": audit.id},  # type: ignore
+            kwargs={"pk": audit.id},  # type: ignore
         ),
     )
 

@@ -4,6 +4,7 @@ Context processors
 import re
 from typing import Dict, Union
 
+from ..audits.models import Audit
 from ..cases.models import Case
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
@@ -38,18 +39,17 @@ PAGE_TITLES_BY_URL = {
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
     "/websites/": "Query domain register",
-    "/cases/[id]/audits/create/": "Edit test | Create test",
-    "/cases/[id]/audits/[id]/view/": "View test",
-    "/cases/[id]/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
-    "/cases/[id]/audits/[id]/edit-audit-pages/": "Edit test | Pages",
-    "/cases/[id]/audits/[id]/pages/[id]/edit-audit-manual/": "Edit test | Manual tests",
-    "/cases/[id]/audits/[id]/pages/[id]/edit-audit-axe/": "Edit test | Axe and colour contrast tests",
-    "/cases/[id]/audits/[id]/edit-audit-pdf/": "Edit test | PDF tests",
-    "/cases/[id]/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
-    "/cases/[id]/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
-    "/cases/[id]/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
-    "/cases/[id]/audits/[id]/edit-audit-report-options/": "Edit test | Report options",
-    "/cases/[id]/audits/[id]/edit-audit-report-text/": "Edit test | Report text",
+    "/audits/[id]/detail/": "View test",
+    "/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
+    "/audits/[id]/edit-audit-pages/": "Edit test | Pages",
+    "/audits/[id]/pages/[id]/edit-audit-manual/": "Edit test | Manual tests",
+    "/audits/[id]/pages/[id]/edit-audit-axe/": "Edit test | Axe and colour contrast tests",
+    "/audits/[id]/edit-audit-pdf/": "Edit test | PDF tests",
+    "/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
+    "/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
+    "/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
+    "/audits/[id]/edit-audit-report-options/": "Edit test | Report options",
+    "/audits/[id]/edit-audit-report-text/": "Edit test | Report text",
 }
 
 
@@ -72,6 +72,13 @@ def platform_page(
             case = Case.objects.get(id=request.path.split("/")[2])
             page_title: str = f"{case.organisation_name} | {page_heading}"  # type: ignore
         except Case.DoesNotExist:
+            pass
+    elif url_without_id.startswith("/audits/[id]/"):
+        try:
+            audit: Audit = Audit.objects.get(id=request.path.split("/")[2])
+            case = audit.case
+            page_title: str = f"{case.organisation_name} | {page_heading}"  # type: ignore
+        except Audit.DoesNotExist:
             pass
 
     absolute_uri: str = request.build_absolute_uri()
