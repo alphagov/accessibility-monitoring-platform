@@ -15,10 +15,10 @@ from .forms import AMPTopMenuForm
 
 def platform_page(
     request,
-) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform, Case, None]]:
+) -> Dict[str, Union[str, int, AMPTopMenuForm, Platform, Case, None]]:
     """
-    Lookup the page title using URL path and place it in context for template rendering.
-    Also include search form for top menu, name of prototype and platform settings.
+    Populate context for template rendering. Include search form for top menu,
+    name of prototype and platform settings. Also, current case, if any.
     """
     url_without_id = re.sub(r"\d+", "[id]", request.path)
 
