@@ -303,7 +303,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         else:
             url: str = get_audit_url(url_name="edit-audit-pages", audit=self.object)  # type: ignore
             if "add_extra" in self.request.POST:
-                url: str = f"{url}?add_extra=true"
+                url: str = f"{url}?add_extra=true#extra-page-1"
         return url
 
 
