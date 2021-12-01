@@ -6,14 +6,15 @@
 
 {% load comments %}
 
-{% block content %}
+{% block title %}{{ case.organisation_name }} | Edit case | QA process{% endblock %}
 
+{% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit case | QA process' %}
             </div>
         </div>
         <div class="govuk-grid-row">

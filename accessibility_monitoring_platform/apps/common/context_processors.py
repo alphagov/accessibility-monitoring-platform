@@ -13,46 +13,6 @@ from ..reminders.utils import get_number_of_reminders_for_user
 from .forms import AMPTopMenuForm
 
 
-PAGE_TITLES_BY_URL = {
-    "/": "Dashboard",
-    "/accounts/login/": "Sign in",
-    "/accounts/password_reset/": "Reset password",
-    "/accounts/password_reset/done/": "Password reset done",
-    "/cases/": "Search",
-    "/cases/[id]/delete-case/": "Delete case",
-    "/cases/[id]/edit-case-details/": "Edit case | Case details",
-    "/cases/[id]/edit-contact-details/": "Edit case | Contact details",
-    "/cases/[id]/edit-enforcement-body-correspondence/": "Edit case | Equality body correspondence",
-    "/cases/[id]/edit-final-decision/": "Edit case | Final decision",
-    "/cases/[id]/edit-no-psb-response/": "Edit case | Public sector body is unresponsive",
-    "/cases/[id]/edit-report-correspondence/": "Edit case | Report correspondence",
-    "/cases/[id]/edit-report-details/": "Edit case | Report details",
-    "/cases/[id]/edit-qa-process/": "Edit case | QA process",
-    "/cases/[id]/edit-report-followup-due-dates/": "Edit case | Report followup dates",
-    "/cases/[id]/edit-test-results/": "Edit case | Testing details",
-    "/cases/[id]/edit-twelve-week-correspondence-due-dates/": "Edit case | 12 week correspondence dates",
-    "/cases/[id]/edit-twelve-week-correspondence/": "Edit case | 12 week correspondence",
-    "/cases/[id]/view/": "View case",
-    "/cases/create/": "Create case",
-    "/contact/": "Contact admin",
-    "/report-issue/": "Report an issue",
-    "/user/account_details/": "Account details",
-    "/user/register/": "Register",
-    "/websites/": "Query domain register",
-    "/audits/[id]/detail/": "View test",
-    "/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
-    "/audits/[id]/edit-audit-pages/": "Edit test | Pages",
-    "/audits/[id]/pages/[id]/edit-audit-manual/": "Edit test | Manual tests",
-    "/audits/[id]/pages/[id]/edit-audit-axe/": "Edit test | Axe and colour contrast tests",
-    "/audits/[id]/edit-audit-pdf/": "Edit test | PDF tests",
-    "/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
-    "/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
-    "/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
-    "/audits/[id]/edit-audit-report-options/": "Edit test | Report options",
-    "/audits/[id]/edit-audit-report-text/": "Edit test | Report text",
-}
-
-
 def platform_page(
     request,
 ) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform, Case, None]]:
@@ -61,23 +21,17 @@ def platform_page(
     Also include search form for top menu, name of prototype and platform settings.
     """
     url_without_id = re.sub(r"\d+", "[id]", request.path)
-    page_heading: str = PAGE_TITLES_BY_URL.get(
-        url_without_id, "Accessibility Monitoring Platform"
-    )
 
-    page_title: str = page_heading
     case: Union[Case, None] = None
     if url_without_id.startswith("/cases/[id]/"):
         try:
             case = Case.objects.get(id=request.path.split("/")[2])
-            page_title: str = f"{case.organisation_name} | {page_heading}"  # type: ignore
         except Case.DoesNotExist:
             pass
     elif url_without_id.startswith("/audits/[id]/"):
         try:
             audit: Audit = Audit.objects.get(id=request.path.split("/")[2])
             case = audit.case
-            page_title: str = f"{case.organisation_name} | {page_heading}"  # type: ignore
         except Audit.DoesNotExist:
             pass
 
@@ -98,8 +52,6 @@ def platform_page(
     platform: Platform = get_platform_settings()
 
     return {
-        "page_heading": page_heading,
-        "page_title": page_title,
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
         "platform": platform,

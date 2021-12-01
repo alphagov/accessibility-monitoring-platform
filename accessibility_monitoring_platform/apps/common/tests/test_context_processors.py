@@ -95,10 +95,10 @@ def test_active_qa_auditor_present(admin_client):
 
 
 @pytest.mark.django_db
-def test_platform_page_returns_prototype_and_page_names():
+def test_platform_page_template_context():
     """
-    Check number of reminders for user, prototype name,
-    page heading and title and platform settings added to context.
+    Check number of reminders for user, prototype name and
+    platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     mock_request = MockRequest(
@@ -112,8 +112,6 @@ def test_platform_page_returns_prototype_and_page_names():
         mock_request
     )  # type: ignore
 
-    assert platform_page_context["page_heading"] == "Dashboard"
-    assert platform_page_context["page_title"] == "Dashboard"
     assert platform_page_context["prototype_name"] == "prototype-name"
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0

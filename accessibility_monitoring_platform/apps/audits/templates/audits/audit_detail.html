@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% block title %}{{ case.organisation_name }} | View test{% endblock %}
+
 {% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-back-link">Back</a>
@@ -9,7 +11,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_heading }}</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View test</h1>
                     {% if audit.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
                             deleted
