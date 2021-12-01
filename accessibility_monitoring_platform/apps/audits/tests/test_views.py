@@ -11,7 +11,9 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...cases.models import Case
+from ...common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
 from ..models import (
+    PAGE_TYPE_ALL,
     Audit,
     Page,
     WcagDefinition,
@@ -428,6 +430,113 @@ def test_manual_checks_displayed(admin_client):
     assertContains(response, WCAG_TYPE_MANUAL_NAME)
 
 
+def test_updating_manual_check_result_while_switching_to_page_all(admin_client):
+    """
+    Test updating a manual check result while switching to all pages does not
+    update check results for other pages.
+    """
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    audit: Audit = create_audit_and_pages()
+    page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
+    check_result: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_MANUAL
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-audit-manual",
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "1",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-version": check_result.version,
+            "form-0-id": check_result.id,  # type: ignore
+            "form-0-failed": "on",
+            "form-0-notes": CHECK_RESULT_NOTES,
+            "version": audit.version,
+            "next_page": page_all.id,  # type: ignore
+            "save_change_test_page": "Save and change test page",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_check_result: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_MANUAL
+    )
+
+    assert updated_check_result.wcag_definition == wcag_definition_manual
+    assert updated_check_result.notes == CHECK_RESULT_NOTES
+    assert updated_check_result.failed == BOOLEAN_TRUE
+
+    check_result_all: CheckResult = CheckResult.objects.get(
+        audit=audit, page=page_all, type=TEST_TYPE_MANUAL
+    )
+    assert check_result_all.notes == ""
+    assert check_result_all.failed == BOOLEAN_FALSE
+
+
+def test_updating_manual_check_result_on_page_all(admin_client):
+    """
+    Test updating a manual check result to all pages updates check results
+    for other pages.
+    """
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    audit: Audit = create_audit_and_pages()
+    page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
+    audit.next_page = page_all
+    audit.save()
+    check_result_all: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_MANUAL
+    )
+    page_home: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+    check_result_home: CheckResult = CheckResult.objects.get(
+        audit=audit, page=page_home, type=TEST_TYPE_MANUAL
+    )
+
+    assert check_result_home.notes == ""
+    assert check_result_home.failed == BOOLEAN_FALSE
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-audit-manual",
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "1",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-version": check_result_all.version,
+            "form-0-id": check_result_all.id,  # type: ignore
+            "form-0-failed": "on",
+            "form-0-notes": CHECK_RESULT_NOTES,
+            "version": audit.version,
+            "next_page": page_home.id,  # type: ignore
+            "save_change_test_page": "Save and change test page",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_check_result_all: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_MANUAL
+    )
+
+    assert updated_check_result_all.wcag_definition == wcag_definition_manual
+    assert updated_check_result_all.notes == CHECK_RESULT_NOTES
+    assert updated_check_result_all.failed == BOOLEAN_TRUE
+
+    check_result_home: CheckResult = CheckResult.objects.get(
+        audit=audit, page=page_home, type=TEST_TYPE_MANUAL
+    )
+    assert check_result_home.notes == CHECK_RESULT_NOTES
+    assert check_result_home.failed == BOOLEAN_TRUE
+
+
 def test_axe_checks_displayed(admin_client):
     """Test axe checks are displayed on axe page"""
     audit: Audit = create_audit_and_pages()
@@ -506,7 +615,7 @@ def test_add_axe_check_result(admin_client):
             "form-0-notes": CHECK_RESULT_NOTES,
             "version": audit.version,
             "next_page": audit.next_page.id,
-            "save_change_test_page": "Save and add violation",
+            "save_change_test_page": "Save and change test page",
         },
         follow=True,
     )
@@ -518,7 +627,107 @@ def test_add_axe_check_result(admin_client):
 
     assert check_result.wcag_definition == wcag_definition_axe
     assert check_result.notes == CHECK_RESULT_NOTES
-    assert check_result.failed
+    assert check_result.failed == BOOLEAN_TRUE
+
+
+def test_add_axe_check_result_while_switching_to_page_all(admin_client):
+    """
+    Test adding an axe check result while switching to all pages does not
+    create check results for other pages.
+    """
+    audit: Audit = create_audit_and_pages()
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-audit-axe",
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-wcag_definition": wcag_definition_axe.id,  # type: ignore
+            "form-0-notes": CHECK_RESULT_NOTES,
+            "version": audit.version,
+            "next_page": page_all.id,  # type: ignore
+            "save_change_test_page": "Save and change test page",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    check_result: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_AXE
+    )
+
+    assert check_result.wcag_definition == wcag_definition_axe
+    assert check_result.notes == CHECK_RESULT_NOTES
+    assert check_result.failed == BOOLEAN_TRUE
+
+    with pytest.raises(CheckResult.DoesNotExist):
+        CheckResult.objects.get(
+            audit=audit, page=page_all, type=TEST_TYPE_AXE
+        )
+
+
+def test_add_axe_check_result_on_page_all(admin_client):
+    """
+    Test adding an axe check result to all pages creates check results
+    for other pages.
+    """
+    audit: Audit = create_audit_and_pages()
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
+    audit.next_page = page_all
+    audit.save()
+
+    page_home: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+
+    with pytest.raises(CheckResult.DoesNotExist):
+        CheckResult.objects.get(
+            audit=audit, page=page_home, type=TEST_TYPE_AXE
+        )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-audit-axe",
+            kwargs={"audit_id": audit.id, "page_id": audit.next_page.id},  # type: ignore
+        ),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-wcag_definition": wcag_definition_axe.id,  # type: ignore
+            "form-0-notes": CHECK_RESULT_NOTES,
+            "version": audit.version,
+            "next_page": audit.next_page.id,  # type: ignore
+            "save_change_test_page": "Save and change test page",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    check_result: CheckResult = CheckResult.objects.get(
+        audit=audit, page=audit.next_page, type=TEST_TYPE_AXE
+    )
+
+    assert check_result.wcag_definition == wcag_definition_axe
+    assert check_result.notes == CHECK_RESULT_NOTES
+    assert check_result.failed == BOOLEAN_TRUE
+
+    check_result_home: CheckResult = CheckResult.objects.get(
+        audit=audit, page=page_home, type=TEST_TYPE_AXE
+    )
+
+    assert check_result_home.wcag_definition == wcag_definition_axe
+    assert check_result_home.notes == CHECK_RESULT_NOTES
+    assert check_result_home.failed == BOOLEAN_TRUE
 
 
 def test_delete_axe_check_result(admin_client):

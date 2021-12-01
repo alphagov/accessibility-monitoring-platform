@@ -91,11 +91,12 @@ def copy_all_pages_check_results(
             other_check_result.failed = check_result.failed
             other_check_result.type = check_result.type
             other_check_result.notes = check_result.notes
-            if not created:
-                record_model_update_event(user=user, model_object=check_result)
-            other_check_result.save()
             if created:
+                other_check_result.save()
                 record_model_create_event(user=user, model_object=check_result)
+            else:
+                record_model_update_event(user=user, model_object=check_result)
+                other_check_result.save()
 
 
 def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:

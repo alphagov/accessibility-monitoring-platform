@@ -422,7 +422,7 @@ class AuditManualFormView(AuditPageFormView):
         else:
             return super().form_invalid(form)
 
-        if page.type == PAGE_TYPE_ALL and check_results:
+        if audit.next_page.type == PAGE_TYPE_ALL and check_results:
             copy_all_pages_check_results(user=self.request.user, audit=audit, check_results=check_results)  # type: ignore
 
         audit.audit_manual_complete_date = form.cleaned_data[
@@ -527,7 +527,7 @@ class AuditAxeFormView(AuditPageFormView):
         else:
             return super().form_invalid(form)
 
-        if page.type == PAGE_TYPE_ALL and check_results:
+        if audit.next_page.type == PAGE_TYPE_ALL and check_results:
             copy_all_pages_check_results(user=self.request.user, audit=audit, check_results=check_results)  # type: ignore
 
         audit.audit_axe_complete_date = form.cleaned_data["audit_axe_complete_date"]
