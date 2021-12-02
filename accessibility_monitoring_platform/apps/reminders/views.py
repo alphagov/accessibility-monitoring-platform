@@ -7,7 +7,7 @@ from django.forms.models import ModelForm
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -109,4 +109,4 @@ def delete_reminder(request: HttpRequest, pk: int) -> HttpResponse:
     reminder.is_deleted = True
     record_model_update_event(user=request.user, model_object=reminder)  # type: ignore
     reminder.save()
-    return redirect(reverse_lazy("reminders:reminder-list"))
+    return redirect(reverse("reminders:reminder-list"))

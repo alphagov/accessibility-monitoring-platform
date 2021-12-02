@@ -631,7 +631,9 @@ class AuditStatement1UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             url: str = reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
         else:
-            url: str = f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
+            url: str = (
+                f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
+            )
         return url
 
 
@@ -650,7 +652,9 @@ class AuditStatement2UpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             url: str = reverse("audits:edit-audit-summary", kwargs=audit_pk)
         else:
-            url: str = f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
+            url: str = (
+                f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
+            )
         return url
 
 

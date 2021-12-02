@@ -1,11 +1,11 @@
 """Views for notifications app"""
-from typing import Any, Dict
 
-from django.views.generic import ListView
 from django.contrib import messages
-from django.urls import reverse_lazy
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView
+
 from .models import Notifications
 
 

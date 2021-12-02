@@ -1,10 +1,12 @@
 """Add notification function for notification app"""
 from typing import TypedDict
-from django.core.mail import EmailMessage
-from django.template.loader import get_template
+
 from django.contrib.auth.models import User
-from django.http import HttpRequest
+from django.core.mail import EmailMessage
 from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.template.loader import get_template
+
 from .models import Notifications, NotificationsSettings
 
 
