@@ -149,9 +149,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the audit-specific view page loads"""
     audit: Audit = create_audit_and_pages()
 
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"pk": audit.id})  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": audit.id}))  # type: ignore
 
     assert response.status_code == 200
 
@@ -435,7 +433,9 @@ def test_updating_manual_check_result_while_switching_to_page_all(admin_client):
     Test updating a manual check result while switching to all pages does not
     update check results for other pages.
     """
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
     audit: Audit = create_audit_and_pages()
     page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
     check_result: CheckResult = CheckResult.objects.get(
@@ -484,7 +484,9 @@ def test_updating_manual_check_result_on_page_all(admin_client):
     Test updating a manual check result to all pages updates check results
     for other pages.
     """
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
     audit: Audit = create_audit_and_pages()
     page_all: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_ALL)
     audit.next_page = page_all
@@ -669,9 +671,7 @@ def test_add_axe_check_result_while_switching_to_page_all(admin_client):
     assert check_result.failed == BOOLEAN_TRUE
 
     with pytest.raises(CheckResult.DoesNotExist):
-        CheckResult.objects.get(
-            audit=audit, page=page_all, type=TEST_TYPE_AXE
-        )
+        CheckResult.objects.get(audit=audit, page=page_all, type=TEST_TYPE_AXE)
 
 
 def test_add_axe_check_result_on_page_all(admin_client):
@@ -688,9 +688,7 @@ def test_add_axe_check_result_on_page_all(admin_client):
     page_home: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
 
     with pytest.raises(CheckResult.DoesNotExist):
-        CheckResult.objects.get(
-            audit=audit, page=page_home, type=TEST_TYPE_AXE
-        )
+        CheckResult.objects.get(audit=audit, page=page_home, type=TEST_TYPE_AXE)
 
     response: HttpResponse = admin_client.post(
         reverse(

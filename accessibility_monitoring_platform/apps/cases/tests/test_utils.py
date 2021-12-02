@@ -64,9 +64,7 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
     mock_case: MockCase = MockCase(sent_date=date_on_db)
 
     assert (
-        get_sent_date(
-            form=mock_form, case_from_db=mock_case, sent_date_name="sent_date"  # type: ignore
-        )
+        get_sent_date(form=mock_form, case_from_db=mock_case, sent_date_name="sent_date")  # type: ignore
         == expected_date
     )
 

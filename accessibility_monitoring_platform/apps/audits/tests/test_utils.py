@@ -282,21 +282,25 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="No",
-        label="It is a requirement that accessibility statements are accessible. Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your full accessibility statement.",
+        label="It is a requirement that accessibility statements are accessible. Some users may experience"
+        " difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your"
+        " full accessibility statement.",
         type="text",
         extra_label="",
         external_url=True,
     ),
     FieldLabelAndValue(
         value="No",
-        label="In 2020 the GOV.UK sample template was updated to include an extra mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to your statement.",
+        label="In 2020 the GOV.UK sample template was updated to include an extra mandatory piece of information"
+        " to outline the scope of your accessibility statement. This needs to be added to your statement.",
         type="text",
         extra_label="",
         external_url=True,
     ),
     FieldLabelAndValue(
         value="No",
-        label="Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as per the legislative requirement.",
+        label="Your statement should be prominently placed on the homepage of the website or made available"
+        " on every web page, for example in a static header or footer, as per the legislative requirement.",
         type="text",
         extra_label="",
         external_url=True,

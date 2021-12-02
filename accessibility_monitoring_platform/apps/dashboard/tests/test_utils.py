@@ -219,9 +219,7 @@ def test_group_cases_by_status():
 
 def test_group_cases_by_qa_status():
     """Test cases are grouped by qa_status and sorted"""
-    assert (
-        group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
-    )
+    assert group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
 
 
 def test_return_cases_requiring_user_review():

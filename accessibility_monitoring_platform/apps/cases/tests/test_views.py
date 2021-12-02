@@ -72,9 +72,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
         is_deleted=True,
     )
 
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([undeleted_contact])
@@ -132,9 +130,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?search={included_case.id}"  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")  # type: ignore
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
@@ -293,9 +289,7 @@ def test_case_export_list_view_respects_filters(admin_client):
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-export-list')}?auditor={user.id}"  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(f"{reverse('cases:case-export-list')}?auditor={user.id}")  # type: ignore
 
     assert response.status_code == 200
     assertContains(response, "Included")
@@ -386,9 +380,7 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"pk": case.id})  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))  # type: ignore
 
     assert response.status_code == 200
 
@@ -1192,9 +1184,7 @@ def test_calculate_report_followup_dates():
     case: Case = Case()
     report_sent_date: date = date(2020, 1, 1)
 
-    updated_case = calculate_report_followup_dates(
-        case=case, report_sent_date=report_sent_date  # type: ignore
-    )
+    updated_case = calculate_report_followup_dates(case=case, report_sent_date=report_sent_date)  # type: ignore
 
     assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)  # type: ignore
     assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)  # type: ignore

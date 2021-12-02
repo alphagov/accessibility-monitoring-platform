@@ -50,35 +50,57 @@ from .models import (
 )
 
 ACCESSIBILITY_STATEMENT_EXAMPLES: Dict[str, str] = {
-    "declaration_state": """[Name of organisation] is committed to making its website accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.""",
-    "scope_state": """This accessibility statement applies to [insert scope of statement, e.g. website(s)/mobile application(s) to which the statement applies, as appropriate].
+    "declaration_state": "[Name of organisation] is committed to making its website accessible,"
+    " in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations"
+    " 2018.",
+    "scope_state": """This accessibility statement applies to [insert scope of statement,"""
+    """ e.g. website(s)/mobile application(s) to which the statement applies, as appropriate].
+
 NOTE: For mobile applications, please include version information and date.""",
     "compliance_state": """One of the following
 
 • This website is fully compliant with the Web Content Accessibility Guidelines version 2.1 AA standard.
 
-• This website is partially compliant with the Web Content Accessibility Guidelines version 2.1 AA standard, due to the non-compliances listed below.
+• This website is partially compliant with the Web Content Accessibility Guidelines version 2.1 AA standard,"""
+    """ due to the non-compliances listed below.
 
-• This website is not compliant with the Web Content Accessibility Guidelines version 2.1 AA standard. The non-accessible sections are listed below.""",
-    "non_regulation_state": """[List the non-compliance(s) of the website(s)/mobile application(s), and/or, describe which section(s)/content/function(s) are not yet compliant].
+• This website is not compliant with the Web Content Accessibility Guidelines version 2.1 AA standard."""
+    """ The non-accessible sections are listed below.""",
+    "non_regulation_state": """[List the non-compliance(s) of the website(s)/mobile application(s), and/or,"""
+    """ describe which section(s)/content/function(s) are not yet compliant].
 
-NOTE: Describe in non-technical terms, as far as possible, how the content is not accessible, including reference(s) to the applicable requirements in the relevant standards and/or technical specifications that are not met; e.g.: ‘The login form of the document sharing application is not fully usable by keyboard (requirement number XXX (if applicable))’""",
-    "disproportionate_burden_state": """[List non-accessible section(s)/content/function(s) for which the disproportionate burden exemption, is being temporarily invoked] and which WCAG success criteria the problem fails on""",
-    "content_not_in_scope_state": """List non-accessible section(s)/content/function(s) which is/are out of scope of the applicable legislation]. Which WCAG success criteria the problem falls on.
-[Indicate accessible alternatives, where appropriate].
-""",
+NOTE: Describe in non-technical terms, as far as possible, how the content is not accessible, including reference(s)"""
+    """ to the applicable requirements in the relevant standards and/or technical specifications that are not met;"""
+    """ e.g.: ‘The login form of the document sharing application is not fully usable by keyboard (requirement number"""
+    """ XXX (if applicable))’""",
+    "disproportionate_burden_state": "[List non-accessible section(s)/content/function(s) for which the"
+    " disproportionate burden exemption, is being temporarily invoked] and which WCAG success criteria the problem"
+    " fails on",
+    "content_not_in_scope_state": "List non-accessible section(s)/content/function(s) which is/are out of scope"
+    " of the applicable legislation]. Which WCAG success criteria the problem falls on."
+    "[Indicate accessible alternatives, where appropriate].",
     "preparation_date_state": """This statement was prepared on [date].""",
     "method_state": """[Indicate the method used to prepare the statement]
-You should link to a full explanation of what you tested and how you chose it. If you get a third party auditor to test your website for you, they should include sampling details in the test report - so you can just link to that.""",
+You should link to a full explanation of what you tested and how you chose it. If you get a third party auditor"""
+    """ to test your website for you, they should include sampling details in the test report - so you can just link"""
+    """ to that.""",
     "review_state": """[The statement was last reviewed on [insert date of latest review]. At least once per year.""",
-    "feedback_state": """[Provide a description of, and a link to, the feedback mechanism to be used to notify the public sector body of any compliance failures and to request information and content excluded from the scope of the Directive].""",
-    "contact_information_state": """[Provide the contact information of the relevant entity(ies)/unit(s)/person(s) (as appropriate) responsible for accessibility and for processing requests sent through the feedback mechanism].""",
-    "enforcement_procedure_state": """The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you’re not happy with how we respond to your complaint, contact the Equality Advisory and Support Service (EASS).
+    "feedback_state": "[Provide a description of, and a link to, the feedback mechanism to be used to notify the public"
+    " sector body of any compliance failures and to request information and content excluded from the scope of the"
+    " Directive].",
+    "contact_information_state": "[Provide the contact information of the relevant entity(ies)/unit(s)/person(s)"
+    " (as appropriate) responsible for accessibility and for processing requests sent through the feedback mechanism].",
+    "enforcement_procedure_state": """The Equality and Human Rights Commission (EHRC) is responsible for enforcing"""
+    """ the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the"""
+    """ ‘accessibility regulations’). If you’re not happy with how we respond to your complaint, contact the Equality"""
+    """ Advisory and Support Service (EASS).
 
-[Note: if your organisation is based in Northern Ireland, refer users who want to complain to the Equalities Commission for Northern Ireland (ECNI) instead of the EASS and EHRC.]""",
+[Note: if your organisation is based in Northern Ireland, refer users who want to complain to the Equalities"""
+    """ Commission for Northern Ireland (ECNI) instead of the EASS and EHRC.]""",
     "access_requirements_state": """The accessibility statement should be easy to find for the user.
 
-A link to the accessibility statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer.
+A link to the accessibility statement should be prominently placed on the homepage of the website or made available"""
+    """ on every web page, for example in a static header or footer.
 
 A standardised URL may be used for the accessibility statement.""",
 }

@@ -156,7 +156,8 @@ class CaseUpdateView(UpdateView):
                 messages.add_message(
                     self.request,
                     messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}' to '{self.object.get_status_display()}'",  # type: ignore # noqa: E
+                    f"Status changed from '{old_case.get_status_display()}'"  # type: ignore
+                    f" to '{self.object.get_status_display()}'",  # type: ignore
                 )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -179,9 +180,7 @@ class CaseDetailView(DetailView):
                 value=self.object.created,  # type: ignore
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
-            FieldLabelAndValue(
-                label="Status", value=self.object.get_status_display()  # type: ignore
-            ),
+            FieldLabelAndValue(label="Status", value=self.object.get_status_display()),  # type: ignore
         ]
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
@@ -297,16 +296,15 @@ class CaseCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_continue_case" in self.request.POST:
-            url: str = reverse_lazy("cases:edit-case-details", kwargs={"pk": self.object.id})  # type: ignore
+            url: str = reverse_lazy("cases:edit-case-details", kwargs=case_pk)
         elif "save_new_case" in self.request.POST:
             url: str = reverse_lazy("cases:case-create")
         elif "save_exit" in self.request.POST:
             url: str = reverse_lazy("cases:case-list")
         else:
-            url: str = reverse_lazy(
-                "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
-            )
+            url: str = reverse_lazy("cases:edit-contact-details", kwargs=case_pk)
         return url
 
 
@@ -320,10 +318,13 @@ class CaseDetailUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#case-details'  # type: ignore
+            url: str = (
+                f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#case-details'
+            )
         else:
-            url: str = reverse_lazy("cases:edit-test-results", kwargs={"pk": self.object.id})  # type: ignore
+            url: str = reverse_lazy("cases:edit-test-results", kwargs=case_pk)
         return url
 
 
@@ -359,12 +360,13 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#testing-details'  # type: ignore
-        else:
-            url: str = reverse_lazy(
-                "cases:edit-report-details", kwargs={"pk": self.object.id}  # type: ignore
+            url: str = (
+                f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#testing-details'
             )
+        else:
+            url: str = reverse_lazy("cases:edit-report-details", kwargs=case_pk)
         return url
 
 
@@ -385,12 +387,13 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'  # type: ignore
-        else:
-            url: str = reverse_lazy(
-                "cases:edit-qa-process", kwargs={"pk": self.object.id}  # type: ignore
+            url: str = (
+                f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#report-details'
             )
+        else:
+            url: str = reverse_lazy("cases:edit-qa-process", kwargs=case_pk)
         return url
 
 
@@ -405,12 +408,11 @@ class CaseQAProcessUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#qa-process'  # type: ignore
+            url: str = f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#qa-process'
         else:
-            url: str = reverse_lazy(
-                "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
-            )
+            url: str = reverse_lazy("cases:edit-contact-details", kwargs=case_pk)
         return url
 
 
@@ -428,9 +430,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(  # type: ignore
-                is_deleted=False
-            )
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(is_deleted=False)  # type: ignore
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
@@ -468,24 +468,23 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#contact-details'  # type: ignore
-        elif "save_continue" in self.request.POST:
-            url: str = reverse_lazy(
-                "cases:edit-report-correspondence", kwargs={"pk": self.object.id}  # type: ignore
+            url: str = (
+                f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#contact-details'
             )
+        elif "save_continue" in self.request.POST:
+            url: str = reverse_lazy("cases:edit-report-correspondence", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
-            url: str = f"{reverse_lazy('cases:edit-contact-details', kwargs={'pk': self.object.id})}?add_extra=true"  # type: ignore
+            url: str = f"{reverse_lazy('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
         else:
             contact_id_to_delete: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:
-                url: str = reverse_lazy(
-                    "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
-                )
+                url: str = reverse_lazy("cases:edit-contact-details", kwargs=case_pk)
             else:
-                url: str = reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})  # type: ignore
+                url: str = reverse_lazy("cases:case-detail", kwargs=case_pk)
         return url
 
 
@@ -539,12 +538,11 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#report-correspondence'  # type: ignore
+            return f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#report-correspondence'
         else:
-            return reverse_lazy(
-                "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}  # type: ignore
-            )
+            return reverse_lazy("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
 class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
@@ -559,9 +557,8 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy(
-            "cases:edit-report-correspondence", kwargs={"pk": self.object.id}  # type: ignore
-        )
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        return reverse_lazy("cases:edit-report-correspondence", kwargs=case_pk)
 
 
 class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
@@ -611,19 +608,17 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 setattr(
                     self.object,
                     sent_date_name,
-                    get_sent_date(form, case_from_db, sent_date_name),  # type: ignore
+                    get_sent_date(form, case_from_db, sent_date_name),
                 )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#12-week-correspondence'  # type: ignore
+            url: str = f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#12-week-correspondence'
         else:
-            url: str = reverse_lazy(
-                "cases:edit-final-decision",
-                kwargs={"pk": self.object.id},  # type: ignore
-            )
+            url: str = reverse_lazy("cases:edit-final-decision", kwargs=case_pk)
         return url
 
 
@@ -639,9 +634,8 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return reverse_lazy(
-            "cases:edit-twelve-week-correspondence", kwargs={"pk": self.object.id}  # type: ignore
-        )
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        return reverse_lazy("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
 class CaseNoPSBResponseUpdateView(CaseUpdateView):
@@ -654,9 +648,9 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         return reverse_lazy(
-            "cases:edit-enforcement-body-correspondence",
-            kwargs={"pk": self.object.id},  # type: ignore
+            "cases:edit-enforcement-body-correspondence", kwargs=case_pk
         )
 
 
@@ -681,12 +675,14 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_exit" in self.request.POST:
-            url: str = f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#final-decision'  # type: ignore
+            url: str = (
+                f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#final-decision'
+            )
         else:
             url: str = reverse_lazy(
-                "cases:edit-enforcement-body-correspondence",
-                kwargs={"pk": self.object.id},  # type: ignore
+                "cases:edit-enforcement-body-correspondence", kwargs=case_pk
             )
         return url
 
@@ -703,7 +699,8 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        return f'{reverse_lazy("cases:case-detail", kwargs={"pk": self.object.id})}#equality-body-correspondence'  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        return f'{reverse_lazy("cases:case-detail", kwargs=case_pk)}#equality-body-correspondence'
 
 
 class CaseDeleteUpdateView(CaseUpdateView):
@@ -748,8 +745,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
 
 
 def export_single_case(
-    request: HttpRequest, pk: int  # pylint: disable=unused-argument
-) -> HttpResponse:
+    request: HttpRequest, pk: int
+) -> HttpResponse:  # pylint: disable=unused-argument
     """
     View to export a single case in csv format
 
