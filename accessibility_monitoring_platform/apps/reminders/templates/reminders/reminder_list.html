@@ -27,13 +27,7 @@
                     {% for reminder in reminders %}
                         <tr class="govuk-table__row ">
                             <th scope="row" class="govuk-table__header amp-width-one-quarter">
-                                {% if reminder.overdue %}
-                                    <strong class="govuk-tag govuk-tag--red">
-                                        {{ reminder.due_date|date:"d/m/Y" }}
-                                    </strong>
-                                {% else %}
-                                    {{ reminder.due_date|date:"d/m/Y" }}
-                                {% endif %}
+                                {% include "common/amp_date_tag.html" with date_to_tag=reminder.due_date tense=reminder.tense %}
                             </th>
                             <td class="govuk-table__cell amp-width-one-quarter">
                                 <a href="{% url 'cases:case-detail' reminder.case.id %}" class="govuk-link govuk-link--no-visited-state">

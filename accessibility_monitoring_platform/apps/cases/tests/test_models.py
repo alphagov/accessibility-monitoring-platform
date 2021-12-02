@@ -274,9 +274,9 @@ def test_next_action_due_date_not_set(status):
 @pytest.mark.parametrize(
     "report_followup_week_12_due_date, expected_tense",
     [
-        (datetime.now().date() - timedelta(days=1), "past"),
-        (datetime.now().date(), "present"),
-        (datetime.now().date() + timedelta(days=1), "future"),
+        (date.today() - timedelta(days=1), "past"),
+        (date.today(), "present"),
+        (date.today() + timedelta(days=1), "future"),
     ],
 )
 def test_next_action_due_date_tense(report_followup_week_12_due_date, expected_tense):
