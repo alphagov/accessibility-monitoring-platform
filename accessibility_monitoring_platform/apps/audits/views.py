@@ -172,7 +172,6 @@ class AuditDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object  # type: ignore
 
-        context["case"] = audit.case
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
         context["audit_axe_wcag_failures"] = group_check_results_by_wcag(
             check_results=audit.failed_axe_check_results

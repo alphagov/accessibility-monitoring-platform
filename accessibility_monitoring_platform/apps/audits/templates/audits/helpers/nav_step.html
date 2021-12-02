@@ -3,11 +3,14 @@
                     {{ name }}
                     {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% else %}
+                    <a
                     {% if edit_name == 'audits:edit-audit-manual' or edit_name == 'audits:edit-audit-axe' %}
-                    <a href="{% url edit_name audit.id audit.next_page.id %}" class="govuk-link govuk-link--no-visited-state">
+                        href="{% url edit_name audit.id audit.next_page.id %}"
                     {% else %}
-                    <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                        href="{% url edit_name audit.id %}"
                     {% endif %}
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
                         {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if complete %}&check;{% endif %}
