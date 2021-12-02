@@ -6,7 +6,7 @@
 
 {% load common_tags %}
 
-{% block title %}{{ case.organisation_name }} | Edit test | Pages{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Edit test | Pages{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,7 +14,7 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Pages' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Pages' case=audit.case %}
             </div>
         </div>
         <div class="govuk-grid-row">

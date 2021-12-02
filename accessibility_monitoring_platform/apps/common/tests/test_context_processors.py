@@ -107,7 +107,7 @@ def test_platform_page_template_context():
         user=user,
     )
     platform_page_context: Dict[
-        str, Union[str, int, AMPTopMenuForm, Platform, Case, None]
+        str, Union[AMPTopMenuForm, str, Platform, int]
     ] = platform_page(mock_request)
 
     assert platform_page_context["prototype_name"] == "prototype-name"

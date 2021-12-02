@@ -2,8 +2,9 @@
 
 {% extends "base.html" %}
 
-{% block content %}
+{% block title %}Reminders ({{ number_of_reminders }}){% endblock %}
 
+{% block content %}
 <div class="govuk-width-container">
     <a href="{% url 'dashboard:home' %}" class="govuk-back-link">Back</a>
     <main id="main-content" class="govuk-main-wrapper dashboard">
