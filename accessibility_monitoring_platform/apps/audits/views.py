@@ -586,7 +586,6 @@ class AuditPdfUpdateView(AuditUpdateView):
             check_results_form.fields["failed"].widget.attrs = {
                 "label": check_results_form.instance.wcag_definition.name
             }
-            check_results_form.fields["notes"].label = ""
         context["check_results_formset"] = check_results_formset
         return context
 

@@ -10,4 +10,4 @@ def test_wcag_definition_is_required_on_check_result_update():
     form: AxeCheckResultUpdateForm = AxeCheckResultUpdateForm(data={})
 
     assert not form.is_valid()
-    assert form.errors == {"wcag_definition": ["Please choose a violation."]}
+    assert form.errors == {"wcag_definition": ["Please choose an error."]}

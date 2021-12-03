@@ -1,9 +1,5 @@
 {% if page.not_found == 'yes' %}
-    {% if page.type == 'pdf' %}
-        No PDF found
-    {% else  %}
-        No {{ page.type }} found
-    {% endif %}
+    {{ page }} not found
 {% elif page.url %}
     <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
         {{ page }}

@@ -45,7 +45,7 @@ PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_CONTACT, "Contact page"),
     (PAGE_TYPE_STATEMENT, "Accessibility statement"),
     (PAGE_TYPE_PDF, "PDF"),
-    (PAGE_TYPE_FORM, "A form"),
+    (PAGE_TYPE_FORM, "Form"),
 ]
 MANDATORY_PAGE_TYPES: List[str] = [
     PAGE_TYPE_ALL,

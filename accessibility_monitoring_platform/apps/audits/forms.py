@@ -282,7 +282,7 @@ class CheckResultUpdateForm(VersionForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(),
     )
-    notes = AMPTextField(label="Violation details")
+    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = CheckResult
@@ -304,9 +304,9 @@ class AxeCheckResultUpdateForm(forms.ModelForm):
     """
 
     wcag_definition = AMPModelChoiceField(
-        label="Violation", queryset=WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
+        label="Error", queryset=WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
     )
-    notes = AMPTextField(label="Violation notes")
+    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = CheckResult
@@ -318,7 +318,7 @@ class AxeCheckResultUpdateForm(forms.ModelForm):
     def clean_wcag_definition(self):
         wcag_definition = self.cleaned_data.get("wcag_definition")
         if not wcag_definition:
-            raise ValidationError("Please choose a violation.")
+            raise ValidationError("Please choose an error.")
         return wcag_definition
 
 
