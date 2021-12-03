@@ -4,7 +4,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.audit.case.organisation_name }} | Edit test | Accessibility statement Pt. 1{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Edit test | Accessibility statement Pt. 1{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -37,9 +37,22 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
-                            {% for field in form.visible_fields %}
-                                {% include 'common/amp_field_help_details.html' %}
-                            {% endfor %}
+                            {% include 'common/amp_field_help_details.html' with field=form.accessibility_statement_backup_url %}
+                            {% include 'common/amp_field_help_details.html' with field=form.scope_state help_details='audits/statement_examples/scope_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.scope_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.feedback_state help_details='audits/statement_examples/feedback_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.feedback_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.contact_information_state  help_details='audits/statement_examples/contact_information_state.html'%}
+                            {% include 'common/amp_field.html' with field=form.contact_information_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.enforcement_procedure_state help_details='audits/statement_examples/enforcement_procedure_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.enforcement_procedure_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.declaration_state help_details='audits/statement_examples/declaration_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.declaration_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.compliance_state help_details='audits/statement_examples/compliance_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.compliance_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.non_regulation_state help_details='audits/statement_examples/non_regulation_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.non_regulation_notes %}
+                            {% include 'common/amp_field.html' with field=form.audit_statement_1_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_cancel.html' %}

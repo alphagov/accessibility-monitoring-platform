@@ -4,12 +4,12 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 <label id="{{ field.auto_id }}-label" class="govuk-label"><b>{{ field.label }}</b></label>
             </legend>
-            {% if field.help_text %}
+            {% if help_details %}
                 <details class="govuk-details" data-module="govuk-details">
                     <summary class="govuk-details__summary">
                         <span class="govuk-details__summary-text">Example of {{ field.label }}</span>
                     </summary>
-                    <div class="govuk-details__text cases-notes">{{ field.help_text }}</div>
+                    <div class="govuk-details__text cases-notes">{% include help_details %}</div>
                 </details>
             {% endif %}
             {% include 'common/field_errors.html' with errors=field.errors %}

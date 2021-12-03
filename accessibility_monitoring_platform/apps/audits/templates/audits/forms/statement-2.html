@@ -37,9 +37,21 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 
-                            {% for field in form.visible_fields %}
-                                {% include 'common/amp_field_help_details.html' %}
-                            {% endfor %}
+                            {% include 'common/amp_field_help_details.html' with field=form.disproportionate_burden_state help_details='audits/statement_examples/disproportionate_burden_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.disproportionate_burden_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.content_not_in_scope_state help_details='audits/statement_examples/content_not_in_scope_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.content_not_in_scope_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.preparation_date_state help_details='audits/statement_examples/preparation_date_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.preparation_date_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.review_state help_details='audits/statement_examples/review_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.review_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.method_state help_details='audits/statement_examples/method_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.method_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.access_requirements_state help_details='audits/statement_examples/access_requirements_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.access_requirements_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.overall_compliance_state %}
+                            {% include 'common/amp_field.html' with field=form.overall_compliance_notes %}
+                            {% include 'common/amp_field.html' with field=form.audit_statement_2_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_cancel.html' %}
