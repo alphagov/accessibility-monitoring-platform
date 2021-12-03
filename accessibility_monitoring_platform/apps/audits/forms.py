@@ -257,6 +257,26 @@ class AuditAxeUpdateForm(forms.Form):
         ]
 
 
+class AuditManualAxeUpdateForm(forms.Form):
+    """
+    Form for editing manual and axe check results for a page
+    """
+
+    next_page = AMPModelChoiceField(
+        label="", queryset=Page.objects.none(), empty_label=None
+    )
+    page_axe_checks_complete_date = AMPDatePageCompleteField()
+    audit_manual_axe_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "next_page",
+            "page_axe_checks_complete_date",
+            "audit_manual_axe_complete_date",
+        ]
+
+
 class AuditPdfUpdateForm(VersionForm):
     """
     Form for editing pdf checks

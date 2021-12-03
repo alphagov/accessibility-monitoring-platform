@@ -269,6 +269,9 @@ class Audit(VersionModel):
     # axe page
     audit_axe_complete_date = models.DateField(null=True, blank=True)
 
+    # manual and axe page
+    audit_manual_axe_complete_date = models.DateField(null=True, blank=True)
+
     # pdf page
     audit_pdf_complete_date = models.DateField(null=True, blank=True)
 

@@ -161,6 +161,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     [
         ("audits:edit-audit-manual", "Edit test | Manual tests"),
         ("audits:edit-audit-axe", "Edit test | Axe and colour contrast tests"),
+        ("audits:edit-audit-manual-axe", "Edit test | Manual and axe tests"),
     ],
 )
 def test_audit_page_specific_page_loads(path_name, expected_content, admin_client):
@@ -195,8 +196,15 @@ def test_audit_page_specific_page_loads(path_name, expected_content, admin_clien
             "audits:audit-detail",
             "#audit-manual",
         ),
-        ("audits:edit-audit-axe", "save_continue", "audits:edit-audit-pdf", ""),
+        ("audits:edit-audit-axe", "save_continue", "audits:edit-audit-manual-axe", ""),
         ("audits:edit-audit-axe", "save_exit", "audits:audit-detail", "#audit-axe"),
+        ("audits:edit-audit-manual-axe", "save_continue", "audits:edit-audit-pdf", ""),
+        (
+            "audits:edit-audit-manual-axe",
+            "save_exit",
+            "audits:audit-detail",
+            "#audit-manual",
+        ),
         ("audits:edit-audit-pdf", "save_continue", "audits:edit-audit-statement-1", ""),
         ("audits:edit-audit-pdf", "save_exit", "audits:audit-detail", "#audit-pdf"),
         (
@@ -274,6 +282,14 @@ def test_audit_edit_redirects_based_on_button_pressed(
             "extra-INITIAL_FORMS": "0",
             "extra-MIN_NUM_FORMS": "0",
             "extra-MAX_NUM_FORMS": "1000",
+            "manual-TOTAL_FORMS": "0",
+            "manual-INITIAL_FORMS": "0",
+            "manual-MIN_NUM_FORMS": "0",
+            "manual-MAX_NUM_FORMS": "1000",
+            "axe-TOTAL_FORMS": "0",
+            "axe-INITIAL_FORMS": "0",
+            "axe-MIN_NUM_FORMS": "0",
+            "axe-MAX_NUM_FORMS": "1000",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",

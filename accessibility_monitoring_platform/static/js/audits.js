@@ -8,11 +8,11 @@ function setTextareaDisplay(checkboxElement, textareaElement, textareaLabelEleme
     };
 };
 
-function addTogglesToFailedNotes(numberOfFailedNotes) {
+function addTogglesToFailedNotes(prefix) {
     let index = 0;
-    let checkboxElement = document.getElementById(`id_form-${index}-failed`);
-    let textareaElement = document.getElementById(`id_form-${index}-notes`);
-    let textareaLabelElement = document.getElementById(`id_form-${index}-notes-label`);
+    let checkboxElement = document.getElementById(`id_${prefix}-${index}-failed`);
+    let textareaElement = document.getElementById(`id_${prefix}-${index}-notes`);
+    let textareaLabelElement = document.getElementById(`id_${prefix}-${index}-notes-label`);
     while (checkboxElement !== null && textareaElement !== null && textareaLabelElement !== null) {
         setTextareaDisplay(checkboxElement, textareaElement, textareaLabelElement);
         (function(checkboxElement, textareaElement, textareaLabelElement) {
@@ -21,12 +21,13 @@ function addTogglesToFailedNotes(numberOfFailedNotes) {
             });
         })(checkboxElement, textareaElement, textareaLabelElement);
         index++;
-        checkboxElement = document.getElementById(`id_form-${index}-failed`);
-        textareaElement = document.getElementById(`id_form-${index}-notes`);
-        textareaLabelElement = document.getElementById(`id_form-${index}-notes-label`);
+        checkboxElement = document.getElementById(`id_${prefix}-${index}-failed`);
+        textareaElement = document.getElementById(`id_${prefix}-${index}-notes`);
+        textareaLabelElement = document.getElementById(`id_${prefix}-${index}-notes-label`);
     };
 };
 
 (function() {
-    addTogglesToFailedNotes();
+    addTogglesToFailedNotes("form");
+    addTogglesToFailedNotes("manual");
 })();
