@@ -19,7 +19,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' with form=check_results_formset %}
+                {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-pdf' audit.id %}">
                     {% csrf_token %}
                     {{ check_results_formset.management_form }}
