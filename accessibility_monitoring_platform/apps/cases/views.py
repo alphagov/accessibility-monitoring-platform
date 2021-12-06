@@ -188,16 +188,17 @@ class CaseDetailView(DetailView):
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
             audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
             testing_details_rows: List[FieldLabelAndValue] = []
-            for count, audit in enumerate(audits, start=1):
+            for audit in audits:
+                extra_label: str = audit.description if audit.description else audit.get_type_display()  # type: ignore
                 testing_details_rows.append(
                     FieldLabelAndValue(
                         type=FieldLabelAndValue.URL_TYPE,
-                        label=f"Test {count}",
+                        label=audit.get_type_display(),  # type: ignore
                         value=reverse(
                             "audits:audit-detail",
                             kwargs={"pk": audit.id},  # type: ignore
                         ),
-                        extra_label=audit.get_type_display(),  # type: ignore
+                        extra_label=extra_label,
                         external_url=False,
                     )
                 )
