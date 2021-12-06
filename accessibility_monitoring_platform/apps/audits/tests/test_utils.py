@@ -83,13 +83,6 @@ EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
     FieldLabelAndValue(
-        value="Unknown",
-        label="Exemptions?",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
         value="Initial",
         label="Initital test or equality body retest?",
         type="text",

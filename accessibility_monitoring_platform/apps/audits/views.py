@@ -47,7 +47,6 @@ from .models import (
     CheckResult,
     AUDIT_TYPE_DEFAULT,
     TEST_TYPE_AXE,
-    EXEMPTION_DEFAULT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_ALL,
 )
@@ -144,7 +143,6 @@ class AuditCreateView(CreateView):
     def get_form(self):
         """Initialise form fields"""
         form: ModelForm = super().get_form()  # type: ignore
-        form.fields["is_exemption"].initial = EXEMPTION_DEFAULT
         form.fields["type"].initial = AUDIT_TYPE_DEFAULT
         return form
 

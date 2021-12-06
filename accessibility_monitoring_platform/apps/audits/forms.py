@@ -26,7 +26,6 @@ from .models import (
     CheckResult,
     WcagDefinition,
     SCREEN_SIZE_CHOICES,
-    EXEMPTION_CHOICES,
     AUDIT_TYPE_CHOICES,
     TEST_TYPE_AXE,
     DECLARATION_STATE_CHOICES,
@@ -58,8 +57,6 @@ class AuditCreateForm(forms.ModelForm):
     date_of_test = AMPDateField(label="Date of test")
     description = AMPCharFieldWide(label="Test description")
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
-    is_exemption = AMPChoiceRadioField(label="Exemptions?", choices=EXEMPTION_CHOICES)
-    notes = AMPTextField(label="Notes")
     type = AMPChoiceRadioField(
         label="Initital test or equality body retest?", choices=AUDIT_TYPE_CHOICES
     )
@@ -70,8 +67,6 @@ class AuditCreateForm(forms.ModelForm):
             "date_of_test",
             "description",
             "screen_size",
-            "is_exemption",
-            "notes",
             "type",
         ]
 
@@ -90,8 +85,6 @@ class AuditMetadataUpdateForm(AuditCreateForm, VersionForm):
             "date_of_test",
             "description",
             "screen_size",
-            "is_exemption",
-            "notes",
             "type",
             "audit_metadata_complete_date",
         ]

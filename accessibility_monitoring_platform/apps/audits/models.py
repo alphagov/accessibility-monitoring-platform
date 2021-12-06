@@ -11,7 +11,6 @@ from ..common.models import (
     VersionModel,
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
-    BOOLEAN_FALSE,
     BOOLEAN_TRUE,
 )
 
@@ -19,12 +18,6 @@ SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
     (SCREEN_SIZE_DEFAULT, "15 inch"),
     ("13in", "13 inch"),
-]
-EXEMPTION_DEFAULT: str = "unknown"
-EXEMPTION_CHOICES: List[Tuple[str, str]] = [
-    (BOOLEAN_TRUE, "Yes"),
-    (BOOLEAN_FALSE, "No"),
-    (EXEMPTION_DEFAULT, "Unknown"),
 ]
 AUDIT_TYPE_DEFAULT: str = "initial"
 AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
@@ -244,10 +237,6 @@ class Audit(VersionModel):
         choices=SCREEN_SIZE_CHOICES,
         default=SCREEN_SIZE_DEFAULT,
     )
-    is_exemption = models.CharField(
-        max_length=20, choices=EXEMPTION_CHOICES, default=EXEMPTION_DEFAULT
-    )
-    notes = models.TextField(default="", blank=True)
     type = models.CharField(
         max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
     )
