@@ -13,6 +13,7 @@ from ..common.models import (
     BOOLEAN_DEFAULT,
     BOOLEAN_TRUE,
 )
+from ..common.utils import format_date
 
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
@@ -20,9 +21,11 @@ SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
     ("13in", "13 inch"),
 ]
 AUDIT_TYPE_DEFAULT: str = "initial"
+AUDIT_TYPE_RETEST = "retest"
 AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (AUDIT_TYPE_DEFAULT, "Initial"),
-    ("eq-retest", "Equality body retest"),
+    (AUDIT_TYPE_RETEST, "12 week retest"),
+    ("eq-body-test", "Equality body test"),
 ]
 PAGE_TYPE_EXTRA: str = "extra"
 PAGE_TYPE_HOME: str = "home"
@@ -231,7 +234,7 @@ class Audit(VersionModel):
 
     # metadata page
     date_of_test = models.DateTimeField(null=True, blank=True)
-    description = models.TextField(default="", blank=True)
+    name = models.TextField(default="", blank=True)
     screen_size = models.CharField(
         max_length=20,
         choices=SCREEN_SIZE_CHOICES,
@@ -239,6 +242,13 @@ class Audit(VersionModel):
     )
     type = models.CharField(
         max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
+    )
+    retest_of_audit = models.ForeignKey(
+        "Audit",
+        on_delete=models.DO_NOTHING,
+        related_name="audit_retest",
+        null=True,
+        blank=True,
     )
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
@@ -421,7 +431,12 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return str(f"#{self.id} | {self.description}")  # type: ignore
+        if self.name:
+            return str(f"{self.name}"
+                       f" | {self.get_type_display()}"  # type: ignore
+                       f" | {format_date(self.date_of_test)}")
+        return str(f"{self.get_type_display()}"  # type: ignore
+                   f" | {format_date(self.date_of_test)}")
 
     def get_absolute_url(self):
         return reverse(

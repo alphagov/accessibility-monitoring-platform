@@ -44,13 +44,16 @@
                                                         {{ audit.get_type_display }}
                                                     </a>
                                                 </h2>
-                                                <p class="govuk-body-m">{{ audit.description }}</p>
                                             </div>
                                         </div>
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-one-half">
                                                 <p class="govuk-body-m cases-sub-heading">Test created</p>
                                                 <p class="govuk-body-m">{{ audit.date_of_test|date:"d/m/Y" }}</p>
+                                            </div>
+                                            <div class="govuk-grid-column-one-half">
+                                                <p class="govuk-body-m cases-sub-heading">Name</p>
+                                                <p class="govuk-body-m">{{ audit.name }}</p>
                                             </div>
                                         </div>
                                     </td>

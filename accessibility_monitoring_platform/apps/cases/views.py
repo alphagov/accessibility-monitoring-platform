@@ -189,7 +189,7 @@ class CaseDetailView(DetailView):
             audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
             testing_details_rows: List[FieldLabelAndValue] = []
             for audit in audits:
-                extra_label: str = audit.description if audit.description else audit.get_type_display()  # type: ignore
+                extra_label: str = audit.name if audit.name else audit.get_type_display()  # type: ignore
                 testing_details_rows.append(
                     FieldLabelAndValue(
                         type=FieldLabelAndValue.URL_TYPE,
@@ -738,8 +738,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
 
 
 def export_single_case(
-    request: HttpRequest, pk: int
-) -> HttpResponse:  # pylint: disable=unused-argument
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
     """
     View to export a single case in csv format
 

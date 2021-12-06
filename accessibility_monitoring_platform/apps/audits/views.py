@@ -4,6 +4,8 @@ Views for audits app (called tests by users)
 from functools import partial
 from typing import Any, Callable, Dict, List, Type, Union
 
+from django.db.models import QuerySet
+from django import forms
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
@@ -144,6 +146,12 @@ class AuditCreateView(CreateView):
         """Initialise form fields"""
         form: ModelForm = super().get_form()  # type: ignore
         form.fields["type"].initial = AUDIT_TYPE_DEFAULT
+
+        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
+        existing_audits: QuerySet[Audit] = Audit.objects.filter(case=case)
+        form.fields["retest_of_audit"].queryset = existing_audits
+        if not existing_audits:
+            form.fields["retest_of_audit"].widget = forms.HiddenInput()  # type: ignore
         return form
 
     def get_success_url(self) -> str:

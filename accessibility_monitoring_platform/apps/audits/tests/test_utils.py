@@ -62,15 +62,8 @@ EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
         value=None, label="Date of test", type="text", extra_label="", external_url=True
     ),
     FieldLabelAndValue(
-        value="John Smith",
-        label="Auditor",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
         value="",
-        label="Test description",
+        label="Name",
         type="text",
         extra_label="",
         external_url=True,
@@ -78,13 +71,6 @@ EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="15 inch",
         label="Screen size",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Initial",
-        label="Initital test or equality body retest?",
         type="text",
         extra_label="",
         external_url=True,

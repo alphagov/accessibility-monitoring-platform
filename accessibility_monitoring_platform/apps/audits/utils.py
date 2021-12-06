@@ -105,14 +105,6 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
         instance=audit,
         form=AuditMetadataUpdateForm(),  # type: ignore
     )
-    if audit.case.auditor:
-        rows.insert(
-            1,
-            FieldLabelAndValue(
-                label="Auditor",
-                value=audit.case.auditor.get_full_name(),
-            ),
-        )
     return rows
 
 

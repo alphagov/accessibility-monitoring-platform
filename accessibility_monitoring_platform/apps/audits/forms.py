@@ -17,6 +17,7 @@ from ..common.forms import (
     AMPDateField,
     AMPDatePageCompleteField,
     AMPModelChoiceField,
+    AMPModelChoiceRadioField,
     AMPURLField,
 )
 from ..cases.models import BOOLEAN_CHOICES
@@ -54,28 +55,34 @@ class AuditCreateForm(forms.ModelForm):
     Form for creating an audit
     """
 
-    date_of_test = AMPDateField(label="Date of test")
-    description = AMPCharFieldWide(label="Test description")
-    screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
+    name = AMPCharFieldWide(label="Name")
     type = AMPChoiceRadioField(
-        label="Initital test or equality body retest?", choices=AUDIT_TYPE_CHOICES
+        label="Initital test or equality body retest?",
+        choices=AUDIT_TYPE_CHOICES,
+    )
+    retest_of_audit = AMPModelChoiceRadioField(
+        label="Which test are you retesting?",
+        queryset=Audit.objects.none(),
+        required=False,
     )
 
     class Meta:
         model = Audit
         fields: List[str] = [
-            "date_of_test",
-            "description",
-            "screen_size",
+            "name",
             "type",
+            "retest_of_audit",
         ]
 
 
-class AuditMetadataUpdateForm(AuditCreateForm, VersionForm):
+class AuditMetadataUpdateForm(VersionForm):
     """
     Form for editing check metadata
     """
 
+    name = AMPCharFieldWide(label="Name")
+    date_of_test = AMPDateField(label="Date of test")
+    screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
     audit_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -83,9 +90,8 @@ class AuditMetadataUpdateForm(AuditCreateForm, VersionForm):
         fields: List[str] = [
             "version",
             "date_of_test",
-            "description",
+            "name",
             "screen_size",
-            "type",
             "audit_metadata_complete_date",
         ]
 
