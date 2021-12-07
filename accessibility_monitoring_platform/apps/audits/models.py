@@ -50,25 +50,9 @@ TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
 TEST_TYPE_PDF: str = "pdf"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (TEST_TYPE_AXE, "Axe"),
     (TEST_TYPE_MANUAL, "Manual"),
+    (TEST_TYPE_AXE, "Axe"),
     (TEST_TYPE_PDF, "PDF"),
-]
-TEST_SUB_TYPE_DEFAULT: str = "other"
-TEST_SUB_TYPE_CHOICES: List[Tuple[str, str]] = [
-    ("additional", "Additional"),
-    ("audio-visual", "Audio and Visual"),
-    ("keyboard", "Keyboard"),
-    (TEST_SUB_TYPE_DEFAULT, "Other"),
-    ("pdf", "PDF"),
-    ("zoom", "Zoom and Reflow"),
-    ("relationship", "Relationship"),
-    ("navigation", "Navigation"),
-    ("presentation", "Presentation"),
-    ("aria", "ARIA"),
-    ("timing", "Timing"),
-    ("nontext", "Non-text"),
-    ("language", "Language"),
 ]
 DECLARATION_STATE_DEFAULT: str = "not-present"
 DECLARATION_STATE_CHOICES: List[Tuple[str, str]] = [
@@ -485,14 +469,6 @@ class Page(VersionModel):
         return self.checkresult_page.filter(is_deleted=False).order_by("wcag_definition__id")  # type: ignore
 
     @property
-    def axe_check_results(self):
-        return self.all_check_results.filter(type=TEST_TYPE_AXE)
-
-    @property
-    def manual_check_results(self):
-        return self.all_check_results.filter(type=TEST_TYPE_MANUAL)
-
-    @property
     def pdf_check_results(self):
         return self.all_check_results.filter(type=TEST_TYPE_PDF)
 
@@ -503,10 +479,7 @@ class WcagDefinition(models.Model):
     """
 
     type = models.CharField(
-        max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_PDF
-    )
-    sub_type = models.CharField(
-        max_length=20, choices=TEST_SUB_TYPE_CHOICES, default=TEST_SUB_TYPE_DEFAULT
+        max_length=20, choices=TEST_TYPE_CHOICES, default=TEST_TYPE_MANUAL
     )
     name = models.TextField(default="", blank=True)
     description = models.TextField(default="", blank=True)
