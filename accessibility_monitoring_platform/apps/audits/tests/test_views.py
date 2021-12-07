@@ -767,7 +767,7 @@ def test_delete_axe_check_result(admin_client):
             "form-MAX_NUM_FORMS": "1000",
             "version": audit.version,
             "next_page": audit.next_page.id,
-            f"remove_check_result_{check_result.id}": "Remove violation",  # type: ignore
+            f"remove_check_result_{check_result.id}": "Remove error",  # type: ignore
         },
         follow=True,
     )
