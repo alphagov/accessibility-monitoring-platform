@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ audit.case.organisation_name }} | Edit test | Testing {{ page }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <a href="{% url 'audits:edit-audit-website' audit.id %}" class="govuk-back-link">Back</a>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Testing page???' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-manual' audit.id page.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/field_errors.html' with errors=form.next_page.errors %}
+                            {{ form.next_page }}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <hr style="width:100%;">
+                            {% include 'common/amp_field.html' with field=form.audit_manual_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/save_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/audits.js' %}"></script>
+{% endblock %}

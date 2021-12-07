@@ -187,9 +187,7 @@ class CaseDetailView(DetailView):
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
             context["audits"] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
         else:
-            context["testing_details_rows"] = get_rows(
-                form=CaseTestResultsUpdateForm()
-            )
+            context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()

@@ -46,7 +46,6 @@ def create_audit_and_pages() -> Audit:
     ]:
         Page.objects.create(audit=audit, type=page_type)
     Page.objects.create(audit=audit, type=PAGE_TYPE_EXTRA, is_deleted=True)
-    Page.objects.create(audit=audit, type=PAGE_TYPE_EXTRA, not_found=BOOLEAN_TRUE)
     return audit
 
 
@@ -93,15 +92,13 @@ def create_audit_and_check_results() -> Audit:
 
 
 @pytest.mark.django_db
-def test_audit_all_pages_returns_all_pages_except_pdf():
+def test_audit_every_pages_returns_all_pages():
     """
-    Test all_pages attribute of audit does not include pages of type pdf.
     Deleted and pages which were not found are also excluded.
     """
     audit: Audit = create_audit_and_pages()
 
-    assert len(audit.all_pages) == 6
-    assert PAGE_TYPE_PDF not in [page.type for page in audit.all_pages]
+    assert len(audit.every_page) == 7
 
 
 @pytest.mark.django_db
@@ -118,39 +115,14 @@ def test_audit_html_pages_returns_all_pages_except_all_pages():
 
 
 @pytest.mark.django_db
-def test_audit_standard_pages_returns_no_extra_or_all_pages():
-    """
-    Test standard_pages attribute of audit does not include pages of type PDF,
-    all pages or extra.
-    """
-    audit: Audit = create_audit_and_pages()
-    page_types: List[str] = [page.type for page in audit.standard_pages]
-
-    assert len(audit.standard_pages) == 5
-    assert PAGE_TYPE_ALL not in page_types
-    assert PAGE_TYPE_EXTRA not in page_types
-
-
-@pytest.mark.django_db
-def test_audit_extra_pages_returns_only_extra_pages():
-    """
-    Test extra_pages attribute of audit returns only pages of type extra.
-    """
-    audit: Audit = create_audit_and_pages()
-
-    assert len(audit.extra_pages) == 1
-    assert list(audit.extra_pages)[0].type == PAGE_TYPE_EXTRA
-
-
-@pytest.mark.django_db
 def test_page_string():
     """
     Test Page string is name if present otherwise type
     """
     audit: Audit = create_audit_and_pages()
-    page: Page = audit.all_pages[0]
+    page: Page = audit.every_page[0]
 
-    assert str(page) == "Page"
+    assert str(page) == "Additional page"
 
     page.name = PAGE_NAME
 
@@ -175,42 +147,6 @@ def test_audit_failed_check_results_returns_only_failed_checks():
         )
         == 3
     )
-
-
-@pytest.mark.django_db
-def test_audit_failed_axe_check_results_returns_only_axe_failed_checks():
-    """
-    Test failed_axe_check_results attribute of audit returns only axe check results where failed is "yes".
-    """
-    audit: Audit = create_audit_and_check_results()
-
-    assert len(audit.failed_axe_check_results) == 1
-    assert audit.failed_axe_check_results[0].failed == BOOLEAN_TRUE
-    assert audit.failed_axe_check_results[0].type == TEST_TYPE_AXE
-
-
-@pytest.mark.django_db
-def test_audit_failed_manual_check_results_returns_only_manual_failed_checks():
-    """
-    Test failed_manual_check_results attribute of audit returns only manual check results where failed is "yes".
-    """
-    audit: Audit = create_audit_and_check_results()
-
-    assert len(audit.failed_manual_check_results) == 1
-    assert audit.failed_manual_check_results[0].failed == BOOLEAN_TRUE
-    assert audit.failed_manual_check_results[0].type == TEST_TYPE_MANUAL
-
-
-@pytest.mark.django_db
-def test_audit_failed_pdf_check_results_returns_only_pdf_failed_checks():
-    """
-    Test failed_pdf_check_results attribute of audit returns only pdf check results where failed is "yes".
-    """
-    audit: Audit = create_audit_and_check_results()
-
-    assert len(audit.failed_pdf_check_results) == 1
-    assert audit.failed_pdf_check_results[0].failed == BOOLEAN_TRUE
-    assert audit.failed_pdf_check_results[0].type == TEST_TYPE_PDF
 
 
 @pytest.mark.django_db

@@ -24,11 +24,6 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
-    MANDATORY_PAGE_TYPES,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_PDF,
-    TEST_TYPE_PDF,
-    TEST_TYPE_MANUAL,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
 )
@@ -40,41 +35,6 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
     "additional": "Additional",
     "other": "Other",
 }
-
-
-def create_pages_and_checks_for_new_audit(audit: Audit) -> None:
-    """
-    Create mandatory pages for new audit.
-    Create Wcag tests from WcagDefinition metadata for new audit.
-    """
-
-    for page_type in MANDATORY_PAGE_TYPES:
-        page: Page = Page.objects.create(audit=audit, type=page_type)  # type: ignore
-        test_type: str = (
-            TEST_TYPE_PDF if page_type == PAGE_TYPE_PDF else TEST_TYPE_MANUAL
-        )
-        create_check_results_for_new_page(page=page, test_type=test_type)
-    audit.next_page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)  # type: ignore
-    audit.save()
-
-
-def create_check_results_for_new_page(
-    page: Page, test_type: str = TEST_TYPE_MANUAL
-) -> None:
-    """
-    Create mandatory check results for new page from WcagDefinition metadata.
-    """
-    manual_wcag_definitions: QuerySet[WcagDefinition] = WcagDefinition.objects.filter(
-        type=test_type
-    )
-
-    for wcag_definition in manual_wcag_definitions:
-        CheckResult.objects.create(
-            audit=page.audit,
-            page=page,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
 
 
 def copy_all_pages_check_results(
@@ -106,18 +66,6 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
         form=AuditMetadataUpdateForm(),  # type: ignore
     )
     return rows
-
-
-def get_audit_pdf_rows(audit: Audit) -> List[FieldLabelAndValue]:
-    """Build Test view page table rows from audit pdf failures"""
-    return [
-        FieldLabelAndValue(
-            label=check_result.wcag_definition.name,
-            value=check_result.notes,
-            type=FieldLabelAndValue.NOTES_TYPE,
-        )
-        for check_result in audit.failed_pdf_check_results
-    ]
 
 
 def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:

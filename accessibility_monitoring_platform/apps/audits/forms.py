@@ -4,7 +4,6 @@ Forms - checks (called tests by users)
 from typing import Any, List
 
 from django import forms
-from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     VersionForm,
@@ -25,10 +24,8 @@ from .models import (
     Audit,
     Page,
     CheckResult,
-    WcagDefinition,
     SCREEN_SIZE_CHOICES,
     AUDIT_TYPE_CHOICES,
-    TEST_TYPE_AXE,
     DECLARATION_STATE_CHOICES,
     SCOPE_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
@@ -96,142 +93,34 @@ class AuditMetadataUpdateForm(VersionForm):
         ]
 
 
-class AuditStandardPageUpdateForm(forms.ModelForm):
+class AuditWebsiteUpdateForm(VersionForm):
     """
-    Form for updating a standard page (one of the 5 types of page in every audit)
-    """
-
-    url = AMPURLField(label="URL")
-    not_found = AMPChoiceCheckboxField(
-        label="Not found?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
-    )
-
-    class Meta:
-        model = Page
-        fields = [
-            "url",
-            "not_found",
-        ]
-
-
-AuditStandardPageFormset: Any = forms.modelformset_factory(
-    Page, AuditStandardPageUpdateForm, extra=0
-)
-
-
-class AuditExtraPageUpdateForm(forms.ModelForm):
-    """
-    Form for adding and updating an extra page
+    Form for editing website check page
     """
 
-    name = AMPCharFieldWide(label="Page name")
-    url = AMPURLField(label="URL")
-
-    class Meta:
-        model = Page
-        fields = [
-            "name",
-            "url",
-        ]
-
-
-AuditExtraPageFormset: Any = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=0
-)
-AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=1
-)
-
-
-class AuditPagesUpdateForm(VersionForm):
-    """
-    Form for editing check pages page
-    """
-
-    audit_pages_complete_date = AMPDatePageCompleteField()
+    audit_website_check_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_pages_complete_date",
+            "audit_website_check_complete_date",
         ]
 
 
-class AuditManualUpdateForm(forms.Form):
+class AuditPageChecksUpdateForm(forms.Form):
     """
-    Form for editing manual checks for a page
+    Form for editing checks for a page
     """
 
     next_page = AMPModelChoiceField(
         label="", queryset=Page.objects.none(), empty_label=None
     )
-    page_manual_checks_complete_date = AMPDatePageCompleteField()
-    audit_manual_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "next_page",
-            "page_manual_checks_complete_date",
-            "audit_manual_complete_date",
-        ]
-
-
-class AuditAxeUpdateForm(forms.Form):
-    """
-    Form for editing axe checks for a page
-    """
-
-    next_page = AMPModelChoiceField(
-        label="", queryset=Page.objects.none(), empty_label=None
-    )
-    page_axe_checks_complete_date = AMPDatePageCompleteField()
-    audit_axe_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "next_page",
-            "page_axe_checks_complete_date",
-            "audit_axe_complete_date",
-        ]
-
-
-class AuditManualAxeUpdateForm(forms.Form):
-    """
-    Form for editing manual and axe check results for a page
-    """
-
-    next_page = AMPModelChoiceField(
-        label="", queryset=Page.objects.none(), empty_label=None
-    )
-    page_axe_checks_complete_date = AMPDatePageCompleteField()
-    audit_manual_axe_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "next_page",
-            "page_axe_checks_complete_date",
-            "audit_manual_axe_complete_date",
-        ]
-
-
-class AuditPdfUpdateForm(VersionForm):
-    """
-    Form for editing pdf checks
-    """
-
-    audit_pdf_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "version",
-            "audit_pdf_complete_date",
         ]
 
 
@@ -258,35 +147,6 @@ class CheckResultUpdateForm(VersionForm):
 
 CheckResultUpdateFormset: Any = forms.modelformset_factory(
     CheckResult, CheckResultUpdateForm, extra=0
-)
-
-
-class AxeCheckResultUpdateForm(forms.ModelForm):
-    """
-    Form for updating a single axe check result
-    """
-
-    wcag_definition = AMPModelChoiceField(
-        label="Error", queryset=WcagDefinition.objects.filter(type=TEST_TYPE_AXE)
-    )
-    notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = CheckResult
-        fields = [
-            "wcag_definition",
-            "notes",
-        ]
-
-    def clean_wcag_definition(self):
-        wcag_definition = self.cleaned_data.get("wcag_definition")
-        if not wcag_definition:
-            raise ValidationError("Please choose an error.")
-        return wcag_definition
-
-
-AxeCheckResultUpdateFormset: Any = forms.modelformset_factory(
-    CheckResult, AxeCheckResultUpdateForm, extra=1
 )
 
 

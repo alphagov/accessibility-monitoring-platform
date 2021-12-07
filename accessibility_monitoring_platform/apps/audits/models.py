@@ -33,6 +33,7 @@ PAGE_TYPE_CONTACT: str = "contact"
 PAGE_TYPE_STATEMENT: str = "statement"
 PAGE_TYPE_PDF: str = "pdf"
 PAGE_TYPE_FORM: str = "form"
+PAGE_TYPE_CORONAVIRUS: str = "coronavirus"
 PAGE_TYPE_ALL: str = "all-except-pdf"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_ALL, "All pages"),
@@ -40,16 +41,10 @@ PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_HOME, "Home page"),
     (PAGE_TYPE_CONTACT, "Contact page"),
     (PAGE_TYPE_STATEMENT, "Accessibility statement"),
+    (PAGE_TYPE_CORONAVIRUS, "Coronavirus"),
     (PAGE_TYPE_PDF, "PDF"),
     (PAGE_TYPE_FORM, "Form"),
-]
-MANDATORY_PAGE_TYPES: List[str] = [
-    PAGE_TYPE_ALL,
-    PAGE_TYPE_HOME,
-    PAGE_TYPE_CONTACT,
-    PAGE_TYPE_STATEMENT,
-    PAGE_TYPE_PDF,
-    PAGE_TYPE_FORM,
+    (PAGE_TYPE_EXTRA, "Additional page"),
 ]
 TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
@@ -252,10 +247,10 @@ class Audit(VersionModel):
     )
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    # pages page
-    audit_pages_complete_date = models.DateField(null=True, blank=True)
+    # website test page
+    audit_website_complete_date = models.DateField(null=True, blank=True)
 
-    # manual page
+    # test page page
     next_page = models.ForeignKey(
         "Page",
         on_delete=models.CASCADE,
@@ -263,16 +258,6 @@ class Audit(VersionModel):
         null=True,
         blank=True,
     )
-    audit_manual_complete_date = models.DateField(null=True, blank=True)
-
-    # axe page
-    audit_axe_complete_date = models.DateField(null=True, blank=True)
-
-    # manual and axe page
-    audit_manual_axe_complete_date = models.DateField(null=True, blank=True)
-
-    # pdf page
-    audit_pdf_complete_date = models.DateField(null=True, blank=True)
 
     # Accessibility statement 1
     accessibility_statement_backup_url = models.TextField(default="", blank=True)
@@ -432,17 +417,18 @@ class Audit(VersionModel):
 
     def __str__(self):
         if self.name:
-            return str(f"{self.name}"
-                       f" | {self.get_type_display()}"  # type: ignore
-                       f" | {format_date(self.date_of_test)}")
-        return str(f"{self.get_type_display()}"  # type: ignore
-                   f" | {format_date(self.date_of_test)}")
+            return str(
+                f"{self.name}"
+                f" | {self.get_type_display()}"  # type: ignore
+                f" | {format_date(self.date_of_test)}"
+            )
+        return str(
+            f"{self.get_type_display()}"  # type: ignore
+            f" | {format_date(self.date_of_test)}"
+        )
 
     def get_absolute_url(self):
-        return reverse(
-            "audits:edit-audit-metadata",
-            kwargs={"pk": self.pk, "case_id": self.case.pk},
-        )
+        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
     def report_accessibility_issues(self):
@@ -453,26 +439,12 @@ class Audit(VersionModel):
         ]
 
     @property
-    def all_pages(self):
-        return self.page_audit.filter(is_deleted=False, not_found=BOOLEAN_DEFAULT).exclude(  # type: ignore
-            type=PAGE_TYPE_PDF
-        )
+    def every_page(self):
+        return self.page_audit.filter(is_deleted=False)  # type: ignore
 
     @property
     def html_pages(self):
-        return self.all_pages.exclude(type=PAGE_TYPE_ALL)  # type: ignore
-
-    @property
-    def standard_pages(self):
-        return (
-            self.page_audit.filter(is_deleted=False)  # type: ignore
-            .exclude(type=PAGE_TYPE_ALL)
-            .exclude(type=PAGE_TYPE_EXTRA)
-        )
-
-    @property
-    def extra_pages(self):
-        return self.html_pages.filter(type=PAGE_TYPE_EXTRA)  # type: ignore
+        return self.every_page.exclude(type=PAGE_TYPE_ALL).exclude(type=PAGE_TYPE_PDF)  # type: ignore
 
     @property
     def failed_check_results(self):
@@ -481,18 +453,6 @@ class Audit(VersionModel):
             .exclude(page__type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
         )
-
-    @property
-    def failed_axe_check_results(self):
-        return self.failed_check_results.filter(type=TEST_TYPE_AXE)
-
-    @property
-    def failed_manual_check_results(self):
-        return self.failed_check_results.filter(type=TEST_TYPE_MANUAL)
-
-    @property
-    def failed_pdf_check_results(self):
-        return self.failed_check_results.filter(type=TEST_TYPE_PDF)
 
 
 class Page(VersionModel):
@@ -510,11 +470,6 @@ class Page(VersionModel):
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
-    not_found = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
-    manual_checks_complete_date = models.DateField(null=True, blank=True)
-    axe_checks_complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
@@ -523,10 +478,7 @@ class Page(VersionModel):
         return self.name if self.name else self.get_type_display()  # type: ignore
 
     def get_absolute_url(self):
-        return reverse(
-            "audits:edit-audit-pages",
-            kwargs={"pk": self.audit.pk, "case_id": self.audit.case.pk},
-        )
+        return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
 
     @property
     def all_check_results(self):
