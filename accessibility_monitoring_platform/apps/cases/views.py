@@ -21,7 +21,6 @@ from django.views.generic.list import ListView
 
 from ..notifications.utils import read_notification
 
-from ..audits.models import Audit
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
     format_date,
@@ -186,24 +185,9 @@ class CaseDetailView(DetailView):
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
-            audits: QuerySet[Audit] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
-            testing_details_rows: List[FieldLabelAndValue] = []
-            for audit in audits:
-                extra_label: str = audit.name if audit.name else audit.get_type_display()  # type: ignore
-                testing_details_rows.append(
-                    FieldLabelAndValue(
-                        type=FieldLabelAndValue.URL_TYPE,
-                        label=audit.get_type_display(),  # type: ignore
-                        value=reverse(
-                            "audits:audit-detail",
-                            kwargs={"pk": audit.id},  # type: ignore
-                        ),
-                        extra_label=extra_label,
-                        external_url=False,
-                    )
-                )
+            context["audits"] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
         else:
-            testing_details_rows: List[FieldLabelAndValue] = get_rows(
+            context["testing_details_rows"] = get_rows(
                 form=CaseTestResultsUpdateForm()
             )
 
@@ -214,7 +198,6 @@ class CaseDetailView(DetailView):
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()
         )
-        context["testing_details_rows"] = testing_details_rows
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["qa_process_rows"] = qa_process_rows
         context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
