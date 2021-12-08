@@ -19,8 +19,8 @@ class PageAdmin(admin.ModelAdmin):
     """Django admin configuration for Page model"""
 
     search_fields = ["name", "url", "audit__description"]
-    list_display = ["type", "audit", "name", "url"]
-    list_filter = ["type"]
+    list_display = ["page_type", "audit", "name", "url"]
+    list_filter = ["page_type"]
 
 
 class CheckResultAdmin(admin.ModelAdmin):

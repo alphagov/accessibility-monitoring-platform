@@ -37,14 +37,13 @@ PAGE_TYPE_CORONAVIRUS: str = "coronavirus"
 PAGE_TYPE_ALL: str = "all-except-pdf"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_ALL, "All pages"),
-    (PAGE_TYPE_EXTRA, "Page"),
+    (PAGE_TYPE_EXTRA, "Additional page"),
     (PAGE_TYPE_HOME, "Home page"),
     (PAGE_TYPE_CONTACT, "Contact page"),
     (PAGE_TYPE_STATEMENT, "Accessibility statement"),
     (PAGE_TYPE_CORONAVIRUS, "Coronavirus"),
     (PAGE_TYPE_PDF, "PDF"),
     (PAGE_TYPE_FORM, "Form"),
-    (PAGE_TYPE_EXTRA, "Additional page"),
 ]
 TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
@@ -427,19 +426,27 @@ class Audit(VersionModel):
         return self.page_audit.filter(is_deleted=False)  # type: ignore
 
     @property
+    def every_page_except_all(self):
+        return self.every_page.exclude(page_type=PAGE_TYPE_ALL)
+
+    @property
     def html_pages(self):
-        return self.every_page.exclude(type=PAGE_TYPE_ALL).exclude(type=PAGE_TYPE_PDF)  # type: ignore
+        return self.every_page_except_all.exclude(page_type=PAGE_TYPE_PDF)
+
+    @property
+    def all_page(self):
+        return self.every_page.filter(page_type=PAGE_TYPE_ALL).first()
 
     @property
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(is_deleted=False, failed=BOOLEAN_TRUE)  # type: ignore
-            .exclude(page__type=PAGE_TYPE_ALL)
+            .exclude(page__page_type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
         )
 
 
-class Page(VersionModel):
+class Page(models.Model):
     """
     Model for test/audit page
     """
@@ -449,17 +456,18 @@ class Page(VersionModel):
     )
     is_deleted = models.BooleanField(default=False)
 
-    type = models.CharField(
+    page_type = models.CharField(
         max_length=20, choices=PAGE_TYPE_CHOICES, default=PAGE_TYPE_EXTRA
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
+    complete_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self):  # pylint: disable=invalid-str-returned
-        return self.name if self.name else self.get_type_display()  # type: ignore
+        return self.name if self.name else self.get_page_type_display()  # type: ignore
 
     def get_absolute_url(self):
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})

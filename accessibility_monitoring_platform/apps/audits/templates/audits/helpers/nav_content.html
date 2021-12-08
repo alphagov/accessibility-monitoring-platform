@@ -6,11 +6,7 @@
                     {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% endif %}
                 |
-                {% if edit_name == 'audits:edit-audit-manual' or edit_name == 'audits:edit-audit-axe' %}
-                <a href="{% url edit_name audit.id audit.next_page.id %}" class="govuk-link govuk-link--no-visited-state">
-                {% else %}
                 <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                {% endif %}
                     Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if complete %}&check;{% endif %}
             </li>

@@ -24,10 +24,51 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' with form=audit_page_create_form %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Add page"
+                                name="add_page"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <hr style="width:100%;">
+                        </div>
+                        <div class="govuk-grid-column-full">
+                            <ul class="govuk-list">
+                                {% if audit.html_pages.count > 1 %}
+                                    {% include 'audits/helpers/page_content.html' with page=audit.all_page %}
+                                {% endif %}
+                                {% for page in audit.every_page_except_all %}
+                                    {% include 'audits/helpers/page_content.html' %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% if audit.html_pages.count > 1 %}
+                            {% include 'audits/helpers/page_results.html' with page=audit.all_page %}
+                        {% endif %}
+                        {% for page in audit.every_page_except_all %}
+                            {% include 'audits/helpers/page_results.html' %}
+                        {% endfor %}
+                        <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'audits/helpers/save_cancel.html' %}
+                            <input
+                                type="submit"
+                                value="Continue"
+                                name="continue"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:audit-detail' audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Return to test view
+                            </a>
                         </div>
                     </div>
                 </form>

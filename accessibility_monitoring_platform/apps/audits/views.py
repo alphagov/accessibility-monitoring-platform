@@ -26,6 +26,8 @@ from .forms import (
     AuditCreateForm,
     AuditMetadataUpdateForm,
     AuditWebsiteUpdateForm,
+    AuditPageCreateForm,
+    AuditPageUpdateForm,
     AuditPageChecksUpdateForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
@@ -37,6 +39,7 @@ from .models import (
     Audit,
     Page,
     AUDIT_TYPE_DEFAULT,
+    PAGE_TYPE_ALL,
 )
 from .utils import (
     get_audit_metadata_rows,
@@ -121,6 +124,8 @@ class AuditCreateView(CreateView):
         """Process contents of valid form"""
         audit: Audit = form.save(commit=False)
         audit.case = Case.objects.get(pk=self.kwargs["case_id"])
+        audit.save()
+        Page.objects.create(audit=audit, page_type=PAGE_TYPE_ALL, name="All pages excluding PDF")
         return super().form_valid(form)
 
     def get_form(self):
@@ -205,17 +210,69 @@ class AuditMetadataUpdateView(AuditUpdateView):
 
 class AuditWebsiteUpdateView(AuditUpdateView):
     """
-    View to update audit website check
+    View to update audit website page
     """
 
     form_class: Type[AuditWebsiteUpdateForm] = AuditWebsiteUpdateForm
     template_name: str = "audits/forms/website.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["audit_page_create_form"] = AuditPageCreateForm(self.request.POST)
+        else:
+            context["audit_page_create_form"] = AuditPageCreateForm()
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        audit_page_create_form: AuditPageCreateForm = context[
+            "audit_page_create_form"
+        ]
+
+        if "add_page" in self.request.POST:
+            if audit_page_create_form.is_valid():
+                audit: Audit = self.object
+                page: Page = Page.objects.create(
+                    audit=audit,
+                    url=audit_page_create_form.cleaned_data["url"],
+                    name=audit_page_create_form.cleaned_data["name"],
+                    page_type=audit_page_create_form.cleaned_data["page_type"],
+                )
+                record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+            else:
+                return super().form_invalid(form)
+
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
         audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        url: str = reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        if "continue" in self.request.POST:
+            url: str = reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        else:
+            url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
+        return url
+
+
+class AuditPageUpdateView(UpdateView):
+    """
+    View to update audit page##
+    """
+
+    model: Type[Page] = Page
+    context_object_name: str = "page"
+    form_class: Type[AuditPageUpdateForm] = AuditPageUpdateForm
+    template_name: str = "audits/forms/page.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        page: Page = self.object  # type: ignore
+        audit_pk: Dict[str, int] = {"pk": page.audit.id}
+        url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
         return url
 
 
@@ -230,8 +287,8 @@ class AuditPageFormView(FormView):
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
         super().setup(request, *args, **kwargs)
-        self.audit = Audit.objects.get(pk=kwargs["audit_id"])
-        self.page = Page.objects.get(pk=kwargs["page_id"])
+        self.page = Page.objects.get(pk=kwargs["pk"])
+        self.audit = self.page.audit
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Add audit and page to context data for template rendering"""

@@ -44,8 +44,8 @@ def create_audit_and_pages() -> Audit:
         PAGE_TYPE_FORM,
         PAGE_TYPE_ALL,
     ]:
-        Page.objects.create(audit=audit, type=page_type)
-    Page.objects.create(audit=audit, type=PAGE_TYPE_EXTRA, is_deleted=True)
+        Page.objects.create(audit=audit, page_type=page_type)
+    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
     return audit
 
 
@@ -67,10 +67,10 @@ def create_audit_and_check_results() -> Audit:
     for page in pages:
         failed: str = (
             BOOLEAN_TRUE
-            if page.type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
+            if page.page_type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
             else BOOLEAN_FALSE
         )
-        if page.type == PAGE_TYPE_PDF:
+        if page.page_type == PAGE_TYPE_PDF:
             CheckResult.objects.create(
                 audit=audit,
                 page=page,
@@ -107,7 +107,7 @@ def test_audit_html_pages_returns_all_pages_except_all_pages():
     Test html_pages attribute of audit does not include pages of types PDF or all.
     """
     audit: Audit = create_audit_and_pages()
-    page_types: List[str] = [page.type for page in audit.html_pages]
+    page_types: List[str] = [page.page_type for page in audit.html_pages]
 
     assert len(audit.html_pages) == 5
     assert PAGE_TYPE_PDF not in page_types
@@ -155,7 +155,7 @@ def test_page_all_check_results_returns_check_results():
     Test all_check_results attribute of page returns expected check results.
     """
     audit: Audit = create_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_HOME)
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
 
     assert len(home_page.all_check_results) == 2
     assert home_page.all_check_results[0].type == TEST_TYPE_AXE
@@ -168,7 +168,7 @@ def test_page_pdf_check_results_returns_only_pdf_check_results():
     Test pdf_check_results attribute of page returns only pdf check results.
     """
     audit: Audit = create_audit_and_check_results()
-    pdf_page: Page = Page.objects.get(audit=audit, type=PAGE_TYPE_PDF)
+    pdf_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
 
     assert len(pdf_page.all_check_results) == 1
     assert pdf_page.pdf_check_results[0].type == TEST_TYPE_PDF

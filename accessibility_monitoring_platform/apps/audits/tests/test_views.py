@@ -151,7 +151,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
         (
             "audits:edit-audit-website",
-            "save_continue",
+            "continue",
             "audits:edit-audit-statement-1",
             "",
         ),

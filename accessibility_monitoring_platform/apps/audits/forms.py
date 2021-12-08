@@ -1,9 +1,10 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     VersionForm,
@@ -26,6 +27,8 @@ from .models import (
     CheckResult,
     SCREEN_SIZE_CHOICES,
     AUDIT_TYPE_CHOICES,
+    PAGE_TYPE_CHOICES,
+    PAGE_TYPE_ALL,
     DECLARATION_STATE_CHOICES,
     SCOPE_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
@@ -45,6 +48,10 @@ from .models import (
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
 )
+
+PAGE_TYPE_CHOICES_CREATE: List[Tuple[str, str]] = [
+    (page_type, label) for page_type, label in PAGE_TYPE_CHOICES if page_type != PAGE_TYPE_ALL
+]
 
 
 class AuditCreateForm(forms.ModelForm):
@@ -105,6 +112,48 @@ class AuditWebsiteUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "audit_website_complete_date",
+        ]
+
+
+class AuditPageCreateForm(forms.ModelForm):
+    """
+    Form for creating an audit's page
+    """
+
+    name = AMPCharFieldWide(label="Name")
+    url = AMPURLField(label="URL")
+    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "url",
+            "page_type",
+        ]
+
+    def clean_url(self):
+        url = self.cleaned_data.get("url")
+        if not url:
+            raise ValidationError("URL is required")
+        return url
+
+
+class AuditPageUpdateForm(forms.ModelForm):
+    """
+    Form for editing audit page
+    """
+
+    name = AMPCharFieldWide(label="Name")
+    url = AMPURLField(label="URL")
+    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "url",
+            "page_type",
         ]
 
 
