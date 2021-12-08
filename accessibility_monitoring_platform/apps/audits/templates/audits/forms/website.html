@@ -44,6 +44,8 @@
                                 {% for page in audit.every_page_except_all %}
                                     {% include 'audits/helpers/page_content.html' %}
                                 {% endfor %}
+                                <a href="#deleted-pages" class="govuk-link govuk-link--no-visited-state">
+                                    Removed pages</a>
                             </ul>
                         </div>
                         {% if audit.html_pages.count > 1 %}
@@ -52,6 +54,26 @@
                         {% for page in audit.every_page_except_all %}
                             {% include 'audits/helpers/page_results.html' %}
                         {% endfor %}
+                        <div class="govuk-grid-column-full">
+                            <h2 id="deleted-pages"class="govuk-heading-l bottom-margin-5">Removed pages</h2>
+                            {% if audit.deleted_pages %}
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        {% for page in audit.deleted_pages %}
+                                            <tr class="govuk-table__row">
+                                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ page }}</th>
+                                                <td class="govuk-table__cell amp-width-one-half">
+                                                    <a href="{% url 'audits:restore-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                        Unremove page</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">No removed pages</p>
+                            {% endif %}
+                        </div>
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>

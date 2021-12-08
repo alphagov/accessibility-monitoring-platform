@@ -20,6 +20,8 @@ from .views import (
     AuditReportTextUpdateView,
     delete_audit,
     restore_audit,
+    delete_page,
+    restore_page,
 )
 
 app_name: str = "audits"
@@ -58,6 +60,16 @@ urlpatterns: List[URLPattern] = [
         "pages/<int:pk>/edit-audit-page/",
         login_required(AuditPageUpdateView.as_view()),
         name="edit-audit-page",
+    ),
+    path(
+        "pages/<int:pk>/delete-page/",
+        login_required(delete_page),
+        name="delete-page",
+    ),
+    path(
+        "pages/<int:pk>/restore-page/",
+        login_required(restore_page),
+        name="restore-page",
     ),
     path(
         "pages/<int:pk>/edit-audit-page-checks/",

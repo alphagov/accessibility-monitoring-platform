@@ -64,7 +64,6 @@ def delete_audit(request: HttpRequest, pk: int) -> HttpResponse:
 
     Args:
         request (HttpRequest): Django HttpRequest
-        case_id (int): Id of case
         pk (int): Id of audit to delete
 
     Returns:
@@ -83,7 +82,6 @@ def restore_audit(request: HttpRequest, pk: int) -> HttpResponse:
 
     Args:
         request (HttpRequest): Django HttpRequest
-        case_id (int): Id of case
         pk (int): Id of audit to restore
 
     Returns:
@@ -94,6 +92,42 @@ def restore_audit(request: HttpRequest, pk: int) -> HttpResponse:
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     return redirect(reverse("audits:audit-detail", kwargs={"pk": audit.id}))  # type: ignore
+
+
+def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Delete page
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of page to delete
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    page: Page = get_object_or_404(Page, id=pk)
+    page.is_deleted = True
+    record_model_update_event(user=request.user, model_object=page)  # type: ignore
+    page.save()
+    return redirect(reverse("audits:edit-audit-website", kwargs={"pk": page.audit.id}))  # type: ignore
+
+
+def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Restore deleted page
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of page to restore
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    page: Page = get_object_or_404(Page, id=pk)
+    page.is_deleted = False
+    record_model_update_event(user=request.user, model_object=page)  # type: ignore
+    page.save()
+    return redirect(reverse("audits:edit-audit-website", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
 class AuditCreateView(CreateView):

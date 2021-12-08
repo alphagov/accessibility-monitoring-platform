@@ -422,6 +422,10 @@ class Audit(VersionModel):
         ]
 
     @property
+    def deleted_pages(self):
+        return self.page_audit.filter(is_deleted=True)  # type: ignore
+
+    @property
     def every_page(self):
         return self.page_audit.filter(is_deleted=False)  # type: ignore
 

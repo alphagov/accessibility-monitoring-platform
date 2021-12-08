@@ -13,6 +13,7 @@ from django.urls import reverse
 from ...cases.models import Case
 from ..models import (
     Audit,
+    Page,
     WcagDefinition,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
@@ -79,6 +80,52 @@ def test_restore_audit_view(admin_client):
     audit_from_db: Audit = Audit.objects.get(pk=audit.id)  # type: ignore
 
     assert audit_from_db.is_deleted is False
+
+
+def test_delete_page_view(admin_client):
+    """Test that delete page view deletes page"""
+    audit: Audit = create_audit()
+    page: Page = Page.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:delete-page",
+            kwargs={"pk": page.id},  # type: ignore
+        ),
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "audits:edit-audit-website",
+        kwargs={"pk": audit.id},  # type: ignore
+    )
+
+    page_from_db: Page = Page.objects.get(pk=page.id)  # type: ignore
+
+    assert page_from_db.is_deleted
+
+
+def test_restore_page_view(admin_client):
+    """Test that restore page view restores audit"""
+    audit: Audit = create_audit()
+    page: Page = Page.objects.create(audit=audit, is_deleted=True)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:restore-page",
+            kwargs={"pk": page.id},  # type: ignore
+        ),
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "audits:edit-audit-website",
+        kwargs={"pk": audit.id},  # type: ignore
+    )
+
+    page_from_db: Page = Page.objects.get(pk=page.id)  # type: ignore
+
+    assert page_from_db.is_deleted is False
 
 
 @pytest.mark.parametrize(

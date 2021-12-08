@@ -1,11 +1,15 @@
 <div class="govuk-grid-column-full">
-    <h2 id="page-{{ page.id }}"class="govuk-heading-l">{{ page }}{% if page.complete_date %}&check;{% endif %}</h2>
+    <h2 id="page-{{ page.id }}"class="govuk-heading-l bottom-margin-5">{{ page }}{% if page.complete_date %}&check;{% endif %}</h2>
     <p class="govuk-body">
         <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
             Edit test{% if page.complete_date %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>&nbsp;
-        <a href="{% url 'audits:edit-audit-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
-            Update page details</a>&nbsp;
-        <a href="{{ page.url }}" class="govuk-link">Visit webpage</a>&nbsp;
-        Remove page
-    <p>
+        {% if page.page_type != 'all-except-pdf' %}
+            <a href="{% url 'audits:edit-audit-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                Update page details</a>&nbsp;
+            <a href="{{ page.url }}" class="govuk-link">Visit webpage</a>&nbsp;
+            <a href="{% url 'audits:delete-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                Remove page</a>
+        {% endif %}
+    </p>
+    <p class="govuk-body">Test is empty</p>
 </div>
