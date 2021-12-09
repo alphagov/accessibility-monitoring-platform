@@ -17,7 +17,7 @@ from .forms import (
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
     AuditReportOptionsUpdateForm,
-    CheckResultUpdateForm,
+    CheckResultForm,
 )
 from .models import (
     Audit,
@@ -48,7 +48,7 @@ def copy_all_pages_check_results(
                 page=page,
                 wcag_definition=check_result.wcag_definition,
             )
-            other_check_result.failed = check_result.failed
+            other_check_result.check_result_state = check_result.check_result_state
             other_check_result.type = check_result.type
             other_check_result.notes = check_result.notes
             if created:
@@ -116,13 +116,13 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
 
 
 def group_check_results_by_wcag_sub_type_labels(
-    check_result_update_forms: List[CheckResultUpdateForm],
-) -> List[Tuple[str, List[CheckResultUpdateForm]]]:
+    check_result_update_forms: List[CheckResultForm],
+) -> List[Tuple[str, List[CheckResultForm]]]:
     """
     Group check result forms by wcag/check sub-type and then return list of tuples
     of sub-type labels and list of forms of that sub-type.
     """
-    check_result_forms_by_wcag_sub_type: Dict[str, List[CheckResultUpdateForm]] = {}
+    check_result_forms_by_wcag_sub_type: Dict[str, List[CheckResultForm]] = {}
 
     for check_result_form in check_result_update_forms:
         sub_type_label: str = MANUAL_CHECK_SUB_TYPE_LABELS[

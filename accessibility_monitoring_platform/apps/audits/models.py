@@ -167,6 +167,15 @@ REPORT_OPTIONS_NEXT_CHOICES: List[Tuple[str, str]] = [
     ("no-errors", "No serious errors were found"),
 ]
 
+CHECK_RESULT_NOT_TESTED: str = "not-tested"
+CHECK_RESULT_ERROR: str = "error"
+CHECK_RESULT_NO_ERROR: str = "no-error"
+CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
+    (CHECK_RESULT_ERROR, "Error found"),
+    (CHECK_RESULT_NO_ERROR, "No issue"),
+    (CHECK_RESULT_NOT_TESTED, "Not tested"),
+]
+
 REPORT_ACCESSIBILITY_ISSUE_TEXT = {
     "accessibility_statement_not_correct_format": "It was not in the correct format",
     "accessibility_statement_not_specific_enough": "It was not specific enough",
@@ -435,7 +444,10 @@ class Audit(VersionModel):
     @property
     def failed_check_results(self):
         return (
-            self.checkresult_audit.filter(is_deleted=False, failed=BOOLEAN_TRUE)  # type: ignore
+            self.checkresult_audit.filter(  # type: ignore
+                is_deleted=False,
+                check_result_state=CHECK_RESULT_ERROR
+            )
             .exclude(page__page_type=PAGE_TYPE_ALL)
             .order_by("wcag_definition__id")
         )
@@ -496,7 +508,7 @@ class WcagDefinition(models.Model):
         return self.name
 
 
-class CheckResult(VersionModel):
+class CheckResult(models.Model):
     """
     Model for test result
     """
@@ -517,8 +529,10 @@ class CheckResult(VersionModel):
         related_name="checkresult_wcagdefinition",
     )
 
-    failed = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    check_result_state = models.CharField(
+        max_length=20,
+        choices=CHECK_RESULT_STATE_CHOICES,
+        default=CHECK_RESULT_NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
 
@@ -526,4 +540,4 @@ class CheckResult(VersionModel):
         ordering = ["id"]
 
     def __str__(self):
-        return str(f"#{self.pk} | {self.wcag_definition}")
+        return str(f"{self.page} | {self.wcag_definition}")

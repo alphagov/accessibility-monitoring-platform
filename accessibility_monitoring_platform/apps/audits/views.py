@@ -2,7 +2,7 @@
 Views for audits app (called tests by users)
 """
 from functools import partial
-from typing import Any, Callable, Dict, List, Type, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from django.db.models import QuerySet
 from django import forms
@@ -29,6 +29,9 @@ from .forms import (
     AuditPageCreateForm,
     AuditPageUpdateForm,
     AuditPageChecksForm,
+    CheckResultFilterForm,
+    CheckResultForm,
+    CheckResultFormset,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
     AuditSummaryUpdateForm,
@@ -40,6 +43,8 @@ from .models import (
     Page,
     AUDIT_TYPE_DEFAULT,
     PAGE_TYPE_ALL,
+    WcagDefinition,
+    CHECK_RESULT_NOT_TESTED,
 )
 from .utils import (
     get_audit_metadata_rows,
@@ -159,7 +164,9 @@ class AuditCreateView(CreateView):
         audit: Audit = form.save(commit=False)
         audit.case = Case.objects.get(pk=self.kwargs["case_id"])
         audit.save()
-        Page.objects.create(audit=audit, page_type=PAGE_TYPE_ALL, name="All pages excluding PDF")
+        Page.objects.create(
+            audit=audit, page_type=PAGE_TYPE_ALL, name="All pages excluding PDF"
+        )
         return super().form_valid(form)
 
     def get_form(self):
@@ -262,9 +269,7 @@ class AuditWebsiteUpdateView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        audit_page_create_form: AuditPageCreateForm = context[
-            "audit_page_create_form"
-        ]
+        audit_page_create_form: AuditPageCreateForm = context["audit_page_create_form"]
 
         if "add_page" in self.request.POST:
             if audit_page_create_form.is_valid():
@@ -294,7 +299,7 @@ class AuditWebsiteUpdateView(AuditUpdateView):
 
 class AuditPageUpdateView(UpdateView):
     """
-    View to update audit page##
+    View to update audit page
     """
 
     model: Type[Page] = Page
@@ -312,7 +317,7 @@ class AuditPageUpdateView(UpdateView):
 
 class AuditPageChecksFormView(FormView):
     """
-    View to update manual check results for a page
+    View to update check results for a page
     """
 
     form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
@@ -337,6 +342,38 @@ class AuditPageChecksFormView(FormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
+        context["filter_form"] = CheckResultFilterForm(
+            initial={"manual": True, "axe": True, "pdf": True, "not_tested": True}
+        )
+
+        wcag_definitions: QuerySet[WcagDefinition] = WcagDefinition.objects.all()
+        check_results: List[Dict[str, Union[str, WcagDefinition]]] = [
+            {
+                "wcag_definition": wcag_definition,
+                "check_result_state": CHECK_RESULT_NOT_TESTED,
+                "notes": "",
+            }
+            for wcag_definition in wcag_definitions
+        ]
+
+        if self.request.POST:
+            check_results_formset: CheckResultFormset = CheckResultFormset(
+                self.request.POST
+            )
+        else:
+            check_results_formset: CheckResultFormset = CheckResultFormset(
+                initial=check_results
+            )
+
+        wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
+        for count, check_results_form in enumerate(check_results_formset.forms):
+            wcag_definition: WcagDefinition = wcag_definitions[count]
+            check_results_form.fields["check_result_state"].label = wcag_definition
+            wcag_definitions_and_forms.append((wcag_definition, check_results_form))
+        context["check_results_formset"] = check_results_formset
+
+        context["wcag_definitions_and_forms"] = wcag_definitions_and_forms
+
         return context
 
     def form_valid(self, form: ModelForm):

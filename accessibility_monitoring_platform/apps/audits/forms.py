@@ -12,6 +12,7 @@ from ..common.forms import (
     AMPTextField,
     AMPChoiceField,
     AMPChoiceRadioField,
+    AMPRadioSelectWidget,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
     AMPDateField,
@@ -45,12 +46,16 @@ from .models import (
     OVERALL_COMPLIANCE_STATE_CHOICES,
     ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
+    CHECK_RESULT_STATE_CHOICES,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
+    WcagDefinition,
 )
 
 PAGE_TYPE_CHOICES_CREATE: List[Tuple[str, str]] = [
-    (page_type, label) for page_type, label in PAGE_TYPE_CHOICES if page_type != PAGE_TYPE_ALL
+    (page_type, label)
+    for page_type, label in PAGE_TYPE_CHOICES
+    if page_type != PAGE_TYPE_ALL
 ]
 
 
@@ -165,7 +170,7 @@ class AuditPageChecksForm(forms.Form):
     next_page = AMPModelChoiceField(
         label="Change page", queryset=Page.objects.none(), empty_label=None
     )
-    complete_date = AMPDatePageCompleteField()
+    complete_date = AMPDatePageCompleteField(label="")
 
     class Meta:
         model = Audit
@@ -175,30 +180,53 @@ class AuditPageChecksForm(forms.Form):
         ]
 
 
-class CheckResultUpdateForm(VersionForm):
+class CheckResultFilterForm(forms.Form):
+    """
+    Form for filtering check results
+    """
+
+    name = AMPCharFieldWide(label="")
+    manual = AMPChoiceCheckboxField(label="Manual tests")
+    axe = AMPChoiceCheckboxField(label="Axe tests")
+    pdf = AMPChoiceCheckboxField(label="PDF")
+    not_tested = AMPChoiceCheckboxField(label="Not tested")
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "manual",
+            "axe",
+            "pdf",
+            "not_tested",
+        ]
+
+
+class CheckResultForm(forms.ModelForm):
     """
     Form for updating a single check test
     """
 
-    failed = AMPChoiceCheckboxField(
-        label="",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
+    wcag_definition = forms.ModelChoiceField(
+        queryset=WcagDefinition.objects.none(), widget=forms.HiddenInput()
     )
-    notes = AMPTextField(label="Notes")
+    check_result_state = AMPChoiceRadioField(
+        label="",
+        choices=CHECK_RESULT_STATE_CHOICES,
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
+    notes = AMPTextField(label="Error details")
 
     class Meta:
         model = CheckResult
         fields = [
-            "version",
-            "failed",
+            "wcag_definition",
+            "check_result_state",
             "notes",
         ]
 
 
-CheckResultUpdateFormset: Any = forms.modelformset_factory(
-    CheckResult, CheckResultUpdateForm, extra=0
-)
+CheckResultFormset: Any = forms.formset_factory(CheckResultForm, extra=0)
 
 
 class AuditStatement1UpdateForm(VersionForm):

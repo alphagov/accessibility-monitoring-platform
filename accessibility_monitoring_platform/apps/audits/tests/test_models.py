@@ -7,7 +7,7 @@ from typing import List
 from django.db.models.query import QuerySet
 
 from ...cases.models import Case
-from ...common.models import BOOLEAN_TRUE, BOOLEAN_FALSE
+from ...common.models import BOOLEAN_TRUE
 from ..models import (
     Audit,
     Page,
@@ -23,6 +23,8 @@ from ..models import (
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
     WcagDefinition,
+    CHECK_RESULT_ERROR,
+    CHECK_RESULT_NO_ERROR,
 )
 
 PAGE_NAME = "Page name"
@@ -65,16 +67,16 @@ def create_audit_and_check_results() -> Audit:
     pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
 
     for page in pages:
-        failed: str = (
-            BOOLEAN_TRUE
+        check_result_state: str = (
+            CHECK_RESULT_ERROR
             if page.page_type in [PAGE_TYPE_HOME, PAGE_TYPE_PDF]
-            else BOOLEAN_FALSE
+            else CHECK_RESULT_NO_ERROR
         )
         if page.page_type == PAGE_TYPE_PDF:
             CheckResult.objects.create(
                 audit=audit,
                 page=page,
-                failed=failed,
+                check_result_state=check_result_state,
                 type=pdf_wcag_definition.type,
                 wcag_definition=pdf_wcag_definition,
             )
@@ -83,7 +85,7 @@ def create_audit_and_check_results() -> Audit:
                 CheckResult.objects.create(
                     audit=audit,
                     page=page,
-                    failed=failed,
+                    check_result_state=check_result_state,
                     type=wcag_definition.type,
                     wcag_definition=wcag_definition,
                 )
@@ -142,7 +144,7 @@ def test_audit_failed_check_results_returns_only_failed_checks():
             [
                 check
                 for check in audit.failed_check_results
-                if check.failed == BOOLEAN_TRUE
+                if check.check_result_state == CHECK_RESULT_ERROR
             ]
         )
         == 3
