@@ -186,10 +186,18 @@ class CheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="")
-    manual = AMPChoiceCheckboxField(label="Manual tests")
-    axe = AMPChoiceCheckboxField(label="Axe tests")
-    pdf = AMPChoiceCheckboxField(label="PDF")
-    not_tested = AMPChoiceCheckboxField(label="Not tested")
+    manual = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests (16)"})
+    )
+    axe = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Axe tests"})
+    )
+    pdf = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "PDF"})
+    )
+    not_tested = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not tested"})
+    )
 
     class Meta:
         model = Page
