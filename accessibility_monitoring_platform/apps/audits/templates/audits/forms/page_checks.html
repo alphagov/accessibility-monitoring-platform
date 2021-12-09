@@ -78,7 +78,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="govuk-grid-column-one-third" style="position:fixed;bottom:10px;right:0;">
+                <div class="govuk-grid-column-one-third" style="position:fixed;bottom:5px;right:0;">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
@@ -101,13 +101,13 @@
                                 data-module="govuk-button"
                             />
                         </div>
-                        <div class="govuk-grid-column-full">
-                            {% if page.page_type != 'all-except-pdf' %}
+                        {% if page.page_type != 'all-except-pdf' %}
+                            <div class="govuk-grid-column-full">
                                 <a href="{{ page.url }}" class="govuk-link" target="_blank">
                                     View {{ page|lower }}
                                 </a>
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </form>
