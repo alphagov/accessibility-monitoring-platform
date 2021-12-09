@@ -6,7 +6,7 @@
         {% if page.page_type != 'all-except-pdf' %}
             <a href="{% url 'audits:edit-audit-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
                 Update page details</a>&nbsp;
-            <a href="{{ page.url }}" class="govuk-link">Visit webpage</a>&nbsp;
+            <a href="{{ page.url }}" class="govuk-link" target="_blank">Visit webpage</a>&nbsp;
             <a href="{% url 'audits:delete-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
                 Remove page</a>
         {% endif %}
