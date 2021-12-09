@@ -28,7 +28,7 @@ from .forms import (
     AuditWebsiteUpdateForm,
     AuditPageCreateForm,
     AuditPageUpdateForm,
-    AuditPageChecksUpdateForm,
+    AuditPageChecksForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
     AuditSummaryUpdateForm,
@@ -310,57 +310,49 @@ class AuditPageUpdateView(UpdateView):
         return url
 
 
-class AuditPageFormView(FormView):
+class AuditPageChecksFormView(FormView):
     """
-    View to update an audit page
+    View to update manual check results for a page
     """
 
-    audit: Audit
+    form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
+    template_name: str = "audits/forms/page_checks.html"
     page: Page
+    next_page: Page
 
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
         super().setup(request, *args, **kwargs)
         self.page = Page.objects.get(pk=kwargs["pk"])
-        self.audit = self.page.audit
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Add audit and page to context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = self.audit
-        context["page"] = self.page
-        return context
 
     def get_form(self):
         """Populate next page select field"""
         form = super().get_form()
-        form.fields["next_page"].queryset = self.audit.every_page
-        form.fields["next_page"].initial = self.audit.next_page
+        form.fields["next_page"].queryset = self.page.audit.every_page
+        form.fields["next_page"].initial = self.page
+        form.fields["complete_date"].initial = self.page.complete_date
         return form
 
-
-class AuditPageChecksFormView(AuditPageFormView):
-    """
-    View to update manual check results for a page
-    """
-
-    form_class: Type[AuditPageChecksUpdateForm] = AuditPageChecksUpdateForm
-    template_name: str = "audits/forms/page_checks.html"
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["page"] = self.page
+        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        audit: Audit = self.audit
-        audit.next_page = form.cleaned_data["next_page"]
-        audit.save()
+        page: Page = self.page
+        page.complete_date = form.cleaned_data["complete_date"]
+        page.save()
+        self.next_page = form.cleaned_data["next_page"]
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        audit: Audit = self.audit
-        audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        audit_page_pk: Dict[str, int] = {"page_id": audit.next_page.id, "audit_id": audit.id}  # type: ignore
+        next_page_pk: Dict[str, int] = {"pk": self.next_page.id}  # type: ignore
+        audit_pk: Dict[str, int] = {"pk": self.page.audit.id}  # type: ignore
         if "save" in self.request.POST:
-            url: str = reverse("audits:edit-audit-page-checks", kwargs=audit_page_pk)
+            url: str = reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
         else:
             url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
         return url

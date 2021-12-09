@@ -157,19 +157,21 @@ class AuditPageUpdateForm(forms.ModelForm):
         ]
 
 
-class AuditPageChecksUpdateForm(forms.Form):
+class AuditPageChecksForm(forms.Form):
     """
     Form for editing checks for a page
     """
 
     next_page = AMPModelChoiceField(
-        label="", queryset=Page.objects.none(), empty_label=None
+        label="Change page", queryset=Page.objects.none(), empty_label=None
     )
+    complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "next_page",
+            "complete_date",
         ]
 
 
