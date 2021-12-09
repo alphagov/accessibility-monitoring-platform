@@ -4,6 +4,7 @@ Models - audits (called tests by the users)
 from typing import List, Tuple
 
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 
 from ..cases.models import Case
@@ -484,8 +485,13 @@ class Page(models.Model):
         return self.checkresult_page.filter(is_deleted=False).order_by("wcag_definition__id")  # type: ignore
 
     @property
-    def pdf_check_results(self):
-        return self.all_check_results.filter(type=TEST_TYPE_PDF)
+    def failed_check_results(self):
+        return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
+
+    @property
+    def check_results_by_wcag_definition(self):
+        check_results: QuerySet[CheckResult] = self.all_check_results
+        return {check_result.wcag_definition: check_result for check_result in check_results}
 
 
 class WcagDefinition(models.Model):

@@ -44,9 +44,11 @@ from .models import (
     AUDIT_TYPE_DEFAULT,
     PAGE_TYPE_ALL,
     WcagDefinition,
+    CheckResult,
     CHECK_RESULT_NOT_TESTED,
 )
 from .utils import (
+    copy_all_pages_check_results,
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
@@ -347,14 +349,24 @@ class AuditPageChecksFormView(FormView):
         )
 
         wcag_definitions: QuerySet[WcagDefinition] = WcagDefinition.objects.all()
-        check_results: List[Dict[str, Union[str, WcagDefinition]]] = [
-            {
-                "wcag_definition": wcag_definition,
-                "check_result_state": CHECK_RESULT_NOT_TESTED,
-                "notes": "",
-            }
-            for wcag_definition in wcag_definitions
-        ]
+        check_results_by_wcag_definition: Dict[WcagDefinition, CheckResult] = self.page.check_results_by_wcag_definition
+        check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
+
+        for wcag_definition in wcag_definitions:
+            if wcag_definition in check_results_by_wcag_definition:
+                check_result: CheckResult = check_results_by_wcag_definition[wcag_definition]
+                check_result_state: str = check_result.check_result_state
+                notes: str = check_result.notes
+            else:
+                check_result_state: str = CHECK_RESULT_NOT_TESTED
+                notes: str = ""
+            check_results.append(
+                {
+                    "wcag_definition": wcag_definition,
+                    "check_result_state": check_result_state,
+                    "notes": notes,
+                }
+            )
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
@@ -378,10 +390,39 @@ class AuditPageChecksFormView(FormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
         page.complete_date = form.cleaned_data["complete_date"]
         page.save()
         self.next_page = form.cleaned_data["next_page"]
+
+        check_results_formset: CheckResultFormset = context["check_results_formset"]
+        if check_results_formset.is_valid():
+            for check_result_form in check_results_formset.forms:
+                wcag_definition: WcagDefinition = check_result_form.cleaned_data["wcag_definition"]
+                check_result_state: str = check_result_form.cleaned_data["check_result_state"]
+                notes: str = check_result_form.cleaned_data["notes"]
+                if wcag_definition in page.check_results_by_wcag_definition:
+                    check_result: CheckResult = page.check_results_by_wcag_definition[wcag_definition]
+                    check_result.check_result_state = check_result_state
+                    check_result.notes = notes
+                    record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
+                    check_result.save()
+                elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
+                    check_result: CheckResult = CheckResult.objects.create(
+                        audit=page.audit,
+                        page=page,
+                        wcag_definition=wcag_definition,
+                        check_result_state=check_result_state,
+                        notes=notes,
+                    )
+                    record_model_create_event(user=self.request.user, model_object=check_result)  # type: ignore
+        else:
+            return super().form_invalid(form)
+
+        if page.page_type == PAGE_TYPE_ALL:
+            copy_all_pages_check_results(user=self.request.user, all_page=page)  # type: ignore
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

@@ -38,14 +38,14 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 
 
 def copy_all_pages_check_results(
-    user: User, audit: Audit, check_results: List[CheckResult]
+    user: User, all_page: Page
 ):
     """Copy check results from the All pages page to other html pages"""
-    for page in audit.html_pages:
-        for check_result in check_results:
+    for destination_page in all_page.audit.html_pages:
+        for check_result in all_page.all_check_results:
             other_check_result, created = CheckResult.objects.get_or_create(  # type: ignore
-                audit=audit,
-                page=page,
+                audit=all_page.audit,
+                page=destination_page,
                 wcag_definition=check_result.wcag_definition,
             )
             other_check_result.check_result_state = check_result.check_result_state

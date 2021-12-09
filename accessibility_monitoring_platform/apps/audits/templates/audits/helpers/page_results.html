@@ -11,5 +11,20 @@
                 Remove page</a>
         {% endif %}
     </p>
-    <p class="govuk-body">Test is empty</p>
+    {% if page.failed_check_results %}
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+                {% for check_result in page.failed_check_results %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        <p class="govuk-body-m cases-notes">{{ check_result.notes }}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body">Test is empty</p>
+    {% endif %}
 </div>

@@ -102,9 +102,11 @@
                             />
                         </div>
                         <div class="govuk-grid-column-full">
-                            <a href="{{ page.url }}" class="govuk-link">
-                                View {{ page|lower }}
-                            </a>
+                            {% if page.page_type != 'all-except-pdf' %}
+                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                                    View {{ page|lower }}
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
