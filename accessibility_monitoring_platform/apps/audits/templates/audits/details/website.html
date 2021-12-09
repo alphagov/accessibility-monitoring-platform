@@ -1,0 +1,42 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="audit-website" class="govuk-heading-l">Website</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'audits:edit-audit-website' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit website
+            </a>
+        </div>
+    </div>
+</div>
+{% if failed_check_results_by_page %}
+    <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default-axe">
+        {% for page, check_results in failed_check_results_by_page %}
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-default-axe-check-{{ forloop.counter0 }}">
+                            {{ page }}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-default-axe-check-{{ forloop.counter0 }}" class="govuk-accordion__section-content" aria-labelledby="accordion-default-axe-check-{{ forloop.counter0 }}">
+                    <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                    <table class="govuk-table view-test-accordion-table">
+                        <tbody class="govuk-table__body">
+                            {% for check_result in check_results %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

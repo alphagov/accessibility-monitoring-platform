@@ -449,8 +449,7 @@ class Audit(VersionModel):
                 is_deleted=False,
                 check_result_state=CHECK_RESULT_ERROR
             )
-            .exclude(page__page_type=PAGE_TYPE_ALL)
-            .order_by("wcag_definition__id")
+            .order_by("page__id", "wcag_definition__id")
         )
 
 

@@ -208,6 +208,7 @@ class AuditDetailView(DetailView):
         audit: Audit = self.object  # type: ignore
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
+        context["failed_check_results_by_page"] = group_check_results_by_page(audit.failed_check_results)
         context["audit_statement_rows"] = get_audit_statement_rows(audit)
         context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
 
