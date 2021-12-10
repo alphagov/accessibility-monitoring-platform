@@ -446,10 +446,11 @@ class Audit(VersionModel):
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(  # type: ignore
-                is_deleted=False,
-                check_result_state=CHECK_RESULT_ERROR
+                is_deleted=False, check_result_state=CHECK_RESULT_ERROR
             )
             .order_by("page__id", "wcag_definition__id")
+            .select_related("page", "wcag_definition")
+            .all()
         )
 
 
@@ -481,7 +482,12 @@ class Page(models.Model):
 
     @property
     def all_check_results(self):
-        return self.checkresult_page.filter(is_deleted=False).order_by("wcag_definition__id")  # type: ignore
+        return (
+            self.checkresult_page.filter(is_deleted=False)  # type: ignore
+            .order_by("wcag_definition__id")
+            .select_related("wcag_definition")
+            .all()
+        )
 
     @property
     def failed_check_results(self):
@@ -490,7 +496,9 @@ class Page(models.Model):
     @property
     def check_results_by_wcag_definition(self):
         check_results: QuerySet[CheckResult] = self.all_check_results
-        return {check_result.wcag_definition: check_result for check_result in check_results}
+        return {
+            check_result.wcag_definition: check_result for check_result in check_results
+        }
 
 
 class WcagDefinition(models.Model):

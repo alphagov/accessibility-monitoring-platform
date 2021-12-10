@@ -161,7 +161,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
-    return Case.objects.filter(search_query, **filters).order_by(sort_by)
+    return (
+        Case.objects.filter(search_query, **filters)
+        .order_by(sort_by)
+        .select_related("auditor", "reviewer")
+        .all()
+    )
 
 
 def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str:

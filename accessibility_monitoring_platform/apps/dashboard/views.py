@@ -28,7 +28,9 @@ class DashboardView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         user: User = get_object_or_404(User, id=self.request.user.id)  # type: ignore
-        all_cases: List[Case] = list(Case.objects.all())
+        all_cases: List[Case] = list(
+            Case.objects.all().select_related("auditor", "reviewer").all()
+        )
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
         if view_url_param is None:

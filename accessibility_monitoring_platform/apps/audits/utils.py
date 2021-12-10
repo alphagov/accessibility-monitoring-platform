@@ -37,9 +37,7 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 }
 
 
-def copy_all_pages_check_results(
-    user: User, all_page: Page
-):
+def copy_all_pages_check_results(user: User, all_page: Page):
     """Copy check results from the All pages page to other html pages"""
     for destination_page in all_page.audit.html_pages:
         for check_result in all_page.all_check_results:

@@ -208,7 +208,9 @@ class AuditDetailView(DetailView):
         audit: Audit = self.object  # type: ignore
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
-        context["failed_check_results_by_page"] = group_check_results_by_page(audit.failed_check_results)
+        context["failed_check_results_by_page"] = group_check_results_by_page(
+            audit.failed_check_results
+        )
         context["audit_statement_rows"] = get_audit_statement_rows(audit)
         context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
 
@@ -350,12 +352,16 @@ class AuditPageChecksFormView(FormView):
         )
 
         wcag_definitions: QuerySet[WcagDefinition] = WcagDefinition.objects.all()
-        check_results_by_wcag_definition: Dict[WcagDefinition, CheckResult] = self.page.check_results_by_wcag_definition
+        check_results_by_wcag_definition: Dict[
+            WcagDefinition, CheckResult
+        ] = self.page.check_results_by_wcag_definition
         check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
 
         for wcag_definition in wcag_definitions:
             if wcag_definition in check_results_by_wcag_definition:
-                check_result: CheckResult = check_results_by_wcag_definition[wcag_definition]
+                check_result: CheckResult = check_results_by_wcag_definition[
+                    wcag_definition
+                ]
                 check_result_state: str = check_result.check_result_state
                 notes: str = check_result.notes
             else:
@@ -400,11 +406,17 @@ class AuditPageChecksFormView(FormView):
         check_results_formset: CheckResultFormset = context["check_results_formset"]
         if check_results_formset.is_valid():
             for check_result_form in check_results_formset.forms:
-                wcag_definition: WcagDefinition = check_result_form.cleaned_data["wcag_definition"]
-                check_result_state: str = check_result_form.cleaned_data["check_result_state"]
+                wcag_definition: WcagDefinition = check_result_form.cleaned_data[
+                    "wcag_definition"
+                ]
+                check_result_state: str = check_result_form.cleaned_data[
+                    "check_result_state"
+                ]
                 notes: str = check_result_form.cleaned_data["notes"]
                 if wcag_definition in page.check_results_by_wcag_definition:
-                    check_result: CheckResult = page.check_results_by_wcag_definition[wcag_definition]
+                    check_result: CheckResult = page.check_results_by_wcag_definition[
+                        wcag_definition
+                    ]
                     check_result.check_result_state = check_result_state
                     check_result.notes = notes
                     record_model_update_event(user=self.request.user, model_object=check_result)  # type: ignore
