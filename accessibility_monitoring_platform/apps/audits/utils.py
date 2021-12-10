@@ -76,7 +76,7 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
         instance=audit,
         form=AuditStatement2UpdateForm(),  # type: ignore
     )
-    return statement_1_rows + statement_2_rows
+    return statement_1_rows + statement_2_rows[1:]  # Skip first field as it echoes first form
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:

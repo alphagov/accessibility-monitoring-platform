@@ -311,6 +311,9 @@ class AuditStatement2UpdateForm(VersionForm):
     Form for editing accessibility statement 2 checks
     """
 
+    accessibility_statement_backup_url = AMPURLField(
+        label="Link to saved accessibility statement",
+    )
     disproportionate_burden_state = AMPChoiceRadioField(
         label="Non-accessible Content - disproportionate burden",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
@@ -352,6 +355,7 @@ class AuditStatement2UpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
+            "accessibility_statement_backup_url",
             "disproportionate_burden_state",
             "disproportionate_burden_notes",
             "content_not_in_scope_state",
