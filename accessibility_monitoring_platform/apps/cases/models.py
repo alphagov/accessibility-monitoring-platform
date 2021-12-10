@@ -170,6 +170,7 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
     ("scotland", "Scotland"),
     ("wales", "Wales"),
     ("northern_ireland", "Northern Ireland"),
+    ("uk_wide", "UK-wide"),
     (PSB_LOCATION_DEFAULT, "Unknown"),
 ]
 
