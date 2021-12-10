@@ -434,7 +434,7 @@ class AuditPageChecksFormView(FormView):
             return super().form_invalid(form)
 
         if page.page_type == PAGE_TYPE_ALL:
-            copy_all_pages_check_results(user=self.request.user, all_page=page)  # type: ignore
+            copy_all_pages_check_results(user=self.request.user, page=page)  # type: ignore
 
         return super().form_valid(form)
 

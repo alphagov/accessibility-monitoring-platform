@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0019_alter_case_psb_location'),
-        ('cases', '0019_alter_case_sector'),
+        ("cases", "0019_alter_case_psb_location"),
+        ("cases", "0019_alter_case_sector"),
     ]
 
-    operations = [
-    ]
+    operations = []

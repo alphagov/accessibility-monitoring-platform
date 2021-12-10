@@ -5,12 +5,15 @@ import pytest
 from typing import List, Tuple
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
 
 from ..models import (
     Audit,
+    CheckResult,
+    Page,
     WcagDefinition,
     PAGE_TYPE_HOME,
     PAGE_TYPE_CONTACT,
@@ -22,9 +25,12 @@ from ..models import (
     TEST_TYPE_MANUAL,
 )
 from ..utils import (
+    copy_all_pages_check_results,
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
+    group_check_results_by_page,
+    group_check_results_by_wcag,
 )
 
 USER_FIRST_NAME = "John"
@@ -337,6 +343,63 @@ def create_audit_and_user() -> Tuple[Audit, User]:
     return audit, user
 
 
+def create_audit_and_check_results() -> Audit:
+    """Create an audit and check results"""
+    audit, _ = create_audit_and_user()
+
+    page_home: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
+        type=TEST_TYPE_MANUAL
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_home,
+        wcag_definition=wcag_definition_manual,
+        type=wcag_definition_manual.type,
+    )
+
+    page_pdf: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_pdf,
+        wcag_definition=wcag_definition_pdf,
+        type=wcag_definition_pdf.type,
+    )
+
+    return audit
+
+
+@pytest.mark.django_db
+def test_copy_all_pages_check_results():
+    """Test copy of check results to all html pages"""
+    audit: Audit = create_audit_and_check_results()
+    page_all: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_ALL)
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
+        type=TEST_TYPE_MANUAL
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page_all,
+        wcag_definition=wcag_definition_manual,
+        notes=UPDATED_NOTE,
+    )
+
+    copy_all_pages_check_results(user=audit.case.auditor, page=page_all)
+
+    for page in audit.html_pages:
+        check_results: QuerySet[CheckResult] = page.checkresult_page.all()
+        assert len(check_results) == NUMBER_OF_WCAG_PER_TYPE_OF_PAGE
+        for check_result in check_results:
+            assert check_result.notes == UPDATED_NOTE
+
+    page_pdf: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    check_results: QuerySet[CheckResult] = page_pdf.checkresult_page.all()  # type: ignore
+    assert len(check_results) == NUMBER_OF_WCAG_PER_TYPE_OF_PAGE
+    for check_result in check_results:
+        assert check_result.notes != UPDATED_NOTE
+
+
 @pytest.mark.django_db
 def test_get_audit_metadata_rows():
     """Test audit metadata rows returned for display on View test page"""
@@ -361,3 +424,38 @@ def test_get_audit_report_options_rows():
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
+
+
+@pytest.mark.django_db
+def test_group_check_results_by_page():
+    """Test grouping check results by page"""
+    audit: Audit = create_audit_and_check_results()
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)
+
+    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page_pdf: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+
+    assert group_check_results_by_page(check_results=check_results) == [
+        (page_home, list(CheckResult.objects.filter(audit=audit, page=page_home))),
+        (page_pdf, list(CheckResult.objects.filter(audit=audit, page=page_pdf))),
+    ]
+
+
+@pytest.mark.django_db
+def test_group_check_results_by_wcag_definition():
+    """Test grouping check results by wcag definition"""
+    audit: Audit = create_audit_and_check_results()
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)
+
+    assert group_check_results_by_wcag(check_results=check_results) == [
+        (
+            WcagDefinition.objects.get(type=TEST_TYPE_MANUAL),
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_MANUAL)),
+        ),
+        (
+            WcagDefinition.objects.get(type=TEST_TYPE_PDF),
+            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_PDF)),
+        ),
+    ]
