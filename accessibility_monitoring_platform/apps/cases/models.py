@@ -170,6 +170,7 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
     ("scotland", "Scotland"),
     ("wales", "Wales"),
     ("northern_ireland", "Northern Ireland"),
+    ("uk_wide", "UK-wide"),
     (PSB_LOCATION_DEFAULT, "Unknown"),
 ]
 
@@ -213,7 +214,7 @@ class Case(VersionModel):
         choices=PSB_LOCATION_CHOICES,
         default=PSB_LOCATION_DEFAULT,
     )
-    sector = models.ForeignKey(Sector, on_delete=models.CASCADE, null=True, blank=True)
+    sector = models.ForeignKey(Sector, on_delete=models.SET_NULL, null=True, blank=True)
     enforcement_body = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,
