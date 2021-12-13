@@ -17,12 +17,14 @@ from .forms import (
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
     AuditReportOptionsUpdateForm,
+    CheckResultForm,
 )
 from .models import (
     Audit,
     Page,
     WcagDefinition,
     CheckResult,
+    CHECK_RESULT_NOT_TESTED,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
 )
@@ -148,3 +150,42 @@ def group_check_results_by_wcag(
             check_results_by_wcag[check_result.wcag_definition] = [check_result]
 
     return [(key, value) for key, value in check_results_by_wcag.items()]
+
+
+def create_or_update_check_results_for_page(
+    user: User, page: Page, check_result_forms: List[CheckResultForm]
+) -> None:
+    """
+    Create or update check results based on form data:
+
+    If a check result matching the WCAG definition does not exist and the user
+    has changed the check state from the default value or entered notes then
+    create a check result.
+
+    if a check result matching the WCAG definition does exist then apply the
+    latest state and notes values.
+    """
+    for check_result_form in check_result_forms:
+        wcag_definition: WcagDefinition = check_result_form.cleaned_data[
+            "wcag_definition"
+        ]
+        check_result_state: str = check_result_form.cleaned_data["check_result_state"]
+        notes: str = check_result_form.cleaned_data["notes"]
+        if wcag_definition in page.check_results_by_wcag_definition:
+            check_result: CheckResult = page.check_results_by_wcag_definition[
+                wcag_definition
+            ]
+            check_result.check_result_state = check_result_state
+            check_result.notes = notes
+            record_model_update_event(user=user, model_object=check_result)
+            check_result.save()
+        elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
+            check_result: CheckResult = CheckResult.objects.create(
+                audit=page.audit,
+                page=page,
+                wcag_definition=wcag_definition,
+                type=wcag_definition.type,
+                check_result_state=check_result_state,
+                notes=notes,
+            )
+            record_model_create_event(user=user, model_object=check_result)
