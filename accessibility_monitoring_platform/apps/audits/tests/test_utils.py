@@ -30,6 +30,7 @@ from ..models import (
 from ..utils import (
     copy_all_pages_check_results,
     create_or_update_check_results_for_page,
+    get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
@@ -488,7 +489,9 @@ def test_create_or_update_check_results_for_page():
         formset_data[f"form-{count}-notes"] = UPDATED_NOTE
 
     extra_form_index: int = len(check_results)
-    new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
+    new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
     formset_data[f"form-{extra_form_index}-wcag_definition"] = new_wcag_definition.id  # type: ignore
     formset_data[f"form-{extra_form_index}-check_result_state"] = CHECK_RESULT_ERROR
     formset_data[f"form-{extra_form_index}-notes"] = NEW_CHECK_NOTE
@@ -497,13 +500,54 @@ def test_create_or_update_check_results_for_page():
     check_results_formset.is_valid()
 
     create_or_update_check_results_for_page(
-        user=audit.case.auditor, page=page_home, check_result_forms=check_results_formset.forms
+        user=audit.case.auditor,
+        page=page_home,
+        check_result_forms=check_results_formset.forms,
     )
 
-    updated_check_result: CheckResult = CheckResult.objects.get(page=page_home, type=TEST_TYPE_MANUAL)
-    new_check_result: CheckResult = CheckResult.objects.get(page=page_home, type=TEST_TYPE_AXE)
+    updated_check_result: CheckResult = CheckResult.objects.get(
+        page=page_home, type=TEST_TYPE_MANUAL
+    )
+    new_check_result: CheckResult = CheckResult.objects.get(
+        page=page_home, type=TEST_TYPE_AXE
+    )
 
     assert updated_check_result.check_result_state == CHECK_RESULT_ERROR
     assert updated_check_result.notes == UPDATED_NOTE
     assert new_check_result.check_result_state == CHECK_RESULT_ERROR
     assert new_check_result.notes == NEW_CHECK_NOTE
+
+
+@pytest.mark.django_db
+def test_get_all_possible_check_results_for_page():
+    """Test building list of all possible test results"""
+    audit: Audit = create_audit_and_check_results()
+    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
+    wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
+
+    all_check_results: List[
+        Dict[str, Union[str, WcagDefinition]]
+    ] = get_all_possible_check_results_for_page(
+        page=page_home, wcag_definitions=wcag_definitions
+    )
+
+    assert len(all_check_results) == 3
+
+    assert all_check_results == [
+        {
+            "wcag_definition": WcagDefinition.objects.get(type=TEST_TYPE_PDF),
+            "check_result_state": "not-tested",
+            "notes": "",
+        },
+        {
+            "wcag_definition": WcagDefinition.objects.get(type=TEST_TYPE_MANUAL),
+            "check_result_state": "not-tested",
+            "notes": "",
+        },
+        {
+            "wcag_definition": WcagDefinition.objects.get(type=TEST_TYPE_AXE),
+            "check_result_state": "not-tested",
+            "notes": "",
+        },
+    ]

@@ -2,7 +2,7 @@
 Utilities for audits app
 """
 
-from typing import Dict, Tuple, List
+from typing import Dict, List, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -189,3 +189,36 @@ def create_or_update_check_results_for_page(
                 notes=notes,
             )
             record_model_create_event(user=user, model_object=check_result)
+
+
+def get_all_possible_check_results_for_page(
+    page: Page, wcag_definitions: List[WcagDefinition]
+) -> List[Dict[str, Union[str, WcagDefinition]]]:
+    """
+    Combine exisiting check result with all the WCAG definitions
+    to create a list of dictionaries for use in populating the
+    CheckResultFormset with all possible results.
+    """
+    check_results_by_wcag_definition: Dict[
+        WcagDefinition, CheckResult
+    ] = page.check_results_by_wcag_definition
+    check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
+
+    for wcag_definition in wcag_definitions:
+        if wcag_definition in check_results_by_wcag_definition:
+            check_result: CheckResult = check_results_by_wcag_definition[
+                wcag_definition
+            ]
+            check_result_state: str = check_result.check_result_state
+            notes: str = check_result.notes
+        else:
+            check_result_state: str = CHECK_RESULT_NOT_TESTED
+            notes: str = ""
+        check_results.append(
+            {
+                "wcag_definition": wcag_definition,
+                "check_result_state": check_result_state,
+                "notes": notes,
+            }
+        )
+    return check_results

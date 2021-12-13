@@ -44,12 +44,11 @@ from .models import (
     AUDIT_TYPE_DEFAULT,
     PAGE_TYPE_ALL,
     WcagDefinition,
-    CheckResult,
-    CHECK_RESULT_NOT_TESTED,
 )
 from .utils import (
     create_or_update_check_results_for_page,
     copy_all_pages_check_results,
+    get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
@@ -351,38 +350,18 @@ class AuditPageChecksFormView(FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": True, "axe": True, "pdf": True, "not_tested": True}
         )
-
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
-        check_results_by_wcag_definition: Dict[
-            WcagDefinition, CheckResult
-        ] = self.page.check_results_by_wcag_definition
-        check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
-
-        for wcag_definition in wcag_definitions:
-            if wcag_definition in check_results_by_wcag_definition:
-                check_result: CheckResult = check_results_by_wcag_definition[
-                    wcag_definition
-                ]
-                check_result_state: str = check_result.check_result_state
-                notes: str = check_result.notes
-            else:
-                check_result_state: str = CHECK_RESULT_NOT_TESTED
-                notes: str = ""
-            check_results.append(
-                {
-                    "wcag_definition": wcag_definition,
-                    "check_result_state": check_result_state,
-                    "notes": notes,
-                }
-            )
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
                 self.request.POST
             )
         else:
+
             check_results_formset: CheckResultFormset = CheckResultFormset(
-                initial=check_results
+                initial=get_all_possible_check_results_for_page(
+                    page=self.page, wcag_definitions=wcag_definitions
+                )
             )
 
         wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
