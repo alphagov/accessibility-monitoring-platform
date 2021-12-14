@@ -369,8 +369,8 @@ class AuditPageChecksFormView(FormView):
             wcag_definition: WcagDefinition = wcag_definitions[count]
             check_results_form.fields["check_result_state"].label = wcag_definition
             wcag_definitions_and_forms.append((wcag_definition, check_results_form))
-        context["check_results_formset"] = check_results_formset
 
+        context["check_results_formset"] = check_results_formset
         context["wcag_definitions_and_forms"] = wcag_definitions_and_forms
 
         return context

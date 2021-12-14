@@ -15,6 +15,7 @@ from ..models import (
     Audit,
     Page,
     WcagDefinition,
+    PAGE_TYPE_EXTRA,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
 )
@@ -25,6 +26,10 @@ WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
 EXTRA_PAGE_NAME: str = "Extra page name"
 EXTRA_PAGE_URL: str = "https://extra-page.com"
 CHECK_RESULT_NOTES: str = "Check result notes"
+NEW_PAGE_NAME = "New page name"
+NEW_PAGE_URL = "https://example.com/extra"
+UPDATED_PAGE_NAME = "Updated page name"
+UPDATED_PAGE_URL = "https://example.com/updated"
 
 
 def create_audit() -> Audit:
@@ -43,9 +48,10 @@ def create_audit_and_wcag() -> Audit:
 def test_delete_audit_view(admin_client):
     """Test that delete audit view deletes audit"""
     audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:delete-audit", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:delete-audit", kwargs=audit_pk),
         {
             "version": audit.version,
         },
@@ -56,7 +62,7 @@ def test_delete_audit_view(admin_client):
         "cases:edit-test-results", kwargs={"pk": audit.case.id}
     )
 
-    audit_from_db: Audit = Audit.objects.get(pk=audit.id)  # type: ignore
+    audit_from_db: Audit = Audit.objects.get(**audit_pk)
 
     assert audit_from_db.is_deleted
 
@@ -66,18 +72,19 @@ def test_restore_audit_view(admin_client):
     audit: Audit = create_audit()
     audit.is_deleted = True
     audit.save()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:restore-audit", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:restore-audit", kwargs=audit_pk),
         {
             "version": audit.version,
         },
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:audit-detail", kwargs={"pk": audit.id})  # type: ignore
+    assert response.url == reverse("audits:audit-detail", kwargs=audit_pk)
 
-    audit_from_db: Audit = Audit.objects.get(pk=audit.id)  # type: ignore
+    audit_from_db: Audit = Audit.objects.get(**audit_pk)
 
     assert audit_from_db.is_deleted is False
 
@@ -85,22 +92,24 @@ def test_restore_audit_view(admin_client):
 def test_delete_page_view(admin_client):
     """Test that delete page view deletes page"""
     audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:delete-page",
-            kwargs={"pk": page.id},  # type: ignore
+            kwargs=page_pk,
         ),
     )
 
     assert response.status_code == 302
     assert response.url == reverse(
         "audits:edit-audit-website",
-        kwargs={"pk": audit.id},  # type: ignore
+        kwargs=audit_pk,
     )
 
-    page_from_db: Page = Page.objects.get(pk=page.id)  # type: ignore
+    page_from_db: Page = Page.objects.get(**page_pk)
 
     assert page_from_db.is_deleted
 
@@ -108,22 +117,24 @@ def test_delete_page_view(admin_client):
 def test_restore_page_view(admin_client):
     """Test that restore page view restores audit"""
     audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     page: Page = Page.objects.create(audit=audit, is_deleted=True)
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:restore-page",
-            kwargs={"pk": page.id},  # type: ignore
+            kwargs=page_pk,
         ),
     )
 
     assert response.status_code == 302
     assert response.url == reverse(
         "audits:edit-audit-website",
-        kwargs={"pk": audit.id},  # type: ignore
+        kwargs=audit_pk,
     )
 
-    page_from_db: Page = Page.objects.get(pk=page.id)  # type: ignore
+    page_from_db: Page = Page.objects.get(**page_pk)
 
     assert page_from_db.is_deleted is False
 
@@ -173,8 +184,9 @@ def test_create_audit_redirects_based_on_button_pressed(
 def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the audit-specific view page loads"""
     audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": audit.id}))  # type: ignore
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
 
     assert response.status_code == 200
 
@@ -262,9 +274,10 @@ def test_audit_edit_redirects_based_on_button_pressed(
 ):
     """Test that a successful audit update redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs={"pk": audit.id}),  # type: ignore
+        reverse(path_name, kwargs=audit_pk),
         {
             "version": audit.version,
             button_name: "Button value",
@@ -277,8 +290,105 @@ def test_audit_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(
-        expected_redirect_path_name,
-        kwargs={"pk": audit.id},  # type: ignore
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == f"{expected_path}{expected_view_page_anchor}"
+
+
+def test_website_view_contains_adds_page_form(admin_client):
+    """Test website page contaisn form to add page"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-website", kwargs=audit_pk),
     )
-    assert response.url == f"{expected_path}{expected_view_page_anchor}"  # type: ignore
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<input type="text" name="url" class="govuk-input" id="id_url">'
+    )
+    assertContains(
+        response,
+        """<input
+            type="submit"
+            value="Add page"
+            name="add_page"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_website_view_adds_page(admin_client):
+    """
+    Test adding an extra page creates the page and stays on the website UI page
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-website", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "add_page": "Add page",
+            "name": NEW_PAGE_NAME,
+            "url": NEW_PAGE_URL,
+            "page_type": PAGE_TYPE_EXTRA,
+        },
+    )
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-audit-website", kwargs=audit_pk
+    )
+    assert response.url == expected_path
+
+    new_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_EXTRA)
+
+    assert new_page.name == NEW_PAGE_NAME
+    assert new_page.url == NEW_PAGE_URL
+
+
+def test_page_edit_page_loads(admin_client):
+    """Test page edit view page loads"""
+    audit: Audit = create_audit()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(reverse("audits:edit-audit-page", kwargs=page_pk))
+
+    assert response.status_code == 200
+
+    assertContains(response, "Edit test | Edit page details")
+
+
+def test_page_edit_view_redirects_to_website_page(admin_client):
+    """Test editing a page redirects to website page"""
+    audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-page", kwargs=page_pk),
+        {
+            "version": audit.version,
+            "save_return": "Save and return",
+            "name": UPDATED_PAGE_NAME,
+            "url": UPDATED_PAGE_URL,
+            "page_type": PAGE_TYPE_EXTRA,
+        },
+    )
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-audit-website", kwargs=audit_pk
+    )
+    assert response.url == expected_path
+
+    updated_page: Page = Page.objects.get(**page_pk)
+
+    assert updated_page.name == UPDATED_PAGE_NAME
+    assert updated_page.url == UPDATED_PAGE_URL
