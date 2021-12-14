@@ -309,8 +309,7 @@ def test_website_view_contains_adds_page_form(admin_client):
 
     assert response.status_code == 200
     assertContains(
-        response,
-        '<input type="text" name="url" class="govuk-input" id="id_url">'
+        response, '<input type="text" name="url" class="govuk-input" id="id_url">'
     )
     assertContains(
         response,
@@ -344,9 +343,7 @@ def test_website_view_adds_page(admin_client):
     )
     assert response.status_code == 302
 
-    expected_path: str = reverse(
-        "audits:edit-audit-website", kwargs=audit_pk
-    )
+    expected_path: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
     assert response.url == expected_path
 
     new_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_EXTRA)
@@ -361,7 +358,9 @@ def test_page_edit_page_loads(admin_client):
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
 
-    response: HttpResponse = admin_client.get(reverse("audits:edit-audit-page", kwargs=page_pk))
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page", kwargs=page_pk)
+    )
 
     assert response.status_code == 200
 
@@ -387,9 +386,7 @@ def test_page_edit_view_redirects_to_website_page(admin_client):
     )
     assert response.status_code == 302
 
-    expected_path: str = reverse(
-        "audits:edit-audit-website", kwargs=audit_pk
-    )
+    expected_path: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
     assert response.url == expected_path
 
     updated_page: Page = Page.objects.get(**page_pk)
@@ -404,7 +401,9 @@ def test_page_checks_edit_page_loads(admin_client):
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
 
-    response: HttpResponse = admin_client.get(reverse("audits:edit-audit-page-checks", kwargs=page_pk))
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
 
     assert response.status_code == 200
 
@@ -423,7 +422,9 @@ def test_page_checks_edit_page_contains_next_page_choices(admin_client):
     page_home: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
     page_home_id: int = page_home.id  # type: ignore
 
-    response: HttpResponse = admin_client.get(reverse("audits:edit-audit-page-checks", kwargs=page_pk))
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    )
 
     assert response.status_code == 200
 
@@ -469,11 +470,15 @@ def test_page_checks_edit_saves_results(button_name, admin_client):
 
     assert response.status_code == 200
 
-    check_result_axe: CheckResult = CheckResult.objects.get(page=page, wcag_definition=wcag_definition_axe)
+    check_result_axe: CheckResult = CheckResult.objects.get(
+        page=page, wcag_definition=wcag_definition_axe
+    )
     assert check_result_axe.check_result_state == CHECK_RESULT_ERROR
     assert check_result_axe.notes == CHECK_RESULT_NOTES
 
-    check_result_pdf: CheckResult = CheckResult.objects.get(page=page, wcag_definition=wcag_definition_pdf)
+    check_result_pdf: CheckResult = CheckResult.objects.get(
+        page=page, wcag_definition=wcag_definition_pdf
+    )
     assert check_result_pdf.check_result_state == CHECK_RESULT_ERROR
     assert check_result_pdf.notes == CHECK_RESULT_NOTES
 
@@ -518,5 +523,9 @@ def test_page_checks_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    kwargs: Dict[str, int] = page_pk if expected_redirect_path_name == "audits:edit-audit-page-checks" else audit_pk
+    kwargs: Dict[str, int] = (
+        page_pk
+        if expected_redirect_path_name == "audits:edit-audit-page-checks"
+        else audit_pk
+    )
     assert response.url == reverse(expected_redirect_path_name, kwargs=kwargs)
