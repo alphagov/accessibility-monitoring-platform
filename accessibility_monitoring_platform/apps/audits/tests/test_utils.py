@@ -488,13 +488,13 @@ def test_create_or_update_check_results_for_page():
         formset_data[f"form-{count}-check_result_state"] = CHECK_RESULT_ERROR
         formset_data[f"form-{count}-notes"] = UPDATED_NOTE
 
-    extra_form_index: int = len(check_results)
+    new_form_index: int = len(check_results)
     new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
     )
-    formset_data[f"form-{extra_form_index}-wcag_definition"] = new_wcag_definition.id  # type: ignore
-    formset_data[f"form-{extra_form_index}-check_result_state"] = CHECK_RESULT_ERROR
-    formset_data[f"form-{extra_form_index}-notes"] = NEW_CHECK_NOTE
+    formset_data[f"form-{new_form_index}-wcag_definition"] = new_wcag_definition.id  # type: ignore
+    formset_data[f"form-{new_form_index}-check_result_state"] = CHECK_RESULT_ERROR
+    formset_data[f"form-{new_form_index}-notes"] = NEW_CHECK_NOTE
 
     check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
     check_results_formset.is_valid()
