@@ -2,7 +2,7 @@
 Utilities for audits app
 """
 
-from typing import Dict, Tuple, List
+from typing import Dict, List, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -24,6 +24,7 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
+    CHECK_RESULT_NOT_TESTED,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
 )
@@ -37,12 +38,12 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 }
 
 
-def copy_all_pages_check_results(user: User, all_page: Page):
+def copy_all_pages_check_results(user: User, page: Page):
     """Copy check results from the All pages page to other html pages"""
-    for destination_page in all_page.audit.html_pages:
-        for check_result in all_page.all_check_results:
+    for destination_page in page.audit.html_pages:
+        for check_result in page.all_check_results:
             other_check_result, created = CheckResult.objects.get_or_create(  # type: ignore
-                audit=all_page.audit,
+                audit=page.audit,
                 page=destination_page,
                 wcag_definition=check_result.wcag_definition,
             )
@@ -76,7 +77,9 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
         instance=audit,
         form=AuditStatement2UpdateForm(),  # type: ignore
     )
-    return statement_1_rows + statement_2_rows
+    return (
+        statement_1_rows + statement_2_rows[1:]
+    )  # Skip first field as it echoes first form
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
@@ -113,26 +116,22 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     )
 
 
-def group_check_results_by_wcag_sub_type_labels(
-    check_result_update_forms: List[CheckResultForm],
-) -> List[Tuple[str, List[CheckResultForm]]]:
+def group_check_results_by_page(
+    check_results: QuerySet[CheckResult],
+) -> List[Tuple[Page, List[CheckResult]]]:
     """
-    Group check result forms by wcag/check sub-type and then return list of tuples
-    of sub-type labels and list of forms of that sub-type.
+    Group check results by page and then return list of tuples
+    of page and list of check results of that page.
     """
-    check_result_forms_by_wcag_sub_type: Dict[str, List[CheckResultForm]] = {}
+    check_results_by_page: Dict[Page, List[CheckResult]] = {}
 
-    for check_result_form in check_result_update_forms:
-        sub_type_label: str = MANUAL_CHECK_SUB_TYPE_LABELS[
-            check_result_form.instance.wcag_definition.sub_type
-        ]
-        if sub_type_label in check_result_forms_by_wcag_sub_type:
-            check_result_forms_by_wcag_sub_type[sub_type_label].append(
-                check_result_form
-            )
+    for check_result in check_results:
+        if check_result.page in check_results_by_page:
+            check_results_by_page[check_result.page].append(check_result)
         else:
-            check_result_forms_by_wcag_sub_type[sub_type_label] = [check_result_form]
-    return [(key, value) for key, value in check_result_forms_by_wcag_sub_type.items()]
+            check_results_by_page[check_result.page] = [check_result]
+
+    return [(key, value) for key, value in check_results_by_page.items()]
 
 
 def group_check_results_by_wcag(
@@ -142,30 +141,84 @@ def group_check_results_by_wcag(
     Group check results by wcag definition and then return list of tuples
     of wcag definition and list of check results of that wcag definiton.
     """
-    audit_failures_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
+    check_results_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
 
     for check_result in check_results:
-        if check_result.wcag_definition in audit_failures_by_wcag:
-            audit_failures_by_wcag[check_result.wcag_definition].append(check_result)
+        if check_result.wcag_definition in check_results_by_wcag:
+            check_results_by_wcag[check_result.wcag_definition].append(check_result)
         else:
-            audit_failures_by_wcag[check_result.wcag_definition] = [check_result]
+            check_results_by_wcag[check_result.wcag_definition] = [check_result]
 
-    return [(key, value) for key, value in audit_failures_by_wcag.items()]
+    return [(key, value) for key, value in check_results_by_wcag.items()]
 
 
-def group_check_results_by_page(
-    check_results: QuerySet[CheckResult],
-) -> List[Tuple[Page, List[CheckResult]]]:
+def create_or_update_check_results_for_page(
+    user: User, page: Page, check_result_forms: List[CheckResultForm]
+) -> None:
     """
-    Group check results by page and then return list of tuples
-    of page and list of check results of that page.
-    """
-    audit_failures_by_page: Dict[Page, List[CheckResult]] = {}
+    Create or update check results based on form data:
 
-    for check_result in check_results:
-        if check_result.page in audit_failures_by_page:
-            audit_failures_by_page[check_result.page].append(check_result)
+    If a check result matching the WCAG definition does not exist and the user
+    has changed the check state from the default value or entered notes then
+    create a check result.
+
+    if a check result matching the WCAG definition does exist then apply the
+    latest state and notes values.
+    """
+    for check_result_form in check_result_forms:
+        wcag_definition: WcagDefinition = check_result_form.cleaned_data[
+            "wcag_definition"
+        ]
+        check_result_state: str = check_result_form.cleaned_data["check_result_state"]
+        notes: str = check_result_form.cleaned_data["notes"]
+        if wcag_definition in page.check_results_by_wcag_definition:
+            check_result: CheckResult = page.check_results_by_wcag_definition[
+                wcag_definition
+            ]
+            check_result.check_result_state = check_result_state
+            check_result.notes = notes
+            record_model_update_event(user=user, model_object=check_result)
+            check_result.save()
+        elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
+            check_result: CheckResult = CheckResult.objects.create(
+                audit=page.audit,
+                page=page,
+                wcag_definition=wcag_definition,
+                type=wcag_definition.type,
+                check_result_state=check_result_state,
+                notes=notes,
+            )
+            record_model_create_event(user=user, model_object=check_result)
+
+
+def get_all_possible_check_results_for_page(
+    page: Page, wcag_definitions: List[WcagDefinition]
+) -> List[Dict[str, Union[str, WcagDefinition]]]:
+    """
+    Combine exisiting check result with all the WCAG definitions
+    to create a list of dictionaries for use in populating the
+    CheckResultFormset with all possible results.
+    """
+    check_results_by_wcag_definition: Dict[
+        WcagDefinition, CheckResult
+    ] = page.check_results_by_wcag_definition
+    check_results: List[Dict[str, Union[str, WcagDefinition]]] = []
+
+    for wcag_definition in wcag_definitions:
+        if wcag_definition in check_results_by_wcag_definition:
+            check_result: CheckResult = check_results_by_wcag_definition[
+                wcag_definition
+            ]
+            check_result_state: str = check_result.check_result_state
+            notes: str = check_result.notes
         else:
-            audit_failures_by_page[check_result.page] = [check_result]
-
-    return [(key, value) for key, value in audit_failures_by_page.items()]
+            check_result_state: str = CHECK_RESULT_NOT_TESTED
+            notes: str = ""
+        check_results.append(
+            {
+                "wcag_definition": wcag_definition,
+                "check_result_state": check_result_state,
+                "notes": notes,
+            }
+        )
+    return check_results
