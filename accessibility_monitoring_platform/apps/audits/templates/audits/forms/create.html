@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block title %}{{ case.organisation_name }} | Edit case | Create test{% endblock %}
 
 {% block content %}
@@ -50,5 +52,6 @@
             </div>
         </form>
     </main>
+    <script src="{% static 'js/create_test.js' %}"></script>
 </div>
 {% endblock %}
