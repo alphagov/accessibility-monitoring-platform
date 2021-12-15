@@ -348,7 +348,7 @@ class AuditPageChecksFormView(FormView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
         context["filter_form"] = CheckResultFilterForm(
-            initial={"manual": True, "axe": True, "pdf": True, "not_tested": True}
+            initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
@@ -363,7 +363,6 @@ class AuditPageChecksFormView(FormView):
                     page=self.page, wcag_definitions=wcag_definitions
                 )
             )
-
         wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
             wcag_definition: WcagDefinition = wcag_definitions[count]

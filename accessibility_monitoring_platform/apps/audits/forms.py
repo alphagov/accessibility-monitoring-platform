@@ -66,7 +66,7 @@ class AuditCreateForm(forms.ModelForm):
 
     name = AMPCharFieldWide(label="Name")
     type = AMPChoiceRadioField(
-        label="Initital test or equality body retest?",
+        label="Type of test",
         choices=AUDIT_TYPE_CHOICES,
     )
     retest_of_audit = AMPModelChoiceRadioField(
@@ -187,7 +187,7 @@ class CheckResultFilterForm(forms.Form):
 
     name = AMPCharFieldWide(label="")
     manual = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests (16)"})
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests"})
     )
     axe = AMPChoiceCheckboxField(
         label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Axe tests"})
