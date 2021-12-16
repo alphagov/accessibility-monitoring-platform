@@ -1,3 +1,6 @@
+/*
+All user to filter checks displayed by type, if check has been tested and WCAG definition name.
+*/
 const divElements = document.getElementsByTagName('div')
 
 const wcagInputs = Array.from(divElements).filter(chapter => chapter.id.includes('testlist'))

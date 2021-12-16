@@ -1,3 +1,7 @@
+/*
+Hide retest_of_audit input field unless type of audit being created is retest.
+*/
+
 const formGroups = document.getElementsByClassName('govuk-form-group')
 
 const retestForm = Array.from(formGroups).filter((formSet) => formSet.innerHTML.includes('retesting'))[0]

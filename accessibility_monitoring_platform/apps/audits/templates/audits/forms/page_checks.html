@@ -79,7 +79,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="govuk-grid-column-one-third fixed" id="side-navbar" >
+                <div class="govuk-grid-column-one-third side-navbar-position" id="side-navbar" >
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
@@ -114,6 +114,6 @@
             </form>
         </div>
     </main>
-    <script src="{% static 'js/audit_filter.js' %}"></script>
+    <script src="{% static 'js/audits_check_filter.js' %}"></script>
 </div>
 {% endblock %}
