@@ -23,7 +23,6 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
-from ..cases.models import Contact
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
 from .typing import IntOrNone, StringOrNone
 
@@ -72,7 +71,7 @@ def download_as_csv(
             row.append(value)
 
         if include_contact:
-            contacts: List[Contact] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
+            contacts: List["Contact"] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)
