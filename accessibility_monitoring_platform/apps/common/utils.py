@@ -23,6 +23,7 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
+from ..cases.models import Contact
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
 from .typing import IntOrNone, StringOrNone
 
@@ -36,7 +37,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
     """
     return [
         field.name
-        for field in model._meta.get_fields()
+        for field in model._meta.get_fields()  # pylint: disable=protected-access
         if not isinstance(field, ManyToOneRel)
     ]
 
