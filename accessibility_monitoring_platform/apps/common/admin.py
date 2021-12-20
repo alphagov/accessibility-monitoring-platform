@@ -11,6 +11,7 @@ from .models import Event, IssueReport, Platform, Sector
 
 class ExportCsvMixin:
     """Mixin which adds csv export django admin action"""
+
     def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
 
         meta = self.model._meta  # type: ignore  # pylint: disable=protected-access
