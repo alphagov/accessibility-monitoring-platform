@@ -12,7 +12,7 @@ class NotificationsView(ListView):
     Lists all notifications for user
     """
     model = Notifications
-    template_name: str = "view_notifications.html"
+    template_name: str = "notifications/view_notifications.html"
     context_object_name: str = "notifications"
 
     def get_context_data(self, **kwargs):
