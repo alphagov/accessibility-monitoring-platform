@@ -6,13 +6,13 @@ import pytest
 from datetime import date
 
 from ...cases.models import Case
-from ..forms import AuditPageCreateForm, AuditPageChecksForm
+from ..forms import AuditPageForm, AuditPageChecksForm
 from ..models import Audit, Page
 
 
-def test_url_is_required_in_page_create_form():
-    """Tests AuditPageCreateForm's url field is required"""
-    form: AuditPageCreateForm = AuditPageCreateForm(data={})
+def test_url_is_required_in_audit_page_form():
+    """Tests AuditPageForm's url field is required"""
+    form: AuditPageForm = AuditPageForm(data={})
 
     assert not form.is_valid()
     assert form.errors == {"url": ["URL is required"]}

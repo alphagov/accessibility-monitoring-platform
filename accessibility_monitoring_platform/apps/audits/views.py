@@ -26,8 +26,7 @@ from .forms import (
     AuditCreateForm,
     AuditMetadataUpdateForm,
     AuditWebsiteUpdateForm,
-    AuditPageCreateForm,
-    AuditPageUpdateForm,
+    AuditPageForm,
     AuditPageChecksForm,
     CheckResultFilterForm,
     CheckResultForm,
@@ -266,15 +265,15 @@ class AuditWebsiteUpdateView(AuditUpdateView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         if self.request.POST:
-            context["audit_page_create_form"] = AuditPageCreateForm(self.request.POST)
+            context["audit_page_create_form"] = AuditPageForm(self.request.POST)
         else:
-            context["audit_page_create_form"] = AuditPageCreateForm()
+            context["audit_page_create_form"] = AuditPageForm()
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        audit_page_create_form: AuditPageCreateForm = context["audit_page_create_form"]
+        audit_page_create_form: AuditPageForm = context["audit_page_create_form"]
 
         if "add_page" in self.request.POST:
             if audit_page_create_form.is_valid():
@@ -309,7 +308,7 @@ class AuditPageUpdateView(UpdateView):
 
     model: Type[Page] = Page
     context_object_name: str = "page"
-    form_class: Type[AuditPageUpdateForm] = AuditPageUpdateForm
+    form_class: Type[AuditPageForm] = AuditPageForm
     template_name: str = "audits/forms/page.html"
 
     def get_success_url(self) -> str:

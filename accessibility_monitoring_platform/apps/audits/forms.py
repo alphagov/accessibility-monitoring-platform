@@ -120,21 +120,21 @@ class AuditWebsiteUpdateForm(VersionForm):
         ]
 
 
-class AuditPageCreateForm(forms.ModelForm):
+class AuditPageForm(forms.ModelForm):
     """
-    Form for creating an audit's page
+    Form for creating and updating an audit's page
     """
 
+    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
     name = AMPCharFieldWide(label="Name")
     url = AMPURLField(label="URL")
-    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
 
     class Meta:
         model = Page
         fields: List[str] = [
+            "page_type",
             "name",
             "url",
-            "page_type",
         ]
 
     def clean_url(self):
@@ -142,24 +142,6 @@ class AuditPageCreateForm(forms.ModelForm):
         if not url:
             raise ValidationError("URL is required")
         return url
-
-
-class AuditPageUpdateForm(forms.ModelForm):
-    """
-    Form for editing audit page
-    """
-
-    name = AMPCharFieldWide(label="Name")
-    url = AMPURLField(label="URL")
-    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
-
-    class Meta:
-        model = Page
-        fields: List[str] = [
-            "name",
-            "url",
-            "page_type",
-        ]
 
 
 class AuditPageModelChoiceField(AMPModelChoiceField):
