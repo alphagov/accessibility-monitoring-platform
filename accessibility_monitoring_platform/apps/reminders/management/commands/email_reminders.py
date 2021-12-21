@@ -18,6 +18,15 @@ class EmailContextType(TypedDict):
     reminders: List[Reminder]
 
 
+def get_todays_reminders_by_user() -> Dict[User, List[Reminder]]:
+    """Get todays reminders, group them by user"""
+    reminders: QuerySet[Reminder] = Reminder.objects.filter(due_date=date.today())
+    reminders_by_user: Dict[User, List[Reminder]] = {}
+    for reminder in reminders:
+        reminders_by_user.setdefault(reminder.user, []).append(reminder)
+    return reminders_by_user
+
+
 class Command(BaseCommand):
     """
     Command to email today's reminders to their user.
@@ -29,10 +38,7 @@ class Command(BaseCommand):
         """
         Find reminders due today, group them by user, and email them to their user.
         """
-        reminders: QuerySet[Reminder] = Reminder.objects.filter(due_date=date.today())
-        reminders_by_user: Dict[User, List[Reminder]] = {}
-        for reminder in reminders:
-            reminders_by_user.setdefault(reminder.user, []).append(reminder)
+        reminders_by_user: Dict[User, List[Reminder]] = get_todays_reminders_by_user()
 
         for user, user_reminders in reminders_by_user.items():
             context: EmailContextType = {
