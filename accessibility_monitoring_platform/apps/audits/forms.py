@@ -162,12 +162,20 @@ class AuditPageUpdateForm(forms.ModelForm):
         ]
 
 
+class AuditPageModelChoiceField(AMPModelChoiceField):
+    """Add completed tick to model choice labels"""
+
+    def label_from_instance(self, obj):
+        completed_tick: str = " ✓" if obj.complete_date else ""
+        return f"{obj}{completed_tick}"
+
+
 class AuditPageChecksForm(forms.Form):
     """
     Form for editing checks for a page
     """
 
-    next_page = AMPModelChoiceField(
+    next_page = AuditPageModelChoiceField(
         label="Change page", queryset=Page.objects.none(), empty_label=None
     )
     complete_date = AMPDatePageCompleteField(label="")
