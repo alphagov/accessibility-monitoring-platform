@@ -249,7 +249,7 @@ def test_record_model_update_event():
 
 
 def test_list_to_dictionary_of_lists():
-    """Test list of items groped by attribute and converted to dictionary of lists"""
+    """Test list of items grouped by attribute and converted to dictionary of lists"""
     mock_1: MockModel = MockModel(char_field="key1", integer_field=1)
     mock_2: MockModel = MockModel(char_field="key1", integer_field=2)
     mock_3: MockModel = MockModel(char_field="key2", integer_field=3)
