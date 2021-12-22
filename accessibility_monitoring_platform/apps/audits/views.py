@@ -261,35 +261,6 @@ class AuditWebsiteUpdateView(AuditUpdateView):
     form_class: Type[AuditWebsiteUpdateForm] = AuditWebsiteUpdateForm
     template_name: str = "audits/forms/website.html"
 
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context["audit_page_create_form"] = AuditPageForm(self.request.POST)
-        else:
-            context["audit_page_create_form"] = AuditPageForm()
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
-        audit_page_create_form: AuditPageForm = context["audit_page_create_form"]
-
-        if "add_page" in self.request.POST:
-            if audit_page_create_form.is_valid():
-                audit: Audit = self.object
-                page: Page = Page.objects.create(
-                    audit=audit,
-                    url=audit_page_create_form.cleaned_data["url"],
-                    name=audit_page_create_form.cleaned_data["name"],
-                    page_type=audit_page_create_form.cleaned_data["page_type"],
-                )
-                record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
-            else:
-                return super().form_invalid(form)
-
-        return super().form_valid(form)
-
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
@@ -298,6 +269,35 @@ class AuditWebsiteUpdateView(AuditUpdateView):
             url: str = reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
         else:
             url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
+        return url
+
+
+class AuditPageCreateView(CreateView):
+    """
+    View to create a audit
+    """
+
+    model: Type[Page] = Page
+    context_object_name: str = "page"
+    form_class: Type[AuditPageForm] = AuditPageForm
+    template_name: str = "audits/forms/page.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Include audit in context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["audit"] = Audit.objects.get(pk=self.kwargs["audit_id"])
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Populate audit field of new Page"""
+        page: Page = form.save(commit=False)
+        page.audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Show website page of audit"""
+        audit_pk: Dict[str, int] = {"pk": self.kwargs["audit_id"]}
+        url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
         return url
 
 
@@ -311,8 +311,14 @@ class AuditPageUpdateView(UpdateView):
     form_class: Type[AuditPageForm] = AuditPageForm
     template_name: str = "audits/forms/page.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Include audit in context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["audit"] = self.object.audit  # type: ignore
+        return context
+
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
+        """Show website page of audit"""
         page: Page = self.object  # type: ignore
         audit_pk: Dict[str, int] = {"pk": page.audit.id}
         url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)

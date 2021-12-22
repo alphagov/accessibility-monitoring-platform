@@ -39,17 +39,11 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' with form=audit_page_create_form %}
-                        </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Add page"
-                                name="add_page"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <hr style="width:100%;">
+                            <p class="govuk-body">
+                                <a href="{% url 'audits:edit-audit-create-page' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    Add page
+                                </a>
+                            </p>
                         </div>
                         <div class="govuk-grid-column-full">
                             <ul class="govuk-list">

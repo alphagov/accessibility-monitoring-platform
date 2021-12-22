@@ -298,44 +298,32 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == f"{expected_path}{expected_view_page_anchor}"
 
 
-def test_website_view_contains_adds_page_form(admin_client):
-    """Test website page contaisn form to add page"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+def test_add_page_page_loads(admin_client):
+    """Test page edit view page loads"""
+    audit: Audit = create_audit()
+    audit_id: Dict[str, int] = {"audit_id": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-website", kwargs=audit_pk),
+        reverse("audits:edit-audit-create-page", kwargs=audit_id)
     )
 
     assert response.status_code == 200
-    assertContains(
-        response, '<input type="text" name="url" class="govuk-input" id="id_url">'
-    )
-    assertContains(
-        response,
-        """<input
-            type="submit"
-            value="Add page"
-            name="add_page"
-            class="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-        />""",
-        html=True,
-    )
+
+    assertContains(response, "Edit test | Add page")
 
 
-def test_website_view_adds_page(admin_client):
+def test_add_page_pag_create_page(admin_client):
     """
-    Test adding an extra page creates the page and stays on the website UI page
+    Test adding an extra page creates the page and redirects to the website UI page
     """
     audit: Audit = create_audit_and_wcag()
+    audit_id: Dict[str, int] = {"audit_id": audit.id}  # type: ignore
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-website", kwargs=audit_pk),
+        reverse("audits:edit-audit-create-page", kwargs=audit_id),
         {
-            "version": audit.version,
-            "add_page": "Add page",
+            "save_return": "Asave and return",
             "name": NEW_PAGE_NAME,
             "url": NEW_PAGE_URL,
             "page_type": PAGE_TYPE_EXTRA,
@@ -377,7 +365,6 @@ def test_page_edit_view_redirects_to_website_page(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-audit-page", kwargs=page_pk),
         {
-            "version": audit.version,
             "save_return": "Save and return",
             "name": UPDATED_PAGE_NAME,
             "url": UPDATED_PAGE_URL,

@@ -4,7 +4,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | Edit test | Edit page details{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Edit test | {% if page %}Edit page details{% else %}Add page{% endif %}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,29 +14,37 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' page.audit.case.id %}">Case</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' page.audit.id %}">Test</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' page.audit.id %}">Edit test | Website test</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' audit.id %}">Edit test | Website test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Edit test | Edit page details
+                Edit test | {% if page %}Edit page details{% else %}Add page{% endif %}
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Edit page details' case=page.audit.case %}
+                {% if page %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Edit page details' case=audit.case %}
+                {% else %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Add page' case=audit.case %}
+                {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                {% if page %}
                 <form method="post" action="{% url 'audits:edit-audit-page' page.id %}">
+                {% else %}
+                <form method="post" action="{% url 'audits:edit-audit-create-page' audit.id %}">
+                    {% endif %}
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
@@ -51,7 +59,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:edit-audit-website' page.audit.id %}"
+                                href="{% url 'audits:edit-audit-website' audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel
