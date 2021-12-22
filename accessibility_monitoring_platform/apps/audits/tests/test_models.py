@@ -151,6 +151,17 @@ def test_audit_failed_check_results_returns_only_failed_checks():
 
 
 @pytest.mark.django_db
+def test_audit_accessibility_state_ment_page_returns_page():
+    """
+    Accessibility Statement page returned
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+
+    assert audit.accessibility_statement_page == page
+
+
+@pytest.mark.django_db
 def test_page_all_check_results_returns_check_results():
     """
     Test all_check_results attribute of page returns expected check results.

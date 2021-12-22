@@ -1,0 +1,21 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="govuk-body">
+            {% if audit.accessibility_statement_page %}
+                <a href="{{ audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to {{ audit.accessibility_statement_page|lower }}
+                </a>
+            {% else %}
+                No accessibility statement added. Add page in
+                <a href="{% url 'audits:edit-audit-website' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    website test
+                </a>
+            {% endif %}
+            {% if audit.accessibility_statement_backup_url %}
+                <br>
+                <a href="{{ audit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Saved accessibility statement</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

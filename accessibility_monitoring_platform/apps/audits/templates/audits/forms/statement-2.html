@@ -22,17 +22,7 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% if audit.accessibility_statement_backup_url %}
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full">
-                                <div class="govuk-body">
-                                    <a href="{{ audit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                        Saved accessibility statement
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
+                    {% include 'audits/helpers/accessibility_statement_link.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
