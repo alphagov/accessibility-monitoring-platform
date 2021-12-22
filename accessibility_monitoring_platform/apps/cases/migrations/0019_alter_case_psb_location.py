@@ -6,13 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0018_alter_case_sector'),
+        ("cases", "0018_alter_case_sector"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='psb_location',
-            field=models.CharField(choices=[('england', 'England'), ('scotland', 'Scotland'), ('wales', 'Wales'), ('northern_ireland', 'Northern Ireland'), ('uk_wide', 'UK-wide'), ('unknown', 'Unknown')], default='unknown', max_length=20),
+            model_name="case",
+            name="psb_location",
+            field=models.CharField(
+                choices=[
+                    ("england", "England"),
+                    ("scotland", "Scotland"),
+                    ("wales", "Wales"),
+                    ("northern_ireland", "Northern Ireland"),
+                    ("uk_wide", "UK-wide"),
+                    ("unknown", "Unknown"),
+                ],
+                default="unknown",
+                max_length=20,
+            ),
         ),
     ]
