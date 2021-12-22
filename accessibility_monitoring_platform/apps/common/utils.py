@@ -175,3 +175,15 @@ def record_model_create_event(user: User, model_object: models.Model) -> None:
         type=EVENT_TYPE_MODEL_CREATE,
         value=json.dumps(value),
     )
+
+
+def list_to_dictionary_of_lists(items: List[Any], group_by_attr: str) -> Dict[Any, List[Any]]:
+    """
+    Group a list of items by an attribute of those items and return a dictionary
+    with that attribute as the key and the value being a list of items matching the attribute.
+
+    """
+    dict_of_lists_of_items: Dict[Any, List[Any]] = {}
+    for item in items:
+        dict_of_lists_of_items.setdefault(getattr(item, group_by_attr), []).append(item)
+    return dict_of_lists_of_items

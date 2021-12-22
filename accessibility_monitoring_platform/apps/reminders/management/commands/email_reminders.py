@@ -7,24 +7,15 @@ from typing import Dict, List, TypedDict
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
-from django.db.models.query import QuerySet
 from django.template.loader import get_template
 
+from ....common.utils import list_to_dictionary_of_lists
 from ...models import Reminder
 
 
 class EmailContextType(TypedDict):
     user: User
     reminders: List[Reminder]
-
-
-def get_todays_reminders_by_user() -> Dict[User, List[Reminder]]:
-    """Get todays reminders, group them by user"""
-    reminders: QuerySet[Reminder] = Reminder.objects.filter(due_date=date.today())
-    reminders_by_user: Dict[User, List[Reminder]] = {}
-    for reminder in reminders:
-        reminders_by_user.setdefault(reminder.user, []).append(reminder)
-    return reminders_by_user
 
 
 class Command(BaseCommand):
@@ -38,7 +29,9 @@ class Command(BaseCommand):
         """
         Find reminders due today, group them by user, and email them to their user.
         """
-        reminders_by_user: Dict[User, List[Reminder]] = get_todays_reminders_by_user()
+        reminders_by_user: Dict[User, List[Reminder]] = list_to_dictionary_of_lists(
+            items=Reminder.objects.filter(due_date=date.today()), group_by_attr="user"  # type: ignore
+        )
 
         for user, user_reminders in reminders_by_user.items():
             context: EmailContextType = {
