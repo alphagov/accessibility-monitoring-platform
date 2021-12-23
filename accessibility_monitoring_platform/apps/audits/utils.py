@@ -2,10 +2,9 @@
 Utilities for audits app
 """
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Union
 
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
@@ -114,42 +113,6 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         + [report_options_next_row]
         + report_next_issues_rows
     )
-
-
-def group_check_results_by_page(
-    check_results: QuerySet[CheckResult],
-) -> List[Tuple[Page, List[CheckResult]]]:
-    """
-    Group check results by page and then return list of tuples
-    of page and list of check results of that page.
-    """
-    check_results_by_page: Dict[Page, List[CheckResult]] = {}
-
-    for check_result in check_results:
-        if check_result.page in check_results_by_page:
-            check_results_by_page[check_result.page].append(check_result)
-        else:
-            check_results_by_page[check_result.page] = [check_result]
-
-    return [(key, value) for key, value in check_results_by_page.items()]
-
-
-def group_check_results_by_wcag(
-    check_results: QuerySet[CheckResult],
-) -> List[Tuple[WcagDefinition, List[CheckResult]]]:
-    """
-    Group check results by wcag definition and then return list of tuples
-    of wcag definition and list of check results of that wcag definiton.
-    """
-    check_results_by_wcag: Dict[WcagDefinition, List[CheckResult]] = {}
-
-    for check_result in check_results:
-        if check_result.wcag_definition in check_results_by_wcag:
-            check_results_by_wcag[check_result.wcag_definition].append(check_result)
-        else:
-            check_results_by_wcag[check_result.wcag_definition] = [check_result]
-
-    return [(key, value) for key, value in check_results_by_wcag.items()]
 
 
 def create_or_update_check_results_for_page(

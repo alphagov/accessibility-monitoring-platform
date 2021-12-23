@@ -14,7 +14,7 @@
 </div>
 {% if failed_check_results_by_page %}
     <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default-axe">
-        {% for page, check_results in failed_check_results_by_page %}
+        {% for page, check_results in failed_check_results_by_page.items %}
             <div class="govuk-accordion__section">
                 <div class="govuk-accordion__section-header">
                     <h2 class="govuk-accordion__section-heading">

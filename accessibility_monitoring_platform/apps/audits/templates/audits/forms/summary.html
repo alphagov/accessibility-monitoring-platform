@@ -61,7 +61,7 @@
 
                     {% if show_failures_by_page %}
                         <h2 class="govuk-heading-l">Test summary | Page view</h2>
-                        {% for page, failures in audit_failures_by_page %}
+                        {% for page, failures in audit_failures_by_page.items %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <h3 class="govuk-heading-m">{{ page }}</h3>
@@ -80,7 +80,7 @@
                         {% endfor %}
                     {% else %}
                         <h2 class="govuk-heading-l">Test summary | WCAG view</h2>
-                        {% for wcag_definition, failures in audit_failures_by_wcag %}
+                        {% for wcag_definition, failures in audit_failures_by_wcag.items %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <h3 class="govuk-heading-m">{{ wcag_definition.name }}</h3>

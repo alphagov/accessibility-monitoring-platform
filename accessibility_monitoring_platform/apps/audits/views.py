@@ -17,6 +17,7 @@ from ..cases.models import Case
 from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
+    list_to_dictionary_of_lists,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -51,8 +52,6 @@ from .utils import (
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
-    group_check_results_by_wcag,
-    group_check_results_by_page,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -207,8 +206,8 @@ class AuditDetailView(DetailView):
         audit: Audit = self.object  # type: ignore
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
-        context["failed_check_results_by_page"] = group_check_results_by_page(
-            audit.failed_check_results
+        context["failed_check_results_by_page"] = list_to_dictionary_of_lists(
+            items=audit.failed_check_results, group_by_attr="page"  # type: ignore
         )
         context["audit_statement_rows"] = get_audit_statement_rows(audit)
         context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
@@ -473,12 +472,12 @@ class AuditSummaryUpdateView(AuditUpdateView):
         context["show_failures_by_page"] = show_failures_by_page
 
         if show_failures_by_page:
-            context["audit_failures_by_page"] = group_check_results_by_page(
-                check_results=audit.failed_check_results
+            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                items=audit.failed_check_results, group_by_attr="page"  # type: ignore
             )
         else:
-            context["audit_failures_by_wcag"] = group_check_results_by_wcag(
-                check_results=audit.failed_check_results
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=audit.failed_check_results, group_by_attr="wcag_definition"  # type: ignore
             )
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)

@@ -34,8 +34,6 @@ from ..utils import (
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
-    group_check_results_by_page,
-    group_check_results_by_wcag,
 )
 
 USER_FIRST_NAME = "John"
@@ -431,41 +429,6 @@ def test_get_audit_report_options_rows():
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
-
-
-@pytest.mark.django_db
-def test_group_check_results_by_page():
-    """Test grouping check results by page"""
-    audit: Audit = create_audit_and_check_results()
-
-    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)
-
-    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
-    page_pdf: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
-
-    assert group_check_results_by_page(check_results=check_results) == [
-        (page_home, list(CheckResult.objects.filter(audit=audit, page=page_home))),
-        (page_pdf, list(CheckResult.objects.filter(audit=audit, page=page_pdf))),
-    ]
-
-
-@pytest.mark.django_db
-def test_group_check_results_by_wcag_definition():
-    """Test grouping check results by wcag definition"""
-    audit: Audit = create_audit_and_check_results()
-
-    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(audit=audit)
-
-    assert group_check_results_by_wcag(check_results=check_results) == [
-        (
-            WcagDefinition.objects.get(type=TEST_TYPE_MANUAL),
-            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_MANUAL)),
-        ),
-        (
-            WcagDefinition.objects.get(type=TEST_TYPE_PDF),
-            list(CheckResult.objects.filter(audit=audit, type=TEST_TYPE_PDF)),
-        ),
-    ]
 
 
 @pytest.mark.django_db
