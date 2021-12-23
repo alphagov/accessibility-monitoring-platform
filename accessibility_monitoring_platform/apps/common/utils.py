@@ -36,7 +36,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
     """
     return [
         field.name
-        for field in model._meta.get_fields()
+        for field in model._meta.get_fields()  # pylint: disable=protected-access
         if not isinstance(field, ManyToOneRel)
     ]
 
@@ -71,7 +71,7 @@ def download_as_csv(
             row.append(value)
 
         if include_contact:
-            contacts: List[Contact] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
+            contacts: List["Contact"] = list(item.contact_set.filter(is_deleted=False))  # type: ignore  # noqa: F821
             if contacts:
                 row.append(contacts[0].email)
                 row.append(contacts[0].notes)

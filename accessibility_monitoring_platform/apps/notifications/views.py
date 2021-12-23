@@ -14,11 +14,15 @@ class NotificationsView(ListView):
     model = Notifications
     template_name: str = "notifications/view_notifications.html"
     context_object_name: str = "notifications"
+    paginate_by: int = 10
+
+    def get_queryset(self) -> QuerySet[Notifications]:
+        """Get undeleted reminders for logged in user"""
+        return Notifications.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        notifications: QuerySet[Notifications] = Notifications.objects.filter(user=self.request.user)
-        context["notifications"] = notifications
+        notifications: QuerySet[Notifications] = self.get_queryset()
         context["unread_notifications"] = len(notifications.filter(read=False))
         return context
 
