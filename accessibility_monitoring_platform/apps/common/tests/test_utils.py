@@ -31,6 +31,7 @@ from ..utils import (
     get_platform_settings,
     record_model_create_event,
     record_model_update_event,
+    list_to_dictionary_of_lists,
 )
 
 
@@ -245,3 +246,18 @@ def test_record_model_update_event():
     event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
+
+
+def test_list_to_dictionary_of_lists():
+    """Test list of items grouped by attribute and converted to dictionary of lists"""
+    mock_1: MockModel = MockModel(char_field="key1", integer_field=1)
+    mock_2: MockModel = MockModel(char_field="key1", integer_field=2)
+    mock_3: MockModel = MockModel(char_field="key2", integer_field=3)
+    mock_4: MockModel = MockModel(char_field="key3", integer_field=4)
+    mocks: List[MockModel] = [mock_1, mock_2, mock_3, mock_4]
+
+    assert list_to_dictionary_of_lists(items=mocks, group_by_attr="char_field") == {
+        "key1": [mock_1, mock_2],
+        "key2": [mock_3],
+        "key3": [mock_4],
+    }

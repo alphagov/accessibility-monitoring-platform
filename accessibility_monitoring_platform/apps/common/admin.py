@@ -9,6 +9,27 @@ from django.http import HttpResponse
 from .models import Event, IssueReport, Platform, Sector
 
 
+class ExportCsvMixin:
+    """Mixin which adds csv export django admin action"""
+
+    def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
+
+        meta = self.model._meta  # type: ignore  # pylint: disable=protected-access
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename={}.csv".format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+    export_as_csv.short_description = "Export Selected"
+
+
 class EventAdmin(admin.ModelAdmin):
     """Django admin configuration for Event model"""
 
@@ -30,7 +51,7 @@ class EventAdmin(admin.ModelAdmin):
     )
 
 
-class IssueReportAdmin(admin.ModelAdmin):
+class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for IssueReport model"""
 
     readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
@@ -53,22 +74,6 @@ class IssueReportAdmin(admin.ModelAdmin):
     )
 
     actions = ["export_as_csv"]
-
-    @admin.action(description="Export selected issues as csv")
-    def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
-
-        meta = self.model._meta
-        field_names = [field.name for field in meta.fields]
-
-        response: HttpResponse = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = "attachment; filename={}.csv".format(meta)
-        writer = csv.writer(response)  # type: ignore
-
-        writer.writerow(field_names)
-        for obj in queryset:
-            writer.writerow([getattr(obj, field) for field in field_names])
-
-        return response
 
     def has_delete_permission(self, request, obj=None):
         return False

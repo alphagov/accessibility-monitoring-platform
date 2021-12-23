@@ -86,8 +86,9 @@ class ReminderListView(ListView):
 
     model: Type[Reminder] = Reminder
     context_object_name: str = "reminders"
+    paginate_by: int = 10
 
-    def get_queryset(self) -> QuerySet[Case]:
+    def get_queryset(self) -> QuerySet[Reminder]:
         """Get undeleted reminders for logged in user"""
         return Reminder.objects.filter(
             user=self.request.user, is_deleted=False

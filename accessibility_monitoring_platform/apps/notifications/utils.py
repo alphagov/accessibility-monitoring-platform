@@ -69,7 +69,7 @@ def add_notification(
             "path": path,
             "request": request,
         }
-        template: str = get_template("email.txt")
+        template: str = get_template("notifications/email.txt")
         content: str = template.render(context)  # type: ignore
         email: EmailMessage = EmailMessage(
             subject=f"You have a new notification in the monitoring platform : {list_description}",

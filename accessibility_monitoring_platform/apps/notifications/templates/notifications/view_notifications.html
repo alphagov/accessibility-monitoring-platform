@@ -20,7 +20,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">
-                    Notifications ({{unread_notifications}})
+                    Notifications ({{ unread_notifications }})
                 </h1>
             </div>
         </div>
@@ -32,6 +32,7 @@
         {% if notifications|length == 0 %}
             <p class="govuk-body"> You have no unread notifications </p>
         {% else %}
+            {% include "common/pagination_controls.html" %}
             <table class="govuk-table case-dashboard">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
@@ -70,6 +71,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% include "common/pagination_controls.html" %}
         {% endif %}
     </main>
 </div>
