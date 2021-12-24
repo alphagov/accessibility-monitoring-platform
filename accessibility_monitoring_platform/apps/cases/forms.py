@@ -572,3 +572,18 @@ class CaseDeleteForm(VersionForm):
             "delete_reason",
             "delete_notes",
         ]
+
+
+class CaseSuspendForm(VersionForm):
+    """
+    Form for archiving a case
+    """
+
+    suspend_notes = AMPTextField(label="More information?")
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "suspend_notes",
+        ]
