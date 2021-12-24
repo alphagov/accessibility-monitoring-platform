@@ -1,10 +1,20 @@
             <li>
-                {% if current_page == edit_name %}
-                    {{ name }}
-                    {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                {% if edit_name == 'audits:edit-audit-page-checks' %}
+                    {% if current_page == 'audits:edit-audit-page-checks' and page_id == page.id %}
+                        {{ page }}
+                        {% if page.complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                    {% else %}
+                        <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ page }}{% if page.complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                    {% endif %}
                 {% else %}
-                    <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                        {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                    {% if current_page == edit_name %}
+                        {{ name }}
+                        {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                    {% else %}
+                        <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                    {% endif %}
                 {% endif %}
                 {% if complete %}&check;{% endif %}
             </li>

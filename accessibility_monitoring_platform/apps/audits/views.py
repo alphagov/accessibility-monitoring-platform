@@ -332,7 +332,6 @@ class AuditPageChecksFormView(FormView):
     form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
     page: Page
-    next_page: Page
 
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
@@ -342,8 +341,6 @@ class AuditPageChecksFormView(FormView):
     def get_form(self):
         """Populate next page select field"""
         form = super().get_form()
-        form.fields["next_page"].queryset = self.page.audit.every_page
-        form.fields["next_page"].initial = self.page
         form.fields["complete_date"].initial = self.page.complete_date
         return form
 
@@ -384,7 +381,6 @@ class AuditPageChecksFormView(FormView):
         page: Page = self.page
         page.complete_date = form.cleaned_data["complete_date"]
         page.save()
-        self.next_page = form.cleaned_data["next_page"]
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]
         if check_results_formset.is_valid():
@@ -402,13 +398,9 @@ class AuditPageChecksFormView(FormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        next_page_pk: Dict[str, int] = {"pk": self.next_page.id}  # type: ignore
-        audit_pk: Dict[str, int] = {"pk": self.page.audit.id}  # type: ignore
-        if "save" in self.request.POST:
-            url: str = reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
-        else:
-            url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
+        """Remain on current page after save"""
+        page_pk: Dict[str, int] = {"pk": self.page.id}  # type: ignore
+        url: str = reverse("audits:edit-audit-page-checks", kwargs=page_pk)
         return url
 
 

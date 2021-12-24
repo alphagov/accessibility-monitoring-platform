@@ -3,6 +3,14 @@
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-website' name='Website test' complete=audit.audit_website_complete_date %}
+        <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+            {% if audit.html_pages.count > 1 %}
+                {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' page=audit.all_page %}
+            {% endif %}
+            {% for page in audit.every_page_except_all %}
+                {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' %}
+            {% endfor %}
+        </ul>
         {% include './nav_step.html' with edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
@@ -21,6 +29,13 @@
                 Link to case view
             </a>
         </li>
+        {% if page and page.page_type != 'all-except-pdf' %}
+            <li>
+                <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                </a>
+            </li>
+        {% endif %}
         {% if audit.case.zendesk_url %}
             <li>
                 <a href="{{ audit.case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

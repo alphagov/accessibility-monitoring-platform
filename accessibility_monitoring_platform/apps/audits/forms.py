@@ -157,15 +157,11 @@ class AuditPageChecksForm(forms.Form):
     Form for editing checks for a page
     """
 
-    next_page = AuditPageModelChoiceField(
-        label="Change page", queryset=Page.objects.none(), empty_label=None
-    )
     complete_date = AMPDatePageCompleteField(label="")
 
     class Meta:
         model = Audit
         fields: List[str] = [
-            "next_page",
             "complete_date",
         ]
 

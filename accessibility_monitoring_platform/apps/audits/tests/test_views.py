@@ -19,7 +19,6 @@ from ..models import (
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
     PAGE_TYPE_EXTRA,
-    PAGE_TYPE_HOME,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
 )
@@ -400,38 +399,11 @@ def test_page_checks_edit_page_loads(admin_client):
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
 
-def test_page_checks_edit_page_contains_next_page_choices(admin_client):
-    """Test page checks edit view page contains choices for next page"""
-    audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit)
-    page_id: int = page.id  # type: ignore
-    page_pk: Dict[str, int] = {"pk": page_id}
-    page_home: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
-    page_home_id: int = page_home.id  # type: ignore
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<select name="next_page" class="govuk-select" id="id_next_page">
-            <option value="{page_id}" selected>Additional page</option>
-            <option value="{page_home_id}">Home page</option>
-        </select>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize("button_name", ["save", "save_return"])
-def test_page_checks_edit_saves_results(button_name, admin_client):
+def test_page_checks_edit_saves_results(admin_client):
     """Test page checks edit view saves the entered results"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
-    page_id: int = page.id  # type: ignore
-    page_pk: Dict[str, int] = {"pk": page_id}
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
     wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
 
@@ -439,7 +411,7 @@ def test_page_checks_edit_saves_results(button_name, admin_client):
         reverse("audits:edit-audit-page-checks", kwargs=page_pk),
         {
             "version": audit.version,
-            button_name: "Button value",
+            "save": "Button value",
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "2",
             "form-MIN_NUM_FORMS": "0",
@@ -450,7 +422,6 @@ def test_page_checks_edit_saves_results(button_name, admin_client):
             "form-1-wcag_definition": wcag_definition_pdf.id,  # type: ignore
             "form-1-check_result_state": CHECK_RESULT_ERROR,
             "form-1-notes": CHECK_RESULT_NOTES,
-            "next_page": page_id,
         },
         follow=True,
     )
@@ -470,30 +441,18 @@ def test_page_checks_edit_saves_results(button_name, admin_client):
     assert check_result_pdf.notes == CHECK_RESULT_NOTES
 
 
-@pytest.mark.parametrize(
-    "button_name, expected_redirect_path_name",
-    [
-        ("save", "audits:edit-audit-page-checks"),
-        ("save_return", "audits:edit-audit-website"),
-    ],
-)
-def test_page_checks_edit_redirects_based_on_button_pressed(
-    button_name,
-    expected_redirect_path_name,
-    admin_client,
-):
+def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     page: Page = Page.objects.create(audit=audit)
-    page_id: int = page.id  # type: ignore
-    page_pk: Dict[str, int] = {"pk": page_id}
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+    url: str = reverse("audits:edit-audit-page-checks", kwargs=page_pk)
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-page-checks", kwargs=page_pk),
+        url,
         {
             "version": audit.version,
-            button_name: "Button value",
+            "save": "Button value",
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "2",
             "form-MIN_NUM_FORMS": "0",
@@ -504,15 +463,9 @@ def test_page_checks_edit_redirects_based_on_button_pressed(
             "form-1-wcag_definition": 2,
             "form-1-check_result_state": CHECK_RESULT_NOT_TESTED,
             "form-1-notes": "",
-            "next_page": page_id,
         },
     )
 
     assert response.status_code == 302
 
-    kwargs: Dict[str, int] = (
-        page_pk
-        if expected_redirect_path_name == "audits:edit-audit-page-checks"
-        else audit_pk
-    )
-    assert response.url == reverse(expected_redirect_path_name, kwargs=kwargs)
+    assert response.url == url

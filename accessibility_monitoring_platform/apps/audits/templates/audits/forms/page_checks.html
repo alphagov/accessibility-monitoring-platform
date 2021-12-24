@@ -38,8 +38,8 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}" style="display: unset;">
-                <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-two-thirds">
+                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}" style="display: unset;">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Search WCAG error</h2>
@@ -67,7 +67,19 @@
                         </div>
                     </div>
                     <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
                             <input
                                 type="submit"
                                 value="Clear form"
@@ -96,15 +108,9 @@
                             </div>
                         </div>
                     {% endfor %}
-                </div>
-                <div class="govuk-grid-column-one-third side-navbar-position" id="side-navbar" >
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
-                        </div>
-                    </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
+                            <hr style="width:100%;">
                             <input
                                 type="submit"
                                 value="Save"
@@ -112,24 +118,13 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            <input
-                                type="submit"
-                                value="Save and return"
-                                name="save_return"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
                         </div>
-                        {% if page.page_type != 'all-except-pdf' %}
-                            <div class="govuk-grid-column-full">
-                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                                    View {{ page|lower }}
-                                </a>
-                            </div>
-                        {% endif %}
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-page-checks' page_id=page.id audit=page.audit %}
+            </div>
         </div>
     </main>
     <script src="{% static 'js/audits_check_filter.js' %}"></script>
