@@ -7,6 +7,7 @@
                         <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
                             {{ page }}{% if page.complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% endif %}
+                    {% if page.complete_date %}&check;{% endif %}
                 {% else %}
                     {% if current_page == edit_name %}
                         {{ name }}
@@ -15,6 +16,6 @@
                         <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
                             {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% endif %}
+                    {% if complete %}&check;{% endif %}
                 {% endif %}
-                {% if complete %}&check;{% endif %}
             </li>
