@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% block title %}{{ case.organisation_name }} | Edit case | Equality body correspondence{% endblock %}
+
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
@@ -20,7 +22,7 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit case | Equality body correspondence' %}
             </div>
         </div>
         {% if case.no_psb_contact == 'yes' %}
@@ -66,7 +68,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'cases/helpers/navbar.html' with current_page='cases:edit-enforcement-body-correspondence' %}
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-enforcement-body-correspondence' %}
             </div>
         </div>
     </main>
