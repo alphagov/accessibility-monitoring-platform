@@ -132,7 +132,7 @@ def get_data_from_row(
 
 
 def create_case(get_data: Callable) -> Case:
-    fields = Case._meta.get_fields()
+    fields = Case._meta.get_fields()  # pylint: disable=protected-access
     kwargs = {
         field.name: get_data(field=field)
         for field in fields

@@ -46,6 +46,9 @@ FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
     days=TWELVE_WEEKS_IN_DAYS
 )
+SUSPEND_NOTES = """I am
+a suspend note,
+I am"""
 TODAY: date = date.today()
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
 
@@ -350,6 +353,49 @@ def test_restore_case_view(admin_client):
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
     assert case_from_db.is_deleted is False
+
+
+def test_suspend_case_view(admin_client):
+    """Test that suspend case view suspends case"""
+    case: Case = Case.objects.create()
+    case_pk: dict[str, int] = {"pk": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:suspend-case", kwargs=case_pk),
+        {
+            "version": case.version,
+            "suspend_notes": SUSPEND_NOTES,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+
+    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+
+    assert case_from_db.is_suspended
+    assert case_from_db.suspend_date == TODAY
+    assert case_from_db.suspend_notes == SUSPEND_NOTES
+
+
+def test_unsuspend_case_view(admin_client):
+    """Test that unsuspend case view unsuspends case"""
+    case: Case = Case.objects.create()
+    case_pk: dict[str, int] = {"pk": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:unsuspend-case", kwargs=case_pk),
+        {
+            "version": case.version,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+
+    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+
+    assert not case_from_db.is_suspended
 
 
 @pytest.mark.parametrize(

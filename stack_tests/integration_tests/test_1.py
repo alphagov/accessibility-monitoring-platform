@@ -304,7 +304,7 @@ class TestCaseUpdates(TestCases):
     def test_update_case_sections(self):
         """Tests whether all case sections can be updated"""
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.driver.find_element_by_link_text("Edit case").click()
+        self.driver.find_element_by_link_text("Edit case details").click()
 
         self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("save_continue").click()
