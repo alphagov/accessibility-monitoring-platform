@@ -4,7 +4,16 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                View case
+            </li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
