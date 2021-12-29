@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("cases", "0020_merge_20211210_1338"),
+        ("cases", "0020_add_suspend_case"),
     ]
 
     operations = [
