@@ -301,46 +301,6 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_exit").click()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
 
-    def test_update_case_sections(self):
-        """Tests whether all case sections can be updated"""
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Edit case details").click()
-        self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Testing details").click()
-        self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Report details").click()
-        self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("QA process").click()
-        self.assertTrue(">Edit case | QA process</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Contact details").click()
-        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Report correspondence").click()
-        self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
-        )
-
-        self.driver.find_element_by_link_text("12 week correspondence").click()
-        self.assertTrue(
-            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
-        )
-
-        self.driver.find_element_by_link_text("Final decision").click()
-        self.assertTrue(">Edit case | Final decision</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Equality body correspondence").click()
-        self.assertTrue(
-            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
-        )
-
-        self.driver.find_element_by_link_text("Case").click()
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-
     def test_update_case_edit_case_details(self):
         """Tests whether case details can be updated"""
         self.driver.find_element_by_link_text("Edit case details").click()
