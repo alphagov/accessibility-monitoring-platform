@@ -735,8 +735,7 @@ class TestCaseUpdates(TestCases):
             "report_followup_week_12_due_date_2"
         ).send_keys(REPORT_FOLLOWUP_WEEK_12_DUE_DATE_YYYY)
 
-        self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_name("save_return").click()
 
         self.assertTrue(
             ">Edit case | Report correspondence</h1>" in self.driver.page_source
