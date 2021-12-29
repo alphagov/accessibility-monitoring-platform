@@ -59,6 +59,7 @@ from .forms import (
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
     CaseFinalDecisionUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
+    CaseSuspendForm,
 )
 from .utils import (
     get_sent_date,
@@ -698,6 +699,41 @@ class CaseDeleteUpdateView(CaseUpdateView):
         return reverse("cases:case-list")
 
 
+class CaseSuspendUpdateView(CaseUpdateView):
+    """
+    View to suspend case
+    """
+
+    form_class: Type[CaseSuspendForm] = CaseSuspendForm
+    template_name: str = "cases/forms/suspend.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = form.save(commit=False)
+        case.is_suspended = True
+        case.suspend_date = date.today()
+        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
+        case.save()
+        return HttpResponseRedirect(case.get_absolute_url())
+
+
+class CaseUnsuspendUpdateView(CaseUpdateView):
+    """
+    View to unsuspend case
+    """
+
+    form_class: Type[CaseSuspendForm] = CaseSuspendForm
+    template_name: str = "cases/forms/unsuspend.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        case: Case = form.save(commit=False)
+        case.is_suspended = False
+        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
+        case.save()
+        return HttpResponseRedirect(case.get_absolute_url())
+
+
 def export_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases
@@ -754,7 +790,9 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     return download_ehrc_cases(cases=filter_cases(form=case_search_form))
 
 
-def restore_case(request: HttpRequest, pk: int) -> HttpResponse:
+def restore_case(
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
     """
     Restore deleted case
 

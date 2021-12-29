@@ -378,6 +378,11 @@ class Case(VersionModel):
     )
     delete_notes = models.TextField(default="", blank=True)
 
+    # Suspended case page
+    is_suspended = models.BooleanField(default=False)
+    suspend_date = models.DateField(null=True, blank=True)
+    suspend_notes = models.TextField(default="", blank=True)
+
     # Dashboard page
     qa_status = models.CharField(
         max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT

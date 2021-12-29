@@ -149,7 +149,7 @@ TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -176,3 +176,5 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CONTACT_ADMIN_EMAIL = "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DATE_FORMAT = "d/m/Y"

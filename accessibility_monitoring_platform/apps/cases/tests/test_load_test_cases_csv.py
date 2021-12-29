@@ -260,6 +260,7 @@ def test_create_case_creates_a_case():
         "is_website_compliant": "False",
         "is_website_retested": "False",
         "is_disproportionate_claimed": "False",
+        "is_suspended": "False",
         "is_deleted": "False",
         "no_psb_contact": "False",
         "report_is_approved": "False",

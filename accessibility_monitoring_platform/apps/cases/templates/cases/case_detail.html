@@ -34,14 +34,6 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
-                    <a href="{% url 'cases:edit-case-details' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Edit case
-                    </a>
                     <a
                         href="{% url 'cases:case-export-single' case.id %}"
                         role="button"
@@ -51,6 +43,27 @@
                     >
                         Export to CSV
                     </a>
+                    {% if case.is_suspended %}
+                        <a
+                            href="{% url 'cases:unsuspend-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Unsuspend case
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'cases:suspend-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Suspend case
+                        </a>
+                    {% endif %}
                     {% if case.is_deleted %}
                         <a
                             href="{% url 'cases:restore-case' case.id %}"
@@ -79,7 +92,18 @@
             {% include 'cases/helpers/case_title.html' %}
             {% include "cases/helpers/messages.html" %}
         </div>
-
+        {% if case.is_suspended %}
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    This case has been suspended on {{ case.suspend_date }}. Unsuspend case to reactivate case.
+                </strong>
+            </div>
+            <div class="govuk-inset-text">
+                {{ case.suspend_notes }}
+            </div>
+        {% endif %}
         {% if case.no_psb_contact == 'yes' %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
