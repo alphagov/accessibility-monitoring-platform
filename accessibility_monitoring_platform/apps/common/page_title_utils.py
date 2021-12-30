@@ -25,6 +25,9 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/view/": "View case",
     "/cases/create/": "Create case",
     "/contact/": "Contact admin",
+    "/notifications/notifications-list/": "Notifications",
+    "/reminders/cases/[id]/reminder-create/": "Edit case | Reminder",
+    "/reminders/reminder-list/": "Reminders",
     "/report-issue/": "Report an issue",
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
@@ -43,6 +46,12 @@ def get_page_title(path: str) -> str:
     if path_without_id.startswith("/cases/[id]/"):
         try:
             case: Case = Case.objects.get(id=path.split("/")[2])
+            page_title: str = f"{case.organisation_name} | {page_heading}"
+        except Case.DoesNotExist:
+            pass
+    elif path_without_id == "/reminders/cases/[id]/reminder-create/":
+        try:
+            case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
             pass
