@@ -87,19 +87,7 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Continue"
-                                name="continue"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'audits:audit-detail' audit.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Return to test view
-                            </a>
+                            <input type="submit" value="Save" name="save" class="govuk-button" data-module="govuk-button" />
                         </div>
                     </div>
                 </form>

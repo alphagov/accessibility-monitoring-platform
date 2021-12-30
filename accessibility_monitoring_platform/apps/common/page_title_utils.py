@@ -13,11 +13,13 @@ PAGE_TITLES_BY_URL = {
     "/audits/[id]/detail/": "View test",
     "/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
     "/audits/[id]/edit-audit-website/": "Edit test | Website test",
+    "/audits/[id]/edit-audit-create-page/": "Edit test | Add page",
     "/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
     "/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
     "/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
     "/audits/[id]/edit-audit-report-options/": "Edit test | Report options",
     "/audits/[id]/edit-audit-report-text/": "Edit test | Report text",
+    "/audits/pages/[id]/edit-audit-page/": "Edit test | Edit page details",
     "/audits/pages/[id]/edit-audit-page-checks/": "Edit test | Testing",
     "/cases/": "Search",
     "/cases/[id]/delete-case/": "Delete case",
@@ -46,7 +48,7 @@ PAGE_TITLES_BY_URL = {
 }
 
 
-def get_page_title(path: str) -> str:
+def get_page_title(path: str) -> str:  # noqa: C901
     """Derive page title from path"""
     path_without_id = re.sub(r"\d+", "[id]", path)
     page_heading: str = PAGE_TITLES_BY_URL.get(
@@ -64,13 +66,15 @@ def get_page_title(path: str) -> str:
         try:
             audit: Audit = Audit.objects.get(id=path.split("/")[2])
             page_title: str = f"{audit.case.organisation_name} | {page_heading}"
-        except Case.DoesNotExist:
+        except Audit.DoesNotExist:
             pass
     elif path_without_id.startswith("/audits/pages/[id]/"):
         try:
             page: Page = Page.objects.get(id=path.split("/")[3])
-            page_title: str = f"{page.audit.case.organisation_name} | {page_heading} {page}"
-        except Case.DoesNotExist:
+            page_title: str = (
+                f"{page.audit.case.organisation_name} | {page_heading} {page}"
+            )
+        except Page.DoesNotExist:
             pass
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
         try:

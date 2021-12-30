@@ -185,10 +185,7 @@ class AuditCreateView(CreateView):
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object  # type: ignore
         record_model_create_event(user=self.request.user, model_object=audit)  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id})  # type: ignore
-        else:
-            url: str = reverse("cases:edit-test-results", kwargs={"pk": audit.case.id})
+        url: str = reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id})  # type: ignore
         return url
 
 
@@ -231,6 +228,10 @@ class AuditUpdateView(UpdateView):
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        return self.request.path
+
 
 class AuditMetadataUpdateView(AuditUpdateView):
     """
@@ -240,17 +241,6 @@ class AuditMetadataUpdateView(AuditUpdateView):
     form_class: Type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
     template_name: str = "audits/forms/metadata.html"
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
-        else:
-            url: str = (
-                f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-metadata'
-            )
-        return url
-
 
 class AuditWebsiteUpdateView(AuditUpdateView):
     """
@@ -259,16 +249,6 @@ class AuditWebsiteUpdateView(AuditUpdateView):
 
     form_class: Type[AuditWebsiteUpdateForm] = AuditWebsiteUpdateForm
     template_name: str = "audits/forms/website.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        if "continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
-        else:
-            url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
-        return url
 
 
 class AuditPageCreateView(CreateView):
@@ -398,10 +378,8 @@ class AuditPageChecksFormView(FormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Remain on current page after save"""
-        page_pk: Dict[str, int] = {"pk": self.page.id}  # type: ignore
-        url: str = reverse("audits:edit-audit-page-checks", kwargs=page_pk)
-        return url
+        """Remain on current page on save"""
+        return self.request.path
 
 
 class AuditStatement1UpdateView(AuditUpdateView):
@@ -412,18 +390,6 @@ class AuditStatement1UpdateView(AuditUpdateView):
     form_class: Type[AuditStatement1UpdateForm] = AuditStatement1UpdateForm
     template_name: str = "audits/forms/statement-1.html"
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
-        else:
-            url: str = (
-                f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
-            )
-        return url
-
 
 class AuditStatement2UpdateView(AuditUpdateView):
     """
@@ -432,18 +398,6 @@ class AuditStatement2UpdateView(AuditUpdateView):
 
     form_class: Type[AuditStatement2UpdateForm] = AuditStatement2UpdateForm
     template_name: str = "audits/forms/statement-2.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-summary", kwargs=audit_pk)
-        else:
-            url: str = (
-                f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-statement'
-            )
-        return url
 
 
 class AuditSummaryUpdateView(AuditUpdateView):
@@ -479,16 +433,6 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
         return context
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-report-options", kwargs=audit_pk)
-        else:
-            url: str = f'{reverse("audits:audit-detail", kwargs=audit_pk)}'
-        return url
-
 
 class AuditReportOptionsUpdateView(AuditUpdateView):
     """
@@ -498,16 +442,6 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
     template_name: str = "audits/forms/report-options.html"
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        if "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-report-text", kwargs=audit_pk)
-        else:
-            url: str = f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-report-options'
-        return url
-
 
 class AuditReportTextUpdateView(AuditUpdateView):
     """
@@ -516,8 +450,3 @@ class AuditReportTextUpdateView(AuditUpdateView):
 
     form_class: Type[AuditReportTextUpdateForm] = AuditReportTextUpdateForm
     template_name: str = "audits/forms/report-text.html"
-
-    def get_success_url(self) -> str:
-        """Return to audit view page"""
-        audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        return f'{reverse("audits:audit-detail", kwargs=audit_pk)}#audit-report-text'

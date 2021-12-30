@@ -555,7 +555,11 @@ def test_create_case_can_create_duplicate_cases(
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
         ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
         ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
-        ("cases:edit-report-correspondence", "save", "cases:edit-report-correspondence"),
+        (
+            "cases:edit-report-correspondence",
+            "save",
+            "cases:edit-report-correspondence",
+        ),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",

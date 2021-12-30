@@ -142,33 +142,21 @@ def test_restore_page_view(admin_client):
     assert page_from_db.is_deleted is False
 
 
-@pytest.mark.parametrize(
-    "button_name, expected_redirect_url",
-    [
-        (
-            "save_continue",
-            reverse("audits:edit-audit-metadata", kwargs={"pk": 1}),
-        ),
-        ("save_exit", reverse("cases:edit-test-results", kwargs={"pk": 1})),
-    ],
-)
-def test_create_audit_redirects_based_on_button_pressed(
-    button_name, expected_redirect_url, admin_client
-):
-    """Test that audit create redirects based on the button pressed"""
+def test_create_audit_redirects(admin_client):
+    """Test that audit create redirects to audit metadata"""
     case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
         reverse("audits:audit-create", kwargs=path_kwargs),
         {
-            button_name: "Button value",
+            "save_continue": "Create test",
         },
     )
 
     assert response.status_code == 302
 
-    assert response.url == expected_redirect_url
+    assert response.url == reverse("audits:edit-audit-metadata", kwargs={"pk": 1})
 
 
 @pytest.mark.parametrize(
@@ -197,82 +185,26 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
 
 
 @pytest.mark.parametrize(
-    "path_name, button_name, expected_redirect_path_name, expected_view_page_anchor",
+    "path_name, button_name, expected_redirect_path_name",
     [
-        (
-            "audits:edit-audit-metadata",
-            "save_continue",
-            "audits:edit-audit-website",
-            "",
-        ),
-        (
-            "audits:edit-audit-metadata",
-            "save_exit",
-            "audits:audit-detail",
-            "#audit-metadata",
-        ),
-        (
-            "audits:edit-audit-website",
-            "continue",
-            "audits:edit-audit-statement-1",
-            "",
-        ),
-        (
-            "audits:edit-audit-statement-1",
-            "save_continue",
-            "audits:edit-audit-statement-2",
-            "",
-        ),
-        (
-            "audits:edit-audit-statement-1",
-            "save_exit",
-            "audits:audit-detail",
-            "#audit-statement",
-        ),
-        (
-            "audits:edit-audit-statement-2",
-            "save_continue",
-            "audits:edit-audit-summary",
-            "",
-        ),
-        (
-            "audits:edit-audit-statement-2",
-            "save_exit",
-            "audits:audit-detail",
-            "#audit-statement",
-        ),
-        (
-            "audits:edit-audit-summary",
-            "save_continue",
-            "audits:edit-audit-report-options",
-            "",
-        ),
-        ("audits:edit-audit-summary", "save_exit", "audits:audit-detail", ""),
+        ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
+        ("audits:edit-audit-website", "save", "audits:edit-audit-website"),
+        ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
+        ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
+        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
         (
             "audits:edit-audit-report-options",
-            "save_continue",
-            "audits:edit-audit-report-text",
-            "",
-        ),
-        (
+            "save",
             "audits:edit-audit-report-options",
-            "save_exit",
-            "audits:audit-detail",
-            "#audit-report-options",
         ),
-        (
-            "audits:edit-audit-report-text",
-            "save_exit",
-            "audits:audit-detail",
-            "#audit-report-text",
-        ),
+        ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
     ],
 )
 def test_audit_edit_redirects_based_on_button_pressed(
     path_name,
     button_name,
     expected_redirect_path_name,
-    expected_view_page_anchor,
     admin_client,
 ):
     """Test that a successful audit update redirects based on the button pressed"""
@@ -294,7 +226,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
-    assert response.url == f"{expected_path}{expected_view_page_anchor}"
+    assert response.url == expected_path
 
 
 def test_add_page_page_loads(admin_client):
@@ -311,7 +243,7 @@ def test_add_page_page_loads(admin_client):
     assertContains(response, "Edit test | Add page")
 
 
-def test_add_page_pag_create_page(admin_client):
+def test_add_page_create_page(admin_client):
     """
     Test adding an extra page creates the page and redirects to the website UI page
     """

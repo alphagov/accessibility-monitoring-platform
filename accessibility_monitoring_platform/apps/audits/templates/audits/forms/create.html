@@ -41,23 +41,16 @@
                     <div class="govuk-grid-column-full govuk-button-group">
                         <input
                             type="submit"
-                            value="Save and continue"
+                            value="Create test"
                             name="save_continue"
                             class="govuk-button"
-                            data-module="govuk-button"
-                        />
-                        <input
-                            type="submit"
-                            value="Save and exit"
-                            name="save_exit"
-                            class="govuk-button govuk-button--secondary"
                             data-module="govuk-button"
                         />
                         <a
                             href="{% url 'cases:edit-test-results' case.id %}"
                             class="govuk-link govuk-link--no-visited-state"
                         >
-                            Cancel
+                            Return to case testing details
                         </a>
                     </div>
                 </div>

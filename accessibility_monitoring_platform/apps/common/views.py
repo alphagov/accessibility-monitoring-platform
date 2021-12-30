@@ -55,11 +55,13 @@ class IssueReportView(FormView):
         page_url: str = self.request.GET.get("page_url", "")
         page_title: str = get_page_title(page_url)
         description: str = self.request.GET.get("description", "")
-        self.form: AMPIssueReportForm = self.form_class({
-            "page_url": page_url,
-            "page_title": page_title,
-            "description": description,
-        })
+        self.form: AMPIssueReportForm = self.form_class(
+            {
+                "page_url": page_url,
+                "page_title": page_title,
+                "description": description,
+            }
+        )
         self.form.is_valid()
         return super().get(request, *args, **kwargs)
 

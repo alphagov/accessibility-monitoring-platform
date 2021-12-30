@@ -6,13 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0020_add_suspend_case'),
+        ("cases", "0020_add_suspend_case"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='testing_methodology',
-            field=models.CharField(choices=[('platform', 'Platform'), ('spreadsheet', 'Testing spreadsheet')], default='spreadsheet', max_length=20),
+            model_name="case",
+            name="testing_methodology",
+            field=models.CharField(
+                choices=[
+                    ("platform", "Platform"),
+                    ("spreadsheet", "Testing spreadsheet"),
+                ],
+                default="spreadsheet",
+                max_length=20,
+            ),
         ),
     ]
