@@ -548,112 +548,39 @@ def test_create_case_can_create_duplicate_cases(
 
 
 @pytest.mark.parametrize(
-    "case_edit_path, button_name, expected_redirect_path, expected_page_anchor",
+    "case_edit_path, button_name, expected_redirect_path",
     [
-        ("cases:edit-case-details", "save_continue", "cases:edit-test-results", ""),
-        ("cases:edit-case-details", "save_exit", "cases:case-detail", "#case-details"),
-        ("cases:edit-test-results", "save_continue", "cases:edit-report-details", ""),
-        (
-            "cases:edit-test-results",
-            "save_exit",
-            "cases:case-detail",
-            "#testing-details",
-        ),
-        (
-            "cases:edit-report-details",
-            "save_continue",
-            "cases:edit-qa-process",
-            "",
-        ),
-        (
-            "cases:edit-report-details",
-            "save_exit",
-            "cases:case-detail",
-            "#report-details",
-        ),
-        (
-            "cases:edit-qa-process",
-            "save_continue",
-            "cases:edit-contact-details",
-            "",
-        ),
-        (
-            "cases:edit-qa-process",
-            "save_exit",
-            "cases:case-detail",
-            "#qa-process",
-        ),
-        (
-            "cases:edit-contact-details",
-            "save_continue",
-            "cases:edit-report-correspondence",
-            "",
-        ),
-        (
-            "cases:edit-contact-details",
-            "save_exit",
-            "cases:case-detail",
-            "#contact-details",
-        ),
-        (
-            "cases:edit-report-correspondence",
-            "save_exit",
-            "cases:case-detail",
-            "#report-correspondence",
-        ),
-        (
-            "cases:edit-report-correspondence",
-            "save_continue",
-            "cases:edit-twelve-week-correspondence",
-            "",
-        ),
+        ("cases:edit-case-details", "save", "cases:edit-case-details"),
+        ("cases:edit-test-results", "save", "cases:edit-test-results"),
+        ("cases:edit-report-details", "save", "cases:edit-report-details"),
+        ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
+        ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
+        ("cases:edit-report-correspondence", "save", "cases:edit-report-correspondence"),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",
             "cases:edit-report-correspondence",
-            "",
         ),
         (
             "cases:edit-twelve-week-correspondence",
-            "save_exit",
-            "cases:case-detail",
-            "#12-week-correspondence",
-        ),
-        (
+            "save",
             "cases:edit-twelve-week-correspondence",
-            "save_continue",
-            "cases:edit-final-decision",
-            "",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
             "save_return",
             "cases:edit-twelve-week-correspondence",
-            "",
         ),
         (
             "cases:edit-no-psb-response",
-            "save_continue",
+            "save",
             "cases:edit-enforcement-body-correspondence",
-            "",
         ),
-        (
-            "cases:edit-final-decision",
-            "save_exit",
-            "cases:case-detail",
-            "#final-decision",
-        ),
-        (
-            "cases:edit-final-decision",
-            "save_continue",
-            "cases:edit-enforcement-body-correspondence",
-            "",
-        ),
+        ("cases:edit-final-decision", "save", "cases:edit-final-decision"),
         (
             "cases:edit-enforcement-body-correspondence",
-            "save_exit",
-            "cases:case-detail",
-            "#equality-body-correspondence",
+            "save",
+            "cases:edit-enforcement-body-correspondence",
         ),
     ],
 )
@@ -661,7 +588,6 @@ def test_case_edit_redirects_based_on_button_pressed(
     case_edit_path,
     button_name,
     expected_redirect_path,
-    expected_page_anchor,
     admin_client,
 ):
     """Test that a successful case update redirects based on the button pressed"""
@@ -683,7 +609,7 @@ def test_case_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}{expected_page_anchor}'  # type: ignore
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
     )
 
 
@@ -725,7 +651,7 @@ def test_add_contact(admin_client):
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
             "version": case.version,
-            "save_continue": "Save and continue",
+            "save": "Save",
         },
         follow=True,
     )
@@ -800,7 +726,7 @@ def test_updating_report_sent_date(admin_client):
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -831,7 +757,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -858,7 +784,7 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
             "report_sent_date_1": REPORT_SENT_DATE.month,
             "report_sent_date_2": REPORT_SENT_DATE.year,
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -908,7 +834,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -919,7 +845,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
     assert case_from_db.report_followup_week_4_sent_date == TODAY
 
 
-def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
+def test_setting_report_followup_does_not_update_sent_dates(admin_client):
     """Test that ticking the report followup checkboxes does not update the report followup sent dates"""
     case: Case = Case.objects.create(
         report_followup_week_1_sent_date=OTHER_DATE,
@@ -932,7 +858,7 @@ def test_setting_report_followup_doesn_not_update_sent_dates(admin_client):
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -954,7 +880,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
         {
             "version": case.version,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -1371,7 +1297,7 @@ def test_status_change_message_shown(admin_client):
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "version": case.version,
-            "save_continue": "Save and continue",
+            "save": "Save and continue",
         },
         follow=True,
     )
@@ -1399,7 +1325,7 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
             "report_draft_url": "",
             "report_review_status": "ready-to-review",
             "version": case.version,
-            "save_continue": "Save and continue",
+            "save": "Save and continue",
         },
     )
 
@@ -1534,7 +1460,7 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
         {
             "report_approved_status": "yes",
             "version": case.version,
-            "save_continue": "Save and continue",
+            "save": "Save and continue",
         },
     )
 
@@ -1619,7 +1545,7 @@ def test_updating_case_create_event(admin_client):
         {
             "version": case.version,
             "report_correspondence_complete_date": "on",
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 302
@@ -1648,7 +1574,7 @@ def test_add_contact_also_creates_event(admin_client):
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
             "version": case.version,
-            "save_continue": "Save and continue",
+            "save": "Save",
         },
         follow=True,
     )
@@ -1696,7 +1622,7 @@ def test_update_case_checks_version(admin_client):
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
         {
             "version": case.version - 1,
-            "save_continue": "Button value",
+            "save": "Button value",
         },
     )
     assert response.status_code == 200

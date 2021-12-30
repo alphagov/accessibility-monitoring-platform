@@ -9,6 +9,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
 
+from ...cases.models import Case
 
 EMAIL_SUBJECT = "Email subject"
 EMAIL_MESSAGE = "Email message"

@@ -39,7 +39,13 @@
                             {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            {% include 'cases/helpers/save_cancel.html' %}
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
                         </div>
                     </div>
                 </form>

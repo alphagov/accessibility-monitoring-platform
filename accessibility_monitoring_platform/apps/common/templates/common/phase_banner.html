@@ -6,7 +6,7 @@
             {% if prototype_name %}
                 report
             {% else %}
-                <a href="{% url 'issue-report' %}?page_url={{ request.path }}&page_title={{ page_title }}"
+                <a href="{% url 'issue-report' %}?page_url={{ request.path }}"
                     target="_blank"
                     class="govuk-link govuk-link--no-visited-state">report</a>
             {% endif %}

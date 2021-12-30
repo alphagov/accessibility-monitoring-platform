@@ -44,7 +44,13 @@
                 <div class="form-space"> </div>
             </div>
 
-            <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+            <div class="govuk-button-group">
+                <input type="submit" value="Update account details" class="govuk-button" data-module="govuk-button"/>
+                <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state">
+                    Cancel and return to dashboard
+                </a>
+            </div>
+
         </form>
     </main>
 </div>

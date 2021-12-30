@@ -12,6 +12,7 @@ from django.views.generic.edit import FormView
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm
 from .models import IssueReport
+from .page_title_utils import get_page_title
 
 
 class ContactAdminView(FormView):
@@ -51,7 +52,14 @@ class IssueReportView(FormView):
 
     def get(self, request, *args, **kwargs):
         """Populate form"""
-        self.form: AMPIssueReportForm = self.form_class(self.request.GET)
+        page_url: str = self.request.GET.get("page_url", "")
+        page_title: str = get_page_title(page_url)
+        description: str = self.request.GET.get("description", "")
+        self.form: AMPIssueReportForm = self.form_class({
+            "page_url": page_url,
+            "page_title": page_title,
+            "description": description,
+        })
         self.form.is_valid()
         return super().get(request, *args, **kwargs)
 
