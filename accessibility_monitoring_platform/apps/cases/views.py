@@ -117,43 +117,6 @@ def format_due_date_help_text(due_date: date) -> str:
     return f"Due {format_date(due_date)}"
 
 
-class CaseUpdateView(UpdateView):
-    """
-    View to update case
-    """
-
-    model: Type[Case] = Case
-    context_object_name: str = "case"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add message on change of case"""
-        if form.changed_data:
-            self.object: Case = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
-            old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
-
-            if (
-                old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status
-                == REPORT_APPROVED_STATUS_APPROVED
-            ):
-                self.object.reviewer = self.request.user
-
-            if "home_page_url" in form.changed_data:
-                self.object.domain = extract_domain_from_url(self.object.home_page_url)
-
-            self.object.save()
-
-            if old_case.status != self.object.status:
-                messages.add_message(
-                    self.request,
-                    messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}'"  # type: ignore
-                    f" to '{self.object.get_status_display()}'",  # type: ignore
-                )
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class CaseDetailView(DetailView):
     """
     View of details of a single case
@@ -282,6 +245,47 @@ class CaseCreateView(CreateView):
         return url
 
 
+class CaseUpdateView(UpdateView):
+    """
+    View to update case
+    """
+
+    model: Type[Case] = Case
+    context_object_name: str = "case"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add message on change of case"""
+        if form.changed_data:
+            self.object: Case = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+
+            if (
+                old_case.report_approved_status != self.object.report_approved_status
+                and self.object.report_approved_status
+                == REPORT_APPROVED_STATUS_APPROVED
+            ):
+                self.object.reviewer = self.request.user
+
+            if "home_page_url" in form.changed_data:
+                self.object.domain = extract_domain_from_url(self.object.home_page_url)
+
+            self.object.save()
+
+            if old_case.status != self.object.status:
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    f"Status changed from '{old_case.get_status_display()}'"  # type: ignore
+                    f" to '{self.object.get_status_display()}'",  # type: ignore
+                )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        return self.request.path
+
+
 class CaseDetailUpdateView(CaseUpdateView):
     """
     View to update case details
@@ -289,14 +293,6 @@ class CaseDetailUpdateView(CaseUpdateView):
 
     form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = f'{reverse("cases:case-detail", kwargs={"pk": self.object.id})}#case-details'  # type: ignore
-        else:
-            url = reverse("cases:edit-test-results", kwargs={"pk": self.object.id})  # type: ignore
-        return url
 
 
 class CaseTestResultsUpdateView(CaseUpdateView):
@@ -306,16 +302,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = f'{reverse("cases:case-detail", kwargs={"pk": self.object.id})}#testing-details'  # type: ignore
-        else:
-            url = reverse(
-                "cases:edit-report-details", kwargs={"pk": self.object.id}  # type: ignore
-            )
-        return url
 
 
 class CaseReportDetailsUpdateView(CaseUpdateView):
@@ -333,35 +319,14 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         read_notification(self.request)
         return context
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = f'{reverse("cases:case-detail", kwargs={"pk": self.object.id})}#report-details'  # type: ignore
-        else:
-            url = reverse(
-                "cases:edit-qa-process", kwargs={"pk": self.object.id}  # type: ignore
-            )
-        return url
-
 
 class CaseQAProcessUpdateView(CaseUpdateView):
     """
     View to update QA process
     """
 
-    model: Type[Case] = Case
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            url = f'{reverse("cases:case-detail", kwargs={"pk": self.object.id})}#qa-process'  # type: ignore
-        else:
-            url = reverse(
-                "cases:edit-contact-details", kwargs={"pk": self.object.id}  # type: ignore
-            )
-        return url
 
 
 class CaseContactFormsetUpdateView(CaseUpdateView):
@@ -417,10 +382,8 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        if "save_exit" in self.request.POST:
-            url: str = f'{reverse("cases:case-detail", kwargs=case_pk)}#contact-details'
-        elif "save_continue" in self.request.POST:
-            url: str = reverse("cases:edit-report-correspondence", kwargs=case_pk)
+        if "save" in self.request.POST:
+            url: str = reverse("cases:edit-contact-details", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
             url: str = f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
         else:
@@ -481,16 +444,6 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
                     get_sent_date(form, case_from_db, sent_date_name),
                 )
         return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        if "save_exit" in self.request.POST:
-            return (
-                f'{reverse("cases:case-detail", kwargs=case_pk)}#report-correspondence'
-            )
-        else:
-            return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
 class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
@@ -561,17 +514,6 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 )
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        if "save_exit" in self.request.POST:
-            url: str = (
-                f'{reverse("cases:case-detail", kwargs=case_pk)}#12-week-correspondence'
-            )
-        else:
-            url: str = reverse("cases:edit-final-decision", kwargs=case_pk)
-        return url
-
 
 class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     """
@@ -625,17 +567,6 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
                 )
         return form
 
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        if "save_exit" in self.request.POST:
-            url = f'{reverse("cases:case-detail", kwargs={"pk": self.object.id})}#final-decision'  # type: ignore
-        else:
-            url = reverse(
-                "cases:edit-enforcement-body-correspondence",
-                kwargs={"pk": self.object.id},  # type: ignore
-            )
-        return url
-
 
 class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     """
@@ -646,11 +577,6 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
         CaseEnforcementBodyCorrespondenceUpdateForm
     ] = CaseEnforcementBodyCorrespondenceUpdateForm
     template_name: str = "cases/forms/enforcement_body_correspondence.html"
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        return f'{reverse("cases:case-detail", kwargs=case_pk)}#equality-body-correspondence'
 
 
 class CaseDeleteUpdateView(CaseUpdateView):
