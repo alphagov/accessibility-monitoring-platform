@@ -43,8 +43,9 @@ def create_audit() -> Audit:
 
 def create_audit_and_wcag() -> Audit:
     audit: Audit = create_audit()
-    WcagDefinition.objects.create(type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
-    WcagDefinition.objects.create(type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    WcagDefinition.objects.all().delete()
+    WcagDefinition.objects.create(id=1, type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
+    WcagDefinition.objects.create(id=2, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
     return audit
 
 
@@ -374,7 +375,7 @@ def test_page_checks_edit_saves_results(admin_client):
 
 
 def test_page_checks_edit_stays_on_page(admin_client):
-    """Test that a successful page checks edit redirects based on the button pressed"""
+    """Test that a successful page checks edit stays on the page"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
