@@ -1,6 +1,7 @@
 """ Derive page title from url path """
 import re
 
+from ..audits.models import Audit, Page
 from ..cases.models import Case
 
 PAGE_TITLES_BY_URL = {
@@ -8,6 +9,16 @@ PAGE_TITLES_BY_URL = {
     "/accounts/login/": "Sign in",
     "/accounts/password_reset/": "Reset password",
     "/accounts/password_reset/done/": "Password reset done",
+    "/audits/create-for-case/[id]/": "Create test",
+    "/audits/[id]/detail/": "View test",
+    "/audits/[id]/edit-audit-metadata/": "Edit test | Test metadata",
+    "/audits/[id]/edit-audit-website/": "Edit test | Website test",
+    "/audits/[id]/edit-audit-statement-one/": "Edit test | Accessibility statement Pt. 1",
+    "/audits/[id]/edit-audit-statement-two/": "Edit test | Accessibility statement Pt. 2",
+    "/audits/[id]/edit-audit-summary/": "Edit test | Test summary",
+    "/audits/[id]/edit-audit-report-options/": "Edit test | Report options",
+    "/audits/[id]/edit-audit-report-text/": "Edit test | Report text",
+    "/audits/pages/[id]/edit-audit-page-checks/": "Edit test | Testing",
     "/cases/": "Search",
     "/cases/[id]/delete-case/": "Delete case",
     "/cases/[id]/edit-case-details/": "Edit case | Case details",
@@ -49,7 +60,25 @@ def get_page_title(path: str) -> str:
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
             pass
+    elif path_without_id.startswith("/audits/[id]/"):
+        try:
+            audit: Audit = Audit.objects.get(id=path.split("/")[2])
+            page_title: str = f"{audit.case.organisation_name} | {page_heading}"
+        except Case.DoesNotExist:
+            pass
+    elif path_without_id.startswith("/audits/pages/[id]/"):
+        try:
+            page: Page = Page.objects.get(id=path.split("/")[3])
+            page_title: str = f"{page.audit.case.organisation_name} | {page_heading} {page}"
+        except Case.DoesNotExist:
+            pass
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
+        try:
+            case: Case = Case.objects.get(id=path.split("/")[3])
+            page_title: str = f"{case.organisation_name} | {page_heading}"
+        except Case.DoesNotExist:
+            pass
+    elif path_without_id == "/audits/create-for-case/[id]/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
