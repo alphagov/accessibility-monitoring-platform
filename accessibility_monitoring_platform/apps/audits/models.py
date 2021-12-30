@@ -514,6 +514,7 @@ class WcagDefinition(models.Model):
     )
     name = models.TextField(default="", blank=True)
     description = models.TextField(default="", blank=True)
+    report_boilerplate = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["id"]
