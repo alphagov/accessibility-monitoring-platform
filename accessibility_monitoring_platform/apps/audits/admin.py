@@ -4,6 +4,7 @@ Admin for checks (called tests by the users)
 
 from django.contrib import admin
 
+from ..common.admin import ExportCsvMixin
 from .models import Audit, Page, CheckResult, WcagDefinition
 
 
@@ -36,12 +37,13 @@ class CheckResultAdmin(admin.ModelAdmin):
     list_display = ["wcag_definition", "audit", "page"]
 
 
-class WcagDefinitionAdmin(admin.ModelAdmin):
+class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for WcagDefinition model"""
 
     search_fields = ["name", "description"]
     list_display = ["id", "type", "name", "description"]
     list_filter = ["type"]
+    actions = ["export_as_csv"]
 
 
 admin.site.register(Audit, AuditAdmin)

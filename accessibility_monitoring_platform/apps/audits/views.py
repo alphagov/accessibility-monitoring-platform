@@ -450,3 +450,9 @@ class AuditReportTextUpdateView(AuditUpdateView):
 
     form_class: Type[AuditReportTextUpdateForm] = AuditReportTextUpdateForm
     template_name: str = "audits/forms/report-text.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["wcag_definitions"] = WcagDefinition.objects.all()
+        return context

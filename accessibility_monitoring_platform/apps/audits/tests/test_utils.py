@@ -334,7 +334,9 @@ def create_audit_and_wcag() -> Audit:
     audit: Audit = Audit.objects.create(case=case)
     WcagDefinition.objects.all().delete()
     WcagDefinition.objects.create(id=1, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
-    WcagDefinition.objects.create(id=2, type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME)
+    WcagDefinition.objects.create(
+        id=2, type=TEST_TYPE_MANUAL, name=WCAG_TYPE_MANUAL_NAME
+    )
     return audit
 
 

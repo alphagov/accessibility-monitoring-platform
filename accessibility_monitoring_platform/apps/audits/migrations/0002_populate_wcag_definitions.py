@@ -5,9 +5,8 @@ import csv
 
 from django.db import migrations
 
-INPUT_FILE_NAME = (
-    "accessibility_monitoring_platform/apps/audits/wcag_definitions.csv"
-)
+INPUT_FILE_NAME = "accessibility_monitoring_platform/apps/audits/wcag_definitions.csv"
+FIELD_NAMES = ["type", "name", "description", "url_on_w3", "report_boilerplate"]
 
 
 def populate_wcag_definitions(apps, schema_editor):  # pylint: disable=unused-argument
@@ -17,19 +16,17 @@ def populate_wcag_definitions(apps, schema_editor):  # pylint: disable=unused-ar
         for row in reader:
             try:
                 wcag_definition = WcagDefinition.objects.get(id=row["id"])
-                wcag_definition.type = row["type"]
-                wcag_definition.name = row["name"]
-                wcag_definition.description = row["description"]
-                wcag_definition.report_boilerplate = row["report_boilerplate"]
+                for field_name in FIELD_NAMES:
+                    setattr(wcag_definition, field_name, row[field_name])
                 wcag_definition.save()
             except WcagDefinition.DoesNotExist:
-                WcagDefinition.objects.create(
-                    id=row["id"],
-                    type=row["type"],
-                    name=row["name"],
-                    description=row["description"],
-                    report_boilerplate=row["report_boilerplate"],
-                )
+                fields = {field_name: row[field_name] for field_name in FIELD_NAMES}
+                fields["id"] = row["id"]
+                WcagDefinition.objects.create(**fields)
+
+
+def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
+    pass
 
 
 class Migration(migrations.Migration):
@@ -39,5 +36,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(populate_wcag_definitions),
+        migrations.RunPython(populate_wcag_definitions, reverse_code=reverse_code),
     ]
