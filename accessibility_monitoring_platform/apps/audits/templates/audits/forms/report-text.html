@@ -53,7 +53,13 @@
                 </ul>
                 <h2 class="govuk-heading-l">Report text</h2>
                 <h3 id="pages" class="govuk-heading-m">Pages we checked</h3>
-                <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                <button
+                    class="govuk-button govuk-button--secondary"
+                    onclick="copyElementToClipboard('urls-to-copy')"
+                >
+                    Copy urls to clipboard
+                </button>
+                <table id="urls-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
                     <thead>
                         <tr style="border:1px solid black;">
                             <th style="border:1px solid black;text-align:left;">Page name</th>
@@ -71,7 +77,13 @@
                     </tbody>
                 </table>
                 <h3 id="issues" class="govuk-heading-m">The issues we found</h3>
-                <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                <button
+                    class="govuk-button govuk-button--secondary"
+                    onclick="copyElementToClipboard('issues-to-copy')"
+                >
+                    Copy issues to clipboard
+                </button>
+                <table id="issues-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
                     <thead>
                         <tr style="border:1px solid black;">
                             <th style="border:1px solid black;text-align:left;">Issue and description</th>
@@ -101,63 +113,79 @@
                     </tbody>
                 </table>
                 <h3 id="statement" class="govuk-heading-m">Accessibility statement</h3>
-                <p class="govuk-body">{{ audit.get_accessibility_statement_state_display }}</p>
-                {% if audit.accessibility_statement_state == 'found-but' %}
-                    <ul class="govuk-list govuk-list--bullet">
-                        {% for issue in audit.report_accessibility_issues %}
-                            <li>{{ issue }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                <h3 id="what-next" class="govuk-heading-m">What to do next</h3>
-                <p class="govuk-body">
-                    {% if audit.report_options_next == 'errors' %}
-                        You should fix the issues that were found and do your own accessibility audit
-                        to check for issues that go beyond the scope of simple accessibility testing.
-                    {% else %}
-                        You should do your own accessibility audit to check for issues that go beyond
-                        the scope of simple accessibility testing.
+                <button
+                    class="govuk-button govuk-button--secondary"
+                    onclick="copyElementToClipboard('accessibility-statement-text-to-copy')"
+                >
+                    Copy to clipboard
+                </button>
+                <div id="accessibility-statement-text-to-copy">
+                    <p class="govuk-body">{{ audit.get_accessibility_statement_state_display }}</p>
+                    {% if audit.accessibility_statement_state == 'found-but' %}
+                        <ul class="govuk-list govuk-list--bullet">
+                            {% for issue in audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
-                </p>
-                {% if audit.report_next_change_statement == 'yes' %}
+                </div>
+                <h3 id="what-next" class="govuk-heading-m">What to do next</h3>
+                <button
+                    class="govuk-button govuk-button--secondary"
+                    onclick="copyElementToClipboard('what-next-text-to-copy')"
+                >
+                    Copy to clipboard
+                </button>
+                <div id="what-next-text-to-copy">
                     <p class="govuk-body">
-                        You need to review your accessibility statement to cover the issues found in
-                        this report and any others found during your own audit.
+                        {% if audit.report_options_next == 'errors' %}
+                            You should fix the issues that were found and do your own accessibility audit
+                            to check for issues that go beyond the scope of simple accessibility testing.
+                        {% else %}
+                            You should do your own accessibility audit to check for issues that go beyond
+                            the scope of simple accessibility testing.
+                        {% endif %}
                     </p>
-                {% endif %}
-                {% if audit.report_next_no_statement == 'yes' %}
-                    <p class="govuk-body">
-                        You need to write and publish an accessibility statement that meets the required
-                        legislative format.
-                    </p>
-                {% endif %}
-                {% if audit.report_next_statement_not_right == 'yes' %}
-                    <p class="govuk-body">
-                        You need to review your accessibility statement to cover the issues found in this report,
-                        including ones related to your accessibility statement, and any other accessibility issues
-                        found during your own site audit.
-                    </p>
-                {% endif %}
-                {% if audit.report_next_statement_matches == 'yes' %}
-                    <p class="govuk-body">
-                        You need to review your accessibility statement to cover any other issues found during your
-                        own audit.
-                    </p>
-                {% endif %}
-                {% if audit.report_next_disproportionate_burden == 'yes' %}
-                    <p class="govuk-body">
-                        A disproportionate burden assessment must have been completed before adding this section to
-                        your accessibility statement. You need to send evidence of the assessment to us for review.
-                    </p>
-                {% endif %}
+                    {% if audit.report_next_change_statement == 'yes' %}
+                        <p class="govuk-body">
+                            You need to review your accessibility statement to cover the issues found in
+                            this report and any others found during your own audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_no_statement == 'yes' %}
+                        <p class="govuk-body">
+                            You need to write and publish an accessibility statement that meets the required
+                            legislative format.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_statement_not_right == 'yes' %}
+                        <p class="govuk-body">
+                            You need to review your accessibility statement to cover the issues found in this report,
+                            including ones related to your accessibility statement, and any other accessibility issues
+                            found during your own site audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_statement_matches == 'yes' %}
+                        <p class="govuk-body">
+                            You need to review your accessibility statement to cover any other issues found during your
+                            own audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_disproportionate_burden == 'yes' %}
+                        <p class="govuk-body">
+                            A disproportionate burden assessment must have been completed before adding this section to
+                            your accessibility statement. You need to send evidence of the assessment to us for review.
+                        </p>
+                    {% endif %}
 
-                {% if audit.accessibility_statement_state == 'found-but' %}
-                    <ul class="govuk-list govuk-list--bullet">
-                        {% for issue in audit.report_accessibility_issues %}
-                            <li>{{ issue }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                    {% if audit.accessibility_statement_state == 'found-but' %}
+                        <ul class="govuk-list govuk-list--bullet">
+                            {% for issue in audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
                 <h3 id="all-issues" class="govuk-heading-m">All issues</h3>
                 <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
                     <thead>
@@ -201,5 +229,17 @@
             </div>
         </div>
     </main>
-</div>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    function copyElementToClipboard(elementId) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(elementId));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+    }
+</script>
 {% endblock %}
