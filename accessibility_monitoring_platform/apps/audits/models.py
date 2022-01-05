@@ -446,6 +446,10 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
+    def home_page(self):
+        return self.every_page.filter(page_type=PAGE_TYPE_HOME).first()
+
+    @property
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(  # type: ignore

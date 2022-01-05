@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block title %}{{ audit.case.organisation_name }} | Edit test | Report text{% endblock %}
 
 {% block content %}
@@ -36,6 +38,9 @@
                 <h2 class="govuk-heading-m">Contents</h2>
                 <ul class="govuk-list">
                     <li>
+                        <a href="#how-accessible" class="govuk-link govuk-link--no-visited-state">How accessible the website is</a>
+                    </li>
+                    <li>
                         <a href="#pages" class="govuk-link govuk-link--no-visited-state">Pages we checked</a>
                     </li>
                     <li>
@@ -48,145 +53,284 @@
                         <a href="#what-next" class="govuk-link govuk-link--no-visited-state">What to do next</a>
                     </li>
                     <li>
-                        <a href="#all-issues" class="govuk-link govuk-link--no-visited-state">All issues</a>
+                        <a href="#enforcement" class="govuk-link govuk-link--no-visited-state">Enforcement</a>
+                    </li>
+                    <li>
+                        <a href="#context-and-more" class="govuk-link govuk-link--no-visited-state">Contact and more information</a>
+                    </li>
+                    <li>
+                        <a href="#all-issues" class="govuk-link govuk-link--no-visited-state">All possible issues</a>
                     </li>
                 </ul>
                 <h2 class="govuk-heading-l">Report text</h2>
-                <h3 id="pages" class="govuk-heading-m">Pages we checked</h3>
-                <button
-                    class="govuk-button govuk-button--secondary"
-                    onclick="copyElementToClipboard('urls-to-copy')"
-                >
-                    Copy urls to clipboard
-                </button>
-                <table id="urls-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
-                    <thead>
-                        <tr style="border:1px solid black;">
-                            <th style="border:1px solid black;text-align:left;">Page name</th>
-                            <th style="border:1px solid black;text-align:left;">URL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for page in audit.every_page_except_all %}
-                            <tr style="border:1px solid black;">
-                                <td style="border:1px solid black;">{{ page }}</td>
-                                <td style="border:1px solid black;"><a href="page.url" target="_blank">
-                                    {{ page.url }}</a></td>
-                            </tr>
-                            {% endfor %}
-                    </tbody>
-                </table>
-                <h3 id="issues" class="govuk-heading-m">The issues we found</h3>
-                <button
-                    class="govuk-button govuk-button--secondary"
-                    onclick="copyElementToClipboard('issues-to-copy')"
-                >
-                    Copy issues to clipboard
-                </button>
-                <table id="issues-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
-                    <thead>
-                        <tr style="border:1px solid black;">
-                            <th style="border:1px solid black;text-align:left;">Issue and description</th>
-                            <th style="border:1px solid black;text-align:left;">Where the issue was found</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for check_result in audit.failed_check_results %}
-                            <tr style="border:1px solid black;">
-                                <td style="border:1px solid black;">
-                                    <p>
-                                        {% if check_result.wcag_definition.url_on_w3 %}
-                                            <a href="{{ check_result.wcag_definition.url_on_w3 }}" target="_blank">
-                                                {{ check_result.wcag_definition }}</a>
-                                        {% else %}
-                                            {{ check_result.wcag_definition }}
-                                        {% endif %}
-                                    </p>
-                                    <p class="cases-notes">{{ check_result.wcag_definition.report_boilerplate }}</p>
-                                </td>
-                                <td style="border:1px solid black;">
-                                    <p>{{ check_result.page }}</p>
-                                    <ul><li>{{ check_result.notes }}</li></ul>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                    </tbody>
-                </table>
-                <h3 id="statement" class="govuk-heading-m">Accessibility statement</h3>
-                <button
-                    class="govuk-button govuk-button--secondary"
-                    onclick="copyElementToClipboard('accessibility-statement-text-to-copy')"
-                >
-                    Copy to clipboard
-                </button>
-                <div id="accessibility-statement-text-to-copy">
-                    <p class="govuk-body">{{ audit.get_accessibility_statement_state_display }}</p>
-                    {% if audit.accessibility_statement_state == 'found-but' %}
-                        <ul class="govuk-list govuk-list--bullet">
-                            {% for issue in audit.report_accessibility_issues %}
-                                <li>{{ issue }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-                <h3 id="what-next" class="govuk-heading-m">What to do next</h3>
-                <button
-                    class="govuk-button govuk-button--secondary"
-                    onclick="copyElementToClipboard('what-next-text-to-copy')"
-                >
-                    Copy to clipboard
-                </button>
-                <div id="what-next-text-to-copy">
+                <div id="report-text">
+                    <p class="govuk-body">Date: {{ audit.case.created|date:"d F Y" }}</p>
                     <p class="govuk-body">
-                        {% if audit.report_options_next == 'errors' %}
-                            You should fix the issues that were found and do your own accessibility audit
-                            to check for issues that go beyond the scope of simple accessibility testing.
-                        {% else %}
-                            You should do your own accessibility audit to check for issues that go beyond
-                            the scope of simple accessibility testing.
-                        {% endif %}
+                        Website:
+                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
                     </p>
-                    {% if audit.report_next_change_statement == 'yes' %}
-                        <p class="govuk-body">
-                            You need to review your accessibility statement to cover the issues found in
-                            this report and any others found during your own audit.
-                        </p>
-                    {% endif %}
-                    {% if audit.report_next_no_statement == 'yes' %}
-                        <p class="govuk-body">
-                            You need to write and publish an accessibility statement that meets the required
-                            legislative format.
-                        </p>
-                    {% endif %}
-                    {% if audit.report_next_statement_not_right == 'yes' %}
-                        <p class="govuk-body">
-                            You need to review your accessibility statement to cover the issues found in this report,
-                            including ones related to your accessibility statement, and any other accessibility issues
-                            found during your own site audit.
-                        </p>
-                    {% endif %}
-                    {% if audit.report_next_statement_matches == 'yes' %}
-                        <p class="govuk-body">
-                            You need to review your accessibility statement to cover any other issues found during your
-                            own audit.
-                        </p>
-                    {% endif %}
-                    {% if audit.report_next_disproportionate_burden == 'yes' %}
-                        <p class="govuk-body">
-                            A disproportionate burden assessment must have been completed before adding this section to
-                            your accessibility statement. You need to send evidence of the assessment to us for review.
-                        </p>
-                    {% endif %}
 
-                    {% if audit.accessibility_statement_state == 'found-but' %}
-                        <ul class="govuk-list govuk-list--bullet">
-                            {% for issue in audit.report_accessibility_issues %}
-                                <li>{{ issue }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                    <p class="govuk-body">
+                        Website accessibility regulations came into force on 23 September 2018.
+                        The regulations mean that public sector bodies now have a legal obligation
+                        to meet accessibility requirements for their websites.
+                    </p>
+
+                    <p class="govuk-body">
+                        To check how well the public sector are meeting the requirements,
+                        the Central Digital and Data Office (part of the Cabinet Office)
+                        has been monitoring a sample of public sector websites.
+                    </p>
+
+                    <p class="govuk-body">
+                        You’ve been sent this report because
+                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
+                        is one of the websites we’ve monitored. This document explains:
+                    </p>
+
+                    <ul class="govuk-body">
+                        <li>which parts of your website we looked at</li>
+                        <li>how we checked the accessibility of those pages</li>
+                        <li>the accessibility issues found and how important they are</li>
+                        <li>what you need to do next to fix the issues</li>
+                    </ul>
+
+                    <p class="govuk-body">
+                        You can
+                        <a href="http://gov.uk/accessibility-regulations" target="_blank">
+                            read more about the web accessibility regulations</a>.
+                    </p>
+
+                    <h2 id="how-accessible" class="govuk-heading-l">How accessible the website is</h2>
+
+                    <p class="govuk-body">
+                        We checked
+                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
+                        on
+                        {{ audit.case.created|date:"d F Y" }}
+                        against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
+                        <a href="https://www.w3.org/TR/WCAG21/" target="_blank">
+                            https://www.w3.org/TR/WCAG21/</a>
+                    </p>
+
+                    <p class="govuk-body">
+                        Based on our testing, this site is partially compliant with WCAG 2.1 AA.
+                        This means there are some things which are not fully accessible.
+                    </p>
+
+                    <h2 id="how-checked" class="govuk-heading-l">How we checked</h2>
+
+                    <p class="govuk-body">
+                        We use a mixture of simple manual checks and automated tests to find
+                        only the most common barriers to users with accessibility needs.
+                        We would expect your organisation to fully audit the website to find
+                        any other accessibility issues.
+                    </p>
+
+                    <p class="govuk-body">
+                        Manual checks included using each page without a mouse, viewing the page
+                        at different zoom settings, and simulating viewing the page on a small screen.
+                    </p>
+
+                    <p class="govuk-body">
+                        The automated tests were completed using the latest version of axe:
+                        <a href="https://www.deque.com/axe/" target="_blank">
+                            https://www.deque.com/axe/</a>
+                    </p>
+
+                    <p class="govuk-body">
+                        Tests were completed using different settings in the Google Chrome browser
+                        on Mac OSX with a {{ audit.get_screen_size_display }} screen.
+                    </p>
+
+                    <h2 id="pages" class="govuk-heading-l">Pages we checked</h2>
+
+                    <table id="urls-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border:1px solid black;">
+                                <th style="border:1px solid black;text-align:left;">Page name</th>
+                                <th style="border:1px solid black;text-align:left;">URL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for page in audit.every_page_except_all %}
+                                <tr style="border:1px solid black;">
+                                    <td style="border:1px solid black;">{{ page }}</td>
+                                    <td style="border:1px solid black;"><a href="page.url" target="_blank">
+                                        {{ page.url }}</a></td>
+                                </tr>
+                                {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <h2 id="issues-found" class="govuk-heading-l">The issues we found</h2>
+
+                    <p class="govuk-body">
+                        Only serious accessibility issues on the sample of pages we tested
+                        are listed in this report – these will cause problems for users with
+                        access needs when using your website. There are likely to be smaller
+                        errors which will make things more difficult for some users.
+                        You must carry out your own audit to find and fix issues on other pages.
+                    </p>
+
+                    <h3 id="issues" class="govuk-heading-l">Issues</h3>
+
+                    <p class="govuk-body">
+                        The following errors were found.
+                    </p>
+
+                    <table id="issues-to-copy" class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border:1px solid black;">
+                                <th style="border:1px solid black;text-align:left;">Issue and description</th>
+                                <th style="border:1px solid black;text-align:left;">Where the issue was found</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for check_result in audit.failed_check_results %}
+                                <tr style="border:1px solid black;">
+                                    <td style="border:1px solid black;">
+                                        <p>
+                                            {% if check_result.wcag_definition.url_on_w3 %}
+                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" target="_blank">
+                                                    {{ check_result.wcag_definition }}</a>
+                                            {% else %}
+                                                {{ check_result.wcag_definition }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="cases-notes">{{ check_result.wcag_definition.report_boilerplate }}</p>
+                                    </td>
+                                    <td style="border:1px solid black;">
+                                        <p>{{ check_result.page }}</p>
+                                        <ul><li>{{ check_result.notes }}</li></ul>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <h2 id="statement" class="govuk-heading-l">Accessibility statement</h2>
+
+                    <div id="accessibility-statement-text-to-copy">
+                        <p class="govuk-body">{{ audit.get_accessibility_statement_state_display }}</p>
+                        {% if audit.accessibility_statement_state == 'found-but' %}
+                            <ul class="govuk-list govuk-list--bullet">
+                                {% for issue in audit.report_accessibility_issues %}
+                                    <li>{{ issue }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <h2 id="what-next" class="govuk-heading-l">What to do next</h2>
+
+                    <div id="what-next-text-to-copy">
+                        <p class="govuk-body">
+                            {% if audit.report_options_next == 'errors' %}
+                                You should fix the issues that were found and do your own accessibility audit
+                                to check for issues that go beyond the scope of simple accessibility testing.
+                            {% else %}
+                                You should do your own accessibility audit to check for issues that go beyond
+                                the scope of simple accessibility testing.
+                            {% endif %}
+                        </p>
+                        {% if audit.report_next_change_statement == 'yes' %}
+                            <p class="govuk-body">
+                                You need to review your accessibility statement to cover the issues found in
+                                this report and any others found during your own audit.
+                            </p>
+                        {% endif %}
+                        {% if audit.report_next_no_statement == 'yes' %}
+                            <p class="govuk-body">
+                                You need to write and publish an accessibility statement that meets the required
+                                legislative format.
+                            </p>
+                        {% endif %}
+                        {% if audit.report_next_statement_not_right == 'yes' %}
+                            <p class="govuk-body">
+                                You need to review your accessibility statement to cover the issues found in this report,
+                                including ones related to your accessibility statement, and any other accessibility issues
+                                found during your own site audit.
+                            </p>
+                        {% endif %}
+                        {% if audit.report_next_statement_matches == 'yes' %}
+                            <p class="govuk-body">
+                                You need to review your accessibility statement to cover any other issues found during your
+                                own audit.
+                            </p>
+                        {% endif %}
+                        {% if audit.report_next_disproportionate_burden == 'yes' %}
+                            <p class="govuk-body">
+                                A disproportionate burden assessment must have been completed before adding this section to
+                                your accessibility statement. You need to send evidence of the assessment to us for review.
+                            </p>
+                        {% endif %}
+
+                        {% if audit.accessibility_statement_state == 'found-but' %}
+                            <ul class="govuk-list govuk-list--bullet">
+                                {% for issue in audit.report_accessibility_issues %}
+                                    <li>{{ issue }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <h2 id="enforcement" class="govuk-heading-l">Enforcement</h2>
+
+                    <p class="govuk-body">
+                        On behalf of the Minister for the Cabinet Office we provide the Equality and Human Rights Commission (EHRC)
+                        or Equality Commission for Northern Ireland (ECNI) with details about public sector bodies who have
+                        been monitored. If accessibility issues remain after giving you time to fix them, the EHRC or ECNI
+                        may take further action.
+                    </p>
+
+                    <p class="govuk-body">
+                        Public sector bodies must publish an accessibility statement and review it regularly.
+                        If the decision is taken that a public sector body has failed to publish an accessibility
+                        statement or that the accessibility statement is incorrect, the Minister for the Cabinet
+                        Office may publish the name of the body and a copy of the decision.
+                    </p>
+
+                    <p class="govuk-body">
+                        The enforcement process can be found at
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced" target="_blank">
+                        https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced</a>
+                    </p>
+
+                    <h2 id="context-and-more" class="govuk-heading-l">Contact and more information</h2>
+
+                    <p class="govuk-body">
+                        This test was conducted by the Central Digital and Data Office on behalf of the
+                        Minister of the Cabinet Office as part of their obligations to monitor the accessibility
+                        of public sector websites in the United Kingdom.
+                    </p>
+
+                    <p class="govuk-body">
+                        As the monitoring body we cannot offer specific advice on approaches or general accessibility
+                        queries other than questions directly related to the items in this report.
+                    </p>
+
+                    <p class="govuk-body">
+                        Any questions about this report can be sent to
+                        <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk" target="_blank">
+                            accessibility-monitoring@digital.cabinet-office.gov.uk</a>
+                    </p>
+
+                    <p class="govuk-body">
+                        Further information on guidance and tools for digital accessibility can be found at:
+                        <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility" target="_blank">
+                            https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility</a>
+                    </p>
+
+                    <p class="govuk-body">
+                        Help with accessibility auditing and publishing an accessibility statement can be found at
+                        <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement" target="_blank">
+                            https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>
+                    </p>
                 </div>
-                <h3 id="all-issues" class="govuk-heading-m">All issues</h3>
+
+                <h2 id="all-issues" class="govuk-heading-l">All possible issues</h2>
+
                 <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
                     <thead>
                         <tr style="border:1px solid black;">
@@ -225,21 +369,15 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
+                <button
+                    id="copy-report-to-clipboard"
+                    class="govuk-button govuk-button--secondary"
+                >
+                    Copy report to clipboard
+                </button>
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-report-text' %}
             </div>
         </div>
     </main>
-{% endblock %}
-
-{% block extrascript %}
-<script>
-    function copyElementToClipboard(elementId) {
-        var range = document.createRange();
-        range.selectNode(document.getElementById(elementId));
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        document.execCommand("copy");
-        window.getSelection().removeAllRanges();
-    }
-</script>
+    <script src="{% static 'js/audits_copy_report.js' %}"></script>
 {% endblock %}
