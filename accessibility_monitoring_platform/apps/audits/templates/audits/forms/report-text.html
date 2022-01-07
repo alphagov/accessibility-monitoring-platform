@@ -157,7 +157,7 @@
                             {% for page in audit.every_page_except_all %}
                                 <tr>
                                     <td style="font-family:arial,sans-serif;">{{ page }}</td>
-                                    <td style="font-family:arial,sans-serif;"><a href="page.url" target="_blank">
+                                    <td style="font-family:arial,sans-serif;"><a href="{{ page.url }}" target="_blank">
                                         {{ page.url }}</a></td>
                                 </tr>
                             {% endfor %}
