@@ -63,8 +63,8 @@
                     </li>
                 </ul>
                 <h1 class="govuk-heading-l">Report text</h2>
-                <img src="{% static 'assets/cddo-co-logo-smallest.png' %}" style="padding-bottom:10px;" />
-                <div id="report-text" class="amp-report">
+                    <div id="report-text" class="amp-report">
+                    <img src="{% static 'assets/cddo-co-logo-smallest.png' %}" style="padding-bottom:10px;" />
                     <p>Date: {{ audit.case.created|date:"d F Y" }}</p>
                     <p>
                         Website:
@@ -212,69 +212,70 @@
 
                     <h1 id="statement">Accessibility statement</h1>
 
-                    <div id="accessibility-statement-text-to-copy">
-                        <p>{{ audit.get_accessibility_statement_state_display }}</p>
-                        {% if audit.accessibility_statement_state == 'found-but' %}
-                            <ul>
-                                {% for issue in audit.report_accessibility_issues %}
-                                    <li>{{ issue }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
+                    <p>{{ audit.get_accessibility_statement_state_display }}</p>
+                    {% if audit.accessibility_statement_state == 'found-but' %}
+                        <ul>
+                            {% for issue in audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
 
                     <h1 id="what-next">What to do next</h1>
 
-                    <div id="what-next-text-to-copy">
-                        <p>
-                            {% if audit.report_options_next == 'errors' %}
-                                You should fix the issues that were found and do your own accessibility audit
-                                to check for issues that go beyond the scope of simple accessibility testing.
-                            {% else %}
-                                You should do your own accessibility audit to check for issues that go beyond
-                                the scope of simple accessibility testing.
-                            {% endif %}
-                        </p>
-                        {% if audit.report_next_change_statement == 'yes' %}
-                            <p>
-                                You need to review your accessibility statement to cover the issues found in
-                                this report and any others found during your own audit.
-                            </p>
-                        {% endif %}
-                        {% if audit.report_next_no_statement == 'yes' %}
-                            <p>
-                                You need to write and publish an accessibility statement that meets the required
-                                legislative format.
-                            </p>
-                        {% endif %}
-                        {% if audit.report_next_statement_not_right == 'yes' %}
-                            <p>
-                                You need to review your accessibility statement to cover the issues found in this report,
-                                including ones related to your accessibility statement, and any other accessibility issues
-                                found during your own site audit.
-                            </p>
-                        {% endif %}
-                        {% if audit.report_next_statement_matches == 'yes' %}
-                            <p>
-                                You need to review your accessibility statement to cover any other issues found during your
-                                own audit.
-                            </p>
-                        {% endif %}
-                        {% if audit.report_next_disproportionate_burden == 'yes' %}
-                            <p>
-                                A disproportionate burden assessment must have been completed before adding this section to
-                                your accessibility statement. You need to send evidence of the assessment to us for review.
-                            </p>
-                        {% endif %}
+                    <p>
+                        It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2)
+                        Accessibility Regulations 2018 that public sector websites are accessible.
+                    </p>
 
-                        {% if audit.accessibility_statement_state == 'found-but' %}
-                            <ul>
-                                {% for issue in audit.report_accessibility_issues %}
-                                    <li>{{ issue }}</li>
-                                {% endfor %}
-                            </ul>
+                    <p>
+                        {% if audit.report_options_next == 'errors' %}
+                            You should fix the issues that were found and do your own accessibility audit
+                            to check for issues that go beyond the scope of simple accessibility testing.
+                        {% else %}
+                            You should do your own accessibility audit to check for issues that go beyond
+                            the scope of simple accessibility testing.
                         {% endif %}
-                    </div>
+                    </p>
+                    {% if audit.report_next_change_statement == 'yes' %}
+                        <p>
+                            You need to review your accessibility statement to cover the issues found in
+                            this report and any others found during your own audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_no_statement == 'yes' %}
+                        <p>
+                            You need to write and publish an accessibility statement that meets the required
+                            legislative format.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_statement_not_right == 'yes' %}
+                        <p>
+                            You need to review your accessibility statement to cover the issues found in this report,
+                            including ones related to your accessibility statement, and any other accessibility issues
+                            found during your own site audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_statement_matches == 'yes' %}
+                        <p>
+                            You need to review your accessibility statement to cover any other issues found during your
+                            own audit.
+                        </p>
+                    {% endif %}
+                    {% if audit.report_next_disproportionate_burden == 'yes' %}
+                        <p>
+                            A disproportionate burden assessment must have been completed before adding this section to
+                            your accessibility statement. You need to send evidence of the assessment to us for review.
+                        </p>
+                    {% endif %}
+
+                    {% if audit.accessibility_statement_state == 'found-but' %}
+                        <ul>
+                            {% for issue in audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
 
                     <h1 id="enforcement">Enforcement</h1>
 
