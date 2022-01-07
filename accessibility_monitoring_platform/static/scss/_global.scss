@@ -82,3 +82,33 @@ body {
         border-bottom: none;
     }
 }
+
+div.amp-report {
+    font-family: arial,sans-serif;
+    font-size: 14pt;
+    h1 {
+        font-size: 21pt;
+    }
+    h2 {
+        font-size: 16pt;
+    }
+    li {
+        font-size: 14pt;
+    }
+    table {
+        font-family: arial,sans-serif;
+        width: 100%;
+        border: 1px solid black;
+        border-collapse: collapse;
+        tr, td {
+            border: 1px solid black;
+        }
+        th {
+            text-align: left;
+        }
+        thead > tr {
+            color: #ffffff;
+            background-color: #1A5293;
+        }
+    }
+}
