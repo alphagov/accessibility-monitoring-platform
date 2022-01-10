@@ -145,7 +145,6 @@ ACCESS_REQUIREMENTS_STATE_CHOICES: List[Tuple[str, str]] = [
 OVERALL_COMPLIANCE_STATE_DEFAULT: str = "not-compliant"
 OVERALL_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
     ("compliant", "Compliant"),
-    ("partial", "Partially Compliant"),
     (OVERALL_COMPLIANCE_STATE_DEFAULT, "Not Compliant"),
     ("no-statement", "No Statement"),
 ]
