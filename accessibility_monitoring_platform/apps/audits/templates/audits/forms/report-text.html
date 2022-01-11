@@ -281,14 +281,6 @@
                         </p>
                     {% endif %}
 
-                    {% if audit.accessibility_statement_state == 'found-but' %}
-                        <ul>
-                            {% for issue in audit.report_accessibility_issues %}
-                                <li>{{ issue }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-
                     <h1 id="enforcement">Enforcement</h1>
 
                     <p>
