@@ -39,13 +39,14 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <p class="govuk-body">
-                                <a href="{% url 'audits:edit-audit-create-page' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                            <div class="govuk-button-group">
+                                <a href="{% url 'audits:edit-audit-create-page' audit.id %}" class="govuk-button govuk-button--secondary">
                                     Add page
                                 </a>
-                            </p>
+                            </div>
                         </div>
                         <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">Contents</h2>
                             <ul class="govuk-list">
                                 {% if audit.html_pages.count > 1 %}
                                     {% include 'audits/helpers/page_content.html' with page=audit.all_page %}

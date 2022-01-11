@@ -35,7 +35,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <h1 class="govuk-heading-m">Contents</h2>
+                <h1 class="govuk-heading-m">Contents</h1>
                 <ul class="govuk-list">
                     <li>
                         <a href="#how-accessible" class="govuk-link govuk-link--no-visited-state">How accessible the website is</a>
@@ -62,13 +62,13 @@
                         <a href="#all-issues" class="govuk-link govuk-link--no-visited-state">All possible issues</a>
                     </li>
                 </ul>
-                <h1 class="govuk-heading-l">Report text</h2>
+                <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text" class="amp-report">
                     <img src="{% static 'assets/cddo-co-logo-smallest.png' %}" style="padding-bottom:10px;" />
                     <p>Date: {{ audit.case.created|date:"d F Y" }}</p>
                     <p>
                         Website:
-                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
+                        <a href="audit.case.home_page_url" target="_blank">{{ audit.case.home_page_url }}</a>
                     </p>
 
                     <p>
@@ -85,7 +85,7 @@
 
                     <p>
                         You’ve been sent this report because
-                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
+                        <a href="audit.case.home_page_url" target="_blank">{{ audit.case.home_page_url }}</a>
                         is one of the websites we’ve monitored. This document explains:
                     </p>
 
@@ -102,11 +102,11 @@
                             read more about the web accessibility regulations</a>.
                     </p>
 
-                    <h1 id="how-accessible">How accessible the website is</h2>
+                    <h1 id="how-accessible">How accessible the website is</h1>
 
                     <p>
                         We checked
-                        <a href="audit.home_page.url" target="_blank">{{audit.home_page.url }}</a>
+                        <a href="audit.case.home_page_url" target="_blank">{{audit.case.home_page_url }}</a>
                         on
                         {{ audit.case.created|date:"d F Y" }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
@@ -119,7 +119,7 @@
                         This means there are some things which are not fully accessible.
                     </p>
 
-                    <h1 id="how-checked">How we checked</h2>
+                    <h1 id="how-checked">How we checked</h1>
 
                     <p>
                         We use a mixture of simple manual checks and automated tests to find
@@ -221,6 +221,18 @@
                         </ul>
                     {% endif %}
 
+                    <p>
+                        More information about accessibility statements can be found at:
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps" target="_blank">
+                            https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
+                    </p>
+
+                    <p>
+                        A sample statement can be found at:
+                        <a href="https://www.gov.uk/government/publications/sample-accessibility-statement" target="_blank">
+                            https://www.gov.uk/government/publications/sample-accessibility-statement</a>.
+                    </p>
+
                     <h1 id="what-next">What to do next</h1>
 
                     <p>
@@ -299,7 +311,7 @@
                         https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced</a>.
                     </p>
 
-                    <h1 id="context-and-more">Contact and more information</h2>
+                    <h1 id="context-and-more">Contact and more information</h1>
 
                     <p>
                         This test was conducted by the Central Digital and Data Office on behalf of the
