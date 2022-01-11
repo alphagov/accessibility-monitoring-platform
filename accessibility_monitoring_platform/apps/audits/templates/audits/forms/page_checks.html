@@ -88,6 +88,11 @@
                                 data-module="govuk-button"
                                 id="clear_search_form"
                             />
+                            {% if page and page.page_type != 'all-except-pdf' %}
+                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="govuk-grid-row">

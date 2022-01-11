@@ -29,13 +29,6 @@
                 Link to case view
             </a>
         </li>
-        {% if page and page.page_type != 'all-except-pdf' %}
-            <li>
-                <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                </a>
-            </li>
-        {% endif %}
         {% if audit.case.zendesk_url %}
             <li>
                 <a href="{{ audit.case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
