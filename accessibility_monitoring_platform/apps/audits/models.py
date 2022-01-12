@@ -450,6 +450,7 @@ class Audit(VersionModel):
             self.checkresult_audit.filter(  # type: ignore
                 is_deleted=False, check_result_state=CHECK_RESULT_ERROR
             )
+            .exclude(page__page_type=PAGE_TYPE_ALL)
             .order_by("page__id", "wcag_definition__id")
             .select_related("page", "wcag_definition")
             .all()

@@ -428,8 +428,10 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
         context["audit_statement_rows"] = get_rows(
-            form=AuditStatement1UpdateForm()
-        ) + get_rows(form=AuditStatement2UpdateForm())
+            form=AuditStatement1UpdateForm()  # type: ignore
+        ) + get_rows(
+            form=AuditStatement2UpdateForm()
+        )  # type: ignore
 
         return context
 
