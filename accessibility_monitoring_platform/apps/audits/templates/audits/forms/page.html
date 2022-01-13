@@ -4,7 +4,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | Edit test | {% if page %}Edit page details{% else %}Add page{% endif %}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | {% if page %}Edit page details{% else %}Add page{% endif %}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,10 +20,10 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' audit.id %}">Edit test | Website test</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' audit.id %}">Website test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Edit test | {% if page %}Edit page details{% else %}Add page{% endif %}
+                {% if page %}Edit page details{% else %}Add page{% endif %}
             </li>
         </ol>
     </div>
@@ -31,9 +31,9 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% if page %}
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Edit page details' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit page details' case=audit.case %}
                 {% else %}
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit test | Add page' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Add page' case=audit.case %}
                 {% endif %}
             </div>
         </div>

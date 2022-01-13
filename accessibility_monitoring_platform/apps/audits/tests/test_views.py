@@ -164,13 +164,13 @@ def test_create_audit_redirects(admin_client):
     "path_name, expected_content",
     [
         ("audits:audit-detail", "View test"),
-        ("audits:edit-audit-metadata", "Edit test | Test metadata"),
-        ("audits:edit-audit-website", "Edit test | Website test"),
-        ("audits:edit-audit-statement-1", "Edit test | Accessibility statement Pt. 1"),
-        ("audits:edit-audit-statement-2", "Edit test | Accessibility statement Pt. 2"),
-        ("audits:edit-audit-summary", "Edit test | Test summary"),
-        ("audits:edit-audit-report-options", "Edit test | Report options"),
-        ("audits:edit-audit-report-text", "Edit test | Report text"),
+        ("audits:edit-audit-metadata", "Test metadata"),
+        ("audits:edit-audit-website", "Website test"),
+        ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
+        ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
+        ("audits:edit-audit-summary", "Test summary"),
+        ("audits:edit-audit-report-options", "Report options"),
+        ("audits:edit-audit-report-text", "Report text"),
     ],
 )
 def test_audit_specific_page_loads(path_name, expected_content, admin_client):
@@ -241,7 +241,7 @@ def test_add_page_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Edit test | Add page")
+    assertContains(response, "Add page")
 
 
 def test_add_page_create_page(admin_client):
@@ -284,7 +284,7 @@ def test_page_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Edit test | Edit page details")
+    assertContains(response, "Edit page details")
 
 
 def test_page_edit_view_redirects_to_website_page(admin_client):
@@ -326,7 +326,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Edit test | Testing Additional page")
+    assertContains(response, "Testing Additional page")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)

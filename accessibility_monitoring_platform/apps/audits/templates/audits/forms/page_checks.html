@@ -6,7 +6,7 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | Edit test | Testing {{ page }}{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Testing {{ page }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -22,7 +22,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' page.audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' page.audit.id %}">Edit test | Website test</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' page.audit.id %}">Website test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 Testing {{ page }}
@@ -32,7 +32,7 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl" style="margin-bottom:15px">Edit test | Testing {{ page }}</h1>
+                <h1 class="govuk-heading-xl" style="margin-bottom:15px">Testing {{ page }}</h1>
                 {% include "cases/helpers/case_title.html" with case=page.audit.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>
