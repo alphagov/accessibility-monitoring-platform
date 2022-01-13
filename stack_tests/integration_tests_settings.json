@@ -16,5 +16,5 @@
     "ignore_docker": false,
     "s3_objects": [],
     "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
-    "chrome_version": "95.0.4638.54"
+    "chrome_version": "97.0.4692.71"
 }
