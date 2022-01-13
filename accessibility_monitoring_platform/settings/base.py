@@ -178,3 +178,5 @@ CONTACT_ADMIN_EMAIL = "accessibility-monitoring-platform-contact-form@digital.ca
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
+
+MARKDOWN_EXTENSIONS = ["extra", "tables", "toc"]

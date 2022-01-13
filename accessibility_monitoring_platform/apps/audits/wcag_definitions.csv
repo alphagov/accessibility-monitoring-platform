@@ -12,12 +12,13 @@ Tables in PDF documents should be tagged to give information such as row and col
 5,pdf,WCAG 1.3.1 Info and Relationships,In forms,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Assistive technologies must be able to collect information about and interact with form controls in PDFs. This is done by including name, role, state and value information for each form component.
 
 PDF form components are
-• Text fields
-• Checkboxes
-• Radio buttons
-• Combo boxes
-• List boxes
-• Buttons"
+
+* Text fields
+* Checkboxes
+* Radio buttons
+* Combo boxes
+* List boxes
+* Buttons"
 6,pdf,WCAG 1.1.1 Non-text content,,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not see an image clearly on a page. You need to use a text alternative to share the information. The alternative text must describe the information or function represented by the image.
 
 Screen readers can share the alternative text with the user. In PDF documents you must ensure that images are tagged correctly with alternative text."
@@ -49,9 +50,9 @@ Images of text should not be used unless text cannot be formatted to the same ef
 
 For any moving, flashing or scrolling information that:
 
-• starts automatically,
-• lasts more than five seconds, and
-• is presented in parallel with other content
+* starts automatically,
+* lasts more than five seconds, and
+* is presented in parallel with other content
 
 there should be a way for the user to pause, stop or hide it, unless it is part of an essential activity.
 
@@ -59,23 +60,25 @@ There must be a method to allow the user to pause, stop, hide or control the fre
 16,manual,WCAG 1.4.2 Audio Control,No way to control audio that plays for >3 seconds,https://www.w3.org/WAI/WCAG21/Understanding/audio-control.html,"Audio which plays automatically on a page can be distracting and make it difficult for screenreader users to hear the content being read out.
 
 If audio plays automatically for more than 3 seconds there must be a way of
-• pausing,
-• stopping, or
-• controlling the audio volume independently from the overall system volume."
+
+* pausing,
+* stopping, or
+* controlling the audio volume independently from the overall system volume."
 17,manual,WCAG 1.4.3 Contrast (minimum),Severe issues in image of text,https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html,Poor colour contrast makes it difficult for someone with sight loss to see the content properly. If there is a big difference between the background and foreground colours it should be much easier to see the difference between them.
 18,manual,WCAG 1.4.13 Content on Hover or Focus,"Dismissible, Hoverable, Persistent",https://www.w3.org/WAI/WCAG21/Understanding/content-on-hover-or-focus.html,"Content that appears when an element gets keyboard focus or on mouse pointer hover can confuse users as they may not have intended to trigger an action or may not notice that new content has appeared. This functionality may not show on mobile devices.
 
 If using this functionality to display extra content, the following must be true:
 
-• There should be a way of dismissing the content without changing the hover or focus - unless the content communicates an input error or does not obscure or replace other content
-• If content is triggered on pointer hover, the pointer must be able to be moved over the content without disappearing
-• The content must remain visible until the hover or focus is removed, the user dismisses it, or the information is no longer valid"
+* There should be a way of dismissing the content without changing the hover or focus - unless the content communicates an input error or does not obscure or replace other content
+* If content is triggered on pointer hover, the pointer must be able to be moved over the content without disappearing
+* The content must remain visible until the hover or focus is removed, the user dismisses it, or the information is no longer valid"
 19,manual,WCAG 2.2.1 Timing Adjustable,The page refreshes unexpectedly,https://www.w3.org/WAI/WCAG21/Understanding/timing-adjustable.html,"Users do not expect pages to refresh automatically. Refreshing can be disorientating for users of assistive technology who may not have time to read the page before it refreshes and focus moves back to the top of the page.
 
 There must be an option to turn off, extend or adjust the timing of page refreshes except if the time limit is:
-• a required part of a real-time event
-• essential and extending it would invalidate the activity
-• longer than 20 hours"
+
+* a required part of a real-time event
+* essential and extending it would invalidate the activity
+* longer than 20 hours"
 20,manual,WCAG 2.4.3 Focus Order,Only if severe,https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html,"Users should be able to navigate a web page in an order that makes sense. Keyboard navigation should reflect a navigation sequence that is consistent with the meaning of content. Logical navigation reduces confusion and shows logical relationships between content and components.
 
 The focus order may differ from the visual reading order as long as a user can still understand the web page without sight."
@@ -84,71 +87,78 @@ The focus order may differ from the visual reading order as long as a user can s
 This helps users with visual, cognitive and motor impairments by reducing the potential for disorientation caused by changing context.
 
 For example, when a component gets focus:
-• forms should not submit automatically
-• new windows should not open
-• focus should not change to another component"
+
+* forms should not submit automatically
+* new windows should not open
+* focus should not change to another component"
 22,manual,Other,If there is any other issue that we have had to include because of the severity of the issue,,
 23,axe,WCAG 1.4.3 Contrast (minimum),Colour contrast issues,https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html,Poor colour contrast makes it difficult for someone with sight loss to see the content properly. If there is a big difference between the background and foreground colours it should be much easier to see the difference between them.
 24,axe,WCAG 1.1.1 Non-text Content,Images must have alternate text,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 25,axe,WCAG 1.1.1 Non-text Content,"Elements containing role=""img"" have an alternative text",https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 26,axe,WCAG 1.1.1 Non-text Content,ARIA progress bar nodes must have an accessible name,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 27,axe,WCAG 1.1.1 Non-text Content,Image buttons must have alternate text,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 28,axe,WCAG 1.1.1 Non-text Content,<object> elements must have alternate text,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 29,axe,WCAG 1.1.1 Non-text Content,SVG images and graphics require accessible text,https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html,"People with sight loss may not be able to see an image clearly on a page. Text alternatives can be used by screen readers to share the same information a sighted user would get from the image. The alternative text must describe the information or function represented by the image.
 
 Alternatives or alt attributes must be used for items such as
-• Images
-• Elements containing role=”img”
-• Elements containing role=”progressbar”
-• Images used as buttons
-• Area elements of image maps
-• Embedded object elements
-• Scalable Vector Graphics (SVG) images and graphics"
+
+* Images
+* Elements containing role=”img”
+* Elements containing role=”progressbar”
+* Images used as buttons
+* Area elements of image maps
+* Embedded object elements
+* Scalable Vector Graphics (SVG) images and graphics"
 30,axe,"WCAG 1.3.1 Info and Relationships, WCAG 2.4.4 Link Purpose and WCAG 4.1.2 Name, Role, Value",Active <area> elements must have alternate text,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,Active <area> elements must have alternate text
 31,axe,WCAG 1.3.1 Info and Relationships,<dl> elements must only directly contain properly-ordered,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Screen readers tell users if a list is present and how many items are in  the list. This helps users to know what they are reading and what to expect. It is important to use the correct semantic hierarchy for lists.
 
@@ -167,37 +177,41 @@ Ordered, unordered and description lists must contain semantically correct paren
 If the correct structure is not used, the meaning and relationships between cells will not be given making navigation difficult.
 
 This includes ensuring that:
-• Each header relates to a cell containing data
-• Each cell containing data has a related header
-• The scope attribute is used to associate the headers to data cells in the same table
-• Data or heading cells are not used to give captions to a table"
+
+* Each header relates to a cell containing data
+* Each cell containing data has a related header
+* The scope attribute is used to associate the headers to data cells in the same table
+* Data or heading cells are not used to give captions to a table"
 36,axe,WCAG 1.3.1 Info and Relationships,All non-empty <td> elements in tables larger than 3 by 3 must have an associated table header,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Tables should be written in semantic HTML so that the relationships between rows and columns can be understood by assistive technologies like screen readers.
 
 If the correct structure is not used, the meaning and relationships between cells will not be given making navigation difficult.
 
 This includes ensuring that:
-• Each header relates to a cell containing data
-• Each cell containing data has a related header
-• The scope attribute is used to associate the headers to data cells in the same table
-• Data or heading cells are not used to give captions to a table"
+
+* Each header relates to a cell containing data
+* Each cell containing data has a related header
+* The scope attribute is used to associate the headers to data cells in the same table
+* Data or heading cells are not used to give captions to a table"
 37,axe,WCAG 1.3.1 Info and Relationships,All cells in a <table> element that use the headers attribute must only refer to other cells of that same <table>,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Tables should be written in semantic HTML so that the relationships between rows and columns can be understood by assistive technologies like screen readers.
 
 If the correct structure is not used, the meaning and relationships between cells will not be given making navigation difficult.
 
 This includes ensuring that:
-• Each header relates to a cell containing data
-• Each cell containing data has a related header
-• The scope attribute is used to associate the headers to data cells in the same table
-• Data or heading cells are not used to give captions to a table"
+
+* Each header relates to a cell containing data
+* Each cell containing data has a related header
+* The scope attribute is used to associate the headers to data cells in the same table
+* Data or heading cells are not used to give captions to a table"
 38,axe,WCAG 1.3.1 Info and Relationships,Data or header cells should not be used to give caption to a data table,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Tables should be written in semantic HTML so that the relationships between rows and columns can be understood by assistive technologies like screen readers.
 
 If the correct structure is not used, the meaning and relationships between cells will not be given making navigation difficult.
 
 This includes ensuring that:
-• Each header relates to a cell containing data
-• Each cell containing data has a related header
-• The scope attribute is used to associate the headers to data cells in the same table
-• Data or heading cells are not used to give captions to a table"
+
+* Each header relates to a cell containing data
+* Each cell containing data has a related header
+* The scope attribute is used to associate the headers to data cells in the same table
+* Data or heading cells are not used to give captions to a table"
 39,axe,WCAG 1.3.1 Info and Relationships ,"Bold, italic text and font-size are not used to style <p> elements as a heading",https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,Information and relationships between content and elements that are interpreted through visual formatting should also be clear programmatically. Assistive technologies such as screen readers rely on correct semantic use of elements to accurately interpret information for users. Headings should be marked up correctly inside heading tags instead of using other elements such as paragraphs styled to look like headings.
 40,axe,WCAG 1.3.1 Info and Relationships,Certain ARIA roles must be contained by particular parent elements,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Fully sighted users understand the structure and link between elements on a page via visual clues. Assistive technologies interpret ARIA parent and child roles to perform accessibility functions and give this structural context to users.
 
@@ -214,8 +228,8 @@ Adding an appropriate autocomplete token to a form field helps assistive technol
 
 For each form element that accepts user data:
 
-• Check to see if the personal data is one of the 53 types shown in WCAG 2.1 Section 7 - Input Purposes for User Interface Components.
-• Check that the autocomplete attribute is set with the correct value to show the purpose of the component."
+* Check to see if the personal data is one of the 53 types shown in WCAG 2.1 Section 7 - Input Purposes for User Interface Components.
+* Check that the autocomplete attribute is set with the correct value to show the purpose of the component."
 44,axe,WCAG 1.4.1 Use of Colour,Links must be distinguished from surrounding text in a way that does not rely on color,https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html,"Links must be distinguished from surrounding text in a way that does not rely on colour.
 
 Colour should not be the only way of visually identifying links on the page. Users with sight loss or problems perceiving colour may not be able to identify the difference in colour between a link and the rest of the content. You should ensure that all links on a page are identifiable by at least one additional method other than colour."
@@ -232,34 +246,35 @@ Users with sight or cognitive impairments may alter the spacing of text to impro
 Users do not expect pages to refresh automatically. Refreshing can be disorientating for users of assistive technology who may not have time to read the page before it refreshes and focus moves back to the top of the page.
 
 There must be an option to turn off, extend or adjust the timing of page refreshes except if the time limit is:
-• a required part of a real-time event
-• essential and extending it would invalidate the activity
-• longer than 20 hours"
+
+* a required part of a real-time event
+* essential and extending it would invalidate the activity
+* longer than 20 hours"
 48,axe,"WCAG 2.2.2 Pause, Stop, Hide",<marquee> elements are deprecated and must not be used,https://www.w3.org/WAI/WCAG21/Understanding/pause-stop-hide.html,"These elements are deprecated and should not be used, as they may not work correctly in some browsers or with assistive technologies.
 
 If there is any moving, flashing or scrolling information that:
 
-• starts automatically,
-• lasts more than five seconds, and
-• is presented in parallel with other content,
+* starts automatically,
+* lasts more than five seconds, and
+* is presented in parallel with other content,
 
 there should be a mechanism for the user to pause, stop or hide it, unless it is considered part of an essential activity."
 49,axe,"WCAG 2.2.2 Pause, Stop, Hide",<blink> elements are deprecated and must not be used,https://www.w3.org/WAI/WCAG21/Understanding/pause-stop-hide.html,"These elements are deprecated and should not be used, as they may not work correctly in some browsers or with assistive technologies.
 
 If there is any moving, flashing or scrolling information that:
 
-• starts automatically,
-• lasts more than five seconds, and
-• is presented in parallel with other content,
+* starts automatically,
+* lasts more than five seconds, and
+* is presented in parallel with other content,
 
 there should be a mechanism for the user to pause, stop or hide it, unless it is considered part of an essential activity."
 50,axe,WCAG 2.4.1 Bypass Blocks,Page must have means to bypass repeated blocks,https://www.w3.org/WAI/WCAG21/Understanding/bypass-blocks.html,"To make navigation easier, keyboard users need ways to bypass repeated blocks of content or elements in order to access the main content on a page.
 
 You should ensure that each page contains at least one method to ease keyboard navigation such as:
 
-• headings
-• skip links
-• landmarks"
+* headings
+* skip links
+* landmarks"
 51,axe,"WCAG 2.4.1 Bypass Blocks and WCAG 4.1.2 Name, Role, Value",Frames must have title attribute,https://www.w3.org/WAI/WCAG21/Understanding/bypass-blocks.html,"A frame title describes the content of the frame. Screen readers can understand this and help users move through frame elements quickly by using an option to select a list of titles for all frames on the page.
 
 A descriptive, meaningful and unique title allows users to find the frame they need. Ensure all frame and iframe elements have useful <title> attribute values."
@@ -272,9 +287,9 @@ In most browsers the title will usually be displayed in the top title bar or as 
 
 All link names should be accessible by a screen reader and be descriptive enough to tell a user where that link will take them. Common issues include:
 
-• the inner link text not being visible
-• duplicate link labels
-• the link not being focusable
+* the inner link text not being visible
+* duplicate link labels
+* the link not being focusable
 
 All links should receive focus and link text should not be hidden as this will stop a screen reader from relaying the link information."
 54,axe,WCAG 2.5.3 Label in Name,Label and name from content mismatch,https://www.w3.org/WAI/WCAG21/Understanding/label-in-name.html,"Label and name from content mismatch.
@@ -302,45 +317,51 @@ Where parts of content are written in a different language to the rest of the pa
 60,axe,"WCAG 4.1.2 Name, Role, Value",ARIA attributes must conform to valid names,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 61,axe,"WCAG 4.1.2 Name, Role, Value",ARIA roles used must conform to valid values,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 62,axe,"WCAG 4.1.2 Name, Role, Value",ARIA attributes must conform to valid values,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 63,axe,"WCAG 4.1.2 Name, Role, Value",Elements must only use allowed ARIA attributes,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 64,axe,"WCAG 4.1.2 Name, Role, Value",Required ARIA attributes must be provided,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 65,axe,"WCAG 4.1.2 Name, Role, Value",Use aria-roledescription on elements with a semantic role,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Incorrect use of ARIA attributes can cause conflicts with semantic HTML elements which may cause errors in assistive technology and make accessibility worse for a user. ARIA defines which attributes are allowed and where.
 
 ARIA attributes can cause issues where
-• an invalid attribute or attribute value is used
-• attribute names or values are spelt incorrectly
-• an invalid role has been assigned
-• an attribute is missing when it is required"
+
+* an invalid attribute or attribute value is used
+* attribute names or values are spelt incorrectly
+* an invalid role has been assigned
+* an attribute is missing when it is required"
 66,axe,"WCAG 4.1.2 Name, Role, Value",ARIA input fields must have an accessible name,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"ARIA components such as buttons, input fields, toggle fields and tooltips must have an accessible name that details the purpose. This gives context to assistive technology users and ensures custom elements are read correctly.
 
 Accessible names should be added to elements with the following roles: button, checkbox, combobox, link, listbox, menu, menuitem, radio, searchbox and tooltip."
@@ -369,14 +390,16 @@ If an image is used as a button, screen readers may not understand the use witho
 75,axe,"WCAG 1.3.1 Info and Relationships and WCAG 4.1.2 Name, Role, Value",Form elements must have labels,https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html,"Form labels help assistive technologies to understand what input is expected in a form field. Adding a label reduces confusion and enlarges the clickable area which helps users with limited motor control.
 
 Labels should be used for inputs such as:
-• Text entry fields
-• Radio buttons
-• Checkboxes
-• Select menus"
+
+* Text entry fields
+* Radio buttons
+* Checkboxes
+* Select menus"
 76,axe,"WCAG 4.1.2 Name, Role, Value",Select element must have an accessible name,https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html,"Form labels help assistive technologies to understand what input is expected in a form field. Adding a label reduces confusion and enlarges the clickable area which helps users with limited motor control.
 
 Labels should be used for inputs such as:
-• Text entry fields
-• Radio buttons
-• Checkboxes
-• Select menus"
+
+* Text entry fields
+* Radio buttons
+* Checkboxes
+* Select menus"

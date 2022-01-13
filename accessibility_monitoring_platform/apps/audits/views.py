@@ -430,8 +430,8 @@ class AuditSummaryUpdateView(AuditUpdateView):
         context["audit_statement_rows"] = get_rows(
             form=AuditStatement1UpdateForm()  # type: ignore
         ) + get_rows(
-            form=AuditStatement2UpdateForm()
-        )  # type: ignore
+            form=AuditStatement2UpdateForm()  # type: ignore
+        )
 
         return context
 

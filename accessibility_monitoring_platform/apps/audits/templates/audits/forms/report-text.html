@@ -4,6 +4,8 @@
 
 {% load l10n %}
 
+{% load common_tags %}
+
 {% load static %}
 
 {% block title %}{{ audit.case.organisation_name }} | Report text{% endblock %}
@@ -199,7 +201,7 @@
                                                 {{ check_result.wcag_definition }}
                                             {% endif %}
                                         </p>
-                                        <p class="cases-notes">{{ check_result.wcag_definition.report_boilerplate }}</p>
+                                        {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>
                                     <td style="font-family:arial,sans-serif;">
                                         <p>{{ check_result.page }}</p>
@@ -355,7 +357,7 @@
                                             {{ wcag_definition }}
                                         {% endif %}
                                     </p>
-                                    <p class="cases-notes">{{ wcag_definition.report_boilerplate }}</p>
+                                    {{ wcag_definition.report_boilerplate|markdown_to_html }}
                                 </td>
                             </tr>
                             {% endfor %}
