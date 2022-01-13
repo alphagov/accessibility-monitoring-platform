@@ -122,7 +122,7 @@ def test_post_comment():
         follow=True
     )
     assert response.status_code == 200
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">Edit case | QA process</h1>""")
+    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
     assertContains(response, "1 comment")
     assertContains(response, "this is a comment")
     assert len(Comments.objects.all()) == 1
@@ -168,7 +168,7 @@ def test_delete_comment():
     )
 
     assert response.status_code == 200
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">Edit case | QA process</h1>""")
+    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
     assertContains(response, "0 comments")
     assert Comments.objects.get(id=1).hidden is True
 
@@ -210,7 +210,7 @@ def test_edit_comment():
         data={"body": "this is an updated comment"},
         follow=True
     )
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">Edit case | QA process</h1>""")
+    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
     assertContains(response, "1 comment")
     assertContains(response, "this is an updated comment")
     assertContains(response, "Last edited")
