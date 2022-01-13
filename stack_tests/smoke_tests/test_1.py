@@ -194,15 +194,15 @@ class TestCaseView(SeleniumTest):
         self.assertEqual("View case" in self.driver.page_source, True)
 
         pages_to_test = [
-            ("Edit case details", "Edit case | Case details"),
-            ("Edit testing details", "Edit case | Testing details"),
-            ("Edit report details", "Edit case | Report details"),
-            ("Edit QA process", "Edit case | QA process"),
-            ("Edit contact details", "Edit case | Contact details"),
-            ("Edit report correspondence", "Edit case | Report correspondence"),
-            ("Edit 12 week correspondence", "Edit case | 12 week correspondence"),
-            ("Edit final decision", "Edit case | Final decision"),
-            ("Edit equality body correspondence", "Edit case | Equality body correspondence"),
+            ("Edit case details", "Case details"),
+            ("Edit testing details", "Testing details"),
+            ("Edit report details", "Report details"),
+            ("Edit QA process", "QA process"),
+            ("Edit contact details", "Contact details"),
+            ("Edit report correspondence", "Report correspondence"),
+            ("Edit 12 week correspondence", "12 week correspondence"),
+            ("Edit final decision", "Final decision"),
+            ("Edit equality body correspondence", "Equality body correspondence"),
         ]
 
         for page in pages_to_test:

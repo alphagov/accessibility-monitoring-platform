@@ -6,7 +6,7 @@
 
 {% load comments %}
 
-{% block title %}{{ case.organisation_name }} | Edit case | QA process{% endblock %}
+{% block title %}{{ case.organisation_name }} | QA process{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -19,14 +19,14 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Edit case | QA process
+                QA process
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Edit case | QA process' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='QA process' %}
             </div>
         </div>
         <div class="govuk-grid-row">

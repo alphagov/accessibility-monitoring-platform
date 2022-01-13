@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from .models import Reminder
 
-REMINDER_PAGE_HEADING: str = "Edit case | Reminder"
+REMINDER_PAGE_HEADING: str = "Reminder"
 
 
 def get_number_of_reminders_for_user(user: User) -> int:

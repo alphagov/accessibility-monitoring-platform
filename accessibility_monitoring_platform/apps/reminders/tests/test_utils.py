@@ -96,6 +96,6 @@ def test_add_reminder_context_data():
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
     assert add_reminder_context_data(context={}, case_id=case.id) == {  # type: ignore
         "case": case,
-        "page_heading": "Edit case | Reminder",
-        "page_title": "Organisation Name | Edit case | Reminder",
+        "page_heading": "Reminder",
+        "page_title": "Organisation Name | Reminder",
     }
