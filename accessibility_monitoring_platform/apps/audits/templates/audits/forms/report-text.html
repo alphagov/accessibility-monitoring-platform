@@ -205,7 +205,7 @@
                                     </td>
                                     <td style="font-family:arial,sans-serif;">
                                         <p>{{ check_result.page }}</p>
-                                        <ul><li>{{ check_result.notes }}</li></ul>
+                                        <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
                                     </td>
                                 </tr>
                                 {% endfor %}

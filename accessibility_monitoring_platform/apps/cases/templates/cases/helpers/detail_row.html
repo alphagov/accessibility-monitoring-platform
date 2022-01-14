@@ -1,6 +1,8 @@
+{% load common_tags %}
+
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">{{ row.label }}</th>
-            <td class="govuk-table__cell amp-width-one-half">
+            <td class="govuk-table__cell amp-width-one-half{% if row.type == 'notes' %} amp-notes{% endif %}">
                 {% if row.label == 'Auditor' %}
                     {% if row.value %}
                         <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" rel="noreferrer noopener" class="govuk-link">
@@ -25,7 +27,7 @@
                         None
                     {% endif %}
                 {% elif row.type == 'notes' %}
-                    {% if row.value %}<p class="govuk-body-m cases-notes">{{ row.value }}</p>{% endif %}
+                    {% if row.value %}{{ row.value|markdown_to_html }}{% endif %}
                 {% elif row.type == 'date' %}
                     {{ row.value|date:"d/m/Y" }}
                 {% else %}

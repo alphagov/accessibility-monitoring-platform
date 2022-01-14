@@ -1,3 +1,5 @@
+{% load common_tags %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="audit-website" class="govuk-heading-l">Website</h2>
@@ -30,7 +32,7 @@
                             {% for check_result in check_results %}
                                 <tr class="govuk-table__row ">
                                     <th scope="row" class="govuk-table__header amp-width-one-half">{{ check_result.wcag_definition }}</th>
-                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes }}</td>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
