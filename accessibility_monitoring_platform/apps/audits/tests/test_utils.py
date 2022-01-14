@@ -22,13 +22,11 @@ from ..models import (
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_FORM,
-    PAGE_TYPE_ALL,
     TEST_TYPE_PDF,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
 )
 from ..utils import (
-    copy_all_pages_check_results,
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
@@ -44,7 +42,6 @@ TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: List[str] = [
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_FORM,
-    PAGE_TYPE_ALL,
 ]
 NUMBER_OF_PAGES_CREATED_WITH_NEW_AUDIT: int = len(
     TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT
@@ -376,36 +373,6 @@ def create_audit_and_check_results() -> Audit:
     )
 
     return audit
-
-
-@pytest.mark.django_db
-def test_copy_all_pages_check_results():
-    """Test copy of check results to all html pages"""
-    audit: Audit = create_audit_and_check_results()
-    page_all: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_ALL)
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
-        type=TEST_TYPE_MANUAL
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_all,
-        wcag_definition=wcag_definition_manual,
-        notes=UPDATED_NOTE,
-    )
-
-    copy_all_pages_check_results(user=audit.case.auditor, page=page_all)
-
-    for page in audit.html_pages:
-        check_results: QuerySet[CheckResult] = page.checkresult_page.all()
-        assert len(check_results) == NUMBER_OF_WCAG_PER_TYPE_OF_PAGE
-        for check_result in check_results:
-            assert check_result.notes == UPDATED_NOTE
-
-    page_pdf: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
-    check_results: QuerySet[CheckResult] = page_pdf.checkresult_page.all()  # type: ignore
-    assert len(check_results) == NUMBER_OF_WCAG_PER_TYPE_OF_PAGE
-    for check_result in check_results:
-        assert check_result.notes != UPDATED_NOTE
 
 
 @pytest.mark.django_db

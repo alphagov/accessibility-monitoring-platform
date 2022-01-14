@@ -34,9 +34,7 @@ PAGE_TYPE_STATEMENT: str = "statement"
 PAGE_TYPE_PDF: str = "pdf"
 PAGE_TYPE_FORM: str = "form"
 PAGE_TYPE_CORONAVIRUS: str = "coronavirus"
-PAGE_TYPE_ALL: str = "all-except-pdf"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (PAGE_TYPE_ALL, "All pages"),
     (PAGE_TYPE_EXTRA, "Additional page"),
     (PAGE_TYPE_HOME, "Home page"),
     (PAGE_TYPE_CONTACT, "Contact page"),
@@ -429,16 +427,8 @@ class Audit(VersionModel):
         return self.page_audit.filter(is_deleted=False)  # type: ignore
 
     @property
-    def every_page_except_all(self):
-        return self.every_page.exclude(page_type=PAGE_TYPE_ALL)
-
-    @property
     def html_pages(self):
-        return self.every_page_except_all.exclude(page_type=PAGE_TYPE_PDF)
-
-    @property
-    def all_page(self):
-        return self.every_page.filter(page_type=PAGE_TYPE_ALL).first()
+        return self.every_page.exclude(page_type=PAGE_TYPE_PDF)
 
     @property
     def accessibility_statement_page(self):
@@ -450,7 +440,6 @@ class Audit(VersionModel):
             self.checkresult_audit.filter(  # type: ignore
                 is_deleted=False, check_result_state=CHECK_RESULT_ERROR
             )
-            .exclude(page__page_type=PAGE_TYPE_ALL)
             .order_by("page__id", "wcag_definition__id")
             .select_related("page", "wcag_definition")
             .all()

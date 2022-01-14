@@ -17,7 +17,6 @@ from ..models import (
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_FORM,
-    PAGE_TYPE_ALL,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
     TEST_TYPE_PDF,
@@ -43,7 +42,6 @@ def create_audit_and_pages() -> Audit:
         PAGE_TYPE_STATEMENT,
         PAGE_TYPE_PDF,
         PAGE_TYPE_FORM,
-        PAGE_TYPE_ALL,
     ]:
         Page.objects.create(audit=audit, page_type=page_type)
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
@@ -99,20 +97,7 @@ def test_audit_every_pages_returns_all_pages():
     """
     audit: Audit = create_audit_and_pages()
 
-    assert len(audit.every_page) == 7
-
-
-@pytest.mark.django_db
-def test_audit_html_pages_returns_all_pages_except_all_pages():
-    """
-    Test html_pages attribute of audit does not include pages of types PDF or all.
-    """
-    audit: Audit = create_audit_and_pages()
-    page_types: List[str] = [page.page_type for page in audit.html_pages]
-
-    assert len(audit.html_pages) == 5
-    assert PAGE_TYPE_PDF not in page_types
-    assert PAGE_TYPE_ALL not in page_types
+    assert len(audit.every_page) == 6
 
 
 @pytest.mark.django_db

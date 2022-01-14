@@ -37,26 +37,6 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 }
 
 
-def copy_all_pages_check_results(user: User, page: Page):
-    """Copy check results from the All pages page to other html pages"""
-    for destination_page in page.audit.html_pages:
-        for check_result in page.all_check_results:
-            other_check_result, created = CheckResult.objects.get_or_create(  # type: ignore
-                audit=page.audit,
-                page=destination_page,
-                wcag_definition=check_result.wcag_definition,
-            )
-            other_check_result.check_result_state = check_result.check_result_state
-            other_check_result.type = check_result.type
-            other_check_result.notes = check_result.notes
-            if created:
-                other_check_result.save()
-                record_model_create_event(user=user, model_object=check_result)
-            else:
-                record_model_update_event(user=user, model_object=check_result)
-                other_check_result.save()
-
-
 def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit metadata"""
     rows: List[FieldLabelAndValue] = extract_form_labels_and_values(

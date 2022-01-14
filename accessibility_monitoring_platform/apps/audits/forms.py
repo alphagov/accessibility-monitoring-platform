@@ -1,7 +1,7 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List, Tuple
+from typing import Any, List
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -29,7 +29,6 @@ from .models import (
     SCREEN_SIZE_CHOICES,
     AUDIT_TYPE_CHOICES,
     PAGE_TYPE_CHOICES,
-    PAGE_TYPE_ALL,
     DECLARATION_STATE_CHOICES,
     SCOPE_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
@@ -51,12 +50,6 @@ from .models import (
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
 )
-
-PAGE_TYPE_CHOICES_CREATE: List[Tuple[str, str]] = [
-    (page_type, label)
-    for page_type, label in PAGE_TYPE_CHOICES
-    if page_type != PAGE_TYPE_ALL
-]
 
 
 class AuditCreateForm(forms.ModelForm):
@@ -125,7 +118,7 @@ class AuditPageForm(forms.ModelForm):
     Form for creating and updating an audit's page
     """
 
-    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES_CREATE)
+    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES)
     name = AMPCharFieldWide(label="Name")
     url = AMPURLField(label="URL")
 

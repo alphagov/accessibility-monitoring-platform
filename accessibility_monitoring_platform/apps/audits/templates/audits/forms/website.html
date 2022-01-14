@@ -48,20 +48,14 @@
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Contents</h2>
                             <ul class="govuk-list">
-                                {% if audit.html_pages.count > 1 %}
-                                    {% include 'audits/helpers/page_content.html' with page=audit.all_page %}
-                                {% endif %}
-                                {% for page in audit.every_page_except_all %}
+                                {% for page in audit.every_page %}
                                     {% include 'audits/helpers/page_content.html' %}
                                 {% endfor %}
                                 <a href="#deleted-pages" class="govuk-link govuk-link--no-visited-state">
                                     Removed pages</a>
                             </ul>
                         </div>
-                        {% if audit.html_pages.count > 1 %}
-                            {% include 'audits/helpers/page_results.html' with page=audit.all_page %}
-                        {% endif %}
-                        {% for page in audit.every_page_except_all %}
+                        {% for page in audit.every_page %}
                             {% include 'audits/helpers/page_results.html' %}
                         {% endfor %}
                         <div class="govuk-grid-column-full">

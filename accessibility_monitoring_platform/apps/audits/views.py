@@ -42,12 +42,10 @@ from .models import (
     Audit,
     Page,
     AUDIT_TYPE_DEFAULT,
-    PAGE_TYPE_ALL,
     WcagDefinition,
 )
 from .utils import (
     create_or_update_check_results_for_page,
-    copy_all_pages_check_results,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
     get_audit_statement_rows,
@@ -164,9 +162,6 @@ class AuditCreateView(CreateView):
         audit: Audit = form.save(commit=False)
         audit.case = Case.objects.get(pk=self.kwargs["case_id"])
         audit.save()
-        Page.objects.create(
-            audit=audit, page_type=PAGE_TYPE_ALL, name="All pages excluding PDF"
-        )
         return super().form_valid(form)
 
     def get_form(self):
@@ -371,9 +366,6 @@ class AuditPageChecksFormView(FormView):
             )
         else:
             return super().form_invalid(form)
-
-        if page.page_type == PAGE_TYPE_ALL:
-            copy_all_pages_check_results(user=self.request.user, page=page)  # type: ignore
 
         return super().form_valid(form)
 
