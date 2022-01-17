@@ -20,7 +20,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-website' audit.id %}">Website test</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:edit-audit-add-pages' audit.id %}">Add pages</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 {% if page %}Edit page details{% else %}Add page{% endif %}
@@ -59,7 +59,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:edit-audit-website' audit.id %}"
+                                href="{% url 'audits:edit-audit-add-pages' audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel

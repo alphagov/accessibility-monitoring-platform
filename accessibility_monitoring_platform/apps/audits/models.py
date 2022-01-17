@@ -236,8 +236,8 @@ class Audit(VersionModel):
     )
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
-    # website test page
-    audit_website_complete_date = models.DateField(null=True, blank=True)
+    # Add pages page
+    audit_add_pages_complete_date = models.DateField(null=True, blank=True)
 
     # Accessibility statement 1
     accessibility_statement_backup_url = models.TextField(default="", blank=True)

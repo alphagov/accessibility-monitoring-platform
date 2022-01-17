@@ -26,7 +26,7 @@ from ..common.form_extract_utils import (
 from .forms import (
     AuditCreateForm,
     AuditMetadataUpdateForm,
-    AuditWebsiteUpdateForm,
+    AuditAddPagesUpdateForm,
     AuditPageForm,
     AuditPageChecksForm,
     CheckResultFilterForm,
@@ -112,7 +112,7 @@ def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
     page.is_deleted = True
     record_model_update_event(user=request.user, model_object=page)  # type: ignore
     page.save()
-    return redirect(reverse("audits:edit-audit-website", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-add-pages", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
 def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
@@ -130,7 +130,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     page.is_deleted = False
     record_model_update_event(user=request.user, model_object=page)  # type: ignore
     page.save()
-    return redirect(reverse("audits:edit-audit-website", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-add-pages", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
 class AuditCreateView(CreateView):
@@ -237,13 +237,13 @@ class AuditMetadataUpdateView(AuditUpdateView):
     template_name: str = "audits/forms/metadata.html"
 
 
-class AuditWebsiteUpdateView(AuditUpdateView):
+class AuditAddPagesUpdateView(AuditUpdateView):
     """
-    View to update audit website page
+    View to update audit add pages page
     """
 
-    form_class: Type[AuditWebsiteUpdateForm] = AuditWebsiteUpdateForm
-    template_name: str = "audits/forms/website.html"
+    form_class: Type[AuditAddPagesUpdateForm] = AuditAddPagesUpdateForm
+    template_name: str = "audits/forms/add-pages.html"
 
 
 class AuditPageCreateView(CreateView):
@@ -269,9 +269,9 @@ class AuditPageCreateView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Show website page of audit"""
+        """Show add pages page of audit"""
         audit_pk: Dict[str, int] = {"pk": self.kwargs["audit_id"]}
-        url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
+        url: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
         return url
 
 
@@ -292,10 +292,10 @@ class AuditPageUpdateView(UpdateView):
         return context
 
     def get_success_url(self) -> str:
-        """Show website page of audit"""
+        """Show add pages page of audit"""
         page: Page = self.object  # type: ignore
         audit_pk: Dict[str, int] = {"pk": page.audit.id}
-        url: str = reverse("audits:edit-audit-website", kwargs=audit_pk)
+        url: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
         return url
 
 

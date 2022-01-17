@@ -2,7 +2,7 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <ul class="govuk-list">
         {% include './nav_content.html' with anchor='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
-        {% include './nav_content.html' with anchor='audit-website' edit_name='audits:edit-audit-website' name='Website test' complete=audit.audit_website_complete_date %}
+        {% include './nav_content.html' with anchor='audit-add-pages' edit_name='audits:edit-audit-add-pages' name='Add pages' complete=audit.audit_website_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
         {% include './nav_content.html' with anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}

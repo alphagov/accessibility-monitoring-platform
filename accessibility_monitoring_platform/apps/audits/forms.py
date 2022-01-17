@@ -98,18 +98,18 @@ class AuditMetadataUpdateForm(VersionForm):
         ]
 
 
-class AuditWebsiteUpdateForm(VersionForm):
+class AuditAddPagesUpdateForm(VersionForm):
     """
-    Form for editing website check page
+    Form for editing add pages check page
     """
 
-    audit_website_complete_date = AMPDatePageCompleteField()
+    audit_add_pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_website_complete_date",
+            "audit_add_pages_complete_date",
         ]
 
 

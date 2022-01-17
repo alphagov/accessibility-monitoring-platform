@@ -10,7 +10,7 @@ from .views import (
     AuditCreateView,
     AuditDetailView,
     AuditMetadataUpdateView,
-    AuditWebsiteUpdateView,
+    AuditAddPagesUpdateView,
     AuditPageCreateView,
     AuditPageUpdateView,
     AuditPageChecksFormView,
@@ -53,9 +53,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-metadata",
     ),
     path(
-        "<int:pk>/edit-audit-website/",
-        login_required(AuditWebsiteUpdateView.as_view()),
-        name="edit-audit-website",
+        "<int:pk>/edit-audit-add-pages/",
+        login_required(AuditAddPagesUpdateView.as_view()),
+        name="edit-audit-add-pages",
     ),
     path(
         "<int:audit_id>/edit-audit-create-page/",

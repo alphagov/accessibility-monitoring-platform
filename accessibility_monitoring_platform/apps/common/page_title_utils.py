@@ -12,7 +12,7 @@ PAGE_TITLES_BY_URL = {
     "/audits/create-for-case/[id]/": "Create test",
     "/audits/[id]/detail/": "View test",
     "/audits/[id]/edit-audit-metadata/": "Test metadata",
-    "/audits/[id]/edit-audit-website/": "Website test",
+    "/audits/[id]/edit-audit-website/": "Add pages",
     "/audits/[id]/edit-audit-create-page/": "Add page",
     "/audits/[id]/edit-audit-statement-one/": "Accessibility statement Pt. 1",
     "/audits/[id]/edit-audit-statement-two/": "Accessibility statement Pt. 2",
