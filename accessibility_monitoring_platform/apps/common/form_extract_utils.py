@@ -39,8 +39,8 @@ EXCLUDED_FIELDS = [
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",
     "report_draft_url": "Report draft",
-    "report_final_pdf_url": "Final PDF draft",
-    "report_final_odt_url": "Final ODT draft",
+    "report_final_pdf_url": "Final draft (PDF)",
+    "report_final_odt_url": "Final draft (ODT)",
 }
 
 
