@@ -1253,7 +1253,7 @@ def test_case_details_includes_link_to_report(admin_client):
             <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Final PDF draft
+                    Final draft (PDF)
                 </a>
             </td>
         </tr>""",
