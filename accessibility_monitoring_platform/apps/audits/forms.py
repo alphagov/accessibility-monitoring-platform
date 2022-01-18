@@ -200,8 +200,13 @@ class AuditPageChecksForm(forms.Form):
     Form for editing checks for a page
     """
 
-    complete_date = AMPDatePageCompleteField(label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"}))
-    no_errors_date = AMPDatePageCompleteField(label="", widget=AMPDateCheckboxWidget(attrs={"label": "Web page has no errors"}))
+    complete_date = AMPDatePageCompleteField(
+        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+    )
+    no_errors_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Web page has no errors"}),
+    )
 
     class Meta:
         model = Audit
