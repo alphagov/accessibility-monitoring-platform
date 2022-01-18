@@ -11,8 +11,8 @@ from .models import Audit, Page, CheckResult, WcagDefinition
 class AuditAdmin(admin.ModelAdmin):
     """Django admin configuration for Audit model"""
 
-    search_fields = ["case__organisation_name", "description"]
-    list_display = ["type", "date_of_test", "case"]
+    search_fields = ["name", "case__organisation_name", "description"]
+    list_display = ["type", "name", "date_of_test", "case"]
     list_filter = ["type"]
 
 

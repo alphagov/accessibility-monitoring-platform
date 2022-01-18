@@ -67,8 +67,12 @@
                         </div>
                     </div>
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/amp_field.html' with field=form.complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/amp_field.html' with field=form.no_errors_date %}
                         </div>
                     </div>
                     <div class="govuk-grid-row">

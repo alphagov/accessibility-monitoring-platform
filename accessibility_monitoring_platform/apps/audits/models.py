@@ -481,6 +481,7 @@ class Page(models.Model):
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
     complete_date = models.DateField(null=True, blank=True)
+    no_errors_date = models.DateField(null=True, blank=True)
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )

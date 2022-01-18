@@ -418,6 +418,8 @@ def test_page_checks_edit_saves_results(admin_client):
             "form-1-wcag_definition": wcag_definition_pdf.id,  # type: ignore
             "form-1-check_result_state": CHECK_RESULT_ERROR,
             "form-1-notes": CHECK_RESULT_NOTES,
+            "complete_date": "on",
+            "no_errors_date": "on",
         },
         follow=True,
     )
@@ -435,6 +437,11 @@ def test_page_checks_edit_saves_results(admin_client):
     )
     assert check_result_pdf.check_result_state == CHECK_RESULT_ERROR
     assert check_result_pdf.notes == CHECK_RESULT_NOTES
+
+    updated_page: Page = Page.objects.get(id=page.id)  # type: ignore
+
+    assert updated_page.complete_date
+    assert updated_page.no_errors_date
 
 
 def test_page_checks_edit_stays_on_page(admin_client):

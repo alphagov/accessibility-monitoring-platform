@@ -349,6 +349,7 @@ class AuditPageChecksFormView(FormView):
         """Populate next page select field"""
         form = super().get_form()
         form.fields["complete_date"].initial = self.page.complete_date
+        form.fields["no_errors_date"].initial = self.page.no_errors_date
         return form
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -387,6 +388,7 @@ class AuditPageChecksFormView(FormView):
         context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
         page.complete_date = form.cleaned_data["complete_date"]
+        page.no_errors_date = form.cleaned_data["no_errors_date"]
         page.save()
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]
