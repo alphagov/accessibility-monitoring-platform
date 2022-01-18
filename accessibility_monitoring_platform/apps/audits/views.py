@@ -18,6 +18,7 @@ from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
     list_to_dictionary_of_lists,
+    get_id_from_button_name,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -26,8 +27,10 @@ from ..common.form_extract_utils import (
 from .forms import (
     AuditCreateForm,
     AuditMetadataUpdateForm,
+    AuditStandardPageFormset,
+    AuditExtraPageFormset,
+    AuditExtraPageFormsetOneExtra,
     AuditAddPagesUpdateForm,
-    AuditPageForm,
     AuditPageChecksForm,
     CheckResultFilterForm,
     CheckResultForm,
@@ -50,6 +53,7 @@ from .utils import (
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
+    create_mandatory_pages_for_new_audit,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -179,6 +183,7 @@ class AuditCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object  # type: ignore
+        create_mandatory_pages_for_new_audit(audit=audit)
         record_model_create_event(user=self.request.user, model_object=audit)  # type: ignore
         url: str = reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id})  # type: ignore
         return url
@@ -245,57 +250,84 @@ class AuditAddPagesUpdateView(AuditUpdateView):
     form_class: Type[AuditAddPagesUpdateForm] = AuditAddPagesUpdateForm
     template_name: str = "audits/forms/add-pages.html"
 
-
-class AuditPageCreateView(CreateView):
-    """
-    View to create a audit
-    """
-
-    model: Type[Page] = Page
-    context_object_name: str = "page"
-    form_class: Type[AuditPageForm] = AuditPageForm
-    template_name: str = "audits/forms/page.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Include audit in context"""
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = Audit.objects.get(pk=self.kwargs["audit_id"])
+        if self.request.POST:
+            standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
+                self.request.POST, prefix="standard"
+            )
+            extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
+                self.request.POST, prefix="extra"
+            )
+        else:
+            standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
+                queryset=self.object.standard_pages, prefix="standard"
+            )
+            if "add_extra" in self.request.GET:
+                extra_pages_formset: AuditExtraPageFormsetOneExtra = (
+                    AuditExtraPageFormsetOneExtra(
+                        queryset=self.object.extra_pages, prefix="extra"
+                    )
+                )
+            else:
+                extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
+                    queryset=self.object.extra_pages, prefix="extra"
+                )
+        context["standard_pages_formset"] = standard_pages_formset
+        context["extra_pages_formset"] = extra_pages_formset
+        context["standard_page_headers"] = STANDARD_PAGE_HEADERS
         return context
 
     def form_valid(self, form: ModelForm):
-        """Populate audit field of new Page"""
-        page: Page = form.save(commit=False)
-        page.audit = Audit.objects.get(pk=self.kwargs["audit_id"])
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        standard_pages_formset: AuditStandardPageFormset = context[
+            "standard_pages_formset"
+        ]
+        extra_pages_formset: AuditExtraPageFormset = context["extra_pages_formset"]
+        audit: Audit = form.save(commit=False)
+
+        if standard_pages_formset.is_valid():
+            pages: List[Page] = standard_pages_formset.save(commit=False)
+            for page in pages:
+                record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                page.save()
+        else:
+            return super().form_invalid(form)
+
+        if extra_pages_formset.is_valid():
+            pages: List[Page] = extra_pages_formset.save(commit=False)
+            for page in pages:
+                if not page.audit_id:  # type: ignore
+                    page.audit = audit
+                    page.save()
+                    record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+                else:
+                    record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                    page.save()
+        else:
+            return super().form_invalid(form)
+
+        page_id_to_delete: Union[int, None] = get_id_from_button_name(
+            button_name_prefix="remove_extra_page_",
+            querydict=self.request.POST,
+        )
+        if page_id_to_delete is not None:
+            page_to_delete: Page = Page.objects.get(id=page_id_to_delete)
+            page_to_delete.is_deleted = True
+            record_model_update_event(user=self.request.user, model_object=page_to_delete)  # type: ignore
+            page_to_delete.save()
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Show add pages page of audit"""
-        audit_pk: Dict[str, int] = {"pk": self.kwargs["audit_id"]}
+        """Detect the submit button used and act accordingly"""
+        audit: Audit = self.object
+        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
         url: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
-        return url
-
-
-class AuditPageUpdateView(UpdateView):
-    """
-    View to update audit page
-    """
-
-    model: Type[Page] = Page
-    context_object_name: str = "page"
-    form_class: Type[AuditPageForm] = AuditPageForm
-    template_name: str = "audits/forms/page.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Include audit in context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = self.object.audit  # type: ignore
-        return context
-
-    def get_success_url(self) -> str:
-        """Show add pages page of audit"""
-        page: Page = self.object  # type: ignore
-        audit_pk: Dict[str, int] = {"pk": page.audit.id}
-        url: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
+        if "add_extra" in self.request.POST:
+            url: str = f"{url}?add_extra=true#extra-page-1"
         return url
 
 

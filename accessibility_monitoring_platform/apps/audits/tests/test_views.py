@@ -3,7 +3,7 @@ Tests for audits views
 """
 import pytest
 
-from typing import Dict
+from typing import Dict, List
 
 from pytest_django.asserts import assertContains
 
@@ -22,6 +22,7 @@ from ..models import (
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
 )
+from ..utils import create_mandatory_pages_for_new_audit
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
@@ -38,6 +39,12 @@ UPDATED_PAGE_URL = "https://example.com/updated"
 def create_audit() -> Audit:
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
+    return audit
+
+
+def create_audit_and_pages() -> Audit:
+    audit: Audit = create_audit()
+    create_mandatory_pages_for_new_audit(audit=audit)
     return audit
 
 
@@ -189,7 +196,6 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     "path_name, button_name, expected_redirect_path_name",
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
-        ("audits:edit-audit-add-pages", "save", "audits:edit-audit-add-pages"),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
         ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
         ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
@@ -230,88 +236,145 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
-def test_add_page_page_loads(admin_client):
-    """Test page edit view page loads"""
-    audit: Audit = create_audit()
-    audit_id: Dict[str, int] = {"audit_id": audit.id}  # type: ignore
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-create-page", kwargs=audit_id)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Add page")
-
-
-def test_add_page_create_page(admin_client):
-    """
-    Test adding an extra page creates the page and redirects to the add pages UI page
-    """
+def test_add_pages_redirects_based_on_button_pressed(admin_client):
+    """Test that a successful audit update redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
-    audit_id: Dict[str, int] = {"audit_id": audit.id}  # type: ignore
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-create-page", kwargs=audit_id),
+        reverse("audits:edit-audit-add-pages", kwargs=audit_pk),
         {
-            "save_return": "Asave and return",
-            "name": NEW_PAGE_NAME,
-            "url": NEW_PAGE_URL,
-            "page_type": PAGE_TYPE_EXTRA,
+            "version": audit.version,
+            "save": "Button value",
+            "standard-TOTAL_FORMS": "0",
+            "standard-INITIAL_FORMS": "0",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
         },
     )
+
     assert response.status_code == 302
 
     expected_path: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
     assert response.url == expected_path
 
-    new_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_EXTRA)
 
-    assert new_page.name == NEW_PAGE_NAME
-    assert new_page.url == NEW_PAGE_URL
-
-
-def test_page_edit_page_loads(admin_client):
-    """Test page edit view page loads"""
-    audit: Audit = create_audit()
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+def test_standard_pages_appear_on_pages_page(admin_client):
+    """
+    Test that all the standard pages appear on the pages page
+    """
+    audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-page", kwargs=page_pk)
+        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
     )
-
     assert response.status_code == 200
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Home Page</h2>""", html=True
+    )
+    assertContains(
+        response, """<h2 class="govuk-heading-m">Contact Page</h2>""", html=True
+    )
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",
+        html=True,
+    )
+    assertContains(response, """<h2 class="govuk-heading-m">PDF</h2>""", html=True)
+    assertContains(response, """<h2 class="govuk-heading-m">A Form</h2>""", html=True)
 
-    assertContains(response, "Edit page details")
 
-
-def test_page_edit_view_redirects_to_add_pages_page(admin_client):
-    """Test editing a page redirects to add pages page"""
-    audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+def test_add_extra_page_form_appears(admin_client):
+    """
+    Test that pressing the save and create additional page button adds an extra page form
+    """
+    audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-page", kwargs=page_pk),
+        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
-            "save_return": "Save and return",
-            "name": UPDATED_PAGE_NAME,
-            "url": UPDATED_PAGE_URL,
-            "page_type": PAGE_TYPE_EXTRA,
+            "standard-TOTAL_FORMS": "0",
+            "standard-INITIAL_FORMS": "0",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "add_extra": "Button value",
         },
+        follow=True,
     )
-    assert response.status_code == 302
+    assert response.status_code == 200
+    assertContains(response, "Page 1")
 
-    expected_path: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
-    assert response.url == expected_path
 
-    updated_page: Page = Page.objects.get(**page_pk)
+def test_add_extra_page(admin_client):
+    """Test adding an extra page"""
+    audit: Audit = create_audit_and_pages()
 
-    assert updated_page.name == UPDATED_PAGE_NAME
-    assert updated_page.url == UPDATED_PAGE_URL
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        {
+            "standard-TOTAL_FORMS": "0",
+            "standard-INITIAL_FORMS": "0",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "1",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "extra-0-id": "",
+            "extra-0-name": EXTRA_PAGE_NAME,
+            "extra-0-url": EXTRA_PAGE_URL,
+            "version": audit.version,
+            "save_continue": "Save and continue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    extra_pages: List[Page] = list(Page.objects.filter(audit=audit, page_type=PAGE_TYPE_EXTRA))  # type: ignore
+
+    assert len(extra_pages) == 1
+    assert extra_pages[0].name == EXTRA_PAGE_NAME
+    assert extra_pages[0].url == EXTRA_PAGE_URL
+
+
+def test_delete_extra_page(admin_client):
+    """Test deleting an extra page"""
+    audit: Audit = create_audit_and_pages()
+    extra_page: Page = Page.objects.create(
+        audit=audit,
+        page_type=PAGE_TYPE_EXTRA,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        {
+            "standard-TOTAL_FORMS": "0",
+            "standard-INITIAL_FORMS": "0",
+            "standard-MIN_NUM_FORMS": "0",
+            "standard-MAX_NUM_FORMS": "1000",
+            "extra-TOTAL_FORMS": "0",
+            "extra-INITIAL_FORMS": "0",
+            "extra-MIN_NUM_FORMS": "0",
+            "extra-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_extra_page_{extra_page.id}": "Remove page",  # type: ignore
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    updated_extra_page: Page = Page.objects.get(id=extra_page.id)  # type: ignore
+
+    assert updated_extra_page.is_deleted
 
 
 def test_page_checks_edit_page_loads(admin_client):

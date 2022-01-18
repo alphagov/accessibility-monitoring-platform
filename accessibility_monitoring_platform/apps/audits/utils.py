@@ -26,6 +26,7 @@ from .models import (
     CHECK_RESULT_NOT_TESTED,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
+    MANDATORY_PAGE_TYPES,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
@@ -165,3 +166,12 @@ def get_all_possible_check_results_for_page(
             }
         )
     return check_results
+
+
+def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
+    """
+    Create mandatory pages for new audit.
+    """
+
+    for page_type in MANDATORY_PAGE_TYPES:
+        Page.objects.create(audit=audit, page_type=page_type)  # type: ignore

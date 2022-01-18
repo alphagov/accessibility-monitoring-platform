@@ -35,42 +35,81 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                {% if standard_pages_formset.errors %}
+                    {% for form in standard_pages_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if extra_pages_formset.errors %}
+                    {% for form in extra_pages_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 <form method="post" action="{% url 'audits:edit-audit-add-pages' audit.id %}">
                     {% csrf_token %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <div class="govuk-button-group">
-                                <a href="{% url 'audits:edit-audit-create-page' audit.id %}" class="govuk-button govuk-button--secondary">
-                                    Add page
-                                </a>
-                            </div>
-                        </div>
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Contents</h2>
-                            <ul class="govuk-list">
-                                {% for page in audit.every_page %}
-                                    {% include 'audits/helpers/page_content.html' %}
-                                {% endfor %}
-                                <a href="#deleted-pages" class="govuk-link govuk-link--no-visited-state">
-                                    Removed pages</a>
-                            </ul>
-                        </div>
-                        {% for page in audit.every_page %}
-                            <div class="govuk-grid-column-full">
-                                <h2 id="page-{{ page.id }}"class="govuk-heading-l bottom-margin-5">{{ page }}{% if page.complete_date %}&check;{% endif %}</h2>
-                                <p class="govuk-body">
-                                    <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                        Edit test{% if page.complete_date %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>&nbsp;
-                                    {% if page.page_type != 'all-except-pdf' %}
-                                        <a href="{% url 'audits:edit-audit-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                            Update page details</a>&nbsp;
-                                        <a href="{{ page.url }}" class="govuk-link" target="_blank">Visit webpage</a>&nbsp;
-                                        <a href="{% url 'audits:delete-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                            Remove page</a>
-                                    {% endif %}
-                                </p>
-                            </div>
+                    {{ standard_pages_formset.management_form }}
+                    {{ extra_pages_formset.management_form }}
+
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                        {% for page_form in standard_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 class="govuk-heading-m">
+                                                {{ standard_page_headers|list_item_by_index:forloop.counter0 }}
+                                            </h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         {% endfor %}
+                        {% for page_form in extra_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 id="extra-page-{{ forloop.counter }}" class="govuk-heading-m">Page {{ forloop.counter }}</h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
+                                        </div>
+                                        {% if page_form.instance.id %}
+                                            <div class="govuk-grid-column-full">
+                                                <input
+                                                    type="submit"
+                                                    value="Remove page"
+                                                    name="remove_extra_page_{{ page_form.instance.id }}"
+                                                    class="govuk-button govuk-button--secondary"
+                                                    data-module="govuk-button" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <input
+                        type="submit"
+                        value="Save and create additional page"
+                        name="add_extra"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    />
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 id="deleted-pages"class="govuk-heading-l bottom-margin-5">Removed pages</h2>
                             {% if audit.deleted_pages %}

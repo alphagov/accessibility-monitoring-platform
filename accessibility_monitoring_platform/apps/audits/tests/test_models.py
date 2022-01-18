@@ -101,6 +101,19 @@ def test_audit_every_pages_returns_all_pages():
 
 
 @pytest.mark.django_db
+def test_audit_testable_pages_returns_expected_page():
+    """
+    Deleted, not found and pages without URLs excluded.
+    """
+    audit: Audit = create_audit_and_pages()
+    testable_page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com")
+    Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com", not_found="yes")
+
+    assert len(audit.testable_pages) == 1
+    assert audit.testable_pages[0].id == testable_page.id  # type: ignore
+
+
+@pytest.mark.django_db
 def test_page_string():
     """
     Test Page string is name if present otherwise type

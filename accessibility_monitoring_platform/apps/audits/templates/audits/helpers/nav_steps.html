@@ -4,7 +4,7 @@
         {% include './nav_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-add-pages' name='Add pages' complete=audit.audit_add_pages_complete_date %}
         <ul class="govuk-list govuk-list--bullet bottom-margin-10">
-            {% for page in audit.every_page %}
+            {% for page in audit.testable_pages %}
                 {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' %}
             {% endfor %}
         </ul>

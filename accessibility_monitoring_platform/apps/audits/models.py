@@ -43,6 +43,13 @@ PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (PAGE_TYPE_PDF, "PDF"),
     (PAGE_TYPE_FORM, "Form"),
 ]
+MANDATORY_PAGE_TYPES: List[str] = [
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_STATEMENT,
+    PAGE_TYPE_PDF,
+    PAGE_TYPE_FORM,
+]
 TEST_TYPE_MANUAL: str = "manual"
 TEST_TYPE_AXE: str = "axe"
 TEST_TYPE_PDF: str = "pdf"
@@ -427,12 +434,24 @@ class Audit(VersionModel):
         return self.page_audit.filter(is_deleted=False)  # type: ignore
 
     @property
+    def testable_pages(self):
+        return self.every_page.exclude(not_found=BOOLEAN_TRUE).exclude(url="")
+
+    @property
     def html_pages(self):
         return self.every_page.exclude(page_type=PAGE_TYPE_PDF)
 
     @property
     def accessibility_statement_page(self):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
+
+    @property
+    def standard_pages(self):
+        return self.every_page.exclude(page_type=PAGE_TYPE_EXTRA)
+
+    @property
+    def extra_pages(self):
+        return self.html_pages.filter(page_type=PAGE_TYPE_EXTRA)
 
     @property
     def failed_check_results(self):
@@ -462,6 +481,9 @@ class Page(models.Model):
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
     complete_date = models.DateField(null=True, blank=True)
+    not_found = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
 
     class Meta:
         ordering = ["id"]
