@@ -3,7 +3,7 @@ Test templatetags of common app
 """
 import pytest
 
-from ..templatetags.common_tags import list_item_by_index
+from ..templatetags.common_tags import list_item_by_index, markdown_to_html
 
 
 @pytest.mark.parametrize(
@@ -17,3 +17,8 @@ from ..templatetags.common_tags import list_item_by_index
 def test_list_item_by_index(item_list, index, expected_result):
     """Test that templatetag returns indexed item from list or none"""
     assert list_item_by_index(item_list, index) == expected_result
+
+
+def test_markdown_to_html():
+    """Test markdown converted to HTML."""
+    assert markdown_to_html("# Heading") == '<h1 id="heading">Heading</h1>'
