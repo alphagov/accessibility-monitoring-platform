@@ -20,6 +20,12 @@ idAxe.addEventListener('input', updateValue)
 const idPDF = document.querySelector('input[id="id_pdf"]')
 idPDF.addEventListener('input', updateValue)
 
+const idErrorFound = document.querySelector('input[id="id_error_found"]')
+idErrorFound.addEventListener('input', updateValue)
+
+const idNoIssue = document.querySelector('input[id="id_no_issue"]')
+idNoIssue.addEventListener('input', updateValue)
+
 const idNotTested = document.querySelector('input[id="id_not_tested"]')
 idNotTested.addEventListener('input', updateValue)
 
@@ -52,14 +58,33 @@ function checkboxFilter (divTag, checked, keyword, className) {
   }
 }
 
-function notTestedFilter (divTag, checked, className) {
-  const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
-  if (checked && val !== 'not-tested' && !divTag.className.includes(className)) {
-    divTag.className += className
-  } else {
-    divTag.className = divTag.className.replace(className, '')
+function errorFoundFilter (divTag, checked, className) {
+    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+    if (checked && val !== 'error' && !divTag.className.includes(className)) {
+      divTag.className += className
+    } else {
+      divTag.className = divTag.className.replace(className, '')
+    }
   }
-}
+
+function noIssueFilter (divTag, checked, className) {
+    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+    if (checked && val !== 'no-error' && !divTag.className.includes(className)) {
+      divTag.className += className
+    } else {
+      divTag.className = divTag.className.replace(className, '')
+    }
+  }
+
+function notTestedFilter (divTag, checked, className) {
+    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+    if (checked && val !== 'not-tested' && !divTag.className.includes(className)) {
+      divTag.className += className
+    } else {
+      divTag.className = divTag.className.replace(className, '')
+    }
+  }
+
 
 function textFilter (divTag, keyword) {
   if (document.getElementById('id_name').value === '') {
@@ -79,6 +104,8 @@ function updateWcagList () {
     checkboxFilter(wcagInputs[i], idManual.checked, 'manual', ' filter-div-manual')
     checkboxFilter(wcagInputs[i], idPDF.checked, 'pdf', ' filter-div-pdf')
     checkboxFilter(wcagInputs[i], idAxe.checked, 'axe', ' filter-div-axe')
+    errorFoundFilter(wcagInputs[i], idErrorFound.checked, ' filter-div-error-found')
+    noIssueFilter(wcagInputs[i], idNoIssue.checked, ' filter-div-no-issue')
     notTestedFilter(wcagInputs[i], idNotTested.checked, ' filter-div-not-tested')
     textFilter(wcagInputs[i], document.getElementById('id_name').value)
 

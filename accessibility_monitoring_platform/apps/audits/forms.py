@@ -231,6 +231,12 @@ class CheckResultFilterForm(forms.Form):
     pdf = AMPChoiceCheckboxField(
         label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "PDF"})
     )
+    error_found = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Error found"})
+    )
+    no_issue = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "No issue"})
+    )
     not_tested = AMPChoiceCheckboxField(
         label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not tested"})
     )
@@ -242,6 +248,8 @@ class CheckResultFilterForm(forms.Form):
             "manual",
             "axe",
             "pdf",
+            "error_found",
+            "no_issue",
             "not_tested",
         ]
 

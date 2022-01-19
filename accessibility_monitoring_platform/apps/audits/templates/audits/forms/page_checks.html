@@ -48,19 +48,37 @@
                         </div>
                     </div>
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-half">
+                        <div class="govuk-grid-column-one-third">
                             {% include 'common/amp_field.html' with field=filter_form.manual %}
                         </div>
-                        <div class="govuk-grid-column-one-half">
+                        <div class="govuk-grid-column-one-third">
                             {% include 'common/amp_field.html' with field=filter_form.axe %}
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.pdf %}
                         </div>
                     </div>
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-half">
-                            {% include 'common/amp_field.html' with field=filter_form.pdf %}
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.error_found %}
                         </div>
-                        <div class="govuk-grid-column-one-half">
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.no_issue %}
+                        </div>
+                        <div class="govuk-grid-column-one-third">
                             {% include 'common/amp_field.html' with field=filter_form.not_tested %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Clear search form"
+                                name="clear"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                                id="clear_search_form"
+                            />
                         </div>
                     </div>
                     <div class="govuk-grid-row">
@@ -80,14 +98,6 @@
                                 name="save"
                                 class="govuk-button"
                                 data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Clear form"
-                                name="clear"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                                id="clear_search_form"
                             />
                             {% if page and page.page_type != 'all-except-pdf' %}
                                 <a href="{{ page.url }}" class="govuk-link" target="_blank">
