@@ -204,7 +204,7 @@ class AuditDetailView(DetailView):
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
         context["failed_check_results_by_page"] = list_to_dictionary_of_lists(
-            items=audit.failed_check_results, group_by_attr="page"  # type: ignore
+            items=audit.failed_check_results, group_by_attr="page"
         )
         context["audit_statement_rows"] = get_audit_statement_rows(audit)
         context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
