@@ -156,6 +156,20 @@ def test_audit_failed_check_results_returns_only_failed_checks():
 
 
 @pytest.mark.django_db
+def test_audit_failed_check_results_for_deleted_page_not_returned():
+    """
+    Test failed_check_results attribute of audit returns only check results where failed is "yes"
+    and associated page has not been deleted.
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page.is_deleted = True
+    page.save()
+
+    assert len(audit.failed_check_results) == 2
+
+
+@pytest.mark.django_db
 def test_audit_accessibility_state_ment_page_returns_page():
     """
     Accessibility Statement page returned

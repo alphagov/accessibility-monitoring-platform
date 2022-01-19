@@ -457,7 +457,9 @@ class Audit(VersionModel):
     def failed_check_results(self):
         return (
             self.checkresult_audit.filter(  # type: ignore
-                is_deleted=False, check_result_state=CHECK_RESULT_ERROR
+                is_deleted=False,
+                check_result_state=CHECK_RESULT_ERROR,
+                page__is_deleted=False,
             )
             .order_by("page__id", "wcag_definition__id")
             .select_related("page", "wcag_definition")
