@@ -130,6 +130,8 @@ document.getElementById('clear_search_form').addEventListener('click', function 
   document.getElementById('id_manual').checked = false
   document.getElementById('id_axe').checked = false
   document.getElementById('id_pdf').checked = false
+  document.getElementById('id_error_found').checked = false
+  document.getElementById('id_no_issue').checked = false
   document.getElementById('id_not_tested').checked = false
   document.getElementById('id_name').value = ''
 
