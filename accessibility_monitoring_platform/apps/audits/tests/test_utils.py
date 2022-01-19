@@ -71,6 +71,13 @@ EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
         extra_label="",
         external_url=True,
     ),
+    FieldLabelAndValue(
+        value="Unknown",
+        label="Exemptions?",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
 ]
 EXPECTED_AUDIT_PDF_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
