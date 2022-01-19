@@ -13,9 +13,4 @@
                 {% endif %}
                         Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if complete %}&check;{% endif %}
-                {% if view_report_text %}
-                |
-                <a href="{% url 'audits:edit-audit-report-text' audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                        View report text</a>
-                {% endif %}
             </li>
