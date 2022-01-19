@@ -116,7 +116,7 @@ def test_delete_page_view(admin_client):
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "audits:edit-audit-add-pages",
+        "audits:edit-audit-pages",
         kwargs=audit_pk,
     )
 
@@ -141,7 +141,7 @@ def test_restore_page_view(admin_client):
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "audits:edit-audit-add-pages",
+        "audits:edit-audit-pages",
         kwargs=audit_pk,
     )
 
@@ -172,7 +172,7 @@ def test_create_audit_redirects(admin_client):
     [
         ("audits:audit-detail", "View test"),
         ("audits:edit-audit-metadata", "Test metadata"),
-        ("audits:edit-audit-add-pages", "Add pages"),
+        ("audits:edit-audit-pages", "Pages"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
         ("audits:edit-audit-summary", "Test summary"),
@@ -236,13 +236,13 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
-def test_add_pages_redirects_based_on_button_pressed(admin_client):
+def test_pages_redirects_based_on_button_pressed(admin_client):
     """Test that a successful audit update redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-add-pages", kwargs=audit_pk),
+        reverse("audits:edit-audit-pages", kwargs=audit_pk),
         {
             "version": audit.version,
             "save": "Button value",
@@ -259,7 +259,7 @@ def test_add_pages_redirects_based_on_button_pressed(admin_client):
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
+    expected_path: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
     assert response.url == expected_path
 
 
@@ -270,7 +270,7 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
     )
     assert response.status_code == 200
     assertContains(
@@ -295,7 +295,7 @@ def test_add_extra_page_form_appears(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -319,7 +319,7 @@ def test_add_extra_page(admin_client):
     audit: Audit = create_audit_and_pages()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -355,7 +355,7 @@ def test_delete_extra_page(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-add-pages", kwargs={"pk": audit.id}),  # type: ignore
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",

@@ -51,9 +51,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-metadata",
     ),
     path(
-        "<int:pk>/edit-audit-add-pages/",
+        "<int:pk>/edit-audit-pages/",
         login_required(AuditAddPagesUpdateView.as_view()),
-        name="edit-audit-add-pages",
+        name="edit-audit-pages",
     ),
     path(
         "pages/<int:pk>/delete-page/",

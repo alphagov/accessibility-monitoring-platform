@@ -116,7 +116,7 @@ def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
     page.is_deleted = True
     record_model_update_event(user=request.user, model_object=page)  # type: ignore
     page.save()
-    return redirect(reverse("audits:edit-audit-add-pages", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
 def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
@@ -134,7 +134,7 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     page.is_deleted = False
     record_model_update_event(user=request.user, model_object=page)  # type: ignore
     page.save()
-    return redirect(reverse("audits:edit-audit-add-pages", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
 class AuditCreateView(CreateView):
@@ -244,11 +244,11 @@ class AuditMetadataUpdateView(AuditUpdateView):
 
 class AuditAddPagesUpdateView(AuditUpdateView):
     """
-    View to update audit add pages page
+    View to update audit pages page
     """
 
     form_class: Type[AuditAddPagesUpdateForm] = AuditAddPagesUpdateForm
-    template_name: str = "audits/forms/add-pages.html"
+    template_name: str = "audits/forms/pages.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -325,7 +325,7 @@ class AuditAddPagesUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
         audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-        url: str = reverse("audits:edit-audit-add-pages", kwargs=audit_pk)
+        url: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
         if "add_extra" in self.request.POST:
             url: str = f"{url}?add_extra=true#extra-page-1"
         return url

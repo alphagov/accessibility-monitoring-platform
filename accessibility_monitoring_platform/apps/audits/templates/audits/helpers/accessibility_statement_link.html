@@ -7,8 +7,8 @@
                 </a>
             {% else %}
                 No accessibility statement added. Add page in
-                <a href="{% url 'audits:edit-audit-add-pages' audit.id %}" class="govuk-link govuk-link--no-visited-state">
-                    add pages
+                <a href="{% url 'audits:edit-audit-pages' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    pages
                 </a>
             {% endif %}
             {% if audit.accessibility_statement_backup_url %}
