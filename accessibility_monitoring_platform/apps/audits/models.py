@@ -22,6 +22,12 @@ SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
     (SCREEN_SIZE_DEFAULT, "15 inch"),
     ("13in", "13 inch"),
 ]
+EXEMPTIONS_STATE_DEFAULT: str = "unknown"
+EXEMPTIONS_STATE_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (EXEMPTIONS_STATE_DEFAULT, "Unknown")
+]
 AUDIT_TYPE_DEFAULT: str = "initial"
 AUDIT_TYPE_RETEST = "retest"
 AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
@@ -232,6 +238,12 @@ class Audit(VersionModel):
         choices=SCREEN_SIZE_CHOICES,
         default=SCREEN_SIZE_DEFAULT,
     )
+    exemptions_state = models.CharField(
+        max_length=20,
+        choices=EXEMPTIONS_STATE_CHOICES,
+        default=EXEMPTIONS_STATE_DEFAULT,
+    )
+    exemptions_notes = models.TextField(default="", blank=True)
     type = models.CharField(
         max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
     )
@@ -532,6 +544,8 @@ class WcagDefinition(models.Model):
     description = models.TextField(default="", blank=True)
     url_on_w3 = models.TextField(default="", blank=True)
     report_boilerplate = models.TextField(default="", blank=True)
+    date_start = models.DateTimeField(null=True, blank=True)
+    date_end = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]

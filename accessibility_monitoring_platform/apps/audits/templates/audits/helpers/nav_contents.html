@@ -3,11 +3,13 @@
     <ul class="govuk-list">
         {% include './nav_content.html' with anchor='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_content.html' with anchor='audit-add-pages' edit_name='audits:edit-audit-add-pages' name='Pages' complete=audit.audit_add_pages_complete_date %}
-        <ul class="govuk-list govuk-list--bullet bottom-margin-10">
-            {% for page in audit.testable_pages %}
-                {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
-            {% endfor %}
-        </ul>
+        {% if audit.testable_pages %}
+            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                {% for page in audit.testable_pages %}
+                    {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
+                {% endfor %}
+            </ul>
+        {% endif %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
         {% include './nav_content.html' with anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}

@@ -28,6 +28,7 @@ from .models import (
     Page,
     CheckResult,
     SCREEN_SIZE_CHOICES,
+    EXEMPTIONS_STATE_CHOICES,
     AUDIT_TYPE_CHOICES,
     PAGE_TYPE_CHOICES,
     DECLARATION_STATE_CHOICES,
@@ -86,6 +87,11 @@ class AuditMetadataUpdateForm(VersionForm):
     name = AMPCharFieldWide(label="Name")
     date_of_test = AMPDateField(label="Date of test")
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
+    exemptions_state = AMPChoiceRadioField(
+        label="Exemptions?",
+        choices=EXEMPTIONS_STATE_CHOICES,
+    )
+    exemptions_notes = AMPTextField(label="Notes")
     audit_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -95,6 +101,8 @@ class AuditMetadataUpdateForm(VersionForm):
             "date_of_test",
             "name",
             "screen_size",
+            "exemptions_state",
+            "exemptions_notes",
             "audit_metadata_complete_date",
         ]
 
