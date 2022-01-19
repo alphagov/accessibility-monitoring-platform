@@ -13,6 +13,7 @@ from ..common.models import (
     BOOLEAN_CHOICES,
     BOOLEAN_DEFAULT,
     BOOLEAN_TRUE,
+    BOOLEAN_FALSE,
 )
 from ..common.utils import format_date
 
@@ -460,6 +461,7 @@ class Audit(VersionModel):
                 is_deleted=False,
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
+                page__not_found=BOOLEAN_FALSE,
             )
             .order_by("page__id", "wcag_definition__id")
             .select_related("page", "wcag_definition")
