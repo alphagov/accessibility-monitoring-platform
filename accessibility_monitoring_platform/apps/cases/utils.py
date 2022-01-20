@@ -31,8 +31,8 @@ from .models import Case, Contact, STATUS_READY_TO_QA
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",
     "report_draft_url": "Report draft",
-    "report_final_pdf_url": "Final PDF draft",
-    "report_final_odt_url": "Final ODT draft",
+    "report_final_pdf_url": "Final draft (PDF)",
+    "report_final_odt_url": "Final draft (ODT)",
 }
 
 EXCLUDED_FIELDS = [

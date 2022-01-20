@@ -2,15 +2,26 @@
 
 {% extends 'base.html' %}
 
+{% block title %}Report an issue{% endblock %}
+
 {% block phase_banner %}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{{ form.page_url.value }}" class="govuk-back-link">Back</a>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Report an issue
+            </li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">{{ page_title }}</h1>
+                <h1 class="govuk-heading-xl">Report an issue</h1>
             </div>
         </div>
         <div class="govuk-grid-row">

@@ -2,11 +2,13 @@
 
 {% extends 'base.html' %}
 
+{% block title %}Register{% endblock %}
+
 {% block phase_banner %}{% endblock %}
 
 {% block content %}
     <main id="main-content" class="govuk-main-wrapper">
-        <h1 class="govuk-heading-l">{{ page_title }}</h1>
+        <h1 class="govuk-heading-l">Register</h1>
         <p class="govuk-body-l">Fill in the form below to create an account</p>
         <br />
         {% include "forms/default.html" %}

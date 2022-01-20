@@ -2,15 +2,26 @@
 
 {% extends 'base.html' %}
 
+{% block title %}Create case{% endblock %}
+
 {% load l10n %}
 
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Create case
+            </li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl">{{ page_heading }}</h1>
+                <h1 class="govuk-heading-xl">Create case</h1>
                 {% include 'common/error_summary.html' %}
                 {% if duplicate_cases %}
                     <p class="govuk-body-l">We have found {{ duplicate_cases.count|localize}} cases matching the details you have given</p>
@@ -91,15 +102,15 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Save and continue case"
-                                name="save_continue_case"
+                                value="Save and create another case"
+                                name="save_new_case"
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
                             <input
                                 type="submit"
-                                value="Save and create another case"
-                                name="save_new_case"
+                                value="Save and continue case"
+                                name="save_continue_case"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />

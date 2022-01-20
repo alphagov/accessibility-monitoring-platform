@@ -2,15 +2,25 @@
 
 {% extends "base.html" %}
 
-{% block content %}
+{% block title %}Notifications ({{unread_notifications}}){% endblock %}
 
+{% block content %}
 <div class="govuk-width-container">
-    <a href="{{request.session.comment_path}}" class="govuk-back-link">Back</a>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Notifications ({{unread_notifications}})
+            </li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper dashboard">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">
-                    Notifications ({{unread_notifications}})
+                    Notifications ({{ unread_notifications }})
                 </h1>
             </div>
         </div>
@@ -22,6 +32,7 @@
         {% if notifications|length == 0 %}
             <p class="govuk-body"> You have no unread notifications </p>
         {% else %}
+            {% include "common/pagination_controls.html" %}
             <table class="govuk-table case-dashboard">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
@@ -60,6 +71,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% include "common/pagination_controls.html" %}
         {% endif %}
     </main>
 </div>

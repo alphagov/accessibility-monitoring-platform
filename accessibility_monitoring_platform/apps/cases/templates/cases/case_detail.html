@@ -2,14 +2,25 @@
 
 {% extends 'base.html' %}
 
+{% block title %}{{ case.organisation_name }} | View case{% endblock %}
+
 {% block content %}
 <div class="govuk-width-container">
-    <a href="{% url 'cases:case-list' %}" class="govuk-back-link">Back</a>
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                View case
+            </li>
+        </ol>
+    </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">{{ page_heading }}</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>
                     {% if case.escalation_state == 'no-action' %}
                         <strong class="govuk-tag" style="position: relative; top: -5px;">
                             completed
@@ -23,14 +34,6 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
-                    <a href="{% url 'cases:edit-case-details' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Edit case
-                    </a>
                     <a
                         href="{% url 'cases:case-export-single' case.id %}"
                         role="button"
@@ -40,6 +43,27 @@
                     >
                         Export to CSV
                     </a>
+                    {% if case.is_suspended %}
+                        <a
+                            href="{% url 'cases:unsuspend-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Unsuspend case
+                        </a>
+                    {% else %}
+                        <a
+                            href="{% url 'cases:suspend-case' case.id %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                        >
+                            Suspend case
+                        </a>
+                    {% endif %}
                     {% if case.is_deleted %}
                         <a
                             href="{% url 'cases:restore-case' case.id %}"
@@ -68,7 +92,18 @@
             {% include 'cases/helpers/case_title.html' %}
             {% include "cases/helpers/messages.html" %}
         </div>
-
+        {% if case.is_suspended %}
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    This case has been suspended on {{ case.suspend_date }}. Unsuspend case to reactivate case.
+                </strong>
+            </div>
+            <div class="govuk-inset-text">
+                {{ case.suspend_notes }}
+            </div>
+        {% endif %}
         {% if case.no_psb_contact == 'yes' %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -80,7 +115,7 @@
         {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include 'cases/helpers/navbar.html' with current_page='view-details' %}
+                {% include 'cases/helpers/nav_contents.html' %}
                 {% include 'cases/details/reminders.html' %}
                 {% include 'cases/details/case_details.html' %}
                 {% include 'cases/details/testing_details.html' %}

@@ -371,6 +371,11 @@ class Case(VersionModel):
     )
     delete_notes = models.TextField(default="", blank=True)
 
+    # Suspended case page
+    is_suspended = models.BooleanField(default=False)
+    suspend_date = models.DateField(null=True, blank=True)
+    suspend_notes = models.TextField(default="", blank=True)
+
     # Dashboard page
     qa_status = models.CharField(
         max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
@@ -439,7 +444,7 @@ class Case(VersionModel):
     def reminder(self):
         return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
-    def set_status(self):
+    def set_status(self):  # noqa: C901
         if self.is_deleted:
             return "deleted"
         elif self.case_completed == "no-action" or self.escalation_state == "no-action":

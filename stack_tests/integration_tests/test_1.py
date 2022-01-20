@@ -301,51 +301,11 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_exit").click()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
 
-    def test_update_case_sections(self):
-        """Tests whether all case sections can be updated"""
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.driver.find_element_by_link_text("Edit case").click()
-
-        self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(">Edit case | QA process</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
-        )
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(
-            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
-        )
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(">Edit case | Final decision</h1>" in self.driver.page_source)
-        self.driver.find_element_by_name("save_continue").click()
-
-        self.assertTrue(
-            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
-        )
-        self.driver.find_element_by_name("save_exit").click()
-
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-
     def test_update_case_edit_case_details(self):
         """Tests whether case details can be updated"""
         self.driver.find_element_by_link_text("Edit case details").click()
 
-        self.assertTrue(">Edit case | Case details</h1>" in self.driver.page_source)
+        self.assertTrue(">Case details</h1>" in self.driver.page_source)
         self.driver.find_element_by_css_selector(
             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
         ).click()
@@ -358,7 +318,8 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector(
             "#id_case_details_complete_date"
         ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(ENFORCEMENT_BODY_LABEL in self.driver.page_source)
@@ -369,7 +330,7 @@ class TestCaseUpdates(TestCases):
         """Tests whether contact details can be updated"""
         self.driver.find_element_by_link_text("Edit contact details").click()
 
-        self.assertTrue(">Edit case | Contact details</h1>" in self.driver.page_source)
+        self.assertTrue(">Contact details</h1>" in self.driver.page_source)
         self.driver.find_element_by_xpath('//input[@value="Create contact"]').click()
 
         self.driver.find_element_by_name("form-0-first_name").send_keys(
@@ -386,7 +347,8 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector(
             "#id_contact_details_complete_date"
         ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(CONTACT_FIRST_NAME in self.driver.page_source)
@@ -399,7 +361,7 @@ class TestCaseUpdates(TestCases):
         """Tests whether testing details can be updated"""
         self.driver.find_element_by_link_text("Edit testing details").click()
 
-        self.assertTrue(">Edit case | Testing details</h1>" in self.driver.page_source)
+        self.assertTrue(">Testing details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("accessibility_statement_notes").send_keys(
             TEST_RESULTS_URL
         )
@@ -417,7 +379,8 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector(
             "#id_testing_details_complete_date"
         ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(TEST_RESULTS_URL in self.driver.page_source)
@@ -428,7 +391,7 @@ class TestCaseUpdates(TestCases):
         """Tests whether report details can be updated"""
         self.driver.find_element_by_link_text("Edit report details").click()
 
-        self.assertTrue(">Edit case | Report details</h1>" in self.driver.page_source)
+        self.assertTrue(">Report details</h1>" in self.driver.page_source)
         self.driver.find_element_by_name("report_draft_url").send_keys(REPORT_DRAFT_URL)
         self.driver.find_element_by_css_selector("#id_report_review_status_1").click()
         self.driver.find_element_by_name("report_notes").send_keys(
@@ -438,7 +401,8 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector(
             "#id_reporting_details_complete_date"
         ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(REPORT_DRAFT_URL in self.driver.page_source)
@@ -448,7 +412,7 @@ class TestCaseUpdates(TestCases):
         """Tests whether QA process can be updated"""
         self.driver.find_element_by_link_text("Edit QA process").click()
 
-        self.assertTrue(">Edit case | QA process</h1>" in self.driver.page_source)
+        self.assertTrue(">QA process</h1>" in self.driver.page_source)
         self.driver.find_element_by_css_selector("#id_report_approved_status_1").click()
         self.driver.find_element_by_name("reviewer_notes").send_keys(
             REPORT_REVIEWER_NOTES
@@ -462,7 +426,8 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_css_selector(
             "#id_qa_process_complete_date"
         ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(REPORT_REVIEWER_NOTES in self.driver.page_source)
@@ -474,7 +439,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_link_text("Edit report correspondence").click()
 
         self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+            ">Report correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_name("report_sent_date_0").clear()
@@ -511,7 +476,8 @@ class TestCaseUpdates(TestCases):
             "#id_report_correspondence_complete_date"
         ).click()
 
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("31/12/2020" in self.driver.page_source)
@@ -544,12 +510,13 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("report_sent_date_2").send_keys(
             REPORT_SENT_DATE_YYYY
         )
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
 
         self.assertTrue(
-            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+            ">12 week correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_name("twelve_week_update_requested_date_0").clear()
@@ -594,7 +561,8 @@ class TestCaseUpdates(TestCases):
             "#id_twelve_week_correspondence_complete_date"
         ).click()
 
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("01/03/2021" in self.driver.page_source)
@@ -605,7 +573,7 @@ class TestCaseUpdates(TestCases):
         """Tests whether final decision can be updated"""
         self.driver.find_element_by_link_text("Edit final decision").click()
 
-        self.assertTrue(">Edit case | Final decision</h1>" in self.driver.page_source)
+        self.assertTrue(">Final decision</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("psb_progress_notes").send_keys(
             PSB_PROGRESS_NOTES
@@ -661,7 +629,8 @@ class TestCaseUpdates(TestCases):
             "#id_final_decision_complete_date"
         ).click()
 
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("01/08/2021" in self.driver.page_source)
@@ -677,7 +646,7 @@ class TestCaseUpdates(TestCases):
         ).click()
 
         self.assertTrue(
-            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
+            ">Equality body correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
@@ -705,7 +674,8 @@ class TestCaseUpdates(TestCases):
             "#id_enforcement_correspondence_complete_date"
         ).click()
 
-        self.driver.find_element_by_name("save_exit").click()
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
@@ -718,12 +688,12 @@ class TestCaseUpdates(TestCases):
         """Tests whether report followup dates can be updated"""
         self.driver.find_element_by_link_text("Edit report correspondence").click()
         self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+            ">Report correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_link_text("Edit report followup due dates").click()
         self.assertTrue(
-            ">Edit case | Report followup dates</h1>" in self.driver.page_source
+            ">Report followup dates</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_name("report_followup_week_1_due_date_0").clear()
@@ -768,7 +738,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_return").click()
 
         self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+            ">Report correspondence</h1>" in self.driver.page_source
         )
 
         self.assertTrue("Due 16/08/2021" in self.driver.page_source)
@@ -779,14 +749,14 @@ class TestCaseUpdates(TestCases):
         """Tests whether 12 week correspondence dates can be updated"""
         self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
         self.assertTrue(
-            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+            ">12 week correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_link_text(
             "Edit 12 week correspondence due dates"
         ).click()
         self.assertTrue(
-            ">Edit case | 12 week correspondence dates</h1>" in self.driver.page_source
+            ">12 week correspondence dates</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_name("report_followup_week_12_due_date_0").clear()
@@ -831,7 +801,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_return").click()
 
         self.assertTrue(
-            ">Edit case | 12 week correspondence</h1>" in self.driver.page_source
+            ">12 week correspondence</h1>" in self.driver.page_source
         )
         self.assertTrue("Due 13/07/2021" in self.driver.page_source)
         self.assertTrue("Due 20/07/2021" in self.driver.page_source)
@@ -843,14 +813,14 @@ class TestCaseUpdates(TestCases):
         """
         self.driver.find_element_by_link_text("Edit report correspondence").click()
         self.assertTrue(
-            ">Edit case | Report correspondence</h1>" in self.driver.page_source
+            ">Report correspondence</h1>" in self.driver.page_source
         )
 
         self.driver.find_element_by_link_text(
             "Unable to send report or no response from public sector body?"
         ).click()
         self.assertTrue(
-            ">Edit case | Public sector body is unresponsive</h1>"
+            ">Public sector body is unresponsive</h1>"
             in self.driver.page_source
         )
 
@@ -859,7 +829,7 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(
-            ">Edit case | Equality body correspondence</h1>" in self.driver.page_source
+            ">Equality body correspondence</h1>" in self.driver.page_source
         )
 
 
