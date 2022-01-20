@@ -130,7 +130,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     """Test that audit detail view shows the number of errors"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF)
+    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com")
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     CheckResult.objects.create(
         audit=audit,
