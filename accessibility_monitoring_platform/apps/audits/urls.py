@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 from .views import (
+    AuditAllIssuesListView,
     AuditCreateView,
     AuditDetailView,
     AuditMetadataUpdateView,
@@ -25,6 +26,11 @@ from .views import (
 
 app_name: str = "audits"
 urlpatterns: List[URLPattern] = [
+    path(
+        "all-issues/",
+        login_required(AuditAllIssuesListView.as_view()),
+        name="audit-all-issues",
+    ),
     path(
         "create-for-case/<int:case_id>/",
         login_required(AuditCreateView.as_view()),

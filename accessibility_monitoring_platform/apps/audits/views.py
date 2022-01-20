@@ -12,6 +12,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 
 from ..cases.models import Case
 from ..common.utils import (
@@ -63,6 +64,16 @@ STANDARD_PAGE_HEADERS: List[str] = [
     "PDF",
     "A Form",
 ]
+
+
+class AuditAllIssuesListView(ListView):
+    """
+    View of list WCAG definitions
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    context_object_name: str = "wcag_definitions"
+    template_name: str = "audits/all-issues.html"
 
 
 def delete_audit(request: HttpRequest, pk: int) -> HttpResponse:

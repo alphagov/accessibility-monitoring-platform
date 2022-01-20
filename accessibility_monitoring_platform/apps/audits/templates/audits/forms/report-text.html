@@ -60,9 +60,6 @@
                     <li>
                         <a href="#context-and-more" class="govuk-link govuk-link--no-visited-state">Contact and more information</a>
                     </li>
-                    <li>
-                        <a href="#all-issues" class="govuk-link govuk-link--no-visited-state">All possible issues</a>
-                    </li>
                 </ul>
                 <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text" class="amp-report">
@@ -336,33 +333,6 @@
                             https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>.
                     </p>
                 </div>
-
-                <h1 id="all-issues" class="govuk-heading-l">All possible issues</h1>
-
-                <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
-                    <thead>
-                        <tr style="border:1px solid black;">
-                            <th style="border:1px solid black;text-align:left;">Issue and description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for wcag_definition in wcag_definitions %}
-                            <tr style="border:1px solid black;">
-                                <td style="border:1px solid black;">
-                                    <p>
-                                        {% if wcag_definition.url_on_w3 %}
-                                            <a href="{{ wcag_definition.url_on_w3 }}" target="_blank">
-                                                {{ wcag_definition }}</a>
-                                        {% else %}
-                                            {{ wcag_definition }}
-                                        {% endif %}
-                                    </p>
-                                    {{ wcag_definition.report_boilerplate|markdown_to_html }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                    </tbody>
-                </table>
 
                 <form method="post" action="{% url 'audits:edit-audit-report-text' audit.id %}">
                     {% csrf_token %}
