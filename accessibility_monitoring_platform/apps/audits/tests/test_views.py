@@ -12,6 +12,7 @@ from django.urls import reverse
 
 from ...cases.models import Case
 from ..models import (
+    PAGE_TYPE_PDF,
     Audit,
     CheckResult,
     Page,
@@ -123,6 +124,31 @@ def test_delete_page_view(admin_client):
     page_from_db: Page = Page.objects.get(**page_pk)
 
     assert page_from_db.is_deleted
+
+
+def test_audit_detail_shows_number_of_errors(admin_client):
+    """Test that audit detail view shows the number of errors"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    response: HttpResponse = admin_client.get(reverse("audits:audit-detail", kwargs=audit_pk))
+
+    assert response.status_code == 200
+    assertContains(response, "PDF - 2")
 
 
 def test_restore_page_view(admin_client):
