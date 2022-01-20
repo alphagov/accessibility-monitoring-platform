@@ -1,6 +1,7 @@
 """
 Test - common utility functions
 """
+from datetime import date
 import pytest
 from typing import Dict, List, Tuple, Union
 
@@ -55,7 +56,11 @@ UPDATED_NOTE: str = "Updated note"
 NEW_CHECK_NOTE: str = "New note"
 EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
-        value=None, label="Date of test", type="text", extra_label="", external_url=True
+        value=date.today(),
+        label="Date of test",
+        type="text",
+        extra_label="",
+        external_url=True,
     ),
     FieldLabelAndValue(
         value="",
@@ -387,7 +392,12 @@ def test_get_audit_metadata_rows():
     """Test audit metadata rows returned for display on View test page"""
     audit, _ = create_audit_and_user()
 
-    assert get_audit_metadata_rows(audit=audit) == EXPECTED_AUDIT_METADATA_ROWS
+    assert [field.value for field in get_audit_metadata_rows(audit=audit)] == [
+        field.value for field in EXPECTED_AUDIT_METADATA_ROWS
+    ]
+    assert [field.label for field in get_audit_metadata_rows(audit=audit)] == [
+        field.label for field in EXPECTED_AUDIT_METADATA_ROWS
+    ]
 
 
 @pytest.mark.django_db

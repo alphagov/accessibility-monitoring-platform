@@ -1,6 +1,7 @@
 """
 Models - audits (called tests by the users)
 """
+from datetime import date
 from typing import List, Tuple
 
 from django.db import models
@@ -26,7 +27,7 @@ EXEMPTIONS_STATE_DEFAULT: str = "unknown"
 EXEMPTIONS_STATE_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
-    (EXEMPTIONS_STATE_DEFAULT, "Unknown")
+    (EXEMPTIONS_STATE_DEFAULT, "Unknown"),
 ]
 AUDIT_TYPE_DEFAULT: str = "initial"
 AUDIT_TYPE_RETEST = "retest"
@@ -231,7 +232,7 @@ class Audit(VersionModel):
     is_deleted = models.BooleanField(default=False)
 
     # metadata page
-    date_of_test = models.DateTimeField(null=True, blank=True)
+    date_of_test = models.DateField(default=date.today)
     name = models.TextField(default="", blank=True)
     screen_size = models.CharField(
         max_length=20,
