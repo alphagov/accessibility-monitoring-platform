@@ -161,15 +161,8 @@ class AuditCreateView(CreateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add table rows to context for each section of page"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-
         case: Case = Case.objects.get(pk=self.kwargs["case_id"])
-        page_heading: str = "Edit case | Create test"
-        page_title: str = f"{case.organisation_name} | {page_heading}"
-
         context["case"] = case
-        context["page_heading"] = page_heading
-        context["page_title"] = page_title
-
         return context
 
     def form_valid(self, form: ModelForm):

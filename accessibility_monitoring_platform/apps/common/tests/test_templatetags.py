@@ -21,4 +21,4 @@ def test_list_item_by_index(item_list, index, expected_result):
 
 def test_markdown_to_html():
     """Test markdown converted to HTML."""
-    assert markdown_to_html("# Heading") == '<h1 id="heading">Heading</h1>'
+    assert markdown_to_html("# Heading") == '<h1>Heading</h1>'
