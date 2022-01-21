@@ -59,32 +59,31 @@ function checkboxFilter (divTag, checked, keyword, className) {
 }
 
 function errorFoundFilter (divTag, checked, className) {
-    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
-    if (checked && val !== 'error' && !divTag.className.includes(className)) {
-      divTag.className += className
-    } else {
-      divTag.className = divTag.className.replace(className, '')
-    }
+  const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+  if (checked && val !== 'error' && !divTag.className.includes(className)) {
+    divTag.className += className
+  } else {
+    divTag.className = divTag.className.replace(className, '')
   }
+}
 
 function noIssueFilter (divTag, checked, className) {
-    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
-    if (checked && val !== 'no-error' && !divTag.className.includes(className)) {
-      divTag.className += className
-    } else {
-      divTag.className = divTag.className.replace(className, '')
-    }
+  const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+  if (checked && val !== 'no-error' && !divTag.className.includes(className)) {
+    divTag.className += className
+  } else {
+    divTag.className = divTag.className.replace(className, '')
   }
+}
 
 function notTestedFilter (divTag, checked, className) {
-    const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
-    if (checked && val !== 'not-tested' && !divTag.className.includes(className)) {
-      divTag.className += className
-    } else {
-      divTag.className = divTag.className.replace(className, '')
-    }
+  const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
+  if (checked && val !== 'not-tested' && !divTag.className.includes(className)) {
+    divTag.className += className
+  } else {
+    divTag.className = divTag.className.replace(className, '')
   }
-
+}
 
 function textFilter (divTag, keyword) {
   if (document.getElementById('id_name').value === '') {
