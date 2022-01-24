@@ -33,10 +33,8 @@ class DashboardView(TemplateView):
         )
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
-        if view_url_param is None:
-            show_all_cases: bool = self.request.user.groups.filter(name="QA auditor").exists()  # type: ignore
-        else:
-            show_all_cases: bool = view_url_param == "View all cases"
+        show_all_cases = view_url_param == "View all cases"
+
         cases: List[Case] = (
             all_cases
             if show_all_cases
