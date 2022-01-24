@@ -59,10 +59,7 @@ def test_case_title_is_organisation_name_bar_domain_bar_id():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert (
-        case.title
-        == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"  # type: ignore
-    )
+    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"  # type: ignore
 
 
 @pytest.mark.django_db

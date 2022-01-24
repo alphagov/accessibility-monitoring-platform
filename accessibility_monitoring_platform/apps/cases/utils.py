@@ -4,47 +4,19 @@ Utility functions for cases app
 
 from collections import namedtuple
 import csv
-from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, ClassVar, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from django import forms
-from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 
-from ..common.forms import AMPTextField, AMPURLField
-from ..common.models import Sector
+
 from ..common.utils import build_filters
 
-from .forms import (
-    CaseDetailUpdateForm,
-    CaseSearchForm,
-    CaseTestResultsUpdateForm,
-    CaseReportDetailsUpdateForm,
-    CaseFinalDecisionUpdateForm,
-    DEFAULT_SORT,
-)
+from .forms import CaseSearchForm, DEFAULT_SORT
 
 from .models import Case, Contact, STATUS_READY_TO_QA
-
-EXTRA_LABELS = {
-    "test_results_url": "Monitor document",
-    "report_draft_url": "Report draft",
-    "report_final_pdf_url": "Final draft (PDF)",
-    "report_final_odt_url": "Final draft (ODT)",
-}
-
-EXCLUDED_FIELDS = [
-    "case_details_complete_date",
-    "testing_details_complete_date",
-    "reporting_details_complete_date",
-    "qa_process_complete_date",
-    "report_correspondence_complete_date",
-    "final_decision_complete_date",
-    "enforcement_correspondence_complete_date",
-    "version",
-]
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -137,63 +109,6 @@ CAPITALISE_FIELDS = [
 ]
 
 
-@dataclass
-class CaseFieldLabelAndValue:
-    """Data to use in html table row of View case page"""
-
-    value: Union[str, date, Sector, None]
-    label: Union[str, None]
-    type: str = "text"
-    extra_label: str = ""
-    DATE_TYPE: ClassVar[str] = "date"
-    NOTES_TYPE: ClassVar[str] = "notes"
-    URL_TYPE: ClassVar[str] = "url"
-    TEXT_TYPE: ClassVar[str] = "text"
-
-
-def extract_labels_and_values(
-    case: Case,
-    form: Union[
-        CaseDetailUpdateForm,
-        CaseTestResultsUpdateForm,
-        CaseReportDetailsUpdateForm,
-        CaseFinalDecisionUpdateForm,
-    ],
-) -> List[CaseFieldLabelAndValue]:
-    """Extract field labels from form and values from case for use in html rows"""
-    display_rows: List[CaseFieldLabelAndValue] = []
-    for field_name, field in form.fields.items():
-        if field_name in EXCLUDED_FIELDS:
-            continue
-        type_of_value = CaseFieldLabelAndValue.TEXT_TYPE
-        value = getattr(case, field_name)
-        if isinstance(value, User):
-            value = value.get_full_name()
-        elif field_name == "sector" and value is None:
-            value = "Unknown"
-        elif isinstance(value, Sector):
-            value = str(value)
-        elif isinstance(field, forms.ModelChoiceField):
-            pass
-        elif isinstance(field, forms.ChoiceField):
-            value = getattr(case, f"get_{field_name}_display")()
-        elif isinstance(field, AMPURLField):
-            type_of_value = CaseFieldLabelAndValue.URL_TYPE
-        elif isinstance(field, AMPTextField):
-            type_of_value = CaseFieldLabelAndValue.NOTES_TYPE
-        elif isinstance(value, date):
-            type_of_value = CaseFieldLabelAndValue.DATE_TYPE
-        display_rows.append(
-            CaseFieldLabelAndValue(
-                type=type_of_value,
-                label=field.label,
-                value=value,
-                extra_label=EXTRA_LABELS.get(field_name, ""),
-            )
-        )
-    return display_rows
-
-
 def get_sent_date(
     form: forms.ModelForm, case_from_db: Case, sent_date_name: str
 ) -> Union[date, None]:
@@ -246,7 +161,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
-    return Case.objects.filter(search_query, **filters).order_by(sort_by)
+    return (
+        Case.objects.filter(search_query, **filters)
+        .order_by(sort_by)
+        .select_related("auditor", "reviewer")
+        .all()
+    )
 
 
 def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str:

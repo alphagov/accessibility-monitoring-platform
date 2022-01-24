@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load common_tags %}
+
+{% block title %}{{ audit.case.organisation_name }} | Pages{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Pages
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Pages' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                {% if standard_pages_formset.errors %}
+                    {% for form in standard_pages_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if extra_pages_formset.errors %}
+                    {% for form in extra_pages_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <form method="post" action="{% url 'audits:edit-audit-pages' audit.id %}">
+                    {% csrf_token %}
+                    {{ standard_pages_formset.management_form }}
+                    {{ extra_pages_formset.management_form }}
+
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                        {% for page_form in standard_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 class="govuk-heading-m">
+                                                {{ standard_page_headers|list_item_by_index:forloop.counter0 }}
+                                            </h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for page_form in extra_pages_formset %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            <h2 id="extra-page-{{ forloop.counter }}" class="govuk-heading-m">Page {{ forloop.counter }}</h2>
+                                            {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
+                                            {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
+                                            {% for field in page_form.visible_fields %}
+                                                {% include 'common/amp_field.html' %}
+                                            {% endfor %}
+                                        </div>
+                                        {% if page_form.instance.id %}
+                                            <div class="govuk-grid-column-full">
+                                                <input
+                                                    type="submit"
+                                                    value="Remove page"
+                                                    name="remove_extra_page_{{ page_form.instance.id }}"
+                                                    class="govuk-button govuk-button--secondary"
+                                                    data-module="govuk-button" />
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <input
+                        type="submit"
+                        value="Save and create additional page"
+                        name="add_extra"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    />
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 id="deleted-pages"class="govuk-heading-l bottom-margin-5">Removed pages</h2>
+                            {% if audit.deleted_pages %}
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        {% for page in audit.deleted_pages %}
+                                            <tr class="govuk-table__row">
+                                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ page }}</th>
+                                                <td class="govuk-table__cell amp-width-one-half">
+                                                    <a href="{% url 'audits:restore-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                        Unremove page</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">No removed pages</p>
+                            {% endif %}
+                        </div>
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input type="submit" value="Save" name="save" class="govuk-button" data-module="govuk-button" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-pages' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

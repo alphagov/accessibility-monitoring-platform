@@ -33,7 +33,9 @@
                         Deleting a case is not permanent.
                     </p>
                     <p class="govuk-body-m">
-                        Deleted cases can be viewed in <a href="{% url 'cases:case-list' %}?status=deleted">search</a> by selecting deleted under the statuses.
+                        Deleted cases can be viewed in
+                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}?status=deleted">search</a>
+                        by selecting deleted under the statuses.
                     </p>
                     <p class="govuk-body-m">
                         Deletion can be undone by selecting restore in the view case page.

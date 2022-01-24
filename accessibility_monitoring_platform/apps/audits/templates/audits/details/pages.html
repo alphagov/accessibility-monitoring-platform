@@ -1,0 +1,44 @@
+{% load common_tags %}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="audit-pages" class="govuk-heading-l">Pages</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'audits:edit-audit-pages' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit pages
+            </a>
+        </div>
+    </div>
+</div>
+{% if audit.testable_pages %}
+    <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default-axe">
+        {% for page in audit.testable_pages %}
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-default-axe-check-{{ forloop.counter0 }}">
+                            {{ page }} - {{ page.failed_check_results|length }}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-default-axe-check-{{ forloop.counter0 }}" class="govuk-accordion__section-content" aria-labelledby="accordion-default-axe-check-{{ forloop.counter0 }}">
+                    <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                    <table class="govuk-table view-test-accordion-table">
+                        <tbody class="govuk-table__body">
+                            {% for check_result in page.failed_check_results %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

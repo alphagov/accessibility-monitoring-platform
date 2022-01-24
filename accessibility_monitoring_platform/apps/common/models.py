@@ -1,10 +1,19 @@
 """
 Models for common data used across project
 """
+from typing import List, Tuple
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+BOOLEAN_DEFAULT = "no"
+BOOLEAN_FALSE = BOOLEAN_DEFAULT
+BOOLEAN_TRUE = "yes"
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
+    (BOOLEAN_FALSE, "No"),
+    (BOOLEAN_TRUE, "Yes"),
+]
 
 EVENT_TYPE_DEFAULT = "model_update"
 EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT
@@ -87,7 +96,7 @@ class Event(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"#{self.parent} {self.type}"
+        return f"#{self.content_type} {self.object_id} {self.type}"
 
     class Meta:
         ordering = ["-created"]

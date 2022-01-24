@@ -22,7 +22,7 @@ class ContactAdminView(FormView):
 
     form_class = AMPContactAdminForm
     template_name: str = "common/contact_admin.html"
-    success_url = reverse_lazy("dashboard:home")
+    success_url: str = reverse_lazy("dashboard:home")
 
     def form_valid(self, form):
         self.send_mail(form.cleaned_data)
@@ -48,18 +48,20 @@ class IssueReportView(FormView):
 
     form_class: Type[AMPIssueReportForm] = AMPIssueReportForm
     template_name: str = "common/issue_report.html"
-    success_url = reverse_lazy("dashboard:home")
+    success_url: str = reverse_lazy("dashboard:home")
 
     def get(self, request, *args, **kwargs):
         """Populate form"""
         page_url: str = self.request.GET.get("page_url", "")
         page_title: str = get_page_title(page_url)
         description: str = self.request.GET.get("description", "")
-        self.form: AMPIssueReportForm = self.form_class({
-            "page_url": page_url,
-            "page_title": page_title,
-            "description": description,
-        })
+        self.form: AMPIssueReportForm = self.form_class(
+            {
+                "page_url": page_url,
+                "page_title": page_title,
+                "description": description,
+            }
+        )
         self.form.is_valid()
         return super().get(request, *args, **kwargs)
 

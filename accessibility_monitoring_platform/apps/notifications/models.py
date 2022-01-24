@@ -28,7 +28,7 @@ class Notifications(models.Model):
         return f"Notification {self.body} for {self.user}"
 
 
-class NotificationsSettings (models.Model):
+class NotificationsSettings(models.Model):
     """Django model for notifications settings"""
     user = models.OneToOneField(
         User,

@@ -10,10 +10,12 @@ from ..reminders.utils import get_number_of_reminders_for_user
 from .forms import AMPTopMenuForm
 
 
-def platform_page(request) -> Dict[str, Union[int, str, AMPTopMenuForm, Platform]]:
+def platform_page(
+    request,
+) -> Dict[str, Union[AMPTopMenuForm, str, Platform, int]]:
     """
-    Populate template context with search form for top menu, name of prototype
-    and platform settings.
+    Populate context for template rendering. Include search form for top menu,
+    name of prototype, platform settings and number of reminders.
     """
     absolute_uri: str = request.build_absolute_uri()
     if (

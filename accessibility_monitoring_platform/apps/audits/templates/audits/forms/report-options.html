@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ audit.case.organisation_name }} | Report options{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Report options
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Report options' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-l">Report text</h2>
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-report-options' audit.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_state %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_correct_format %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_not_specific_enough %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_accessibility_issues %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_disproportionate %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_accessibility %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_out_of_date %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_template_update %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_accessible %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_prominent %}
+                            {% include 'common/amp_field.html' with field=form.report_options_next %}
+
+                            <p class="govuk-body">Then choose all options which apply</p>
+                            {% include 'common/amp_field.html' with field=form.report_next_change_statement %}
+                            {% include 'common/amp_field.html' with field=form.report_next_no_statement %}
+                            {% include 'common/amp_field.html' with field=form.report_next_statement_not_right %}
+                            {% include 'common/amp_field.html' with field=form.report_next_statement_matches %}
+                            {% include 'common/amp_field.html' with field=form.report_next_disproportionate_burden %}
+
+                            {% include 'common/amp_field.html' with field=form.audit_report_options_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input type="submit" value="Save" name="save" class="govuk-button" data-module="govuk-button" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-report-options' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

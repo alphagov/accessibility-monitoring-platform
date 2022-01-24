@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | Create test{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Create test
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Create test' %}
+                {% include 'common/error_summary.html' %}
+            </div>
+        </div>
+        <form method="post" action="{% url 'audits:audit-create' case.id %}">
+            {% csrf_token %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include 'common/amp_form_snippet.html' %}
+                </div>
+
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        <input
+                            type="submit"
+                            value="Create test"
+                            name="save_continue"
+                            class="govuk-button"
+                            data-module="govuk-button"
+                        />
+                        <a
+                            href="{% url 'cases:edit-test-results' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Return to case testing details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+    <script src="{% static 'js/audits_create_audit.js' %}"></script>
+</div>
+{% endblock %}

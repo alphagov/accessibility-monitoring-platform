@@ -12,10 +12,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector, VersionModel
+from ..common.models import Sector, VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
 
-STATUS_READY_TO_QA = "unassigned-qa-case"
-STATUS_DEFAULT = "unassigned-case"
+STATUS_READY_TO_QA: str = "unassigned-qa-case"
+STATUS_DEFAULT: str = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
     (STATUS_DEFAULT, "Unassigned case"),
@@ -36,26 +36,28 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("deleted", "Deleted"),
 ]
 
-DEFAULT_TEST_TYPE = "simplified"
+DEFAULT_TEST_TYPE: str = "simplified"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
     ("mobile", "Mobile"),
 ]
 
-ENFORCEMENT_BODY_DEFAULT = "ehrc"
+ENFORCEMENT_BODY_DEFAULT: str = "ehrc"
 ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
     ("ecni", "Equality Commission Northern Ireland"),
 ]
 
-BOOLEAN_DEFAULT = "no"
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
+TESTING_METHODOLOGY_PLATFORM: str = "platform"
+TESTING_METHODOLOGY_DEFAULT: str = "spreadsheet"
+TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
+    (TESTING_METHODOLOGY_PLATFORM, "Platform"),
+    (TESTING_METHODOLOGY_DEFAULT, "Testing spreadsheet"),
 ]
 
-TEST_STATUS_DEFAULT = "not-started"
+
+TEST_STATUS_DEFAULT: str = "not-started"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("complete", "Complete"),
     ("in-progress", "In progress"),
@@ -219,6 +221,11 @@ class Case(VersionModel):
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,
         default=ENFORCEMENT_BODY_DEFAULT,
+    )
+    testing_methodology = models.CharField(
+        max_length=20,
+        choices=TESTING_METHODOLOGY_CHOICES,
+        default=TESTING_METHODOLOGY_DEFAULT,
     )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
@@ -412,9 +419,7 @@ class Case(VersionModel):
 
     @property
     def title(self):
-        return str(
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"  # type: ignore
-        )
+        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
     def next_action_due_date(self):

@@ -12,6 +12,10 @@ body {
     margin-bottom: 5px;
 }
 
+.bottom-margin-10 {
+    margin-bottom: 10px;
+}
+
 .no-bottom-margin {
     margin-bottom: 0;
 }
@@ -34,6 +38,15 @@ body {
 
 .amp-width-one-quarter {
     width:25%;
+}
+
+.amp-notes {
+    p:first-child {
+        margin-top: 0;
+    }
+    p:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .amp-alert-icon {
@@ -67,4 +80,40 @@ body {
     height: 40px;
     color: #fff;
     background-color: #000;
+}
+
+.view-test-accordion-table > tbody > tr:last-child {
+    th, td {
+        border-bottom: none;
+    }
+}
+
+div.amp-report {
+    font-family: arial,sans-serif;
+    font-size: 12pt;
+    h1 {
+        font-size: 20pt;
+    }
+    h2 {
+        font-size: 16pt;
+    }
+    p, li {
+        font-size: 12pt;
+    }
+    table {
+        font-family: arial,sans-serif;
+        width: 100%;
+        border: 1px solid black;
+        border-collapse: collapse;
+        tr, td {
+            border: 1px solid black;
+        }
+        th {
+            text-align: left;
+        }
+        thead > tr {
+            color: #ffffff;
+            background-color: #1A5293;
+        }
+    }
 }
