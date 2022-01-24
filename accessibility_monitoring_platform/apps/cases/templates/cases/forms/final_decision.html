@@ -91,13 +91,7 @@
                             {% include 'common/amp_field.html' with field=form.final_decision_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
+                            {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

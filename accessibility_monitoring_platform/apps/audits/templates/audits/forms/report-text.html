@@ -211,6 +211,8 @@
 
                     <h1 id="statement">Accessibility statement</h1>
 
+                    <p>As part of the regulations you must publish an accessibility statement.</p>
+
                     <p>{{ audit.get_accessibility_statement_state_display }}</p>
                     {% if audit.accessibility_statement_state == 'found-but' %}
                         <ul>
@@ -341,7 +343,26 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input type="submit" value="Save" name="save" class="govuk-button" data-module="govuk-button" />
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:audit-detail' audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to test view
+                            </a>
                         </div>
                     </div>
                 </form>

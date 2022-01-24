@@ -55,11 +55,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-case-details",
     ),
     path(
-        "<int:pk>/edit-contact-details/",
-        login_required(CaseContactFormsetUpdateView.as_view()),
-        name="edit-contact-details",
-    ),
-    path(
         "<int:pk>/edit-test-results/",
         login_required(CaseTestResultsUpdateView.as_view()),
         name="edit-test-results",
@@ -73,6 +68,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-qa-process/",
         login_required(CaseQAProcessUpdateView.as_view()),
         name="edit-qa-process",
+    ),
+    path(
+        "<int:pk>/edit-contact-details/",
+        login_required(CaseContactFormsetUpdateView.as_view()),
+        name="edit-contact-details",
     ),
     path(
         "<int:pk>/edit-report-correspondence/",

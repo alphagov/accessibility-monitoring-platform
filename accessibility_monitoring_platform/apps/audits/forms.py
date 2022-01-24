@@ -4,7 +4,6 @@ Forms - checks (called tests by users)
 from typing import Any, List
 
 from django import forms
-from django.core.exceptions import ValidationError
 
 from ..common.forms import (
     VersionForm,
@@ -30,7 +29,6 @@ from .models import (
     SCREEN_SIZE_CHOICES,
     EXEMPTIONS_STATE_CHOICES,
     AUDIT_TYPE_CHOICES,
-    PAGE_TYPE_CHOICES,
     DECLARATION_STATE_CHOICES,
     SCOPE_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
@@ -112,14 +110,14 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
     Form for adding and updating an extra page
     """
 
-    name = AMPCharFieldWide(label="Page name")
     url = AMPURLField(label="URL")
+    name = AMPCharFieldWide(label="Page name")
 
     class Meta:
         model = Page
         fields = [
-            "name",
             "url",
+            "name",
         ]
 
 
@@ -169,30 +167,6 @@ class AuditAddPagesUpdateForm(VersionForm):
             "version",
             "audit_pages_complete_date",
         ]
-
-
-class AuditPageForm(forms.ModelForm):
-    """
-    Form for creating and updating an audit's page
-    """
-
-    page_type = AMPChoiceField(label="Page type", choices=PAGE_TYPE_CHOICES)
-    name = AMPCharFieldWide(label="Name")
-    url = AMPURLField(label="URL")
-
-    class Meta:
-        model = Page
-        fields: List[str] = [
-            "page_type",
-            "name",
-            "url",
-        ]
-
-    def clean_url(self):
-        url = self.cleaned_data.get("url")
-        if not url:
-            raise ValidationError("URL is required")
-        return url
 
 
 class AuditPageModelChoiceField(AMPModelChoiceField):

@@ -5,6 +5,7 @@ from typing import (
     Any,
     ClassVar,
     List,
+    Type,
     Union,
 )
 
@@ -61,7 +62,7 @@ class FieldLabelAndValue:
 
 def extract_form_labels_and_values(  # noqa: C901
     instance: models.Model,
-    form: forms.Form,
+    form: Type[forms.Form],
 ) -> List[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: List[FieldLabelAndValue] = []

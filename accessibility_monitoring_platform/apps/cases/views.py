@@ -151,20 +151,20 @@ class CaseDetailView(DetailView):
         if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
             context["audits"] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
         else:
-            context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())
+            context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())  # type: ignore
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
-            form=CaseQAProcessUpdateForm()
+            form=CaseQAProcessUpdateForm()  # type: ignore
         )
 
         context["case_details_rows"] = case_details_prefix + get_rows(
-            form=CaseDetailUpdateForm()
+            form=CaseDetailUpdateForm()  # type: ignore
         )
-        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
+        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())  # type: ignore
         context["qa_process_rows"] = qa_process_rows
-        context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())
+        context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())  # type: ignore
         context["enforcement_body_correspondence_rows"] = get_rows(
-            form=CaseEnforcementBodyCorrespondenceUpdateForm()
+            form=CaseEnforcementBodyCorrespondenceUpdateForm()  # type: ignore
         )
         return context
 
@@ -303,6 +303,13 @@ class CaseDetailUpdateView(CaseUpdateView):
     form_class: Type[CaseDetailUpdateForm] = CaseDetailUpdateForm
     template_name: str = "cases/forms/details.html"
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-test-results", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseTestResultsUpdateView(CaseUpdateView):
     """
@@ -334,6 +341,13 @@ class CaseTestResultsUpdateView(CaseUpdateView):
                 form.fields[fieldname].widget = forms.HiddenInput()
         return form
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-report-details", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseReportDetailsUpdateView(CaseUpdateView):
     """
@@ -350,6 +364,13 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         read_notification(self.request)
         return context
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-qa-process", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseQAProcessUpdateView(CaseUpdateView):
     """
@@ -358,6 +379,13 @@ class CaseQAProcessUpdateView(CaseUpdateView):
 
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-contact-details", kwargs=case_pk)
+        return super().get_success_url()
 
 
 class CaseContactFormsetUpdateView(CaseUpdateView):
@@ -414,18 +442,19 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save" in self.request.POST:
-            url: str = reverse("cases:edit-contact-details", kwargs=case_pk)
+            return super().get_success_url()
+        elif "save_continue" in self.request.POST:
+            return reverse("cases:edit-report-correspondence", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
-            url: str = f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
+            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
         else:
             contact_id_to_delete: IntOrNone = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:
-                url: str = reverse("cases:edit-contact-details", kwargs=case_pk)
+                return reverse("cases:edit-contact-details", kwargs=case_pk)
             else:
-                url: str = reverse("cases:case-detail", kwargs=case_pk)
-        return url
+                return reverse("cases:case-detail", kwargs=case_pk)
 
 
 class CaseReportCorrespondenceUpdateView(CaseUpdateView):
@@ -475,6 +504,13 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
                     get_sent_date(form, case_from_db, sent_date_name),
                 )
         return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
+        return super().get_success_url()
 
 
 class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
@@ -544,6 +580,13 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
                 )
         return super().form_valid(form)
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-final-decision", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
     """
@@ -594,6 +637,13 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
                 )
         return form
 
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
+        return super().get_success_url()
+
 
 class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     """
@@ -604,6 +654,13 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
         CaseEnforcementBodyCorrespondenceUpdateForm
     ] = CaseEnforcementBodyCorrespondenceUpdateForm
     template_name: str = "cases/forms/enforcement_body_correspondence.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:case-detail", kwargs=case_pk)
+        return super().get_success_url()
 
 
 class CaseDeleteUpdateView(CaseUpdateView):

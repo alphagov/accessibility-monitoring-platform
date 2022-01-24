@@ -76,13 +76,7 @@
                     />
                     {% include 'common/amp_form_snippet.html' %}
                     <div class="govuk-button-group">
-                        <input
-                            type="submit"
-                            value="Save"
-                            name="save"
-                            class="govuk-button"
-                            data-module="govuk-button"
-                        />
+                        {% include 'cases/helpers/save_continue_cancel.html' %}
                     </div>
                 </form>
             </div>
