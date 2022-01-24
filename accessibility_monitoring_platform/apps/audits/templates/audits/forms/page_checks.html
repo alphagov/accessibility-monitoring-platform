@@ -99,6 +99,13 @@
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
+                            <input
+                                type="submit"
+                                value="Save and next test"
+                                name="save_continue"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
                             {% if page and page.page_type != 'all-except-pdf' %}
                                 <a href="{{ page.url }}" class="govuk-link" target="_blank">
                                     Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}

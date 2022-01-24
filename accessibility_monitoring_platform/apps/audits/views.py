@@ -55,6 +55,7 @@ from .utils import (
     get_audit_statement_rows,
     get_audit_report_options_rows,
     create_mandatory_pages_for_new_audit,
+    get_next_page_url,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -337,7 +338,7 @@ class AuditAddPagesUpdateView(AuditUpdateView):
         if "add_extra" in self.request.POST:
             url: str = f"{url}?add_extra=true#extra-page-1"
         elif "save_continue" in self.request.POST:
-            url: str = reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+            url: str = get_next_page_url(audit=audit)
         return url
 
 
@@ -414,7 +415,10 @@ class AuditPageChecksFormView(FormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        """Remain on current page on save"""
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            page: Page = self.page
+            return get_next_page_url(audit=page.audit, current_page=page)
         return self.request.path
 
 
