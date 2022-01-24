@@ -551,14 +551,28 @@ def test_create_case_can_create_duplicate_cases(
     "case_edit_path, button_name, expected_redirect_path",
     [
         ("cases:edit-case-details", "save", "cases:edit-case-details"),
+        ("cases:edit-case-details", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
+        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
+        ("cases:edit-report-details", "save_continue", "cases:edit-qa-process"),
         ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
+        ("cases:edit-qa-process", "save_continue", "cases:edit-contact-details"),
         ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
+        (
+            "cases:edit-contact-details",
+            "save_continue",
+            "cases:edit-report-correspondence",
+        ),
         (
             "cases:edit-report-correspondence",
             "save",
             "cases:edit-report-correspondence",
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "save_continue",
+            "cases:edit-twelve-week-correspondence",
         ),
         (
             "cases:edit-report-followup-due-dates",
@@ -569,6 +583,11 @@ def test_create_case_can_create_duplicate_cases(
             "cases:edit-twelve-week-correspondence",
             "save",
             "cases:edit-twelve-week-correspondence",
+        ),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "save_continue",
+            "cases:edit-final-decision",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -582,9 +601,19 @@ def test_create_case_can_create_duplicate_cases(
         ),
         ("cases:edit-final-decision", "save", "cases:edit-final-decision"),
         (
+            "cases:edit-final-decision",
+            "save_continue",
+            "cases:edit-enforcement-body-correspondence",
+        ),
+        (
             "cases:edit-enforcement-body-correspondence",
             "save",
             "cases:edit-enforcement-body-correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "save_exit",
+            "cases:case-detail",
         ),
     ],
 )
