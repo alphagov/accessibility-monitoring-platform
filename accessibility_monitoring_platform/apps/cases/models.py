@@ -511,78 +511,6 @@ class Case(VersionModel):
         return "unknown"
 
     @property
-    def new_case_progress(self):
-        to_check = [
-            "auditor",
-            "test_type",
-            "home_page_url",
-            "organisation_name",
-            "is_complaint",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 2))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        if Contact.objects.filter(case_id=self.id).exists():  # type: ignore
-            progress += percentage_increase
-
-        return str(progress) + "%"
-
-    @property
-    def test_progress(self):
-        to_check = [
-            "test_results_url",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 1))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-        if self.test_status == "complete":
-            progress += percentage_increase
-        return str(progress) + "%"
-
-    @property
-    def report_progress(self):
-        if (
-            self.report_review_status == "ready-to-review"
-            and self.reviewer
-            and self.report_approved_status == "no"
-        ):
-            return "Being reviewed"
-
-        if (
-            self.report_review_status == "ready-to-review"
-            and self.reviewer
-            and self.report_approved_status == "yes"
-        ):
-            return "Ready to send"
-
-        to_check = [
-            "report_draft_url",
-            "reviewer",
-            "report_final_pdf_url",
-            "report_final_odt_url",
-            "report_sent_date",
-            "report_acknowledged_date",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 2))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        if self.report_review_status == "ready-to-review":
-            progress += percentage_increase
-
-        if self.report_approved_status == "yes":
-            progress += percentage_increase
-
-        return str(progress) + "%"
-
-    @property
     def in_report_correspondence_progress(self):
         now = date.today()
         if (
@@ -653,25 +581,6 @@ class Case(VersionModel):
         ):
             return "4 week followup sent"
         return "Unknown"
-
-    @property
-    def final_decision_progress(self):
-        to_check = [
-            "retested_website_date",
-            "accessibility_statement_state_final",
-            "accessibility_statement_notes_final",
-            "recommendation_for_enforcement",
-            "recommendation_notes",
-            "is_disproportionate_claimed",
-            "compliance_email_sent_date",
-        ]
-        percentage_increase = round(100 / (len(to_check)))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        return str(progress) + "%"
 
     @property
     def twelve_week_progress(self):
