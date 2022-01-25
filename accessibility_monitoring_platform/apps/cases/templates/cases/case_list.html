@@ -88,7 +88,13 @@
                                         </div>
                                         <div class="govuk-grid-column-one-half">
                                             <p class="govuk-body-m cases-sub-heading">Auditor</p>
-                                            <p class="govuk-body-m">{{ case.auditor.get_full_name }}</p>
+                                            <p class="govuk-body-m">
+                                                {% if case.auditor.get_full_name %}
+                                                    {{ case.auditor.get_full_name }}
+                                                {% else %}
+                                                    No auditor
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="govuk-grid-row">
@@ -98,7 +104,13 @@
                                         </div>
                                         <div class="govuk-grid-column-one-half">
                                             <p class="govuk-body-m cases-sub-heading">QA auditor</p>
-                                            <p class="govuk-body-m">{{ case.reviewer.get_full_name }}</p>
+                                            <p class="govuk-body-m">
+                                                {% if case.reviewer.get_full_name %}
+                                                    {{ case.reviewer.get_full_name }}
+                                                {% else %}
+                                                    No QA auditor
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                     {% if case.zendesk_url or case.trello_url %}
