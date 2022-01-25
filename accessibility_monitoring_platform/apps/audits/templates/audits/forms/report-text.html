@@ -63,7 +63,11 @@
                 </ul>
                 <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text" class="amp-report">
-                    <img src="{% static 'assets/cddo-co-logo-smallest.png' %}" style="padding-bottom:10px;" />
+                    <img
+                        src="{% static 'assets/cddo-co-logo-smallest.png' %}"
+                        style="padding-bottom:10px;"
+                        alt="Logos of Central Digital and Data Office and Cabinet Office"
+                    />
                     <p>Date: {{ audit.case.created|date:"d F Y" }}</p>
                     <p>
                         Website:
@@ -145,18 +149,18 @@
 
                     <h1 id="pages">Pages we checked</h1>
 
-                    <table id="urls-to-copy">
+                    <table id="urls-to-copy" caption"Names and URLs of pages we checked">
                         <thead>
                             <tr>
-                                <th style="font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Page Name</th>
-                                <th style="font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">URL</th>
+                                <th id="name" style="font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Page Name</th>
+                                <th id="url" style="font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">URL</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for page in audit.testable_pages %}
                                 <tr>
-                                    <td style="font-family:arial,sans-serif;">{{ page }}</td>
-                                    <td style="font-family:arial,sans-serif;"><a href="{{ page.url }}" target="_blank">
+                                    <td headers="name" style="font-family:arial,sans-serif;">{{ page }}</td>
+                                    <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" target="_blank">
                                         {{ page.url }}</a></td>
                                 </tr>
                             {% endfor %}
@@ -179,17 +183,17 @@
                         The following errors were found.
                     </p>
 
-                    <table id="issues-to-copy">
+                    <table id="issues-to-copy" caption"Issues we found">
                         <thead>
                             <tr>
-                                <th style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Issue and description</th>
-                                <th style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Where the issue was found</th>
+                                <th id="issue" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Issue and description</th>
+                                <th id="location" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Where the issue was found</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for check_result in audit.failed_check_results %}
                                 <tr>
-                                    <td style="font-family:arial,sans-serif;">
+                                    <td headers="issue" style="font-family:arial,sans-serif;">
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
                                                 <a href="{{ check_result.wcag_definition.url_on_w3 }}" target="_blank">
@@ -200,7 +204,7 @@
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>
-                                    <td style="font-family:arial,sans-serif;">
+                                    <td headers="location" style="font-family:arial,sans-serif;">
                                         <p>{{ check_result.page }}</p>
                                         <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
                                     </td>
