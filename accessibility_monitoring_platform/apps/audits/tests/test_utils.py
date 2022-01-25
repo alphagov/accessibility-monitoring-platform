@@ -65,13 +65,6 @@ EXPECTED_AUDIT_METADATA_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
     FieldLabelAndValue(
-        value="",
-        label="Name",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
         value="15 inch",
         label="Screen size",
         type="text",
