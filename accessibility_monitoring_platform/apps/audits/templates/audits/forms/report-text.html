@@ -50,6 +50,7 @@
                         <a
                             href="audit.case.home_page_url"
                             style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;"
+                            rel="noopener noreferrer"
                             target="_blank">{{ audit.case.home_page_url }}</a>
                     </p>
 
@@ -67,7 +68,7 @@
 
                     <p>
                         You’ve been sent this report because
-                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">{{ audit.case.home_page_url }}</a>
+                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{ audit.case.home_page_url }}</a>
                         is one of the websites we’ve monitored. This document explains:
                     </p>
 
@@ -80,7 +81,7 @@
 
                     <p>
                         You can
-                        <a href="http://gov.uk/accessibility-regulations" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="http://gov.uk/accessibility-regulations" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             read more about the web accessibility regulations</a>.
                     </p>
 
@@ -88,11 +89,11 @@
 
                     <p>
                         We checked
-                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">{{audit.case.home_page_url }}</a>
+                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{audit.case.home_page_url }}</a>
                         on
                         {{ audit.case.created|date:"d F Y" }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
-                        <a href="https://www.w3.org/TR/WCAG21/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.w3.org/TR/WCAG21/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.w3.org/TR/WCAG21/</a>.
                     </p>
 
@@ -117,7 +118,7 @@
 
                     <p>
                         The automated tests were completed using the latest version of axe:
-                        <a href="https://www.deque.com/axe/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.deque.com/axe/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.deque.com/axe/</a>.
                     </p>
 
@@ -139,7 +140,7 @@
                             {% for page in audit.testable_pages %}
                                 <tr>
                                     <td headers="name" style="font-family:arial,sans-serif;">{{ page }}</td>
-                                    <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                                    <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                                         {{ page.url }}</a></td>
                                 </tr>
                             {% endfor %}
@@ -175,7 +176,7 @@
                                     <td headers="issue" style="font-family:arial,sans-serif;">
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
-                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                                                     {{ check_result.wcag_definition }}</a>
                                             {% else %}
                                                 {{ check_result.wcag_definition }}
@@ -207,13 +208,13 @@
 
                     <p>
                         More information about accessibility statements can be found at:
-                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
                     </p>
 
                     <p>
                         A sample statement can be found at:
-                        <a href="https://www.gov.uk/government/publications/sample-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.gov.uk/government/publications/sample-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.gov.uk/government/publications/sample-accessibility-statement</a>.
                     </p>
 
@@ -283,7 +284,7 @@
 
                     <p>
                         The enforcement process can be found at
-                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                         https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced</a>.
                     </p>
 
@@ -302,19 +303,19 @@
 
                     <p>
                         Any questions about this report can be sent to
-                        <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             accessibility-monitoring@digital.cabinet-office.gov.uk</a>.
                     </p>
 
                     <p>
                         Further information on guidance and tools for digital accessibility can be found at:
-                        <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility</a>.
                     </p>
 
                     <p>
                         Help with accessibility auditing and publishing an accessibility statement can be found at
-                        <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
+                        <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>.
                     </p>
                 </div>
