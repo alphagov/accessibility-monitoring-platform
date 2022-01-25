@@ -4,13 +4,11 @@ Views for audits app (called tests by users)
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
-from django.db.models import QuerySet
-from django import forms
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
@@ -26,12 +24,11 @@ from ..common.form_extract_utils import (
 )
 
 from .forms import (
-    AuditCreateForm,
     AuditMetadataUpdateForm,
     AuditStandardPageFormset,
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
-    AuditAddPagesUpdateForm,
+    AuditPagesUpdateForm,
     AuditPageChecksForm,
     CheckResultFilterForm,
     CheckResultForm,
@@ -45,7 +42,6 @@ from .forms import (
 from .models import (
     Audit,
     Page,
-    AUDIT_TYPE_DEFAULT,
     WcagDefinition,
 )
 from .utils import (
@@ -75,6 +71,24 @@ class AuditAllIssuesListView(ListView):
     model: Type[WcagDefinition] = WcagDefinition
     context_object_name: str = "wcag_definitions"
     template_name: str = "audits/all-issues.html"
+
+
+def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
+    """
+    Create audit
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        case_id (int): Id of parent case
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    case: Case = get_object_or_404(Case, id=case_id)
+    audit: Audit = Audit.objects.create(case=case)
+    record_model_create_event(user=request.user, model_object=audit)  # type: ignore
+    create_mandatory_pages_for_new_audit(audit=audit)
+    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
 
 
 def delete_audit(request: HttpRequest, pk: int) -> HttpResponse:
@@ -149,51 +163,6 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))  # type: ignore
 
 
-class AuditCreateView(CreateView):
-    """
-    View to create a audit
-    """
-
-    model: Type[Audit] = Audit
-    context_object_name: str = "audit"
-    form_class: Type[AuditCreateForm] = AuditCreateForm
-    template_name: str = "audits/forms/create.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add table rows to context for each section of page"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
-        context["case"] = case
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        audit: Audit = form.save(commit=False)
-        audit.case = Case.objects.get(pk=self.kwargs["case_id"])
-        audit.save()
-        return super().form_valid(form)
-
-    def get_form(self):
-        """Initialise form fields"""
-        form: ModelForm = super().get_form()  # type: ignore
-        form.fields["type"].initial = AUDIT_TYPE_DEFAULT
-
-        case: Case = Case.objects.get(pk=self.kwargs["case_id"])
-        existing_audits: QuerySet[Audit] = Audit.objects.filter(case=case)
-        form.fields["retest_of_audit"].queryset = existing_audits
-        if not existing_audits:
-            form.fields["retest_of_audit"].widget = forms.HiddenInput()  # type: ignore
-        return form
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        audit: Audit = self.object  # type: ignore
-        create_mandatory_pages_for_new_audit(audit=audit)
-        record_model_create_event(user=self.request.user, model_object=audit)  # type: ignore
-        url: str = reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id})  # type: ignore
-        return url
-
-
 class AuditDetailView(DetailView):
     """
     View of details of a single audit
@@ -251,12 +220,12 @@ class AuditMetadataUpdateView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditAddPagesUpdateView(AuditUpdateView):
+class AuditPagesUpdateView(AuditUpdateView):
     """
     View to update audit pages page
     """
 
-    form_class: Type[AuditAddPagesUpdateForm] = AuditAddPagesUpdateForm
+    form_class: Type[AuditPagesUpdateForm] = AuditPagesUpdateForm
     template_name: str = "audits/forms/pages.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
