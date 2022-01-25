@@ -48,7 +48,7 @@
                     <p>
                         Website:
                         <a
-                            href="audit.case.home_page_url"
+                            href="{{ audit.case.home_page_url }}"
                             style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;"
                             rel="noopener noreferrer"
                             target="_blank">{{ audit.case.home_page_url }}</a>
@@ -68,7 +68,7 @@
 
                     <p>
                         You’ve been sent this report because
-                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{ audit.case.home_page_url }}</a>
+                        <a href="{{ audit.case.home_page_url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{ audit.case.home_page_url }}</a>
                         is one of the websites we’ve monitored. This document explains:
                     </p>
 
@@ -89,7 +89,7 @@
 
                     <p>
                         We checked
-                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{audit.case.home_page_url }}</a>
+                        <a href="{{ audit.case.home_page_url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{audit.case.home_page_url }}</a>
                         on
                         {{ audit.case.created|date:"d F Y" }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
