@@ -12,7 +12,7 @@
                 {% if show_all_cases %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
                 {% else %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Step progress</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
                 {% endif %}
             </tr>
         </thead>
@@ -35,7 +35,7 @@
                             {% endif %}
                         {% else %}
                             <a href="{% url 'cases:edit-final-decision' case.id %}" class="govuk-link">
-                                {{case.final_decision_progress}}
+                                Final decision
                             </a>
                         {% endif %}
                     </td>
