@@ -14,10 +14,30 @@
             &nbsp Status is programatically assigned and may label cases incorrectly
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-one-third">
                 <h1 class="govuk-heading-xl">{{ page_title }}</h1>
             </div>
-            <div class="govuk-grid-column-one-third">
+            <div class="govuk-grid-column-two-thirds">
+                <a
+                    href="{% url 'cases:case-create' %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button float-right"
+                    data-module="govuk-button"
+                    style="margin-left: 10px;"
+                >
+                    Create case
+                </a>
+                <a
+                    href="{% url 'cases:case-list' %}/?status=unassigned-case"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button govuk-button--secondary float-right"
+                    data-module="govuk-button"
+                    style="margin-left: 10px;"
+                >
+                    View unassigned cases
+                </a>
                 {% if show_all_cases %}
                     <form method="get" action="{% url 'dashboard:home' %}">
                         <input
