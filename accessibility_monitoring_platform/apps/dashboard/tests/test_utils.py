@@ -190,10 +190,6 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(id=5, status="test-in-progress"),
         MockCase(id=6, status="test-in-progress"),
     ],
-    "unassigned_cases": [
-        MockCase(id=3, status="unassigned-case"),
-        MockCase(id=4, status="unassigned-case"),
-    ],
     "unknown": [
         MockCase(id=1),
         MockCase(id=2),
