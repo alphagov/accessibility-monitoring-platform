@@ -46,7 +46,7 @@ def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_c
 @pytest.mark.parametrize(
     "qa_auditor, expected_view",
     [
-        (True, "All cases"),
+        (True, "Your cases"),
         (False, "Your cases"),
     ],
 )
