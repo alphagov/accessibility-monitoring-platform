@@ -40,6 +40,7 @@ from .models import (
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
+    TESTING_METHODOLOGY_DEFAULT,
 )
 from .forms import (
     CaseCreateForm,
@@ -148,9 +149,7 @@ class CaseDetailView(DetailView):
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
-        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
-            context["audits"] = self.object.audit_case.filter(is_deleted=False).order_by("id")  # type: ignore
-        else:
+        if self.object.testing_methodology == TESTING_METHODOLOGY_DEFAULT:  # type: ignore
             context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())  # type: ignore
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
@@ -318,13 +317,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
-
-    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Get context data for template rendering"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-            context["audits"] = self.object.audit_case.filter(is_deleted=False)  # type: ignore
-        return context
 
     def get_form(self):
         """Hide fields if testing using platform"""
