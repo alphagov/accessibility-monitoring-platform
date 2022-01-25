@@ -37,32 +37,8 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <h1 class="govuk-heading-m">Contents</h1>
-                <ul class="govuk-list">
-                    <li>
-                        <a href="#how-accessible" class="govuk-link govuk-link--no-visited-state">How accessible the website is</a>
-                    </li>
-                    <li>
-                        <a href="#pages" class="govuk-link govuk-link--no-visited-state">Pages we checked</a>
-                    </li>
-                    <li>
-                        <a href="#issues" class="govuk-link govuk-link--no-visited-state">The issues we found</a>
-                    </li>
-                    <li>
-                        <a href="#statement" class="govuk-link govuk-link--no-visited-state">Accessibility statement</a>
-                    </li>
-                    <li>
-                        <a href="#what-next" class="govuk-link govuk-link--no-visited-state">What to do next</a>
-                    </li>
-                    <li>
-                        <a href="#enforcement" class="govuk-link govuk-link--no-visited-state">Enforcement</a>
-                    </li>
-                    <li>
-                        <a href="#context-and-more" class="govuk-link govuk-link--no-visited-state">Contact and more information</a>
-                    </li>
-                </ul>
                 <h1 class="govuk-heading-l">Report text</h1>
-                    <div id="report-text" class="amp-report">
+                    <div id="report-text">
                     <img
                         src="{% static 'assets/cddo-co-logo-smallest.png' %}"
                         style="padding-bottom:10px;"
@@ -71,7 +47,10 @@
                     <p>Date: {{ audit.case.created|date:"d F Y" }}</p>
                     <p>
                         Website:
-                        <a href="audit.case.home_page_url" target="_blank">{{ audit.case.home_page_url }}</a>
+                        <a
+                            href="audit.case.home_page_url"
+                            style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;"
+                            target="_blank">{{ audit.case.home_page_url }}</a>
                     </p>
 
                     <p>
@@ -88,7 +67,7 @@
 
                     <p>
                         You’ve been sent this report because
-                        <a href="audit.case.home_page_url" target="_blank">{{ audit.case.home_page_url }}</a>
+                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">{{ audit.case.home_page_url }}</a>
                         is one of the websites we’ve monitored. This document explains:
                     </p>
 
@@ -101,19 +80,19 @@
 
                     <p>
                         You can
-                        <a href="http://gov.uk/accessibility-regulations" target="_blank">
+                        <a href="http://gov.uk/accessibility-regulations" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             read more about the web accessibility regulations</a>.
                     </p>
 
-                    <h1 id="how-accessible">How accessible the website is</h1>
+                    <h1>How accessible the website is</h1>
 
                     <p>
                         We checked
-                        <a href="audit.case.home_page_url" target="_blank">{{audit.case.home_page_url }}</a>
+                        <a href="audit.case.home_page_url" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">{{audit.case.home_page_url }}</a>
                         on
                         {{ audit.case.created|date:"d F Y" }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
-                        <a href="https://www.w3.org/TR/WCAG21/" target="_blank">
+                        <a href="https://www.w3.org/TR/WCAG21/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.w3.org/TR/WCAG21/</a>.
                     </p>
 
@@ -122,7 +101,7 @@
                         This means there are some things which are not fully accessible.
                     </p>
 
-                    <h1 id="how-checked">How we checked</h1>
+                    <h1>How we checked</h1>
 
                     <p>
                         We use a mixture of simple manual checks and automated tests to find
@@ -138,7 +117,7 @@
 
                     <p>
                         The automated tests were completed using the latest version of axe:
-                        <a href="https://www.deque.com/axe/" target="_blank">
+                        <a href="https://www.deque.com/axe/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.deque.com/axe/</a>.
                     </p>
 
@@ -147,7 +126,7 @@
                         on Mac OSX with a {{ audit.get_screen_size_display }} screen.
                     </p>
 
-                    <h1 id="pages">Pages we checked</h1>
+                    <h1>Pages we checked</h1>
 
                     <table id="urls-to-copy" caption"Names and URLs of pages we checked">
                         <thead>
@@ -160,14 +139,14 @@
                             {% for page in audit.testable_pages %}
                                 <tr>
                                     <td headers="name" style="font-family:arial,sans-serif;">{{ page }}</td>
-                                    <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" target="_blank">
+                                    <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                                         {{ page.url }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
 
-                    <h1 id="issues-found">The issues we found</h1>
+                    <h1>The issues we found</h1>
 
                     <p>
                         Only serious accessibility issues on the sample of pages we tested
@@ -177,7 +156,7 @@
                         You must carry out your own audit to find and fix issues on other pages.
                     </p>
 
-                    <h2 id="issues">Issues</h2>
+                    <h2>Issues</h2>
 
                     <p>
                         The following errors were found.
@@ -196,7 +175,7 @@
                                     <td headers="issue" style="font-family:arial,sans-serif;">
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
-                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" target="_blank">
+                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                                                     {{ check_result.wcag_definition }}</a>
                                             {% else %}
                                                 {{ check_result.wcag_definition }}
@@ -213,7 +192,7 @@
                         </tbody>
                     </table>
 
-                    <h1 id="statement">Accessibility statement</h1>
+                    <h1>Accessibility statement</h1>
 
                     <p>As part of the regulations you must publish an accessibility statement.</p>
 
@@ -228,17 +207,17 @@
 
                     <p>
                         More information about accessibility statements can be found at:
-                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps" target="_blank">
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
                     </p>
 
                     <p>
                         A sample statement can be found at:
-                        <a href="https://www.gov.uk/government/publications/sample-accessibility-statement" target="_blank">
+                        <a href="https://www.gov.uk/government/publications/sample-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.gov.uk/government/publications/sample-accessibility-statement</a>.
                     </p>
 
-                    <h1 id="what-next">What to do next</h1>
+                    <h1>What to do next</h1>
 
                     <p>
                         It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2)
@@ -286,7 +265,7 @@
                         </p>
                     {% endif %}
 
-                    <h1 id="enforcement">Enforcement</h1>
+                    <h1>Enforcement</h1>
 
                     <p>
                         On behalf of the Minister for the Cabinet Office we provide the Equality and Human Rights Commission (EHRC)
@@ -304,11 +283,11 @@
 
                     <p>
                         The enforcement process can be found at
-                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced" target="_blank">
+                        <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                         https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced</a>.
                     </p>
 
-                    <h1 id="context-and-more">Contact and more information</h1>
+                    <h1>Contact and more information</h1>
 
                     <p>
                         This test was conducted by the Central Digital and Data Office on behalf of the
@@ -323,19 +302,19 @@
 
                     <p>
                         Any questions about this report can be sent to
-                        <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk" target="_blank">
+                        <a href="mailto:accessibility-monitoring@digital.cabinet-office.gov.uk" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             accessibility-monitoring@digital.cabinet-office.gov.uk</a>.
                     </p>
 
                     <p>
                         Further information on guidance and tools for digital accessibility can be found at:
-                        <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility" target="_blank">
+                        <a href="https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility</a>.
                     </p>
 
                     <p>
                         Help with accessibility auditing and publishing an accessibility statement can be found at
-                        <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement" target="_blank">
+                        <a href="https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" target="_blank">
                             https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>.
                     </p>
                 </div>
