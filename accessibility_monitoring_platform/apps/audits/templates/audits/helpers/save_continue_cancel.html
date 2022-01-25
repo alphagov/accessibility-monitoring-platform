@@ -1,14 +1,14 @@
     <input
         type="submit"
-        value="Save and continue"
-        name="save_continue"
+        value="Save"
+        name="save"
         class="govuk-button"
         data-module="govuk-button"
     />
     <input
         type="submit"
-        value="Save and exit"
-        name="save_exit"
+        value="Save and continue"
+        name="save_continue"
         class="govuk-button govuk-button--secondary"
         data-module="govuk-button"
     />
@@ -16,5 +16,5 @@
         href="{% url 'audits:audit-detail' audit.id %}"
         class="govuk-link govuk-link--no-visited-state"
     >
-        Cancel
+        Cancel and return to test view
     </a>

@@ -130,7 +130,9 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     """Test that audit detail view shows the number of errors"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com")
+    page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com"
+    )
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     CheckResult.objects.create(
         audit=audit,
@@ -145,7 +147,9 @@ def test_audit_detail_shows_number_of_errors(admin_client):
         check_result_state=CHECK_RESULT_ERROR,
     )
 
-    response: HttpResponse = admin_client.get(reverse("audits:audit-detail", kwargs=audit_pk))
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs=audit_pk)
+    )
 
     assert response.status_code == 200
     assertContains(response, "PDF - 2")
@@ -222,16 +226,33 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     "path_name, button_name, expected_redirect_path_name",
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
+        ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
+        (
+            "audits:edit-audit-statement-1",
+            "save_continue",
+            "audits:edit-audit-statement-2",
+        ),
         ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
+        ("audits:edit-audit-statement-2", "save_continue", "audits:edit-audit-summary"),
         ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
-        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        (
+            "audits:edit-audit-summary",
+            "save_continue",
+            "audits:edit-audit-report-options",
+        ),
         (
             "audits:edit-audit-report-options",
             "save",
             "audits:edit-audit-report-options",
         ),
+        (
+            "audits:edit-audit-report-options",
+            "save_continue",
+            "audits:edit-audit-report-text",
+        ),
         ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
+        ("audits:edit-audit-report-text", "save_exit", "audits:audit-detail"),
     ],
 )
 def test_audit_edit_redirects_based_on_button_pressed(
@@ -249,10 +270,6 @@ def test_audit_edit_redirects_based_on_button_pressed(
         {
             "version": audit.version,
             button_name: "Button value",
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -262,7 +279,16 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
-def test_pages_redirects_based_on_button_pressed(admin_client):
+@pytest.mark.parametrize(
+    "button_name, expected_redirect_path_name",
+    [
+        ("save", "audits:edit-audit-pages"),
+        ("save_continue", "audits:edit-audit-statement-1"),
+    ],
+)
+def test_pages_redirects_based_on_button_pressed(
+    button_name, expected_redirect_path_name, admin_client
+):
     """Test that a successful audit update redirects based on the button pressed"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
@@ -271,7 +297,7 @@ def test_pages_redirects_based_on_button_pressed(admin_client):
         reverse("audits:edit-audit-pages", kwargs=audit_pk),
         {
             "version": audit.version,
-            "save": "Button value",
+            button_name: "Button value",
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
             "standard-MIN_NUM_FORMS": "0",
@@ -285,7 +311,7 @@ def test_pages_redirects_based_on_button_pressed(admin_client):
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path
 
 

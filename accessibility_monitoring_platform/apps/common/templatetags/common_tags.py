@@ -25,6 +25,4 @@ def list_item_by_index(items: List[Any], index: int) -> Any:
 @register.filter
 def markdown_to_html(text: str) -> str:
     """Convert markdown text into html"""
-    return mark_safe(
-        markdown.markdown(force_str(text))
-    )
+    return mark_safe(markdown.markdown(force_str(text)))

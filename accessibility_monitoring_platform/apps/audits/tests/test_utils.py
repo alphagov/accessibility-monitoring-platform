@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.urls import reverse
 
 from ...cases.models import Case
 from ...common.form_extract_utils import FieldLabelAndValue
@@ -33,6 +34,7 @@ from ..utils import (
     get_audit_metadata_rows,
     get_audit_statement_rows,
     get_audit_report_options_rows,
+    get_next_page_url,
 )
 
 USER_FIRST_NAME = "John"
@@ -364,7 +366,9 @@ def create_audit_and_check_results() -> Audit:
     """Create an audit and check results"""
     audit, _ = create_audit_and_user()
 
-    page_home: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
+    page_home: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_HOME, url="https://example.com"
+    )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_MANUAL
     )
@@ -375,7 +379,9 @@ def create_audit_and_check_results() -> Audit:
         type=wcag_definition_manual.type,
     )
 
-    page_pdf: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_PDF)
+    page_pdf: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_PDF, url="https://example.com/pdf"
+    )
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     CheckResult.objects.create(
         audit=audit,
@@ -501,3 +507,43 @@ def test_get_all_possible_check_results_for_page():
             "notes": "",
         },
     ]
+
+
+@pytest.mark.django_db
+def test_get_next_page_url_audit_with_no_pages():
+    """
+    Test get_next_page_url returns url for accessibility statement part 1
+    when audit has no testable pages.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    assert get_next_page_url(audit=audit) == reverse(
+        "audits:edit-audit-statement-1", kwargs=audit_pk
+    )
+
+
+@pytest.mark.django_db
+def test_get_next_page_url_audit_with_pages():
+    """
+    Test get_next_page_url returns urls for each testable page in audit in in turn.
+    """
+    audit: Audit = create_audit_and_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    next_page: Page = audit.testable_pages[0]
+    next_page_pk: Dict[str, int] = {"pk": next_page.id}  # type: ignore
+    assert get_next_page_url(audit=audit) == reverse(
+        "audits:edit-audit-page-checks", kwargs=next_page_pk
+    )
+
+    current_page: Page = audit.testable_pages[0]
+    next_page: Page = audit.testable_pages[1]
+    next_page_pk: Dict[str, int] = {"pk": next_page.id}  # type: ignore
+    assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
+        "audits:edit-audit-page-checks", kwargs=next_page_pk
+    )
+
+    current_page: Page = audit.testable_pages[1]
+    assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
+        "audits:edit-audit-statement-1", kwargs=audit_pk
+    )
