@@ -14,8 +14,10 @@ from ..common.form_extract_utils import (
 )
 from .forms import (
     AuditMetadataUpdateForm,
+    CaseWebsiteDecisionUpdateForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
+    CaseStatementDecisionUpdateForm,
     AuditReportOptionsUpdateForm,
     CheckResultForm,
 )
@@ -48,6 +50,15 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return rows
 
 
+def get_website_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from website decision"""
+    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit.case,
+        form=CaseWebsiteDecisionUpdateForm(),  # type: ignore
+    )
+    return rows
+
+
 def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit statement checks"""
     statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
@@ -61,6 +72,15 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return (
         statement_1_rows + statement_2_rows[1:]
     )  # Skip first field as it echoes first form
+
+
+def get_statement_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from statement decision"""
+    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit.case,
+        form=CaseStatementDecisionUpdateForm(),  # type: ignore
+    )
+    return rows
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:

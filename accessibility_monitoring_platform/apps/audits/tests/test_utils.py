@@ -32,7 +32,9 @@ from ..utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
+    get_website_decision_rows,
     get_audit_statement_rows,
+    get_statement_decision_rows,
     get_audit_report_options_rows,
     get_next_page_url,
 )
@@ -83,6 +85,22 @@ EXPECTED_AUDIT_PDF_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
         value="", label="PDF WCAG", type="notes", extra_label="", external_url=True
     )
+]
+EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not selected",
+        label="Initial website compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="Website compliance notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
 ]
 EXPECTED_AUDIT_STATEMENT_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
@@ -187,6 +205,22 @@ EXPECTED_AUDIT_STATEMENT_ROWS: List[FieldLabelAndValue] = [
         value="Not Compliant",
         label="Overall Decision on Compliance of Accessibility Statement",
         type="text",
+        extra_label="",
+        external_url=True,
+    ),
+]
+EXPECTED_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not selected",
+        label="Initial accessibility statement compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="Initial accessibility statement compliance notes",
+        type="notes",
         extra_label="",
         external_url=True,
     ),
@@ -400,11 +434,27 @@ def test_get_audit_metadata_rows():
 
 
 @pytest.mark.django_db
+def test_get_website_decision_rows():
+    """Test website decision rows returned for display on View test page"""
+    audit, _ = create_audit_and_user()
+
+    assert get_website_decision_rows(audit=audit) == EXPECTED_WEBSITE_DECISION_ROWS
+
+
+@pytest.mark.django_db
 def test_get_audit_statement_rows():
     """Test audit statement rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
 
     assert get_audit_statement_rows(audit=audit) == EXPECTED_AUDIT_STATEMENT_ROWS
+
+
+@pytest.mark.django_db
+def test_get_statement_decision_rows():
+    """Test statement decision rows returned for display on View test page"""
+    audit, _ = create_audit_and_user()
+
+    assert get_statement_decision_rows(audit=audit) == EXPECTED_STATEMENT_DECISION_ROWS
 
 
 @pytest.mark.django_db

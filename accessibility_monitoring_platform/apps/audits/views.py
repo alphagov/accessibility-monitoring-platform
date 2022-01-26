@@ -52,7 +52,9 @@ from .utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
+    get_website_decision_rows,
     get_audit_statement_rows,
+    get_statement_decision_rows,
     get_audit_report_options_rows,
     create_mandatory_pages_for_new_audit,
     get_next_page_url,
@@ -180,9 +182,13 @@ class AuditDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object  # type: ignore
 
-        context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
-        context["audit_statement_rows"] = get_audit_statement_rows(audit)
-        context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
+        context["audit_metadata_rows"] = get_audit_metadata_rows(audit=audit)
+        context["website_decision_rows"] = get_website_decision_rows(audit=audit)
+        context["audit_statement_rows"] = get_audit_statement_rows(audit=audit)
+        context["statement_decision_rows"] = get_statement_decision_rows(audit=audit)
+        context["audit_report_options_rows"] = get_audit_report_options_rows(
+            audit=audit
+        )
 
         return context
 
@@ -485,12 +491,16 @@ class AuditStatementDecisionUpdateView(AuditUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         if self.request.POST:
-            case_form: CaseStatementDecisionUpdateForm = CaseStatementDecisionUpdateForm(
-                self.request.POST, instance=self.object.case, prefix="case"
+            case_form: CaseStatementDecisionUpdateForm = (
+                CaseStatementDecisionUpdateForm(
+                    self.request.POST, instance=self.object.case, prefix="case"
+                )
             )
         else:
-            case_form: CaseStatementDecisionUpdateForm = CaseStatementDecisionUpdateForm(
-                instance=self.object.case, prefix="case"
+            case_form: CaseStatementDecisionUpdateForm = (
+                CaseStatementDecisionUpdateForm(
+                    instance=self.object.case, prefix="case"
+                )
             )
         context["case_form"] = case_form
         return context
