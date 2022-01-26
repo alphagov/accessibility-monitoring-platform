@@ -35,17 +35,17 @@ class DashboardView(TemplateView):
         view_url_param: Union[str, None] = self.request.GET.get("view")
         show_all_cases = view_url_param == "View all cases"
 
-        cases: List[Case] = (
-            all_cases
-            if show_all_cases
-            else [case for case in all_cases if case.auditor == user]
-        )
+        if show_all_cases:
+            cases: List[Case] = all_cases
+        else:
+            cases: List[Case] = [case for case in all_cases if case.auditor == user]
 
         cases_by_status: Dict[str, List[Case]] = group_cases_by_status(cases=cases)
         cases_by_status.update(group_cases_by_qa_status(cases=cases))
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
-            cases=all_cases, user=user
+            cases=all_cases,
+            user=user
         )
         cases_by_status["recently_completed"] = return_recently_completed_cases(
             cases=cases
@@ -54,7 +54,12 @@ class DashboardView(TemplateView):
         incomplete_cases: List[Case] = [
             case for case in all_cases if case.status != "complete"
         ]
-
+        unassigned_cases: List[Case] = sorted(
+            [case for case in all_cases if case.status == "unassigned-case"],
+            key=lambda case: (case.created),  # type: ignore
+            reverse=True
+        )
+        cases_by_status["unassigned_cases"] = unassigned_cases
         context.update(
             {
                 "cases_by_status": cases_by_status,
@@ -62,13 +67,7 @@ class DashboardView(TemplateView):
                 "total_your_active_cases": len(
                     [case for case in incomplete_cases if case.auditor == user]
                 ),
-                "total_unassigned_cases": len(
-                    [
-                        case
-                        for case in incomplete_cases
-                        if case.status == "unassigned-case"
-                    ]
-                ),
+                "total_unassigned_cases": len(unassigned_cases),
                 "total_ready_to_qa_cases": len(cases_by_status["ready_for_qa"]),
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
