@@ -8,10 +8,9 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 from .views import (
     AuditAllIssuesListView,
-    AuditCreateView,
     AuditDetailView,
     AuditMetadataUpdateView,
-    AuditAddPagesUpdateView,
+    AuditPagesUpdateView,
     AuditPageChecksFormView,
     AuditWebsiteDecisionUpdateView,
     AuditStatement1UpdateView,
@@ -20,6 +19,7 @@ from .views import (
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
     AuditReportTextUpdateView,
+    create_audit,
     delete_audit,
     restore_audit,
     delete_page,
@@ -35,7 +35,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "create-for-case/<int:case_id>/",
-        login_required(AuditCreateView.as_view()),
+        login_required(create_audit),
         name="audit-create",
     ),
     path(
@@ -60,7 +60,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-pages/",
-        login_required(AuditAddPagesUpdateView.as_view()),
+        login_required(AuditPagesUpdateView.as_view()),
         name="edit-audit-pages",
     ),
     path(

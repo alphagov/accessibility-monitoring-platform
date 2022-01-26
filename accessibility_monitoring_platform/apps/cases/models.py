@@ -622,6 +622,10 @@ class Case(VersionModel):
             days=PSB_APPEAL_WINDOW_IN_DAYS
         )
 
+    @property
+    def audit(self):
+        return self.audit_case.filter(is_deleted=False).first()  # type: ignore
+
 
 class Contact(models.Model):
     """

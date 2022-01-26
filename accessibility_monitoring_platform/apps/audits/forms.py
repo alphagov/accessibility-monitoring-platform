@@ -18,7 +18,6 @@ from ..common.forms import (
     AMPDateField,
     AMPDatePageCompleteField,
     AMPModelChoiceField,
-    AMPModelChoiceRadioField,
     AMPURLField,
 )
 from ..cases.models import BOOLEAN_CHOICES
@@ -28,7 +27,6 @@ from .models import (
     CheckResult,
     SCREEN_SIZE_CHOICES,
     EXEMPTIONS_STATE_CHOICES,
-    AUDIT_TYPE_CHOICES,
     DECLARATION_STATE_CHOICES,
     SCOPE_STATE_CHOICES,
     COMPLIANCE_STATE_CHOICES,
@@ -52,37 +50,11 @@ from .models import (
 )
 
 
-class AuditCreateForm(forms.ModelForm):
-    """
-    Form for creating an audit
-    """
-
-    name = AMPCharFieldWide(label="Name")
-    type = AMPChoiceRadioField(
-        label="Type of test",
-        choices=AUDIT_TYPE_CHOICES,
-    )
-    retest_of_audit = AMPModelChoiceRadioField(
-        label="Which test are you retesting?",
-        queryset=Audit.objects.none(),
-        required=False,
-    )
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "name",
-            "type",
-            "retest_of_audit",
-        ]
-
-
 class AuditMetadataUpdateForm(VersionForm):
     """
     Form for editing check metadata
     """
 
-    name = AMPCharFieldWide(label="Name")
     date_of_test = AMPDateField(label="Date of test")
     screen_size = AMPChoiceField(label="Screen size", choices=SCREEN_SIZE_CHOICES)
     exemptions_state = AMPChoiceRadioField(
@@ -97,7 +69,6 @@ class AuditMetadataUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "date_of_test",
-            "name",
             "screen_size",
             "exemptions_state",
             "exemptions_notes",
@@ -154,7 +125,7 @@ AuditStandardPageFormset: Any = forms.modelformset_factory(
 )
 
 
-class AuditAddPagesUpdateForm(VersionForm):
+class AuditPagesUpdateForm(VersionForm):
     """
     Form for editing pages check page
     """
