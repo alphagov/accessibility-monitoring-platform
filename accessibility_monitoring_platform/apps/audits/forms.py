@@ -263,6 +263,21 @@ class CheckResultForm(forms.ModelForm):
 CheckResultFormset: Any = forms.formset_factory(CheckResultForm, extra=0)
 
 
+class AuditWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form for editing website compliance decision completion
+    """
+
+    audit_website_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_website_decision_complete_date",
+        ]
+
+
 class AuditStatement1UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 1 checks
@@ -397,6 +412,21 @@ class AuditStatement2UpdateForm(VersionForm):
             "overall_compliance_state",
             "overall_compliance_notes",
             "audit_statement_2_complete_date",
+        ]
+
+
+class AuditStatementDecisionUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance decision completion
+    """
+
+    audit_statement_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_decision_complete_date",
         ]
 
 

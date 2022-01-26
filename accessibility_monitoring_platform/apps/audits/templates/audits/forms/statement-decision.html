@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load common_tags %}
+
+{% block title %}{{ audit.case.organisation_name }} | Accessibility statement compliance decision{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Accessibility statement compliance decision
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Accessibility statement compliance decision' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-statement-decision' audit.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/save_continue_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-decision' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

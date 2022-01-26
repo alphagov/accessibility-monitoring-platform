@@ -10,8 +10,10 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        {% include './nav_content.html' with anchor="website-decision" edit_name='audits:edit-website-decision' name='Website compliance decision' complete=audit.audit_website_decision_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
+        {% include './nav_content.html' with anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
         {% include './nav_content.html' with anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
         {% include './nav_content.html' with anchor="audit-report-options" edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
         {% include './nav_content.html' with anchor="audit-report-text" edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}

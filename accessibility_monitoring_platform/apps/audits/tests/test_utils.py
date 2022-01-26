@@ -518,7 +518,7 @@ def test_get_next_page_url_audit_with_no_pages():
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     assert get_next_page_url(audit=audit) == reverse(
-        "audits:edit-audit-statement-1", kwargs=audit_pk
+        "audits:edit-website-decision", kwargs=audit_pk
     )
 
 
@@ -545,5 +545,5 @@ def test_get_next_page_url_audit_with_pages():
 
     current_page: Page = audit.testable_pages[1]
     assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
-        "audits:edit-audit-statement-1", kwargs=audit_pk
+        "audits:edit-website-decision", kwargs=audit_pk
     )

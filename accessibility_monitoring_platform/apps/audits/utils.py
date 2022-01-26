@@ -185,7 +185,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
     """
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     if not audit.testable_pages:
-        return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": audit.testable_pages.first().id}
@@ -193,7 +193,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
 
     testable_pages: List[Page] = list(audit.testable_pages)
     if testable_pages[-1] == current_page:
-        return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}  # type: ignore
