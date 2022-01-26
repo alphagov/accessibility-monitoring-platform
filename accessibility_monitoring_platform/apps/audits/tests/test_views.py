@@ -203,8 +203,10 @@ def test_create_audit_redirects(admin_client):
         ("audits:audit-detail", "View test"),
         ("audits:edit-audit-metadata", "Test metadata"),
         ("audits:edit-audit-pages", "Pages"),
+        ("audits:edit-website-decision", "Website compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
+        ("audits:edit-statement-decision", "Accessibility statement compliance decision"),
         ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-report-text", "Report text"),
@@ -227,6 +229,8 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
+        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
+        ("audits:edit-website-decision", "save_continue", "audits:edit-audit-statement-1"),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
         (
             "audits:edit-audit-statement-1",
@@ -234,7 +238,9 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
             "audits:edit-audit-statement-2",
         ),
         ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
-        ("audits:edit-audit-statement-2", "save_continue", "audits:edit-audit-summary"),
+        ("audits:edit-audit-statement-2", "save_continue", "audits:edit-statement-decision"),
+        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
+        ("audits:edit-statement-decision", "save_continue", "audits:edit-audit-summary"),
         ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
         (
             "audits:edit-audit-summary",
@@ -283,7 +289,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
     "button_name, expected_redirect_path_name",
     [
         ("save", "audits:edit-audit-pages"),
-        ("save_continue", "audits:edit-audit-statement-1"),
+        ("save_continue", "audits:edit-website-decision"),
     ],
 )
 def test_pages_redirects_based_on_button_pressed(
