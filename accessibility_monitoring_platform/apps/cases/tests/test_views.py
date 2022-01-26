@@ -1675,7 +1675,7 @@ def test_update_case_checks_version(admin_client):
 
 def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_client):
     """
-    Test that the edit testing details page shows the create test button
+    Test that the edit testing details page shows the start test button
     and does not show the link to test results field when testing methodology is platform.
     """
     case: Case = Case.objects.create(testing_methodology="platform")
@@ -1692,7 +1692,7 @@ def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_c
         f"""<a href="{create_check_url}"
             role="button" draggable="false" class="govuk-button govuk-button--secondary"
             data-module="govuk-button">
-                Create test
+                Start test
         </a>""",
         html=True,
     )
@@ -1709,7 +1709,7 @@ def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet
     admin_client,
 ):
     """
-    Test that the edit testing details page does not show the create test button
+    Test that the edit testing details page does not show the start test button
     and does show the link to test results field when testing methodology is spreadsheet.
     """
     case: Case = Case.objects.create(testing_methodology="spreadsheet")
@@ -1726,7 +1726,7 @@ def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet
         f"""<a href="{create_check_url}"
             role="button" draggable="false" class="govuk-button govuk-button--secondary"
             data-module="govuk-button">
-                Create test
+                Start test
         </a>""",
         html=True,
     )

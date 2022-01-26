@@ -29,52 +29,52 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                {% if case.testing_methodology == 'platform' %}
-                    <div class="govuk-button-group no-bottom-margin">
-                        <a
-                            href="{% url 'audits:audit-create' case.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        >
-                            Create test
-                        </a>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        {% if case.testing_methodology == 'platform' %}
+                            {% if case.audit %}
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        View test
+                                    </a>
+                                </div>
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">Test created</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.audit.date_of_test|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">Compliance Status</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_compliance_state_display }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">
+                                    This case does not have a test. Click Start test to move to the testing environment.
+                                </p>
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-create' case.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        Start test
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     </div>
-                    {% if audits %}
-                        <table class="govuk-table">
-                            <tbody class="govuk-table__body">
-                            {% for audit in audits %}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                <h2 class="govuk-heading-m cases-sub-heading">
-                                                    <a href="{% url 'audits:audit-detail' audit.id %}"
-                                                        style="font-weight:normal"
-                                                        class="govuk-link">
-                                                        {{ audit.get_type_display }}
-                                                    </a>
-                                                </h2>
-                                            </div>
-                                        </div>
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-one-half">
-                                                <p class="govuk-body-m cases-sub-heading">Test created</p>
-                                                <p class="govuk-body-m">{{ audit.date_of_test|date:"d/m/Y" }}</p>
-                                            </div>
-                                            <div class="govuk-grid-column-one-half">
-                                                <p class="govuk-body-m cases-sub-heading">Name</p>
-                                                <p class="govuk-body-m">{{ audit.name }}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-                {% endif %}
+                </div>
                 <form method="post" action="{% url 'cases:edit-test-results' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
