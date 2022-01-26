@@ -35,6 +35,10 @@ NEW_PAGE_NAME = "New page name"
 NEW_PAGE_URL = "https://example.com/extra"
 UPDATED_PAGE_NAME = "Updated page name"
 UPDATED_PAGE_URL = "https://example.com/updated"
+IS_WEBSITE_COMPLIANT = "partially-compliant"
+COMPLIANCE_DECISION_NOTES = "Website decision notes"
+ACCESSIBILITY_STATEMENT_STATE = "not-compliant"
+ACCESSIBILITY_STATEMENT_NOTES = "Accessibility statement notes"
 
 
 def create_audit() -> Audit:
@@ -206,7 +210,10 @@ def test_create_audit_redirects(admin_client):
         ("audits:edit-website-decision", "Website compliance decision"),
         ("audits:edit-audit-statement-1", "Accessibility statement Pt. 1"),
         ("audits:edit-audit-statement-2", "Accessibility statement Pt. 2"),
-        ("audits:edit-statement-decision", "Accessibility statement compliance decision"),
+        (
+            "audits:edit-statement-decision",
+            "Accessibility statement compliance decision",
+        ),
         ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-report-text", "Report text"),
@@ -230,7 +237,11 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
         ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
-        ("audits:edit-website-decision", "save_continue", "audits:edit-audit-statement-1"),
+        (
+            "audits:edit-website-decision",
+            "save_continue",
+            "audits:edit-audit-statement-1",
+        ),
         ("audits:edit-audit-statement-1", "save", "audits:edit-audit-statement-1"),
         (
             "audits:edit-audit-statement-1",
@@ -238,9 +249,17 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
             "audits:edit-audit-statement-2",
         ),
         ("audits:edit-audit-statement-2", "save", "audits:edit-audit-statement-2"),
-        ("audits:edit-audit-statement-2", "save_continue", "audits:edit-statement-decision"),
+        (
+            "audits:edit-audit-statement-2",
+            "save_continue",
+            "audits:edit-statement-decision",
+        ),
         ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
-        ("audits:edit-statement-decision", "save_continue", "audits:edit-audit-summary"),
+        (
+            "audits:edit-statement-decision",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
         ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
         (
             "audits:edit-audit-summary",
@@ -276,6 +295,11 @@ def test_audit_edit_redirects_based_on_button_pressed(
         {
             "version": audit.version,
             button_name: "Button value",
+            "case-version": audit.case.version,
+            "case-is_website_compliant": IS_WEBSITE_COMPLIANT,
+            "case-compliance_decision_notes": COMPLIANCE_DECISION_NOTES,
+            "case-accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE,
+            "case-accessibility_statement_notes": ACCESSIBILITY_STATEMENT_NOTES,
         },
     )
 
@@ -530,3 +554,51 @@ def test_page_checks_edit_stays_on_page(admin_client):
     assert response.status_code == 302
 
     assert response.url == url
+
+
+def test_website_decision_saved_on_case(admin_client):
+    """Test that a website decision is saved on case"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-website-decision", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "case-version": audit.case.version,
+            "case-is_website_compliant": IS_WEBSITE_COMPLIANT,
+            "case-compliance_decision_notes": COMPLIANCE_DECISION_NOTES,
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_case: Case = Case.objects.get(id=audit.case.id)
+
+    assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
+    assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
+
+
+def test_statement_decision_saved_on_case(admin_client):
+    """Test that a website decision is saved on case"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-decision", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "case-version": audit.case.version,
+            "case-accessibility_statement_state": ACCESSIBILITY_STATEMENT_STATE,
+            "case-accessibility_statement_notes": ACCESSIBILITY_STATEMENT_NOTES,
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_case: Case = Case.objects.get(id=audit.case.id)
+
+    assert updated_case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_STATE
+    assert updated_case.accessibility_statement_notes == ACCESSIBILITY_STATEMENT_NOTES

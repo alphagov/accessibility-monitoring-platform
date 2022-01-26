@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('audits', '0002_populate_wcag_definitions'),
+        ("audits", "0002_populate_wcag_definitions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='audit',
-            name='audit_statement_decision_complete_date',
+            model_name="audit",
+            name="audit_statement_decision_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='audit',
-            name='audit_website_decision_complete_date',
+            model_name="audit",
+            name="audit_website_decision_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
     ]

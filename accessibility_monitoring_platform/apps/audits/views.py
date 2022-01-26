@@ -34,9 +34,11 @@ from .forms import (
     CheckResultForm,
     CheckResultFormset,
     AuditWebsiteDecisionUpdateForm,
+    CaseWebsiteDecisionUpdateForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
     AuditStatementDecisionUpdateForm,
+    CaseStatementDecisionUpdateForm,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
@@ -401,6 +403,33 @@ class AuditWebsiteDecisionUpdateView(AuditUpdateView):
     form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
     template_name: str = "audits/forms/website-decision.html"
 
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseWebsiteDecisionUpdateForm = CaseWebsiteDecisionUpdateForm(
+                self.request.POST, instance=self.object.case, prefix="case"
+            )
+        else:
+            case_form: CaseWebsiteDecisionUpdateForm = CaseWebsiteDecisionUpdateForm(
+                instance=self.object.case, prefix="case"
+            )
+        context["case_form"] = case_form
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        case_form: CaseStatementDecisionUpdateForm = context["case_form"]
+
+        if case_form.is_valid():
+            case_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -446,8 +475,37 @@ class AuditStatementDecisionUpdateView(AuditUpdateView):
     View to update statement compliance fields
     """
 
-    form_class: Type[AuditStatementDecisionUpdateForm] = AuditStatementDecisionUpdateForm
+    form_class: Type[
+        AuditStatementDecisionUpdateForm
+    ] = AuditStatementDecisionUpdateForm
     template_name: str = "audits/forms/statement-decision.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseStatementDecisionUpdateForm = CaseStatementDecisionUpdateForm(
+                self.request.POST, instance=self.object.case, prefix="case"
+            )
+        else:
+            case_form: CaseStatementDecisionUpdateForm = CaseStatementDecisionUpdateForm(
+                instance=self.object.case, prefix="case"
+            )
+        context["case_form"] = case_form
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        case_form: CaseStatementDecisionUpdateForm = context["case_form"]
+
+        if case_form.is_valid():
+            case_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
