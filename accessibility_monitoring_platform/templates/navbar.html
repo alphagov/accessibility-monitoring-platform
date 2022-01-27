@@ -39,8 +39,9 @@
                 <ul class="govuk-list nav-menu-list">
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Notifications ({% notifications_count request=request %})</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Comments ({% notifications_count request=request %})</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reminders:reminder-list' %}">Reminders ({{ number_of_reminders }})</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'overdue:overdue-list' %}">Overdue ({{ number_of_overdue }}) </a></li>
                 </ul>
         </div>
     </div>

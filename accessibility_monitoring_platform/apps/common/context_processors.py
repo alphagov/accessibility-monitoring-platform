@@ -6,7 +6,7 @@ from typing import Dict, Union
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
 from ..reminders.utils import get_number_of_reminders_for_user
-
+from ..overdue.utils import get_number_of_overdue_cases
 from .forms import AMPTopMenuForm
 
 
@@ -38,4 +38,5 @@ def platform_page(
         "prototype_name": prototype_name,
         "platform": platform,
         "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
+        "number_of_overdue": get_number_of_overdue_cases(user_request=request.user),
     }
