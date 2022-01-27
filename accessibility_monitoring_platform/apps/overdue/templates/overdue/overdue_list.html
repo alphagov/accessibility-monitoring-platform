@@ -11,18 +11,16 @@
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Overdue ({{ number_of_overdue }})
-            </li>
+            <li class="govuk-breadcrumbs__list-item"> Overdue </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper dashboard">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">Overdue ({{ number_of_overdue }})</h1>
+                <h1 class="govuk-heading-xl">Overdue ({{ overdue_cases | length  }})</h1>
             </div>
         </div>
-        {% if overdue_cases %}
+        {% if page_obj %}
             {% include "common/pagination_controls.html" %}
             <table class="govuk-table case-dashboard">
                 <thead class="govuk-table__head">
@@ -34,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                    {% for overdue_case in overdue_cases %}
+                    {% for overdue_case in page_obj %}
                         <tr class="govuk-table__row ">
                             <th scope="row" class="govuk-table__header amp-width-one-quarter">
                                 {% include "common/amp_date_tag.html" with date_to_tag=overdue_case.next_action_due_date tense=overdue_case.tense %}
