@@ -1,0 +1,19 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="statement-decision" class="govuk-heading-l">Accessibility statement compliance decision</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds" style="text-align:right;font-size:1.1875rem;padding-top:5px;padding-right:15px;">
+            <a href="{% url 'audits:edit-statement-decision' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit accessibility statement compliance decision
+            </a>
+    </div>
+</div>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        {% for row in statement_decision_rows %}
+            {% include 'cases/helpers/detail_row.html' with row=row %}
+        {% endfor %}
+    </tbody>
+</table>

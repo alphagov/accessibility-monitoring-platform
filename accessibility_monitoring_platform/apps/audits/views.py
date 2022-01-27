@@ -33,8 +33,12 @@ from .forms import (
     CheckResultFilterForm,
     CheckResultForm,
     CheckResultFormset,
+    AuditWebsiteDecisionUpdateForm,
+    CaseWebsiteDecisionUpdateForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
+    AuditStatementDecisionUpdateForm,
+    CaseStatementDecisionUpdateForm,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
@@ -48,7 +52,9 @@ from .utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
+    get_website_decision_rows,
     get_audit_statement_rows,
+    get_statement_decision_rows,
     get_audit_report_options_rows,
     create_mandatory_pages_for_new_audit,
     get_next_page_url,
@@ -176,9 +182,13 @@ class AuditDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object  # type: ignore
 
-        context["audit_metadata_rows"] = get_audit_metadata_rows(audit)
-        context["audit_statement_rows"] = get_audit_statement_rows(audit)
-        context["audit_report_options_rows"] = get_audit_report_options_rows(audit)
+        context["audit_metadata_rows"] = get_audit_metadata_rows(audit=audit)
+        context["website_decision_rows"] = get_website_decision_rows(audit=audit)
+        context["audit_statement_rows"] = get_audit_statement_rows(audit=audit)
+        context["statement_decision_rows"] = get_statement_decision_rows(audit=audit)
+        context["audit_report_options_rows"] = get_audit_report_options_rows(
+            audit=audit
+        )
 
         return context
 
@@ -391,6 +401,49 @@ class AuditPageChecksFormView(FormView):
         return self.request.path
 
 
+class AuditWebsiteDecisionUpdateView(AuditUpdateView):
+    """
+    View to update website compliance fields
+    """
+
+    form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
+    template_name: str = "audits/forms/website-decision.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseWebsiteDecisionUpdateForm = CaseWebsiteDecisionUpdateForm(
+                self.request.POST, instance=self.object.case, prefix="case"
+            )
+        else:
+            case_form: CaseWebsiteDecisionUpdateForm = CaseWebsiteDecisionUpdateForm(
+                instance=self.object.case, prefix="case"
+            )
+        context["case_form"] = case_form
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        case_form: CaseStatementDecisionUpdateForm = context["case_form"]
+
+        if case_form.is_valid():
+            case_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        return super().get_success_url()
+
+
 class AuditStatement1UpdateView(AuditUpdateView):
     """
     View to update accessibility statement 1 audit fields
@@ -414,6 +467,55 @@ class AuditStatement2UpdateView(AuditUpdateView):
 
     form_class: Type[AuditStatement2UpdateForm] = AuditStatement2UpdateForm
     template_name: str = "audits/forms/statement-2.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-statement-decision", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementDecisionUpdateView(AuditUpdateView):
+    """
+    View to update statement compliance fields
+    """
+
+    form_class: Type[
+        AuditStatementDecisionUpdateForm
+    ] = AuditStatementDecisionUpdateForm
+    template_name: str = "audits/forms/statement-decision.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseStatementDecisionUpdateForm = (
+                CaseStatementDecisionUpdateForm(
+                    self.request.POST, instance=self.object.case, prefix="case"
+                )
+            )
+        else:
+            case_form: CaseStatementDecisionUpdateForm = (
+                CaseStatementDecisionUpdateForm(
+                    instance=self.object.case, prefix="case"
+                )
+            )
+        context["case_form"] = case_form
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        case_form: CaseStatementDecisionUpdateForm = context["case_form"]
+
+        if case_form.is_valid():
+            case_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

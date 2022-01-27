@@ -457,10 +457,14 @@ class Case(VersionModel):
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
-        elif self.test_status != "complete" and self.report_sent_date is None:
+        elif (
+            self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
+            or self.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        ):
             return "test-in-progress"
         elif (
-            self.test_status == "complete"
+            self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
+            and self.accessibility_statement_state != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
             and self.report_review_status != "ready-to-review"
         ):
             return "report-in-progress"

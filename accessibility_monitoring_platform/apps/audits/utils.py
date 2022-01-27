@@ -14,8 +14,10 @@ from ..common.form_extract_utils import (
 )
 from .forms import (
     AuditMetadataUpdateForm,
+    CaseWebsiteDecisionUpdateForm,
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
+    CaseStatementDecisionUpdateForm,
     AuditReportOptionsUpdateForm,
     CheckResultForm,
 )
@@ -48,6 +50,15 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return rows
 
 
+def get_website_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from website decision"""
+    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit.case,
+        form=CaseWebsiteDecisionUpdateForm(),  # type: ignore
+    )
+    return rows
+
+
 def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit statement checks"""
     statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
@@ -61,6 +72,15 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return (
         statement_1_rows + statement_2_rows[1:]
     )  # Skip first field as it echoes first form
+
+
+def get_statement_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
+    """Build Test view page table rows from statement decision"""
+    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=audit.case,
+        form=CaseStatementDecisionUpdateForm(),  # type: ignore
+    )
+    return rows
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
@@ -185,7 +205,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
     """
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     if not audit.testable_pages:
-        return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": audit.testable_pages.first().id}
@@ -193,7 +213,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
 
     testable_pages: List[Page] = list(audit.testable_pages)
     if testable_pages[-1] == current_page:
-        return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}  # type: ignore

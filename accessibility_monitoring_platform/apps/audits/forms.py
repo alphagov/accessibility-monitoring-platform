@@ -20,7 +20,12 @@ from ..common.forms import (
     AMPModelChoiceField,
     AMPURLField,
 )
-from ..cases.models import BOOLEAN_CHOICES
+from ..cases.models import (
+    Case,
+    BOOLEAN_CHOICES,
+    ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    IS_WEBSITE_COMPLIANT_CHOICES,
+)
 from .models import (
     Audit,
     Page,
@@ -234,6 +239,42 @@ class CheckResultForm(forms.ModelForm):
 CheckResultFormset: Any = forms.formset_factory(CheckResultForm, extra=0)
 
 
+class AuditWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form for editing website compliance decision completion
+    """
+
+    audit_website_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_website_decision_complete_date",
+        ]
+
+
+class CaseWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form for editing website compliance decision
+    """
+
+    is_website_compliant = AMPChoiceRadioField(
+        label="Initial website compliance decision",
+        help_text="This field effects the case status",
+        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+    )
+    compliance_decision_notes = AMPTextField(label="Website compliance notes")
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "is_website_compliant",
+            "compliance_decision_notes",
+        ]
+
+
 class AuditStatement1UpdateForm(VersionForm):
     """
     Form for editing accessibility statement 1 checks
@@ -368,6 +409,44 @@ class AuditStatement2UpdateForm(VersionForm):
             "overall_compliance_state",
             "overall_compliance_notes",
             "audit_statement_2_complete_date",
+        ]
+
+
+class AuditStatementDecisionUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance decision completion
+    """
+
+    audit_statement_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_statement_decision_complete_date",
+        ]
+
+
+class CaseStatementDecisionUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance decision
+    """
+
+    accessibility_statement_state = AMPChoiceRadioField(
+        label="Initial accessibility statement compliance decision",
+        help_text="This field effects the case status",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes = AMPTextField(
+        label="Initial accessibility statement compliance notes"
+    )
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "accessibility_statement_state",
+            "accessibility_statement_notes",
         ]
 
 
