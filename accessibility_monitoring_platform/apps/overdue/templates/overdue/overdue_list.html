@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block title %}Overdue ({{ paginator.count  }}){% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item"> Overdue </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper dashboard">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Overdue ({{ paginator.count  }})</h1>
+            </div>
+        </div>
+        {% if page_obj %}
+            {% include "common/pagination_controls.html" %}
+            <table class="govuk-table case-dashboard">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Due date</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Status</th>
+                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Step progress</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for overdue_case in page_obj %}
+                        <tr class="govuk-table__row ">
+                            <th scope="row" class="govuk-table__header amp-width-one-quarter">
+                                {% include "common/amp_date_tag.html" with date_to_tag=overdue_case.next_action_due_date tense=overdue_case.tense %}
+                            </th>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                <a href="{% url 'cases:case-detail' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    {{ overdue_case.organisation_name }}
+                                </a>
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                {{ overdue_case.get_status_display }}
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-quarter">
+                                {% if overdue_case.status == "in-report-correspondence" %}
+                                    <a href="{% url 'cases:edit-report-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ overdue_case.in_report_correspondence_progress }}
+                                    </a>
+                                {% elif overdue_case.status == "in-probation-period" %}
+                                    <a href="{% url 'cases:edit-twelve-week-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Overdue
+                                    </a>
+                                {% elif overdue_case.status == "in-12-week-correspondence" %}
+                                    <a href="{% url 'cases:edit-twelve-week-correspondence' overdue_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ overdue_case.twelve_week_correspondence_progress }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% include "common/pagination_controls.html" %}
+        {% else %}
+            <p class="govuk-body">You have no reminders</p>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}

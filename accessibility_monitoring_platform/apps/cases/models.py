@@ -547,7 +547,7 @@ class Case(VersionModel):
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_sent_date
         ):
-            return "4 week followup sent"
+            return "4 week followup sent, waiting for acknowledgement"
         return "Unknown"
 
     @property
