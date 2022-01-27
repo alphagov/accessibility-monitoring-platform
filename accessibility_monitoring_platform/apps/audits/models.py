@@ -260,6 +260,9 @@ class Audit(VersionModel):
     # Pages page
     audit_pages_complete_date = models.DateField(null=True, blank=True)
 
+    # Website decision
+    audit_website_decision_complete_date = models.DateField(null=True, blank=True)
+
     # Accessibility statement 1
     accessibility_statement_backup_url = models.TextField(default="", blank=True)
     declaration_state = models.CharField(
@@ -342,6 +345,9 @@ class Audit(VersionModel):
     )
     overall_compliance_notes = models.TextField(default="", blank=True)
     audit_statement_2_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement decision
+    audit_statement_decision_complete_date = models.DateField(null=True, blank=True)
 
     # Summary
     audit_summary_complete_date = models.DateField(null=True, blank=True)

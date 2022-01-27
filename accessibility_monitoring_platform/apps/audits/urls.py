@@ -12,8 +12,10 @@ from .views import (
     AuditMetadataUpdateView,
     AuditPagesUpdateView,
     AuditPageChecksFormView,
+    AuditWebsiteDecisionUpdateView,
     AuditStatement1UpdateView,
     AuditStatement2UpdateView,
+    AuditStatementDecisionUpdateView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
     AuditReportTextUpdateView,
@@ -77,6 +79,11 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-page-checks",
     ),
     path(
+        "<int:pk>/edit-website-decision/",
+        login_required(AuditWebsiteDecisionUpdateView.as_view()),
+        name="edit-website-decision",
+    ),
+    path(
         "<int:pk>/edit-audit-statement-one/",
         login_required(AuditStatement1UpdateView.as_view()),
         name="edit-audit-statement-1",
@@ -85,6 +92,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-statement-two/",
         login_required(AuditStatement2UpdateView.as_view()),
         name="edit-audit-statement-2",
+    ),
+    path(
+        "<int:pk>/edit-statement-decision/",
+        login_required(AuditStatementDecisionUpdateView.as_view()),
+        name="edit-statement-decision",
     ),
     path(
         "<int:pk>/edit-audit-summary/",
