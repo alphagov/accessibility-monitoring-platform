@@ -58,10 +58,3 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
 
         in_correspondence: QuerySet[Case] = sorted(in_correspondence, key=lambda t: t.next_action_due_date)  # type: ignore
         return in_correspondence
-
-
-def get_number_of_overdue_cases(user_request: User) -> int:
-    res: Union[QuerySet[Case], None] = get_overdue_cases(user_request)
-    if res:
-        return len(res)
-    return 0
