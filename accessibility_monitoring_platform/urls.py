@@ -13,7 +13,6 @@ urlpatterns = [
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
     path("reminders/", include("accessibility_monitoring_platform.apps.reminders.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
-    path("websites/", include("accessibility_monitoring_platform.apps.websites.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
     path("comments/", include("accessibility_monitoring_platform.apps.comments.urls")),
     path("notifications/", include("accessibility_monitoring_platform.apps.notifications.urls")),

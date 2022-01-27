@@ -44,7 +44,6 @@ PAGE_TITLES_BY_URL = {
     "/report-issue/": "Report an issue",
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
-    "/websites/": "Query domain register",
 }
 
 
