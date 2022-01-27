@@ -53,7 +53,7 @@
                         style="padding-bottom:10px;"
                         alt="Logos of Central Digital and Data Office and Cabinet Office"
                     />
-                    <p>Date: {{ audit.case.created|date:"d F Y" }}</p>
+                    <p>Date: {{ audit.date_of_test|date:"d F Y" }}</p>
                     <p>
                         Website:
                         <a
@@ -100,7 +100,7 @@
                         We checked
                         <a href="{{ audit.case.home_page_url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{audit.case.home_page_url }}</a>
                         on
-                        {{ audit.case.created|date:"d F Y" }}
+                        {{ audit.date_of_test|date:"d F Y" }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
                         <a href="https://www.w3.org/TR/WCAG21/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.w3.org/TR/WCAG21/</a>.
