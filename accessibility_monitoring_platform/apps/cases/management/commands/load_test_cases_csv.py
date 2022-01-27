@@ -22,8 +22,8 @@ INPUT_FILE_NAME = (
 def delete_existing_data(verbose: bool = False) -> None:
     if verbose:
         print("Deleting all existing cases and contacts from database")
-    Case.objects.all().delete()
     Contact.objects.all().delete()
+    Case.objects.all().delete()
 
 
 def get_users() -> Dict[str, User]:

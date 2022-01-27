@@ -15,10 +15,10 @@ class Reminder(models.Model):
     """
 
     case = models.ForeignKey(
-        Case, on_delete=models.CASCADE, related_name="reminder_case"
+        Case, on_delete=models.PROTECT, related_name="reminder_case"
     )
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="reminder_user"
+        User, on_delete=models.PROTECT, related_name="reminder_user"
     )
     due_date = models.DateField()
     description = models.TextField()
