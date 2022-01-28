@@ -3,8 +3,8 @@ Tests for cases views
 """
 from datetime import date, datetime, timedelta
 import pytest
-import pytz
 from typing import List
+from zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -258,10 +258,10 @@ def test_case_list_view_user_unassigned_filters(
 def test_case_list_view_date_range_filters(admin_client):
     """Test that the case list view page can be filtered by date range"""
     included_created_date: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=pytz.UTC
+        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
     )
     excluded_created_date: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=pytz.UTC
+        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
     )
     Case.objects.create(organisation_name="Included", created=included_created_date)
     Case.objects.create(organisation_name="Excluded", created=excluded_created_date)

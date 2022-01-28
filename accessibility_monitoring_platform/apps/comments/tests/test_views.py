@@ -2,14 +2,17 @@
 import pytest
 from pytest_django.asserts import assertContains
 from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.test import RequestFactory, Client
 from django.http import HttpResponse
 from django.urls import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.handlers.wsgi import WSGIRequest
+
 from ..models import Comments, CommentsHistory
 from ...cases.models import Case
+from ...comments.tests.test_templatetags import mock_get_response
 from ...notifications.models import Notifications
 from ..views import save_comment_history, add_comment_notification
 from .create_user import create_user, USER_PASSWORD
@@ -56,7 +59,7 @@ def test_add_comment_notification():
     request: WSGIRequest = factory.get("/")
     request.user = user0
 
-    middleware: SessionMiddleware = SessionMiddleware()
+    middleware: SessionMiddleware = SessionMiddleware(mock_get_response)  # type: ignore
     middleware.process_request(request)
     request.session.save()
     request.session["comment_path"] = "/cases/1/edit-qa-process/"
@@ -78,7 +81,7 @@ def test_add_comment_notification():
     request2: WSGIRequest = factory.get("/")
     request2.user = user1
 
-    middleware: SessionMiddleware = SessionMiddleware()
+    middleware: SessionMiddleware = SessionMiddleware(mock_get_response)  # type: ignore
     middleware.process_request(request2)
     request2.session.save()
     request2.session["comment_path"] = "/cases/1/edit-qa-process/"

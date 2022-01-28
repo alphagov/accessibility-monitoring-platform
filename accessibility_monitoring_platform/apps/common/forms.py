@@ -2,8 +2,8 @@
 Common widgets and form fields
 """
 from datetime import date, datetime
-import pytz
 from typing import Any, Dict, Iterable, List, Mapping, Union
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django import forms
@@ -11,8 +11,10 @@ from django import forms
 from .models import IssueReport
 from .utils import convert_date_to_datetime, validate_url
 
-DEFAULT_START_DATE: datetime = datetime(year=1900, month=1, day=1, tzinfo=pytz.UTC)
-DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=pytz.UTC)
+DEFAULT_START_DATE: datetime = datetime(
+    year=1900, month=1, day=1, tzinfo=ZoneInfo("UTC")
+)
+DEFAULT_END_DATE: datetime = datetime(year=2100, month=1, day=1, tzinfo=ZoneInfo("UTC"))
 
 
 class VersionForm(forms.ModelForm):
