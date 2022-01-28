@@ -8,7 +8,7 @@ class Notifications(models.Model):
     """Django model for notifications"""
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="notification_user",
         blank=True,
         null=True,
@@ -32,7 +32,7 @@ class NotificationsSettings(models.Model):
     """Django model for notifications settings"""
     user = models.OneToOneField(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="notification_settings_user",
         primary_key=True,
     )

@@ -228,7 +228,7 @@ class Audit(VersionModel):
     Model for test
     """
 
-    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="audit_case")
+    case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="audit_case")
     is_deleted = models.BooleanField(default=False)
 
     # metadata page
@@ -250,7 +250,7 @@ class Audit(VersionModel):
     )
     retest_of_audit = models.ForeignKey(
         "Audit",
-        on_delete=models.DO_NOTHING,
+        on_delete=models.PROTECT,
         related_name="audit_retest",
         null=True,
         blank=True,
@@ -494,7 +494,7 @@ class Page(models.Model):
     """
 
     audit = models.ForeignKey(
-        Audit, on_delete=models.CASCADE, related_name="page_audit"
+        Audit, on_delete=models.PROTECT, related_name="page_audit"
     )
     is_deleted = models.BooleanField(default=False)
 
@@ -569,10 +569,10 @@ class CheckResult(models.Model):
     """
 
     audit = models.ForeignKey(
-        Audit, on_delete=models.CASCADE, related_name="checkresult_audit"
+        Audit, on_delete=models.PROTECT, related_name="checkresult_audit"
     )
     page = models.ForeignKey(
-        Page, on_delete=models.CASCADE, related_name="checkresult_page"
+        Page, on_delete=models.PROTECT, related_name="checkresult_page"
     )
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
@@ -580,7 +580,7 @@ class CheckResult(models.Model):
     )
     wcag_definition = models.ForeignKey(
         WcagDefinition,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="checkresult_wcagdefinition",
     )
 

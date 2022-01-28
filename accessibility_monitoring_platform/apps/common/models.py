@@ -46,7 +46,7 @@ class IssueReport(models.Model):
     description = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="issue_report_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
@@ -65,7 +65,7 @@ class Platform(models.Model):
 
     active_qa_auditor = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="platform_active_qa_auditor",
         blank=True,
         null=True,
@@ -80,7 +80,7 @@ class Event(models.Model):
     Model to records events on platform
     """
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
     parent = GenericForeignKey("content_type", "object_id")
     type = models.CharField(
@@ -89,7 +89,7 @@ class Event(models.Model):
     value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="event_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)

@@ -7,7 +7,6 @@ from typing import List, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.deletion import CASCADE
 from django.urls import reverse
 from django.utils import timezone
 
@@ -187,7 +186,7 @@ class Case(VersionModel):
 
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_created_by_user",
         blank=True,
         null=True,
@@ -200,7 +199,7 @@ class Case(VersionModel):
     )
     auditor = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_auditor_user",
         blank=True,
         null=True,
@@ -216,7 +215,7 @@ class Case(VersionModel):
         choices=PSB_LOCATION_CHOICES,
         default=PSB_LOCATION_DEFAULT,
     )
-    sector = models.ForeignKey(Sector, on_delete=models.SET_NULL, null=True, blank=True)
+    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
     enforcement_body = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,
@@ -266,7 +265,7 @@ class Case(VersionModel):
     # QA process
     reviewer = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_reviewer_user",
         blank=True,
         null=True,
@@ -636,7 +635,7 @@ class Contact(models.Model):
     Model for cases Contact
     """
 
-    case = models.ForeignKey(Case, on_delete=CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
     first_name = models.CharField(max_length=200, default="", blank=True)
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
