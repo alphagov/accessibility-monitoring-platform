@@ -2,9 +2,9 @@
 
 {% extends 'base.html' %}
 
-{% block title %}Search{% endblock %}
-
 {% load l10n %}
+
+{% block title %}Search{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -29,13 +29,13 @@
                 <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-button-group no-bottom-margin">
                     <a
                         href="{% url 'cases:case-create' %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button"
+                        class="govuk-button float-right"
                         data-module="govuk-button"
+                        style="margin-left: 10px;"
                     >
                         Create case
                     </a>
@@ -43,8 +43,9 @@
                         href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button govuk-button--secondary"
+                        class="govuk-button govuk-button--secondary float-right"
                         data-module="govuk-button"
+                        style="margin-left: 10px;"
                     >
                         Export to CSV
                     </a>
@@ -52,12 +53,11 @@
                         href="{% url 'cases:export-ehrc-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button govuk-button--secondary"
+                        class="govuk-button govuk-button--secondary float-right"
                         data-module="govuk-button"
                     >
                         EHRC export
                     </a>
-                </div>
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -88,7 +88,13 @@
                                         </div>
                                         <div class="govuk-grid-column-one-half">
                                             <p class="govuk-body-m cases-sub-heading">Auditor</p>
-                                            <p class="govuk-body-m">{{ case.auditor.get_full_name }}</p>
+                                            <p class="govuk-body-m">
+                                                {% if case.auditor.get_full_name %}
+                                                    {{ case.auditor.get_full_name }}
+                                                {% else %}
+                                                    No auditor
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="govuk-grid-row">
@@ -98,7 +104,13 @@
                                         </div>
                                         <div class="govuk-grid-column-one-half">
                                             <p class="govuk-body-m cases-sub-heading">QA auditor</p>
-                                            <p class="govuk-body-m">{{ case.reviewer.get_full_name }}</p>
+                                            <p class="govuk-body-m">
+                                                {% if case.reviewer.get_full_name %}
+                                                    {{ case.reviewer.get_full_name }}
+                                                {% else %}
+                                                    No QA auditor
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                     {% if case.zendesk_url or case.trello_url %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ audit.case.organisation_name }} | Accessibility statement Pt. 1{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Accessibility statement Pt. 1
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Accessibility statement Pt. 1' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-statement-1' audit.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    {% include 'audits/helpers/accessibility_statement_link.html' %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
+                            {% include 'common/amp_field_help_details.html' with field=form.scope_state help_details='audits/statement_examples/scope_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.scope_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.feedback_state help_details='audits/statement_examples/feedback_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.feedback_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.contact_information_state  help_details='audits/statement_examples/contact_information_state.html'%}
+                            {% include 'common/amp_field.html' with field=form.contact_information_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.enforcement_procedure_state help_details='audits/statement_examples/enforcement_procedure_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.enforcement_procedure_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.declaration_state help_details='audits/statement_examples/declaration_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.declaration_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.compliance_state help_details='audits/statement_examples/compliance_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.compliance_notes %}
+                            {% include 'common/amp_field_help_details.html' with field=form.non_regulation_state help_details='audits/statement_examples/non_regulation_state.html' %}
+                            {% include 'common/amp_field.html' with field=form.non_regulation_notes %}
+                            {% include 'common/amp_field.html' with field=form.audit_statement_1_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/save_continue_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-statement-1' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

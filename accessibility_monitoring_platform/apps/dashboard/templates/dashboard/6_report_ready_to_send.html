@@ -12,7 +12,7 @@
                 {% if show_all_cases %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
                 {% else %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Step progress</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
                 {% endif %}
             </tr>
         </thead>
@@ -32,7 +32,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link"> Ready to send </a>
+                        <a href="{% url 'cases:edit-qa-process' case.id %}" class="govuk-link"> QA process </a>
                         {% endif %}
                     </td>
                 </tr>

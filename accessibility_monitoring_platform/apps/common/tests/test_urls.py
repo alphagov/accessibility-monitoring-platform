@@ -1,5 +1,5 @@
 """
-Test urls of cases app
+Test urls of common app
 """
 
 from django.http.response import HttpResponse

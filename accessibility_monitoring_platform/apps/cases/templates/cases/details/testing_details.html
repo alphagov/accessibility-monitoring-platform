@@ -14,6 +14,27 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
+        {% if case.audit %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    <a
+                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        View test
+                    </a>
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Test created</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ case.audit.date_of_test|date:"d/m/Y" }}</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Compliance Status</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_compliance_state_display }}</td>
+            </tr>
+        {% endif %}
         {% for row in testing_details_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}
         {% endfor %}

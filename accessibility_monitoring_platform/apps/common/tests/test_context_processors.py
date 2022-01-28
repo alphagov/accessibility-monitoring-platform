@@ -1,5 +1,5 @@
 """
-Test urls of cases app
+Test context processor of common app
 """
 import pytest
 from pytest_django.asserts import assertContains
@@ -60,10 +60,10 @@ def test_active_qa_auditor_present(admin_client):
 
 
 @pytest.mark.django_db
-def test_platform_page_returns_context():
+def test_platform_page_template_context():
     """
-    Check number of reminders for user, prototype name,
-    and platform settings added to context.
+    Check number of reminders for user, prototype name and
+    platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     mock_request = MockRequest(
@@ -72,7 +72,7 @@ def test_platform_page_returns_context():
         user=user,
     )
     platform_page_context: Dict[
-        str, Union[int, str, AMPTopMenuForm, Platform]
+        str, Union[AMPTopMenuForm, str, Platform, int]
     ] = platform_page(mock_request)
 
     assert platform_page_context["prototype_name"] == "prototype-name"

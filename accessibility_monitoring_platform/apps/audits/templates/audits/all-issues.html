@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load common_tags %}
+
+{% block title %}All issues{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                All issues
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">All issues</h1>
+
+                <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Issue and description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for wcag_definition in wcag_definitions %}
+                            <tr style="border:1px solid black;">
+                                <td style="border:1px solid black;">
+                                    <p>
+                                        {% if wcag_definition.url_on_w3 %}
+                                            <a href="{{ wcag_definition.url_on_w3 }}" target="_blank">
+                                                {{ wcag_definition }}</a>
+                                        {% else %}
+                                            {{ wcag_definition }}
+                                        {% endif %}
+                                    </p>
+                                    {{ wcag_definition.report_boilerplate|markdown_to_html }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="govuk-grid-column-one-third">
+            </div>
+        </div>
+    </main>
+{% endblock %}

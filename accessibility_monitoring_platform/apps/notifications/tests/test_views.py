@@ -19,7 +19,7 @@ def test_view_notifications():
 
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
-    assertContains(response, "Notifications (0)")
+    assertContains(response, "(0)")
 
     Notifications(
         user=user0,
@@ -29,7 +29,7 @@ def test_view_notifications():
 
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
-    assertContains(response, "Notifications (1)")
+    assertContains(response, "(1)")
     assertContains(response, "this is a notification")
 
 
@@ -49,7 +49,7 @@ def test_hide_notification():
 
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
-    assertContains(response, "Notifications (1)")
+    assertContains(response, "(1)")
     assertContains(response, "this is a notification")
     assertContains(response, "Mark as seen")
 
@@ -65,7 +65,7 @@ def test_hide_notification():
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is True  # type: ignore
-    assertContains(response, "Notifications (0)")
+    assertContains(response, "(0)")
     assertContains(response, "this is a notification")
     assertContains(response, "Mark as unseen")
 
@@ -86,7 +86,7 @@ def test_unhide_notification():
 
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
-    assertContains(response, "Notifications (1)")
+    assertContains(response, "(1)")
     assertContains(response, "this is a notification")
     assertContains(response, "Mark as seen")
 
@@ -102,7 +102,7 @@ def test_unhide_notification():
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is True  # type: ignore
-    assertContains(response, "Notifications (0)")
+    assertContains(response, "(0)")
     assertContains(response, "this is a notification")
     assertContains(response, "Mark as unseen")
 
@@ -115,6 +115,6 @@ def test_unhide_notification():
     )
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is False  # type: ignore
-    assertContains(response, "Notifications (1)")
+    assertContains(response, "(1)")
     assertContains(response, "this is a notification")
     assertContains(response, "Mark as seen")

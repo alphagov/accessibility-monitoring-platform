@@ -25,9 +25,56 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Testing details' %}
             </div>
         </div>
+
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        {% if case.testing_methodology == 'platform' %}
+                            {% if case.audit %}
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        View test
+                                    </a>
+                                </div>
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">Test created</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.audit.date_of_test|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">Compliance Status</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_compliance_state_display }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">
+                                    This case does not have a test. Click Start test to move to the testing environment.
+                                </p>
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-create' case.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        Start test
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
                 <form method="post" action="{% url 'cases:edit-test-results' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
@@ -35,13 +82,7 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
+                            {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

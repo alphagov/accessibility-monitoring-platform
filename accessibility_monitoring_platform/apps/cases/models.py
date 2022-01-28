@@ -7,15 +7,14 @@ from typing import List, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.deletion import CASCADE
 from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector, VersionModel
+from ..common.models import Sector, VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
 
-STATUS_READY_TO_QA = "unassigned-qa-case"
-STATUS_DEFAULT = "unassigned-case"
+STATUS_READY_TO_QA: str = "unassigned-qa-case"
+STATUS_DEFAULT: str = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     ("unknown", "Unknown"),
     (STATUS_DEFAULT, "Unassigned case"),
@@ -36,26 +35,28 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("deleted", "Deleted"),
 ]
 
-DEFAULT_TEST_TYPE = "simplified"
+DEFAULT_TEST_TYPE: str = "simplified"
 TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_TEST_TYPE, "Simplified"),
     ("detailed", "Detailed"),
     ("mobile", "Mobile"),
 ]
 
-ENFORCEMENT_BODY_DEFAULT = "ehrc"
+ENFORCEMENT_BODY_DEFAULT: str = "ehrc"
 ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
     (ENFORCEMENT_BODY_DEFAULT, "Equality and Human Rights Commission"),
     ("ecni", "Equality Commission Northern Ireland"),
 ]
 
-BOOLEAN_DEFAULT = "no"
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
+TESTING_METHODOLOGY_PLATFORM: str = "platform"
+TESTING_METHODOLOGY_DEFAULT: str = "spreadsheet"
+TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
+    (TESTING_METHODOLOGY_PLATFORM, "Platform"),
+    (TESTING_METHODOLOGY_DEFAULT, "Testing spreadsheet"),
 ]
 
-TEST_STATUS_DEFAULT = "not-started"
+
+TEST_STATUS_DEFAULT: str = "not-started"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("complete", "Complete"),
     ("in-progress", "In progress"),
@@ -185,7 +186,7 @@ class Case(VersionModel):
 
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_created_by_user",
         blank=True,
         null=True,
@@ -198,7 +199,7 @@ class Case(VersionModel):
     )
     auditor = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_auditor_user",
         blank=True,
         null=True,
@@ -214,11 +215,16 @@ class Case(VersionModel):
         choices=PSB_LOCATION_CHOICES,
         default=PSB_LOCATION_DEFAULT,
     )
-    sector = models.ForeignKey(Sector, on_delete=models.SET_NULL, null=True, blank=True)
+    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
     enforcement_body = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,
         default=ENFORCEMENT_BODY_DEFAULT,
+    )
+    testing_methodology = models.CharField(
+        max_length=20,
+        choices=TESTING_METHODOLOGY_CHOICES,
+        default=TESTING_METHODOLOGY_DEFAULT,
     )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
@@ -259,7 +265,7 @@ class Case(VersionModel):
     # QA process
     reviewer = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="case_reviewer_user",
         blank=True,
         null=True,
@@ -412,9 +418,7 @@ class Case(VersionModel):
 
     @property
     def title(self):
-        return str(
-            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"  # type: ignore
-        )
+        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
     def next_action_due_date(self):
@@ -453,10 +457,14 @@ class Case(VersionModel):
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
-        elif self.test_status != "complete" and self.report_sent_date is None:
+        elif (
+            self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
+            or self.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        ):
             return "test-in-progress"
         elif (
-            self.test_status == "complete"
+            self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
+            and self.accessibility_statement_state != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
             and self.report_review_status != "ready-to-review"
         ):
             return "report-in-progress"
@@ -506,78 +514,6 @@ class Case(VersionModel):
         return "unknown"
 
     @property
-    def new_case_progress(self):
-        to_check = [
-            "auditor",
-            "test_type",
-            "home_page_url",
-            "organisation_name",
-            "is_complaint",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 2))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        if Contact.objects.filter(case_id=self.id).exists():  # type: ignore
-            progress += percentage_increase
-
-        return str(progress) + "%"
-
-    @property
-    def test_progress(self):
-        to_check = [
-            "test_results_url",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 1))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-        if self.test_status == "complete":
-            progress += percentage_increase
-        return str(progress) + "%"
-
-    @property
-    def report_progress(self):
-        if (
-            self.report_review_status == "ready-to-review"
-            and self.reviewer
-            and self.report_approved_status == "no"
-        ):
-            return "Being reviewed"
-
-        if (
-            self.report_review_status == "ready-to-review"
-            and self.reviewer
-            and self.report_approved_status == "yes"
-        ):
-            return "Ready to send"
-
-        to_check = [
-            "report_draft_url",
-            "reviewer",
-            "report_final_pdf_url",
-            "report_final_odt_url",
-            "report_sent_date",
-            "report_acknowledged_date",
-        ]
-        percentage_increase = round(100 / (len(to_check) + 2))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        if self.report_review_status == "ready-to-review":
-            progress += percentage_increase
-
-        if self.report_approved_status == "yes":
-            progress += percentage_increase
-
-        return str(progress) + "%"
-
-    @property
     def in_report_correspondence_progress(self):
         now = date.today()
         if (
@@ -610,7 +546,7 @@ class Case(VersionModel):
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_sent_date
         ):
-            return "4 week followup sent"
+            return "4 week followup sent, waiting for acknowledgement"
         return "Unknown"
 
     @property
@@ -648,25 +584,6 @@ class Case(VersionModel):
         ):
             return "4 week followup sent"
         return "Unknown"
-
-    @property
-    def final_decision_progress(self):
-        to_check = [
-            "retested_website_date",
-            "accessibility_statement_state_final",
-            "accessibility_statement_notes_final",
-            "recommendation_for_enforcement",
-            "recommendation_notes",
-            "is_disproportionate_claimed",
-            "compliance_email_sent_date",
-        ]
-        percentage_increase = round(100 / (len(to_check)))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        return str(progress) + "%"
 
     @property
     def twelve_week_progress(self):
@@ -708,13 +625,17 @@ class Case(VersionModel):
             days=PSB_APPEAL_WINDOW_IN_DAYS
         )
 
+    @property
+    def audit(self):
+        return self.audit_case.filter(is_deleted=False).first()  # type: ignore
+
 
 class Contact(models.Model):
     """
     Model for cases Contact
     """
 
-    case = models.ForeignKey(Case, on_delete=CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
     first_name = models.CharField(max_length=200, default="", blank=True)
     last_name = models.CharField(max_length=200, default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)

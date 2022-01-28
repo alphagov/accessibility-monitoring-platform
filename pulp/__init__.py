@@ -10,6 +10,10 @@ paths = {
         "src": "./node_modules/govuk-frontend/govuk/assets",
         "dest": "./accessibility_monitoring_platform/static/compiled/assets",
     },
+    "static_img": {
+        "src": "./accessibility_monitoring_platform/static/img",
+        "dest": "./accessibility_monitoring_platform/static/compiled/assets",
+    },
     "css": {
         "src": "./accessibility_monitoring_platform/static/scss/init.scss",
         "dest": "./accessibility_monitoring_platform/static/compiled/css/init.css",
@@ -27,3 +31,4 @@ def pulp():
     compile_sass_to_css(src=paths["css"]["src"], dest=paths["css"]["dest"])
 
     recursive_copy(src=paths["static"]["src"], dest=paths["static"]["dest"])
+    recursive_copy(src=paths["static_img"]["src"], dest=paths["static_img"]["dest"])

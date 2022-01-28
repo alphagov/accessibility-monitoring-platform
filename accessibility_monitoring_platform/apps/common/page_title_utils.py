@@ -1,6 +1,7 @@
 """ Derive page title from url path """
 import re
 
+from ..audits.models import Audit, Page
 from ..cases.models import Case
 
 PAGE_TITLES_BY_URL = {
@@ -8,6 +9,20 @@ PAGE_TITLES_BY_URL = {
     "/accounts/login/": "Sign in",
     "/accounts/password_reset/": "Reset password",
     "/accounts/password_reset/done/": "Password reset done",
+    "/audits/create-for-case/[id]/": "Create test",
+    "/audits/[id]/detail/": "View test",
+    "/audits/[id]/edit-audit-metadata/": "Test metadata",
+    "/audits/[id]/edit-audit-website/": "Pages",
+    "/audits/[id]/edit-audit-create-page/": "Add page",
+    "/audits/[id]/edit-website-decision/": "Website compliance decision",
+    "/audits/[id]/edit-audit-statement-one/": "Accessibility statement Pt. 1",
+    "/audits/[id]/edit-audit-statement-two/": "Accessibility statement Pt. 2",
+    "/audits/[id]/edit-statement-decision/": "Accessibility statement compliance decision",
+    "/audits/[id]/edit-audit-summary/": "Test summary",
+    "/audits/[id]/edit-audit-report-options/": "Report options",
+    "/audits/[id]/edit-audit-report-text/": "Report text",
+    "/audits/pages/[id]/edit-audit-page/": "Edit page details",
+    "/audits/pages/[id]/edit-audit-page-checks/": "Testing",
     "/cases/": "Search",
     "/cases/[id]/delete-case/": "Delete case",
     "/cases/[id]/edit-case-details/": "Case details",
@@ -31,11 +46,10 @@ PAGE_TITLES_BY_URL = {
     "/report-issue/": "Report an issue",
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
-    "/websites/": "Query domain register",
 }
 
 
-def get_page_title(path: str) -> str:
+def get_page_title(path: str) -> str:  # noqa: C901
     """Derive page title from path"""
     path_without_id = re.sub(r"\d+", "[id]", path)
     page_heading: str = PAGE_TITLES_BY_URL.get(
@@ -49,7 +63,27 @@ def get_page_title(path: str) -> str:
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
             pass
+    elif path_without_id.startswith("/audits/[id]/"):
+        try:
+            audit: Audit = Audit.objects.get(id=path.split("/")[2])
+            page_title: str = f"{audit.case.organisation_name} | {page_heading}"
+        except Audit.DoesNotExist:
+            pass
+    elif path_without_id.startswith("/audits/pages/[id]/"):
+        try:
+            page: Page = Page.objects.get(id=path.split("/")[3])
+            page_title: str = (
+                f"{page.audit.case.organisation_name} | {page_heading} {page}"
+            )
+        except Page.DoesNotExist:
+            pass
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
+        try:
+            case: Case = Case.objects.get(id=path.split("/")[3])
+            page_title: str = f"{case.organisation_name} | {page_heading}"
+        except Case.DoesNotExist:
+            pass
+    elif path_without_id == "/audits/create-for-case/[id]/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"

@@ -217,11 +217,11 @@ def test_get_or_create_sector_from_row_creates_sector():
             datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC),
         ),
         (
-            models.ForeignKey(name="auditor", to=User, on_delete=models.DO_NOTHING),
+            models.ForeignKey(name="auditor", to=User, on_delete=models.PROTECT),
             USER_1,
         ),
         (
-            models.ForeignKey(name="sector", to=Sector, on_delete=models.DO_NOTHING),
+            models.ForeignKey(name="sector", to=Sector, on_delete=models.PROTECT),
             SECTOR_1,
         ),
     ],

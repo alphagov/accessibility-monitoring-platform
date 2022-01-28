@@ -12,9 +12,15 @@
                         <span class="govuk-visually-hidden">Search:</span>
                         {{ top_menu_form.search }}
                         <button class="govuk-input__suffix amp-search-button" aria-hidden="true">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 40 40" width="40" height="40"
-                                    stroke="currentColor" stroke-width="3" fill="none">
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 40 40"
+                                    width="40"
+                                    height="40"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    fill="none"
+                                >
                                     <line x1="22" y1="23" x2="29" y2="31"/>
                                     <circle cx="18" cy="18" r="8" />
                                 </svg>
@@ -24,14 +30,18 @@
             </form>
         </div>
         <div class="govuk-grid-column-three-quarters">
-                <div class="govuk-body login-display-name"> {{ user.first_name|title }} {{ user.last_name|title }} </div>
                 <ul class="govuk-list nav-menu-list">
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Notifications ({% notifications_count request=request %})</a></li>
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reminders:reminder-list' %}">Reminders ({{ number_of_reminders }})</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">Account details</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
+                    <li style="padding-left: 10px"> | </li>
+                    <li style="padding-left: 10px"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
+                </ul>
+                <ul class="govuk-list nav-menu-list">
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Comments ({% notifications_count request=request %})</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reminders:reminder-list' %}">Reminders ({{ number_of_reminders }})</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'overdue:overdue-list' %}">Overdue ({{ number_of_overdue }}) </a></li>
                 </ul>
         </div>
     </div>

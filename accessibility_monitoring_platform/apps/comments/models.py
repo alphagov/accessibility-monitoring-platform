@@ -10,14 +10,14 @@ class Comments(models.Model):
 
     case = models.ForeignKey(
         Case,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="comment_case",
         blank=True,
         null=True,
     )
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="poster_user",
         blank=True,
         null=True,
@@ -43,7 +43,7 @@ class CommentsHistory(models.Model):
 
     comment = models.ForeignKey(
         Comments,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="comment",
         blank=True,
         null=True,

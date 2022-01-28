@@ -190,10 +190,6 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
         MockCase(id=5, status="test-in-progress"),
         MockCase(id=6, status="test-in-progress"),
     ],
-    "unassigned_cases": [
-        MockCase(id=3, status="unassigned-case"),
-        MockCase(id=4, status="unassigned-case"),
-    ],
     "unknown": [
         MockCase(id=1),
         MockCase(id=2),
@@ -219,9 +215,7 @@ def test_group_cases_by_status():
 
 def test_group_cases_by_qa_status():
     """Test cases are grouped by qa_status and sorted"""
-    assert (
-        group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
-    )
+    assert group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
 
 
 def test_return_cases_requiring_user_review():

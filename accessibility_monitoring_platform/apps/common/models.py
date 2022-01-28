@@ -1,10 +1,19 @@
 """
 Models for common data used across project
 """
+from typing import List, Tuple
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+BOOLEAN_DEFAULT = "no"
+BOOLEAN_FALSE = BOOLEAN_DEFAULT
+BOOLEAN_TRUE = "yes"
+BOOLEAN_CHOICES: List[Tuple[str, str]] = [
+    (BOOLEAN_FALSE, "No"),
+    (BOOLEAN_TRUE, "Yes"),
+]
 
 EVENT_TYPE_DEFAULT = "model_update"
 EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT
@@ -37,7 +46,7 @@ class IssueReport(models.Model):
     description = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="issue_report_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
@@ -56,7 +65,7 @@ class Platform(models.Model):
 
     active_qa_auditor = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="platform_active_qa_auditor",
         blank=True,
         null=True,
@@ -71,7 +80,7 @@ class Event(models.Model):
     Model to records events on platform
     """
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
     parent = GenericForeignKey("content_type", "object_id")
     type = models.CharField(
@@ -80,14 +89,14 @@ class Event(models.Model):
     value = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="event_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"#{self.parent} {self.type}"
+        return f"#{self.content_type} {self.object_id} {self.type}"
 
     class Meta:
         ordering = ["-created"]

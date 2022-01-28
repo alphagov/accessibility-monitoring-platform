@@ -75,9 +75,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
         is_deleted=True,
     )
 
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id})  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([undeleted_contact])
@@ -135,9 +133,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?search={included_case.id}"  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")  # type: ignore
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
@@ -296,9 +292,7 @@ def test_case_export_list_view_respects_filters(admin_client):
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-export-list')}?auditor={user.id}"  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(f"{reverse('cases:case-export-list')}?auditor={user.id}")  # type: ignore
 
     assert response.status_code == 200
     assertContains(response, "Included")
@@ -432,9 +426,7 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs={"pk": case.id})  # type: ignore
-    )
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))  # type: ignore
 
     assert response.status_code == 200
 
@@ -559,11 +551,29 @@ def test_create_case_can_create_duplicate_cases(
     "case_edit_path, button_name, expected_redirect_path",
     [
         ("cases:edit-case-details", "save", "cases:edit-case-details"),
+        ("cases:edit-case-details", "save_continue", "cases:edit-test-results"),
         ("cases:edit-test-results", "save", "cases:edit-test-results"),
+        ("cases:edit-test-results", "save_continue", "cases:edit-report-details"),
         ("cases:edit-report-details", "save", "cases:edit-report-details"),
+        ("cases:edit-report-details", "save_continue", "cases:edit-qa-process"),
         ("cases:edit-qa-process", "save", "cases:edit-qa-process"),
+        ("cases:edit-qa-process", "save_continue", "cases:edit-contact-details"),
         ("cases:edit-contact-details", "save", "cases:edit-contact-details"),
-        ("cases:edit-report-correspondence", "save", "cases:edit-report-correspondence"),
+        (
+            "cases:edit-contact-details",
+            "save_continue",
+            "cases:edit-report-correspondence",
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "save",
+            "cases:edit-report-correspondence",
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "save_continue",
+            "cases:edit-twelve-week-correspondence",
+        ),
         (
             "cases:edit-report-followup-due-dates",
             "save_return",
@@ -573,6 +583,11 @@ def test_create_case_can_create_duplicate_cases(
             "cases:edit-twelve-week-correspondence",
             "save",
             "cases:edit-twelve-week-correspondence",
+        ),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "save_continue",
+            "cases:edit-final-decision",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -586,9 +601,19 @@ def test_create_case_can_create_duplicate_cases(
         ),
         ("cases:edit-final-decision", "save", "cases:edit-final-decision"),
         (
+            "cases:edit-final-decision",
+            "save_continue",
+            "cases:edit-enforcement-body-correspondence",
+        ),
+        (
             "cases:edit-enforcement-body-correspondence",
             "save",
             "cases:edit-enforcement-body-correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "save_exit",
+            "cases:case-detail",
         ),
     ],
 )
@@ -604,6 +629,10 @@ def test_case_edit_redirects_based_on_button_pressed(
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "version": case.version,
@@ -624,6 +653,10 @@ def test_add_contact_form_appears(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             "add_contact": "Button value",
         },
@@ -670,6 +703,10 @@ def test_delete_contact(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
@@ -1152,9 +1189,7 @@ def test_calculate_report_followup_dates():
     case: Case = Case()
     report_sent_date: date = date(2020, 1, 1)
 
-    updated_case = calculate_report_followup_dates(
-        case=case, report_sent_date=report_sent_date  # type: ignore
-    )
+    updated_case = calculate_report_followup_dates(case=case, report_sent_date=report_sent_date)  # type: ignore
 
     assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)  # type: ignore
     assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)  # type: ignore
@@ -1595,6 +1630,10 @@ def test_delete_contact_adds_update_event(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
         {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
             f"remove_contact_{contact.id}": "Button value",  # type: ignore
         },
@@ -1630,5 +1669,71 @@ def test_update_case_checks_version(admin_client):
                 </li>
             </ul>
         </div>""",
+        html=True,
+    )
+
+
+def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_client):
+    """
+    Test that the edit testing details page shows the start test button
+    and does not show the link to test results field when testing methodology is platform.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{create_check_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+                Start test
+        </a>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
+            <b>Link to test results</b>
+        </label>""",
+        html=True,
+    )
+
+
+def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet(
+    admin_client,
+):
+    """
+    Test that the edit testing details page does not show the start test button
+    and does show the link to test results field when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(testing_methodology="spreadsheet")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
+    assertNotContains(
+        response,
+        f"""<a href="{create_check_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+                Start test
+        </a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
+            <b>Link to test results</b>
+        </label>""",
         html=True,
     )

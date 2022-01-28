@@ -44,13 +44,14 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.cases",
+    "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.dashboard",
     "accessibility_monitoring_platform.apps.users",
-    "accessibility_monitoring_platform.apps.websites",
     "accessibility_monitoring_platform.apps.notifications",
     "accessibility_monitoring_platform.apps.comments",
     "accessibility_monitoring_platform.apps.reminders",
+    "accessibility_monitoring_platform.apps.overdue",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
