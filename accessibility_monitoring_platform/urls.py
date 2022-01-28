@@ -11,6 +11,7 @@ from accessibility_monitoring_platform.apps.common.views import ContactAdminView
 urlpatterns = [
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
+    path("reportgenerator/", include("accessibility_monitoring_platform.apps.report_generator.urls")),
     path("reminders/", include("accessibility_monitoring_platform.apps.reminders.urls")),
     path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
