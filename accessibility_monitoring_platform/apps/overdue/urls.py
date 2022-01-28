@@ -1,5 +1,5 @@
 """
-URLS for notifications
+URLS for overdue
 """
 
 from django.urls import path
