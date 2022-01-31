@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+"backports.zoneinfo" = "0.2.1"
 django = "*"
 python-dotenv = "*"
 psycopg2 = "*"
