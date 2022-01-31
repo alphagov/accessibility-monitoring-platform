@@ -12,7 +12,7 @@ from typing import (
     Type,
     Union,
 )
-from zoneinfo import ZoneInfo
+from backports.zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core import serializers

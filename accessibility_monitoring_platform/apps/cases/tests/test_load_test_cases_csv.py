@@ -5,7 +5,7 @@ import pytest
 from datetime import date, datetime
 from functools import partial
 from typing import Callable, Dict, List, Union
-from zoneinfo import ZoneInfo
+from backports.zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core.management import call_command

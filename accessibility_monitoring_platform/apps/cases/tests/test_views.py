@@ -4,7 +4,7 @@ Tests for cases views
 from datetime import date, datetime, timedelta
 import pytest
 from typing import List
-from zoneinfo import ZoneInfo
+from backports.zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
 
