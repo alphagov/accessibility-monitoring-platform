@@ -44,8 +44,7 @@ class DashboardView(TemplateView):
         cases_by_status.update(group_cases_by_qa_status(cases=cases))
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
-            cases=all_cases,
-            user=user
+            cases=all_cases, user=user
         )
         cases_by_status["recently_completed"] = return_recently_completed_cases(
             cases=cases
@@ -57,7 +56,7 @@ class DashboardView(TemplateView):
         unassigned_cases: List[Case] = sorted(
             [case for case in all_cases if case.status == "unassigned-case"],
             key=lambda case: (case.created),  # type: ignore
-            reverse=True
+            reverse=True,
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
         context.update(

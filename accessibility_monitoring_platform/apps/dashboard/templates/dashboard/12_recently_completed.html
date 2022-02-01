@@ -32,7 +32,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'cases:edit-final-decision' case.id %}" class="govuk-link"> Completed </a>
+                            <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link"> Completed </a>
                         {% endif %}
                     </td>
                 </tr>

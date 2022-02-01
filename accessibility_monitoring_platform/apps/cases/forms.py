@@ -525,6 +525,71 @@ class CaseFinalDecisionUpdateForm(VersionForm):
         ]
 
 
+class CaseReviewChangesUpdateForm(VersionForm):
+    """
+    Form to record review of changes made by PSB
+    """
+
+    retested_website_date = AMPDateField(
+        label="Retested website?",
+        help_text="There is no test spreadsheet for this case",
+    )
+    final_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "retested_website_date",
+            "final_decision_complete_date",
+        ]
+
+
+class CaseFinalStatementUpdateForm(VersionForm):
+    """
+    Form to record final accessibility statement compliance decision
+    """
+
+    final_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "final_decision_complete_date",
+        ]
+
+
+class CaseFinalWebsiteUpdateForm(VersionForm):
+    """
+    Form to record final website compliance decision
+    """
+
+    final_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "final_decision_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """
+    Form to record sending the compliance decision
+    """
+
+    final_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "final_decision_complete_date",
+        ]
+
+
 class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     """
     Form for recording correspondence with enforcement body

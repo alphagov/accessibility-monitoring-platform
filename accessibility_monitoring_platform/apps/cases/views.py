@@ -58,7 +58,10 @@ from .forms import (
     CaseNoPSBContactUpdateForm,
     CaseTwelveWeekCorrespondenceUpdateForm,
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
-    CaseFinalDecisionUpdateForm,
+    CaseReviewChangesUpdateForm,
+    CaseFinalStatementUpdateForm,
+    CaseFinalWebsiteUpdateForm,
+    CaseCloseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
     CaseSuspendForm,
 )
@@ -161,7 +164,10 @@ class CaseDetailView(DetailView):
         )
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())  # type: ignore
         context["qa_process_rows"] = qa_process_rows
-        context["final_decision_rows"] = get_rows(form=CaseFinalDecisionUpdateForm())  # type: ignore
+        context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())  # type: ignore
+        context["final_statement_rows"] = get_rows(form=CaseFinalStatementUpdateForm())  # type: ignore
+        context["final_website_rows"] = get_rows(form=CaseFinalWebsiteUpdateForm())  # type: ignore
+        context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())  # type: ignore
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()  # type: ignore
         )
@@ -576,7 +582,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("cases:edit-final-decision", kwargs=case_pk)
+            return reverse("cases:edit-review-changes", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -610,13 +616,13 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
 
 
-class CaseFinalDecisionUpdateView(CaseUpdateView):
+class CaseReviewChangesUpdateView(CaseUpdateView):
     """
-    View to record final decision details
+    View to record review of changes made by PSB
     """
 
-    form_class: Type[CaseFinalDecisionUpdateForm] = CaseFinalDecisionUpdateForm
-    template_name: str = "cases/forms/final_decision.html"
+    form_class: Type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
+    template_name: str = "cases/forms/review_changes.html"
 
     def get_form(self):
         """Populate retested_website_date help text with link to test results for this case"""
@@ -628,6 +634,54 @@ class CaseFinalDecisionUpdateView(CaseUpdateView):
                     ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
                 )
         return form
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-final-statement", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseFinalStatementUpdateView(CaseUpdateView):
+    """
+    View to record final accessibility statement compliance decision
+    """
+
+    form_class: Type[CaseFinalStatementUpdateForm] = CaseFinalStatementUpdateForm
+    template_name: str = "cases/forms/final_statement.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-final-website", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseFinalWebsiteUpdateView(CaseUpdateView):
+    """
+    View to record final website compliance decision
+    """
+
+    form_class: Type[CaseFinalWebsiteUpdateForm] = CaseFinalWebsiteUpdateForm
+    template_name: str = "cases/forms/final_website.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-case-close", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseCloseUpdateView(CaseUpdateView):
+    """
+    View to record sending the compliance decision
+    """
+
+    form_class: Type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    template_name: str = "cases/forms/case_close.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

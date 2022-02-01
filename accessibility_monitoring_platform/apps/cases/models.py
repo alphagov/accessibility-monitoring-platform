@@ -459,12 +459,14 @@ class Case(VersionModel):
             return "unassigned-case"
         elif (
             self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
-            or self.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            or self.accessibility_statement_state
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         ):
             return "test-in-progress"
         elif (
             self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
-            and self.accessibility_statement_state != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            and self.accessibility_statement_state
+            != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
             and self.report_review_status != "ready-to-review"
         ):
             return "report-in-progress"
