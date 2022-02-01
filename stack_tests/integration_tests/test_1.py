@@ -569,75 +569,75 @@ class TestCaseUpdates(TestCases):
         self.assertTrue("01/07/2021" in self.driver.page_source)
         self.assertTrue(TWELVE_WEEK_CORRESPONDENCE_NOTES in self.driver.page_source)
 
-    def test_update_case_edit_final_decision(self):
-        """Tests whether final decision can be updated"""
-        self.driver.find_element_by_link_text("Edit final decision").click()
+    # def test_update_case_edit_final_decision(self):
+    #     """Tests whether final decision can be updated"""
+    #     self.driver.find_element_by_link_text("Edit final decision").click()
 
-        self.assertTrue(">Final decision</h1>" in self.driver.page_source)
+    #     self.assertTrue(">Final decision</h1>" in self.driver.page_source)
 
-        self.driver.find_element_by_name("psb_progress_notes").send_keys(
-            PSB_PROGRESS_NOTES
-        )
+    #     self.driver.find_element_by_name("psb_progress_notes").send_keys(
+    #         PSB_PROGRESS_NOTES
+    #     )
 
-        self.driver.find_element_by_name("retested_website_date_0").clear()
-        self.driver.find_element_by_name("retested_website_date_0").send_keys(
-            RETESTED_WEBSITE_DD
-        )
-        self.driver.find_element_by_name("retested_website_date_1").clear()
-        self.driver.find_element_by_name("retested_website_date_1").send_keys(
-            RETESTED_WEBSITE_MM
-        )
-        self.driver.find_element_by_name("retested_website_date_2").clear()
-        self.driver.find_element_by_name("retested_website_date_2").send_keys(
-            RETESTED_WEBSITE_YYYY
-        )
+    #     self.driver.find_element_by_name("retested_website_date_0").clear()
+    #     self.driver.find_element_by_name("retested_website_date_0").send_keys(
+    #         RETESTED_WEBSITE_DD
+    #     )
+    #     self.driver.find_element_by_name("retested_website_date_1").clear()
+    #     self.driver.find_element_by_name("retested_website_date_1").send_keys(
+    #         RETESTED_WEBSITE_MM
+    #     )
+    #     self.driver.find_element_by_name("retested_website_date_2").clear()
+    #     self.driver.find_element_by_name("retested_website_date_2").send_keys(
+    #         RETESTED_WEBSITE_YYYY
+    #     )
 
-        self.driver.find_element_by_css_selector(
-            "#id_is_disproportionate_claimed_1"
-        ).click()
-        self.driver.find_element_by_name("disproportionate_notes").send_keys(
-            DISPROPORTIONATE_NOTES
-        )
-        self.driver.find_element_by_css_selector(
-            "#id_accessibility_statement_state_final_2"
-        ).click()
-        self.driver.find_element_by_name(
-            "accessibility_statement_notes_final"
-        ).send_keys(ACCESSIBILITY_STATEMENT_NOTES_FINAL)
-        self.driver.find_element_by_css_selector(
-            "#id_recommendation_for_enforcement_1"
-        ).click()
-        self.driver.find_element_by_name("recommendation_notes").send_keys(
-            RECOMMENDATION_NOTES
-        )
+    #     self.driver.find_element_by_css_selector(
+    #         "#id_is_disproportionate_claimed_1"
+    #     ).click()
+    #     self.driver.find_element_by_name("disproportionate_notes").send_keys(
+    #         DISPROPORTIONATE_NOTES
+    #     )
+    #     self.driver.find_element_by_css_selector(
+    #         "#id_accessibility_statement_state_final_2"
+    #     ).click()
+    #     self.driver.find_element_by_name(
+    #         "accessibility_statement_notes_final"
+    #     ).send_keys(ACCESSIBILITY_STATEMENT_NOTES_FINAL)
+    #     self.driver.find_element_by_css_selector(
+    #         "#id_recommendation_for_enforcement_1"
+    #     ).click()
+    #     self.driver.find_element_by_name("recommendation_notes").send_keys(
+    #         RECOMMENDATION_NOTES
+    #     )
 
-        self.driver.find_element_by_name("compliance_email_sent_date_0").clear()
-        self.driver.find_element_by_name("compliance_email_sent_date_0").send_keys(
-            COMPLIANCE_EMAIL_SENT_DATE_DD
-        )
-        self.driver.find_element_by_name("compliance_email_sent_date_1").clear()
-        self.driver.find_element_by_name("compliance_email_sent_date_1").send_keys(
-            COMPLIANCE_EMAIL_SENT_DATE_MM
-        )
-        self.driver.find_element_by_name("compliance_email_sent_date_2").clear()
-        self.driver.find_element_by_name("compliance_email_sent_date_2").send_keys(
-            COMPLIANCE_EMAIL_SENT_DATE_YYYY
-        )
+    #     self.driver.find_element_by_name("compliance_email_sent_date_0").clear()
+    #     self.driver.find_element_by_name("compliance_email_sent_date_0").send_keys(
+    #         COMPLIANCE_EMAIL_SENT_DATE_DD
+    #     )
+    #     self.driver.find_element_by_name("compliance_email_sent_date_1").clear()
+    #     self.driver.find_element_by_name("compliance_email_sent_date_1").send_keys(
+    #         COMPLIANCE_EMAIL_SENT_DATE_MM
+    #     )
+    #     self.driver.find_element_by_name("compliance_email_sent_date_2").clear()
+    #     self.driver.find_element_by_name("compliance_email_sent_date_2").send_keys(
+    #         COMPLIANCE_EMAIL_SENT_DATE_YYYY
+    #     )
 
-        self.driver.find_element_by_css_selector("#id_case_completed_1").click()
-        self.driver.find_element_by_css_selector(
-            "#id_final_decision_complete_date"
-        ).click()
+    #     self.driver.find_element_by_css_selector("#id_case_completed_1").click()
+    #     self.driver.find_element_by_css_selector(
+    #         "#id_final_decision_complete_date"
+    #     ).click()
 
-        self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Case").click()
+    #     self.driver.find_element_by_name("save").click()
+    #     self.driver.find_element_by_link_text("Case").click()
 
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("01/08/2021" in self.driver.page_source)
-        self.assertTrue(DISPROPORTIONATE_NOTES in self.driver.page_source)
-        self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES_FINAL in self.driver.page_source)
-        self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
-        self.assertTrue("13/08/2021" in self.driver.page_source)
+    #     self.assertTrue(">View case</h1>" in self.driver.page_source)
+    #     self.assertTrue("01/08/2021" in self.driver.page_source)
+    #     self.assertTrue(DISPROPORTIONATE_NOTES in self.driver.page_source)
+    #     self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES_FINAL in self.driver.page_source)
+    #     self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
+    #     self.assertTrue("13/08/2021" in self.driver.page_source)
 
     def test_update_case_edit_enforcement_body_correspondence(self):
         """Tests whether enforcement body correspondence can be updated"""

@@ -11,8 +11,8 @@ BOOLEAN_DEFAULT = "no"
 BOOLEAN_FALSE = BOOLEAN_DEFAULT
 BOOLEAN_TRUE = "yes"
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    (BOOLEAN_FALSE, "No"),
     (BOOLEAN_TRUE, "Yes"),
+    (BOOLEAN_FALSE, "No"),
 ]
 
 EVENT_TYPE_DEFAULT = "model_update"

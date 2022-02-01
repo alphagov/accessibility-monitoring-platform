@@ -1016,18 +1016,18 @@ def test_preferred_contact_displayed(admin_client):
             "12 week correspondence",
             "edit-twelve-week-correspondence",
         ),
-        ("final_decision_complete_date", "Reviewing changes", "edit-review-changes"),
+        ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
-            "final_decision_complete_date",
+            "final_statement_complete_date",
             "Final accessibility statement compliance decision",
             "edit-final-statement",
         ),
         (
-            "final_decision_complete_date",
+            "final_website_complete_date",
             "Final website compliance decision",
             "edit-final-website",
         ),
-        ("final_decision_complete_date", "Closing the case", "edit-case-close"),
+        ("case_close_complete_date", "Closing the case", "edit-case-close"),
         (
             "enforcement_correspondence_complete_date",
             "Equality body correspondence",
@@ -1095,20 +1095,20 @@ def test_section_complete_check_displayed_in_contents(
         ),
         (
             "cases:edit-review-changes",
-            "final_decision_complete_date",
+            "review_changes_complete_date",
             "Reviewing changes",
         ),
         (
             "cases:edit-final-statement",
-            "final_decision_complete_date",
+            "final_statement_complete_date",
             "Final accessibility statement compliance decision",
         ),
         (
             "cases:edit-final-website",
-            "final_decision_complete_date",
+            "final_website_complete_date",
             "Final website compliance decision",
         ),
-        ("cases:edit-case-close", "final_decision_complete_date", "Closing the case"),
+        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
         (
             "cases:edit-enforcement-body-correspondence",
             "enforcement_correspondence_complete_date",
@@ -1139,90 +1139,101 @@ def test_section_complete_check_displayed_in_steps(
     )
 
 
-# def test_case_final_decision_view_contains_link_to_test_results_url(admin_client):
-#     """Test that the case final decision view contains the link to the test results"""
-#     test_results_url: str = "https://test-results-url"
-#     case: Case = Case.objects.create(test_results_url=test_results_url)
+def test_case_review_changes_view_contains_link_to_test_results_url(admin_client):
+    """Test that the case review changes view contains the link to the test results"""
+    test_results_url: str = "https://test-results-url"
+    case: Case = Case.objects.create(test_results_url=test_results_url)
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
-#     )
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+    )
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         '<div class="govuk-hint">'
-#         f'The retest form can be found in the <a href="{test_results_url}"'
-#         ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
-#         "</div>",
-#     )
-
-
-# def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_client):
-#     """Test that the case final decision view contains no link to the test results if none is on case"""
-#     case: Case = Case.objects.create()
-
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
-#     )
-
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         '<div class="govuk-hint">'
-#         "There is no test spreadsheet for this case"
-#         "</div>",
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<div class="govuk-hint">'
+        "This field affects the case status.<br>"
+        f'The retest form can be found in the <a href="{test_results_url}"'
+        ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
+        "</div>",
+    )
 
 
-# def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(
-#     admin_client,
-# ):
-#     """
-#     Test that the case final decision view contains placeholder text if there are no accessibility statement notes
-#     """
-#     case: Case = Case.objects.create()
+def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_client):
+    """
+    Test that the case review changes view contains no link to the test results if none is on case
+    """
+    case: Case = Case.objects.create()
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
-#     )
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+    )
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         """<div class="govuk-form-group">
-#             <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
-#             <div class="govuk-hint">
-#                 No notes for this case
-#             </div>
-#         </div>""",
-#         html=True,
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        '<div class="govuk-hint">'
+        "There is no test spreadsheet for this case"
+        "</div>",
+    )
 
 
-# def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(
-#     admin_client,
-# ):
-#     """
-#     Test that the case final decision view contains placeholder text if there are no compliance decision notes
-#     """
-#     case: Case = Case.objects.create()
+@pytest.mark.parametrize(
+    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
+)
+def test_case_final_views_contain_placeholder_no_accessibility_statement_notes(
+    step_url, admin_client,
+):
+    """
+    Test that the case final statement and website views
+    contain placeholder text if there are no accessibility statement notes
+    """
+    case: Case = Case.objects.create()
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
-#     )
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
+    )
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         """<div class="govuk-form-group">
-#             <label class="govuk-label"><b>Initial compliance notes</b></label>
-#             <div class="govuk-hint">
-#                 No notes for this case
-#             </div>
-#         </div>""",
-#         html=True,
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
+            <div class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
+)
+def test_case_final_views_contains_placeholder_no_compliance_decision_notes(
+    step_url, admin_client,
+):
+    """
+    Test that the case final views contain placeholder text
+    if there are no compliance decision notes
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Initial compliance notes</b></label>
+            <div class="govuk-hint">
+                No notes for this case
+            </div>
+        </div>""",
+        html=True,
+    )
 
 
 def test_calculate_report_followup_dates():
@@ -1548,32 +1559,40 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     assert updated_case.reviewer == admin_user
 
 
-# def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_client):
-#     """
-#     Test that the case final decision view contains a warning if the website and accessibility statement
-#     are compliant
-#     """
-#     case: Case = Case.objects.create(
-#         is_website_compliant="compliant", accessibility_statement_state="compliant"
-#     )
+@pytest.mark.parametrize(
+    "step_url", [
+        "cases:edit-review-changes",
+        "cases:edit-final-statement",
+        "cases:edit-final-website",
+        "cases:edit-case-close",
+    ]
+)
+def test_case_final_views_show_warning_when_no_problems_found(step_url, admin_client):
+    """
+    Test that the case final views contain a warning if the website and accessibility statement
+    are compliant
+    """
+    case: Case = Case.objects.create(
+        is_website_compliant="compliant", accessibility_statement_state="compliant"
+    )
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
-#     )
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
+    )
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         """<div class="govuk-warning-text">
-#             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-#             <strong class="govuk-warning-text__text">
-#                 <span class="govuk-warning-text__assistive">Warning</span>
-#                 The public sector body website is compliant and has no issues with the accessibility statement.
-#                 The case can be marked as completed with no further action.
-#             </strong>
-#         </div>""",
-#         html=True,
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                The public sector body website is compliant and has no issues with the accessibility statement.
+                The case can be marked as completed with no further action.
+            </strong>
+        </div>""",
+        html=True,
+    )
 
 
 @pytest.mark.django_db

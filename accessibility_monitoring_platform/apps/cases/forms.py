@@ -11,6 +11,7 @@ from django.db.models import QuerySet
 from ..common.forms import (
     VersionForm,
     AMPChoiceCheckboxWidget,
+    AMPNoFurtherActionCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
     AMPCharField,
@@ -41,6 +42,7 @@ from .models import (
     BOOLEAN_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     TESTING_METHODOLOGY_CHOICES,
     PSB_LOCATION_CHOICES,
@@ -464,9 +466,9 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
         ]
 
 
-class CaseFinalDecisionUpdateForm(VersionForm):
+class CaseReviewChangesUpdateForm(VersionForm):
     """
-    Form for updating case final decision details
+    Form to record review of changes made by PSB
     """
 
     psb_progress_notes = AMPTextField(
@@ -476,35 +478,12 @@ class CaseFinalDecisionUpdateForm(VersionForm):
         label="Retested website?",
         help_text="There is no test spreadsheet for this case",
     )
-    is_disproportionate_claimed = AMPChoiceRadioField(
-        label="Disproportionate burden claimed?",
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_state_final = AMPChoiceRadioField(
-        label="Final accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    )
-    accessibility_statement_screenshot_url = AMPURLField(
-        label="Link to accessibility statement screenshot"
-    )
-    accessibility_statement_notes_final = AMPTextField(
-        label="Final accessibility statement notes",
-    )
-    recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Enforcement recommendation",
-        choices=RECOMMENDATION_CHOICES,
-    )
-    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
-    compliance_email_sent_date = AMPDateField(
-        label="Compliance email sent to public sector body?"
-    )
-    case_completed = AMPChoiceRadioField(
-        label="Case completed and needs to be sent to EHRC or ECNI?",
-        choices=CASE_COMPLETED_CHOICES,
+    is_ready_for_final_decision = AMPChoiceRadioField(
+        label="Is this case ready for final decision?",
         help_text="This field affects the case status",
+        choices=BOOLEAN_CHOICES,
     )
-    final_decision_complete_date = AMPDatePageCompleteField()
+    review_changes_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
@@ -512,36 +491,8 @@ class CaseFinalDecisionUpdateForm(VersionForm):
             "version",
             "psb_progress_notes",
             "retested_website_date",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_state_final",
-            "accessibility_statement_screenshot_url",
-            "accessibility_statement_notes_final",
-            "recommendation_for_enforcement",
-            "recommendation_notes",
-            "compliance_email_sent_date",
-            "case_completed",
-            "final_decision_complete_date",
-        ]
-
-
-class CaseReviewChangesUpdateForm(VersionForm):
-    """
-    Form to record review of changes made by PSB
-    """
-
-    retested_website_date = AMPDateField(
-        label="Retested website?",
-        help_text="There is no test spreadsheet for this case",
-    )
-    final_decision_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "retested_website_date",
-            "final_decision_complete_date",
+            "is_ready_for_final_decision",
+            "review_changes_complete_date",
         ]
 
 
@@ -549,14 +500,34 @@ class CaseFinalStatementUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """
-
-    final_decision_complete_date = AMPDatePageCompleteField()
+    is_disproportionate_claimed = AMPChoiceRadioField(
+        label="Disproportionate burden claimed?",
+        help_text="This field affects the case status",
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_screenshot_url = AMPURLField(
+        label="Link to accessibility statement screenshot"
+    )
+    accessibility_statement_state_final = AMPChoiceRadioField(
+        label="Final accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes_final = AMPTextField(
+        label="Final accessibility statement notes",
+    )
+    final_statement_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "final_decision_complete_date",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_screenshot_url",
+            "accessibility_statement_state_final",
+            "accessibility_statement_notes_final",
+            "final_statement_complete_date",
         ]
 
 
@@ -564,14 +535,22 @@ class CaseFinalWebsiteUpdateForm(VersionForm):
     """
     Form to record final website compliance decision
     """
-
-    final_decision_complete_date = AMPDatePageCompleteField()
+    website_state_final = AMPChoiceRadioField(
+        label="Final website compliance decision",
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+    )
+    website_state_notes_final = AMPTextField(
+        label="Final website compliance decision notes",
+    )
+    final_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "final_decision_complete_date",
+            "website_state_final",
+            "website_state_notes_final",
+            "final_website_complete_date",
         ]
 
 
@@ -580,13 +559,33 @@ class CaseCloseUpdateForm(VersionForm):
     Form to record sending the compliance decision
     """
 
-    final_decision_complete_date = AMPDatePageCompleteField()
+    compliance_email_sent_date = AMPDateField(
+        label="Date when compliance decision email sent to public sector body"
+    )
+    recommendation_for_enforcement = AMPChoiceCheckboxField(
+        label="Recomendation for equality body",
+        choices=RECOMMENDATION_CHOICES,
+        widget=AMPNoFurtherActionCheckboxWidget(
+            attrs={"label": "No further action"}
+        ),
+    )
+    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
+    case_completed = AMPChoiceRadioField(
+        label="Case completed",
+        choices=CASE_COMPLETED_CHOICES,
+        help_text="This field affects the case status",
+    )
+    case_close_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "final_decision_complete_date",
+            "compliance_email_sent_date",
+            "recommendation_for_enforcement",
+            "recommendation_notes",
+            "case_completed",
+            "case_close_complete_date",
         ]
 
 

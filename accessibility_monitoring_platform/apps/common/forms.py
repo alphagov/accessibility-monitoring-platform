@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Union
 from django.contrib.auth.models import User
 from django import forms
 
+from ..cases.models import RECOMMENDATION_DEFAULT, RECOMMENDATION_NO_ACTION
 from .models import IssueReport
 from .utils import convert_date_to_datetime, validate_url
 
@@ -71,6 +72,24 @@ class AMPDateCheckboxWidget(AMPChoiceCheckboxWidget):
         if name not in data:
             return None
         return date.today()
+
+
+class AMPNoFurtherActionCheckboxWidget(AMPBooleanCheckboxWidget):
+    """Widget for GDS design system checkbox fields with choice data"""
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value != RECOMMENDATION_NO_ACTION:
+            context["widget"]["attrs"]["checked"] = False
+        return context
+
+    def value_from_datadict(self, data, files, name):
+        """If checkbox is ticked, return default otherwise return no action"""
+        if name not in data:
+            # A missing value means False because HTML form submission does not
+            # send results for unselected checkboxes.
+            return RECOMMENDATION_DEFAULT
+        return RECOMMENDATION_NO_ACTION
 
 
 class AMPCheckboxSelectMultipleWidget(forms.CheckboxSelectMultiple):
