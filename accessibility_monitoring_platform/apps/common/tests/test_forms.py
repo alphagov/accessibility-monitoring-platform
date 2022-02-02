@@ -15,7 +15,6 @@ from ..forms import (
     AMPRadioSelectWidget,
     AMPChoiceCheckboxWidget,
     AMPDateCheckboxWidget,
-    AMPNoFurtherActionCheckboxWidget,
     AMPDateWidget,
     AMPCharField,
     AMPCharFieldWide,
@@ -93,11 +92,6 @@ class MockForm(forms.Form):
 
     date_as_checkbox = AMPDateSentField(label="Label1")
     choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
-    no_further_action_as_checkbox = AMPChoiceCheckboxField(
-        label="Recommendation for equality body",
-        choices=[("no-further-action", "No further action"), ("unknown", "Not known")],
-        widget=AMPNoFurtherActionCheckboxWidget(attrs={"label": "No further action"}),
-    )
 
 
 def test_amp_widget_html_uses_govuk_classes():
@@ -306,29 +300,3 @@ def test_amp_date_sent_field_and_widget_return_none_when_not_checked():
     form: MockForm = MockForm(data={})
     assert form.is_valid()
     assert form.cleaned_data["date_as_checkbox"] is None
-
-
-def test_amp_no_further_action_checkbox_widget_html_uses_govuk_classes():
-    """Check AMPNoFurtherActionCheckboxWidget renders the expected HTML"""
-    widget: AMPNoFurtherActionCheckboxWidget = AMPNoFurtherActionCheckboxWidget(
-        attrs={"label": "Label text"}
-    )
-    assertHTMLEqual(widget.render("name", None), EXPECTED_CHECKBOX_WIDGET_HTML)
-
-
-def test_amp_no_further_action_field_and_widget_return_no_action_when_checked():
-    """Tests AMPChoiceCheckboxField and AMPNoFurtherActionCheckboxWidget return today when checked"""
-    form: MockForm = MockForm(
-        data={
-            "no_further_action_as_checkbox": "on",
-        }
-    )
-    assert form.is_valid()
-    assert form.cleaned_data["no_further_action_as_checkbox"] == "no-further-action"
-
-
-def test_amp_no_further_action_field_and_widget_return_unknown_when_not_checked():
-    """Tests AMPDateSentField and AMPDateCheckboxWidget return none when not checked"""
-    form: MockForm = MockForm(data={})
-    assert form.is_valid()
-    assert form.cleaned_data["no_further_action_as_checkbox"] == "unknown"

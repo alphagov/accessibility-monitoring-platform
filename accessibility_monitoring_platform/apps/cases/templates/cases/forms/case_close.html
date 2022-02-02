@@ -40,17 +40,9 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-case-close' case.id %}">
                     {% csrf_token %}
-                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-l">Sending compliance decision</h2>
-                            {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
-                            <h2 class="govuk-heading-l">Recommendation for equality body</h2>
-                            {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
-                            {% include 'common/amp_field.html' with field=form.recommendation_notes %}
-                            <h2 class="govuk-heading-l">Closing the case</h2>
-                            {% include 'common/amp_field.html' with field=form.case_completed %}
-                            {% include 'common/amp_field.html' with field=form.case_close_complete_date %}
+                            {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'cases/helpers/save_continue_cancel.html' %}

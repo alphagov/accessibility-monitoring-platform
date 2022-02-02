@@ -286,7 +286,7 @@ class TestCaseUpdates(TestCases):
         Tests whether final accessibility statement decision can be updated
     test_update_case_edit_final_website()
         Tests whether final website decision can be updated
-    test_update_case_edit_close_case()
+    test_update_case_edit_case_close()
         Tests whether close case can be updated
     test_update_case_edit_enforcement_body_correspondence()
         Tests whether enforcement body correspondence can be updated
@@ -681,7 +681,7 @@ class TestCaseUpdates(TestCases):
         )
 
         self.driver.find_element_by_css_selector(
-            "#id_recommendation_for_enforcement"
+            "#id_recommendation_for_enforcement_1"
         ).click()
         self.driver.find_element_by_name("recommendation_notes").send_keys(
             RECOMMENDATION_NOTES
@@ -697,6 +697,7 @@ class TestCaseUpdates(TestCases):
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue("13/08/2021" in self.driver.page_source)
+        self.assertTrue("No recommendation made" in self.driver.page_source)
         self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
         self.assertTrue("Case should not be sent to the equality body" in self.driver.page_source)
 

@@ -11,7 +11,6 @@ from django.db.models import QuerySet
 from ..common.forms import (
     VersionForm,
     AMPChoiceCheckboxWidget,
-    AMPNoFurtherActionCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
     AMPCharField,
@@ -564,10 +563,9 @@ class CaseCloseUpdateForm(VersionForm):
     compliance_email_sent_date = AMPDateField(
         label="Date when compliance decision email sent to public sector body"
     )
-    recommendation_for_enforcement = AMPChoiceCheckboxField(
-        label="",
+    recommendation_for_enforcement = AMPChoiceRadioField(
+        label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
-        widget=AMPNoFurtherActionCheckboxWidget(attrs={"label": "No further action"}),
     )
     recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
     case_completed = AMPChoiceRadioField(
