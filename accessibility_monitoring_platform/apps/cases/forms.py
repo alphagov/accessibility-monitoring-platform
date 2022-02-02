@@ -565,7 +565,7 @@ class CaseCloseUpdateForm(VersionForm):
         label="Date when compliance decision email sent to public sector body"
     )
     recommendation_for_enforcement = AMPChoiceCheckboxField(
-        label="Recomendation for equality body",
+        label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
         widget=AMPNoFurtherActionCheckboxWidget(attrs={"label": "No further action"}),
     )

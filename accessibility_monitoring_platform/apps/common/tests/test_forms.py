@@ -94,7 +94,7 @@ class MockForm(forms.Form):
     date_as_checkbox = AMPDateSentField(label="Label1")
     choice_as_checkbox = AMPChoiceCheckboxField(label="Label2", choices=BOOLEAN_CHOICES)
     no_further_action_as_checkbox = AMPChoiceCheckboxField(
-        label="Recomendation for equality body",
+        label="Recommendation for equality body",
         choices=[("no-further-action", "No further action"), ("unknown", "Not known")],
         widget=AMPNoFurtherActionCheckboxWidget(attrs={"label": "No further action"}),
     )
