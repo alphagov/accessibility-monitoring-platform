@@ -94,10 +94,7 @@ disproportionate burden note, I am"""
 ACCESSIBILITY_STATEMENT_NOTES_FINAL = """I am
 a multiline
 accessibility statement final note, I am"""
-WEBSITE_NOTES_FINAL = """I am
-a multiline
-website note, I am
-"""
+WEBSITE_NOTES_FINAL = "I am a website note"
 RECOMMENDATION_NOTES = """I am
 a multiline
 recommendation note, I am"""
