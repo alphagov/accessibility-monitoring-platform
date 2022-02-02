@@ -1152,7 +1152,7 @@ def test_case_review_changes_view_contains_link_to_test_results_url(admin_client
     assertContains(
         response,
         '<div class="govuk-hint">'
-        "This field affects the case status.<br>"
+        "This field affects the case status<br>"
         f'The retest form can be found in the <a href="{test_results_url}"'
         ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
