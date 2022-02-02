@@ -500,6 +500,7 @@ class CaseFinalStatementUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
     """
+
     is_disproportionate_claimed = AMPChoiceRadioField(
         label="Disproportionate burden claimed?",
         help_text="This field affects the case status",
@@ -535,6 +536,7 @@ class CaseFinalWebsiteUpdateForm(VersionForm):
     """
     Form to record final website compliance decision
     """
+
     website_state_final = AMPChoiceRadioField(
         label="Final website compliance decision",
         choices=WEBSITE_STATE_FINAL_CHOICES,
@@ -565,9 +567,7 @@ class CaseCloseUpdateForm(VersionForm):
     recommendation_for_enforcement = AMPChoiceCheckboxField(
         label="Recomendation for equality body",
         choices=RECOMMENDATION_CHOICES,
-        widget=AMPNoFurtherActionCheckboxWidget(
-            attrs={"label": "No further action"}
-        ),
+        widget=AMPNoFurtherActionCheckboxWidget(attrs={"label": "No further action"}),
     )
     recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
     case_completed = AMPChoiceRadioField(

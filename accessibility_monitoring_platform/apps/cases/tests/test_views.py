@@ -1182,7 +1182,8 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
 )
 def test_case_final_views_contain_placeholder_no_accessibility_statement_notes(
-    step_url, admin_client,
+    step_url,
+    admin_client,
 ):
     """
     Test that the case final statement and website views
@@ -1211,7 +1212,8 @@ def test_case_final_views_contain_placeholder_no_accessibility_statement_notes(
     "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
 )
 def test_case_final_views_contains_placeholder_no_compliance_decision_notes(
-    step_url, admin_client,
+    step_url,
+    admin_client,
 ):
     """
     Test that the case final views contain placeholder text
@@ -1560,12 +1562,13 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
 
 
 @pytest.mark.parametrize(
-    "step_url", [
+    "step_url",
+    [
         "cases:edit-review-changes",
         "cases:edit-final-statement",
         "cases:edit-final-website",
         "cases:edit-case-close",
-    ]
+    ],
 )
 def test_case_final_views_show_warning_when_no_problems_found(step_url, admin_client):
     """
