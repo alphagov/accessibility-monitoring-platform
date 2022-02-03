@@ -186,9 +186,9 @@
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
                                                 <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
-                                                    {{ check_result.wcag_definition }}</a>
+                                                    {{ check_result.wcag_definition.name }}</a>
                                             {% else %}
-                                                {{ check_result.wcag_definition }}
+                                                {{ check_result.wcag_definition.name }}
                                             {% endif %}
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
