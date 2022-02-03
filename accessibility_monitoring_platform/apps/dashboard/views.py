@@ -57,7 +57,6 @@ class DashboardView(TemplateView):
         unassigned_cases: List[Case] = sorted(
             [case for case in all_cases if case.status == "unassigned-case"],
             key=lambda case: (case.created),  # type: ignore
-            reverse=True
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
         context.update(
