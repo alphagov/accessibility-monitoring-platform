@@ -40,7 +40,7 @@ DEBUG = os.getenv("DEBUG") == "TRUE"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
-CSRF_TRUSTED_ORIGINS = ["https://*.london.cloudapps.digital", "https://*.127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 
 # Application definition
 
