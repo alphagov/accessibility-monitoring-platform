@@ -44,8 +44,7 @@ class DashboardView(TemplateView):
         cases_by_status.update(group_cases_by_qa_status(cases=all_cases))
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
-            cases=all_cases,
-            user=user
+            cases=all_cases, user=user
         )
         cases_by_status["recently_completed"] = return_recently_completed_cases(
             cases=cases

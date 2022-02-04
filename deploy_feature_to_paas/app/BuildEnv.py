@@ -9,6 +9,7 @@ from string import Template
 
 class BuildEnv:
     """BuildEnv - Builds new environment in PaaS"""
+
     def __init__(
         self,
         build_direction: str,
@@ -22,10 +23,7 @@ class BuildEnv:
         db_ping_attempts: int = 20,
         db_ping_interval: int = 30,
     ):
-        if (
-            build_direction != "up"
-            and build_direction != "down"
-        ):
+        if build_direction != "up" and build_direction != "down":
             raise TypeError("build_direction needs to be up or down")
         self.build_direction = build_direction
         self.space_name = space_name
@@ -52,10 +50,7 @@ class BuildEnv:
             print(">>> pinging database")
             instruction: str = f"""cf service {self.db_name}"""
             try:
-                self.bash_command(
-                    command=instruction,
-                    check="succeeded"
-                )
+                self.bash_command(command=instruction, check="succeeded")
                 print(f">>> {self.db_name} started successfully")
                 print(">>> sleeping for 30 seconds")
                 time.sleep(30)
@@ -73,10 +68,7 @@ class BuildEnv:
             print(">>> pinging database")
             instruction: str = f"""cf service {self.db_name}"""
             try:
-                self.bash_command(
-                    command=instruction,
-                    check="FAILED"
-                )
+                self.bash_command(command=instruction, check="FAILED")
                 print(f">>> {self.db_name} has deleted")
                 return
             except:
@@ -115,8 +107,7 @@ class BuildEnv:
             True if it was succesful
         """
         process: subprocess.Popen = subprocess.Popen(
-            command.split(),
-            stdout=subprocess.PIPE
+            command.split(), stdout=subprocess.PIPE
         )
         output: bytes = process.communicate()[0]
         if check not in output.decode("utf-8"):
@@ -127,18 +118,19 @@ class BuildEnv:
         """Installs conduit"""
         print(">>> Installing conduit")
         yes_pipe_process: subprocess.Popen = subprocess.Popen(
-            ["yes"],
-            stdout=subprocess.PIPE
+            ["yes"], stdout=subprocess.PIPE
         )
         install_process: subprocess.Popen = subprocess.Popen(
             "cf install-plugin conduit".split(" "),
             stdin=yes_pipe_process.stdout,
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
         )
         yes_pipe_process.stdout.close()  # Allow ps_process to receive a SIGPIPE if grep_process exits.
         output: bytes = install_process.communicate()[0]
         if "successfully installed" not in output.decode("utf-8"):
-            raise Exception(f"""yes | cf install-plugin conduit - {output.decode("utf-8")}""")
+            raise Exception(
+                f"""yes | cf install-plugin conduit - {output.decode("utf-8")}"""
+            )
 
     def up(self):
         """Script for creating an environment in PaaS"""
@@ -146,21 +138,18 @@ class BuildEnv:
         self.create_requirements()
 
         print(f"cf create-space {self.space_name}")
-        self.bash_command(
-            command=f"cf create-space {self.space_name}",
-            check="OK"
-        )
+        self.bash_command(command=f"cf create-space {self.space_name}", check="OK")
 
         print(f"cf target -s {self.space_name}")
         self.bash_command(
             command=f"cf target -s {self.space_name}",
-            check=f"space:          {self.space_name}"
+            check=f"space:          {self.space_name}",
         )
 
         print(f"cf create-service postgres tiny-unencrypted-11 {self.db_name}")
         self.bash_command(
             command=f"cf create-service postgres tiny-unencrypted-11 {self.db_name}",
-            check="OK"
+            check="OK",
         )
 
         self.check_db_has_started()  # Checks if database has spun up correctly
@@ -179,7 +168,7 @@ class BuildEnv:
             f"cf push -f {self.manifest_path}".split(),
             stderr=sys.stderr,
             stdout=sys.stdout,
-            check=True
+            check=True,
         )  # Deploys Django app
         print(f">>> website: {self.app_name}.london.cloudapps.digital")
 
@@ -194,13 +183,11 @@ class BuildEnv:
         attempts: int = 0
         while attempts < self.db_ping_attempts:
             process: subprocess.Popen = subprocess.Popen(
-                f"cf delete-space -f {self.space_name}".split(),
-                stdout=subprocess.PIPE
+                f"cf delete-space -f {self.space_name}".split(), stdout=subprocess.PIPE
             )  # delete-space triggers a deletion of all apps in space
 
             process = subprocess.Popen(
-                "cf spaces".split(),
-                stdout=subprocess.PIPE
+                "cf spaces".split(), stdout=subprocess.PIPE
             )  # Checks if space has been deleted
             output: bytes = process.communicate()[0]
             if self.space_name not in output.decode("utf-8"):

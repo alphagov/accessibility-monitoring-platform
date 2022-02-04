@@ -14,10 +14,7 @@ def test_read_notifications_marks_notification_as_read():
     """test to check if read_notifications function marks notifications as read"""
     user0: User = create_user()
     notification: Notifications = Notifications(
-        user=user0,
-        body="this is a notification",
-        created_date=datetime.now(),
-        path="/"
+        user=user0, body="this is a notification", created_date=datetime.now(), path="/"
     )
     notification.save()
     factory: RequestFactory = RequestFactory()
@@ -45,7 +42,10 @@ def test_add_notification_creates_notification_and_sends_email(mailoutbox):
     )
     assert Notifications.objects.get(id=1).body == "this is a notification"
     assert len(mailoutbox) == 1
-    assert mailoutbox[0].subject == "You have a new notification in the monitoring platform : There is a notification"
+    assert (
+        mailoutbox[0].subject
+        == "You have a new notification in the monitoring platform : There is a notification"
+    )
 
 
 @pytest.mark.django_db
@@ -89,4 +89,6 @@ def test_creates_new_email_notification_model_when_null(mailoutbox):
     assert len(mailoutbox) == 0
     assert len(NotificationsSettings.objects.all()) == 1
     assert NotificationsSettings.objects.get(user=1).user.email == user0.email
-    assert NotificationsSettings.objects.get(user=1).email_notifications_enabled is False
+    assert (
+        NotificationsSettings.objects.get(user=1).email_notifications_enabled is False
+    )

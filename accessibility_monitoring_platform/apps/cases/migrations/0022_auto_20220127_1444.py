@@ -9,34 +9,59 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('common', '0007_auto_20211022_0851'),
-        ('cases', '0021_add_audits'),
+        ("common", "0007_auto_20211022_0851"),
+        ("cases", "0021_add_audits"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='case',
-            name='auditor',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='case_auditor_user', to=settings.AUTH_USER_MODEL),
+            model_name="case",
+            name="auditor",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="case_auditor_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='created_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='case_created_by_user', to=settings.AUTH_USER_MODEL),
+            model_name="case",
+            name="created_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="case_created_by_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='reviewer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='case_reviewer_user', to=settings.AUTH_USER_MODEL),
+            model_name="case",
+            name="reviewer",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="case_reviewer_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='case',
-            name='sector',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='common.sector'),
+            model_name="case",
+            name="sector",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="common.sector",
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='case',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='cases.case'),
+            model_name="contact",
+            name="case",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="cases.case"
+            ),
         ),
     ]

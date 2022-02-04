@@ -19,9 +19,7 @@ def save_comment_history(obj: Comments) -> bool:
     """Will take a new comment object and save the history to comment history"""
     original_comment: Comments = Comments.objects.get(pk=obj.id)  # type: ignore
     history: CommentsHistory = CommentsHistory(
-        comment=obj,
-        before=original_comment.body,
-        after=obj.body
+        comment=obj, before=original_comment.body, after=obj.body
     )
     history.save()
     return True
@@ -44,13 +42,14 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     bool
         Returns true if function is successful
     """
-    users_on_thread: QuerySet[Comments] = Comments.objects.filter(
-        path=request.session.get("comment_path"),
-        hidden=False,
-    ).values_list(
-        "user",
-        flat=True
-    ).distinct()
+    users_on_thread: QuerySet[Comments] = (
+        Comments.objects.filter(
+            path=request.session.get("comment_path"),
+            hidden=False,
+        )
+        .values_list("user", flat=True)
+        .distinct()
+    )
 
     users_on_thread_list: List[Any] = list(users_on_thread)
     users_on_thread_list_int: List[int] = [int(x) for x in users_on_thread_list]
@@ -92,6 +91,7 @@ class CommentsPostView(FormView):
     """
     Post comment
     """
+
     form_class = SubmitCommentForm
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -116,10 +116,11 @@ class CommentsPostView(FormView):
 
 class CommentDeleteView(View):
     """Post view for deleting a comment"""
+
     model = Comments
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponseRedirect:
-        """ Deletes a comment """
+        """Deletes a comment"""
         comments: Comments = Comments.objects.get(pk=pk)
         if comments.user.id == request.user.id:  # type: ignore # Checks whether the comment was posted by user
             comments.hidden = True
@@ -138,6 +139,7 @@ class CommentEditView(UpdateView):
     """
     View to record final decision details
     """
+
     model = Comments
     form_class = EditCommentForm
     template_name: str = "edit_comment.html"

@@ -5,6 +5,7 @@ import subprocess
 
 class CopyDB:
     """CopyDB - Copies DB to local path"""
+
     def __init__(
         self,
         space_name: str,
@@ -26,8 +27,7 @@ class CopyDB:
             True if it was succesful
         """
         process: subprocess.Popen = subprocess.Popen(
-            command.split(),
-            stdout=subprocess.PIPE
+            command.split(), stdout=subprocess.PIPE
         )
         output: bytes = process.communicate()[0]
         if check not in output.decode("utf-8"):
@@ -44,18 +44,19 @@ class CopyDB:
         """Installs conduit"""
         print(">>> Installing conduit")
         yes_pipe_process: subprocess.Popen = subprocess.Popen(
-            ["yes"],
-            stdout=subprocess.PIPE
+            ["yes"], stdout=subprocess.PIPE
         )
         install_process: subprocess.Popen = subprocess.Popen(
             "cf install-plugin conduit".split(" "),
             stdin=yes_pipe_process.stdout,
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
         )
         yes_pipe_process.stdout.close()  # Allow ps_process to receive a SIGPIPE if grep_process exits.
         output: bytes = install_process.communicate()[0]
         if "successfully installed" not in output.decode("utf-8"):
-            raise Exception(f"""yes | cf install-plugin conduit - {output.decode("utf-8")}""")
+            raise Exception(
+                f"""yes | cf install-plugin conduit - {output.decode("utf-8")}"""
+            )
 
     def change_space(self):
         """Changes space in cloud foundry"""

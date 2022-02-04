@@ -18,7 +18,9 @@ def download_webdriver(chrome_version: Union[str, None] = None) -> None:
         return
 
     if chrome_version == "latest":
-        page: Any = urlopen("https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+        page: Any = urlopen(
+            "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
+        )
         chrome_version = page.read().decode("utf-8")
 
     library: str = "mac64" if platform.system().lower() == "darwin" else "linux64"
@@ -36,10 +38,7 @@ def download_webdriver(chrome_version: Union[str, None] = None) -> None:
         dst="stack_tests/chromedriver2",
     )
     shutil.rmtree(path="stack_tests/chromedriver")
-    os.rename(
-        src="stack_tests/chromedriver2",
-        dst=webdriver_path
-    )
+    os.rename(src="stack_tests/chromedriver2", dst=webdriver_path)
 
     os.system(command=f"chmod 755 {webdriver_path}")
 

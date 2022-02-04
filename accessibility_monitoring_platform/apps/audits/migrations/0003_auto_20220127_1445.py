@@ -7,39 +7,65 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0022_auto_20220127_1444'),
-        ('audits', '0002_populate_wcag_definitions'),
+        ("cases", "0022_auto_20220127_1444"),
+        ("audits", "0002_populate_wcag_definitions"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='audit',
-            name='case',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='audit_case', to='cases.case'),
+            model_name="audit",
+            name="case",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="audit_case",
+                to="cases.case",
+            ),
         ),
         migrations.AlterField(
-            model_name='audit',
-            name='retest_of_audit',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='audit_retest', to='audits.audit'),
+            model_name="audit",
+            name="retest_of_audit",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="audit_retest",
+                to="audits.audit",
+            ),
         ),
         migrations.AlterField(
-            model_name='checkresult',
-            name='audit',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='checkresult_audit', to='audits.audit'),
+            model_name="checkresult",
+            name="audit",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="checkresult_audit",
+                to="audits.audit",
+            ),
         ),
         migrations.AlterField(
-            model_name='checkresult',
-            name='page',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='checkresult_page', to='audits.page'),
+            model_name="checkresult",
+            name="page",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="checkresult_page",
+                to="audits.page",
+            ),
         ),
         migrations.AlterField(
-            model_name='checkresult',
-            name='wcag_definition',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='checkresult_wcagdefinition', to='audits.wcagdefinition'),
+            model_name="checkresult",
+            name="wcag_definition",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="checkresult_wcagdefinition",
+                to="audits.wcagdefinition",
+            ),
         ),
         migrations.AlterField(
-            model_name='page',
-            name='audit',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='page_audit', to='audits.audit'),
+            model_name="page",
+            name="audit",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="page_audit",
+                to="audits.audit",
+            ),
         ),
     ]
