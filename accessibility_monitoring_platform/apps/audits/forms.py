@@ -45,7 +45,6 @@ from .models import (
     CONTACT_INFORMATION_STATE_CHOICES,
     ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     ACCESS_REQUIREMENTS_STATE_CHOICES,
-    OVERALL_COMPLIANCE_STATE_CHOICES,
     ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
     CHECK_RESULT_STATE_CHOICES,
@@ -382,11 +381,6 @@ class AuditStatement2UpdateForm(VersionForm):
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
     )
     access_requirements_notes = AMPTextField(label="Notes")
-    overall_compliance_state = AMPChoiceRadioField(
-        label="Overall Decision on Compliance of Accessibility Statement",
-        choices=OVERALL_COMPLIANCE_STATE_CHOICES,
-    )
-    overall_compliance_notes = AMPTextField(label="Notes")
     audit_statement_2_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -406,8 +400,6 @@ class AuditStatement2UpdateForm(VersionForm):
             "method_notes",
             "access_requirements_state",
             "access_requirements_notes",
-            "overall_compliance_state",
-            "overall_compliance_notes",
             "audit_statement_2_complete_date",
         ]
 
