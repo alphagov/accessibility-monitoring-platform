@@ -9,18 +9,30 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('notifications', '0002_auto_20210930_1621'),
+        ("notifications", "0002_auto_20210930_1621"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notifications',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='notification_user', to=settings.AUTH_USER_MODEL),
+            model_name="notifications",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="notification_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='notificationssettings',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, primary_key=True, related_name='notification_settings_user', serialize=False, to=settings.AUTH_USER_MODEL),
+            model_name="notificationssettings",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                primary_key=True,
+                related_name="notification_settings_user",
+                serialize=False,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

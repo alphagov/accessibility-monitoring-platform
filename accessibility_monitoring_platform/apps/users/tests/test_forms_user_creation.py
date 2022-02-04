@@ -44,11 +44,11 @@ class CustomUserCreationFormTestCase(TestCase):
     """
 
     def setUp(self):
-        """ Sets up the test environment with a request factory """
+        """Sets up the test environment with a request factory"""
         self.factory: RequestFactory = RequestFactory()
 
     def test_form_conforms(self):
-        """ Tests if form.is_valid() is working as expected """
+        """Tests if form.is_valid() is working as expected"""
         request: HttpRequest = self.factory.get(reverse("users:register"))
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         data: FormRequestRegister = {
@@ -67,7 +67,7 @@ class CustomUserCreationFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_form_email_not_in_inclusion_list(self):
-        """ Returns an error with email not in inclusion list """
+        """Returns an error with email not in inclusion list"""
         request: HttpRequest = self.factory.get(reverse("users:register"))
 
         data: FormRequestRegister = {
@@ -88,7 +88,7 @@ class CustomUserCreationFormTestCase(TestCase):
         )
 
     def test_form_email_already_registered_error(self):
-        """ Returns an error if email is already registered """
+        """Returns an error if email is already registered"""
         request: HttpRequest = self.factory.get(reverse("users:register"))
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         User.objects.create(username="admin2@email.com", email="admin2@email.com")
@@ -110,7 +110,7 @@ class CustomUserCreationFormTestCase(TestCase):
         )
 
     def test_form_emails_do_not_match(self):
-        """ Returns an error if emails do not match """
+        """Returns an error if emails do not match"""
         request: HttpRequest = self.factory.get(reverse("users:register"))
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         data: FormRequestRegister = {
