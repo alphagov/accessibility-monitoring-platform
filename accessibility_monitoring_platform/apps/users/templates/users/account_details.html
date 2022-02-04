@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 {% extends 'base.html' %}
 
 {% block title %}Account details{% endblock %}
@@ -35,7 +33,7 @@
             {% include 'common/amp_field.html' with field=form.email %}
             {% include 'common/amp_field.html' with field=form.email_confirm %}
             <div class="form_default">
-                <div class="form-group form-field-default" errorid="loginStatusUsername">
+                <div class="form-group form-field-default">
                     <label class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ form.password.label }}</label>
                     {% if form.password.help_text %}<div class="govuk-hint">{{ form.password.help_text }}</div>{% endif %}
                     {% include 'common/field_errors.html' with errors=form.password.errors %}
