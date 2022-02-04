@@ -49,11 +49,11 @@ class UpdateUserFormTestCase(TestCase):
     """
 
     def setUp(self):
-        """ Sets up the test environment with a request factory """
+        """Sets up the test environment with a request factory"""
         self.factory: RequestFactory = RequestFactory()
 
     def test_form_conforms(self):
-        """ Tests if form.is_valid() is working as expected """
+        """Tests if form.is_valid() is working as expected"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
             username="admin2@email.com", email="admin2@email.com"
@@ -80,7 +80,7 @@ class UpdateUserFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_unregistered_email_returns_error(self):
-        """ Returns an error with email not in inclusion list """
+        """Returns an error with email not in inclusion list"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
             username="admin2@email.com", email="admin2@email.com"
@@ -109,7 +109,7 @@ class UpdateUserFormTestCase(TestCase):
         )
 
     def test_email_already_in_use_returns_error(self):
-        """ Returns an error if email is already in use """
+        """Returns an error if email is already in use"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         EmailInclusionList.objects.create(inclusion_email="OLD_EMAIL@email.com")
         user: User = User.objects.create(email="OLD_EMAIL@email.com")
@@ -143,7 +143,7 @@ class UpdateUserFormTestCase(TestCase):
         )
 
     def test_form_mismatched_email_fields_returns_error(self):
-        """ Returns an error if email fields are mismatched """
+        """Returns an error if email fields are mismatched"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
             username="admin2@email.com", email="admin2@email.com"
@@ -172,7 +172,7 @@ class UpdateUserFormTestCase(TestCase):
         )
 
     def test_incorrect_password_returns_error(self):
-        """ Returns an error if password is incorrect """
+        """Returns an error if password is incorrect"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
             username="admin2@email.com", email="admin2@email.com"

@@ -4,6 +4,7 @@ import boto3
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv()
 
 s3_client = boto3.client(
@@ -24,10 +25,6 @@ def download_s3_object(s3_bucket: str, s3_path: str, local_path: str) -> None:
     if os.path.exists(local_path) is False:
         temp: str = "/".join(local_path.split("/")[:-1])
         Path(temp).mkdir(parents=True, exist_ok=True)
-        s3_client.download_file(
-            s3_bucket,
-            s3_path,
-            local_path
-        )
+        s3_client.download_file(s3_bucket, s3_path, local_path)
     else:
         print(">>>> file already exists")

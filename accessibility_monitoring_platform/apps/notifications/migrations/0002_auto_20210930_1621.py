@@ -6,17 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notifications', '0001_initial'),
+        ("notifications", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='notificationssettings',
-            options={'verbose_name': 'NotificationSetting', 'verbose_name_plural': 'NotificationSettings'},
+            name="notificationssettings",
+            options={
+                "verbose_name": "NotificationSetting",
+                "verbose_name_plural": "NotificationSettings",
+            },
         ),
         migrations.RenameField(
-            model_name='notifications',
-            old_name='endpoint',
-            new_name='path',
+            model_name="notifications",
+            old_name="endpoint",
+            new_name="path",
         ),
     ]

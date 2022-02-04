@@ -26,7 +26,10 @@ if __name__ == "__main__":
         # Else it justs get the latest production backup
         db_backups: List[Any] = []
         for key in s3_client.list_objects(Bucket=s3_bucket)["Contents"]:
-            if "deploy_feature_to_paas_db_back/" in key["Key"] and "production" in key["Key"]:
+            if (
+                "deploy_feature_to_paas_db_back/" in key["Key"]
+                and "production" in key["Key"]
+            ):
                 db_backups.append(key)
         db_backups.sort(key=lambda x: x["LastModified"])
         file_name = db_backups[-1]["Key"].split("/")[-1]
@@ -37,11 +40,7 @@ if __name__ == "__main__":
 
     if not os.path.isfile(local_path):
         print(f">>> downloading {s3_path}")
-        s3_client.download_file(
-            s3_bucket,
-            s3_path,
-            local_path
-        )
+        s3_client.download_file(s3_bucket, s3_path, local_path)
 
     os.system(
         "psql "

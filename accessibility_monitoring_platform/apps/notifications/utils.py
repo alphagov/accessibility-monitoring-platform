@@ -19,11 +19,7 @@ class EmailContextType(TypedDict):
 
 
 def add_notification(
-    user: User,
-    body: str,
-    path: str,
-    list_description: str,
-    request: HttpRequest
+    user: User, body: str, path: str, list_description: str, request: HttpRequest
 ) -> Notifications:
     """Adds notification to DB. Also handles email notifications.
 
@@ -46,10 +42,7 @@ def add_notification(
         Notifications model
     """
     notification: Notifications = Notifications(
-        user=user,
-        body=body,
-        path=path,
-        list_description=list_description
+        user=user, body=body, path=path, list_description=list_description
     )
     notification.save()
     if NotificationsSettings.objects.filter(pk=user.id).exists():  # type: ignore
@@ -91,9 +84,7 @@ def read_notification(request: HttpRequest) -> None:
     request : HttpRequest
     """
     notifications: QuerySet[Notifications] = Notifications.objects.filter(
-        user=request.user,
-        path=request.path,
-        read=False
+        user=request.user, path=request.path, read=False
     )
     for notification in notifications:
         notification.read = True  # type: ignore

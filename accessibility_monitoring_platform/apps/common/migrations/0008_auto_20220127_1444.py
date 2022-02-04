@@ -9,29 +9,46 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('common', '0007_auto_20211022_0851'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("common", "0007_auto_20211022_0851"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='content_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'),
+            model_name="event",
+            name="content_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to="contenttypes.contenttype",
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='created_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='event_created_by_user', to=settings.AUTH_USER_MODEL),
+            model_name="event",
+            name="created_by",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="event_created_by_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='issuereport',
-            name='created_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='issue_report_created_by_user', to=settings.AUTH_USER_MODEL),
+            model_name="issuereport",
+            name="created_by",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="issue_report_created_by_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='platform',
-            name='active_qa_auditor',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='platform_active_qa_auditor', to=settings.AUTH_USER_MODEL),
+            model_name="platform",
+            name="active_qa_auditor",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="platform_active_qa_auditor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

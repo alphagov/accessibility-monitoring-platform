@@ -23,14 +23,14 @@ class EmailInclusionListTestCase(TestCase):
     """
 
     def test_has_group_returns_true(self):
-        """ Returns boolean true if user in group """
+        """Returns boolean true if user in group"""
         user: User = User.objects.create()
         group: Group = Group.objects.create(name=GROUP_NAME)
         group.user_set.add(user)  # type: ignore
         self.assertEqual(has_group(user=user, group_name=GROUP_NAME), True)
 
     def test_has_group_returns_false(self):
-        """ Returns boolean false if user not in group """
+        """Returns boolean false if user not in group"""
         user: User = User.objects.create()
         Group.objects.create(name=GROUP_NAME)
         self.assertEqual(has_group(user=user, group_name=GROUP_NAME), False)
