@@ -208,7 +208,10 @@ class TestCaseView(SeleniumTest):
             ("Edit contact details", "Contact details"),
             ("Edit report correspondence", "Report correspondence"),
             ("Edit 12 week correspondence", "12 week correspondence"),
-            ("Edit final decision", "Final decision"),
+            ("Edit reviewing changes", "Reviewing changes"),
+            ("Edit final accessibility statement compliance decision", "Final accessibility statement compliance decision"),
+            ("Edit final website compliance decision", "Final website compliance decision"),
+            ("Edit closing the case", "Closing the case"),
             ("Edit equality body correspondence", "Equality body correspondence"),
         ]
 
