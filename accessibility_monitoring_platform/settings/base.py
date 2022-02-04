@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.comments",
     "accessibility_monitoring_platform.apps.reminders",
     "accessibility_monitoring_platform.apps.overdue",
+    "accessibility_monitoring_platform.apps.report_generator",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -173,7 +174,9 @@ STATIC_URL = os.path.join(BASE_DIR, "/static/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-CONTACT_ADMIN_EMAIL = "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+CONTACT_ADMIN_EMAIL = (
+    "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 

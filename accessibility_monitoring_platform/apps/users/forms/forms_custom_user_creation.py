@@ -12,7 +12,7 @@ from typing import Any
 
 
 class CustomUserCreationForm(UserCreationForm):
-    """ Custom user registation form """
+    """Custom user registation form"""
 
     email: forms.CharField = forms.CharField(
         required=True,
@@ -46,7 +46,7 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields.pop("username")
 
     def clean_email_confirm(self):
-        """ Ensures the email conforms and is unique """
+        """Ensures the email conforms and is unique"""
         email: str = self.cleaned_data.get("email")
         email_confirm: str = self.cleaned_data.get("email_confirm")
 

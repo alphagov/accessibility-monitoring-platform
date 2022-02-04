@@ -35,4 +35,7 @@ def test_comments_history_model_returns_str():
         after="this is a new comment",
         created_date=datetime.now(),
     )
-    assert str(comment_history) == "Comment this is a comment was updated to this is a new comment"
+    assert (
+        str(comment_history)
+        == "Comment this is a comment was updated to this is a new comment"
+    )

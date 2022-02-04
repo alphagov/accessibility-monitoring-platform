@@ -10,33 +10,59 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='NotificationsSettings',
+            name="NotificationsSettings",
             fields=[
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='notification_settings_user', serialize=False, to='auth.user')),
-                ('email_notifications_enabled', models.BooleanField(default=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        related_name="notification_settings_user",
+                        serialize=False,
+                        to="auth.user",
+                    ),
+                ),
+                ("email_notifications_enabled", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Notifications',
+            name="Notifications",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('body', models.TextField()),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('read', models.BooleanField(default=False)),
-                ('endpoint', models.TextField(default=False)),
-                ('list_description', models.TextField(default=False)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notification_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("body", models.TextField()),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                ("read", models.BooleanField(default=False)),
+                ("endpoint", models.TextField(default=False)),
+                ("list_description", models.TextField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notification_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Notification',
-                'verbose_name_plural': 'Notifications',
-                'ordering': ['-created_date'],
+                "verbose_name": "Notification",
+                "verbose_name_plural": "Notifications",
+                "ordering": ["-created_date"],
             },
         ),
     ]

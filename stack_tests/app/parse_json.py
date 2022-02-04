@@ -12,6 +12,7 @@ class S3ObjectsPathsType(TypedDict):
     Args:
         TypedDict ([type]): type for S3 object paths
     """
+
     s3_path: str
     local_path: str
 
@@ -22,6 +23,7 @@ class IntegrationTestsSettingsType(TypedDict):
     Args:
         TypedDict ([type]): Type for integration test object
     """
+
     name: str
     date: str
     docker_compose_path: str
@@ -58,16 +60,16 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
             missing = f"""\n    Missing from integration settings - {", ".join(diff)}"""
         if diff2:
             extra = f"""\n    Extra fields in json - {", ".join(diff2)}"""
-        raise Exception(f"Missing or invalid values in json settings file - {missing} {extra}")
+        raise Exception(
+            f"Missing or invalid values in json settings file - {missing} {extra}"
+        )
 
     for key in data:
         if key in data:
-            if (
-                type(data[key]) != class_type.__dict__["__annotations__"][key]
-                and (
-                    type(data[key]) != list
-                    or "typing.List[" not in str(class_type.__dict__["__annotations__"][key])
-                )
+            if type(data[key]) != class_type.__dict__["__annotations__"][key] and (
+                type(data[key]) != list
+                or "typing.List["
+                not in str(class_type.__dict__["__annotations__"][key])
             ):
                 invalid_fields.append(key)
 
@@ -75,10 +77,14 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
         type_guide: str = ""
         for field in invalid_fields:
             type_guide += f"""\n    - {field} should be {class_type.__dict__["__annotations__"][field]} is currently {type(data[field])}"""
-        raise Exception(f"""Types in integration settings json were invalid: {type_guide}""")
+        raise Exception(
+            f"""Types in integration settings json were invalid: {type_guide}"""
+        )
 
 
-def parse_integration_tests_json(settings_path: Union[str, None] = None) -> IntegrationTestsSettingsType:
+def parse_integration_tests_json(
+    settings_path: Union[str, None] = None
+) -> IntegrationTestsSettingsType:
     """Loads integrations settings json. Defaults to ./stack_tests/integration_tests_settings.json if
     no file name is given.
 

@@ -42,7 +42,10 @@ def test_save_comment_history():
     assert res is True
 
     comment_history: CommentsHistory = CommentsHistory.objects.get(id=1)
-    assert str(comment_history) == "Comment this is a comment was updated to this is a newer comment"
+    assert (
+        str(comment_history)
+        == "Comment this is a comment was updated to this is a newer comment"
+    )
 
 
 @pytest.mark.django_db
@@ -70,7 +73,7 @@ def test_add_comment_notification():
         page="edit-qa-process",
         body="this is a comment",
         created_date=datetime.now(),
-        path=request.session["comment_path"]
+        path=request.session["comment_path"],
     )
     comment.save()
     res: bool = add_comment_notification(request=request, obj=comment)
@@ -92,7 +95,7 @@ def test_add_comment_notification():
         page="edit-qa-process",
         body="this is a comment by a second user",
         created_date=datetime.now(),
-        path=request2.session["comment_path"]
+        path=request2.session["comment_path"],
     )
     comment2.save()
 
@@ -122,10 +125,13 @@ def test_post_comment():
     response: HttpResponse = client.post(
         reverse("comments:post-comment"),  # type: ignore
         data={"body": "this is a comment"},
-        follow=True
+        follow=True,
     )
     assert response.status_code == 200
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
+    assertContains(
+        response,
+        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+    )
     assertContains(response, "1 comment")
     assertContains(response, "this is a comment")
     assert len(Comments.objects.all()) == 1
@@ -143,15 +149,12 @@ def test_delete_comment():
     client: Client = Client()
     client.login(username=user0.username, password=USER_PASSWORD)
     client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": case.id}  # type: ignore
-        ),
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
     )
     response: HttpResponse = client.post(
         reverse("comments:post-comment"),  # type: ignore
         data={"body": "this is a comment"},
-        follow=True
+        follow=True,
     )
     assert response.status_code == 200
     assert Comments.objects.get(id=1).hidden is False
@@ -167,11 +170,14 @@ def test_delete_comment():
             "comments:remove-comment",
             kwargs={"pk": 1},  # type: ignore
         ),
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
+    assertContains(
+        response,
+        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+    )
     assertContains(response, "0 comments")
     assert Comments.objects.get(id=1).hidden is True
 
@@ -198,7 +204,7 @@ def test_edit_comment():
     client.post(
         reverse("comments:post-comment"),  # type: ignore
         data={"body": "this is a comment"},
-        follow=True
+        follow=True,
     )
 
     # Editing comment
@@ -211,9 +217,12 @@ def test_edit_comment():
     response: HttpResponse = client.post(
         reverse("comments:edit-comment", kwargs={"pk": 1}),  # type: ignore
         data={"body": "this is an updated comment"},
-        follow=True
+        follow=True,
     )
-    assertContains(response, """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""")
+    assertContains(
+        response,
+        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+    )
     assertContains(response, "1 comment")
     assertContains(response, "this is an updated comment")
     assertContains(response, "Last edited")
