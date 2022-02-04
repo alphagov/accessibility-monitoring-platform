@@ -3,7 +3,7 @@ Tests for cases views
 """
 from datetime import date, datetime, timedelta
 import pytest
-from typing import List
+from typing import Dict, List
 from backports.zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -13,7 +13,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.text import slugify
 
 from ..models import Case, Contact
 from ..views import (
@@ -352,7 +351,7 @@ def test_restore_case_view(admin_client):
 def test_suspend_case_view(admin_client):
     """Test that suspend case view suspends case"""
     case: Case = Case.objects.create()
-    case_pk: dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
         reverse("cases:suspend-case", kwargs=case_pk),
@@ -375,7 +374,7 @@ def test_suspend_case_view(admin_client):
 def test_unsuspend_case_view(admin_client):
     """Test that unsuspend case view unsuspends case"""
     case: Case = Case.objects.create()
-    case_pk: dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
         reverse("cases:unsuspend-case", kwargs=case_pk),
@@ -587,7 +586,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-twelve-week-correspondence",
             "save_continue",
-            "cases:edit-final-decision",
+            "cases:edit-review-changes",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -599,9 +598,27 @@ def test_create_case_can_create_duplicate_cases(
             "save",
             "cases:edit-enforcement-body-correspondence",
         ),
-        ("cases:edit-final-decision", "save", "cases:edit-final-decision"),
+        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
         (
-            "cases:edit-final-decision",
+            "cases:edit-review-changes",
+            "save_continue",
+            "cases:edit-final-statement",
+        ),
+        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
+        (
+            "cases:edit-final-statement",
+            "save_continue",
+            "cases:edit-final-website",
+        ),
+        ("cases:edit-final-website", "save", "cases:edit-final-website"),
+        (
+            "cases:edit-final-website",
+            "save_continue",
+            "cases:edit-case-close",
+        ),
+        ("cases:edit-case-close", "save", "cases:edit-case-close"),
+        (
+            "cases:edit-case-close",
             "save_continue",
             "cases:edit-enforcement-body-correspondence",
         ),
@@ -999,7 +1016,18 @@ def test_preferred_contact_displayed(admin_client):
             "12 week correspondence",
             "edit-twelve-week-correspondence",
         ),
-        ("final_decision_complete_date", "Final decision", "edit-final-decision"),
+        ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
+        (
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
+            "edit-final-statement",
+        ),
+        (
+            "final_website_complete_date",
+            "Final website compliance decision",
+            "edit-final-website",
+        ),
+        ("case_close_complete_date", "Closing the case", "edit-case-close"),
         (
             "enforcement_correspondence_complete_date",
             "Equality body correspondence",
@@ -1027,7 +1055,7 @@ def test_section_complete_check_displayed_in_contents(
     assertContains(
         response,
         f"""<li>
-            <a href="#{slugify(section_name)}" class="govuk-link govuk-link--no-visited-state">
+            <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
             |
             <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
@@ -1065,7 +1093,22 @@ def test_section_complete_check_displayed_in_contents(
             "twelve_week_correspondence_complete_date",
             "12 week correspondence",
         ),
-        ("cases:edit-final-decision", "final_decision_complete_date", "Final decision"),
+        (
+            "cases:edit-review-changes",
+            "review_changes_complete_date",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-final-statement",
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
+        ),
+        (
+            "cases:edit-final-website",
+            "final_website_complete_date",
+            "Final website compliance decision",
+        ),
+        ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
         (
             "cases:edit-enforcement-body-correspondence",
             "enforcement_correspondence_complete_date",
@@ -1096,31 +1139,34 @@ def test_section_complete_check_displayed_in_steps(
     )
 
 
-def test_case_final_decision_view_contains_link_to_test_results_url(admin_client):
-    """Test that the case final decision view contains the link to the test results"""
+def test_case_review_changes_view_contains_link_to_test_results_url(admin_client):
+    """Test that the case review changes view contains the link to the test results"""
     test_results_url: str = "https://test-results-url"
     case: Case = Case.objects.create(test_results_url=test_results_url)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
     )
 
     assert response.status_code == 200
     assertContains(
         response,
         '<div class="govuk-hint">'
+        "This field affects the case status<br>"
         f'The retest form can be found in the <a href="{test_results_url}"'
         ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
         "</div>",
     )
 
 
-def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_client):
-    """Test that the case final decision view contains no link to the test results if none is on case"""
+def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_client):
+    """
+    Test that the case review changes view contains no link to the test results if none is on case
+    """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
     )
 
     assert response.status_code == 200
@@ -1132,16 +1178,21 @@ def test_case_final_decision_view_contains_no_link_to_test_results_url(admin_cli
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_accessibility_statement_notes(
+@pytest.mark.parametrize(
+    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
+)
+def test_case_final_views_contain_placeholder_no_accessibility_statement_notes(
+    step_url,
     admin_client,
 ):
     """
-    Test that the case final decision view contains placeholder text if there are no accessibility statement notes
+    Test that the case final statement and website views
+    contain placeholder text if there are no accessibility statement notes
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
     )
 
     assert response.status_code == 200
@@ -1157,16 +1208,21 @@ def test_case_final_decision_view_contains_placeholder_no_accessibility_statemen
     )
 
 
-def test_case_final_decision_view_contains_placeholder_no_compliance_decision_notes(
+@pytest.mark.parametrize(
+    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
+)
+def test_case_final_views_contains_placeholder_no_compliance_decision_notes(
+    step_url,
     admin_client,
 ):
     """
-    Test that the case final decision view contains placeholder text if there are no compliance decision notes
+    Test that the case final views contain placeholder text
+    if there are no compliance decision notes
     """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
     )
 
     assert response.status_code == 200
@@ -1407,7 +1463,10 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
         ("trello_url", "edit-qa-process"),
         ("zendesk_url", "edit-report-correspondence"),
         ("trello_url", "edit-twelve-week-correspondence"),
-        ("zendesk_url", "edit-final-decision"),
+        ("zendesk_url", "edit-review-changes"),
+        ("zendesk_url", "edit-final-statement"),
+        ("zendesk_url", "edit-final-website"),
+        ("zendesk_url", "edit-case-close"),
         ("trello_url", "edit-enforcement-body-correspondence"),
     ],
 )
@@ -1502,9 +1561,18 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     assert updated_case.reviewer == admin_user
 
 
-def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_client):
+@pytest.mark.parametrize(
+    "step_url",
+    [
+        "cases:edit-review-changes",
+        "cases:edit-final-statement",
+        "cases:edit-final-website",
+        "cases:edit-case-close",
+    ],
+)
+def test_case_final_views_show_warning_when_no_problems_found(step_url, admin_client):
     """
-    Test that the case final decision view contains a warning if the website and accessibility statement
+    Test that the case final views contain a warning if the website and accessibility statement
     are compliant
     """
     case: Case = Case.objects.create(
@@ -1512,7 +1580,7 @@ def test_case_final_decision_view_shows_warning_when_no_problems_found(admin_cli
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-final-decision", kwargs={"pk": case.id})  # type: ignore
+        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
     )
 
     assert response.status_code == 200

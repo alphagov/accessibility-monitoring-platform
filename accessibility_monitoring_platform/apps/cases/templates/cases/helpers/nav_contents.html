@@ -11,13 +11,16 @@
             </a>
         </li>
         {% include './nav_content.html' with id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
-        {% include './nav_content.html' with id='testing-details' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
+        {% include './nav_content.html' with id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
         {% include './nav_content.html' with id='report-details' edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
         {% include './nav_content.html' with id='qa-process' edit_name='cases:edit-qa-process' name='QA process' complete=case.qa_process_complete_date %}
         {% include './nav_content.html' with id='contact-details' edit_name='cases:edit-contact-details' name='Contact details' complete=case.contact_details_complete_date %}
         {% include './nav_content.html' with id='report-correspondence' edit_name='cases:edit-report-correspondence' name='Report correspondence' complete=case.report_correspondence_complete_date %}
-        {% include './nav_content.html' with id='12-week-correspondence' edit_name='cases:edit-twelve-week-correspondence' name='12 week correspondence' complete=case.twelve_week_correspondence_complete_date %}
-        {% include './nav_content.html' with id='final-decision' edit_name='cases:edit-final-decision' name='Final decision' complete=case.final_decision_complete_date %}
-        {% include './nav_content.html' with id='equality-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
+        {% include './nav_content.html' with id='twelve-week-correspondence' edit_name='cases:edit-twelve-week-correspondence' name='12 week correspondence' complete=case.twelve_week_correspondence_complete_date %}
+        {% include './nav_content.html' with id='review-changes' edit_name='cases:edit-review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
+        {% include './nav_content.html' with id='final-statement' edit_name='cases:edit-final-statement' name='Final accessibility statement compliance decision' complete=case.final_statement_complete_date %}
+        {% include './nav_content.html' with id='final-website' edit_name='cases:edit-final-website' name='Final website compliance decision' complete=case.final_website_complete_date %}
+        {% include './nav_content.html' with id='case-close' edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
+        {% include './nav_content.html' with id='enforcement-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body correspondence' complete=case.enforcement_correspondence_complete_date %}
     </ul>
 </nav>

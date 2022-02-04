@@ -201,13 +201,6 @@ EXPECTED_AUDIT_STATEMENT_ROWS: List[FieldLabelAndValue] = [
         extra_label="",
         external_url=True,
     ),
-    FieldLabelAndValue(
-        value="Not Compliant",
-        label="Overall Decision on Compliance of Accessibility Statement",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
 ]
 EXPECTED_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
