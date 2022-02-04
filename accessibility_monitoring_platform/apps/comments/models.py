@@ -6,7 +6,7 @@ from accessibility_monitoring_platform.apps.cases.models import Case
 
 
 class Comments(models.Model):
-    """ Comments model """
+    """Comments model"""
 
     case = models.ForeignKey(
         Case,
@@ -39,7 +39,7 @@ class Comments(models.Model):
 
 
 class CommentsHistory(models.Model):
-    """ Comments history model """
+    """Comments history model"""
 
     comment = models.ForeignKey(
         Comments,

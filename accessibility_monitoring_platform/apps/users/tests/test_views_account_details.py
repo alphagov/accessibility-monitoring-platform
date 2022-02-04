@@ -47,14 +47,14 @@ class UserViewTests(TestCase):
     """
 
     def setUp(self):
-        """ Creates a user for testing the views """
+        """Creates a user for testing the views"""
         user: User = User.objects.create(username="testuser")
         user.set_password("12345")
         user.save()
         NotificationsSettings(user=user).save()
 
     def test_account_details_loads_correctly_with_auth(self):
-        """ Tests if a user is logged in and can access account details """
+        """Tests if a user is logged in and can access account details"""
         self.client.login(username="testuser", password="12345")
         response: HttpResponse = self.client.get(reverse("users:account_details"))
         self.assertEqual(str(response.context["user"]), "testuser")
@@ -62,12 +62,12 @@ class UserViewTests(TestCase):
         self.assertContains(response, "Account details")
 
     def test_account_details_loads_correctly_no_auth(self):
-        """ Tests if a unauthenticated user returns a 302 response """
+        """Tests if a unauthenticated user returns a 302 response"""
         response: HttpResponse = self.client.get(reverse("users:account_details"))
         self.assertEqual(response.status_code, 302)
 
     def test_account_details_post_saves_correctly(self):
-        """ Tests if form saves correctly and show success message """
+        """Tests if form saves correctly and show success message"""
         EmailInclusionList.objects.create(inclusion_email="admin@email.com")
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
@@ -97,7 +97,7 @@ class UserViewTests(TestCase):
         self.assertTrue(platform.active_qa_auditor == user)
 
     def test_account_details_post_errors_appear(self):
-        """ Tests if error message appears if there is a mistake in the form """
+        """Tests if error message appears if there is a mistake in the form"""
         user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
         user.set_password("12345")
         user.save()

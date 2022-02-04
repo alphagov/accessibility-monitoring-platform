@@ -13,8 +13,12 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 
 from accessibility_monitoring_platform.apps.users.forms import UpdateUserForm
-from accessibility_monitoring_platform.apps.common.utils import record_model_update_event
-from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
+from accessibility_monitoring_platform.apps.common.utils import (
+    record_model_update_event,
+)
+from accessibility_monitoring_platform.apps.notifications.models import (
+    NotificationsSettings,
+)
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 
@@ -67,7 +71,9 @@ def account_details(request: HttpRequest) -> HttpResponse:
             record_model_update_event(user=request.user, model_object=user)  # type: ignore
             user.save()
 
-            notification_settings.email_notifications_enabled = (form.cleaned_data["email_notifications"] == "yes")
+            notification_settings.email_notifications_enabled = (
+                form.cleaned_data["email_notifications"] == "yes"
+            )
             notification_settings.save()
 
             active_qa_auditor: User = form.cleaned_data["active_qa_auditor"]

@@ -9,7 +9,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import CustomUserCreationForm
-from accessibility_monitoring_platform.apps.notifications.models import NotificationsSettings
+from accessibility_monitoring_platform.apps.notifications.models import (
+    NotificationsSettings,
+)
 
 
 class RegisterContext(TypedDict):

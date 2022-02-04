@@ -22,9 +22,7 @@ def test_view_notifications():
     assertContains(response, "(0)")
 
     Notifications(
-        user=user0,
-        body="this is a notification",
-        created_date=datetime.now()
+        user=user0, body="this is a notification", created_date=datetime.now()
     ).save()
 
     response: HttpResponse = client.get(reverse("notifications:notifications-list"))
@@ -41,9 +39,7 @@ def test_hide_notification():
     client.login(username=user0.username, password=USER_PASSWORD)
 
     notification: Notifications = Notifications(
-        user=user0,
-        body="this is a notification",
-        created_date=datetime.now()
+        user=user0, body="this is a notification", created_date=datetime.now()
     )
     notification.save()
 
@@ -58,7 +54,7 @@ def test_hide_notification():
             "notifications:hide-notification",
             kwargs={"pk": notification.id},  # type: ignore
         ),
-        follow=True
+        follow=True,
     )
     assert response.status_code == 200
 
@@ -78,9 +74,7 @@ def test_unhide_notification():
     client.login(username=user0.username, password=USER_PASSWORD)
 
     notification: Notifications = Notifications(
-        user=user0,
-        body="this is a notification",
-        created_date=datetime.now()
+        user=user0, body="this is a notification", created_date=datetime.now()
     )
     notification.save()
 
@@ -95,7 +89,7 @@ def test_unhide_notification():
             "notifications:hide-notification",
             kwargs={"pk": notification.id},  # type: ignore
         ),
-        follow=True
+        follow=True,
     )
     assert response.status_code == 200
 
@@ -111,7 +105,7 @@ def test_unhide_notification():
             "notifications:unhide-notification",
             kwargs={"pk": notification.id},  # type: ignore
         ),
-        follow=True
+        follow=True,
     )
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is False  # type: ignore

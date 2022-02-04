@@ -25,7 +25,7 @@ def test_edit_comment_form_form_valid():
     form: EditCommentForm = EditCommentForm(
         data={"body": "this is a comment"},
         initial={"request": request},
-        instance=Comments(user=user0)
+        instance=Comments(user=user0),
     )
     assert form.is_valid() is True
 
@@ -43,7 +43,7 @@ def test_edit_comment_form_form_invalid():
     form: EditCommentForm = EditCommentForm(
         data={"body": "this is a comment"},
         initial={"request": request},
-        instance=Comments(user=user1)
+        instance=Comments(user=user1),
     )
 
     assert form.is_valid() is False
