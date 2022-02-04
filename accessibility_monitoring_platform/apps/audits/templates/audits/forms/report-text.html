@@ -147,7 +147,7 @@
                         </thead>
                         <tbody>
                             {% for page in audit.testable_pages %}
-                                <tr>
+                                <tr valign="top" >
                                     <td headers="name" style="font-family:arial,sans-serif;">{{ page }}</td>
                                     <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                                         {{ page.url }}</a></td>
@@ -181,7 +181,7 @@
                         </thead>
                         <tbody>
                             {% for check_result in audit.failed_check_results %}
-                                <tr>
+                                <tr valign="top" >
                                     <td headers="issue" style="font-family:arial,sans-serif;">
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
@@ -193,7 +193,7 @@
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>
-                                    <td headers="location" style="font-family:arial,sans-serif;">
+                                    <td headers="location"style="font-family:arial,sans-serif;">
                                         <p>{{ check_result.page }}</p>
                                         <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
                                     </td>
