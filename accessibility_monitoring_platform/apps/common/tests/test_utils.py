@@ -5,8 +5,8 @@ import pytest
 import csv
 from datetime import date, datetime
 import io
-import pytz
 from typing import Any, Dict, List, Tuple
+from backports.zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -181,7 +181,9 @@ def test_build_filters_from_field_values():
 def test_convert_date_to_datetime():
     """Test date is converted to datetime correctly"""
     input_date: date = date(year=2021, month=6, day=10)
-    expected_datetime: datetime = datetime(year=2021, month=6, day=10, tzinfo=pytz.UTC)
+    expected_datetime: datetime = datetime(
+        year=2021, month=6, day=10, tzinfo=ZoneInfo("UTC")
+    )
     assert convert_date_to_datetime(input_date) == expected_datetime
 
 
@@ -189,7 +191,7 @@ def test_convert_date_plus_hour_minute_second_to_datetime():
     """Test date plus hour, minute and second arguments is converted to datetime correctly"""
     input_date: date = date(year=2021, month=6, day=10)
     expected_datetime: datetime = datetime(
-        year=2021, month=6, day=10, hour=1, minute=2, second=3, tzinfo=pytz.UTC
+        year=2021, month=6, day=10, hour=1, minute=2, second=3, tzinfo=ZoneInfo("UTC")
     )
     assert (
         convert_date_to_datetime(input_date, hour=1, minute=2, second=3)

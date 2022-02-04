@@ -4,8 +4,8 @@ Test for loat_test_cases_csv command
 import pytest
 from datetime import date, datetime
 from functools import partial
-import pytz
 from typing import Callable, Dict, List, Union
+from backports.zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -116,11 +116,11 @@ def test_get_date_from_row(row, expected_value):
     [
         (
             {"column": "2021-06-28 11:13:28.107107+00:00"},
-            datetime(2021, 6, 28, 11, 13, 28, 107107, tzinfo=pytz.UTC),
+            datetime(2021, 6, 28, 11, 13, 28, 107107, tzinfo=ZoneInfo("UTC")),
         ),
         (
             {"column": "2020-02-19 00:00:00+00:00"},
-            datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC),
+            datetime(2020, 2, 19, 0, 0, 0, tzinfo=ZoneInfo("UTC")),
         ),
         ({"column": ""}, None),
         ({}, None),
@@ -214,7 +214,7 @@ def test_get_or_create_sector_from_row_creates_sector():
         (models.DateField(name="sent"), date(2021, 2, 28)),
         (
             models.DateTimeField(name="created"),
-            datetime(2020, 2, 19, 0, 0, 0, tzinfo=pytz.UTC),
+            datetime(2020, 2, 19, 0, 0, 0, tzinfo=ZoneInfo("UTC")),
         ),
         (
             models.ForeignKey(name="auditor", to=User, on_delete=models.PROTECT),

@@ -26,4 +26,7 @@ def test_markdown_to_html():
 
 def test_markdown_to_html_escapes_html():
     """Test markdown converted to HTML escapes any included HTML."""
-    assert markdown_to_html("<script>Bad stuff</script>") == "<p>&lt;script&gt;Bad stuff&lt;/script&gt;</p>"
+    assert (
+        markdown_to_html("<script>Bad stuff</script>")
+        == "<p>&lt;script&gt;Bad stuff&lt;/script&gt;</p>"
+    )

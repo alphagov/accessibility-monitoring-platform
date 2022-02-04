@@ -40,6 +40,8 @@ DEBUG = os.getenv("DEBUG") == "TRUE"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -149,8 +151,6 @@ LANGUAGE_CODE = "en-gb"
 TIME_ZONE = "Europe/London"
 
 USE_I18N = True
-
-USE_L10N = False
 
 USE_TZ = True
 

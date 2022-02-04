@@ -4,8 +4,8 @@ Test - common widgets and forms
 import pytest
 
 from datetime import date, datetime
-import pytz
 from typing import List, Tuple
+from backports.zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertHTMLEqual
 
@@ -229,10 +229,16 @@ def test_amp_date_range_form_valid_dates():
     )
     assert form.is_valid()
     assert form.cleaned_data["start_date"] == datetime(
-        year=2000, month=12, day=31, tzinfo=pytz.UTC
+        year=2000, month=12, day=31, tzinfo=ZoneInfo("UTC")
     )
     assert form.cleaned_data["end_date"] == datetime(
-        year=2100, month=12, day=31, hour=23, minute=59, second=59, tzinfo=pytz.UTC
+        year=2100,
+        month=12,
+        day=31,
+        hour=23,
+        minute=59,
+        second=59,
+        tzinfo=ZoneInfo("UTC"),
     )
 
 

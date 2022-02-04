@@ -3,7 +3,6 @@ from datetime import date, datetime
 import re
 import csv
 import json
-import pytz
 from typing import (
     Any,
     Dict,
@@ -13,6 +12,7 @@ from typing import (
     Type,
     Union,
 )
+from backports.zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -134,7 +134,7 @@ def convert_date_to_datetime(
         hour=hour,
         minute=minute,
         second=second,
-        tzinfo=pytz.UTC,
+        tzinfo=ZoneInfo("UTC"),
     )
 
 

@@ -587,7 +587,9 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("retested_website_date_2").send_keys(
             RETESTED_WEBSITE_YYYY
         )
-        self.driver.find_element_by_css_selector("#id_is_ready_for_final_decision_1").click()
+        self.driver.find_element_by_css_selector(
+            "#id_is_ready_for_final_decision_1"
+        ).click()
         self.driver.find_element_by_css_selector(
             "#id_review_changes_complete_date"
         ).click()
@@ -601,9 +603,14 @@ class TestCaseUpdates(TestCases):
 
     def test_update_case_edit_final_statement(self):
         """Tests whether final statement can be updated"""
-        self.driver.find_element_by_link_text("Edit final accessibility statement compliance decision").click()
+        self.driver.find_element_by_link_text(
+            "Edit final accessibility statement compliance decision"
+        ).click()
 
-        self.assertTrue(">Final accessibility statement compliance decision</h1>" in self.driver.page_source)
+        self.assertTrue(
+            ">Final accessibility statement compliance decision</h1>"
+            in self.driver.page_source
+        )
 
         self.driver.find_element_by_css_selector(
             "#id_is_disproportionate_claimed_1"
@@ -630,13 +637,15 @@ class TestCaseUpdates(TestCases):
 
     def test_update_case_edit_final_website(self):
         """Tests whether final website can be updated"""
-        self.driver.find_element_by_link_text("Edit final website compliance decision").click()
-
-        self.assertTrue(">Final website compliance decision</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_css_selector(
-            "#id_website_state_final_1"
+        self.driver.find_element_by_link_text(
+            "Edit final website compliance decision"
         ).click()
+
+        self.assertTrue(
+            ">Final website compliance decision</h1>" in self.driver.page_source
+        )
+
+        self.driver.find_element_by_css_selector("#id_website_state_final_1").click()
         self.driver.find_element_by_name("website_state_notes_final").send_keys(
             WEBSITE_NOTES_FINAL
         )
@@ -677,9 +686,7 @@ class TestCaseUpdates(TestCases):
         )
         self.driver.find_element_by_css_selector("#id_case_completed_1").click()
 
-        self.driver.find_element_by_css_selector(
-            "#id_case_close_complete_date"
-        ).click()
+        self.driver.find_element_by_css_selector("#id_case_close_complete_date").click()
 
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("Case").click()
@@ -688,7 +695,9 @@ class TestCaseUpdates(TestCases):
         self.assertTrue("13/08/2021" in self.driver.page_source)
         self.assertTrue("No recommendation made" in self.driver.page_source)
         self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
-        self.assertTrue("Case should not be sent to the equality body" in self.driver.page_source)
+        self.assertTrue(
+            "Case should not be sent to the equality body" in self.driver.page_source
+        )
 
     def test_update_case_edit_enforcement_body_correspondence(self):
         """Tests whether enforcement body correspondence can be updated"""
