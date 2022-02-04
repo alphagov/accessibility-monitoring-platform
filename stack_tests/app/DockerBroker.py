@@ -12,6 +12,7 @@ class DockerImagesPathsType(TypedDict):
     Args:
         TypedDict ([type]): type for docker images paths
     """
+
     tag: str
     path: str
 
@@ -30,15 +31,12 @@ class DockerBroker:
     """
 
     def __init__(
-        self,
-        docker_images_paths: List[DockerImagesPathsType],
-        docker_compose_path: str
+        self, docker_images_paths: List[DockerImagesPathsType], docker_compose_path: str
     ):
-        if (
-            docker_images_paths is False
-            or docker_compose_path is False
-        ):
-            raise ValueError("docker_images_paths and docker_compose_path must have values")
+        if docker_images_paths is False or docker_compose_path is False:
+            raise ValueError(
+                "docker_images_paths and docker_compose_path must have values"
+            )
 
         self.docker_images_paths = docker_images_paths
         self.docker_compose_path = docker_compose_path
@@ -50,7 +48,9 @@ class DockerBroker:
             DockerBroker: Returns self
         """
         for docker_image in self.docker_images_paths:
-            os.system(f"docker build -t {docker_image['tag']} -f - . < {docker_image['path']}")
+            os.system(
+                f"docker build -t {docker_image['tag']} -f - . < {docker_image['path']}"
+            )
         os.system(f"docker compose -f {self.docker_compose_path} down --volumes")
         os.system(f"docker compose -f {self.docker_compose_path} up -d")
         return self

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 
 class Notifications(models.Model):
     """Django model for notifications"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -30,6 +31,7 @@ class Notifications(models.Model):
 
 class NotificationsSettings(models.Model):
     """Django model for notifications settings"""
+
     user = models.OneToOneField(
         User,
         on_delete=models.PROTECT,

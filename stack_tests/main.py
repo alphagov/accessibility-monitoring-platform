@@ -14,19 +14,18 @@ import argparse
 parser = argparse.ArgumentParser(description="Settings for integration tests")
 
 parser.add_argument(
-    "-s"
-    "--settings-json",
-    dest="settings_json",
-    help="Path for json settings"
+    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
 )
 
 if __name__ == "__main__":
     args = parser.parse_args()
     start = time.time()
-    settings: IntegrationTestsSettingsType = parse_integration_tests_json(settings_path=args.settings_json)
+    settings: IntegrationTestsSettingsType = parse_integration_tests_json(
+        settings_path=args.settings_json
+    )
     db: DockerBroker = DockerBroker(
         docker_images_paths=settings["docker_images_paths"],
-        docker_compose_path=settings["docker_compose_path"]
+        docker_compose_path=settings["docker_compose_path"],
     )
 
     for S3object in settings["s3_objects"]:
@@ -42,7 +41,7 @@ if __name__ == "__main__":
         db.launch()
         check_docker_django_has_started(
             max_attempts=settings["connect_attempts"],
-            endpoint=settings["testing_endpoint"]
+            endpoint=settings["testing_endpoint"],
         )
 
     download_webdriver(chrome_version=settings["chrome_version"])

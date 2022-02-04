@@ -9,6 +9,7 @@ class OverdueView(ListView):
     """
     View of list of overdue tasks for user
     """
+
     template_name = "overdue/overdue_list.html"
     models = Case
     paginate_by = 10

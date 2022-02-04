@@ -43,9 +43,7 @@ def read_notification(request: HttpRequest) -> str:
         Returns empty string to avoid outputting to html template
     """
     notifications: QuerySet[Notifications] = Notifications.objects.filter(
-        user=request.user,
-        path=request.path,
-        read=False
+        user=request.user, path=request.path, read=False
     )
     for notification in notifications:
         notification.read = True
