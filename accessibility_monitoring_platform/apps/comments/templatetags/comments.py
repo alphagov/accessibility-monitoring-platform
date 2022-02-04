@@ -36,11 +36,8 @@ def comments_app(request: HttpRequest, case_id: int, page: str) -> CommentContex
     request.session["case_id"] = case_id
     form: SubmitCommentForm = SubmitCommentForm()
     comments: QuerySet[Comments] = Comments.objects.filter(
-        path=request.path,
-        hidden=False
-    ).order_by(
-        "-created_date"
-    )
+        path=request.path, hidden=False
+    ).order_by("-created_date")
     return {
         "comments": comments,
         "request": request,

@@ -10,42 +10,85 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('cases', '0011_remove_case_is_website_compliant_final'),
+        ("cases", "0011_remove_case_is_website_compliant_final"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Comments',
+            name="Comments",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('page', models.TextField()),
-                ('body', models.TextField()),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('updated_date', models.DateTimeField(blank=True, null=True)),
-                ('hidden', models.BooleanField(default=False)),
-                ('endpoint', models.TextField(default=False)),
-                ('case', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='comment_case', to='cases.case')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='poster_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("page", models.TextField()),
+                ("body", models.TextField()),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                ("updated_date", models.DateTimeField(blank=True, null=True)),
+                ("hidden", models.BooleanField(default=False)),
+                ("endpoint", models.TextField(default=False)),
+                (
+                    "case",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comment_case",
+                        to="cases.case",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="poster_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Comment',
-                'verbose_name_plural': 'Comments',
-                'ordering': ['created_date'],
+                "verbose_name": "Comment",
+                "verbose_name_plural": "Comments",
+                "ordering": ["created_date"],
             },
         ),
         migrations.CreateModel(
-            name='CommentsHistory',
+            name="CommentsHistory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('before', models.TextField()),
-                ('after', models.TextField()),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('comment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='comment', to='comments.comments')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("before", models.TextField()),
+                ("after", models.TextField()),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "comment",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comment",
+                        to="comments.comments",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Comment history',
-                'verbose_name_plural': 'Comments history',
+                "verbose_name": "Comment history",
+                "verbose_name_plural": "Comments history",
             },
         ),
     ]

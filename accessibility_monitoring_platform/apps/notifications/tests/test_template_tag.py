@@ -19,21 +19,17 @@ def test_template_tag_notifications_count_renders_correctly():
 
     context: Context = Context({"request": request})
     template_to_render: Template = Template(
-        "{% load notifications %}"
-        "{% notifications_count request=request %}"
+        "{% load notifications %}" "{% notifications_count request=request %}"
     )
     rendered_template: str = template_to_render.render(context)
     assert "0" in rendered_template
 
     Notifications(
-        user=user0,
-        body="this is a notification",
-        created_date=datetime.now()
+        user=user0, body="this is a notification", created_date=datetime.now()
     ).save()
     context: Context = Context({"request": request})
     template_to_render: Template = Template(
-        "{% load notifications %}"
-        "{% notifications_count request=request %}"
+        "{% load notifications %}" "{% notifications_count request=request %}"
     )
     rendered_template: str = template_to_render.render(context)
     assert "1" in rendered_template
@@ -55,8 +51,7 @@ def test_template_tag_read_notification_renders_correctly():
 
     context: Context = Context({"request": request})
     template_to_render = Template(
-        "{% load notifications %}"
-        "{% read_notification request=request %}"
+        "{% load notifications %}" "{% read_notification request=request %}"
     )
     template_to_render.render(context)
 
