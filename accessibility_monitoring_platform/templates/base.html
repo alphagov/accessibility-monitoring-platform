@@ -87,8 +87,8 @@
       {% include "footer.html" %}
 
     </div>
+    <script src="{% static 'js/index.js' %}"></script>
+    {% block extrascript %}
+    {% endblock %}
   </body>
-  <script src="{% static 'js/index.js' %}"></script>
-  {% block extrascript %}
-  {% endblock %}
 </html>
