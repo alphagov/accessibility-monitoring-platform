@@ -8,25 +8,43 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0022_auto_20220127_1444'),
+        ("cases", "0022_auto_20220127_1444"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('comments', '0002_rename_endpoint_comments_path'),
+        ("comments", "0002_rename_endpoint_comments_path"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comments',
-            name='case',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='comment_case', to='cases.case'),
+            model_name="comments",
+            name="case",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="comment_case",
+                to="cases.case",
+            ),
         ),
         migrations.AlterField(
-            model_name='comments',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='poster_user', to=settings.AUTH_USER_MODEL),
+            model_name="comments",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="poster_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='commentshistory',
-            name='comment',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='comment', to='comments.comments'),
+            model_name="commentshistory",
+            name="comment",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="comment",
+                to="comments.comments",
+            ),
         ),
     ]

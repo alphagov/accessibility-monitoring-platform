@@ -8,20 +8,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0022_auto_20220127_1444'),
+        ("cases", "0022_auto_20220127_1444"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('reminders', '0001_initial'),
+        ("reminders", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reminder',
-            name='case',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='reminder_case', to='cases.case'),
+            model_name="reminder",
+            name="case",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="reminder_case",
+                to="cases.case",
+            ),
         ),
         migrations.AlterField(
-            model_name='reminder',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='reminder_user', to=settings.AUTH_USER_MODEL),
+            model_name="reminder",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="reminder_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

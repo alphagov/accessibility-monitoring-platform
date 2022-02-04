@@ -22,9 +22,11 @@ BOOLEAN_CHOICES: List[Tuple[str, str]] = [
 
 
 class UpdateUserForm(forms.ModelForm):
-    """ Custom user update user form """
+    """Custom user update user form"""
 
-    active_qa_auditor: AMPQAAuditorModelChoiceField = AMPQAAuditorModelChoiceField(label="Active QA auditor")
+    active_qa_auditor: AMPQAAuditorModelChoiceField = AMPQAAuditorModelChoiceField(
+        label="Active QA auditor"
+    )
     email_notifications: AMPChoiceCheckboxField = AMPChoiceCheckboxField(
         label="Enable email notifications?",
         choices=BOOLEAN_CHOICES,
@@ -66,7 +68,7 @@ class UpdateUserForm(forms.ModelForm):
         ]
 
     def clean_email_confirm(self):
-        """ Ensures the email conforms and is unique """
+        """Ensures the email conforms and is unique"""
         email: str = self.cleaned_data.get("email")
         email_confirm: str = self.cleaned_data.get("email_confirm")
 

@@ -6,14 +6,14 @@ from botocore.exceptions import ClientError
 import os
 
 
-def upload_db_to_s3(file_name: str, bucket: str, object_name: Union[str, None]=None):
+def upload_db_to_s3(file_name: str, bucket: str, object_name: Union[str, None] = None):
     """Upload a file to an S3 bucket
 
     Args:
         file_name: File to upload
         bucket: Bucket to upload to
         object_name: S3 object name. If not specified then file_name is used
-    
+
     return:
         True if file was uploaded, else False
     """
