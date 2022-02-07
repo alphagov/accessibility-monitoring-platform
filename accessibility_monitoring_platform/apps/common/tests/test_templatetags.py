@@ -22,3 +22,11 @@ def test_list_item_by_index(item_list, index, expected_result):
 def test_markdown_to_html():
     """Test markdown converted to HTML."""
     assert markdown_to_html("# Heading") == "<h1>Heading</h1>"
+
+
+def test_markdown_to_html_escapes_html():
+    """Test markdown converted to HTML escapes any included HTML."""
+    assert (
+        markdown_to_html("<script>Bad stuff</script>")
+        == "<p>&lt;script&gt;Bad stuff&lt;/script&gt;</p>"
+    )

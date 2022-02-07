@@ -17,11 +17,23 @@ class BColours:
 
 def check_input(args: Any, config: Any):
     if not args.force and args.build_direction == "up":
-        print(BColours.WARNING + "This script will create a new environment:" + BColours.ENDC)
+        print(
+            BColours.WARNING
+            + "This script will create a new environment:"
+            + BColours.ENDC
+        )
         print("---")
-        print(BColours.BOLD + "Copying database from: " + BColours.ENDC, end="", flush=True)
+        print(
+            BColours.BOLD + "Copying database from: " + BColours.ENDC,
+            end="",
+            flush=True,
+        )
         print(config["db_space_to_copy"])
-        print(BColours.BOLD + "Copying instance from: " + BColours.ENDC, end="", flush=True)
+        print(
+            BColours.BOLD + "Copying instance from: " + BColours.ENDC,
+            end="",
+            flush=True,
+        )
         print(config["db_instance_to_copy"])
         print(BColours.BOLD + "Creating space: " + BColours.ENDC, end="", flush=True)
         print(config["space_name"])
@@ -36,10 +48,14 @@ def check_input(args: Any, config: Any):
         while True:
             print("Do you wish to continue?:[y/n] ", end="", flush=True)
             x: str = input().lower()
-            if (x in ("yes", "y")):
-                print(BColours.OKGREEN + "Building new environment in PaaS!" + BColours.ENDC)
+            if x in ("yes", "y"):
+                print(
+                    BColours.OKGREEN
+                    + "Building new environment in PaaS!"
+                    + BColours.ENDC
+                )
                 break
-            elif (x in ("no", "n")):
+            elif x in ("no", "n"):
                 print(">>> Aborting build")
                 sys.exit()
 

@@ -82,8 +82,9 @@ IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
 ]
 
 RECOMMENDATION_DEFAULT: str = "unknown"
+RECOMMENDATION_NO_ACTION: str = "no-further-action"
 RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
-    ("no-further-action", "No further action"),
+    (RECOMMENDATION_NO_ACTION, "No further action"),
     ("other", "No recommendation made"),
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
@@ -115,14 +116,21 @@ IS_DISPROPORTIONATE_CLAIMED_DEFAULT: str = "unknown"
 IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
-    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "N/A"),
+    (IS_DISPROPORTIONATE_CLAIMED_DEFAULT, "Not known"),
+]
+
+WEBSITE_STATE_FINAL_DEFAULT: str = "not-known"
+WEBSITE_STATE_FINAL_CHOICES: List[Tuple[str, str]] = [
+    ("compliant", "Compliant"),
+    ("partially-compliant", "Partially compliant"),
+    (WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
 ]
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("further-action", "Yes"),
-    ("no-action", "No"),
-    (DEFAULT_CASE_COMPLETED, "Not selected"),
+    ("complete-send", "Case is complete and is ready to send to the equality body"),
+    ("complete-no-send", "Case should not be sent to the equality body"),
+    (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
 DEFAULT_ESCALATION_STATE: str = "not-started"
@@ -322,23 +330,40 @@ class Case(VersionModel):
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
 
-    # Final decision page
+    # Review changes
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website_date = models.DateField(null=True, blank=True)
+    is_ready_for_final_decision = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    review_changes_complete_date = models.DateField(null=True, blank=True)
+
+    # Final statement
     is_disproportionate_claimed = models.CharField(
         max_length=20,
         choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
         default=IS_DISPROPORTIONATE_CLAIMED_DEFAULT,
     )
     disproportionate_notes = models.TextField(default="", blank=True)
-
+    accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     accessibility_statement_state_final = models.CharField(
         max_length=200,
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
-    accessibility_statement_screenshot_url = models.TextField(default="", blank=True)
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
+    final_statement_complete_date = models.DateField(null=True, blank=True)
+
+    # Final website
+    website_state_final = models.CharField(
+        max_length=200,
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+        default=WEBSITE_STATE_FINAL_DEFAULT,
+    )
+    website_state_notes_final = models.TextField(default="", blank=True)
+    final_website_complete_date = models.DateField(null=True, blank=True)
+
+    # Case close
     recommendation_for_enforcement = models.CharField(
         max_length=20,
         choices=RECOMMENDATION_CHOICES,
@@ -350,7 +375,7 @@ class Case(VersionModel):
         max_length=30, choices=CASE_COMPLETED_CHOICES, default=DEFAULT_CASE_COMPLETED
     )
     completed_date = models.DateTimeField(null=True, blank=True)
-    final_decision_complete_date = models.DateField(null=True, blank=True)
+    case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Equality body correspondence page
     psb_appeal_notes = models.TextField(default="", blank=True)
@@ -453,18 +478,20 @@ class Case(VersionModel):
             return "deleted"
         elif self.case_completed == "no-action" or self.escalation_state == "no-action":
             return "complete"
-        elif self.no_psb_contact == "yes" or self.case_completed == "further-action":
+        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
             return "in-correspondence-with-equalities-body"
         elif self.auditor is None:
             return "unassigned-case"
         elif (
             self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
-            or self.accessibility_statement_state == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            or self.accessibility_statement_state
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         ):
             return "test-in-progress"
         elif (
             self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
-            and self.accessibility_statement_state != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            and self.accessibility_statement_state
+            != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
             and self.report_review_status != "ready-to-review"
         ):
             return "report-in-progress"

@@ -1,13 +1,20 @@
 """ Tests - test for comments template tags """
 import pytest
 from datetime import datetime
+from typing import Dict
+
 from django.template import Context, Template
 from django.test import RequestFactory
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.handlers.wsgi import WSGIRequest
+
 from ...cases.models import Case
 from .create_user import create_user
+
+
+def mock_get_response(request: WSGIRequest) -> Dict:  # pylint: disable=unused-argument
+    return {}
 
 
 @pytest.mark.django_db
@@ -22,17 +29,22 @@ def test_template_tag_renders_correctly():
     factory: RequestFactory = RequestFactory()
     request: WSGIRequest = factory.get("/")
     request.user = user0
-    middleware: SessionMiddleware = SessionMiddleware()
+    middleware: SessionMiddleware = SessionMiddleware(mock_get_response)  # type: ignore
     middleware.process_request(request)
     request.session.save()
     request.session["comment_path"] = "/cases/1/edit-qa-process/"
-    context: Context = Context({
-        "case": case,
-        "request": request,
-    })
+    context: Context = Context(
+        {
+            "case": case,
+            "request": request,
+        }
+    )
     template_to_render: Template = Template(
         "{% load comments %}"
         "{% comments_app request=request case_id=case.id page='qa_process' %}"
     )
     rendered_template: str = template_to_render.render(context)
-    assert """<h2 class="govuk-heading-l" id="comments"> Comments </h2>""" in rendered_template
+    assert (
+        """<h2 class="govuk-heading-l" id="comments"> Comments </h2>"""
+        in rendered_template
+    )

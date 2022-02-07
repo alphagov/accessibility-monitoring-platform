@@ -12,7 +12,7 @@ jobs:
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
         node-version: '14'
@@ -41,7 +41,7 @@ jobs:
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.9'
     - name: Integration tests
       run: |
         python3 -m venv venv
@@ -69,7 +69,7 @@ jobs:
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
         node-version: '14'
@@ -109,7 +109,7 @@ jobs:
         python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
         python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
         python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
-      env: 
+      env:
         SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
         SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
@@ -129,6 +129,6 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         python3 stack_tests/main.py -s ./stack_tests/smoke_tests_prod_env_settings.json
-      env: 
+      env:
         SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
         SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}

@@ -13,6 +13,7 @@ class NotificationsView(ListView):
     """
     Lists all notifications for user
     """
+
     model = Notifications
     template_name: str = "notifications/view_notifications.html"
     context_object_name: str = "notifications"
@@ -33,12 +34,15 @@ class HideNotificationView(ListView):
     """
     Hides notification
     """
+
     model = Notifications
 
     def get(self, request, pk):
-        """ Hides a notification """
+        """Hides a notification"""
         notifications: Notifications = Notifications.objects.get(pk=pk)
-        if notifications.user.id == request.user.id:  # Checks whether the comment was posted by user
+        if (
+            notifications.user.id == request.user.id
+        ):  # Checks whether the comment was posted by user
             notifications.read = True
             notifications.save()
             messages.success(request, "Notification marked as seen")
@@ -52,12 +56,15 @@ class UnhideNotificationView(ListView):
     """
     Unhides notification
     """
+
     model = Notifications
 
     def get(self, request, pk):
-        """ Unhides a notification """
+        """Unhides a notification"""
         notifications: Notifications = Notifications.objects.get(pk=pk)
-        if notifications.user.id == request.user.id:  # Checks whether the comment was posted by user
+        if (
+            notifications.user.id == request.user.id
+        ):  # Checks whether the comment was posted by user
             notifications.read = False
             notifications.save()
             messages.success(request, "Notification marked as unseen")

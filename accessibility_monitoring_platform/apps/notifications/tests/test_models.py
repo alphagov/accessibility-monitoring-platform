@@ -15,15 +15,14 @@ def test_notifications_model_returns_str():
         body="this is a notification",
         created_date=datetime.now(),
     )
-    assert str(notifications) == "Notification this is a notification for user0@email.com"
+    assert (
+        str(notifications) == "Notification this is a notification for user0@email.com"
+    )
 
 
 @pytest.mark.django_db
 def test_notifications_settings_returns_str():
     """NotificationsSettings returns correct string"""
     user0: User = create_user()
-    notifications = NotificationsSettings(
-        user=user0,
-        email_notifications_enabled=True
-    )
+    notifications = NotificationsSettings(user=user0, email_notifications_enabled=True)
     assert str(notifications) == "user0@email.com - email_notifications_enabled is True"

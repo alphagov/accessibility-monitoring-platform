@@ -40,6 +40,8 @@ DEBUG = os.getenv("DEBUG") == "TRUE"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -150,8 +152,6 @@ TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 
-USE_L10N = False
-
 USE_TZ = True
 
 
@@ -174,7 +174,9 @@ STATIC_URL = os.path.join(BASE_DIR, "/static/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-CONTACT_ADMIN_EMAIL = "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+CONTACT_ADMIN_EMAIL = (
+    "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+)
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 

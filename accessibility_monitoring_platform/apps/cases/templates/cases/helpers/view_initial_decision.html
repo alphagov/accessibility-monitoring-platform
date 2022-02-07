@@ -1,0 +1,37 @@
+{% load common_tags %}
+
+                            <details class="govuk-details" data-module="govuk-details">
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">View initial decision</span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label"><b>Initial accessibility statement decision</b></label>
+                                        <div class="govuk-hint">{{case.get_accessibility_statement_state_display}}</div>
+                                    </div>
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
+                                        <div class="govuk-hint">
+                                            {% if case.accessibility_statement_notes %}
+                                                {{ case.accessibility_statement_notes|markdown_to_html }}
+                                            {% else %}
+                                                No notes for this case
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label"><b>Initial compliance decision</b></label>
+                                        <div class="govuk-hint">{{case.get_is_website_compliant_display}}</div>
+                                    </div>
+                                    <div class="govuk-form-group">
+                                        <label class="govuk-label"><b>Initial compliance notes</b></label>
+                                        <div class="govuk-hint">
+                                            {% if case.compliance_decision_notes %}
+                                                {{ case.compliance_decision_notes|markdown_to_html }}
+                                            {% else %}
+                                                No notes for this case
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>

@@ -13,8 +13,7 @@ def create_user() -> User:
     """
     num: int = len(User.objects.all())
     user: User = User.objects.create(
-        username=f"user{num}@email.com",
-        email=f"user{num}@email.com"
+        username=f"user{num}@email.com", email=f"user{num}@email.com"
     )
     user.set_password(USER_PASSWORD)
     user.save()

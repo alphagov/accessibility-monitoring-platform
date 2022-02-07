@@ -155,12 +155,6 @@ ACCESS_REQUIREMENTS_STATE_CHOICES: List[Tuple[str, str]] = [
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
 ]
-OVERALL_COMPLIANCE_STATE_DEFAULT: str = "not-compliant"
-OVERALL_COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
-    (OVERALL_COMPLIANCE_STATE_DEFAULT, "Not Compliant"),
-    ("no-statement", "No Statement"),
-]
 ACCESSIBILITY_STATEMENT_STATE_DEFAULT: str = "not-found"
 ACCESSIBILITY_STATEMENT_STATE_CHOICES: List[Tuple[str, str]] = [
     (
@@ -338,12 +332,6 @@ class Audit(VersionModel):
         default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
     )
     access_requirements_notes = models.TextField(default="", blank=True)
-    overall_compliance_state = models.CharField(
-        max_length=20,
-        choices=OVERALL_COMPLIANCE_STATE_CHOICES,
-        default=OVERALL_COMPLIANCE_STATE_DEFAULT,
-    )
-    overall_compliance_notes = models.TextField(default="", blank=True)
     audit_statement_2_complete_date = models.DateField(null=True, blank=True)
 
     # Statement decision

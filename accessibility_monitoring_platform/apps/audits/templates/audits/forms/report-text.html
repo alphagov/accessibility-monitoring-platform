@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 {% extends 'base.html' %}
 
 {% load l10n %}
@@ -138,7 +136,7 @@
 
                     <h1>Pages we checked</h1>
 
-                    <table id="urls-to-copy" caption"Names and URLs of pages we checked">
+                    <table id="urls-to-copy" caption="Names and URLs of pages we checked">
                         <thead>
                             <tr>
                                 <th id="name" style="font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Page Name</th>
@@ -147,7 +145,7 @@
                         </thead>
                         <tbody>
                             {% for page in audit.testable_pages %}
-                                <tr>
+                                <tr valign="top" >
                                     <td headers="name" style="font-family:arial,sans-serif;">{{ page }}</td>
                                     <td headers="url" style="font-family:arial,sans-serif;"><a href="{{ page.url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                                         {{ page.url }}</a></td>
@@ -172,7 +170,7 @@
                         The following errors were found.
                     </p>
 
-                    <table id="issues-to-copy" caption"Issues we found">
+                    <table id="issues-to-copy" caption="Issues we found">
                         <thead>
                             <tr>
                                 <th id="issue" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Issue and description</th>
@@ -181,19 +179,19 @@
                         </thead>
                         <tbody>
                             {% for check_result in audit.failed_check_results %}
-                                <tr>
+                                <tr valign="top" >
                                     <td headers="issue" style="font-family:arial,sans-serif;">
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
                                                 <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
-                                                    {{ check_result.wcag_definition }}</a>
+                                                    {{ check_result.wcag_definition.name }}</a>
                                             {% else %}
-                                                {{ check_result.wcag_definition }}
+                                                {{ check_result.wcag_definition.name }}
                                             {% endif %}
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>
-                                    <td headers="location" style="font-family:arial,sans-serif;">
+                                    <td headers="location"style="font-family:arial,sans-serif;">
                                         <p>{{ check_result.page }}</p>
                                         <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
                                     </td>
@@ -372,4 +370,5 @@
         </div>
     </main>
     <script src="{% static 'js/audits_copy_report.js' %}"></script>
+</div>
 {% endblock %}

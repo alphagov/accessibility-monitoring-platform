@@ -15,10 +15,7 @@ import argparse
 parser = argparse.ArgumentParser(description="Settings for integration tests")
 
 parser.add_argument(
-    "-s"
-    "--settings-json",
-    dest="settings_json",
-    help="Path for json settings"
+    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
 )
 
 args = parser.parse_args()
@@ -48,7 +45,7 @@ class SeleniumTest(unittest.TestCase):
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
             executable_path=f"""./stack_tests/chromedriver_{settings["chrome_version"]}""",
-            options=options
+            options=options,
         )
 
     def login(self):
@@ -63,7 +60,9 @@ class SeleniumTest(unittest.TestCase):
             or os.getenv("SMOKE_TESTS_USERNAME") == ""
             or os.getenv("SMOKE_TESTS_PASSWORD") == ""
         ):
-            raise Exception("Missing SMOKE_TESTS_USERNAME and SMOKE_TESTS_PASSWORD from .env")
+            raise Exception(
+                "Missing SMOKE_TESTS_USERNAME and SMOKE_TESTS_PASSWORD from .env"
+            )
 
         self.driver.get(f"""{settings["testing_endpoint"]}accounts/login/?next=/""")
         self.driver.find_element_by_name("username").send_keys(
@@ -89,7 +88,8 @@ class TestLogin(SeleniumTest):
         """Tests whether user can login"""
         self.login()
         self.assertEqual(
-            """<h1 class="govuk-heading-xl">Your cases</h1>""" in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Your cases</h1>"""
+            in self.driver.page_source,
             True,
         )
 
@@ -107,14 +107,20 @@ class TestDashboard(SeleniumTest):
     def test_dashboard(self):
         """Tests whether user can login"""
         self.login()
-        self.driver.find_element_by_xpath("""//input[@value="View all cases"]""").click()
+        self.driver.find_element_by_xpath(
+            """//input[@value="View all cases"]"""
+        ).click()
         self.assertEqual(
-            """<h1 class="govuk-heading-xl">All cases</h1>""" in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">All cases</h1>"""
+            in self.driver.page_source,
             True,
         )
-        self.driver.find_element_by_xpath("""//input[@value="View your cases"]""").click()
+        self.driver.find_element_by_xpath(
+            """//input[@value="View your cases"]"""
+        ).click()
         self.assertEqual(
-            """<h1 class="govuk-heading-xl">Your cases</h1>""" in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Your cases</h1>"""
+            in self.driver.page_source,
             True,
         )
 
@@ -167,7 +173,8 @@ class TestAccountDetails(SeleniumTest):
         # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
         self.driver.find_element_by_link_text("Account details").click()
         self.assertEqual(
-            """<h1 class="govuk-heading-xl">Account details</h1>""" in self.driver.page_source,
+            """<h1 class="govuk-heading-xl">Account details</h1>"""
+            in self.driver.page_source,
             True,
         )
 
@@ -201,7 +208,16 @@ class TestCaseView(SeleniumTest):
             ("Edit contact details", "Contact details"),
             ("Edit report correspondence", "Report correspondence"),
             ("Edit 12 week correspondence", "12 week correspondence"),
-            ("Edit final decision", "Final decision"),
+            ("Edit reviewing changes", "Reviewing changes"),
+            (
+                "Edit final accessibility statement compliance decision",
+                "Final accessibility statement compliance decision",
+            ),
+            (
+                "Edit final website compliance decision",
+                "Final website compliance decision",
+            ),
+            ("Edit closing the case", "Closing the case"),
             ("Edit equality body correspondence", "Equality body correspondence"),
         ]
 

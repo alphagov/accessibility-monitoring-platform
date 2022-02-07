@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from accessibility_monitoring_platform.apps.notifications.views import (
     NotificationsView,
     HideNotificationView,
-    UnhideNotificationView
+    UnhideNotificationView,
 )
 
 
@@ -16,16 +16,16 @@ urlpatterns = [
     path(
         "notifications-list/",
         login_required(NotificationsView.as_view()),
-        name="notifications-list"
+        name="notifications-list",
     ),
     path(
         "<int:pk>/hide-notification/",
         login_required(HideNotificationView.as_view()),
-        name="hide-notification"
+        name="hide-notification",
     ),
     path(
         "<int:pk>/unhide-notification/",
         login_required(UnhideNotificationView.as_view()),
-        name="unhide-notification"
+        name="unhide-notification",
     ),
 ]

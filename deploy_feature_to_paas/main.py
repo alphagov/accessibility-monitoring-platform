@@ -19,34 +19,22 @@ from app.check_input import check_input
 parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
 
 parser.add_argument(
-    "-b"
-    "--build_direction",
+    "-b" "--build_direction",
     dest="build_direction",
-    help="Decides if it builds a branch or tears it down"
+    help="Decides if it builds a branch or tears it down",
 )
 
 parser.add_argument(
-    "-s"
-    "--settings-json",
-    dest="settings_json",
-    help="Path for json settings"
+    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
 )
 
 parser.add_argument(
-    "-f"
-    "--force",
-    type=bool,
-    dest="force",
-    default=False,
-    help="Skip yes input"
+    "-f" "--force", type=bool, dest="force", default=False, help="Skip yes input"
 )
 
 
 def check_if_login() -> bool:
-    process = subprocess.Popen(
-        "cf spaces".split(),
-        stdout=subprocess.PIPE
-    )
+    process = subprocess.Popen("cf spaces".split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
     if "FAILED" in output.decode("utf-8"):
         raise Exception(f"""Error not logged into CF - {output.decode("utf-8")}""")
@@ -55,14 +43,18 @@ def check_if_login() -> bool:
 
 if __name__ == "__main__":
     load_dotenv()
-    print(">>> deploys_feature_to_paas creates a new environment in PaaS for testing new features")
+    print(
+        ">>> deploys_feature_to_paas creates a new environment in PaaS for testing new features"
+    )
     start: float = time.time()
     args = parser.parse_args()
     config: SettingsType = parse_settings_json(args.settings_json)
 
     if config["space_name"] == "git_branch":
         print(">>> Creating space name from git branch")
-        git_branch_name: str = subprocess.check_output(["git", "branch", "--show-current"]).decode("utf-8")
+        git_branch_name: str = subprocess.check_output(
+            ["git", "branch", "--show-current"]
+        ).decode("utf-8")
         user: Union[str, None] = os.environ.get("USER")
         user_anon: str = user[:4] if user else "unknown"
         config["space_name"] = f"{user_anon}--{git_branch_name}".replace("\n", "")
@@ -111,8 +103,8 @@ if __name__ == "__main__":
         db_ping_attempts=config["db_ping_attempts"],
         db_ping_interval=config["db_ping_interval"],
         manifest_path=config["temp_db_copy_path"],
-        backup_location="./backup.sql"
-    ) 
+        backup_location="./backup.sql",
+    )
     build_env.start()
 
     if args.build_direction == "up":
