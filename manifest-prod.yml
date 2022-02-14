@@ -7,7 +7,7 @@ applications:
     - python_buildpack
   services:
     - monitoring-platform-default-db
-    - a11ymon-postgres
+    - s3-report-store
   env:
     DEBUG: FALSE
     ALLOWED_HOSTS: 'accessibility-monitoring-platform-production.london.cloudapps.digital'

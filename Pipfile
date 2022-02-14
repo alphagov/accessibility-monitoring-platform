@@ -18,6 +18,7 @@ libsass = "*"
 rcssmin = "*"
 xmltodict = "*"
 Markdown = "*"
+moto = "*"
 
 [dev-packages]
 flake8 = "*"

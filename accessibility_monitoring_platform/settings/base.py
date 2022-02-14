@@ -17,10 +17,16 @@ import os
 import json
 from dotenv import load_dotenv
 
-UNDER_TEST = len(sys.argv) > 1 and sys.argv[1] == "test"
 
-if "pytest" in sys.modules:
-    UNDER_TEST = True
+DEBUG = os.getenv("DEBUG") == "TRUE"
+
+UNDER_TEST = ((len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules)
+
+S3_MOCK_ENDPOINT = None
+if os.getenv("INTEGRATION_TEST") == "TRUE":
+    S3_MOCK_ENDPOINT = "http://localstack:4566"
+elif DEBUG:
+    S3_MOCK_ENDPOINT = "http://localhost:4566"
 
 load_dotenv()
 
@@ -36,7 +42,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == "TRUE"
+
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
@@ -55,6 +61,7 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.reminders",
     "accessibility_monitoring_platform.apps.overdue",
     "accessibility_monitoring_platform.apps.report_generator",
+    "accessibility_monitoring_platform.apps.s3_read_write",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,40 +109,23 @@ if UNDER_TEST:
         "NAME": "accessibility_monitoring_app",
         "ENGINE": "django.db.backends.sqlite3",
     }
-    DATABASES["pubsecweb_db"] = {
-        "NAME": "pubsecweb_db",
-        "ENGINE": "django.db.backends.sqlite3",
-    }
-    DATABASES["a11ymon_db"] = {
-        "NAME": "a11ymon_db",
-        "ENGINE": "django.db.backends.sqlite3",
+    DATABASES["aws-s3-bucket"] = {
+        "aws_access_key_id": "key",
+        "aws_region": "us-east-1",
+        "aws_secret_access_key": "secret",
+        "bucket_name": "bucketname",
+        "deploy_env": ""
     }
 else:
-    DATABASE_SERVICE_NAMES = ["monitoring-platform-default-db", "a11ymon-postgres"]
     json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
     vcap_services = json.loads(json_acceptable_string)
 
-    database_credentials = {
-        database_service["name"]: database_service["credentials"]["uri"]
-        for database_service in vcap_services["postgres"]
-        if database_service["name"] in DATABASE_SERVICE_NAMES
-    }
-
     DATABASES["default"] = dj_database_url.parse(
-        database_credentials["monitoring-platform-default-db"]
+        vcap_services["postgres"][0]["credentials"]["uri"]
     )
 
-    if "a11ymon-postgres" in database_credentials:
-        DATABASES["pubsecweb_db"] = dj_database_url.parse(
-            database_credentials["a11ymon-postgres"]
-        )
-        DATABASES["pubsecweb_db"]["OPTIONS"] = {  # type: ignore
-            "options": "-c search_path=pubsecweb,public"
-        }
-        DATABASES["a11ymon_db"] = dj_database_url.parse(
-            database_credentials["a11ymon-postgres"]
-        )
-        DATABASES["a11ymon_db"]["OPTIONS"] = {"options": "-c search_path=a11ymon,public"}  # type: ignore
+    DATABASES["aws-s3-bucket"] = vcap_services["aws-s3-bucket"][0]["credentials"]
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 

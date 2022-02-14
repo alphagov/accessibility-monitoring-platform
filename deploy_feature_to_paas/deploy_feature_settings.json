@@ -12,5 +12,6 @@
   "db_instance_to_copy": "monitoring-platform-default-db",
   "temp_db_copy_path": "./backup.sql",
   "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
+  "s3_report_store": "s3-report-store",
   "backup_db": false
 }
