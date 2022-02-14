@@ -18,17 +18,17 @@
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance decision</th>
-    <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_is_website_compliant_display }}</td>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.get_is_website_compliant_display }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Website compliance notes</th>
-    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.audit.compliance_decision_notes|markdown_to_html }}</td>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance_decision_notes|markdown_to_html }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance decision</th>
-    <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_accessibility_statement_state_display }}</td>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_display }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance notes</th>
-    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.audit.accessibility_statement_notes|markdown_to_html }}</td>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.accessibility_statement_notes|markdown_to_html }}</td>
 </tr>

@@ -24,6 +24,7 @@ from ..views import (
     calculate_twelve_week_chaser_dates,
     format_due_date_help_text,
 )
+from ...audits.models import Audit
 from ...common.models import (
     Event,
     Sector,
@@ -45,9 +46,11 @@ FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
     days=TWELVE_WEEKS_IN_DAYS
 )
-SUSPEND_NOTES = """I am
+SUSPEND_NOTES: str = """I am
 a suspend note,
 I am"""
+COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
+ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
 
@@ -1754,10 +1757,10 @@ def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_c
 
     assert response.status_code == 200
 
-    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
+    create_audit_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
     assertContains(
         response,
-        f"""<a href="{create_check_url}"
+        f"""<a href="{create_audit_url}"
             role="button" draggable="false" class="govuk-button govuk-button--secondary"
             data-module="govuk-button">
                 Start test
@@ -1788,10 +1791,10 @@ def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet
 
     assert response.status_code == 200
 
-    create_check_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
+    create_audit_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
     assertNotContains(
         response,
-        f"""<a href="{create_check_url}"
+        f"""<a href="{create_audit_url}"
             role="button" draggable="false" class="govuk-button govuk-button--secondary"
             data-module="govuk-button">
                 Start test
@@ -1803,5 +1806,69 @@ def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet
         """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
             <b>Link to test results</b>
         </label>""",
+        html=True,
+    )
+
+
+def test_testing_details_shows_test_results_if_methodology_is_platform(admin_client):
+    """
+    Test that the edit testing details page shows the view test button
+    and test results when testing methodology is platform and audit exists.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology="platform",
+        is_website_compliant="partially-compliant",
+        compliance_decision_notes=COMPLIANCE_DECISION_NOTES,
+        accessibility_statement_state="not-compliant",
+        accessibility_statement_notes=ACCESSIBILITY_STATEMENT_NOTES,
+    )
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    view_audit_url: str = reverse("audits:audit-detail", kwargs={"pk": audit.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{view_audit_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+                View test
+        </a>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance decision</th>
+            <td class="govuk-table__cell amp-width-one-half">Partially compliant</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Website compliance notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{COMPLIANCE_DECISION_NOTES}</p></td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance decision</th>
+            <td class="govuk-table__cell amp-width-one-half">Not compliant</td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{ACCESSIBILITY_STATEMENT_NOTES}</p></td>
+        </tr>""",
         html=True,
     )
