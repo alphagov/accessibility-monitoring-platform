@@ -20,7 +20,7 @@ jobs:
         pip install --upgrade pip
         pip install pipenv
         pipenv install -d
-        export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}"
+        export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}""{'aws-s3-bucket': [{'binding_guid':'00000000-0000-0000-0000-000000000000','binding_name': null,'credentials':{'aws_access_key_id':'key','aws_region':'us-east-1','aws_secret_access_key':'secret','bucket_name':'bucketname','deploy_env':''},'instance_guid':'00000000-0000-0000-0000-000000000000','instance_name':'instance_name','label':'aws-s3-bucket','name':'instance_name','plan':'default','provider':null,'syslog_drain_url': null,'tags':['s3'],'volume_mounts':[]}],'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'}]}"
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
@@ -45,7 +45,7 @@ jobs:
         pip install --upgrade pip
         pip install pipenv
         pipenv install -d
-        export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}"
+        export VCAP_SERVICES="{'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'},{'credentials':{'uri':'postgres://admin:secret@localhost:5432/a11ymon'},'name':'a11ymon-postgres'}]}""{'aws-s3-bucket': [{'binding_guid':'00000000-0000-0000-0000-000000000000','binding_name': null,'credentials':{'aws_access_key_id':'key','aws_region':'us-east-1','aws_secret_access_key':'secret','bucket_name':'bucketname','deploy_env':''},'instance_guid':'00000000-0000-0000-0000-000000000000','instance_name':'instance_name','label':'aws-s3-bucket','name':'instance_name','plan':'default','provider':null,'syslog_drain_url': null,'tags':['s3'],'volume_mounts':[]}],'postgres':[{'credentials':{'uri':'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'}]}"
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
