@@ -28,6 +28,8 @@ jobs:
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
+        export INTEGRATION_TEST=FALSE
+        export PLATFORM_VERSION=0.2.0
         npm i
         python3 -c 'from pulp import *; pulp()'
         python manage.py collectstatic --noinput
@@ -55,6 +57,8 @@ jobs:
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
+        export INTEGRATION_TEST=FALSE
+        export PLATFORM_VERSION=0.2.0
         pipenv lock -r > requirements.txt
         make int_test
       env:

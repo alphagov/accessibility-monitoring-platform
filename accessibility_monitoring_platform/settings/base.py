@@ -25,7 +25,7 @@ UNDER_TEST = ((len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.m
 S3_MOCK_ENDPOINT = None
 if os.getenv("INTEGRATION_TEST") == "TRUE":
     S3_MOCK_ENDPOINT = "http://localstack:4566"
-elif DEBUG:
+elif DEBUG and not UNDER_TEST:
     S3_MOCK_ENDPOINT = "http://localhost:4566"
 
 load_dotenv()
