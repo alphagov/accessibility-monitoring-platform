@@ -6,11 +6,14 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from .utils import S3ReadWriteReport
 from .models import S3Report
+from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
+import os
 
 
 @pytest.mark.django_db
 @mock_s3
 def test_upload_string_to_s3():
+    os.environ["PLATFORM_VERSION"] = "0.10.0"
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
     case: Case = Case.objects.create(
@@ -31,15 +34,21 @@ def test_upload_string_to_s3():
         user=user
     )
 
-    s3_resource = boto3.resource(service_name="s3")
-    obj = s3_resource.Object("bucketname", "caseid_1/org_org name__reportid_1.html")  # type: ignore
-
+    s3_resource = boto3.resource(
+        service_name="s3",
+        region_name=DATABASES["aws-s3-bucket"]["aws_region"],
+        aws_access_key_id=DATABASES["aws-s3-bucket"]["aws_access_key_id"],
+        aws_secret_access_key=DATABASES["aws-s3-bucket"]["aws_secret_access_key"],
+        endpoint_url=S3_MOCK_ENDPOINT
+    )
+    obj = s3_resource.Object("bucketname", "caseid_1/org_org name__reportid_1__platformversion_0.10.0.html")  # type: ignore
     assert obj.get()["Body"].read().decode("utf-8") == raw_html
 
 
 @pytest.mark.django_db
 @mock_s3
 def test_retrieve_raw_html():
+    os.environ["PLATFORM_VERSION"] = "0.10.0"
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     user: User = User.objects.create()
     case: Case = Case.objects.create(

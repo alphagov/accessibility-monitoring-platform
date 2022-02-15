@@ -1,4 +1,6 @@
 import boto3
+from typing import Union
+import os
 from ...settings.base import DEBUG, DATABASES, UNDER_TEST, S3_MOCK_ENDPOINT
 from django.contrib.auth.models import User
 from ..cases.models import Case
@@ -42,11 +44,16 @@ class S3ReadWriteReport:
         if S3Report.objects.filter(case=case).exists():
             version = len(S3Report.objects.filter(case=case)) + 1
 
+        platform_version: Union[str, None] = os.getenv("PLATFORM_VERSION")
+        if platform_version is None:
+            platform_version = "0.1.0"
+
         # version of platform
         s3_url_for_report: str = self.url_builder(
             organisation_name=case.organisation_name,
             case_id=case.id,  # type: ignore
-            version=version
+            version=version,
+            platform_version=platform_version
         )
 
         self.s3_client.put_object(
@@ -68,14 +75,9 @@ class S3ReadWriteReport:
     def retrieve_raw_html_from_s3_by_guid(self, guid: str):
         if S3Report.objects.filter(guid=guid).exists():
             s3file = S3Report.objects.get(guid=guid)
-            url_for_report: str = self.url_builder(
-                organisation_name=s3file.case.organisation_name,
-                case_id=s3file.case_id,
-                version=s3file.version
-            )
-            obj = self.s3_resource.Object(self.bucket, url_for_report)  # type: ignore
+            obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
             return obj.get()["Body"].read().decode("utf-8")
         return "<p> Does not exist </p>"
 
-    def url_builder(self, organisation_name: str, case_id: int, version: int) -> str:
-        return f"""caseid_{case_id}/org_{organisation_name}__reportid_{version}.html"""
+    def url_builder(self, organisation_name: str, case_id: int, version: int, platform_version: str) -> str:
+        return f"""caseid_{case_id}/org_{organisation_name}__reportid_{version}__platformversion_{platform_version}.html"""

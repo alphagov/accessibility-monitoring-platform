@@ -12,7 +12,6 @@ class ViewReport(TemplateView):
 
     def get(self, request, guid, *args, **kwargs):
         s3_rw = S3ReadWriteReport()
-        print(">>>> get report")
         raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
         return render(
             request,
