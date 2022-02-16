@@ -589,7 +589,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-twelve-week-correspondence",
             "save_continue",
-            "cases:edit-review-changes",
+            "cases:edit-twelve-week-retest",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -600,6 +600,12 @@ def test_create_case_can_create_duplicate_cases(
             "cases:edit-no-psb-response",
             "save",
             "cases:edit-enforcement-body-correspondence",
+        ),
+        ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
+        (
+            "cases:edit-twelve-week-retest",
+            "save_continue",
+            "cases:edit-review-changes",
         ),
         ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
         (
@@ -1019,6 +1025,7 @@ def test_preferred_contact_displayed(admin_client):
             "12 week correspondence",
             "edit-twelve-week-correspondence",
         ),
+        ("twelve_week_retest_complete_date", "Retesting the website", "edit-twelve-week-retest"),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
             "final_statement_complete_date",
@@ -1095,6 +1102,11 @@ def test_section_complete_check_displayed_in_contents(
             "cases:edit-twelve-week-correspondence",
             "twelve_week_correspondence_complete_date",
             "12 week correspondence",
+        ),
+        (
+            "cases:edit-twelve-week-retest",
+            "twelve_week_retest_complete_date",
+            "Retesting the website",
         ),
         (
             "cases:edit-review-changes",

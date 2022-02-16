@@ -330,6 +330,9 @@ class Case(VersionModel):
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
 
+    # Twelve week retest
+    twelve_week_retest_complete_date = models.DateField(null=True, blank=True)
+
     # Review changes
     psb_progress_notes = models.TextField(default="", blank=True)
     retested_website_date = models.DateField(null=True, blank=True)

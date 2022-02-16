@@ -465,6 +465,21 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
         ]
 
 
+class CaseTwelveWeekRetestUpdateForm(VersionForm):
+    """
+    Form for updating twelve week retest
+    """
+
+    twelve_week_retest_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_retest_complete_date",
+        ]
+
+
 class CaseReviewChangesUpdateForm(VersionForm):
     """
     Form to record review of changes made by PSB
