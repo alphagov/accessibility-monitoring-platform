@@ -1025,7 +1025,11 @@ def test_preferred_contact_displayed(admin_client):
             "12-week correspondence",
             "edit-twelve-week-correspondence",
         ),
-        ("twelve_week_retest_complete_date", "Retesting the website", "edit-twelve-week-retest"),
+        (
+            "twelve_week_retest_complete_date",
+            "Retesting the website",
+            "edit-twelve-week-retest",
+        ),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
             "final_statement_complete_date",

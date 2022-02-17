@@ -12,8 +12,7 @@ class AuditAdmin(admin.ModelAdmin):
     """Django admin configuration for Audit model"""
 
     search_fields = ["name", "case__organisation_name", "description"]
-    list_display = ["type", "name", "date_of_test", "case"]
-    list_filter = ["type"]
+    list_display = ["date_of_test", "name", "case"]
 
 
 class PageAdmin(admin.ModelAdmin):

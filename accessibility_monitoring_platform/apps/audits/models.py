@@ -29,12 +29,6 @@ EXEMPTIONS_STATE_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     (EXEMPTIONS_STATE_DEFAULT, "Unknown"),
 ]
-AUDIT_TYPE_DEFAULT: str = "initial"
-AUDIT_TYPE_RETEST = "retest"
-AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (AUDIT_TYPE_DEFAULT, "Initial"),
-    (AUDIT_TYPE_RETEST, "12-week retest"),
-]
 PAGE_TYPE_EXTRA: str = "extra"
 PAGE_TYPE_HOME: str = "home"
 PAGE_TYPE_CONTACT: str = "contact"
@@ -239,16 +233,6 @@ class Audit(VersionModel):
         default=EXEMPTIONS_STATE_DEFAULT,
     )
     exemptions_notes = models.TextField(default="", blank=True)
-    type = models.CharField(
-        max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
-    )
-    retest_of_audit = models.ForeignKey(
-        "Audit",
-        on_delete=models.PROTECT,
-        related_name="audit_retest",
-        null=True,
-        blank=True,
-    )
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Pages page
@@ -407,6 +391,10 @@ class Audit(VersionModel):
     # Report text
     audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
+    # retest metadata page
+    retest_date = models.DateField(null=True, blank=True)
+    audit_retest_metadata_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 
@@ -414,12 +402,11 @@ class Audit(VersionModel):
         if self.name:
             return str(
                 f"{self.name}"
-                f" | {self.get_type_display()}"  # type: ignore
+                f" | {self.case}"  # type: ignore
                 f" | {format_date(self.date_of_test)}"
             )
         return str(
-            f"{self.get_type_display()}"  # type: ignore
-            f" | {format_date(self.date_of_test)}"
+            f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
         )
 
     def get_absolute_url(self):

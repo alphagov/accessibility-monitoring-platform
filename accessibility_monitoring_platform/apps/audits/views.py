@@ -42,6 +42,7 @@ from .forms import (
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
+    AuditRetestMetadataUpdateForm,
 )
 from .models import (
     Audit,
@@ -603,4 +604,39 @@ class AuditReportTextUpdateView(AuditUpdateView):
         if "save_exit" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("audits:audit-detail", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditRetestDetailView(DetailView):
+    """
+    View of details of a single audit retest
+    """
+
+    model: Type[Audit] = Audit
+    context_object_name: str = "audit"
+    template_name: str = "audits/audit_retest_detail.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add table rows to context for each section of page"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object  # type: ignore
+
+        context["audit_retest_metadata_rows"] = get_audit_metadata_rows(audit=audit)
+
+        return context
+
+
+class AuditRetestMetadataUpdateView(AuditUpdateView):
+    """
+    View to update audit retest metadata
+    """
+
+    form_class: Type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
+    template_name: str = "audits/forms/retest_metadata.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-pages", kwargs=audit_pk)
         return super().get_success_url()
