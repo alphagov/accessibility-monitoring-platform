@@ -33,7 +33,7 @@ AUDIT_TYPE_DEFAULT: str = "initial"
 AUDIT_TYPE_RETEST = "retest"
 AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (AUDIT_TYPE_DEFAULT, "Initial"),
-    (AUDIT_TYPE_RETEST, "12 week retest"),
+    (AUDIT_TYPE_RETEST, "12-week retest"),
 ]
 PAGE_TYPE_EXTRA: str = "extra"
 PAGE_TYPE_HOME: str = "home"

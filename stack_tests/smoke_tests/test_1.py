@@ -207,7 +207,7 @@ class TestCaseView(SeleniumTest):
             ("Edit QA process", "QA process"),
             ("Edit contact details", "Contact details"),
             ("Edit report correspondence", "Report correspondence"),
-            ("Edit 12 week correspondence", "12 week correspondence"),
+            ("Edit 12-week correspondence", "12-week correspondence"),
             ("Edit reviewing changes", "Reviewing changes"),
             (
                 "Edit final accessibility statement compliance decision",

@@ -77,7 +77,7 @@ TWELVE_WEEK_ACKNOWLEGED_DATE_MM = "7"
 TWELVE_WEEK_ACKNOWLEGED_DATE_YYYY = "2021"
 TWELVE_WEEK_CORRESPONDENCE_NOTES = """I am
 a multiline
-12 week correspondence note, I am"""
+12-week correspondence note, I am"""
 
 PSB_PROGRESS_NOTES = """I am
 a multiline
@@ -276,7 +276,7 @@ class TestCaseUpdates(TestCases):
     test_update_case_edit_report_correspondence()
         Tests whether report correspondence can be updated
     test_update_case_edit_12_week_correspondence()
-        Tests whether 12 week correspondence can be updated
+        Tests whether 12-week correspondence can be updated
     test_update_case_edit_review_changes()
         Tests whether review changes by PSB can be updated
     test_update_case_edit_final_statement()
@@ -487,14 +487,14 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_link_text("Edit report correspondence").click()
         self.assertTrue(
             "Due 07/01/2021" in self.driver.page_source
-        )  # 1 week followup date
+        )  # 1-week followup date
         self.assertTrue(
             "Due 28/01/2021" in self.driver.page_source
-        )  # 4 week followup date
-        self.assertTrue("Due 25/03/2021" in self.driver.page_source)  # 12 week deadline
+        )  # 4-week followup date
+        self.assertTrue("Due 25/03/2021" in self.driver.page_source)  # 12-week deadline
 
     def test_update_case_edit_12_week_correspondence(self):
-        """Tests whether 12 week correspondence can be updated"""
+        """Tests whether 12-week correspondence can be updated"""
         self.driver.find_element_by_link_text("Edit report correspondence").click()
         self.driver.find_element_by_name("report_sent_date_0").clear()
         self.driver.find_element_by_name("report_sent_date_0").send_keys(
@@ -511,9 +511,9 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("Case").click()
 
-        self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
+        self.driver.find_element_by_link_text("Edit 12-week correspondence").click()
 
-        self.assertTrue(">12 week correspondence</h1>" in self.driver.page_source)
+        self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("twelve_week_update_requested_date_0").clear()
         self.driver.find_element_by_name(
@@ -800,14 +800,14 @@ class TestCaseUpdates(TestCases):
         self.assertTrue("Due 31/08/2021" in self.driver.page_source)
 
     def test_update_case_edit_twelve_week_correspondence_dates(self):
-        """Tests whether 12 week correspondence dates can be updated"""
-        self.driver.find_element_by_link_text("Edit 12 week correspondence").click()
-        self.assertTrue(">12 week correspondence</h1>" in self.driver.page_source)
+        """Tests whether 12-week correspondence dates can be updated"""
+        self.driver.find_element_by_link_text("Edit 12-week correspondence").click()
+        self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_link_text(
-            "Edit 12 week correspondence due dates"
+            "Edit 12-week correspondence due dates"
         ).click()
-        self.assertTrue(">12 week correspondence dates</h1>" in self.driver.page_source)
+        self.assertTrue(">12-week correspondence dates</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("report_followup_week_12_due_date_0").clear()
         self.driver.find_element_by_name(
@@ -850,7 +850,7 @@ class TestCaseUpdates(TestCases):
 
         self.driver.find_element_by_name("save_return").click()
 
-        self.assertTrue(">12 week correspondence</h1>" in self.driver.page_source)
+        self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
         self.assertTrue("Due 13/07/2021" in self.driver.page_source)
         self.assertTrue("Due 20/07/2021" in self.driver.page_source)
         self.assertTrue("Due 24/07/2021" in self.driver.page_source)

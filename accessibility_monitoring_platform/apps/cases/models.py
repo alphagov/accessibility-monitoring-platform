@@ -24,8 +24,8 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ("qa-in-progress", "QA in progress"),
     ("report-ready-to-send", "Report ready to send"),
     ("in-report-correspondence", "Report sent"),
-    ("in-probation-period", "Report acknowledged waiting for 12 week deadline"),
-    ("in-12-week-correspondence", "After 12 week correspondence"),
+    ("in-probation-period", "Report acknowledged waiting for 12-week deadline"),
+    ("in-12-week-correspondence", "After 12-week correspondence"),
     ("final-decision-due", "Final decision due"),
     (
         "in-correspondence-with-equalities-body",
@@ -310,7 +310,7 @@ class Case(VersionModel):
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
 
-    # 12 week correspondence page
+    # 12-week correspondence page
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
@@ -325,7 +325,7 @@ class Case(VersionModel):
     )
     twelve_week_correspondence_complete_date = models.DateField(null=True, blank=True)
 
-    # 12 week correspondence dates
+    # 12-week correspondence dates
     # report_followup_week_12_due_date from report followup dates page
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
@@ -551,32 +551,32 @@ class Case(VersionModel):
             and self.report_followup_week_1_due_date > now
             and self.report_followup_week_1_sent_date is None
         ):
-            return "1 week followup coming up"
+            return "1-week followup coming up"
         elif (
             self.report_followup_week_1_due_date
             and self.report_followup_week_1_due_date <= now
             and self.report_followup_week_1_sent_date is None
         ):
-            return "1 week followup due"
+            return "1-week followup due"
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_due_date
             and self.report_followup_week_4_due_date > now
             and self.report_followup_week_4_sent_date is None
         ):
-            return "4 week followup coming up"
+            return "4-week followup coming up"
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_due_date
             and self.report_followup_week_4_due_date <= now
             and self.report_followup_week_4_sent_date is None
         ):
-            return "4 week followup due"
+            return "4-week followup due"
         elif (
             self.report_followup_week_1_sent_date
             and self.report_followup_week_4_sent_date
         ):
-            return "4 week followup sent, waiting for acknowledgement"
+            return "4-week followup sent, waiting for acknowledgement"
         return "Unknown"
 
     @property
@@ -587,32 +587,32 @@ class Case(VersionModel):
             and self.twelve_week_1_week_chaser_due_date > now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1 week followup coming up"
+            return "1-week followup coming up"
         elif (
             self.twelve_week_update_requested_date
             and self.twelve_week_update_requested_date < now
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
-            return "1 week followup due"
+            return "1-week followup due"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date
             and self.twelve_week_4_week_chaser_due_date > now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
-            return "4 week followup coming up"
+            return "4-week followup coming up"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_due_date
             and self.twelve_week_4_week_chaser_due_date < now
             and self.twelve_week_4_week_chaser_sent_date is None
         ):
-            return "4 week followup due"
+            return "4-week followup due"
         elif (
             self.twelve_week_1_week_chaser_sent_date
             and self.twelve_week_4_week_chaser_sent_date
         ):
-            return "4 week followup sent"
+            return "4-week followup sent"
         return "Unknown"
 
     @property

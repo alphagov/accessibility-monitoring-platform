@@ -52,7 +52,7 @@ COLUMNS_FOR_EHRC = [
         column_name="Report acknowledged", field_name="report_acknowledged_date"
     ),
     ColumnAndFieldNames(
-        column_name="Followup date - 12 week deadline",
+        column_name="Followup date - 12-week deadline",
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(

@@ -1022,7 +1022,7 @@ def test_preferred_contact_displayed(admin_client):
         ),
         (
             "twelve_week_correspondence_complete_date",
-            "12 week correspondence",
+            "12-week correspondence",
             "edit-twelve-week-correspondence",
         ),
         ("twelve_week_retest_complete_date", "Retesting the website", "edit-twelve-week-retest"),
@@ -1101,7 +1101,7 @@ def test_section_complete_check_displayed_in_contents(
         (
             "cases:edit-twelve-week-correspondence",
             "twelve_week_correspondence_complete_date",
-            "12 week correspondence",
+            "12-week correspondence",
         ),
         (
             "cases:edit-twelve-week-retest",

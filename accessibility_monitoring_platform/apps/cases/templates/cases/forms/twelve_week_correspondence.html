@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | 12 week correspondence{% endblock %}
+{% block title %}{{ case.organisation_name }} | 12-week correspondence{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,14 +13,14 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                12 week correspondence
+                12-week correspondence
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='12 week correspondence' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week correspondence' %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -31,7 +31,7 @@
                         href="{% url 'cases:edit-twelve-week-correspondence-due-dates' case.id %}"
                         class="govuk-link govuk-link--no-visited-state"
                     >
-                        Edit 12 week correspondence due dates
+                        Edit 12-week correspondence due dates
                     </a>
                 </p>
                 <form method="post" action="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
@@ -39,7 +39,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"><b>12 week deadline</b></label>
+                                <label class="govuk-label"><b>12-week deadline</b></label>
                                 <div class="govuk-hint">
                                     {% if case.report_followup_week_12_due_date %}
                                         Due {{ case.report_followup_week_12_due_date|date:"d/m/Y" }}
