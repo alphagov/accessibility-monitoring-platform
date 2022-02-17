@@ -218,7 +218,8 @@ class TestCaseView(SeleniumTest):
                 "Final website compliance decision",
             ),
             ("Edit closing the case", "Closing the case"),
-            ("Edit equality body correspondence", "Equality body correspondence"),
+            ("Edit post case summary", "Post case summary"),
+            ("Edit equality body summary", "Equality body summary"),
         ]
 
         for page in pages_to_test:

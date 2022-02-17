@@ -102,6 +102,7 @@ COMPLIANCE_EMAIL_SENT_DATE_YYYY = "2021"
 PSB_APPEAL_NOTES = """I am
 a multiline
 public sector body appeal note, I am"""
+POST_CASE_NOTES = "Post case note"
 SENT_TO_ENFORCEMENT_BODY_SENT_DATE_DD = "15"
 SENT_TO_ENFORCEMENT_BODY_SENT_DATE_MM = "8"
 SENT_TO_ENFORCEMENT_BODY_SENT_DATE_YYYY = "2021"
@@ -285,8 +286,8 @@ class TestCaseUpdates(TestCases):
         Tests whether final website decision can be updated
     test_update_case_edit_case_close()
         Tests whether close case can be updated
-    test_update_case_edit_enforcement_body_correspondence()
-        Tests whether enforcement body correspondence can be updated
+    test_update_case_edit_enforcement_body_summary()
+        Tests whether enforcement body summary can be updated
     test_update_case_edit_psb_is_unresponsive()
         Tests whether unresponsive public sector bodies can be moved directly to enforcement body
     """
@@ -699,15 +700,35 @@ class TestCaseUpdates(TestCases):
             "Case should not be sent to the equality body" in self.driver.page_source
         )
 
-    def test_update_case_edit_enforcement_body_correspondence(self):
-        """Tests whether enforcement body correspondence can be updated"""
+    def test_update_case_edit_post_case(self):
+        """Tests whether post case summary can be updated"""
         self.driver.find_element_by_link_text(
-            "Edit equality body correspondence"
+            "Edit post case summary"
         ).click()
 
-        self.assertTrue(">Equality body correspondence</h1>" in self.driver.page_source)
+        self.assertTrue(">Post case summary</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
+        self.driver.find_element_by_name("post_case_notes").send_keys(POST_CASE_NOTES)
+        self.driver.find_element_by_css_selector(
+            "#id_post_case_complete_date"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
+        self.assertTrue(POST_CASE_NOTES in self.driver.page_source)
+
+
+    def test_update_case_edit_enforcement_body_summary(self):
+        """Tests whether enforcement body summary can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit equality body summary"
+        ).click()
+
+        self.assertTrue(">Equality body summary</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("sent_to_enforcement_body_sent_date_0").clear()
         self.driver.find_element_by_name(
@@ -738,7 +759,6 @@ class TestCaseUpdates(TestCases):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
         self.assertTrue("15/08/2021" in self.driver.page_source)
         self.assertTrue(
             ENFORCEMENT_BODY_CORRESPONDENCE_NOTES in self.driver.page_source
@@ -873,7 +893,7 @@ class TestCaseUpdates(TestCases):
 
         self.driver.find_element_by_name("save_continue").click()
 
-        self.assertTrue(">Equality body correspondence</h1>" in self.driver.page_source)
+        self.assertTrue(">Equality body summary</h1>" in self.driver.page_source)
 
 
 class TestCaseDelete(TestCases):
