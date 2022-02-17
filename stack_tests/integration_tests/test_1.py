@@ -702,17 +702,13 @@ class TestCaseUpdates(TestCases):
 
     def test_update_case_edit_post_case(self):
         """Tests whether post case summary can be updated"""
-        self.driver.find_element_by_link_text(
-            "Edit post case summary"
-        ).click()
+        self.driver.find_element_by_link_text("Edit post case summary").click()
 
         self.assertTrue(">Post case summary</h1>" in self.driver.page_source)
 
         self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
         self.driver.find_element_by_name("post_case_notes").send_keys(POST_CASE_NOTES)
-        self.driver.find_element_by_css_selector(
-            "#id_post_case_complete_date"
-        ).click()
+        self.driver.find_element_by_css_selector("#id_post_case_complete_date").click()
 
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("Case").click()
@@ -721,12 +717,9 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
         self.assertTrue(POST_CASE_NOTES in self.driver.page_source)
 
-
     def test_update_case_edit_enforcement_body_summary(self):
         """Tests whether enforcement body summary can be updated"""
-        self.driver.find_element_by_link_text(
-            "Edit equality body summary"
-        ).click()
+        self.driver.find_element_by_link_text("Edit equality body summary").click()
 
         self.assertTrue(">Equality body summary</h1>" in self.driver.page_source)
 

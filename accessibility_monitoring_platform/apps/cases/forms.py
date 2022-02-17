@@ -611,9 +611,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     Form for recording correspondence with enforcement body
     """
 
-    case_updated_date = AMPDateField(
-        label="Case updated"
-    )
+    case_updated_date = AMPDateField(label="Case updated")
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body"
     )
