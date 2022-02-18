@@ -10,5 +10,6 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        {% include './nav_content.html' with anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='Website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
     </ul>
 </nav>

@@ -10,6 +10,7 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='Website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
     </ul>
     <h2 class="govuk-heading-m  bottom-margin-5">Frequently used links</h2>
     <ul class="govuk-list">

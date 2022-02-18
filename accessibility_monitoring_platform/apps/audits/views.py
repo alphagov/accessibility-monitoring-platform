@@ -47,6 +47,7 @@ from .forms import (
     AuditRetestPageChecksForm,
     RetestCheckResultFilterForm,
     RetestCheckResultFormset,
+    AuditRetestWebsiteDecisionUpdateForm,
 )
 from .models import (
     Audit,
@@ -712,7 +713,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        context: Dict[str, Any] = self.get_context_data()
+        # context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
         page.retest_complete_date = form.cleaned_data["retest_complete_date"]
         page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
@@ -734,4 +735,20 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             return get_next_retest_page_url(audit=self.page.audit, current_page=self.page)
+        return super().get_success_url()
+
+
+class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
+    """
+    View to retest website compliance fields
+    """
+
+    form_class: Type[AuditRetestWebsiteDecisionUpdateForm] = AuditRetestWebsiteDecisionUpdateForm
+    template_name: str = "audits/forms/retest-website-decision.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
         return super().get_success_url()

@@ -794,3 +794,18 @@ class RetestCheckResultForm(forms.ModelForm):
 
 
 RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
+
+
+class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form for retest website compliance decision completion
+    """
+
+    audit_retest_website_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_website_decision_complete_date",
+        ]
