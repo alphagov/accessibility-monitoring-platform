@@ -411,6 +411,9 @@ class Audit(VersionModel):
     # Retest website compliance
     audit_retest_website_decision_complete_date = models.DateField(null=True, blank=True)
 
+    # Retest statement
+    audit_retest_statement_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

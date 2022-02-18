@@ -809,3 +809,18 @@ class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
             "version",
             "audit_retest_website_decision_complete_date",
         ]
+
+
+class AuditRetestStatementUpdateView(VersionForm):
+    """
+    Form for retesting statement
+    """
+
+    audit_retest_statement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_complete_date",
+        ]

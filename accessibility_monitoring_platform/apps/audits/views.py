@@ -48,6 +48,7 @@ from .forms import (
     RetestCheckResultFilterForm,
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
+    AuditRetestStatementUpdateView,
 )
 from .models import (
     Audit,
@@ -750,5 +751,21 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-statement", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditRetestStatementUpdateView(AuditUpdateView):
+    """
+    View to retest accessibility statement
+    """
+
+    form_class: Type[AuditRetestStatementUpdateView] = AuditRetestStatementUpdateView
+    template_name: str = "audits/forms/retest-statement.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
         return super().get_success_url()
