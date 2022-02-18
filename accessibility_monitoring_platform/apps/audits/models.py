@@ -414,6 +414,9 @@ class Audit(VersionModel):
     # Retest statement
     audit_retest_statement_complete_date = models.DateField(null=True, blank=True)
 
+    # Retest statement decision
+    audit_retest_statement_decision_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

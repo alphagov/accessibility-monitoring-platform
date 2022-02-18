@@ -49,6 +49,7 @@ from .forms import (
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     AuditRetestStatementUpdateView,
+    AuditRetestStatementDecisionUpdateView,
 )
 from .models import (
     Audit,
@@ -488,7 +489,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
 
 class AuditStatementDecisionUpdateView(AuditUpdateView):
     """
-    View to update statement compliance fields
+    View to update statement decision fields
     """
 
     form_class: Type[
@@ -767,5 +768,23 @@ class AuditRetestStatementUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
+            return reverse("audits:edit-audit-statement-decision", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditRetestStatementDecisionUpdateView(AuditStatementDecisionUpdateView):
+    """
+    View to retest statement decsion
+    """
+
+    form_class: Type[
+        AuditRetestStatementDecisionUpdateView
+    ] = AuditRetestStatementDecisionUpdateView
+    template_name: str = "audits/forms/retest-statement-decision.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:audit-retest-detail", kwargs=audit_pk)
         return super().get_success_url()

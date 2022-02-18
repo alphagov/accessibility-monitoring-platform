@@ -824,3 +824,18 @@ class AuditRetestStatementUpdateView(VersionForm):
             "version",
             "audit_retest_statement_complete_date",
         ]
+
+
+class AuditRetestStatementDecisionUpdateView(VersionForm):
+    """
+    Form for retesting statement swcision
+    """
+
+    audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_decision_complete_date",
+        ]
