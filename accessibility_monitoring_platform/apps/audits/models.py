@@ -175,6 +175,16 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NO_ERROR, "No issue"),
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
+RETEST_CHECK_RESULT_YES: str = "yes"
+RETEST_CHECK_RESULT_NO: str = "no"
+RETEST_CHECK_RESULT_PARTIAL: str = "partial"
+RETEST_CHECK_RESULT_NOT_APPLICABLE: str = "not-applicable"
+RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
+    (RETEST_CHECK_RESULT_YES, "Yes"),
+    (RETEST_CHECK_RESULT_NO, "No"),
+    (RETEST_CHECK_RESULT_PARTIAL, "Partially"),
+    (RETEST_CHECK_RESULT_NOT_APPLICABLE, "N/A")
+]
 
 REPORT_ACCESSIBILITY_ISSUE_TEXT = {
     "accessibility_statement_not_correct_format": "It was not in the correct format",
@@ -486,6 +496,8 @@ class Page(models.Model):
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    retest_complete_date = models.DateField(null=True, blank=True)
+    retest_page_missing_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
@@ -568,6 +580,22 @@ class CheckResult(models.Model):
         default=CHECK_RESULT_NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        default=RETEST_CHECK_RESULT_NO,
+    )
+    retest_notes = models.TextField(default="", blank=True)
+
+    @property
+    def as_dict(self):
+        return {
+            "wcag_definition": self.wcag_definition,
+            "check_result_state": self.check_result_state,
+            "notes": self.notes,
+            "retest_state": self.retest_state,
+            "retest_notes": self.retest_notes,
+        }
 
     class Meta:
         ordering = ["id"]

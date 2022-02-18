@@ -3,6 +3,13 @@
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='Test metadata' complete=audit.audit_retest_metadata_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='Pages comparison' complete=audit.audit_retest_pages_complete_date %}
+        {% if audit.testable_pages %}
+            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                {% for page in audit.testable_pages %}
+                    {% include './nav_step.html' with edit_name='audits:edit-audit-retest-page-checks' complete=page.retest_complete_date %}
+                {% endfor %}
+            </ul>
+        {% endif %}
     </ul>
     <h2 class="govuk-heading-m  bottom-margin-5">Frequently used links</h2>
     <ul class="govuk-list">

@@ -48,6 +48,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
     CHECK_RESULT_STATE_CHOICES,
+    RETEST_CHECK_RESULT_STATE_CHOICES,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
@@ -713,3 +714,83 @@ class AuditRetestPagesUpdateForm(VersionForm):
             "version",
             "audit_retest_pages_complete_date",
         ]
+
+
+class AuditRetestPageChecksForm(forms.Form):
+    """
+    Form for retesting checks for a page
+    """
+
+    retest_complete_date = AMPDatePageCompleteField(
+        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+    )
+    retest_page_missing_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
+    )
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "retest_complete_date",
+            "retest_page_missing_date",
+        ]
+
+
+class RetestCheckResultFilterForm(forms.Form):
+    """
+    Form for filtering check results on retest
+    """
+
+    name = AMPCharFieldWide(label="")
+    yes = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Yes"})
+    )
+    no = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "No"})
+    )
+    partial = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Partially"})
+    )
+    not_applicable = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "N/A"})
+    )
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "yes",
+            "no",
+            "partial",
+            "not_applicable",
+        ]
+
+
+class RetestCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single check test on retest
+    """
+
+    wcag_definition = forms.ModelChoiceField(
+        queryset=WcagDefinition.objects.all(), widget=forms.HiddenInput()
+    )
+    notes = forms.CharField(widget=forms.HiddenInput())
+    retest_state = AMPChoiceRadioField(
+        label="",
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
+    retest_notes = AMPTextField(label="Error details")
+
+    class Meta:
+        model = CheckResult
+        fields = [
+            "wcag_definition",
+            "notes",
+            "retest_state",
+            "retest_notes",
+        ]
+
+
+RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)

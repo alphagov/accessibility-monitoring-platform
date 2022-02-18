@@ -160,7 +160,7 @@ def get_all_possible_check_results_for_page(
     page: Page, wcag_definitions: List[WcagDefinition]
 ) -> List[Dict[str, Union[str, WcagDefinition]]]:
     """
-    Combine exisiting check result with all the WCAG definitions
+    Combine existing check result with all the WCAG definitions
     to create a list of dictionaries for use in populating the
     CheckResultFormset with all possible results.
     """
@@ -218,3 +218,25 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
     current_page_position: int = testable_pages.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}  # type: ignore
     return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
+
+
+def get_next_retest_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:
+    """
+    Return the path of the page to go to when a save and continue button is
+    pressed on the page where pages or pages check results are retested.
+    """
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    if not audit.testable_pages:
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
+
+    if current_page is None:
+        next_page_pk: Dict[str, int] = {"pk": audit.testable_pages.first().id}
+        return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
+
+    testable_pages: List[Page] = list(audit.testable_pages)
+    if testable_pages[-1] == current_page:
+        return reverse("audits:edit-website-decision", kwargs=audit_pk)
+
+    current_page_position: int = testable_pages.index(current_page)
+    next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}  # type: ignore
+    return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
