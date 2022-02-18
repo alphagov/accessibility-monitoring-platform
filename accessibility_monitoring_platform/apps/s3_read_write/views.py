@@ -13,11 +13,7 @@ class ViewReport(TemplateView):
     def get(self, request, guid, *args, **kwargs):
         s3_rw = S3ReadWriteReport()
         raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
-        return render(
-            request,
-            "s3_read_write/base.html",
-            {"content": raw_html}
-        )
+        return render(request, "s3_read_write/base.html", {"content": raw_html})
 
 
 class CreateReport(TemplateView):
@@ -27,6 +23,7 @@ class CreateReport(TemplateView):
 
     def get(self, request, id, *args, **kwargs):
         case = Case.objects.get(pk=id)
+        # To be removed
         raw_html = f"""
             <div>
                 <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
@@ -36,8 +33,6 @@ class CreateReport(TemplateView):
         """
         s3_rw = S3ReadWriteReport()
         guid = s3_rw.upload_string_to_s3_as_html(
-            html_content=raw_html,
-            case=case,
-            user=request.user
+            html_content=raw_html, case=case, user=request.user
         )
         return render(request, "s3_read_write/saved_successfully.html", {"guid": guid})

@@ -27,6 +27,19 @@ class BuildEnv:
     ):
         if build_direction != "up" and build_direction != "down":
             raise TypeError("build_direction needs to be up or down")
+
+        if (
+            space_name == "monitoring-platform-production"
+            or space_name == "monitoring-platform-test"
+        ):
+            raise TypeError(f"{space_name} is a protected space_name")
+
+        if (
+            app_name == "accessibility-monitoring-platform-production"
+            or app_name == "accessibility-monitoring-platform-test"
+        ):
+            raise TypeError(f"{app_name} is a protected app_name")
+
         self.build_direction = build_direction
         self.space_name = space_name
         self.app_name = app_name

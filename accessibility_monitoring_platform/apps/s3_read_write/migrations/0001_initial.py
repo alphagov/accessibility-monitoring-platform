@@ -10,24 +10,49 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('cases', '0023_auto_20220201_1532'),
+        ("cases", "0023_auto_20220201_1532"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='S3Report',
+            name="S3Report",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('s3_directory', models.TextField(blank=True, default='')),
-                ('version', models.IntegerField(blank=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('visible', models.BooleanField(default=True)),
-                ('deprecated', models.BooleanField(default=False)),
-                ('guid', models.CharField(blank=True, max_length=40)),
-                ('platform_version', models.CharField(blank=True, default='0.1.0', max_length=40)),
-                ('case', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='cases.case')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='report_created_by_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("s3_directory", models.TextField(blank=True, default="")),
+                ("version", models.IntegerField(blank=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("visible", models.BooleanField(default=True)),
+                ("deprecated", models.BooleanField(default=False)),
+                ("guid", models.CharField(blank=True, max_length=40)),
+                (
+                    "platform_version",
+                    models.CharField(blank=True, default="0.1.0", max_length=40),
+                ),
+                (
+                    "case",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="cases.case"
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="report_created_by_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

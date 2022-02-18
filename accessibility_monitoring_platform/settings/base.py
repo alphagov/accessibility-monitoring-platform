@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
-UNDER_TEST = ((len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules)
+UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
 
 S3_MOCK_ENDPOINT = None
 if os.getenv("INTEGRATION_TEST") == "TRUE":
@@ -114,7 +114,7 @@ if UNDER_TEST:
         "aws_region": "us-east-1",
         "aws_secret_access_key": "secret",
         "bucket_name": "bucketname",
-        "deploy_env": ""
+        "deploy_env": "",
     }
 else:
     json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')

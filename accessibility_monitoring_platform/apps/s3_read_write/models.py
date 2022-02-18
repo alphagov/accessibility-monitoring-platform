@@ -10,6 +10,7 @@ class S3Report(models.Model):
     """
     Model for Case
     """
+
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
     created_by = models.ForeignKey(
         User,
@@ -27,8 +28,6 @@ class S3Report(models.Model):
     platform_version = models.CharField(blank=True, default="0.1.0", max_length=40)
 
     def save(self, *args, **kwargs):
-        if not self.guid:
-            self.guid = str(uuid.uuid4())
 
         platform_version: Union[str, None] = os.getenv("PLATFORM_VERSION")
         if platform_version:

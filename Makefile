@@ -14,6 +14,9 @@ init:
 clean_local:
 	docker-compose down
 	rm -rf ./data
+	rm -rf ./node_modules
+	rm -rf ./venv
+	rm ./.env
 
 start:
 	python manage.py runserver 8081
@@ -58,3 +61,12 @@ staging_env:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
 	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
+
+docker_is_running = $(shell curl -s -w "%{http_code}\n" http://0.0.0.0:8001 -o /dev/null)
+
+int_test_developer_mode:
+    ifneq ($(docker_is_running), 302)
+		echo "Launching integration stack"
+		docker compose -f stack_tests/docker-compose.yml up -d
+    endif
+	python3 stack_tests/main.py -s ./stack_tests/integration_tests_developer_mode_settings.json

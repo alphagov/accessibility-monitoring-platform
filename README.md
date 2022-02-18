@@ -12,11 +12,11 @@ It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
 - [Start local development environment](#Start-local-development-environment)
 
-- [ADR Records](#ADR-Records)
-
 - [Testing](#Testing)
 
 - [Pulp](#Pulp)
+
+- [Deploying prototypes](#Deploying-prototypes)
 
 - [Root dir files explainer](#Root-dir-files-explainer)
 
@@ -24,11 +24,12 @@ It uses Django, PostgreSQL, and the Gov UK frontend design system.
 ## Requirements
 
 - Docker
-- Python 3.8
+- Python 3.9
 - PostgreSQL
 - Node and NPM
 - Standard JS Globally installed (if using VSCode)
 - AWS CLI version 2
+- Cloud Foundry and a PaaS login (if using prototypes)
 
 ---
 ## How to get started
@@ -39,7 +40,7 @@ To set up your local sandbox, follow the instructions below.
 2. Activate the virtual environment
 3. Copy .env.example as .env
 4. Create a Django secret key
-5. Fill in AWS_ACCESS_KEY_ID_S3_STORE and AWS_SECRET_ACCESS_KEY_S3_STORE, SECRET_KEY in with Django secret key in .env
+5. Fill in AWS_ACCESS_KEY_ID_S3_STORE and AWS_SECRET_ACCESS_KEY_S3_STORE in .env
 6. Run `make init`
 
 For example:
@@ -48,7 +49,6 @@ For example:
 python3 -m venv venv
 source venv/bin/activate
 cp .env.example .env
-python -c "import secrets; print(secrets.token_urlsafe())"
 nano .env
 make init
 ```
@@ -57,7 +57,7 @@ make init
 
 To launch the development environment:
 
-1. Start the pgAdmin and Postgres SQL environment
+1. Start the pgAdmin, Postgres SQL, and Localstack environment
 2. Start the Django server
 3. Start the Pulp watch process in a new terminal
 4. Start browser-sync (if needed) in a new terminal
@@ -71,31 +71,10 @@ make watch
 make sync
 ```
 ---
-## ADR Records
 
-To create a new Architecture Design Record (ADR):
-
-1. Ensure `adr` is installed
-2. Use `adr new` if you are making a new design record
-3. Use `adr new -s` if you are superseding a previous design record
-
-For example
-
-```
-brew install adr-tools
-adr new Implement as Unix shell scripts
-adr new -s 9 Use Rust for performance-critical functionality
-```
----
 ## Testing
 
 There is currently two types of automated testing; unit, and integration testing.
-
-Static files need to be collected by Django before starting unit tests. The tests will fail unless this step is completed. This can be executed with
-
-```
-python manage.py collectstatic
-```
 
 Unit testing is started with
 
@@ -111,7 +90,12 @@ Integration can be started with
 make int_test
 ```
 
-The make command will start a docker-compose stack and execute python unit tests located in integration tests. If you are writing integration tests, the stack can be started with `make dockerstack`, and starting the tests with `int_test_no_docker`.
+The make command will emulate the production stack with docker-compose and will then simulate the actions of a user. 
+
+When writing tests, `int_test_developer_mode` can be used to skip starting the docker containers. This is useful when writing integration tests as it's much faster than the normal integration testing process.
+The settings for this mode can be found in `stack_tests/integration_tests_developer_mode_settings.json`, and the target path for tests can be changed under `test_dir`.
+
+Ensure your tests work with `make int_test` before creating a pull request.
 
 ---
 
@@ -126,13 +110,25 @@ It currently
 - Copies the static images and fonts to the static folder in the Django app
 - Transpiles JS with Babel, Browserify, and Uglify.
 
-In the future, it may
-- Monitor files for changes and automatically trigger a pipeline.
-- Find a streamlined approach to work with browser-sync
-- Use Django to trigger the build process
-- Targeted file watching and functions
-
 To trigger a build, simply use `make static_files_process`
+
+---
+## Deploying prototypes
+
+To deploy a temporary prototype onto PaaS, you will need Cloud Foundry installed locally and a PaaS account.
+
+To deploy a prototype, simply enter
+
+```
+make deploy_prototype
+```
+
+This will deploy your local branch to a brand new space in PaaS with data copied over from the testing environment. Users can then log in using their testing environment login details.
+
+Once you are finished with the prototype, it can be broken down with,
+```
+make breakdown_prototype
+```
 
 ---
 ## Root dir files explainer
