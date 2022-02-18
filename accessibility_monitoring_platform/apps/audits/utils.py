@@ -220,7 +220,9 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
     return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
 
 
-def get_next_retest_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:
+def get_next_retest_page_url(
+    audit: Audit, current_page: Union[Page, None] = None
+) -> str:
     """
     Return the path of the page to go to when a save and continue button is
     pressed on the page where pages or pages check results are retested.

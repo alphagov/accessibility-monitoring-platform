@@ -183,7 +183,7 @@ RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_YES, "Yes"),
     (RETEST_CHECK_RESULT_NO, "No"),
     (RETEST_CHECK_RESULT_PARTIAL, "Partially"),
-    (RETEST_CHECK_RESULT_NOT_APPLICABLE, "N/A")
+    (RETEST_CHECK_RESULT_NOT_APPLICABLE, "N/A"),
 ]
 
 REPORT_ACCESSIBILITY_ISSUE_TEXT = {
@@ -409,13 +409,17 @@ class Audit(VersionModel):
     audit_retest_pages_complete_date = models.DateField(null=True, blank=True)
 
     # Retest website compliance
-    audit_retest_website_decision_complete_date = models.DateField(null=True, blank=True)
+    audit_retest_website_decision_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest statement
     audit_retest_statement_complete_date = models.DateField(null=True, blank=True)
 
     # Retest statement decision
-    audit_retest_statement_decision_complete_date = models.DateField(null=True, blank=True)
+    audit_retest_statement_decision_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     class Meta:
         ordering = ["-id"]

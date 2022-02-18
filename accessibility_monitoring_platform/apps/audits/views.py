@@ -681,7 +681,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Populate next page select field"""
         form = super().get_form()
         form.fields["retest_complete_date"].initial = self.page.retest_complete_date
-        form.fields["retest_page_missing_date"].initial = self.page.retest_page_missing_date
+        form.fields[
+            "retest_page_missing_date"
+        ].initial = self.page.retest_page_missing_date
         return form
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -689,7 +691,12 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
         context["filter_form"] = RetestCheckResultFilterForm(
-            initial={"yes": False, "no": False, "partial": False, "not_applicable": False}
+            initial={
+                "yes": False,
+                "no": False,
+                "partial": False,
+                "not_applicable": False,
+            }
         )
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
@@ -700,7 +707,10 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         else:
 
             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
-                initial=[check_result.as_dict for check_result in self.page.failed_check_results]
+                initial=[
+                    check_result.as_dict
+                    for check_result in self.page.failed_check_results
+                ]
             )
         wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
@@ -736,7 +746,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            return get_next_retest_page_url(audit=self.page.audit, current_page=self.page)
+            return get_next_retest_page_url(
+                audit=self.page.audit, current_page=self.page
+            )
         return super().get_success_url()
 
 
@@ -745,7 +757,9 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
     View to retest website compliance fields
     """
 
-    form_class: Type[AuditRetestWebsiteDecisionUpdateForm] = AuditRetestWebsiteDecisionUpdateForm
+    form_class: Type[
+        AuditRetestWebsiteDecisionUpdateForm
+    ] = AuditRetestWebsiteDecisionUpdateForm
     template_name: str = "audits/forms/retest-website-decision.html"
 
     def get_success_url(self) -> str:
