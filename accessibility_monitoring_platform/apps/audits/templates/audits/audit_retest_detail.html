@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | View 12-week test{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | View 12-week retest{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,7 +13,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                View 12-week test
+                12-week retest
             </li>
         </ol>
     </div>
@@ -21,7 +21,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View 12-week test</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View 12-week retest</h1>
                     {% if audit.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
                             deleted
@@ -34,27 +34,6 @@
                     <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
-                    {% if audit.is_deleted %}
-                        <a
-                            href="{% url 'audits:restore-audit' audit.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--warning"
-                            data-module="govuk-button"
-                        >
-                            Restore test
-                        </a>
-                    {% else %}
-                        <a
-                            href="{% url 'audits:delete-audit' audit.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        >
-                            Delete test
-                        </a>
-                    {% endif %}
                 </div>
             </div>
         </div>

@@ -21,6 +21,7 @@ from .views import (
     AuditReportTextUpdateView,
     AuditRetestDetailView,
     AuditRetestMetadataUpdateView,
+    AuditRetestPagesUpdateView,
     create_audit,
     delete_audit,
     restore_audit,
@@ -124,5 +125,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-metadata/",
         login_required(AuditRetestMetadataUpdateView.as_view()),
         name="edit-audit-retest-metadata",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-pages/",
+        login_required(AuditRetestPagesUpdateView.as_view()),
+        name="edit-audit-retest-pages",
     ),
 ]

@@ -698,3 +698,18 @@ class AuditRetestMetadataUpdateForm(VersionForm):
             "retest_date",
             "audit_retest_metadata_complete_date",
         ]
+
+
+class AuditRetestPagesUpdateForm(VersionForm):
+    """
+    Form for editing audit retest pages
+    """
+
+    audit_retest_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_pages_complete_date",
+        ]

@@ -395,6 +395,9 @@ class Audit(VersionModel):
     retest_date = models.DateField(null=True, blank=True)
     audit_retest_metadata_complete_date = models.DateField(null=True, blank=True)
 
+    # Retest pages
+    audit_retest_pages_complete_date = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
 

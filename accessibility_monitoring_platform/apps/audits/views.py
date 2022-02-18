@@ -43,6 +43,7 @@ from .forms import (
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
     AuditRetestMetadataUpdateForm,
+    AuditRetestPagesUpdateForm,
 )
 from .models import (
     Audit,
@@ -632,11 +633,20 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
-    template_name: str = "audits/forms/retest_metadata.html"
+    template_name: str = "audits/forms/retest-metadata.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-pages", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
         return super().get_success_url()
+
+
+class AuditRetestPagesUpdateView(AuditUpdateView):
+    """
+    View to update audit retest pages page
+    """
+
+    form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
+    template_name: str = "audits/forms/retest-pages.html"
