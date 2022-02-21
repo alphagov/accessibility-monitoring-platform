@@ -99,7 +99,7 @@ COLUMNS_FOR_EHRC = [
         field_name="sent_to_enforcement_body_sent_date",
     ),
     ColumnAndFieldNames(
-        column_name="Case updated date",
+        column_name="Date case updated",
         field_name="case_updated_date",
     ),
 ]
