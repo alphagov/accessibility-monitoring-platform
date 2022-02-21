@@ -380,8 +380,13 @@ class Case(VersionModel):
     completed_date = models.DateTimeField(null=True, blank=True)
     case_close_complete_date = models.DateField(null=True, blank=True)
 
-    # Equality body correspondence page
+    # Post case
     psb_appeal_notes = models.TextField(default="", blank=True)
+    post_case_notes = models.TextField(default="", blank=True)
+    post_case_complete_date = models.DateField(null=True, blank=True)
+
+    # Equality body correspondence page
+    case_updated_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
     enforcement_body_interested = models.CharField(
         max_length=20,
