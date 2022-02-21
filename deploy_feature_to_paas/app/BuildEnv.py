@@ -1,10 +1,11 @@
 """BuildEnv - Builds new environment in PaaS"""
 import subprocess
 import sys
-from typing import Any
+from typing import Any, List
 import time
 import os
 from string import Template
+import boto3
 
 
 class BuildEnv:
@@ -20,11 +21,25 @@ class BuildEnv:
         template_path: str,
         manifest_path: str,
         backup_location: str,
+        s3_report_store: str,
         db_ping_attempts: int = 20,
         db_ping_interval: int = 30,
     ):
         if build_direction != "up" and build_direction != "down":
             raise TypeError("build_direction needs to be up or down")
+
+        if (
+            space_name == "monitoring-platform-production"
+            or space_name == "monitoring-platform-test"
+        ):
+            raise TypeError(f"{space_name} is a protected space_name")
+
+        if (
+            app_name == "accessibility-monitoring-platform-production"
+            or app_name == "accessibility-monitoring-platform-test"
+        ):
+            raise TypeError(f"{app_name} is a protected app_name")
+
         self.build_direction = build_direction
         self.space_name = space_name
         self.app_name = app_name
@@ -35,6 +50,7 @@ class BuildEnv:
         self.template_path = template_path
         self.manifest_path = manifest_path
         self.backup_location = backup_location
+        self.s3_report_store = s3_report_store
 
     def start(self):
         """Starts process"""
@@ -146,6 +162,12 @@ class BuildEnv:
             check=f"space:          {self.space_name}",
         )
 
+        print(f"cf create-service aws-s3-bucket default {self.s3_report_store}")
+        self.bash_command(
+            command=f"cf create-service aws-s3-bucket default {self.s3_report_store}",
+            check="OK",
+        )
+
         print(f"cf create-service postgres tiny-unencrypted-11 {self.db_name}")
         self.bash_command(
             command=f"cf create-service postgres tiny-unencrypted-11 {self.db_name}",
@@ -181,6 +203,7 @@ class BuildEnv:
         """Breaks down an environment in PaaS"""
         print(">>> breaking down environment in PaaS")
         attempts: int = 0
+        self.remove_s3_bucket()
         while attempts < self.db_ping_attempts:
             process: subprocess.Popen = subprocess.Popen(
                 f"cf delete-space -f {self.space_name}".split(), stdout=subprocess.PIPE
@@ -197,3 +220,35 @@ class BuildEnv:
             time.sleep(self.db_ping_interval)
 
         raise Exception(f"""{self.space_name} did not break down correctly""")
+
+    def remove_s3_bucket(self) -> None:
+        os.system(
+            f"""cf create-service-key {self.s3_report_store} temp_service_key -c '{{"allow_external_access": true}}'"""
+        )
+        res: str = os.popen(f"cf service-key {self.s3_report_store} temp_service_key").read()
+        services: str = os.popen("cf services").read()
+        if "aws-s3-bucket" in services:
+            res_split: List[str] = res.split()
+            aws_access_key_id: str = self.get_aws_value(res_split, "aws_access_key_id")
+            aws_region: str = self.get_aws_value(res_split, "aws_region")
+            aws_secret_access_key = self.get_aws_value(res_split, "aws_secret_access_key")
+            bucket_name = self.get_aws_value(res_split, "bucket_name")
+
+            s3_resource = boto3.resource(
+                service_name="s3",
+                region_name=aws_region,
+                aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+            )
+
+            bucket = s3_resource.Bucket(bucket_name)
+            bucket.objects.all().delete()
+
+            os.system(f"cf delete-service-key {self.s3_report_store} temp_service_key -f")
+            os.system(f"cf delete-service {self.s3_report_store} -f")
+
+    def get_aws_value(self, arr: List[str], substring: str) -> str:
+        index: int = [idx for idx, s in enumerate(arr) if substring in s][0]
+        value: str = arr[index + 1]
+        value_clean: str = ''.join(c for c in value if c not in '",')
+        return value_clean

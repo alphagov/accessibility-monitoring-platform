@@ -41,6 +41,8 @@ def check_input(args: Any, config: Any):
         print(config["app_name"])
         print(BColours.BOLD + "Creating database: " + BColours.ENDC, end="", flush=True)
         print(config["db_name"])
+        print(BColours.BOLD + "Creating S3 bucket: " + BColours.ENDC, end="", flush=True)
+        print(config["s3_report_store"])
 
         if config["backup_db"]:
             print(BColours.BOLD + "The database will back up to S3" + BColours.ENDC)
