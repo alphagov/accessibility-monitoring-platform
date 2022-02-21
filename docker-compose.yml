@@ -29,13 +29,14 @@ services:
 
   localstack:
     image: localstack/localstack
-    network_mode: bridge
+    hostname: localstack
     ports:
       - "4566:4566"
       - "4571:4571"
     environment:
       - SERVICES=s3
       - AWS_DEFAULT_REGION=us-east-1
+      - HOSTNAME_EXTERNAL=localstack
     volumes:
       - "./data/localstack-data:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"

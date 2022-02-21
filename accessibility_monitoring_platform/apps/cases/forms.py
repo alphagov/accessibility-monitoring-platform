@@ -592,16 +592,16 @@ class PostCaseUpdateForm(VersionForm):
     Form to record post case notes
     """
 
-    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
     post_case_notes = AMPTextField(label="Summary of events after the case was closed")
     post_case_complete_date = AMPDatePageCompleteField()
+    psb_appeal_notes = AMPTextField(label="Public sector body statement appeal notes")
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "psb_appeal_notes",
             "post_case_notes",
+            "psb_appeal_notes",
             "post_case_complete_date",
         ]
 
