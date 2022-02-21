@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 "backports.zoneinfo" = "0.2.1"
-django = "~=4.0"
+django = ">=4.0.2"
 python-dotenv = "*"
 psycopg2 = "*"
 notifications-python-client = "*"
