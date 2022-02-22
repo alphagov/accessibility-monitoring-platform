@@ -19,6 +19,7 @@ COPY package.json /code/
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 RUN pipenv install --dev
+RUN pipenv install
 RUN pipenv lock -r > requirements.txt
 RUN pip3 install -r requirements.txt
 RUN npm i

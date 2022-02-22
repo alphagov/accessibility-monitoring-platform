@@ -26,6 +26,7 @@ class SettingsType(TypedDict):
     temp_db_copy_path: str
     s3_bucket: str
     backup_db: bool
+    s3_report_store: str
 
 
 def validate_json_dict(data: Any, class_type: Any) -> None:

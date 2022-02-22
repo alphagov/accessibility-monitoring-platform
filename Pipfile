@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 "backports.zoneinfo" = "0.2.1"
-django = "~=4.0"
+django = ">=4.0.2"
 python-dotenv = "*"
 psycopg2 = "*"
 notifications-python-client = "*"
@@ -18,15 +18,17 @@ libsass = "*"
 rcssmin = "*"
 xmltodict = "*"
 Markdown = "*"
+moto = "*"
 
 [dev-packages]
 flake8 = "*"
 pylint = "*"
 coverage = "*"
 pytest-django = "*"
+black = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [pipenv]
 allow_prereleases = true
