@@ -2,6 +2,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% load common_tags %}
 
 {% block title %}{{ audit.case.organisation_name }} | Retesting {{ page }}{% endblock %}
@@ -113,7 +115,7 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
                     {% for check_result, form in check_results_and_forms %}
-                        <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
+                        <div class="govuk-grid-row" id="testlist {{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}">
                             <div class="govuk-grid-column-full">
                                 <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
                                 <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
@@ -140,5 +142,6 @@
             </div>
         </div>
     </main>
+    <script src="{% static 'js/audits_retest_check_filter.js' %}"></script>
 </div>
 {% endblock %}
