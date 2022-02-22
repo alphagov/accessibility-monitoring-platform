@@ -56,6 +56,7 @@ from .models import (
     Audit,
     Page,
     WcagDefinition,
+    CheckResult,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -337,7 +338,7 @@ class AuditPageChecksFormView(FormView):
     """
 
     form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
-    template_name: str = "audits/forms/page_checks.html"
+    template_name: str = "audits/forms/page-checks.html"
     page: Page
 
     def setup(self, request, *args, **kwargs):
@@ -693,54 +694,48 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         context["page"] = self.page
         context["filter_form"] = RetestCheckResultFilterForm(
             initial={
-                "yes": False,
-                "no": False,
-                "partial": False,
-                "not_applicable": False,
+                "fixed": False,
+                "not-fixed": False,
+                "not-tested": False,
             }
         )
-        wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
-
         if self.request.POST:
             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
                 self.request.POST
             )
         else:
-
             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
                 initial=[
-                    check_result.as_dict
+                    check_result.dict_for_retest
                     for check_result in self.page.failed_check_results
                 ]
             )
-        wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
-        for count, check_results_form in enumerate(check_results_formset.forms):
-            wcag_definition: WcagDefinition = wcag_definitions[count]
-            check_results_form.fields["retest_state"].label = wcag_definition
-            wcag_definitions_and_forms.append((wcag_definition, check_results_form))
+        check_results_and_forms: List[Tuple[CheckResult, CheckResultForm]] = list(
+            zip(self.page.failed_check_results, check_results_formset.forms)
+        )
 
         context["check_results_formset"] = check_results_formset
-        context["wcag_definitions_and_forms"] = wcag_definitions_and_forms
+        context["check_results_and_forms"] = check_results_and_forms
 
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        # context: Dict[str, Any] = self.get_context_data()
+        context: Dict[str, Any] = self.get_context_data()
         page: Page = self.page
         page.retest_complete_date = form.cleaned_data["retest_complete_date"]
         page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
         page.save()
 
-        # check_results_formset: CheckResultFormset = context["check_results_formset"]
-        # if check_results_formset.is_valid():
-        #     create_or_update_check_results_for_page(
-        #         user=self.request.user,  # type: ignore
-        #         page=page,
-        #         check_result_forms=check_results_formset.forms,
-        #     )
-        # else:
-        #     return super().form_invalid(form)
+        check_results_formset: CheckResultFormset = context["check_results_formset"]
+        if check_results_formset.is_valid():
+            for form in check_results_formset.forms:
+                check_result: CheckResult = CheckResult.objects.get(id=form.cleaned_data["id"])
+                check_result.retest_state = form.cleaned_data["retest_state"]
+                check_result.retest_notes = form.cleaned_data["retest_notes"]
+                check_result.save()
+        else:
+            return super().form_invalid(form)
 
         return HttpResponseRedirect(self.get_success_url())
 

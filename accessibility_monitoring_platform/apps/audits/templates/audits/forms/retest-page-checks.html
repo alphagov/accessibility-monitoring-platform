@@ -2,6 +2,8 @@
 
 {% load l10n %}
 
+{% load common_tags %}
+
 {% block title %}{{ audit.case.organisation_name }} | Retesting {{ page }}{% endblock %}
 
 {% block content %}
@@ -33,36 +35,102 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}">
-                    {% csrf_token %}
-                    {{ check_results_formset.management_form }}
-                    {{ check_results_formset.error_messages }}
+                <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}" style="display: unset;">
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            <h2 class="govuk-heading-m">Filter WCAG error</h2>
                         </div>
-                        <div class="govuk-grid-row">
-                            <div class="govuk-grid-column-full govuk-button-group">
-                                <input
-                                    type="submit"
-                                    value="Save"
-                                    name="save"
-                                    class="govuk-button"
-                                    data-module="govuk-button"
-                                />
-                                <input
-                                    type="submit"
-                                    value="Save and next test"
-                                    name="save_continue"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                />
-                                {% if page and page.page_type != 'all-except-pdf' %}
-                                    <a href="{{ page.url }}" class="govuk-link" target="_blank">
-                                        Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
-                                    </a>
-                                {% endif %}
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=filter_form.name %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.fixed %}
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.not_fixed %}
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            {% include 'common/amp_field.html' with field=filter_form.not_retested %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Clear search form"
+                                name="clear"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                                id="clear_search_form"
+                            />
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/amp_field.html' with field=form.retest_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-one-half">
+                            {% include 'common/amp_field.html' with field=form.retest_page_missing_date %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and next test"
+                                name="save_continue"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            {% if page and page.page_type != 'all-except-pdf' %}
+                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                                    Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <hr style="width:100%;">
+                            <h2 class="govuk-heading-m" id="number_of_errors">Found {{ wcag_definitions_and_forms|length }} errors</h2>
+                        </div>
+                    </div>
+                    {% include 'common/error_summary.html' %}
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    {{ check_results_formset.management_form }}
+                    {% for check_result, form in check_results_and_forms %}
+                        <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
+                            <div class="govuk-grid-column-full">
+                                <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
+                                <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                                {% include 'common/amp_form_snippet.html' %}
                             </div>
+                        </div>
+                    {% endfor %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <hr style="width:100%;">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
                         </div>
                     </div>
                 </form>

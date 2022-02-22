@@ -743,27 +743,23 @@ class RetestCheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="")
-    yes = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Yes"})
+    fixed = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Fixed"})
     )
-    no = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "No"})
+    not_fixed = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not fixed"})
     )
-    partial = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Partially"})
-    )
-    not_applicable = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "N/A"})
+    not_retested = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not retested"})
     )
 
     class Meta:
         model = Page
         fields: List[str] = [
             "name",
-            "yes",
-            "no",
-            "partial",
-            "not_applicable",
+            "fixed",
+            "not_fixed",
+            "not_retested",
         ]
 
 
@@ -772,22 +768,18 @@ class RetestCheckResultForm(forms.ModelForm):
     Form for updating a single check test on retest
     """
 
-    wcag_definition = forms.ModelChoiceField(
-        queryset=WcagDefinition.objects.all(), widget=forms.HiddenInput()
-    )
-    notes = forms.CharField(widget=forms.HiddenInput())
+    id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
-        label="",
+        label="Issue fixed?",
         choices=RETEST_CHECK_RESULT_STATE_CHOICES,
         widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
-    retest_notes = AMPTextField(label="Error details")
+    retest_notes = AMPTextField(label="Notes")
 
     class Meta:
         model = CheckResult
         fields = [
-            "wcag_definition",
-            "notes",
+            "id",
             "retest_state",
             "retest_notes",
         ]

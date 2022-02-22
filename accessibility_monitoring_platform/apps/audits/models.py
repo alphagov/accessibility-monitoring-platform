@@ -597,11 +597,9 @@ class CheckResult(models.Model):
     retest_notes = models.TextField(default="", blank=True)
 
     @property
-    def as_dict(self):
+    def dict_for_retest(self):
         return {
-            "wcag_definition": self.wcag_definition,
-            "check_result_state": self.check_result_state,
-            "notes": self.notes,
+            "id": self.id,  # type: ignore
             "retest_state": self.retest_state,
             "retest_notes": self.retest_notes,
         }
