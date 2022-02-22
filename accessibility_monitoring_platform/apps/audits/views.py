@@ -1,6 +1,7 @@
 """
 Views for audits app (called tests by users)
 """
+from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
@@ -802,3 +803,23 @@ class AuditRetestStatementDecisionUpdateView(AuditStatementDecisionUpdateView):
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("audits:audit-retest-detail", kwargs=audit_pk)
         return super().get_success_url()
+
+
+def start_retest(
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
+    """
+    Start audit retest; Redirect to retest metadata page
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of audit to start retest of
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    audit: Audit = get_object_or_404(Audit, id=pk)
+    audit.retest_date = date.today()
+    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
+    audit.save()
+    return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))

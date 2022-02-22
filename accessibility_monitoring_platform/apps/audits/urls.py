@@ -31,6 +31,7 @@ from .views import (
     restore_audit,
     delete_page,
     restore_page,
+    start_retest,
 )
 
 app_name: str = "audits"
@@ -119,6 +120,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-report-text/",
         login_required(AuditReportTextUpdateView.as_view()),
         name="edit-audit-report-text",
+    ),
+    path(
+        "<int:pk>/audit-retest-start/",
+        login_required(start_retest),
+        name="audit-retest-start",
     ),
     path(
         "<int:pk>/audit-retest-detail/",
