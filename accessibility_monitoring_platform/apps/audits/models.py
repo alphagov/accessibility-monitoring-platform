@@ -175,15 +175,11 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NO_ERROR, "No issue"),
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
-RETEST_CHECK_RESULT_YES: str = "yes"
-RETEST_CHECK_RESULT_NO: str = "no"
-RETEST_CHECK_RESULT_PARTIAL: str = "partial"
-RETEST_CHECK_RESULT_NOT_APPLICABLE: str = "not-applicable"
+RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    (RETEST_CHECK_RESULT_YES, "Yes"),
-    (RETEST_CHECK_RESULT_NO, "No"),
-    (RETEST_CHECK_RESULT_PARTIAL, "Partially"),
-    (RETEST_CHECK_RESULT_NOT_APPLICABLE, "N/A"),
+    ("fixed", "Fixed"),
+    ("not-fixed", "Not fixed"),
+    (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
 REPORT_ACCESSIBILITY_ISSUE_TEXT = {
@@ -596,7 +592,7 @@ class CheckResult(models.Model):
     retest_state = models.CharField(
         max_length=20,
         choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_NO,
+        default=RETEST_CHECK_RESULT_DEFAULT,
     )
     retest_notes = models.TextField(default="", blank=True)
 

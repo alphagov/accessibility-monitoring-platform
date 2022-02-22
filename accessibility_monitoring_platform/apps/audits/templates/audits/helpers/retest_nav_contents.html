@@ -1,7 +1,7 @@
 <nav role="navigation" style="margin-bottom:40px">
     <h2 class="govuk-heading-m">Contents</h2>
     <ul class="govuk-list">
-        {% include './nav_content.html' with anchor='audit-retest-metadata' edit_name='audits:edit-audit-retest-metadata' name='Test metadata' complete=audit.audit_retest_metadata_complete_date %}
+        {% include './nav_content.html' with anchor='audit-retest-metadata' edit_name='audits:edit-audit-retest-metadata' name='Retest metadata' complete=audit.audit_retest_metadata_complete_date %}
         {% include './nav_content.html' with anchor='audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='Pages comparison' complete=audit.audit_retest_pages_complete_date %}
         {% if audit.testable_pages %}
            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
