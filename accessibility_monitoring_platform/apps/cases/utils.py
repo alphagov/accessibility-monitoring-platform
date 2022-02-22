@@ -98,6 +98,10 @@ COLUMNS_FOR_EHRC = [
         column_name="Date sent to equality body",
         field_name="sent_to_enforcement_body_sent_date",
     ),
+    ColumnAndFieldNames(
+        column_name="Date case updated",
+        field_name="case_updated_date",
+    ),
 ]
 
 CAPITALISE_FIELDS = [

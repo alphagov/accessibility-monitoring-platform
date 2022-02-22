@@ -82,7 +82,7 @@ class UserRegisterViewTests(TestCase):
             reverse("users:register"), data=data, follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Dashboard")
+        self.assertContains(response, "Your cases")
 
     def test_register_post_saves_correctly(self):
         """Tests if register saves to the database correctly"""

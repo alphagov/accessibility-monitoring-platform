@@ -37,21 +37,23 @@
                 {% include 'common/error_summary.html' %}
                 <form method="post" action="{% url 'cases:edit-post-case' case.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.post_case_notes %}
                             <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Public sector body appeal deadline</b></label>
+                                <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
                                 <div class="govuk-hint">
                                     {% if case.psb_appeal_deadline %}
-                                        {{ case.psb_appeal_deadline|date:'d/m/Y' }}
+                                    {{ case.psb_appeal_deadline|date:'d/m/Y' }}
                                     {% else %}
-                                        None
+                                    None
                                     {% endif %}
                                 </div>
                             </div>
-                        </div>
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/amp_field.html' with field=form.psb_appeal_notes %}
+                            {% include 'common/amp_field.html' with field=form.post_case_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'cases/helpers/save_continue_cancel.html' %}
