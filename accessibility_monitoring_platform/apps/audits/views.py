@@ -50,8 +50,9 @@ from .forms import (
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseFinalWebsiteDecisionUpdateForm,
-    AuditRetestStatementUpdateView,
-    AuditRetestStatementDecisionUpdateView,
+    AuditRetestStatementUpdateForm,
+    AuditRetestStatementDecisionUpdateForm,
+    CaseFinalStatementDecisionUpdateForm,
 )
 from .models import (
     Audit,
@@ -787,7 +788,7 @@ class AuditRetestStatementUpdateView(AuditUpdateView):
     View to retest accessibility statement
     """
 
-    form_class: Type[AuditRetestStatementUpdateView] = AuditRetestStatementUpdateView
+    form_class: Type[AuditRetestStatementUpdateForm] = AuditRetestStatementUpdateForm
     template_name: str = "audits/forms/retest-statement.html"
 
     def get_success_url(self) -> str:
@@ -804,9 +805,28 @@ class AuditRetestStatementDecisionUpdateView(AuditStatementDecisionUpdateView):
     """
 
     form_class: Type[
-        AuditRetestStatementDecisionUpdateView
-    ] = AuditRetestStatementDecisionUpdateView
+        AuditRetestStatementDecisionUpdateForm
+    ] = AuditRetestStatementDecisionUpdateForm
     template_name: str = "audits/forms/retest-statement-decision.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseFinalStatementDecisionUpdateForm = (
+                CaseFinalStatementDecisionUpdateForm(
+                    self.request.POST, instance=self.object.case, prefix="case"
+                )
+            )
+        else:
+            case_form: CaseFinalStatementDecisionUpdateForm = (
+                CaseFinalStatementDecisionUpdateForm(
+                    instance=self.object.case, prefix="case"
+                )
+            )
+        context["case_form"] = case_form
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

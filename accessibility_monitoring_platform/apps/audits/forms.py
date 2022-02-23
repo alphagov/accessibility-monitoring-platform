@@ -26,6 +26,7 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
     WEBSITE_STATE_FINAL_CHOICES,
+    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
 )
 from .models import (
     Audit,
@@ -826,7 +827,7 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementUpdateView(VersionForm):
+class AuditRetestStatementUpdateForm(VersionForm):
     """
     Form for retesting statement
     """
@@ -841,7 +842,7 @@ class AuditRetestStatementUpdateView(VersionForm):
         ]
 
 
-class AuditRetestStatementDecisionUpdateView(VersionForm):
+class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
     Form for retesting statement swcision
     """
@@ -853,4 +854,38 @@ class AuditRetestStatementDecisionUpdateView(VersionForm):
         fields: List[str] = [
             "version",
             "audit_retest_statement_decision_complete_date",
+        ]
+
+
+class CaseFinalStatementDecisionUpdateForm(VersionForm):
+    """
+    Form to record final accessibility statement compliance decision
+    """
+
+    is_disproportionate_claimed = AMPChoiceRadioField(
+        label="Disproportionate burden claimed?",
+        help_text="This field affects the case status",
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_screenshot_url = AMPURLField(
+        label="Link to accessibility statement screenshot"
+    )
+    accessibility_statement_state_final = AMPChoiceRadioField(
+        label="Final accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes_final = AMPTextField(
+        label="Final accessibility statement notes",
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_screenshot_url",
+            "accessibility_statement_state_final",
+            "accessibility_statement_notes_final",
         ]

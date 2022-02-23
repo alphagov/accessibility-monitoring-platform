@@ -35,6 +35,7 @@
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
                             {% include 'common/amp_form_snippet.html' with form=case_form %}
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
