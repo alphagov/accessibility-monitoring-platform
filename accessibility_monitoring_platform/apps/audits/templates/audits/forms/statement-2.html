@@ -38,8 +38,6 @@
                     {% include 'audits/helpers/accessibility_statement_link.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
                             {% include 'common/amp_field_help_details.html' with field=form.disproportionate_burden_state help_details='audits/statement_examples/disproportionate_burden_state.html' %}
                             {% include 'common/amp_field.html' with field=form.disproportionate_burden_notes %}
