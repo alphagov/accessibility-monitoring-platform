@@ -1,0 +1,17 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 id="audit-retest-pages" class="govuk-heading-l">12-week pages comparison</h2>
+    </div>
+    <div class="govuk-grid-column-one-thirds">
+        <div class="govuk-button-group" style="flex-direction:row-reverse">
+            <a href="{% url 'audits:edit-audit-retest-pages' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit pages
+            </a>
+        </div>
+    </div>
+</div>
+{% if audit.testable_pages %}
+    {% include 'audits/helpers/retest_pages_accordion.html' %}
+{% endif %}
