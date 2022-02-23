@@ -72,6 +72,7 @@ class TestLogin(SeleniumTest):
             True,
         )
 
+
 class TestCases(SeleniumTest):
     """
     Test case for integration tests of case creation
@@ -87,6 +88,7 @@ class TestCases(SeleniumTest):
         super().setUp()
         self.login()
         self.driver.find_element_by_link_text("Search").click()
+
 
 class TestS3ReportCreation(TestCases):
     """
@@ -121,11 +123,14 @@ class TestS3ReportCreation(TestCases):
         """Tests whether case can be created"""
         self.driver.get("http://localhost:8001/report/save/1")
         html = self.driver.page_source
-        res = re.findall(r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b", html)
+        res = re.findall(
+            r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b",
+            html,
+        )
         self.assertTrue(len(res) == 1)
 
         self.driver.get(f"http://localhost:8001/report/{res[0]}")
         self.assertEqual(
-            f'org: {ORGANISATION_NAME}' in self.driver.page_source,
+            f"org: {ORGANISATION_NAME}" in self.driver.page_source,
             True,
         )

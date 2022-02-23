@@ -635,7 +635,16 @@ class AuditRetestDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object  # type: ignore
 
+        get_rows: Callable = partial(
+            extract_form_labels_and_values, instance=audit.case
+        )
         context["audit_retest_metadata_rows"] = get_audit_metadata_rows(audit=audit)
+        context["audit_retest_website_decision_rows"] = get_rows(
+            form=CaseFinalWebsiteDecisionUpdateForm()  # type: ignore
+        )
+        context["audit_retest_statement_decision_rows"] = get_rows(
+            form=CaseFinalStatementDecisionUpdateForm()  # type: ignore
+        )
 
         return context
 
@@ -732,7 +741,9 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         check_results_formset: CheckResultFormset = context["check_results_formset"]
         if check_results_formset.is_valid():
             for form in check_results_formset.forms:
-                check_result: CheckResult = CheckResult.objects.get(id=form.cleaned_data["id"])
+                check_result: CheckResult = CheckResult.objects.get(
+                    id=form.cleaned_data["id"]
+                )
                 check_result.retest_state = form.cleaned_data["retest_state"]
                 check_result.retest_notes = form.cleaned_data["retest_notes"]
                 check_result.save()
@@ -765,12 +776,16 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
         if self.request.POST:
-            case_form: CaseFinalWebsiteDecisionUpdateForm = CaseFinalWebsiteDecisionUpdateForm(
-                self.request.POST, instance=self.object.case, prefix="case"
+            case_form: CaseFinalWebsiteDecisionUpdateForm = (
+                CaseFinalWebsiteDecisionUpdateForm(
+                    self.request.POST, instance=self.object.case, prefix="case"
+                )
             )
         else:
-            case_form: CaseFinalWebsiteDecisionUpdateForm = CaseFinalWebsiteDecisionUpdateForm(
-                instance=self.object.case, prefix="case"
+            case_form: CaseFinalWebsiteDecisionUpdateForm = (
+                CaseFinalWebsiteDecisionUpdateForm(
+                    instance=self.object.case, prefix="case"
+                )
             )
         context["case_form"] = case_form
         return context
