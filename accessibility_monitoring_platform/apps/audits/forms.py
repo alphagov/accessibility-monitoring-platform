@@ -25,6 +25,7 @@ from ..cases.models import (
     BOOLEAN_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
+    WEBSITE_STATE_FINAL_CHOICES,
 )
 from .models import (
     Audit,
@@ -800,6 +801,28 @@ class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "audit_retest_website_decision_complete_date",
+        ]
+
+
+class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form to record final website compliance decision
+    """
+
+    website_state_final = AMPChoiceRadioField(
+        label="Final website compliance decision",
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+    )
+    website_state_notes_final = AMPTextField(
+        label="Final website compliance decision notes",
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "website_state_final",
+            "website_state_notes_final",
         ]
 
 

@@ -49,6 +49,7 @@ from .forms import (
     RetestCheckResultFilterForm,
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
+    CaseFinalWebsiteDecisionUpdateForm,
     AuditRetestStatementUpdateView,
     AuditRetestStatementDecisionUpdateView,
 )
@@ -757,6 +758,21 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
         AuditRetestWebsiteDecisionUpdateForm
     ] = AuditRetestWebsiteDecisionUpdateForm
     template_name: str = "audits/forms/retest-website-decision.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            case_form: CaseFinalWebsiteDecisionUpdateForm = CaseFinalWebsiteDecisionUpdateForm(
+                self.request.POST, instance=self.object.case, prefix="case"
+            )
+        else:
+            case_form: CaseFinalWebsiteDecisionUpdateForm = CaseFinalWebsiteDecisionUpdateForm(
+                instance=self.object.case, prefix="case"
+            )
+        context["case_form"] = case_form
+        return context
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
