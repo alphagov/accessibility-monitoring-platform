@@ -827,88 +827,44 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
+class AMPRetestChoiceRadioField(AMPChoiceRadioField):
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("label", "Fixed?")
+        kwargs.setdefault("choices", RETEST_CHECK_RESULT_STATE_CHOICES)
+        kwargs.setdefault("widget", AMPRadioSelectWidget(attrs={"horizontal": True}))
+        super().__init__(*args, **kwargs)
+
+
 class AuditRetestStatementUpdateForm(VersionForm):
     """
     Form for retesting statement
     """
 
-    audit_retest_scope_state = AMPChoiceRadioField(
-        label="Fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_scope_state = AMPRetestChoiceRadioField()
     audit_retest_scope_notes = AMPTextField(label="Notes")
-    audit_retest_feedback_state = AMPChoiceRadioField(
-        label="Fixed?",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_feedback_state = AMPRetestChoiceRadioField()
     audit_retest_feedback_notes = AMPTextField(label="Notes")
-    audit_retest_contact_information_state = AMPChoiceRadioField(
-        label="Contact Information",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_contact_information_state = AMPRetestChoiceRadioField()
     audit_retest_contact_information_notes = AMPTextField(label="Notes")
-    audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
-        label="Enforcement Procedure",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_enforcement_procedure_state = AMPRetestChoiceRadioField()
     audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
-    audit_retest_declaration_state = AMPChoiceRadioField(
-        label="Declaration",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_declaration_state = AMPRetestChoiceRadioField()
     audit_retest_declaration_notes = AMPTextField(label="Notes")
-    audit_retest_compliance_state = AMPChoiceRadioField(
-        label="Compliance Status",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_compliance_state = AMPRetestChoiceRadioField()
     audit_retest_compliance_notes = AMPTextField(label="Notes")
-    audit_retest_non_regulation_state = AMPChoiceRadioField(
-        label="Non-accessible Content - non compliance with regulations",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_non_regulation_state = AMPRetestChoiceRadioField()
     audit_retest_non_regulation_notes = AMPTextField(label="Notes")
-    audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
-        label="Non-accessible Content - disproportionate burden",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_disproportionate_burden_state = AMPRetestChoiceRadioField()
     audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
-    audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
-        label="Non-accessible Content - the content is not within the scope of the applicable legislation",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_content_not_in_scope_state = AMPRetestChoiceRadioField()
     audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
-    audit_retest_preparation_date_state = AMPChoiceRadioField(
-        label="Preparation Date",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_preparation_date_state = AMPRetestChoiceRadioField()
     audit_retest_preparation_date_notes = AMPTextField(label="Notes")
-    audit_retest_review_state = AMPChoiceRadioField(
-        label="Review",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_review_state = AMPRetestChoiceRadioField()
     audit_retest_review_notes = AMPTextField(label="Notes")
-    audit_retest_method_state = AMPChoiceRadioField(
-        label="Method",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_method_state = AMPRetestChoiceRadioField()
     audit_retest_method_notes = AMPTextField(label="Notes")
-    audit_retest_access_requirements_state = AMPChoiceRadioField(
-        label="Access Requirements",
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
-    )
+    audit_retest_access_requirements_state = AMPRetestChoiceRadioField()
     audit_retest_access_requirements_notes = AMPTextField(label="Notes")
     audit_retest_statement_complete_date = AMPDatePageCompleteField()
 

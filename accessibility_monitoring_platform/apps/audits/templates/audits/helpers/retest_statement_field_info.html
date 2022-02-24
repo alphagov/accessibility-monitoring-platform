@@ -11,5 +11,7 @@
     <label class="govuk-label"><b>Initial decision</b></label>
     <div class="govuk-hint">{{ decision }}</div>
     <label class="govuk-label"><b>Initial notes</b></label>
-    <div class="govuk-hint">{% if audit.scope_notes %}{{ notes|markdown_to_html }}{% else %}None{% endif %}</div>
+    <div class="govuk-hint amp-notes">
+        {% if audit.scope_notes %}{{ notes|markdown_to_html }}{% else %}None{% endif %}
+    </div>
 </div>
