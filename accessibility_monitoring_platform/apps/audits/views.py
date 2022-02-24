@@ -89,7 +89,7 @@ class AuditAllIssuesListView(ListView):
 
     model: Type[WcagDefinition] = WcagDefinition
     context_object_name: str = "wcag_definitions"
-    template_name: str = "audits/all-issues.html"
+    template_name: str = "audits/all_issues.html"
 
 
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -340,7 +340,7 @@ class AuditPageChecksFormView(FormView):
     """
 
     form_class: Type[AuditPageChecksForm] = AuditPageChecksForm
-    template_name: str = "audits/forms/page-checks.html"
+    template_name: str = "audits/forms/page_checks.html"
     page: Page
 
     def setup(self, request, *args, **kwargs):
@@ -422,7 +422,7 @@ class AuditWebsiteDecisionUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    template_name: str = "audits/forms/website-decision.html"
+    template_name: str = "audits/forms/website_decision.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -465,7 +465,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditStatement1UpdateForm] = AuditStatement1UpdateForm
-    template_name: str = "audits/forms/statement-1.html"
+    template_name: str = "audits/forms/statement_1.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -481,7 +481,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditStatement2UpdateForm] = AuditStatement2UpdateForm
-    template_name: str = "audits/forms/statement-2.html"
+    template_name: str = "audits/forms/statement_2.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -499,7 +499,7 @@ class AuditStatementDecisionUpdateView(AuditUpdateView):
     form_class: Type[
         AuditStatementDecisionUpdateForm
     ] = AuditStatementDecisionUpdateForm
-    template_name: str = "audits/forms/statement-decision.html"
+    template_name: str = "audits/forms/statement_decision.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -589,7 +589,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
-    template_name: str = "audits/forms/report-options.html"
+    template_name: str = "audits/forms/report_options.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -605,7 +605,7 @@ class AuditReportTextUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditReportTextUpdateForm] = AuditReportTextUpdateForm
-    template_name: str = "audits/forms/report-text.html"
+    template_name: str = "audits/forms/report_text.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -655,7 +655,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
-    template_name: str = "audits/forms/retest-metadata.html"
+    template_name: str = "audits/forms/retest_metadata.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -671,7 +671,7 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
-    template_name: str = "audits/forms/retest-pages.html"
+    template_name: str = "audits/forms/retest_pages.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -687,7 +687,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
     """
 
     form_class: Type[AuditRetestPageChecksForm] = AuditRetestPageChecksForm
-    template_name: str = "audits/forms/retest-page-checks.html"
+    template_name: str = "audits/forms/retest_page_checks.html"
     page: Page
 
     def get_form(self):
@@ -769,7 +769,7 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
     form_class: Type[
         AuditRetestWebsiteDecisionUpdateForm
     ] = AuditRetestWebsiteDecisionUpdateForm
-    template_name: str = "audits/forms/retest-website-decision.html"
+    template_name: str = "audits/forms/retest_website_decision.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
@@ -804,7 +804,7 @@ class AuditRetestStatementUpdateView(AuditUpdateView):
     """
 
     form_class: Type[AuditRetestStatementUpdateForm] = AuditRetestStatementUpdateForm
-    template_name: str = "audits/forms/retest-statement.html"
+    template_name: str = "audits/forms/retest_statement.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -822,7 +822,7 @@ class AuditRetestStatementDecisionUpdateView(AuditStatementDecisionUpdateView):
     form_class: Type[
         AuditRetestStatementDecisionUpdateForm
     ] = AuditRetestStatementDecisionUpdateForm
-    template_name: str = "audits/forms/retest-statement-decision.html"
+    template_name: str = "audits/forms/retest_statement_decision.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""

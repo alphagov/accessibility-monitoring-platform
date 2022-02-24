@@ -227,7 +227,6 @@ class Audit(VersionModel):
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
-    name = models.TextField(default="", blank=True)
     screen_size = models.CharField(
         max_length=20,
         choices=SCREEN_SIZE_CHOICES,
@@ -439,7 +438,9 @@ class Audit(VersionModel):
         choices=RETEST_CHECK_RESULT_STATE_CHOICES,
         default=RETEST_CHECK_RESULT_DEFAULT,
     )
-    audit_retest_disproportionate_burden_notes = models.TextField(default="", blank=True)
+    audit_retest_disproportionate_burden_notes = models.TextField(
+        default="", blank=True
+    )
     audit_retest_content_not_in_scope_state = models.CharField(
         max_length=20,
         choices=RETEST_CHECK_RESULT_STATE_CHOICES,
@@ -499,12 +500,6 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self):
-        if self.name:
-            return str(
-                f"{self.name}"
-                f" | {self.case}"  # type: ignore
-                f" | {format_date(self.date_of_test)}"
-            )
         return str(
             f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
         )
