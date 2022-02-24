@@ -40,7 +40,6 @@
                     {% include 'audits/helpers/accessibility_statement_link.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
                             {% if audit.scope_state != 'present' %}
                                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Scope' example='audits/statement_examples/scope_state.html' decision=audit.get_scope_state_display notes=audit.scope_notes %}
                                 {% include 'common/amp_field.html' with field=form.audit_retest_scope_state %}
