@@ -2,7 +2,9 @@
 
 {% extends 'base.html' %}
 
-{% block title %}{{ case.organisation_name }} | Retesting the website{% endblock %}
+{% load common_tags %}
+
+{% block title %}{{ case.organisation_name }} | 12-week retest{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -15,14 +17,14 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Retesting the website
+                12-week retest
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Retesting the website' %}
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week retest' %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -57,6 +59,22 @@
                                         <tr class="govuk-table__row">
                                             <th scope="row" class="govuk-table__header amp-width-one-half">Date of retest</th>
                                             <td class="govuk-table__cell amp-width-one-half">{{ case.audit.retest_date|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance decision</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.get_website_state_final_display }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance notes</th>
+                                            <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.website_state_notes_final|markdown_to_html }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance status</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_final_display }}</td>
+                                        </tr>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header amp-width-one-half amp-notes">12-week accessibility statement compliance notes</th>
+                                            <td class="govuk-table__cell amp-width-one-half">{{ case.accessibility_statement_notes_final|markdown_to_html }}</td>
                                         </tr>
                                     </tbody>
                                 </table>

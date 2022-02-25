@@ -46,7 +46,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-test-results/": "Testing details",
     "/cases/[id]/edit-twelve-week-correspondence-due-dates/": "12-week correspondence dates",
     "/cases/[id]/edit-twelve-week-correspondence/": "12-week correspondence",
-    "/cases/[id]/edit-twelve-week-retest/": "Retesting the website",
+    "/cases/[id]/edit-twelve-week-retest/": "12-week retest",
     "/cases/[id]/edit-review-changes/": "Reviewing changes",
     "/cases/[id]/edit-final-statement/": "Final accessibility statement compliance decision",
     "/cases/[id]/edit-final-website/": "Final website compliance decision",
