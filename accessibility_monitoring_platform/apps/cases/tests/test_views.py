@@ -1166,6 +1166,93 @@ def test_section_complete_check_displayed_in_steps(
     )
 
 
+def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows the link to the test results page
+    when no test exists on the case.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "This case does not have a test.")
+
+    edit_test_results_url: str = reverse("cases:edit-test-results", kwargs={"pk": case.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{edit_test_results_url}"
+            class="govuk-link govuk-link--no-visited-state">
+                testing details
+        </a>""",
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows start retest button when a
+    test exists with no retest.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "This case does not have a retest.")
+    assertContains(response, "Click Start retest to move to the testing environment.")
+
+    start_retest_url: str = reverse("audits:audit-retest-start", kwargs={"pk": audit.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{start_retest_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+            Start retest
+        </a>""",
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows view retest button when a
+    test with a retest exists.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+    audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    view_retest_url: str = reverse("audits:audit-retest-detail", kwargs={"pk": audit.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{view_retest_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+            View retest
+        </a>""",
+        html=True,
+    )
+
+
 def test_case_review_changes_view_contains_link_to_test_results_url(admin_client):
     """Test that the case review changes view contains the link to the test results"""
     test_results_url: str = "https://test-results-url"

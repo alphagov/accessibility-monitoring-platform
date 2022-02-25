@@ -220,9 +220,18 @@ def test_create_audit_redirects(admin_client):
         ("audits:audit-retest-detail", "View 12-week retest"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         ("audits:edit-audit-retest-pages", "12-week pages comparison"),
-        ("audits:edit-audit-retest-website-decision", "12-week website compliance decision"),
-        ("audits:edit-audit-retest-statement", "12-week accessibility statement comparison"),
-        ("audits:edit-audit-retest-statement-decision", "12-week accessibility statement compliance decision"),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "12-week website compliance decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement",
+            "12-week accessibility statement comparison",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "12-week accessibility statement compliance decision",
+        ),
     ],
 )
 def test_audit_specific_page_loads(path_name, expected_content, admin_client):
@@ -284,16 +293,52 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
         ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
         ("audits:edit-audit-report-text", "save_exit", "audits:audit-detail"),
-        ("audits:edit-audit-retest-metadata", "save", "audits:edit-audit-retest-metadata"),
-        ("audits:edit-audit-retest-metadata", "save_continue", "audits:edit-audit-retest-pages"),
+        (
+            "audits:edit-audit-retest-metadata",
+            "save",
+            "audits:edit-audit-retest-metadata",
+        ),
+        (
+            "audits:edit-audit-retest-metadata",
+            "save_continue",
+            "audits:edit-audit-retest-pages",
+        ),
         ("audits:edit-audit-retest-pages", "save", "audits:edit-audit-retest-pages"),
-        ("audits:edit-audit-retest-pages", "save_continue", "audits:edit-audit-retest-website-decision"),
-        ("audits:edit-audit-retest-website-decision", "save", "audits:edit-audit-retest-website-decision"),
-        ("audits:edit-audit-retest-website-decision", "save_continue", "audits:edit-audit-retest-statement"),
-        ("audits:edit-audit-retest-statement", "save", "audits:edit-audit-retest-statement"),
-        ("audits:edit-audit-retest-statement", "save_continue", "audits:edit-audit-retest-statement-decision"),
-        ("audits:edit-audit-retest-statement-decision", "save", "audits:edit-audit-retest-statement-decision"),
-        ("audits:edit-audit-retest-statement-decision", "save_exit", "audits:audit-retest-detail"),
+        (
+            "audits:edit-audit-retest-pages",
+            "save_continue",
+            "audits:edit-audit-retest-website-decision",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save",
+            "audits:edit-audit-retest-website-decision",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save_continue",
+            "audits:edit-audit-retest-statement",
+        ),
+        (
+            "audits:edit-audit-retest-statement",
+            "save",
+            "audits:edit-audit-retest-statement",
+        ),
+        (
+            "audits:edit-audit-retest-statement",
+            "save_continue",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save_exit",
+            "audits:audit-retest-detail",
+        ),
     ],
 )
 def test_audit_edit_redirects_based_on_button_pressed(
@@ -628,7 +673,9 @@ def test_start_retest_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("audits:edit-audit-retest-metadata", kwargs={"pk": audit_pk})
+    assert response.url == reverse(
+        "audits:edit-audit-retest-metadata", kwargs={"pk": audit_pk}
+    )
 
 
 def test_retest_page_checks_edit_page_loads(admin_client):
@@ -660,6 +707,67 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     assertContains(response, "Retesting Additional page")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
+
+
+def test_retest_page_checks_edit_saves_results(admin_client):
+    """Test retest page checks edit view saves the entered results"""
+    audit: Audit = create_audit_and_wcag()
+    page: Page = Page.objects.create(audit=audit)
+    page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    check_result_axe: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+    check_result_pdf: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_axe,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": check_result_axe.id,  # type: ignore
+            "form-0-retest_state": "fixed",
+            "form-0-retest_notes": CHECK_RESULT_NOTES,
+            "form-1-id": check_result_pdf.id,  # type: ignore
+            "form-1-retest_state": "not-fixed",
+            "form-1-retest_notes": CHECK_RESULT_NOTES,
+            "retest_complete_date": "on",
+            "retest_page_missing_date": "on",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    updated_check_result_axe: CheckResult = CheckResult.objects.get(
+        id=check_result_axe.id  # type: ignore
+    )
+    assert updated_check_result_axe.retest_state == "fixed"
+    assert updated_check_result_axe.retest_notes == CHECK_RESULT_NOTES
+
+    updated_check_result_pdf: CheckResult = CheckResult.objects.get(
+        id=check_result_pdf.id  # type: ignore
+    )
+    assert updated_check_result_pdf.retest_state == "not-fixed"
+    assert updated_check_result_pdf.retest_notes == CHECK_RESULT_NOTES
+
+    updated_page: Page = Page.objects.get(id=page.id)  # type: ignore
+
+    assert updated_page.retest_complete_date
+    assert updated_page.retest_page_missing_date
 
 
 def test_retest_website_decision_saved_on_case(admin_client):
@@ -706,5 +814,11 @@ def test_retest_statement_decision_saved_on_case(admin_client):
 
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
-    assert updated_case.accessibility_statement_state_final == ACCESSIBILITY_STATEMENT_STATE
-    assert updated_case.accessibility_statement_notes_final == ACCESSIBILITY_STATEMENT_NOTES
+    assert (
+        updated_case.accessibility_statement_state_final
+        == ACCESSIBILITY_STATEMENT_STATE
+    )
+    assert (
+        updated_case.accessibility_statement_notes_final
+        == ACCESSIBILITY_STATEMENT_NOTES
+    )
