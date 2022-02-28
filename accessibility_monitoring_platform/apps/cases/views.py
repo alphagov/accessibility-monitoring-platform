@@ -585,7 +585,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
+            return reverse("cases:edit-review-changes", kwargs=case_pk)
         return super().get_success_url()
 
 
@@ -619,22 +619,6 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
         return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
 
 
-class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
-    """
-    View to update case twelve week retest results
-    """
-
-    form_class: Type[CaseTwelveWeekRetestUpdateForm] = CaseTwelveWeekRetestUpdateForm
-    template_name: str = "cases/forms/twelve_week_retest.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("cases:edit-review-changes", kwargs=case_pk)
-        return super().get_success_url()
-
-
 class CaseReviewChangesUpdateView(CaseUpdateView):
     """
     View to record review of changes made by PSB
@@ -658,8 +642,27 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
+            case: Case = self.object
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            if case.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
+                return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
             return reverse("cases:edit-final-website", kwargs=case_pk)
+        return super().get_success_url()
+
+
+class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
+    """
+    View to update case twelve week retest results
+    """
+
+    form_class: Type[CaseTwelveWeekRetestUpdateForm] = CaseTwelveWeekRetestUpdateForm
+    template_name: str = "cases/forms/twelve_week_retest.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
 
