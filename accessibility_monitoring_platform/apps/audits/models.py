@@ -409,6 +409,7 @@ class Audit(VersionModel):
     )
 
     # Retest accessibility statement 1
+    audit_retest_accessibility_statement_backup_url = models.TextField(default="", blank=True)
     audit_retest_declaration_state = models.CharField(
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,

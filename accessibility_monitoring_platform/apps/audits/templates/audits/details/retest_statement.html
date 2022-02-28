@@ -17,6 +17,16 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to 12-week saved accessibility statement</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <a href="{{ audit.audit_retest_accessibility_statement_backup_url }}"
+                    rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    {{ audit.audit_retest_accessibility_statement_backup_url }}
+                </a>
+
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">Original scope state</th>
             <td class="govuk-table__cell amp-width-one-half">{{ audit.get_scope_state_display }}</td>
         </tr>
