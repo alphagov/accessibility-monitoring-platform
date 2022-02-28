@@ -50,7 +50,8 @@ from .forms import (
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseFinalWebsiteDecisionUpdateForm,
-    AuditRetestStatementUpdateForm,
+    AuditRetestStatement1UpdateForm,
+    AuditRetestStatement2UpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
 )
@@ -794,17 +795,35 @@ class AuditRetestWebsiteDecisionUpdateView(AuditWebsiteDecisionUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-retest-statement", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
         return super().get_success_url()
 
 
-class AuditRetestStatementUpdateView(AuditUpdateView):
+class AuditRetestStatement1UpdateView(AuditUpdateView):
     """
-    View to retest accessibility statement
+    View to retest accessibility statement part one
     """
 
-    form_class: Type[AuditRetestStatementUpdateForm] = AuditRetestStatementUpdateForm
-    template_name: str = "audits/forms/retest_statement.html"
+    form_class: Type[AuditRetestStatement1UpdateForm] = AuditRetestStatement1UpdateForm
+    template_name: str = "audits/forms/retest_statement_1.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse(
+                "audits:edit-audit-retest-statement-2", kwargs=audit_pk
+            )
+        return super().get_success_url()
+
+
+class AuditRetestStatement2UpdateView(AuditUpdateView):
+    """
+    View to retest accessibility statement part two
+    """
+
+    form_class: Type[AuditRetestStatement2UpdateForm] = AuditRetestStatement2UpdateForm
+    template_name: str = "audits/forms/retest_statement_2.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

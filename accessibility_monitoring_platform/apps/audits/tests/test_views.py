@@ -225,8 +225,12 @@ def test_create_audit_redirects(admin_client):
             "12-week website compliance decision",
         ),
         (
-            "audits:edit-audit-retest-statement",
-            "12-week accessibility statement comparison",
+            "audits:edit-audit-retest-statement-1",
+            "12-week accessibility statement Pt. 1",
+        ),
+        (
+            "audits:edit-audit-retest-statement-2",
+            "12-week accessibility statement Pt. 2",
         ),
         (
             "audits:edit-audit-retest-statement-decision",
@@ -317,15 +321,25 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement",
+            "audits:edit-audit-retest-statement-1",
         ),
         (
-            "audits:edit-audit-retest-statement",
+            "audits:edit-audit-retest-statement-1",
             "save",
-            "audits:edit-audit-retest-statement",
+            "audits:edit-audit-retest-statement-1",
         ),
         (
-            "audits:edit-audit-retest-statement",
+            "audits:edit-audit-retest-statement-1",
+            "save_continue",
+            "audits:edit-audit-retest-statement-2",
+        ),
+        (
+            "audits:edit-audit-retest-statement-2",
+            "save",
+            "audits:edit-audit-retest-statement-2",
+        ),
+        (
+            "audits:edit-audit-retest-statement-2",
             "save_continue",
             "audits:edit-audit-retest-statement-decision",
         ),

@@ -11,7 +11,8 @@
             </ul>
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='Website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement' name='Accessibility statement comparison' complete=audit.audit_retest_statement_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='Accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='Accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='Statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
     </ul>
     <h2 class="govuk-heading-m bottom-margin-5">Frequently used links</h2>

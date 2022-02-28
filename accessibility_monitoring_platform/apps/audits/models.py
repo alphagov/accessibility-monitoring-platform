@@ -408,88 +408,81 @@ class Audit(VersionModel):
         null=True, blank=True
     )
 
-    # Retest statement
+    # Retest accessibility statement 1
     audit_retest_declaration_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=DECLARATION_STATE_CHOICES,
+        default=DECLARATION_STATE_DEFAULT,
     )
     audit_retest_declaration_notes = models.TextField(default="", blank=True)
     audit_retest_scope_state = models.CharField(
-        max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
     )
     audit_retest_scope_notes = models.TextField(default="", blank=True)
     audit_retest_compliance_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=COMPLIANCE_STATE_CHOICES,
+        default=COMPLIANCE_STATE_DEFAULT,
     )
     audit_retest_compliance_notes = models.TextField(default="", blank=True)
     audit_retest_non_regulation_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=NON_REGULATION_STATE_CHOICES,
+        default=NON_REGULATION_STATE_DEFAULT,
     )
     audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
     audit_retest_disproportionate_burden_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
     )
-    audit_retest_disproportionate_burden_notes = models.TextField(
-        default="", blank=True
-    )
+    audit_retest_disproportionate_burden_notes = models.TextField(default="", blank=True)
     audit_retest_content_not_in_scope_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
     )
     audit_retest_content_not_in_scope_notes = models.TextField(default="", blank=True)
     audit_retest_preparation_date_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=PREPARATION_DATE_STATE_CHOICES,
+        default=PREPARATION_DATE_STATE_DEFAULT,
     )
     audit_retest_preparation_date_notes = models.TextField(default="", blank=True)
+    audit_retest_statement_1_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest accessibility statement 2
     audit_retest_method_state = models.CharField(
-        max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        max_length=20, choices=METHOD_STATE_CHOICES, default=METHOD_STATE_DEFAULT
     )
     audit_retest_method_notes = models.TextField(default="", blank=True)
     audit_retest_review_state = models.CharField(
-        max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        max_length=20, choices=REVIEW_STATE_CHOICES, default=REVIEW_STATE_DEFAULT
     )
     audit_retest_review_notes = models.TextField(default="", blank=True)
     audit_retest_feedback_state = models.CharField(
-        max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        max_length=20, choices=FEEDBACK_STATE_CHOICES, default=FEEDBACK_STATE_DEFAULT
     )
     audit_retest_feedback_notes = models.TextField(default="", blank=True)
     audit_retest_contact_information_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=CONTACT_INFORMATION_STATE_CHOICES,
+        default=CONTACT_INFORMATION_STATE_DEFAULT,
     )
     audit_retest_contact_information_notes = models.TextField(default="", blank=True)
     audit_retest_enforcement_procedure_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
     )
     audit_retest_enforcement_procedure_notes = models.TextField(default="", blank=True)
     audit_retest_access_requirements_state = models.CharField(
         max_length=20,
-        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
-        default=RETEST_CHECK_RESULT_DEFAULT,
+        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
     )
     audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
-    audit_retest_statement_complete_date = models.DateField(null=True, blank=True)
+    audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
 
     # Retest statement decision
     audit_retest_statement_decision_complete_date = models.DateField(
