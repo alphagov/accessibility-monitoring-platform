@@ -115,14 +115,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-review-changes",
     ),
     path(
-        "<int:pk>/edit-final-statement/",
-        login_required(CaseFinalStatementUpdateView.as_view()),
-        name="edit-final-statement",
-    ),
-    path(
         "<int:pk>/edit-final-website/",
         login_required(CaseFinalWebsiteUpdateView.as_view()),
         name="edit-final-website",
+    ),
+    path(
+        "<int:pk>/edit-final-statement/",
+        login_required(CaseFinalStatementUpdateView.as_view()),
+        name="edit-final-statement",
     ),
     path(
         "<int:pk>/edit-case-close/",

@@ -611,17 +611,17 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-review-changes",
             "save_continue",
-            "cases:edit-final-statement",
-        ),
-        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
-        (
-            "cases:edit-final-statement",
-            "save_continue",
             "cases:edit-final-website",
         ),
         ("cases:edit-final-website", "save", "cases:edit-final-website"),
         (
             "cases:edit-final-website",
+            "save_continue",
+            "cases:edit-final-statement",
+        ),
+        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
+        (
+            "cases:edit-final-statement",
             "save_continue",
             "cases:edit-case-close",
         ),
@@ -1038,14 +1038,14 @@ def test_preferred_contact_displayed(admin_client):
         ),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-            "edit-final-statement",
-        ),
-        (
             "final_website_complete_date",
             "Final website compliance decision",
             "edit-final-website",
+        ),
+        (
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
+            "edit-final-statement",
         ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
         ("post_case_complete_date", "Post case summary", "edit-post-case"),
@@ -1125,14 +1125,14 @@ def test_section_complete_check_displayed_in_contents(
             "Reviewing changes",
         ),
         (
-            "cases:edit-final-statement",
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-        ),
-        (
             "cases:edit-final-website",
             "final_website_complete_date",
             "Final website compliance decision",
+        ),
+        (
+            "cases:edit-final-statement",
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
         ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
@@ -1578,8 +1578,8 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
         ("zendesk_url", "edit-report-correspondence"),
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
-        ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-final-website"),
+        ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-case-close"),
         ("zendesk_url", "edit-post-case"),
         ("trello_url", "edit-enforcement-body-correspondence"),
@@ -1680,8 +1680,8 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     "step_url",
     [
         "cases:edit-review-changes",
-        "cases:edit-final-statement",
         "cases:edit-final-website",
+        "cases:edit-final-statement",
         "cases:edit-case-close",
     ],
 )

@@ -510,6 +510,30 @@ class CaseReviewChangesUpdateForm(VersionForm):
         ]
 
 
+class CaseFinalWebsiteUpdateForm(VersionForm):
+    """
+    Form to record final website compliance decision
+    """
+
+    website_state_final = AMPChoiceRadioField(
+        label="Final website compliance decision",
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+    )
+    website_state_notes_final = AMPTextField(
+        label="Final website compliance decision notes",
+    )
+    final_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "website_state_final",
+            "website_state_notes_final",
+            "final_website_complete_date",
+        ]
+
+
 class CaseFinalStatementUpdateForm(VersionForm):
     """
     Form to record final accessibility statement compliance decision
@@ -543,30 +567,6 @@ class CaseFinalStatementUpdateForm(VersionForm):
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "final_statement_complete_date",
-        ]
-
-
-class CaseFinalWebsiteUpdateForm(VersionForm):
-    """
-    Form to record final website compliance decision
-    """
-
-    website_state_final = AMPChoiceRadioField(
-        label="Final website compliance decision",
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-    )
-    website_state_notes_final = AMPTextField(
-        label="Final website compliance decision notes",
-    )
-    final_website_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "website_state_final",
-            "website_state_notes_final",
-            "final_website_complete_date",
         ]
 
 

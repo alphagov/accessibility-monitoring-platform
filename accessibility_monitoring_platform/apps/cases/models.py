@@ -341,6 +341,15 @@ class Case(VersionModel):
     )
     review_changes_complete_date = models.DateField(null=True, blank=True)
 
+    # Final website
+    website_state_final = models.CharField(
+        max_length=200,
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+        default=WEBSITE_STATE_FINAL_DEFAULT,
+    )
+    website_state_notes_final = models.TextField(default="", blank=True)
+    final_website_complete_date = models.DateField(null=True, blank=True)
+
     # Final statement
     is_disproportionate_claimed = models.CharField(
         max_length=20,
@@ -356,15 +365,6 @@ class Case(VersionModel):
     )
     accessibility_statement_notes_final = models.TextField(default="", blank=True)
     final_statement_complete_date = models.DateField(null=True, blank=True)
-
-    # Final website
-    website_state_final = models.CharField(
-        max_length=200,
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-        default=WEBSITE_STATE_FINAL_DEFAULT,
-    )
-    website_state_notes_final = models.TextField(default="", blank=True)
-    final_website_complete_date = models.DateField(null=True, blank=True)
 
     # Case close
     recommendation_for_enforcement = models.CharField(
