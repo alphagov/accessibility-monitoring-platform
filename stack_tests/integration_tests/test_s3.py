@@ -6,7 +6,6 @@ from selenium.webdriver.support.ui import Select
 from app.parse_json import parse_integration_tests_json
 import argparse
 import re
-import time
 
 
 parser = argparse.ArgumentParser(description="Settings for integration tests")
@@ -73,6 +72,7 @@ class TestLogin(SeleniumTest):
             True,
         )
 
+
 class TestCases(SeleniumTest):
     """
     Test case for integration tests of case creation
@@ -88,6 +88,7 @@ class TestCases(SeleniumTest):
         super().setUp()
         self.login()
         self.driver.find_element_by_link_text("Search").click()
+
 
 class TestS3ReportCreation(TestCases):
     """
@@ -121,15 +122,20 @@ class TestS3ReportCreation(TestCases):
     def test_load_guid_attached_to_case(self):
         """Tests whether case can be created"""
         self.driver.get("http://localhost:8001/cases/")
-        number_of_cases: int = self.driver.page_source.count("govuk-heading-m cases-sub-heading")
+        number_of_cases: int = self.driver.page_source.count(
+            "govuk-heading-m cases-sub-heading"
+        )
         self.driver.get(f"http://localhost:8001/report/save/{number_of_cases}")
         html = self.driver.page_source
-        res = re.findall(r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b", html)
+        res = re.findall(
+            r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b",
+            html,
+        )
         self.assertTrue(len(res) == 1)
 
         self.driver.get(f"http://localhost:8001/report/{res[0]}")
 
         self.assertEqual(
-            f'org: {ORGANISATION_NAME}' in self.driver.page_source,
+            f"org: {ORGANISATION_NAME}" in self.driver.page_source,
             True,
         )

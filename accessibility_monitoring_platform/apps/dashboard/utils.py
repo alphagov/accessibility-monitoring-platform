@@ -2,12 +2,8 @@
 Utility functions used in dashboard
 """
 
-from datetime import datetime, timedelta
 from typing import Dict, List
-
 from django.contrib.auth.models import User
-from django.utils import timezone
-
 from ..cases.models import Case, STATUS_READY_TO_QA
 
 
@@ -18,11 +14,31 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     status_parametres: List[
         tuple[str, str, str]
     ] = [  # final dict key, status, and sort
-        ("unknown", "unknown", "id",),
-        ("test_in_progress", "test-in-progress", "id",),
-        ("reports_in_progress", "report-in-progress", "id",),
-        ("report_ready_to_send", "report-ready-to-send", "id",),
-        ("qa_in_progress", "qa-in-progress", "id",),
+        (
+            "unknown",
+            "unknown",
+            "id",
+        ),
+        (
+            "test_in_progress",
+            "test-in-progress",
+            "id",
+        ),
+        (
+            "reports_in_progress",
+            "report-in-progress",
+            "id",
+        ),
+        (
+            "report_ready_to_send",
+            "report-ready-to-send",
+            "id",
+        ),
+        (
+            "qa_in_progress",
+            "qa-in-progress",
+            "id",
+        ),
         (
             "in_report_correspondence",
             "in-report-correspondence",
