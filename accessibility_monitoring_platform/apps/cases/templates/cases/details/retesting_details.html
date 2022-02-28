@@ -1,13 +1,15 @@
+{% load common_tags %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 id="twelve-week-retest" class="govuk-heading-l">Retesting the website</h2>
+        <h2 id="twelve-week-retest" class="govuk-heading-l">12-week retest</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
         <div class="govuk-button-group" style="flex-direction:row-reverse">
             <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit retesting the website
+                Edit 12-week retest
             </a>
         </div>
     </div>
@@ -39,5 +41,21 @@
                 {% endif %}
             </td>
         </tr>
-    </tbody>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance decision</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.get_website_state_final_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.website_state_notes_final|markdown_to_html }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance status</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_final_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.accessibility_statement_notes_final|markdown_to_html }}</td>
+        </tr>
+</tbody>
 </table>
