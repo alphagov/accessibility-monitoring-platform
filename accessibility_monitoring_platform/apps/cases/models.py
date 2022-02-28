@@ -579,15 +579,15 @@ class Case(VersionModel):
             and self.twelve_week_update_requested_date is None
         ):
             return "in-probation-period"
-        elif (
-            self.twelve_week_update_requested_date
-            and self.twelve_week_correspondence_acknowledged_date is None
+        elif self.twelve_week_update_requested_date and (
+            self.twelve_week_correspondence_acknowledged_date is None
+            and self.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
         ):
             return "in-12-week-correspondence"
         elif (
             self.twelve_week_correspondence_acknowledged_date
-            and self.is_ready_for_final_decision == BOOLEAN_FALSE
-        ):
+            or self.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+        ) and self.is_ready_for_final_decision == BOOLEAN_FALSE:
             return "reviewing-changes"
         elif (
             self.is_ready_for_final_decision == BOOLEAN_TRUE
@@ -615,9 +615,129 @@ class Case(VersionModel):
             return "qa-approved"
         return "unknown"
 
-    # def set_equality_body_correspondence_status(self):
-
-    #     return "unknown"
+    @property
+    def status_requirements(self):  # noqa: C901
+        if self.status == "complete":
+            return [
+                {
+                    "text": "No additional requirements",
+                    "url": "None",
+                },
+            ]
+        elif self.status == "unassigned-case":
+            return [
+                {
+                    "text": "Assign an auditor",
+                    "url": "cases:edit-case-details",
+                },
+            ]
+        elif self.status == "test-in-progress":
+            test_in_progress_requirements = []
+            if self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT:
+                test_in_progress_requirements.append(
+                    {
+                        "text": "Initial compliance decision decision is not filled in",
+                        "url": "cases:edit-test-results",
+                    }
+                )
+            if (
+                self.accessibility_statement_state
+                == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            ):
+                test_in_progress_requirements.append(
+                    {
+                        "text": "Initial accessibility statement decision is not filled in",
+                        "url": "cases:edit-test-results",
+                    }
+                )
+            return test_in_progress_requirements
+        elif self.status == "report-in-progress":
+            return [
+                {
+                    "text": "Report ready to be reviewed needs to be Yes",
+                    "url": "cases:edit-report-details",
+                },
+            ]
+        elif self.status == "qa-in-progress":
+            return [
+                {
+                    "text": "Report approved needs to be Yes",
+                    "url": "cases:edit-qa-process",
+                },
+            ]
+        elif self.status == "report-ready-to-send":
+            return [
+                {
+                    "text": "Report sent on requires a date",
+                    "url": "cases:edit-report-correspondence",
+                },
+            ]
+        elif self.status == "in-report-correspondence":
+            return [
+                {
+                    "text": "Report acknowledged requires a date",
+                    "url": "cases:edit-report-correspondence",
+                },
+            ]
+        elif self.status == "in-probation-period":
+            return [
+                {
+                    "text": "12 week update requested requires a date",
+                    "url": "cases:edit-twelve-week-correspondence",
+                },
+            ]
+        elif self.status == "in-12-week-correspondence":
+            return [
+                {
+                    "text": "12 week update received requires a date or mark the case as having no response",
+                    "url": "cases:edit-twelve-week-correspondence",
+                },
+            ]
+        elif self.status == "reviewing-changes":
+            return [
+                {
+                    "text": "Is this case ready for final decision? needs to be Yes",
+                    "url": "cases:edit-review-changes",
+                },
+            ]
+        elif self.status == "final-decision-due":
+            return [
+                {
+                    "text": "Case completed requires a decision",
+                    "url": "cases:edit-case-close",
+                },
+            ]
+        elif self.status == "case-closed-waiting-to-be-sent":
+            return [
+                {
+                    "text": "Date sent to equality body requires a date",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+            ]
+        elif self.status == "case-closed-sent-to-equalities-body":
+            return [
+                {
+                    "text": "Equality body pursuing this case should be yes to move to 'In correspondence with equalities body'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+                {
+                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+            ]
+        elif self.status == "in-correspondence-with-equalities-body":
+            return [
+                {
+                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                }
+            ]
+        return [
+            {
+                "text": "Something has gone wrong :(",
+                "url": "None",
+            },
+        ]
 
     @property
     def in_report_correspondence_progress(self):
