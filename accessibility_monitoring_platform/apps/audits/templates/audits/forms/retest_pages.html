@@ -31,7 +31,36 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                {% include 'audits/helpers/retest_pages_accordion.html' %}
+                {% for page in audit.testable_pages %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-l bottom-margin-5">{{ page }}</h2>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group bottom-margin-5">
+                            {% if page.failed_check_results %}
+                                <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" style="margin-bottom:0" class="govuk-link govuk-link--no-visited-state">
+                                    Edit retest
+                                </a>
+                            {% endif %}
+                            <a href="{{ page.url }}" style="margin-bottom:0" class="govuk-link" target="_blank">
+                                Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% if page.failed_check_results %}
+                                <table class="govuk-table view-test-accordion-table">
+                                    {% include 'audits/helpers/retest_page_comparison.html' %}
+                                </table>
+                            {% else %}
+                                <p class="govuk-body-m">There are no recorded errors on this page</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-pages' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">

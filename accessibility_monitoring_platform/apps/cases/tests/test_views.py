@@ -1033,7 +1033,7 @@ def test_preferred_contact_displayed(admin_client):
         ),
         (
             "twelve_week_retest_complete_date",
-            "Retesting the website",
+            "12-week retest",
             "edit-twelve-week-retest",
         ),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
@@ -1117,7 +1117,7 @@ def test_section_complete_check_displayed_in_contents(
         (
             "cases:edit-twelve-week-retest",
             "twelve_week_retest_complete_date",
-            "Retesting the website",
+            "12-week retest",
         ),
         (
             "cases:edit-review-changes",
