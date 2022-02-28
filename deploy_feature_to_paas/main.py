@@ -65,7 +65,7 @@ if __name__ == "__main__":
         "url": config["app_name"],
         "secret_key": get_random_secret_key(),
         "db": config["db_name"],
-        "s3_report_store": config["s3_report_store"]
+        "s3_report_store": config["s3_report_store"],
     }
 
     check_if_login()

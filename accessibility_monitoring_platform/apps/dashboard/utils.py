@@ -2,12 +2,8 @@
 Utility functions used in dashboard
 """
 
-from datetime import datetime, timedelta
 from typing import Dict, List
-
 from django.contrib.auth.models import User
-from django.utils import timezone
-
 from ..cases.models import Case, STATUS_READY_TO_QA
 
 
@@ -18,11 +14,31 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     status_parametres: List[
         tuple[str, str, str]
     ] = [  # final dict key, status, and sort
-        ("unknown", "unknown", "id"),
-        ("test_in_progress", "test-in-progress", "id"),
-        ("reports_in_progress", "report-in-progress", "id"),
-        ("report_ready_to_send", "report-ready-to-send", "id"),
-        ("qa_in_progress", "qa-in-progress", "id"),
+        (
+            "unknown",
+            "unknown",
+            "id",
+        ),
+        (
+            "test_in_progress",
+            "test-in-progress",
+            "id",
+        ),
+        (
+            "reports_in_progress",
+            "report-in-progress",
+            "id",
+        ),
+        (
+            "report_ready_to_send",
+            "report-ready-to-send",
+            "id",
+        ),
+        (
+            "qa_in_progress",
+            "qa-in-progress",
+            "id",
+        ),
         (
             "in_report_correspondence",
             "in-report-correspondence",
@@ -39,9 +55,24 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
             "next_action_due_date",
         ),
         (
+            "reviewing_changes",
+            "reviewing-changes",
+            "twelve_week_correspondence_acknowledged_date",
+        ),
+        (
             "final_decision_due",
             "final-decision-due",
             "report_followup_week_12_due_date",
+        ),
+        (
+            "case_closed_waiting_to_be_sent",
+            "case-closed-waiting-to-be-sent",
+            "case_close_complete_date",
+        ),
+        (
+            "case_closed_sent_to_equalities_body",
+            "case-closed-sent-to-equalities-body",
+            "sent_to_enforcement_body_sent_date",
         ),
         (
             "in_correspondence_with_equalities_body",
@@ -87,13 +118,8 @@ def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Ca
 
 def return_recently_completed_cases(cases: List[Case]) -> List[Case]:
     """Find cases which are complete and were completed in the last 30 days"""
-    thirty_days_ago: datetime = timezone.now() - timedelta(30)
     recently_completed_cases: List[Case] = [
-        case
-        for case in cases
-        if case.status == "complete"
-        and case.completed_date
-        and case.completed_date >= thirty_days_ago
+        case for case in cases if case.status == "complete"
     ]
     return sorted(
         recently_completed_cases,

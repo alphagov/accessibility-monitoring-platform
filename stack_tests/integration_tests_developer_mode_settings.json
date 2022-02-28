@@ -10,7 +10,7 @@
     ],
     "testing_endpoint": "http://0.0.0.0:8001/",
     "connect_attempts": 30,
-    "test_dir": "./stack_tests/integration_tests/",
+    "test_dir": "./stack_tests/integration_tests/test_s3.py",
     "path_for_xml_results": "./result.xml",
     "headless": false,
     "ignore_docker": true,
