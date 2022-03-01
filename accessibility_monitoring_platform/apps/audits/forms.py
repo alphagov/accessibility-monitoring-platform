@@ -836,31 +836,38 @@ class AuditRetestStatement1UpdateForm(VersionForm):
         label="Link to 12-week saved accessibility statement",
     )
     audit_retest_scope_state = AMPChoiceRadioField(
-        label="", choices=SCOPE_STATE_CHOICES,
+        label="",
+        choices=SCOPE_STATE_CHOICES,
     )
     audit_retest_scope_notes = AMPTextField(label="Notes")
     audit_retest_feedback_state = AMPChoiceRadioField(
-        label="", choices=FEEDBACK_STATE_CHOICES,
+        label="",
+        choices=FEEDBACK_STATE_CHOICES,
     )
     audit_retest_feedback_notes = AMPTextField(label="Notes")
     audit_retest_contact_information_state = AMPChoiceRadioField(
-        label="", choices=CONTACT_INFORMATION_STATE_CHOICES,
+        label="",
+        choices=CONTACT_INFORMATION_STATE_CHOICES,
     )
     audit_retest_contact_information_notes = AMPTextField(label="Notes")
     audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
-        label="", choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        label="",
+        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
     )
     audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
     audit_retest_declaration_state = AMPChoiceRadioField(
-        label="", choices=DECLARATION_STATE_CHOICES,
+        label="",
+        choices=DECLARATION_STATE_CHOICES,
     )
     audit_retest_declaration_notes = AMPTextField(label="Notes")
     audit_retest_compliance_state = AMPChoiceRadioField(
-        label="", choices=COMPLIANCE_STATE_CHOICES,
+        label="",
+        choices=COMPLIANCE_STATE_CHOICES,
     )
     audit_retest_compliance_notes = AMPTextField(label="Notes")
     audit_retest_non_regulation_state = AMPChoiceRadioField(
-        label="", choices=NON_REGULATION_STATE_CHOICES,
+        label="",
+        choices=NON_REGULATION_STATE_CHOICES,
     )
     audit_retest_non_regulation_notes = AMPTextField(label="Notes")
     audit_retest_statement_1_complete_date = AMPDatePageCompleteField()
@@ -896,27 +903,33 @@ class AuditRetestStatement2UpdateForm(VersionForm):
         label="Link to 12-week saved accessibility statement",
     )
     audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
-        label="", choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        label="",
+        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
     )
     audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
     audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
-        label="", choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        label="",
+        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
     )
     audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
     audit_retest_preparation_date_state = AMPChoiceRadioField(
-        label="", choices=PREPARATION_DATE_STATE_CHOICES,
+        label="",
+        choices=PREPARATION_DATE_STATE_CHOICES,
     )
     audit_retest_preparation_date_notes = AMPTextField(label="Notes")
     audit_retest_review_state = AMPChoiceRadioField(
-        label="", choices=REVIEW_STATE_CHOICES,
+        label="",
+        choices=REVIEW_STATE_CHOICES,
     )
     audit_retest_review_notes = AMPTextField(label="Notes")
     audit_retest_method_state = AMPChoiceRadioField(
-        label="", choices=METHOD_STATE_CHOICES,
+        label="",
+        choices=METHOD_STATE_CHOICES,
     )
     audit_retest_method_notes = AMPTextField(label="Notes")
     audit_retest_access_requirements_state = AMPChoiceRadioField(
-        label="", choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        label="",
+        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
     )
     audit_retest_access_requirements_notes = AMPTextField(label="Notes")
     audit_retest_statement_2_complete_date = AMPDatePageCompleteField()

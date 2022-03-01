@@ -409,7 +409,9 @@ class Audit(VersionModel):
     )
 
     # Retest accessibility statement 1
-    audit_retest_accessibility_statement_backup_url = models.TextField(default="", blank=True)
+    audit_retest_accessibility_statement_backup_url = models.TextField(
+        default="", blank=True
+    )
     audit_retest_declaration_state = models.CharField(
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,
@@ -437,7 +439,9 @@ class Audit(VersionModel):
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
         default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
     )
-    audit_retest_disproportionate_burden_notes = models.TextField(default="", blank=True)
+    audit_retest_disproportionate_burden_notes = models.TextField(
+        default="", blank=True
+    )
     audit_retest_content_not_in_scope_state = models.CharField(
         max_length=20,
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
