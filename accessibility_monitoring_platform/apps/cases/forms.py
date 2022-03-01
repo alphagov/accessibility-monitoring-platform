@@ -594,6 +594,7 @@ class PostCaseUpdateForm(VersionForm):
     """
 
     post_case_notes = AMPTextField(label="Summary of events after the case was closed")
+    case_updated_date = AMPDateField(label="Case updated")
     post_case_complete_date = AMPDatePageCompleteField()
     psb_appeal_notes = AMPTextField(label="Public sector body statement appeal notes")
 
@@ -602,6 +603,7 @@ class PostCaseUpdateForm(VersionForm):
         fields = [
             "version",
             "post_case_notes",
+            "case_updated_date",
             "psb_appeal_notes",
             "post_case_complete_date",
         ]
@@ -612,7 +614,6 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     Form for recording correspondence with enforcement body
     """
 
-    case_updated_date = AMPDateField(label="Case updated")
     sent_to_enforcement_body_sent_date = AMPDateField(
         label="Date sent to equality body",
         help_text="This field affects the case status",
@@ -636,7 +637,6 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "case_updated_date",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_interested",
             "enforcement_body_correspondence_notes",
