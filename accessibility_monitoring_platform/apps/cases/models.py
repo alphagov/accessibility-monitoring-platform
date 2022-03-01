@@ -11,28 +11,86 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector, VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
+from ..common.models import (
+    BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+    Sector,
+    VersionModel,
+    BOOLEAN_CHOICES,
+    BOOLEAN_DEFAULT,
+)
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_DEFAULT: str = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("unknown", "Unknown"),
-    (STATUS_DEFAULT, "Unassigned case"),
-    ("test-in-progress", "Test in progress"),
-    ("report-in-progress", "Report in progress"),
-    (STATUS_READY_TO_QA, "Report ready to QA"),
-    ("qa-in-progress", "QA in progress"),
-    ("report-ready-to-send", "Report ready to send"),
-    ("in-report-correspondence", "Report sent"),
-    ("in-probation-period", "Report acknowledged waiting for 12 week deadline"),
-    ("in-12-week-correspondence", "After 12 week correspondence"),
-    ("final-decision-due", "Final decision due"),
+    (
+        "unknown",
+        "Unknown",
+    ),
+    (
+        STATUS_DEFAULT,
+        "Unassigned case",
+    ),
+    (
+        "test-in-progress",
+        "Test in progress",
+    ),
+    (
+        "report-in-progress",
+        "Report in progress",
+    ),
+    (
+        STATUS_READY_TO_QA,
+        "Report ready to QA",
+    ),
+    (
+        "qa-in-progress",
+        "QA in progress",
+    ),
+    (
+        "report-ready-to-send",
+        "Report ready to send",
+    ),
+    (
+        "in-report-correspondence",
+        "Report sent",
+    ),
+    (
+        "in-probation-period",
+        "Report acknowledged waiting for 12 week deadline",
+    ),
+    (
+        "in-12-week-correspondence",
+        "After 12 week correspondence",
+    ),
+    (
+        "reviewing-changes",
+        "Reviewing changes",
+    ),
+    (
+        "final-decision-due",
+        "Final decision due",
+    ),
+    (
+        "case-closed-waiting-to-be-sent",
+        "Case closed and waiting to be sent to equalities body",
+    ),
+    (
+        "case-closed-sent-to-equalities-body",
+        "Case closed and sent to equalities body",
+    ),
     (
         "in-correspondence-with-equalities-body",
         "In correspondence with equalities body",
     ),
-    ("complete", "Complete"),
-    ("deleted", "Deleted"),
+    (
+        "complete",
+        "Complete",
+    ),
+    (
+        "deleted",
+        "Deleted",
+    ),
 ]
 
 DEFAULT_TEST_TYPE: str = "simplified"
@@ -481,10 +539,17 @@ class Case(VersionModel):
     def set_status(self):  # noqa: C901
         if self.is_deleted:
             return "deleted"
-        elif self.case_completed == "no-action" or self.escalation_state == "no-action":
+        elif (
+            self.case_completed == "complete-no-send"
+            or self.escalation_state == "no-action"
+        ):
             return "complete"
-        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
+        elif self.enforcement_body_interested == "yes":
             return "in-correspondence-with-equalities-body"
+        elif self.sent_to_enforcement_body_sent_date is not None:
+            return "case-closed-sent-to-equalities-body"
+        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
+            return "case-closed-waiting-to-be-sent"
         elif self.auditor is None:
             return "unassigned-case"
         elif (
@@ -514,13 +579,18 @@ class Case(VersionModel):
             and self.twelve_week_update_requested_date is None
         ):
             return "in-probation-period"
-        elif (
-            self.twelve_week_update_requested_date
-            and self.twelve_week_correspondence_acknowledged_date is None
+        elif self.twelve_week_update_requested_date and (
+            self.twelve_week_correspondence_acknowledged_date is None
+            and self.twelve_week_response_state == TWELVE_WEEK_RESPONSE_DEFAULT
         ):
             return "in-12-week-correspondence"
         elif (
             self.twelve_week_correspondence_acknowledged_date
+            or self.twelve_week_response_state != TWELVE_WEEK_RESPONSE_DEFAULT
+        ) and self.is_ready_for_final_decision == BOOLEAN_FALSE:
+            return "reviewing-changes"
+        elif (
+            self.is_ready_for_final_decision == BOOLEAN_TRUE
             and self.case_completed == DEFAULT_CASE_COMPLETED
         ):
             return "final-decision-due"
@@ -544,6 +614,130 @@ class Case(VersionModel):
         ):
             return "qa-approved"
         return "unknown"
+
+    @property
+    def status_requirements(self):  # noqa: C901
+        if self.status == "complete":
+            return [
+                {
+                    "text": "No additional requirements",
+                    "url": "None",
+                },
+            ]
+        elif self.status == "unassigned-case":
+            return [
+                {
+                    "text": "Assign an auditor",
+                    "url": "cases:edit-case-details",
+                },
+            ]
+        elif self.status == "test-in-progress":
+            test_in_progress_requirements = []
+            if self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT:
+                test_in_progress_requirements.append(
+                    {
+                        "text": "Initial compliance decision decision is not filled in",
+                        "url": "cases:edit-test-results",
+                    }
+                )
+            if (
+                self.accessibility_statement_state
+                == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            ):
+                test_in_progress_requirements.append(
+                    {
+                        "text": "Initial accessibility statement decision is not filled in",
+                        "url": "cases:edit-test-results",
+                    }
+                )
+            return test_in_progress_requirements
+        elif self.status == "report-in-progress":
+            return [
+                {
+                    "text": "Report ready to be reviewed needs to be Yes",
+                    "url": "cases:edit-report-details",
+                },
+            ]
+        elif self.status == "qa-in-progress":
+            return [
+                {
+                    "text": "Report approved needs to be Yes",
+                    "url": "cases:edit-qa-process",
+                },
+            ]
+        elif self.status == "report-ready-to-send":
+            return [
+                {
+                    "text": "Report sent on requires a date",
+                    "url": "cases:edit-report-correspondence",
+                },
+            ]
+        elif self.status == "in-report-correspondence":
+            return [
+                {
+                    "text": "Report acknowledged requires a date",
+                    "url": "cases:edit-report-correspondence",
+                },
+            ]
+        elif self.status == "in-probation-period":
+            return [
+                {
+                    "text": "12 week update requested requires a date",
+                    "url": "cases:edit-twelve-week-correspondence",
+                },
+            ]
+        elif self.status == "in-12-week-correspondence":
+            return [
+                {
+                    "text": "12 week update received requires a date or mark the case as having no response",
+                    "url": "cases:edit-twelve-week-correspondence",
+                },
+            ]
+        elif self.status == "reviewing-changes":
+            return [
+                {
+                    "text": "Is this case ready for final decision? needs to be Yes",
+                    "url": "cases:edit-review-changes",
+                },
+            ]
+        elif self.status == "final-decision-due":
+            return [
+                {
+                    "text": "Case completed requires a decision",
+                    "url": "cases:edit-case-close",
+                },
+            ]
+        elif self.status == "case-closed-waiting-to-be-sent":
+            return [
+                {
+                    "text": "Date sent to equality body requires a date",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+            ]
+        elif self.status == "case-closed-sent-to-equalities-body":
+            return [
+                {
+                    "text": "Equality body pursuing this case should be yes to move to 'In correspondence with equalities body'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+                {
+                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                },
+            ]
+        elif self.status == "in-correspondence-with-equalities-body":
+            return [
+                {
+                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "url": "cases:edit-enforcement-body-correspondence",
+                }
+            ]
+        return [
+            {
+                "text": "Something has gone wrong :(",
+                "url": "None",
+            },
+        ]
 
     @property
     def in_report_correspondence_progress(self):

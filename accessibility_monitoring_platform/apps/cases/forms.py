@@ -428,6 +428,7 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     )
     twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
+        help_text="This field affects the case status",
         choices=TWELVE_WEEK_RESPONSE_CHOICES,
     )
     twelve_week_correspondence_complete_date = AMPDatePageCompleteField()
@@ -613,11 +614,13 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
 
     case_updated_date = AMPDateField(label="Case updated")
     sent_to_enforcement_body_sent_date = AMPDateField(
-        label="Date sent to equality body"
+        label="Date sent to equality body",
+        help_text="This field affects the case status",
     )
     enforcement_body_interested = AMPChoiceRadioField(
         label="Equality body pursuing this case?",
         choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
+        help_text="This field affects the case status",
     )
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"

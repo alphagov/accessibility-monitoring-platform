@@ -18,8 +18,8 @@ args = parser.parse_args()
 
 settings = parse_integration_tests_json(settings_path=args.settings_json)
 
-ORGANISATION_NAME = "Example Organisation"
-HOME_PAGE_URL = "https://example.com"
+ORGANISATION_NAME = "Example Organisation2"
+HOME_PAGE_URL = "https://exampleTwo.com"
 ENFORCEMENT_BODY_VALUE = "ehrc"
 
 
@@ -72,6 +72,7 @@ class TestLogin(SeleniumTest):
             True,
         )
 
+
 class TestCases(SeleniumTest):
     """
     Test case for integration tests of case creation
@@ -87,6 +88,7 @@ class TestCases(SeleniumTest):
         super().setUp()
         self.login()
         self.driver.find_element_by_link_text("Search").click()
+
 
 class TestS3ReportCreation(TestCases):
     """
@@ -117,15 +119,23 @@ class TestS3ReportCreation(TestCases):
         )
         self.assertTrue(ORGANISATION_NAME in self.driver.page_source)
 
-    def test_create_case(self):
+    def test_load_guid_attached_to_case(self):
         """Tests whether case can be created"""
-        self.driver.get("http://localhost:8001/report/save/1")
+        self.driver.get("http://localhost:8001/cases/")
+        number_of_cases: int = self.driver.page_source.count(
+            "govuk-heading-m cases-sub-heading"
+        )
+        self.driver.get(f"http://localhost:8001/report/save/{number_of_cases}")
         html = self.driver.page_source
-        res = re.findall(r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b", html)
+        res = re.findall(
+            r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b",
+            html,
+        )
         self.assertTrue(len(res) == 1)
 
         self.driver.get(f"http://localhost:8001/report/{res[0]}")
+
         self.assertEqual(
-            f'org: {ORGANISATION_NAME}' in self.driver.page_source,
+            f"org: {ORGANISATION_NAME}" in self.driver.page_source,
             True,
         )
