@@ -11,13 +11,14 @@ from ..models import (
     REPORT_APPROVED_STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
     ESCALATION_STATE_CHOICES,
+    BOOLEAN_TRUE,
 )
 from django.contrib.auth.models import User
 
 
 @pytest.mark.django_db
 def test_case_status_unassigned():
-    """Test case returns unassigned-case for status"""
+    """Test case status returns unassigned-case"""
     case = Case.objects.create(
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
@@ -28,7 +29,7 @@ def test_case_status_unassigned():
 
 @pytest.mark.django_db
 def test_case_status_test_in_progress():
-    """Test case returns test-in-progress for status"""
+    """Test case status returns test-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -42,7 +43,7 @@ def test_case_status_test_in_progress():
 
 @pytest.mark.django_db
 def test_case_status_report_in_progress():
-    """Test case returns report-in-progress for status"""
+    """Test case status returns report-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -58,7 +59,7 @@ def test_case_status_report_in_progress():
 
 @pytest.mark.django_db
 def test_case_status_qa_in_progress():
-    """Test case returns qa-in-progress for status"""
+    """Test case status returns qa-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -75,7 +76,7 @@ def test_case_status_qa_in_progress():
 
 @pytest.mark.django_db
 def test_case_status_report_ready_to_send():
-    """Test case returns report-ready-to-send for status"""
+    """Test case status returns report-ready-to-send"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -93,7 +94,7 @@ def test_case_status_report_ready_to_send():
 
 @pytest.mark.django_db
 def test_case_status_in_report_correspondence():
-    """Test case returns in-report-correspondence for status"""
+    """Test case status returns in-report-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -112,7 +113,7 @@ def test_case_status_in_report_correspondence():
 
 @pytest.mark.django_db
 def test_case_status_in_probation_period():
-    """Test case returns in-probation-period for status"""
+    """Test case status returns in-probation-period"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -132,7 +133,7 @@ def test_case_status_in_probation_period():
 
 @pytest.mark.django_db
 def test_case_status_in_12_week_correspondence():
-    """Test case returns in-12-week-correspondence for status"""
+    """Test case status returns in-12-week-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -152,8 +153,8 @@ def test_case_status_in_12_week_correspondence():
 
 
 @pytest.mark.django_db
-def test_case_status_final_decision_due():
-    """Test case returns final-decision-due for status"""
+def test_case_status_reviewing_changes():
+    """Test case status returns reviewing-changes"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -168,14 +169,37 @@ def test_case_status_final_decision_due():
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
+    )
+    case.save()
+    assert case.status == "reviewing-changes"
+
+
+@pytest.mark.django_db
+def test_case_status_final_decision_due():
+    """Test case status returns final-decision-due"""
+    user = User.objects.create()
+    case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_CHOICES[0][0],
+        is_website_compliant=IS_WEBSITE_COMPLIANT_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        is_ready_for_final_decision=BOOLEAN_TRUE,
     )
     case.save()
     assert case.status == "final-decision-due"
 
 
 @pytest.mark.django_db
-def test_case_status_in_correspondence_with_equalities_body():
-    """Test case returns in-correspondence-with-equalities-body for status"""
+def test_case_status_case_closed_waiting_to_be_sent():
+    """Test case status returns case-closed-waiting-to-be-sent"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -193,12 +217,12 @@ def test_case_status_in_correspondence_with_equalities_body():
         case_completed=CASE_COMPLETED_CHOICES[0][0],
     )
     case.save()
-    assert case.status == "in-correspondence-with-equalities-body"
+    assert case.status == "case-closed-waiting-to-be-sent"
 
 
 @pytest.mark.django_db
-def test_case_status_complete():
-    """Test case returns in-correspondence-with-equalities-body for status"""
+def test_case_status_case_closed_sent_to_equality_bodies():
+    """Test case status returns case-closed-sent-to-equalities-body"""
     user = User.objects.create()
     case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -214,7 +238,75 @@ def test_case_status_complete():
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_CHOICES[0][0],
+        sent_to_enforcement_body_sent_date=datetime.now(),
+    )
+    case.save()
+    assert case.status == "case-closed-sent-to-equalities-body"
+
+
+@pytest.mark.django_db
+def test_case_status_in_correspondence_with_equalities_body():
+    """Test case status returns in-correspondence-with-equalities-body"""
+    user = User.objects.create()
+    case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_CHOICES[0][0],
+        is_website_compliant=IS_WEBSITE_COMPLIANT_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        case_completed=CASE_COMPLETED_CHOICES[0][0],
+        sent_to_enforcement_body_sent_date=datetime.now(),
+        enforcement_body_interested="yes",
+    )
+    case.save()
+    assert case.status == "in-correspondence-with-equalities-body"
+
+
+@pytest.mark.django_db
+def test_case_status_equality_bodies_complete():
+    """Test case status returns complete"""
+    user = User.objects.create()
+    case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_CHOICES[0][0],
+        is_website_compliant=IS_WEBSITE_COMPLIANT_CHOICES[0][0],
+        report_review_status=REPORT_REVIEW_STATUS_CHOICES[0][0],
+        report_approved_status=REPORT_APPROVED_STATUS_CHOICES[0][0],
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        case_completed=CASE_COMPLETED_CHOICES[0][0],
+        sent_to_enforcement_body_sent_date=datetime.now(),
+        enforcement_body_interested="yes",
         escalation_state=ESCALATION_STATE_CHOICES[0][0],
+    )
+    case.save()
+    assert case.status == "complete"
+
+
+@pytest.mark.django_db
+def test_case_status_complete():
+    """Test case status returns complete when case is exempt"""
+    user = User.objects.create()
+    case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_CHOICES[0][0],
+        is_website_compliant=IS_WEBSITE_COMPLIANT_CHOICES[0][0],
+        case_completed=CASE_COMPLETED_CHOICES[1][0],
     )
     case.save()
     assert case.status == "complete"

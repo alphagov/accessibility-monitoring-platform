@@ -1,16 +1,16 @@
 {% load user_tags %}
 
-<h2 class="govuk-heading-m">QA cases</h2>
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+<h2 class="govuk-heading-l">QA cases</h2>
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-qa-cases">
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-report-ready-to-qa">
+                <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-report-ready-to-qa">
                     Report ready for QA - {{ cases_by_status.ready_for_qa|length }}
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-report-ready-to-qa">
+        <div id="accordion-qa-cases-content-report-ready-to-qa" class="govuk-accordion__section-content" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
             {% include "./13_ready_to_qa.html" with cases=cases_by_status.ready_for_qa %}
         </div>
     </div>
@@ -18,18 +18,18 @@
         <div class="govuk-accordion__section ">
             <div class="govuk-accordion__section-header">
                 <h2 class="govuk-accordion__section-heading">
-                    <span class="govuk-accordion__section-button" id="accordion-default-heading-requires-your-review">
+                    <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-requires-your-review">
                         Cases assigned to you for QA - {{ cases_by_status.requires_your_review|length }}
                     </span>
                 </h2>
             </div>
-            <div id="accordion-default-content-requires-your-review" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-requires-your-review">
+            <div id="accordion-qa-cases-content-requires-your-review" class="govuk-accordion__section-content" aria-labelledby="accordion-qa-cases-heading-requires-your-review">
                 {% include "./5_requires_your_review.html" with cases=cases_by_status.requires_your_review %}
             </div>
         </div>
     {% endif %}
 </div>
-<h2 class="govuk-heading-m">Audit cases</h2>
+<h2 class="govuk-heading-l">Audit cases</h2>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
     {% if cases_by_status.unknown %}
     <div class="govuk-accordion__section ">
@@ -144,37 +144,76 @@
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-default-heading-reviewing-changes">
+                    Reviewing changes - {{ cases_by_status.reviewing_changes|length }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-default-content-reviewing-changes" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-in-twelve-week-correspondence">
+            {% include "./10_reviewing_changes.html" with cases=cases_by_status.reviewing_changes %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-default-heading-final-decision-due">
                     Final decision due - {{ cases_by_status.final_decision_due|length }}
                 </span>
             </h2>
         </div>
         <div id="accordion-default-content-final-decision-due" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-final-decision-due">
-            {% include "./10_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
+            {% include "./11_final_decision_due.html" with cases=cases_by_status.final_decision_due %}
+        </div>
+    </div>
+</div>
+<h2 class="govuk-heading-l">Post case</h2>
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-post-case">
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-waiting-to-be-sent">
+                    Case closed and waiting to be sent to equalities body  - {{ cases_by_status.case_closed_waiting_to_be_sent|length }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-post-case-content-case-closed-waiting-to-be-sent" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-content-case-closed-waiting-to-be-sent">
+            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_waiting_to_be_sent %}
         </div>
     </div>
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-equality-body-correspondence">
-                    Equality body correspondence - {{ cases_by_status.in_correspondence_with_equalities_body|length }}
+                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-case-closed-sent-to-equalities-body">
+                    Case closed and sent to equalities body  - {{ cases_by_status.case_closed_sent_to_equalities_body|length }}
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-equality-body-correspondence" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-equality-body-correspondence">
-            {% include "./11_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
+        <div id="accordion-post-case-content-case-closed-sent-to-equalities-body" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
+            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_sent_to_equalities_body %}
         </div>
     </div>
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-default-heading-recently-completed-cases">
-                    Recently completed cases - {{ cases_by_status.recently_completed|length }}
+                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-equality-body-correspondence">
+                    In correspondence with equalities body  - {{ cases_by_status.in_correspondence_with_equalities_body|length }}
                 </span>
             </h2>
         </div>
-        <div id="accordion-default-content-recently-completed-cases" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-11">
-            {% include "./12_recently_completed.html" with cases=cases_by_status.recently_completed %}
+        <div id="accordion-post-case-content-equality-body-correspondence" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-equality-body-correspondence">
+            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.in_correspondence_with_equalities_body %}
+        </div>
+    </div>
+    <div class="govuk-accordion__section ">
+        <div class="govuk-accordion__section-header">
+            <h2 class="govuk-accordion__section-heading">
+                <span class="govuk-accordion__section-button" id="accordion-post-case-heading-complete">
+                    Completed cases - {{ cases_by_status.recently_completed|length }}
+                </span>
+            </h2>
+        </div>
+        <div id="accordion-post-case-content-complete" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-complete">
+            {% include "./14_recently_completed.html" with cases=cases_by_status.recently_completed %}
         </div>
     </div>
 </div>

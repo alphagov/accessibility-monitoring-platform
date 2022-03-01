@@ -11,28 +11,86 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.utils import extract_domain_from_url
-from ..common.models import Sector, VersionModel, BOOLEAN_CHOICES, BOOLEAN_DEFAULT
+from ..common.models import (
+    BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+    Sector,
+    VersionModel,
+    BOOLEAN_CHOICES,
+    BOOLEAN_DEFAULT,
+)
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_DEFAULT: str = "unassigned-case"
 STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("unknown", "Unknown"),
-    (STATUS_DEFAULT, "Unassigned case"),
-    ("test-in-progress", "Test in progress"),
-    ("report-in-progress", "Report in progress"),
-    (STATUS_READY_TO_QA, "Report ready to QA"),
-    ("qa-in-progress", "QA in progress"),
-    ("report-ready-to-send", "Report ready to send"),
-    ("in-report-correspondence", "Report sent"),
-    ("in-probation-period", "Report acknowledged waiting for 12-week deadline"),
-    ("in-12-week-correspondence", "After 12-week correspondence"),
-    ("final-decision-due", "Final decision due"),
+    (
+        "unknown",
+        "Unknown",
+    ),
+    (
+        STATUS_DEFAULT,
+        "Unassigned case",
+    ),
+    (
+        "test-in-progress",
+        "Test in progress",
+    ),
+    (
+        "report-in-progress",
+        "Report in progress",
+    ),
+    (
+        STATUS_READY_TO_QA,
+        "Report ready to QA",
+    ),
+    (
+        "qa-in-progress",
+        "QA in progress",
+    ),
+    (
+        "report-ready-to-send",
+        "Report ready to send",
+    ),
+    (
+        "in-report-correspondence",
+        "Report sent",
+    ),
+    (
+        "in-probation-period",
+        "Report acknowledged waiting for 12 week deadline",
+    ),
+    (
+        "in-12-week-correspondence",
+        "After 12 week correspondence",
+    ),
+    (
+        "reviewing-changes",
+        "Reviewing changes",
+    ),
+    (
+        "final-decision-due",
+        "Final decision due",
+    ),
+    (
+        "case-closed-waiting-to-be-sent",
+        "Case closed and waiting to be sent to equalities body",
+    ),
+    (
+        "case-closed-sent-to-equalities-body",
+        "Case closed and sent to equalities body",
+    ),
     (
         "in-correspondence-with-equalities-body",
         "In correspondence with equalities body",
     ),
-    ("complete", "Complete"),
-    ("deleted", "Deleted"),
+    (
+        "complete",
+        "Complete",
+    ),
+    (
+        "deleted",
+        "Deleted",
+    ),
 ]
 
 DEFAULT_TEST_TYPE: str = "simplified"
@@ -484,10 +542,17 @@ class Case(VersionModel):
     def set_status(self):  # noqa: C901
         if self.is_deleted:
             return "deleted"
-        elif self.case_completed == "no-action" or self.escalation_state == "no-action":
+        elif (
+            self.case_completed == "complete-no-send"
+            or self.escalation_state == "no-action"
+        ):
             return "complete"
-        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
+        elif self.enforcement_body_interested == "yes":
             return "in-correspondence-with-equalities-body"
+        elif self.sent_to_enforcement_body_sent_date is not None:
+            return "case-closed-sent-to-equalities-body"
+        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
+            return "case-closed-waiting-to-be-sent"
         elif self.auditor is None:
             return "unassigned-case"
         elif (
@@ -524,6 +589,11 @@ class Case(VersionModel):
             return "in-12-week-correspondence"
         elif (
             self.twelve_week_correspondence_acknowledged_date
+            and self.is_ready_for_final_decision == BOOLEAN_FALSE
+        ):
+            return "reviewing-changes"
+        elif (
+            self.is_ready_for_final_decision == BOOLEAN_TRUE
             and self.case_completed == DEFAULT_CASE_COMPLETED
         ):
             return "final-decision-due"
@@ -547,6 +617,10 @@ class Case(VersionModel):
         ):
             return "qa-approved"
         return "unknown"
+
+    # def set_equality_body_correspondence_status(self):
+
+    #     return "unknown"
 
     @property
     def in_report_correspondence_progress(self):
