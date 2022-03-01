@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% load common_tags %}
+
 {% block title %}{{ case.organisation_name }} | Closing the case{% endblock %}
 
 {% block content %}
@@ -38,6 +40,83 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <details class="govuk-details" data-module="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">View compliance decisions</span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Disproportionate burden claimed?</b></label>
+                            <div class="govuk-hint">{{ case.get_is_disproportionate_claimed_display }}</div>
+                            <label class="govuk-label"><b>Disproportionate burden notes</b></label>
+                            <div class="govuk-hint">
+                                {% if case.disproportionate_notes %}{{ case.disproportionate_notes|markdown_to_html }}{% else %}None{% endif %}
+                            </div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Initial accessibility statement decision (found in
+                                <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                            <div class="govuk-hint">{{ case.get_accessibility_statement_state_display }}</div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Initial accessibility statement notes (found in
+                                <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                            <div class="govuk-hint">
+                                {% if case.accessibility_statement_notes %}{{ case.accessibility_statement_notes|markdown_to_html }}{% else %}None{% endif %}
+                            </div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Final accessibility statement decision (found in
+                                <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                            <div class="govuk-hint">{{ case.get_accessibility_statement_state_final_display }}</div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Link to screenshot of accessibility statement</b></label>
+                            <div class="govuk-hint">
+                                {% if case.accessibility_statement_screenshot_url %}
+                                    <a href="{{ audit.accessibility_statement_screenshot_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                    {{ case.accessibility_statement_screenshot_url }}</a></div>
+                                {% else %}
+                                    <p>None</p>
+                                {% endif %}
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Final accessibility statement notes (found in
+                                <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                            <div class="govuk-hint">
+                                {% if case.accessibility_statement_notes_final %}{{ case.accessibility_statement_notes_final|markdown_to_html }}{% else %}None{% endif %}
+                            </div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Initial compliance decision (found in
+                                <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                            <div class="govuk-hint">{{ case.get_is_website_compliant_display }}</div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Initial compliance notes (found in
+                                <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                            <div class="govuk-hint">
+                                {% if case.compliance_decision_notes %}
+                                    {{ case.compliance_decision_notes|markdown_to_html }}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Final compliance decision (found in
+                                <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                            <div class="govuk-hint">{{ case.get_website_state_final_display }}</div>
+                        </div>
+                        <div class="govuk-form-group">
+                            <label class="govuk-label"><b>Final compliance notes (found in
+                                <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                            <div class="govuk-hint">
+                                {% if case.website_state_notes_final %}{{ case.website_state_notes_final|markdown_to_html }}{% else %}None{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </details>
                 <form method="post" action="{% url 'cases:edit-case-close' case.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
