@@ -137,6 +137,13 @@ deletion note, I am"""
 ORGANISATION_NAME_TO_DELETE = "Example Organisation to Delete"
 HOME_PAGE_URL_TO_DELETE = "https://example-to-delete.com"
 
+DATE_OF_TEST_DD = "31"
+DATE_OF_TEST_MM = "12"
+DATE_OF_TEST_YYYY = "2021"
+EXEMPTION_NOTES = """I am
+a multiline
+exemption note, I am"""
+
 
 class SeleniumTest(unittest.TestCase):
     """
@@ -188,7 +195,7 @@ class TestLogin(SeleniumTest):
         )
 
 
-class TestCases(SeleniumTest):
+class TestCase(SeleniumTest):
     """
     Test case for integration tests of case creation
 
@@ -205,7 +212,7 @@ class TestCases(SeleniumTest):
         self.driver.find_element_by_link_text("Search").click()
 
 
-class TestCaseCreation(TestCases):
+class TestCaseCreation(TestCase):
     """
     Test case for integration tests of case creation
 
@@ -254,7 +261,7 @@ class TestCaseCreation(TestCases):
         )
 
 
-class TestCaseUpdates(TestCases):
+class TestCaseUpdates(TestCase):
     """
     Test case for integration tests of case updates
 
@@ -889,7 +896,7 @@ class TestCaseUpdates(TestCases):
         self.assertTrue(">Equality body summary</h1>" in self.driver.page_source)
 
 
-class TestCaseDelete(TestCases):
+class TestCaseDelete(TestCase):
     """
     Test case for integration tests of case deletion
 
@@ -951,3 +958,125 @@ class TestCaseDelete(TestCases):
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertFalse("deleted" in self.driver.page_source)
+
+
+class TestCaseStartTest(TestCase):
+    """
+    Test case for integration tests of case to start test
+
+    Methods
+    -------
+    setUp()
+        Create case to test
+    test_start_test()
+        Tests whether all case sections can be updated
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
+
+    def test_start_test(self):
+        """Tests whether case test can be started"""
+        self.driver.find_element_by_link_text("Edit case details").click()
+        self.driver.find_element_by_css_selector("input[type='radio'][value='platform']").click()
+        self.driver.find_element_by_name("save").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("Edit testing details").click()
+        self.driver.find_element_by_link_text("Start test").click()
+
+        self.assertTrue(">Test metadata</h1>" in self.driver.page_source)
+
+
+class TestCaseTestingUI(TestCase):
+    """
+    Test case for integration tests of case updates to testing UI
+
+    Methods
+    -------
+    setUp()
+        Create case to update
+    test_update_test_metadata()
+        Tests whether case test metadata can be updated
+    test_update_test_pages()
+        Tests whether case test pages can be updated
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
+        self.driver.find_element_by_link_text("Edit case details").click()
+        self.driver.find_element_by_css_selector("input[type='radio'][value='platform']").click()
+        self.driver.find_element_by_name("save").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("Edit testing details").click()
+
+        self.driver.find_element_by_link_text("View test").click()
+
+    def test_update_test_metadata(self):
+        """Tests whether case test metadata can be updated"""
+        self.driver.find_element_by_link_text("Edit test metadata").click()
+
+        self.driver.find_element_by_name("date_of_test_0").clear()
+        self.driver.find_element_by_name("date_of_test_0").send_keys(
+            DATE_OF_TEST_DD
+        )
+        self.driver.find_element_by_name("date_of_test_1").clear()
+        self.driver.find_element_by_name("date_of_test_1").send_keys(
+            DATE_OF_TEST_MM
+        )
+        self.driver.find_element_by_name("date_of_test_2").clear()
+        self.driver.find_element_by_name("date_of_test_2").send_keys(
+            DATE_OF_TEST_YYYY
+        )
+
+        select: Select = Select(self.driver.find_element_by_name("screen_size"))
+        select.select_by_visible_text("15 inch")
+
+        self.driver.find_element_by_css_selector("input[type='radio'][value='yes']").click()
+
+        self.driver.find_element_by_name("exemptions_notes").send_keys(EXEMPTION_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue("31/12/2021" in self.driver.page_source)
+        self.assertTrue("15 inch" in self.driver.page_source)
+        self.assertTrue(EXEMPTION_NOTES in self.driver.page_source)
+
+    def test_update_test_pages(self):
+        """Tests whether case test pages can be updated"""
+        self.driver.find_element_by_link_text("Edit pages").click()
+
+        self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue("Home page" in self.driver.page_source)
