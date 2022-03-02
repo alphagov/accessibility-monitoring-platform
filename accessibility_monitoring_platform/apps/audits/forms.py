@@ -17,7 +17,6 @@ from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
-    AMPModelChoiceField,
     AMPURLField,
 )
 from ..cases.models import (
@@ -145,14 +144,6 @@ class AuditPagesUpdateForm(VersionForm):
             "version",
             "audit_pages_complete_date",
         ]
-
-
-class AuditPageModelChoiceField(AMPModelChoiceField):
-    """Add completed tick to model choice labels"""
-
-    def label_from_instance(self, obj):
-        completed_tick: str = " ✓" if obj.complete_date else ""  # type: ignore
-        return f"{obj}{completed_tick}"
 
 
 class AuditPageChecksForm(forms.Form):
