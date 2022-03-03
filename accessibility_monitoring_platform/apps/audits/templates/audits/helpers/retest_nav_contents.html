@@ -6,7 +6,11 @@
         {% if audit.testable_pages %}
            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                 {% for page in audit.testable_pages %}
-                    {% include './nav_content.html' with edit_name='audits:edit-audit-retest-page-checks' name=page complete=page.retest_complete_date %}
+                    {% if page.failed_check_results %}
+                        {% include './nav_content.html' with edit_name='audits:edit-audit-retest-page-checks' name=page complete=page.retest_complete_date %}
+                    {% else %}
+                        <li>{{ page }} has no errors</li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         {% endif %}
