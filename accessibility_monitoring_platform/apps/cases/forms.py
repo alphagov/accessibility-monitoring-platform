@@ -58,6 +58,7 @@ DEFAULT_SORT: str = "-id"
 SORT_CHOICES = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
+    ("organisation_name", "Alphabetic"),
 ]
 
 
