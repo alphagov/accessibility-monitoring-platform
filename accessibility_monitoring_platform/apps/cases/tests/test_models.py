@@ -195,7 +195,6 @@ def test_next_action_due_date_for_in_report_correspondence():
         report_followup_week_4_due_date=report_followup_week_4_due_date,
         report_followup_week_12_due_date=report_followup_week_12_due_date,
     )
-    assert case.next_action_due_date == report_followup_week_12_due_date
 
     case.report_followup_week_4_sent_date = None
     assert case.next_action_due_date == report_followup_week_4_due_date
