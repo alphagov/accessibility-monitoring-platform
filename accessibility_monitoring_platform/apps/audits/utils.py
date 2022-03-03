@@ -228,7 +228,9 @@ def get_next_retest_page_url(
     pressed on the page where pages or pages check results are retested.
     """
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-    testable_pages_with_errors: List[Page] = [page for page in audit.testable_pages if page.failed_check_results]
+    testable_pages_with_errors: List[Page] = [
+        page for page in audit.testable_pages if page.failed_check_results
+    ]
     if not testable_pages_with_errors:
         return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
 

@@ -143,6 +143,13 @@ DATE_OF_TEST_YYYY = "2021"
 EXEMPTION_NOTES = """I am
 a multiline
 exemption note, I am"""
+CHECK_RESULT_NOTES = """I am
+a multiline
+check result note, I am"""
+ACCESSIBILITY_STATEMENT_URL_BACKUP_1 = "https://example.com/statement-1"
+SCOPE_NOTES = "I am a scope note"
+ACCESSIBILITY_STATEMENT_URL_BACKUP_2 = "https://example.com/statement-2"
+DISPROPORTIONATE_BURDEN_NOTES = "I am a disproportionate burden note"
 
 
 class SeleniumTest(unittest.TestCase):
@@ -990,7 +997,9 @@ class TestCaseStartTest(TestCase):
     def test_start_test(self):
         """Tests whether case test can be started"""
         self.driver.find_element_by_link_text("Edit case details").click()
-        self.driver.find_element_by_css_selector("input[type='radio'][value='platform']").click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='platform']"
+        ).click()
         self.driver.find_element_by_name("save").click()
 
         self.driver.find_element_by_link_text("Case").click()
@@ -1019,7 +1028,9 @@ class TestCaseTestingUI(TestCase):
         super().setUp()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
         self.driver.find_element_by_link_text("Edit case details").click()
-        self.driver.find_element_by_css_selector("input[type='radio'][value='platform']").click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='platform']"
+        ).click()
         self.driver.find_element_by_name("save").click()
 
         self.driver.find_element_by_link_text("Case").click()
@@ -1032,22 +1043,18 @@ class TestCaseTestingUI(TestCase):
         self.driver.find_element_by_link_text("Edit test metadata").click()
 
         self.driver.find_element_by_name("date_of_test_0").clear()
-        self.driver.find_element_by_name("date_of_test_0").send_keys(
-            DATE_OF_TEST_DD
-        )
+        self.driver.find_element_by_name("date_of_test_0").send_keys(DATE_OF_TEST_DD)
         self.driver.find_element_by_name("date_of_test_1").clear()
-        self.driver.find_element_by_name("date_of_test_1").send_keys(
-            DATE_OF_TEST_MM
-        )
+        self.driver.find_element_by_name("date_of_test_1").send_keys(DATE_OF_TEST_MM)
         self.driver.find_element_by_name("date_of_test_2").clear()
-        self.driver.find_element_by_name("date_of_test_2").send_keys(
-            DATE_OF_TEST_YYYY
-        )
+        self.driver.find_element_by_name("date_of_test_2").send_keys(DATE_OF_TEST_YYYY)
 
         select: Select = Select(self.driver.find_element_by_name("screen_size"))
         select.select_by_visible_text("15 inch")
 
-        self.driver.find_element_by_css_selector("input[type='radio'][value='yes']").click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='yes']"
+        ).click()
 
         self.driver.find_element_by_name("exemptions_notes").send_keys(EXEMPTION_NOTES)
 
@@ -1070,3 +1077,142 @@ class TestCaseTestingUI(TestCase):
 
         self.assertTrue(">View test</h1>" in self.driver.page_source)
         self.assertTrue("Home page" in self.driver.page_source)
+
+    def test_update_test_page_check_results(self):
+        """Tests whether check result for page can be recorded"""
+        self.driver.find_element_by_link_text("Edit pages").click()
+        self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Home page").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_form-0-check_result_state_0"
+        ).click()
+        self.driver.find_element_by_name("form-0-notes").send_keys(CHECK_RESULT_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(CHECK_RESULT_NOTES in self.driver.page_source)
+
+    def test_update_test_website_compliance(self):
+        """Tests whether case test website compliance can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit website compliance decision"
+        ).click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_case-is_website_compliant_0"
+        ).click()
+        self.driver.find_element_by_name("case-compliance_decision_notes").send_keys(
+            WEBSITE_COMPLIANCE_NOTES
+        )
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(WEBSITE_COMPLIANCE_NOTES in self.driver.page_source)
+
+    def test_update_test_accessibility_statement_1(self):
+        """Tests whether case test accessibility_statement 1 can be updated"""
+        self.driver.find_element_by_link_text("Edit accessibility statement").click()
+
+        self.driver.find_element_by_name(
+            "accessibility_statement_backup_url"
+        ).send_keys(ACCESSIBILITY_STATEMENT_URL_BACKUP_1)
+        self.driver.find_element_by_css_selector("#id_scope_state_0").click()
+        self.driver.find_element_by_name("scope_notes").send_keys(SCOPE_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(SCOPE_NOTES in self.driver.page_source)
+
+    def test_update_test_accessibility_statement_2(self):
+        """Tests whether case test accessibility_statement 2 can be updated"""
+        self.driver.find_element_by_link_text("Edit accessibility statement").click()
+        self.driver.find_element_by_link_text("Accessibility statement 2").click()
+
+        self.driver.find_element_by_name(
+            "accessibility_statement_backup_url"
+        ).send_keys(ACCESSIBILITY_STATEMENT_URL_BACKUP_2)
+        self.driver.find_element_by_css_selector(
+            "#id_disproportionate_burden_state_0"
+        ).click()
+        self.driver.find_element_by_name("disproportionate_burden_notes").send_keys(
+            DISPROPORTIONATE_BURDEN_NOTES
+        )
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(DISPROPORTIONATE_BURDEN_NOTES in self.driver.page_source)
+
+    def test_update_test_statement_compliance(self):
+        """Tests whether case test accessibility statement compliance can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit accessibility statement compliance decision"
+        ).click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_case-accessibility_statement_state_0"
+        ).click()
+        self.driver.find_element_by_name(
+            "case-accessibility_statement_notes"
+        ).send_keys(ACCESSIBILITY_STATEMENT_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES in self.driver.page_source)
+
+    def test_update_test_test_summary(self):
+        """Tests whether case test summary page can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit accessibility statement compliance decision"
+        ).click()
+        self.driver.find_element_by_link_text("Test summary").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_audit_summary_complete_date"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+
+    def test_update_test_report_options(self):
+        """Tests whether case test report options page can be updated"""
+        self.driver.find_element_by_link_text("Edit report options").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_accessibility_statement_state_0"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
+        self.assertTrue(
+            "An accessibility statement for the website was not found."
+            in self.driver.page_source
+        )
+
+    def test_update_test_report_text(self):
+        """Tests whether case test report text page can be updated"""
+        self.driver.find_element_by_link_text("Edit Report text").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_audit_report_text_complete_date"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
