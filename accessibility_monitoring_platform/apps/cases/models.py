@@ -371,7 +371,6 @@ class Case(VersionModel):
     # 12 week correspondence page
     twelve_week_update_requested_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
-    twelve_week_4_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_correspondence_acknowledged_date = models.DateField(
         null=True, blank=True
     )
@@ -513,11 +512,17 @@ class Case(VersionModel):
         if self.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
-            if self.report_followup_week_4_sent_date is None:
+            elif self.report_followup_week_4_sent_date is None:
                 return self.report_followup_week_4_due_date
-            return self.report_followup_week_12_due_date
+            elif (
+                self.report_followup_week_4_sent_date
+            ):
+                return self.report_followup_week_4_sent_date + timedelta(days=5)
+            return "Something has gone wrong :("
+
         if self.status == "in-probation-period":
             return self.report_followup_week_12_due_date
+
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
@@ -742,6 +747,7 @@ class Case(VersionModel):
     @property
     def in_report_correspondence_progress(self):
         now = date.today()
+        five_days_ago = now - timedelta(days=5)
         if (
             self.report_followup_week_1_due_date
             and self.report_followup_week_1_due_date > now
@@ -768,16 +774,16 @@ class Case(VersionModel):
             and self.report_followup_week_4_sent_date is None
         ):
             return "4 week followup due"
-        elif (
-            self.report_followup_week_1_sent_date
-            and self.report_followup_week_4_sent_date
-        ):
-            return "4 week followup sent, waiting for acknowledgement"
+        elif self.report_followup_week_4_sent_date > five_days_ago:
+            return "4 week followup sent, waiting five days for response"
+        elif self.report_followup_week_4_sent_date <= five_days_ago:
+            return "4 week followup sent, case needs to progress"
         return "Unknown"
 
     @property
     def twelve_week_correspondence_progress(self):
         now = date.today()
+        five_days_ago = now - timedelta(days=5)
         if (
             self.twelve_week_1_week_chaser_due_date
             and self.twelve_week_1_week_chaser_due_date > now
@@ -790,54 +796,11 @@ class Case(VersionModel):
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1 week followup due"
-        elif (
-            self.twelve_week_1_week_chaser_sent_date
-            and self.twelve_week_4_week_chaser_due_date
-            and self.twelve_week_4_week_chaser_due_date > now
-            and self.twelve_week_4_week_chaser_sent_date is None
-        ):
-            return "4 week followup coming up"
-        elif (
-            self.twelve_week_1_week_chaser_sent_date
-            and self.twelve_week_4_week_chaser_due_date
-            and self.twelve_week_4_week_chaser_due_date < now
-            and self.twelve_week_4_week_chaser_sent_date is None
-        ):
-            return "4 week followup due"
-        elif (
-            self.twelve_week_1_week_chaser_sent_date
-            and self.twelve_week_4_week_chaser_sent_date
-        ):
-            return "4 week followup sent"
+        elif self.twelve_week_1_week_chaser_sent_date > five_days_ago:
+            return "1 week followup sent, waiting five days for response"
+        elif self.twelve_week_1_week_chaser_sent_date <= five_days_ago:
+            return "1 week followup sent, case needs to progress"
         return "Unknown"
-
-    @property
-    def twelve_week_progress(self):
-        if self.twelve_week_update_requested_date is None:
-            return "Follow up email not sent"
-
-        if (
-            self.twelve_week_update_requested_date
-            and self.report_acknowledged_date is None
-        ):
-            now = date.today()
-            return "No response - {} days".format(
-                (now - self.twelve_week_update_requested_date).days
-            )
-
-        to_check = [
-            "report_followup_week_12_due_date",
-            "twelve_week_update_requested_date",
-            "report_acknowledged_date",
-            "compliance_email_sent_date",
-        ]
-        percentage_increase = round(100 / (len(to_check)))
-        progress = 0
-        for field in to_check:
-            if getattr(self, field):
-                progress += percentage_increase
-
-        return str(progress) + "%"
 
     @property
     def contact_exists(self):
