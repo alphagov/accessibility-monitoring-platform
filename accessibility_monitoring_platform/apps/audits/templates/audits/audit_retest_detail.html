@@ -44,6 +44,9 @@
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
+                {% if audit.audit_retest_website_decision_complete_date and audit.audit_retest_statement_decision_complete_date %}
+                    {% include 'audits/helpers/end_of_test.html' %}
+                {% endif %}
                 {% include 'audits/helpers/retest_nav_contents.html' %}
                 {% include 'audits/details/retest_metadata.html' %}
                 {% include 'audits/details/retest_pages.html' %}
