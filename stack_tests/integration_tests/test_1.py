@@ -1017,16 +1017,6 @@ class TestCaseTestingUI(TestCase):
     def setUp(self):
         """Create case to update"""
         super().setUp()
-        self.driver.find_element_by_link_text("Create case").click()
-        self.driver.find_element_by_name("organisation_name").send_keys(
-            ORGANISATION_NAME
-        )
-        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
-        self.driver.find_element_by_css_selector(
-            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
-        ).click()
-        self.driver.find_element_by_name("save_exit").click()
-
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
         self.driver.find_element_by_link_text("Edit case details").click()
         self.driver.find_element_by_css_selector("input[type='radio'][value='platform']").click()
