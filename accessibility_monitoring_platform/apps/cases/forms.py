@@ -420,7 +420,6 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
         label="12-week update requested", help_text="This field affects the case status"
     )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
-    twelve_week_4_week_chaser_sent_date = AMPDateSentField(label="4-week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
         label="12-week update received", help_text="This field affects the case status"
     )
@@ -440,7 +439,6 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
             "version",
             "twelve_week_update_requested_date",
             "twelve_week_1_week_chaser_sent_date",
-            "twelve_week_4_week_chaser_sent_date",
             "twelve_week_correspondence_acknowledged_date",
             "twelve_week_correspondence_notes",
             "twelve_week_response_state",
@@ -455,7 +453,6 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
 
     report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
     twelve_week_1_week_chaser_due_date = AMPDateField(label="1-week followup")
-    twelve_week_4_week_chaser_due_date = AMPDateField(label="4-week followup")
 
     class Meta:
         model = Case
@@ -463,7 +460,6 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
             "version",
             "report_followup_week_12_due_date",
             "twelve_week_1_week_chaser_due_date",
-            "twelve_week_4_week_chaser_due_date",
         ]
 
 

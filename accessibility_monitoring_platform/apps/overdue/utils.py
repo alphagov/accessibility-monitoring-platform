@@ -1,5 +1,5 @@
 from typing import Union
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -14,6 +14,7 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
         user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
         start_date: datetime = datetime(2020, 1, 1)
         end_date: datetime = datetime.now() - timedelta(days=1)
+        five_days_ago = date.today() - timedelta(days=5)
 
         in_report_correspondence: QuerySet[Case] = user_cases.filter(
             Q(status="in-report-correspondence"),
@@ -43,10 +44,8 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
                     twelve_week_1_week_chaser_sent_date=None,
                 )
                 | Q(
-                    twelve_week_4_week_chaser_due_date__range=[start_date, end_date],
-                    twelve_week_4_week_chaser_sent_date=None,
+                    twelve_week_1_week_chaser_sent_date__range=[start_date, five_days_ago],
                 )
-                | Q(twelve_week_4_week_chaser_sent_date__range=[start_date, end_date])
             ),
         )
 
