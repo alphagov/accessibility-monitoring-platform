@@ -3,7 +3,7 @@ Models - cases
 """
 from datetime import date, timedelta
 import re
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -480,13 +480,13 @@ class Case(VersionModel):
     class Meta:
         ordering = ["-id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(f"{self.organisation_name} | #{self.id}")  # type: ignore
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         now = timezone.now()
         if not self.created:
             self.created = now
@@ -498,7 +498,7 @@ class Case(VersionModel):
         super().save(*args, **kwargs)
 
     @property
-    def formatted_home_page_url(self):
+    def formatted_home_page_url(self) -> str:
         if self.home_page_url:
             formatted_url = re.sub(r"https?://(www[0-9]?\.|)", "", self.home_page_url)
             if len(formatted_url) <= MAX_LENGTH_OF_FORMATTED_URL:
@@ -507,11 +507,11 @@ class Case(VersionModel):
         return ""
 
     @property
-    def title(self):
+    def title(self) -> str:
         return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
-    def next_action_due_date(self):
+    def next_action_due_date(self) -> Optional[date]:
         if self.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
@@ -532,7 +532,7 @@ class Case(VersionModel):
             return self.twelve_week_4_week_chaser_due_date
 
     @property
-    def next_action_due_date_tense(self):
+    def next_action_due_date_tense(self) -> str:
         today: date = date.today()
         if self.next_action_due_date and self.next_action_due_date < today:
             return "past"
@@ -544,7 +544,7 @@ class Case(VersionModel):
     def reminder(self):
         return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
-    def set_status(self):  # noqa: C901
+    def set_status(self) -> str:  # noqa: C901
         if self.is_deleted:
             return "deleted"
         elif (
@@ -604,7 +604,7 @@ class Case(VersionModel):
             return "final-decision-due"
         return "unknown"
 
-    def set_qa_status(self):
+    def set_qa_status(self) -> str:
         if (
             self.reviewer is None
             and self.report_review_status == "ready-to-review"
@@ -624,7 +624,7 @@ class Case(VersionModel):
         return "unknown"
 
     @property
-    def status_requirements(self):  # noqa: C901
+    def status_requirements(self) -> List[Dict[str, str]]:  # noqa: C901
         if self.status == "complete":
             return [
                 {
@@ -748,7 +748,7 @@ class Case(VersionModel):
         ]
 
     @property
-    def in_report_correspondence_progress(self):
+    def in_report_correspondence_progress(self) -> str:
         now = date.today()
         five_days_ago = now - timedelta(days=5)
         if (
@@ -784,7 +784,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def twelve_week_correspondence_progress(self):
+    def twelve_week_correspondence_progress(self) -> str:
         now = date.today()
         five_days_ago = now - timedelta(days=5)
         if (
@@ -810,7 +810,7 @@ class Case(VersionModel):
         return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
-    def psb_appeal_deadline(self):
+    def psb_appeal_deadline(self) -> Optional[timedelta]:
         if self.compliance_email_sent_date is None:
             return None
         return self.compliance_email_sent_date + timedelta(
@@ -844,13 +844,13 @@ class Contact(models.Model):
         ordering = ["-preferred", "-id"]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(f"Contact {self.name} {self.email}")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.id:  # type: ignore
             self.created = timezone.now()
         super().save(*args, **kwargs)

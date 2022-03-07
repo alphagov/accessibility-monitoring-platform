@@ -2,7 +2,7 @@
 Models - audits (called tests by the users)
 """
 from datetime import date
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -182,7 +182,7 @@ RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
 
-REPORT_ACCESSIBILITY_ISSUE_TEXT = {
+REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "accessibility_statement_not_correct_format": "It was not in the correct format",
     "accessibility_statement_not_specific_enough": "It was not specific enough",
     "accessibility_statement_missing_accessibility_issues": "Accessibility issues were found during the test that"
@@ -207,7 +207,7 @@ REPORT_ACCESSIBILITY_ISSUE_TEXT = {
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
-REPORT_NEXT_ISSUE_TEXT = {
+REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
     "report_next_change_statement": "They have an acceptable statement but need to change it because of the"
     " errors we found",
     "report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
@@ -497,16 +497,16 @@ class Audit(VersionModel):
     class Meta:
         ordering = ["-id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(
             f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
         )
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
-    def report_accessibility_issues(self):
+    def report_accessibility_issues(self) -> List[str]:
         return [
             value
             for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
@@ -582,10 +582,10 @@ class Page(models.Model):
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()  # type: ignore
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
 
     @property
@@ -627,7 +627,7 @@ class WcagDefinition(models.Model):
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.description:
             return str(f"{self.name}: {self.description}")
         return self.name
@@ -668,7 +668,7 @@ class CheckResult(models.Model):
     retest_notes = models.TextField(default="", blank=True)
 
     @property
-    def dict_for_retest(self):
+    def dict_for_retest(self) -> Dict[str, str]:
         return {
             "id": self.id,  # type: ignore
             "retest_state": self.retest_state,
@@ -678,5 +678,5 @@ class CheckResult(models.Model):
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(f"{self.page} | {self.wcag_definition}")

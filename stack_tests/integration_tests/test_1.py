@@ -137,6 +137,8 @@ deletion note, I am"""
 ORGANISATION_NAME_TO_DELETE = "Example Organisation to Delete"
 HOME_PAGE_URL_TO_DELETE = "https://example-to-delete.com"
 
+TEST_ORGANISATION_NAME = "Test Organisation"
+TEST_HOME_PAGE_URL = "https://example-test.com"
 DATE_OF_TEST_DD = "31"
 DATE_OF_TEST_MM = "12"
 DATE_OF_TEST_YYYY = "2021"
@@ -150,6 +152,19 @@ ACCESSIBILITY_STATEMENT_URL_BACKUP_1 = "https://example.com/statement-1"
 SCOPE_NOTES = "I am a scope note"
 ACCESSIBILITY_STATEMENT_URL_BACKUP_2 = "https://example.com/statement-2"
 DISPROPORTIONATE_BURDEN_NOTES = "I am a disproportionate burden note"
+
+RETEST_ORGANISATION_NAME = "Retest Organisation"
+RETEST_HOME_PAGE_URL = "https://example-retest.com"
+DATE_OF_RETEST_DD = "31"
+DATE_OF_RETEST_MM = "12"
+DATE_OF_RETEST_YYYY = "2022"
+CHECK_RESULT_RETEST_NOTES = "I am a retest note"
+WEBSITE_COMPLIANCE_RETEST_NOTES = "I am a website compliance retest note"
+SCOPE_RETEST_NOTES = "I am a scope retest note"
+ACCESSIBILITY_STATEMENT_URL_BACKUP_3 = "https://example.com/statement-3"
+ACCESSIBILITY_STATEMENT_URL_BACKUP_4 = "https://example.com/statement-4"
+DISPROPORTIONATE_BURDEN_RETEST_NOTES = "I am a disproportionate burden retest note"
+ACCESSIBILITY_STATEMENT_RETEST_NOTES = "I am an accessibility statement retest note"
 
 
 class SeleniumTest(unittest.TestCase):
@@ -309,15 +324,15 @@ class TestCaseUpdates(TestCase):
     def setUp(self):
         """Create case to update"""
         super().setUp()
-        self.driver.find_element_by_link_text("Create case").click()
-        self.driver.find_element_by_name("organisation_name").send_keys(
-            ORGANISATION_NAME
-        )
-        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
-        self.driver.find_element_by_css_selector(
-            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
-        ).click()
-        self.driver.find_element_by_name("save_exit").click()
+        # self.driver.find_element_by_link_text("Create case").click()
+        # self.driver.find_element_by_name("organisation_name").send_keys(
+        #     ORGANISATION_NAME
+        # )
+        # self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        # self.driver.find_element_by_css_selector(
+        #     f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        # ).click()
+        # self.driver.find_element_by_name("save_exit").click()
         self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
 
     def test_update_case_edit_case_details(self):
@@ -962,7 +977,7 @@ class TestCaseStartTest(TestCase):
     setUp()
         Create case to test
     test_start_test()
-        Tests whether all case sections can be updated
+        Tests whether case test can be started
     """
 
     def setUp(self):
@@ -970,15 +985,15 @@ class TestCaseStartTest(TestCase):
         super().setUp()
         self.driver.find_element_by_link_text("Create case").click()
         self.driver.find_element_by_name("organisation_name").send_keys(
-            ORGANISATION_NAME
+            TEST_ORGANISATION_NAME
         )
-        self.driver.find_element_by_name("home_page_url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("home_page_url").send_keys(TEST_HOME_PAGE_URL)
         self.driver.find_element_by_css_selector(
             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
         ).click()
         self.driver.find_element_by_name("save_exit").click()
 
-        self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
+        self.driver.find_element_by_link_text(TEST_ORGANISATION_NAME).click()
 
     def test_start_test(self):
         """Tests whether case test can be started"""
@@ -997,22 +1012,48 @@ class TestCaseStartTest(TestCase):
 
 class TestCaseTestingUI(TestCase):
     """
-    Test case for integration tests of case updates to testing UI
+    Test case for updates to testing UI
 
     Methods
     -------
     setUp()
-        Create case to update
+        Get case and test to update
     test_update_test_metadata()
         Tests whether case test metadata can be updated
     test_update_test_pages()
         Tests whether case test pages can be updated
+    test_update_test_page_check_results()
+        Tests whether check result for page can be recorded
+    test_update_test_website_compliance()
+        Tests whether case test website compliance can be updated
+    test_update_test_accessibility_statement_1()
+        Tests whether case test accessibility_statement 1 can be updated
+    test_update_test_accessibility_statement_2()
+        Tests whether case test accessibility_statement 2 can be updated
+    test_update_test_statement_compliance()
+        Tests whether case test accessibility statement compliance can be updated
+    test_update_test_test_summary()
+        Tests whether case test summary page can be updated
+    test_update_test_report_options()
+        Tests whether case test report options page can be updated
+    test_update_test_report_text()
+        Tests whether case test report text page can be updated
     """
 
     def setUp(self):
-        """Create case to update"""
+        """Get case and test to update"""
         super().setUp()
-        self.driver.find_element_by_link_text(ORGANISATION_NAME).click()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            TEST_ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(TEST_HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.driver.find_element_by_link_text(TEST_ORGANISATION_NAME).click()
         self.driver.find_element_by_link_text("Edit case details").click()
         self.driver.find_element_by_css_selector(
             "input[type='radio'][value='platform']"
@@ -1202,3 +1243,227 @@ class TestCaseTestingUI(TestCase):
         self.driver.find_element_by_link_text("Test").click()
 
         self.assertTrue(">View test</h1>" in self.driver.page_source)
+
+
+class TestCaseStartRetest(TestCase):
+    """
+    Test case for integration tests of case to start test
+
+    Methods
+    -------
+    setUp()
+        Create case and test to retest
+    test_start_retest()
+        Tests whether case 12-week retest can be started
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text("Create case").click()
+        self.driver.find_element_by_name("organisation_name").send_keys(
+            RETEST_ORGANISATION_NAME
+        )
+        self.driver.find_element_by_name("home_page_url").send_keys(RETEST_HOME_PAGE_URL)
+        self.driver.find_element_by_css_selector(
+            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+        ).click()
+        self.driver.find_element_by_name("save_exit").click()
+
+        self.driver.find_element_by_link_text(RETEST_ORGANISATION_NAME).click()
+
+        self.driver.find_element_by_link_text("Edit case details").click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='platform']"
+        ).click()
+        self.driver.find_element_by_name("save").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+
+    def test_start_retest(self):
+        """Tests whether case 12-week retest can be started"""
+        self.driver.find_element_by_link_text("Edit testing details").click()
+        self.driver.find_element_by_link_text("Start test").click()
+        self.driver.find_element_by_name("save").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("Edit 12-week retest").click()
+        self.driver.find_element_by_link_text("Start retest").click()
+
+        self.assertTrue(">12-week retest metadata</h1>" in self.driver.page_source)
+
+
+class TestCaseRetestingUI(TestCase):
+    """
+    Test case for updates to retesting UI
+
+    Methods
+    -------
+    setUp()
+        Get case, test and retest to update
+    test_update_retest_metadata()
+        Tests whether case retest metadata can be updated
+    test_update_retest_pages()
+        Tests whether case retest pages can be updated
+    test_update_retest_page_check_results()
+        Tests whether check result retest for page can be recorded
+    test_update_retest_website_compliance()
+        Tests whether case retest website compliance can be updated
+    test_update_retest_accessibility_statement_1()
+        Tests whether case retest accessibility_statement 1 can be updated
+    test_update_retest_accessibility_statement_2()
+        Tests whether case retest accessibility_statement 2 can be updated
+    test_update_retest_statement_compliance()
+        Tests whether case retest accessibility statement compliance can be updated
+    """
+
+    def setUp(self):
+        """Get case, test and retest to update"""
+        super().setUp()
+        self.driver.find_element_by_link_text(RETEST_ORGANISATION_NAME).click()
+        self.driver.find_element_by_link_text("Edit case details").click()
+        self.driver.find_element_by_css_selector(
+            "input[type='radio'][value='platform']"
+        ).click()
+        self.driver.find_element_by_name("save").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("Edit testing details").click()
+        self.driver.find_element_by_link_text("View test").click()
+
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("Edit 12-week retest").click()
+        self.driver.find_element_by_link_text("View retest").click()
+
+    def test_update_retest_metadata(self):
+        """Tests whether case retest metadata can be updated"""
+        self.driver.find_element_by_link_text("Edit retest metadata").click()
+
+        self.driver.find_element_by_name("retest_date_0").clear()
+        self.driver.find_element_by_name("retest_date_0").send_keys(DATE_OF_RETEST_DD)
+        self.driver.find_element_by_name("retest_date_1").clear()
+        self.driver.find_element_by_name("retest_date_1").send_keys(DATE_OF_RETEST_MM)
+        self.driver.find_element_by_name("retest_date_2").clear()
+        self.driver.find_element_by_name("retest_date_2").send_keys(DATE_OF_RETEST_YYYY)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue("31/12/2022" in self.driver.page_source)
+
+    def test_update_retest_pages(self):
+        """Tests whether case retest pages can be updated"""
+        self.driver.find_element_by_link_text("Edit pages comparison").click()
+
+        self.driver.find_element_by_name("audit_retest_pages_complete_date").click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+
+    def test_update_retest_page_check_results(self):
+        """Tests whether check result retest for page can be recorded"""
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("View test").click()
+        self.driver.find_element_by_link_text("Edit pages").click()
+        self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_element_by_css_selector(
+            "#id_form-0-check_result_state_0"
+        ).click()
+        self.driver.find_element_by_name("form-0-notes").send_keys(CHECK_RESULT_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
+        self.driver.find_element_by_link_text("View retest").click()
+        self.driver.find_element_by_link_text("Edit pages comparison").click()
+        self.driver.find_element_by_link_text("Home page").click()
+
+        self.driver.find_element_by_css_selector("#id_form-0-retest_state_0").click()
+        self.driver.find_element_by_name("form-0-retest_notes").send_keys(CHECK_RESULT_RETEST_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(CHECK_RESULT_RETEST_NOTES in self.driver.page_source)
+
+    def test_update_retest_website_compliance(self):
+        """Tests whether case retest website compliance can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit website compliance decision"
+        ).click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_case-website_state_final_0"
+        ).click()
+        self.driver.find_element_by_name("case-website_state_notes_final").send_keys(
+            WEBSITE_COMPLIANCE_RETEST_NOTES
+        )
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(WEBSITE_COMPLIANCE_RETEST_NOTES in self.driver.page_source)
+
+    def test_update_retest_accessibility_statement_1(self):
+        """Tests whether case retest accessibility_statement 1 can be updated"""
+        self.driver.find_element_by_link_text("Edit accessibility statement").click()
+
+        self.driver.find_element_by_name(
+            "audit_retest_accessibility_statement_backup_url"
+        ).send_keys(ACCESSIBILITY_STATEMENT_URL_BACKUP_3)
+        self.driver.find_element_by_css_selector("#id_audit_retest_scope_state_0").click()
+        self.driver.find_element_by_name("audit_retest_scope_notes").send_keys(SCOPE_RETEST_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(ACCESSIBILITY_STATEMENT_URL_BACKUP_3 in self.driver.page_source)
+        self.assertTrue(SCOPE_RETEST_NOTES in self.driver.page_source)
+
+    def test_update_retest_accessibility_statement_2(self):
+        """Tests whether case retest accessibility_statement 2 can be updated"""
+        self.driver.find_element_by_link_text("Edit accessibility statement").click()
+        self.driver.find_element_by_link_text("Accessibility statement Pt. 2").click()
+
+        self.driver.find_element_by_name(
+            "audit_retest_accessibility_statement_backup_url"
+        ).send_keys(ACCESSIBILITY_STATEMENT_URL_BACKUP_4)
+        self.driver.find_element_by_css_selector(
+            "#id_audit_retest_disproportionate_burden_state_0"
+        ).click()
+        self.driver.find_element_by_name("audit_retest_disproportionate_burden_notes").send_keys(
+            DISPROPORTIONATE_BURDEN_RETEST_NOTES
+        )
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(ACCESSIBILITY_STATEMENT_URL_BACKUP_4 in self.driver.page_source)
+        self.assertTrue(DISPROPORTIONATE_BURDEN_RETEST_NOTES in self.driver.page_source)
+
+    def test_update_retest_statement_compliance(self):
+        """Tests whether case retest accessibility statement compliance can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit accessibility statement compliance decision"
+        ).click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_case-accessibility_statement_state_final_0"
+        ).click()
+        self.driver.find_element_by_name(
+            "case-accessibility_statement_notes_final"
+        ).send_keys(ACCESSIBILITY_STATEMENT_RETEST_NOTES)
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("12-week retest").click()
+
+        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(ACCESSIBILITY_STATEMENT_RETEST_NOTES in self.driver.page_source)
