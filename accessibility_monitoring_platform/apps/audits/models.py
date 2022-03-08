@@ -2,7 +2,7 @@
 Models - audits (called tests by the users)
 """
 from datetime import date
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -28,12 +28,6 @@ EXEMPTIONS_STATE_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
     ("no", "No"),
     (EXEMPTIONS_STATE_DEFAULT, "Unknown"),
-]
-AUDIT_TYPE_DEFAULT: str = "initial"
-AUDIT_TYPE_RETEST = "retest"
-AUDIT_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (AUDIT_TYPE_DEFAULT, "Initial"),
-    (AUDIT_TYPE_RETEST, "12 week retest"),
 ]
 PAGE_TYPE_EXTRA: str = "extra"
 PAGE_TYPE_HOME: str = "home"
@@ -181,8 +175,14 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NO_ERROR, "No issue"),
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
+RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
+RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
+    ("fixed", "Fixed"),
+    ("not-fixed", "Not fixed"),
+    (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
+]
 
-REPORT_ACCESSIBILITY_ISSUE_TEXT = {
+REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "accessibility_statement_not_correct_format": "It was not in the correct format",
     "accessibility_statement_not_specific_enough": "It was not specific enough",
     "accessibility_statement_missing_accessibility_issues": "Accessibility issues were found during the test that"
@@ -207,7 +207,7 @@ REPORT_ACCESSIBILITY_ISSUE_TEXT = {
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
-REPORT_NEXT_ISSUE_TEXT = {
+REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
     "report_next_change_statement": "They have an acceptable statement but need to change it because of the"
     " errors we found",
     "report_next_no_statement": "They don’t have a statement, or it is in the wrong format",
@@ -227,7 +227,6 @@ class Audit(VersionModel):
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
-    name = models.TextField(default="", blank=True)
     screen_size = models.CharField(
         max_length=20,
         choices=SCREEN_SIZE_CHOICES,
@@ -239,16 +238,6 @@ class Audit(VersionModel):
         default=EXEMPTIONS_STATE_DEFAULT,
     )
     exemptions_notes = models.TextField(default="", blank=True)
-    type = models.CharField(
-        max_length=20, choices=AUDIT_TYPE_CHOICES, default=AUDIT_TYPE_DEFAULT
-    )
-    retest_of_audit = models.ForeignKey(
-        "Audit",
-        on_delete=models.PROTECT,
-        related_name="audit_retest",
-        null=True,
-        blank=True,
-    )
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Pages page
@@ -407,26 +396,117 @@ class Audit(VersionModel):
     # Report text
     audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
+    # retest metadata page
+    retest_date = models.DateField(null=True, blank=True)
+    audit_retest_metadata_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest pages
+    audit_retest_pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest website compliance
+    audit_retest_website_decision_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest accessibility statement 1
+    audit_retest_accessibility_statement_backup_url = models.TextField(
+        default="", blank=True
+    )
+    audit_retest_declaration_state = models.CharField(
+        max_length=20,
+        choices=DECLARATION_STATE_CHOICES,
+        default=DECLARATION_STATE_DEFAULT,
+    )
+    audit_retest_declaration_notes = models.TextField(default="", blank=True)
+    audit_retest_scope_state = models.CharField(
+        max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
+    )
+    audit_retest_scope_notes = models.TextField(default="", blank=True)
+    audit_retest_compliance_state = models.CharField(
+        max_length=20,
+        choices=COMPLIANCE_STATE_CHOICES,
+        default=COMPLIANCE_STATE_DEFAULT,
+    )
+    audit_retest_compliance_notes = models.TextField(default="", blank=True)
+    audit_retest_non_regulation_state = models.CharField(
+        max_length=20,
+        choices=NON_REGULATION_STATE_CHOICES,
+        default=NON_REGULATION_STATE_DEFAULT,
+    )
+    audit_retest_non_regulation_notes = models.TextField(default="", blank=True)
+    audit_retest_disproportionate_burden_state = models.CharField(
+        max_length=20,
+        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+        default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
+    )
+    audit_retest_disproportionate_burden_notes = models.TextField(
+        default="", blank=True
+    )
+    audit_retest_content_not_in_scope_state = models.CharField(
+        max_length=20,
+        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+        default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
+    )
+    audit_retest_content_not_in_scope_notes = models.TextField(default="", blank=True)
+    audit_retest_preparation_date_state = models.CharField(
+        max_length=20,
+        choices=PREPARATION_DATE_STATE_CHOICES,
+        default=PREPARATION_DATE_STATE_DEFAULT,
+    )
+    audit_retest_preparation_date_notes = models.TextField(default="", blank=True)
+    audit_retest_statement_1_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest accessibility statement 2
+    audit_retest_method_state = models.CharField(
+        max_length=20, choices=METHOD_STATE_CHOICES, default=METHOD_STATE_DEFAULT
+    )
+    audit_retest_method_notes = models.TextField(default="", blank=True)
+    audit_retest_review_state = models.CharField(
+        max_length=20, choices=REVIEW_STATE_CHOICES, default=REVIEW_STATE_DEFAULT
+    )
+    audit_retest_review_notes = models.TextField(default="", blank=True)
+    audit_retest_feedback_state = models.CharField(
+        max_length=20, choices=FEEDBACK_STATE_CHOICES, default=FEEDBACK_STATE_DEFAULT
+    )
+    audit_retest_feedback_notes = models.TextField(default="", blank=True)
+    audit_retest_contact_information_state = models.CharField(
+        max_length=20,
+        choices=CONTACT_INFORMATION_STATE_CHOICES,
+        default=CONTACT_INFORMATION_STATE_DEFAULT,
+    )
+    audit_retest_contact_information_notes = models.TextField(default="", blank=True)
+    audit_retest_enforcement_procedure_state = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+        default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
+    )
+    audit_retest_enforcement_procedure_notes = models.TextField(default="", blank=True)
+    audit_retest_access_requirements_state = models.CharField(
+        max_length=20,
+        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+        default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
+    )
+    audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
+    audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest statement decision
+    audit_retest_statement_decision_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
     class Meta:
         ordering = ["-id"]
 
-    def __str__(self):
-        if self.name:
-            return str(
-                f"{self.name}"
-                f" | {self.get_type_display()}"  # type: ignore
-                f" | {format_date(self.date_of_test)}"
-            )
+    def __str__(self) -> str:
         return str(
-            f"{self.get_type_display()}"  # type: ignore
-            f" | {format_date(self.date_of_test)}"
+            f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
         )
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
-    def report_accessibility_issues(self):
+    def report_accessibility_issues(self) -> List[str]:
         return [
             value
             for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
@@ -496,14 +576,16 @@ class Page(models.Model):
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    retest_complete_date = models.DateField(null=True, blank=True)
+    retest_page_missing_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()  # type: ignore
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
 
     @property
@@ -545,7 +627,7 @@ class WcagDefinition(models.Model):
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.description:
             return str(f"{self.name}: {self.description}")
         return self.name
@@ -578,9 +660,23 @@ class CheckResult(models.Model):
         default=CHECK_RESULT_NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=20,
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        default=RETEST_CHECK_RESULT_DEFAULT,
+    )
+    retest_notes = models.TextField(default="", blank=True)
+
+    @property
+    def dict_for_retest(self) -> Dict[str, str]:
+        return {
+            "id": self.id,  # type: ignore
+            "retest_state": self.retest_state,
+            "retest_notes": self.retest_notes,
+        }
 
     class Meta:
         ordering = ["id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(f"{self.page} | {self.wcag_definition}")
