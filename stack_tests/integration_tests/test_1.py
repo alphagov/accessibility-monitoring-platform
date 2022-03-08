@@ -848,25 +848,11 @@ class TestCaseUpdates(TestCases):
             "twelve_week_1_week_chaser_due_date_2"
         ).send_keys(TWELVE_WEEK_1_WEEK_CHASER_DUE_DATE_YYYY)
 
-        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_0").clear()
-        self.driver.find_element_by_name(
-            "twelve_week_4_week_chaser_due_date_0"
-        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_DD)
-        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_1").clear()
-        self.driver.find_element_by_name(
-            "twelve_week_4_week_chaser_due_date_1"
-        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_MM)
-        self.driver.find_element_by_name("twelve_week_4_week_chaser_due_date_2").clear()
-        self.driver.find_element_by_name(
-            "twelve_week_4_week_chaser_due_date_2"
-        ).send_keys(TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_YYYY)
-
         self.driver.find_element_by_name("save_return").click()
 
         self.assertTrue(">12 week correspondence</h1>" in self.driver.page_source)
         self.assertTrue("Due 13/07/2021" in self.driver.page_source)
         self.assertTrue("Due 20/07/2021" in self.driver.page_source)
-        self.assertTrue("Due 24/07/2021" in self.driver.page_source)
 
     def test_update_case_edit_psb_is_unresponsive(self):
         """

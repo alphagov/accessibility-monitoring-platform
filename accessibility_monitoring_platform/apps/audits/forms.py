@@ -85,14 +85,14 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
     Form for adding and updating an extra page
     """
 
-    url = AMPURLField(label="URL")
     name = AMPCharFieldWide(label="Page name")
+    url = AMPURLField(label="URL")
 
     class Meta:
         model = Page
         fields = [
-            "url",
             "name",
+            "url",
         ]
 
 
@@ -118,8 +118,8 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
     class Meta:
         model = Page
         fields = [
-            "url",
             "name",
+            "url",
             "not_found",
         ]
 
