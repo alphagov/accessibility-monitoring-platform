@@ -29,6 +29,7 @@ applications:
     DEBUG: FALSE
     ALLOWED_HOSTS: '$report_viewer_url.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
+    SECRET_KEY: '$secret_key'
   processes:
   - type: web
     command: python manage_report_viewer.py collectstatic --noinput && waitress-serve --port=$PORT report_viewer.wsgi:application
