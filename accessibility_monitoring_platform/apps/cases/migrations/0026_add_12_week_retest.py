@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0025_remove_case_twelve_week_4_week_chaser_sent_date_and_more'),
+        ("cases", "0025_remove_case_twelve_week_4_week_chaser_sent_date_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='twelve_week_retest_complete_date',
+            model_name="case",
+            name="twelve_week_retest_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
     ]
