@@ -347,8 +347,8 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
-    report_followup_week_1_sent_date = AMPDateSentField(label="1 week followup date")
-    report_followup_week_4_sent_date = AMPDateSentField(label="4 week followup date")
+    report_followup_week_1_sent_date = AMPDateSentField(label="1-week followup date")
+    report_followup_week_4_sent_date = AMPDateSentField(label="4-week followup date")
     report_acknowledged_date = AMPDateField(
         label="Report acknowledged", help_text="This field affects the case status"
     )
@@ -375,9 +375,9 @@ class CaseReportFollowupDueDatesUpdateForm(VersionForm):
     Form for updating report followup due dates
     """
 
-    report_followup_week_1_due_date = AMPDateField(label="1 week followup")
-    report_followup_week_4_due_date = AMPDateField(label="4 week followup")
-    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
+    report_followup_week_1_due_date = AMPDateField(label="1-week followup")
+    report_followup_week_4_due_date = AMPDateField(label="4-week followup")
+    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
 
     class Meta:
         model = Case
@@ -417,14 +417,14 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     """
 
     twelve_week_update_requested_date = AMPDateField(
-        label="12 week update requested", help_text="This field affects the case status"
+        label="12-week update requested", help_text="This field affects the case status"
     )
-    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1 week followup")
+    twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
-        label="12 week update received", help_text="This field affects the case status"
+        label="12-week update received", help_text="This field affects the case status"
     )
     twelve_week_correspondence_notes = AMPTextField(
-        label="12 week correspondence notes"
+        label="12-week correspondence notes"
     )
     twelve_week_response_state = AMPChoiceRadioField(
         label="Mark the case as having no response to 12 week deadline",
@@ -451,8 +451,8 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
     Form for updating twelve week correspondence followup due dates
     """
 
-    report_followup_week_12_due_date = AMPDateField(label="12 week deadline")
-    twelve_week_1_week_chaser_due_date = AMPDateField(label="1 week followup")
+    report_followup_week_12_due_date = AMPDateField(label="12-week deadline")
+    twelve_week_1_week_chaser_due_date = AMPDateField(label="1-week followup")
 
     class Meta:
         model = Case
@@ -460,6 +460,21 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateForm(VersionForm):
             "version",
             "report_followup_week_12_due_date",
             "twelve_week_1_week_chaser_due_date",
+        ]
+
+
+class CaseTwelveWeekRetestUpdateForm(VersionForm):
+    """
+    Form for updating twelve week retest
+    """
+
+    twelve_week_retest_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "twelve_week_retest_complete_date",
         ]
 
 
@@ -490,6 +505,30 @@ class CaseReviewChangesUpdateForm(VersionForm):
             "retested_website_date",
             "is_ready_for_final_decision",
             "review_changes_complete_date",
+        ]
+
+
+class CaseFinalWebsiteUpdateForm(VersionForm):
+    """
+    Form to record final website compliance decision
+    """
+
+    website_state_final = AMPChoiceRadioField(
+        label="Final website compliance decision",
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+    )
+    website_state_notes_final = AMPTextField(
+        label="Final website compliance decision notes",
+    )
+    final_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "website_state_final",
+            "website_state_notes_final",
+            "final_website_complete_date",
         ]
 
 
@@ -526,30 +565,6 @@ class CaseFinalStatementUpdateForm(VersionForm):
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
             "final_statement_complete_date",
-        ]
-
-
-class CaseFinalWebsiteUpdateForm(VersionForm):
-    """
-    Form to record final website compliance decision
-    """
-
-    website_state_final = AMPChoiceRadioField(
-        label="Final website compliance decision",
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-    )
-    website_state_notes_final = AMPTextField(
-        label="Final website compliance decision notes",
-    )
-    final_website_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "website_state_final",
-            "website_state_notes_final",
-            "final_website_complete_date",
         ]
 
 

@@ -19,11 +19,20 @@ from .views import (
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
     AuditReportTextUpdateView,
+    AuditRetestDetailView,
+    AuditRetestMetadataUpdateView,
+    AuditRetestPagesUpdateView,
+    AuditRetestPageChecksFormView,
+    AuditRetestWebsiteDecisionUpdateView,
+    AuditRetestStatement1UpdateView,
+    AuditRetestStatement2UpdateView,
+    AuditRetestStatementDecisionUpdateView,
     create_audit,
     delete_audit,
     restore_audit,
     delete_page,
     restore_page,
+    start_retest,
 )
 
 app_name: str = "audits"
@@ -112,5 +121,50 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-report-text/",
         login_required(AuditReportTextUpdateView.as_view()),
         name="edit-audit-report-text",
+    ),
+    path(
+        "<int:pk>/audit-retest-start/",
+        login_required(start_retest),
+        name="audit-retest-start",
+    ),
+    path(
+        "<int:pk>/audit-retest-detail/",
+        login_required(AuditRetestDetailView.as_view()),
+        name="audit-retest-detail",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-metadata/",
+        login_required(AuditRetestMetadataUpdateView.as_view()),
+        name="edit-audit-retest-metadata",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-pages/",
+        login_required(AuditRetestPagesUpdateView.as_view()),
+        name="edit-audit-retest-pages",
+    ),
+    path(
+        "pages/<int:pk>/edit-audit-retest-page-checks/",
+        login_required(AuditRetestPageChecksFormView.as_view()),
+        name="edit-audit-retest-page-checks",
+    ),
+    path(
+        "<int:pk>/edit-retest-website-decision/",
+        login_required(AuditRetestWebsiteDecisionUpdateView.as_view()),
+        name="edit-audit-retest-website-decision",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-1/",
+        login_required(AuditRetestStatement1UpdateView.as_view()),
+        name="edit-audit-retest-statement-1",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-2/",
+        login_required(AuditRetestStatement2UpdateView.as_view()),
+        name="edit-audit-retest-statement-2",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-decision/",
+        login_required(AuditRetestStatementDecisionUpdateView.as_view()),
+        name="edit-audit-retest-statement-decision",
     ),
 ]

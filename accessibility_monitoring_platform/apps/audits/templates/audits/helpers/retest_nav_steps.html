@@ -1,0 +1,49 @@
+<nav role="navigation" style="margin-bottom:40px">
+    <h2 class="govuk-heading-m bottom-margin-5">Test steps</h2>
+    <ul class="govuk-list">
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='Test metadata' complete=audit.audit_retest_metadata_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='Pages comparison' complete=audit.audit_retest_pages_complete_date %}
+        {% if audit.testable_pages %}
+            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                {% for page in audit.testable_pages %}
+                    {% if page.failed_check_results %}
+                        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-page-checks' complete=page.retest_complete_date %}
+                    {% else %}
+                        <li>{{ page }} has no errors</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='Website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='Accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='Accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='Statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
+    </ul>
+    <h2 class="govuk-heading-m bottom-margin-5">Frequently used links</h2>
+    <ul class="govuk-list">
+        <li>
+            <a href="{{ audit.case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to website
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                Link to case view
+            </a>
+        </li>
+        {% if audit.case.zendesk_url %}
+            <li>
+                <a href="{{ audit.case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Zendesk
+                </a>
+            </li>
+        {% endif %}
+        {% if audit.case.trello_url %}
+            <li>
+                <a href="{{ audit.case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Trello
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
