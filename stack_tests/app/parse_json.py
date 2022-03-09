@@ -5,18 +5,6 @@ from typing import Any, TypedDict, Union, List
 import json
 from app.DockerBroker import DockerImagesPathsType
 
-
-class S3ObjectsPathsType(TypedDict):
-    """Dictionary type for S3 objects paths
-
-    Args:
-        TypedDict ([type]): type for S3 object paths
-    """
-
-    s3_path: str
-    local_path: str
-
-
 class IntegrationTestsSettingsType(TypedDict):
     """Dictionary type for integration tests settings
 
@@ -34,9 +22,6 @@ class IntegrationTestsSettingsType(TypedDict):
     path_for_xml_results: str
     headless: bool
     ignore_docker: bool
-    s3_objects: List[S3ObjectsPathsType]
-    s3_bucket: str
-    chrome_version: str
 
 
 def validate_json_dict(data: Any, class_type: Any) -> None:

@@ -514,9 +514,7 @@ class Case(VersionModel):
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
                 return self.report_followup_week_4_due_date
-            elif (
-                self.report_followup_week_4_sent_date
-            ):
+            elif self.report_followup_week_4_sent_date:
                 return self.report_followup_week_4_sent_date + timedelta(days=5)
             return "Something has gone wrong :("
 

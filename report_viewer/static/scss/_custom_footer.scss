@@ -1,0 +1,15 @@
+.flex-wrapper {
+  min-height: 100%;
+  position: relative;
+}
+
+.custom-body {
+  padding: 10px;
+  padding-bottom: 200px;   /* Height of the footer */
+}
+
+.custom-footer {
+  bottom: 0;
+  width: 100%;
+  height: 150px;
+}

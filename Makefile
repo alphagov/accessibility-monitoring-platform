@@ -4,7 +4,8 @@ init:
 		&& pip install pipenv \
 		&& pipenv install -d \
 		&& npm i \
-		&& python -c 'from pulp import *; pulp()' \
+		&& python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json \
+		&& python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& python prepare_local_db.py \
 		&& ./manage.py migrate \
@@ -21,13 +22,22 @@ clean_local:
 start:
 	python manage.py runserver 8081
 
-static_files_process:
-	python3 -c 'from pulp import *; pulp()'
+start_report_viewer:
+	python manage_report_viewer.py runserver 8082 
 
-watch:
-	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()'"
+static_files_process_accessibility_monitoring_platform:
+	python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json
 
-sync:
+static_files_process_report_viewer:
+	python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json
+
+watch_accessibility_monitoring_platform:
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json"
+
+watch_report_viewer:
+	npx nodemon -e scss,js --watch report_viewer/static/scss --watch report_viewer/static/js --exec "python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json"
+
+sync_accessibility_monitoring_platform:
 	npx browser-sync start -p http://127.0.0.1:8081/ \
 		--files "./accessibility_monitoring_platform/**/*.py" \
 		--files "./accessibility_monitoring_platform/**/*.html" \
@@ -36,19 +46,40 @@ sync:
 		--watchEvents change --watchEvents add \
 		--reload-delay 500
 
-test:
+sync_report_viewer:
+	npx browser-sync start -p http://127.0.0.1:8082/ \
+		--files "./report_viewer/**/*.py" \
+		--files "./report_viewer/**/*.html" \
+		--files "./report_viewer/static/compiled/*.scss" \
+		--files "./report_viewer/static/compiled/**" \
+		--watchEvents change --watchEvents add \
+		--reload-delay 500
+
+test_accessibility_monitoring_platform:
 	python manage.py collectstatic --noinput \
-		&& coverage run -m -p pytest --ignore="stack_tests/" \
-		&& coverage run --source='.' -p manage.py test \
+		&& coverage run -m -p pytest --ignore="stack_tests/"  --ignore="report_viewer/" -c pytest.ini \
+		&& coverage run --source='./accessibility_monitoring_platform/' -p manage.py test accessibility_monitoring_platform/ \
 		&& coverage combine \
 		&& coverage report --skip-covered \
 		&& coverage erase
+
+test_report_viewer:
+	python manage_report_viewer.py collectstatic --noinput \
+		&& coverage run -m -p pytest --ignore="stack_tests/"  --ignore="accessibility_monitoring_platform/" -c pytest_report_viewer.ini \
+		&& coverage combine \
+		&& coverage report --skip-covered \
+		&& coverage erase
+
+test:
+	make test_accessibility_monitoring_platform
+	make test_report_viewer
 
 local_deploy:
 	pipenv lock -r > requirements.txt
 	cf push -f manifest-test.yml
 
 int_test:
+	pipenv lock -r > requirements.txt
 	python3 stack_tests/main.py
 
 deploy_prototype:

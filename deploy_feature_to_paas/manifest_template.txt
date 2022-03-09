@@ -13,3 +13,23 @@ applications:
     ALLOWED_HOSTS: '$url.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
     SECRET_KEY: '$secret_key'
+  processes:
+  - type: web
+    command: python manage.py collectstatic --noinput && python manage.py migrate && python manage.py recache_statuses && waitress-serve --port=$PORT accessibility_monitoring_platform.wsgi:application
+    instances: 1
+- name: $report_viewer_app_name
+  memory: 128M
+  instances: 1
+  buildpacks:
+    - python_buildpack
+  services:
+    - $db
+    - $s3_report_store
+  env:
+    DEBUG: FALSE
+    ALLOWED_HOSTS: '$report_viewer_url.london.cloudapps.digital'
+    DISABLE_COLLECTSTATIC: 1
+  processes:
+  - type: web
+    command: python manage_report_viewer.py collectstatic --noinput && waitress-serve --port=$PORT report_viewer.wsgi:application
+    instances: 1

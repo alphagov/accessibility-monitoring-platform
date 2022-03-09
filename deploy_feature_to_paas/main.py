@@ -59,10 +59,12 @@ if __name__ == "__main__":
         user_anon: str = user[:4] if user else "unknown"
         config["space_name"] = f"{user_anon}--{git_branch_name}".replace("\n", "")
         config["app_name"] = git_branch_name.replace("\n", "")
+        config["report_viewer_app_name"] = git_branch_name.replace("\n", "")
 
     template_object = {
         "app_name": config["app_name"],
         "url": config["app_name"],
+        "report_viewer_url": f"""{ config["app_name"] }-report-viewer""",
         "secret_key": get_random_secret_key(),
         "db": config["db_name"],
         "s3_report_store": config["s3_report_store"],

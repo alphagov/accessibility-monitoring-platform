@@ -193,6 +193,7 @@ class BuildEnv:
             check=True,
         )  # Deploys Django app
         print(f">>> website: {self.app_name}.london.cloudapps.digital")
+        print(f">>> website: {self.app_name}-report-viewer.london.cloudapps.digital")
 
     def clean_up(self):
         """Removes local files"""
