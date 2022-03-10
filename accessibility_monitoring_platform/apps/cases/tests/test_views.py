@@ -599,7 +599,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-no-psb-response",
             "save",
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
         ),
         ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
         (

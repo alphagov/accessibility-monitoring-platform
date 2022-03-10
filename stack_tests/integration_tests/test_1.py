@@ -901,7 +901,7 @@ class TestCaseUpdates(TestCase):
 
         self.driver.find_element_by_name("save_continue").click()
 
-        self.assertTrue(">Equality body summary</h1>" in self.driver.page_source)
+        self.assertTrue(">Closing the case</h1>" in self.driver.page_source)
 
 
 class TestCaseDelete(TestCase):
@@ -1264,7 +1264,9 @@ class TestCaseStartRetest(TestCase):
         self.driver.find_element_by_name("organisation_name").send_keys(
             RETEST_ORGANISATION_NAME
         )
-        self.driver.find_element_by_name("home_page_url").send_keys(RETEST_HOME_PAGE_URL)
+        self.driver.find_element_by_name("home_page_url").send_keys(
+            RETEST_HOME_PAGE_URL
+        )
         self.driver.find_element_by_css_selector(
             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
         ).click()
@@ -1383,7 +1385,9 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("Home page").click()
 
         self.driver.find_element_by_css_selector("#id_form-0-retest_state_0").click()
-        self.driver.find_element_by_name("form-0-retest_notes").send_keys(CHECK_RESULT_RETEST_NOTES)
+        self.driver.find_element_by_name("form-0-retest_notes").send_keys(
+            CHECK_RESULT_RETEST_NOTES
+        )
 
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("12-week retest").click()
@@ -1417,8 +1421,12 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_name(
             "audit_retest_accessibility_statement_backup_url"
         ).send_keys(ACCESSIBILITY_STATEMENT_URL_BACKUP_3)
-        self.driver.find_element_by_css_selector("#id_audit_retest_scope_state_0").click()
-        self.driver.find_element_by_name("audit_retest_scope_notes").send_keys(SCOPE_RETEST_NOTES)
+        self.driver.find_element_by_css_selector(
+            "#id_audit_retest_scope_state_0"
+        ).click()
+        self.driver.find_element_by_name("audit_retest_scope_notes").send_keys(
+            SCOPE_RETEST_NOTES
+        )
 
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("12-week retest").click()
@@ -1438,9 +1446,9 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_css_selector(
             "#id_audit_retest_disproportionate_burden_state_0"
         ).click()
-        self.driver.find_element_by_name("audit_retest_disproportionate_burden_notes").send_keys(
-            DISPROPORTIONATE_BURDEN_RETEST_NOTES
-        )
+        self.driver.find_element_by_name(
+            "audit_retest_disproportionate_burden_notes"
+        ).send_keys(DISPROPORTIONATE_BURDEN_RETEST_NOTES)
 
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("12-week retest").click()

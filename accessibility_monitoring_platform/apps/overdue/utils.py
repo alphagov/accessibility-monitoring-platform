@@ -44,7 +44,10 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
                     twelve_week_1_week_chaser_sent_date=None,
                 )
                 | Q(
-                    twelve_week_1_week_chaser_sent_date__range=[start_date, five_days_ago],
+                    twelve_week_1_week_chaser_sent_date__range=[
+                        start_date,
+                        five_days_ago,
+                    ],
                 )
             ),
         )
