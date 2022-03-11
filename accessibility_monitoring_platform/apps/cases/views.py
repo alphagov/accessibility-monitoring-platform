@@ -611,7 +611,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-        return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
+        return reverse("cases:edit-case-close", kwargs=case_pk)
 
 
 class CaseReviewChangesUpdateView(CaseUpdateView):

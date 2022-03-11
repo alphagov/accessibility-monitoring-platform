@@ -517,11 +517,11 @@ class Case(VersionModel):
                 return self.report_followup_week_1_due_date
             elif self.report_followup_week_4_sent_date is None:
                 return self.report_followup_week_4_due_date
-            elif (
-                self.report_followup_week_4_sent_date
-            ):
+            elif self.report_followup_week_4_sent_date:
                 return self.report_followup_week_4_sent_date + timedelta(days=5)
-            raise Exception("Case is in-report-correspondence but neither sent date is set")
+            raise Exception(
+                "Case is in-report-correspondence but neither sent date is set"
+            )
 
         if self.status == "in-probation-period":
             return self.report_followup_week_12_due_date
