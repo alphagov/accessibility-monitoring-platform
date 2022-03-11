@@ -44,6 +44,7 @@ from .models import (
     WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     TESTING_METHODOLOGY_CHOICES,
+    REPORT_METHODOLOGY_CHOICES,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_READY_TO_REVIEW,
@@ -158,6 +159,10 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="Testing methodology?",
         choices=TESTING_METHODOLOGY_CHOICES,
     )
+    report_methodology = AMPChoiceRadioField(
+        label="Report methodology?",
+        choices=REPORT_METHODOLOGY_CHOICES,
+    )
 
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
@@ -176,6 +181,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "organisation_name",
             "enforcement_body",
             "testing_methodology",
+            "report_methodology",
             "psb_location",
             "sector",
             "is_complaint",
