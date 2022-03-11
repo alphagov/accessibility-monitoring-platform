@@ -1,0 +1,3 @@
+"""
+Admin for reports
+"""
