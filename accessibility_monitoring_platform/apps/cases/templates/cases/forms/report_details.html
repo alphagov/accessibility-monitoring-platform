@@ -26,14 +26,64 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        {% if case.report_methodology == 'platform' %}
+                            {% if case.report %}
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        TODO: Edit report
+                                    </a>
+                                    <a
+                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        TODO: Preview report
+                                    </a>
+                                </div>
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        {% include 'cases/helpers/platform_report_details.html' %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">
+                                    This case currently does not have a report.
+                                </p>
+                                <div class="govuk-button-group">
+                                    <a
+                                        href="{% url 'audits:audit-create' case.id %}"
+                                        role="button"
+                                        draggable="false"
+                                        class="govuk-button govuk-button--secondary"
+                                        data-module="govuk-button"
+                                    >
+                                        TODO: Create report
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
                 <form method="post" action="{% url 'cases:edit-report-details' case.id %}">
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.report_draft_url %}
-                            {% include 'common/amp_field.html' with field=form.report_review_status %}
-                            {% include 'common/amp_field.html' with field=form.report_notes %}
+                            {% if case.report_methodology != 'platform' %}
+                                {% include 'common/amp_field.html' with field=form.report_draft_url %}
+                                {% include 'common/amp_field.html' with field=form.report_review_status %}
+                                {% include 'common/amp_field.html' with field=form.report_notes %}
+                            {% endif %}
                             {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">

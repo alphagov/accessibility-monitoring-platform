@@ -166,7 +166,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
-        Reach through Case test data csv and create entries on database.
+        Read through Case test data csv and create entries on database.
 
         Delete existing Case and Contact data if --initial option is passed.
         """

@@ -41,6 +41,7 @@ from .models import (
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_DEFAULT,
+    REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
     CaseCreateForm,
@@ -364,6 +365,18 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         read_notification(self.request)
         return context
+
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "report_draft_url",
+                "report_review_status",
+                "report_notes",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
