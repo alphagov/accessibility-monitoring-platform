@@ -243,8 +243,8 @@ class CaseReportDetailsUpdateForm(VersionForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        report_draft_url = cleaned_data.get("report_draft_url", "")  # type: ignore
-        report_review_status = cleaned_data.get("report_review_status", "")  # type: ignore
+        report_draft_url = cleaned_data.get("report_draft_url")  # type: ignore
+        report_review_status = cleaned_data.get("report_review_status")  # type: ignore
         if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
             self.add_error(
                 "report_draft_url",

@@ -1,6 +1,8 @@
 """
 Models - reports
 """
+from typing import List, Tuple
+
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -11,6 +13,13 @@ from ..common.models import (
 )
 from ..common.utils import format_date
 
+READY_FOR_QA_DEFAULT = "not-started"
+READY_FOR_QA_CHOICES: List[Tuple[str, str]] = [
+    ("yes", "Yes"),
+    ("no", "No"),
+    (READY_FOR_QA_DEFAULT, "Not started"),
+]
+
 
 class Report(VersionModel):
     """
@@ -20,6 +29,12 @@ class Report(VersionModel):
     case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="report_case")
     created = models.DateTimeField()
     is_deleted = models.BooleanField(default=False)
+
+    # Metadata
+    ready_for_qa = models.CharField(
+        max_length=20, choices=READY_FOR_QA_CHOICES, default=READY_FOR_QA_DEFAULT
+    )
+    notes = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["-id"]

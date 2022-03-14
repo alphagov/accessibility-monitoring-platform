@@ -736,10 +736,12 @@ class Case(VersionModel):
         elif self.status == "case-closed-sent-to-equalities-body":
             return [
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equality body pursuing this case should be yes to move to 'In correspondence with equalities body'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 },
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 },
@@ -747,6 +749,7 @@ class Case(VersionModel):
         elif self.status == "in-correspondence-with-equalities-body":
             return [
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 }
@@ -831,6 +834,10 @@ class Case(VersionModel):
     @property
     def audit(self):
         return self.audit_case.filter(is_deleted=False).first()  # type: ignore
+
+    @property
+    def report(self):
+        return self.report_case.filter(is_deleted=False).first()  # type: ignore
 
 
 class Contact(models.Model):
