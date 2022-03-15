@@ -62,9 +62,9 @@ class Report(VersionModel):
         return reverse("reports:edit-report-metadata", kwargs={"pk": self.pk})
 
 
-class ReportTemplate(VersionModel):
+class BaseTemplate(VersionModel):
     """
-    Model for report template
+    Model for base template (for new reports)
     """
 
     created = models.DateTimeField(auto_now_add=True)
@@ -77,5 +77,5 @@ class ReportTemplate(VersionModel):
 
     def __str__(self) -> str:
         return str(
-            f"{self.name}" f" (position {self.position}"
+            f"{self.name}" f" (position {self.position})"
         )

@@ -10,17 +10,17 @@ from django.core.management.base import BaseCommand
 from django.db import models
 from django.db.models.fields.reverse_related import ManyToOneRel
 
-from ...models import ReportTemplate
+from ...models import BaseTemplate
 
 INPUT_FILE_NAME = (
-    "accessibility_monitoring_platform/apps/reports/management/commands/report_templates.csv"
+    "accessibility_monitoring_platform/apps/reports/management/commands/base_templates.csv"
 )
 
 
 def delete_existing_data(verbose: bool = False) -> None:
     if verbose:
         print("Deleting all existing report templates from database")
-    ReportTemplate.objects.all().delete()
+    BaseTemplate.objects.all().delete()
 
 
 def get_string_from_row(
@@ -65,22 +65,22 @@ def get_data_from_row(
         return get_datetime_from_row(row=row, column_name=field.name)
 
 
-def create_report_template(get_data: Callable) -> ReportTemplate:
-    fields = ReportTemplate._meta.get_fields()  # pylint: disable=protected-access
+def create_report_template(get_data: Callable) -> BaseTemplate:
+    fields = BaseTemplate._meta.get_fields()  # pylint: disable=protected-access
     kwargs = {
         field.name: get_data(field=field)
         for field in fields
         if not isinstance(field, ManyToOneRel)
     }
-    return ReportTemplate.objects.create(**kwargs)
+    return BaseTemplate.objects.create(**kwargs)
 
 
 class Command(BaseCommand):
     """
-    Command to load ReportTemplate data from csv
+    Command to load BaseTemplate data from csv
     """
 
-    help = "Add ReportTemplate data to database."
+    help = "Add BaseTemplate data to database."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -100,9 +100,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
-        Read through ReportTemplate data csv and create entries on database.
+        Read through BaseTemplate data csv and create entries on database.
 
-        Delete existing ReportTemplate data if --initial option is passed.
+        Delete existing BaseTemplate data if --initial option is passed.
         """
         verbose: bool = options["verbose"]
         initial: bool = options["initial"]
