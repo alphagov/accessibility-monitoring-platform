@@ -53,6 +53,7 @@ class ReportUpdateView(UpdateView):
         """Add event on change of audit"""
         if form.changed_data:
             self.object: Report = form.save(commit=False)
+            self.object.created_by = self.request.user
             record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())

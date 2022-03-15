@@ -3,6 +3,7 @@ Models - reports
 """
 from typing import List, Tuple
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -28,6 +29,13 @@ class Report(VersionModel):
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="report_case")
     created = models.DateTimeField()
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="report_user",
+        blank=True,
+        null=True,
+    )
     is_deleted = models.BooleanField(default=False)
 
     # Metadata
@@ -52,3 +60,22 @@ class Report(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:edit-report-metadata", kwargs={"pk": self.pk})
+
+
+class ReportTemplate(VersionModel):
+    """
+    Model for report template
+    """
+
+    created = models.DateTimeField(auto_now_add=True)
+    name = models.TextField()
+    content = models.TextField(default="", blank=True)
+    position = models.IntegerField()
+
+    class Meta:
+        ordering = ["position", "-id"]
+
+    def __str__(self) -> str:
+        return str(
+            f"{self.name}" f" (position {self.position}"
+        )
