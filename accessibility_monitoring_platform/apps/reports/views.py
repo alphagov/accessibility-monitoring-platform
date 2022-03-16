@@ -1,5 +1,5 @@
 """
-Views for audits app (called tests by users)
+Views for reports app
 """
 from typing import Dict, Type
 
@@ -76,7 +76,7 @@ class ReportUpdateView(UpdateView):
     context_object_name: str = "report"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add event on change of audit"""
+        """Add event on change of report"""
         if form.changed_data:
             self.object: Report = form.save(commit=False)
             self.object.created_by = self.request.user
@@ -99,7 +99,7 @@ class ReportMetadataUpdateView(ReportUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-pages", kwargs=audit_pk)
+        if "save_exit" in self.request.POST:
+            report_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("reports:report-detail", kwargs=report_pk)
         return super().get_success_url()

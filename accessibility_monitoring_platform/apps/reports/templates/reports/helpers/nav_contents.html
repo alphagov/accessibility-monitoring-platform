@@ -5,7 +5,7 @@
     </ul>
     <h2 class="govuk-heading-m">Report</h2>
     <ul class="govuk-list">
-            {% for section in report.section_report.all %}
+            {% for section in report.section_set.all %}
             {% include './nav_content.html' with anchor=section.anchor edit_name='reports:edit-report-metadata' name=section.name %}
         {% endfor %}
     </ul>

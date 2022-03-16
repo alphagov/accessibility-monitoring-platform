@@ -16,7 +16,7 @@ def generate_report_content(report: Report) -> None:
         report (Report): Report for which content is generated.
     """
     base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.all()
-    report.section_report.all().delete()  # type: ignore
+    report.section_set.all().delete()  # type: ignore
     context: Context = Context({"audit": report.case.audit})
     for base_template in base_templates:
         template: Template = Template(base_template.content)

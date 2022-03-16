@@ -91,7 +91,8 @@ class Section(VersionModel):
     """
 
     report = models.ForeignKey(
-        Report, on_delete=models.PROTECT, related_name="section_report"
+        Report,
+        on_delete=models.PROTECT,
     )
     created = models.DateTimeField(auto_now_add=True)
     name = models.TextField()

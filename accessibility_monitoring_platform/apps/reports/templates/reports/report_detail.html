@@ -44,7 +44,7 @@
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     >
-                        TODO: Preview
+                        Preview
                     </a>
                     <a href="{% url 'reports:edit-report-metadata' report.id %}"
                         role="button"
@@ -52,7 +52,7 @@
                         class="govuk-button"
                         data-module="govuk-button"
                     >
-                        TODO: Publish HTML report
+                        Publish HTML report
                     </a>
                 </div>
             </div>
@@ -66,7 +66,7 @@
             <div class="govuk-grid-column-full">
                 {% include 'reports/helpers/nav_contents.html' %}
                 {% include 'reports/details/metadata.html' %}
-                {% for section in report.section_report.all %}
+                {% for section in report.section_set.all %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-two-thirds">
                             <h2 id="{{ section.anchor }}" class="govuk-heading-l">{{ section.name }}</h2>
