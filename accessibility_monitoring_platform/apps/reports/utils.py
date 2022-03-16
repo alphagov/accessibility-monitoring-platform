@@ -23,6 +23,7 @@ def generate_report_content(report: Report) -> None:
         Section.objects.create(
             report=report,
             name=base_template.name,
+            template_type=base_template.template_type,
             content=template.render(context=context),
             position=base_template.position,
         )

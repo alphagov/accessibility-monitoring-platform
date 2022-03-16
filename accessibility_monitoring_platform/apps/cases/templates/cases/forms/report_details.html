@@ -32,13 +32,13 @@
                             {% if case.report %}
                                 <div class="govuk-button-group">
                                     <a
-                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        href="{% url 'reports:report-detail' case.report.id %}"
                                         role="button"
                                         draggable="false"
                                         class="govuk-button govuk-button--secondary"
                                         data-module="govuk-button"
                                     >
-                                        TODO: Edit report
+                                        Edit report
                                     </a>
                                     <a
                                         href="{% url 'audits:audit-detail' case.audit.id %}"

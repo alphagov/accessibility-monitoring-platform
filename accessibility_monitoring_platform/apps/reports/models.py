@@ -20,6 +20,11 @@ READY_FOR_QA_CHOICES: List[Tuple[str, str]] = [
     ("no", "No"),
     (READY_FOR_QA_DEFAULT, "Not started"),
 ]
+TEMPLATE_TYPE_DEFAULT = "markdown"
+TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    ("html", "HTML"),
+    (TEMPLATE_TYPE_DEFAULT, "Markdown"),
+]
 
 
 class Report(VersionModel):
@@ -67,6 +72,9 @@ class BaseTemplate(VersionModel):
 
     created = models.DateTimeField(auto_now_add=True)
     name = models.TextField()
+    template_type = models.CharField(
+        max_length=20, choices=TEMPLATE_TYPE_CHOICES, default=TEMPLATE_TYPE_DEFAULT
+    )
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
 
@@ -87,8 +95,15 @@ class Section(VersionModel):
     )
     created = models.DateTimeField(auto_now_add=True)
     name = models.TextField()
+    template_type = models.CharField(
+        max_length=20, choices=TEMPLATE_TYPE_CHOICES, default=TEMPLATE_TYPE_DEFAULT
+    )
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
 
     def __str__(self) -> str:
         return str(f"{self.report} - {self.name}" f" (position {self.position})")
+
+    @property
+    def anchor(self) -> str:
+        return f"report-section-{self.id}"  # type: ignore

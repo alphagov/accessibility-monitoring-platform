@@ -8,9 +8,7 @@ from django.forms.models import ModelForm
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
-
-# from django.views.generic.detail import DetailView
-# from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 from .forms import ReportMetadataUpdateForm
 from .models import Report
@@ -44,6 +42,31 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     return redirect(reverse("reports:edit-report-metadata", kwargs={"pk": report.id}))  # type: ignore
 
 
+def rebuild_report(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Rebuild report
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        id (int): Id of report
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    report: Report = get_object_or_404(Report, id=pk)
+    generate_report_content(report=report)
+    return redirect(reverse("reports:report-detail", kwargs={"pk": pk}))
+
+
+class ReportDetailView(DetailView):
+    """
+    View of details of a single report
+    """
+
+    model: Type[Report] = Report
+    context_object_name: str = "report"
+
+
 class ReportUpdateView(UpdateView):
     """
     View to update report
@@ -66,9 +89,9 @@ class ReportUpdateView(UpdateView):
         return self.request.path
 
 
-class AuditMetadataUpdateView(ReportUpdateView):
+class ReportMetadataUpdateView(ReportUpdateView):
     """
-    View to update audit metadata
+    View to update report metadata
     """
 
     form_class: Type[ReportMetadataUpdateForm] = ReportMetadataUpdateForm
