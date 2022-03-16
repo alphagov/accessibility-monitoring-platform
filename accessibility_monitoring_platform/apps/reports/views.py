@@ -8,11 +8,13 @@ from django.forms.models import ModelForm
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
+
 # from django.views.generic.detail import DetailView
 # from django.views.generic.list import ListView
 
 from .forms import ReportMetadataUpdateForm
 from .models import Report
+from .utils import generate_report_content
 
 from ..common.utils import (
     record_model_update_event,
@@ -38,6 +40,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     case: Case = get_object_or_404(Case, id=case_id)
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
+    generate_report_content(report=report)
     return redirect(reverse("reports:edit-report-metadata", kwargs={"pk": report.id}))  # type: ignore
 
 

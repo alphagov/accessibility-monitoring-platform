@@ -48,9 +48,7 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(
-            f"{self.case}" f" | {format_date(self.created)}"  # type: ignore
-        )
+        return str(f"{self.case}" f" | {format_date(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()
@@ -76,6 +74,21 @@ class BaseTemplate(VersionModel):
         ordering = ["position", "-id"]
 
     def __str__(self) -> str:
-        return str(
-            f"{self.name}" f" (position {self.position})"
-        )
+        return str(f"{self.name}" f" (position {self.position})")
+
+
+class Section(VersionModel):
+    """
+    Model for section of report
+    """
+
+    report = models.ForeignKey(
+        Report, on_delete=models.PROTECT, related_name="section_report"
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    name = models.TextField()
+    content = models.TextField(default="", blank=True)
+    position = models.IntegerField()
+
+    def __str__(self) -> str:
+        return str(f"{self.report} - {self.name}" f" (position {self.position})")

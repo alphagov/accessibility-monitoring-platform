@@ -12,9 +12,7 @@ from django.db.models.fields.reverse_related import ManyToOneRel
 
 from ...models import BaseTemplate
 
-INPUT_FILE_NAME = (
-    "accessibility_monitoring_platform/apps/reports/management/commands/base_templates.csv"
-)
+INPUT_FILE_NAME = "accessibility_monitoring_platform/apps/reports/management/commands/base_templates.csv"
 
 
 def delete_existing_data(verbose: bool = False) -> None:
@@ -117,6 +115,7 @@ class Command(BaseCommand):
                     print(f"{count} #{row['id']} {row['name']}")
 
                 get_data: Callable = partial(
-                    get_data_from_row, row=row,
+                    get_data_from_row,
+                    row=row,
                 )
                 create_report_template(get_data)

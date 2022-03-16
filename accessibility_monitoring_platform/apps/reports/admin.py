@@ -3,7 +3,7 @@ Admin for reports
 """
 from django.contrib import admin
 
-from .models import Report, BaseTemplate
+from .models import Report, BaseTemplate, Section
 
 from ..common.admin import ExportCsvMixin
 
@@ -31,5 +31,14 @@ class BaseTemplateAdmin(admin.ModelAdmin, ExportCsvMixin):
         return False
 
 
+class SectionAdmin(admin.ModelAdmin):
+    """Django admin configuration for Section model"""
+
+    readonly_fields = ["created", "version"]
+    search_fields = ["name", "content"]
+    list_display = ["report", "name", "position", "created"]
+
+
 admin.site.register(Report, ReportAdmin)
 admin.site.register(BaseTemplate, BaseTemplateAdmin)
+admin.site.register(Section, SectionAdmin)

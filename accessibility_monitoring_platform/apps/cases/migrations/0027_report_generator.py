@@ -6,13 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0026_add_12_week_retest'),
+        ("cases", "0026_add_12_week_retest"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
-            name='report_methodology',
-            field=models.CharField(choices=[('platform', 'Platform (requires Platform in testing methodology)'), ('odt', 'ODT templates')], default='odt', max_length=20),
+            model_name="case",
+            name="report_methodology",
+            field=models.CharField(
+                choices=[
+                    ("platform", "Platform (requires Platform in testing methodology)"),
+                    ("odt", "ODT templates"),
+                ],
+                default="odt",
+                max_length=20,
+            ),
         ),
     ]

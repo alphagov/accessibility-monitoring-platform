@@ -116,7 +116,10 @@ TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
 REPORT_METHODOLOGY_PLATFORM: str = "platform"
 REPORT_METHODOLOGY_DEFAULT: str = "odt"
 REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_METHODOLOGY_PLATFORM, "Platform (requires Platform in testing methodology)"),
+    (
+        REPORT_METHODOLOGY_PLATFORM,
+        "Platform (requires Platform in testing methodology)",
+    ),
     (REPORT_METHODOLOGY_DEFAULT, "ODT templates"),
 ]
 
