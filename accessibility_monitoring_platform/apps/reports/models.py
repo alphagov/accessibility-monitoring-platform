@@ -101,6 +101,9 @@ class Section(VersionModel):
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
 
+    class Meta:
+        ordering = ["report", "position", "-id"]
+
     def __str__(self) -> str:
         return str(f"{self.report} - {self.name}" f" (position {self.position})")
 

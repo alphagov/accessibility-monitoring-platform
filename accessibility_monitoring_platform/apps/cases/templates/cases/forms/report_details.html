@@ -52,7 +52,7 @@
                                 </div>
                                 <table class="govuk-table">
                                     <tbody class="govuk-table__body">
-                                        {% include 'cases/helpers/platform_report_details.html' %}
+                                        {% include 'reports/helpers/report_metadata_rows.html' with report=case.report %}
                                     </tbody>
                                 </table>
                             {% else %}

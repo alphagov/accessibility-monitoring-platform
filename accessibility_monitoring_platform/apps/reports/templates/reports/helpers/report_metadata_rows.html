@@ -1,14 +1,13 @@
 {% load common_tags %}
-
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Date of report creation</th>
-    <td class="govuk-table__cell amp-width-one-half">TODO: {{ case.report.created|date:"d/m/Y" }}</td>
+    <td class="govuk-table__cell amp-width-one-half">{{ report.created|date:"d/m/Y" }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
     <td class="govuk-table__cell amp-width-one-half">
         <a
-            href="{% url 'audits:audit-detail' case.audit.id %}"
+            href="{% url 'audits:audit-detail' report.case.audit.id %}"
             class="govuk-link govuk-link--no-visited-state"
         >
             Initial test
@@ -16,6 +15,14 @@
     </td>
 </tr>
 <tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">
+        Report ready to be approved?
+    </th>
+    <td class="govuk-table__cell amp-width-one-half">
+        {{ report.get_ready_for_qa_display }}
+    </td>
+</tr>
+<tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
-    <td class="govuk-table__cell amp-width-one-half">TODO: {{ case.report.notes|markdown_to_html }}</td>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ report.notes|markdown_to_html }}</td>
 </tr>

@@ -22,8 +22,8 @@ class BaseTemplateAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     readonly_fields = ["created", "version"]
     search_fields = ["name", "content"]
-    list_display = ["name", "position", "created"]
-    list_filter = ["name"]
+    list_display = ["name", "position", "template_type", "created"]
+    list_filter = ["template_type"]
 
     actions = ["export_as_csv"]
 

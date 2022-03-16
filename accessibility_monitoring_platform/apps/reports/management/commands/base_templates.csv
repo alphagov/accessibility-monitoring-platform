@@ -31,7 +31,7 @@ Manual checks included using each page without a mouse, viewing the page at diff
 The automated tests were completed using the latest version of axe: [https://www.deque.com/axe/](https://www.deque.com/axe/).
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
-4,4,2022-03-16 10:15:52.682516+00:00,Pages we checked,html,"<table caption=""Names and URLs of pages we checked"">
+4,5,2022-03-16 10:15:52.682516+00:00,Pages we checked,html,"<table caption=""Names and URLs of pages we checked"">
 	<thead>
 		<tr>
 			<th id=""name"">Page Name</th>
@@ -41,7 +41,7 @@ Tests were completed using different settings in the Google Chrome browser on Ma
 	<tbody>
 		{% for page in audit.testable_pages %}
 			<tr valign=""top"" >
-				<td headers=""name"">{{ page }}</td>
+				<th headers=""name"">{{ page }}</th>
 				<td headers=""url""><a href=""{{ page.url }}"">{{ page.url }}</a></td>
 			</tr>
 		{% endfor %}
