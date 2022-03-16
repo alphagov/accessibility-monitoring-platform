@@ -81,11 +81,15 @@
                             </div>
                         </div>
                     </div>
-                    {% if section.template_type == 'markdown' %}
-                        {{ section.content|markdown_to_html }}
-                    {% else %}
-                        {{ section.content|safe }}
-                    {% endif %}
+                    <div class="govuk-grid-row" style="margin-bottom:30px;">
+                        <div class="govuk-grid-column-full">
+                            {% if section.template_type == 'markdown' %}
+                                {{ section.content|markdown_to_html }}
+                            {% else %}
+                                {{ section.content|safe }}
+                            {% endif %}
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
         </div>
