@@ -31,12 +31,46 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
+                {% if table_rows_formset.errors %}
+                    {% for form in table_rows_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 <form method="post" action="{% url 'reports:edit-report-section' section.id %}">
                     {% csrf_token %}
+                    {{ table_rows_formset.management_form }}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <table class="govuk-table">
+                                <tbody class="govuk-table__body">
+                                {% for row_form in table_rows_formset %}
+                                    <tr class="govuk-table__row">
+                                        <td class="govuk-table__cell">
+                                            <div class="govuk-grid-row">
+                                                <div class="govuk-grid-column-one-half">
+                                                    {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
+                                                    {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
+                                                    {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
+                                                </div>
+                                                <div class="govuk-grid-column-one-half">
+                                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

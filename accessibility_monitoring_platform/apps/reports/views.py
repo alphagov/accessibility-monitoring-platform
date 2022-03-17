@@ -1,7 +1,7 @@
 """
 Views for reports app
 """
-from typing import Dict, Type
+from typing import Any, Dict, Type
 
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.forms.models import ModelForm
@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 
-from .forms import ReportMetadataUpdateForm, SectionUpdateForm
+from .forms import ReportMetadataUpdateForm, SectionUpdateForm, TableRowFormset
 from .models import Report, Section
 from .utils import generate_report_content
 
@@ -42,7 +42,9 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     return redirect(reverse("reports:edit-report-metadata", kwargs={"pk": report.id}))  # type: ignore
 
 
-def rebuild_report(request: HttpRequest, pk: int) -> HttpResponse:
+def rebuild_report(
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
     """
     Rebuild report
 
@@ -114,6 +116,30 @@ class SectionUpdateView(ReportUpdateView):
     context_object_name: str = "section"
     form_class: Type[SectionUpdateForm] = SectionUpdateForm
     template_name: str = "reports/forms/section.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            table_rows_formset: TableRowFormset = TableRowFormset(self.request.POST)
+        else:
+            table_rows_formset: TableRowFormset = TableRowFormset(
+                queryset=self.object.tablerow_set.all(),  # type: ignore
+            )
+        context["table_rows_formset"] = table_rows_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        table_rows_formset: TableRowFormset = context["table_rows_formset"]
+
+        if table_rows_formset.is_valid():
+            table_rows_formset.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
