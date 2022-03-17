@@ -1,4 +1,4 @@
-p {
+.amp-report {
     color: #0b0c0c;
     font-family: "GDS Transport",arial,sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -6,78 +6,72 @@ p {
     font-weight: 400;
     font-size: 1.1875rem;
     line-height: 1.31579;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
 
-li {
-    color: #0b0c0c;
-    font-family: "GDS Transport",arial,sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-weight: 400;
-    font-size: 1.1875rem;
-    line-height: 1.31579;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
+    p {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
 
-a {
-    font-family: "GDS Transport",arial,sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-decoration: underline;
-}
+    li {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
 
-a:focus {
-    outline: 3px solid transparent;
-    color: #0b0c0c;
-    background-color: #ffdd00;
-    box-shadow:0 -2px #ffdd00,0 4px #0b0c0c;
-    text-decoration: none;
-}
+    a {
+        text-decoration: underline;
+    }
 
-a:link {
-    color:#1d70b8;
-}
+    a:focus {
+        outline: 3px solid transparent;
+        color: #0b0c0c;
+        background-color: #ffdd00;
+        box-shadow:0 -2px #ffdd00,0 4px #0b0c0c;
+        text-decoration: none;
+    }
 
-a:visited {
-    color: #4c2c92;
-}
+    a:link {
+        color:#1d70b8;
+    }
 
-a:hover {
-    color: #003078;
-}
+    a:visited {
+        color: #4c2c92;
+    }
 
-a:active {
-    color: #0b0c0c;
-}
-a:focus {
-    color: #0b0c0c;
-}
+    a:hover {
+        color: #003078;
+    }
 
-table {
-    font-family: "GDS Transport",arial,sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-weight: 400;
-    font-size: 16px;
-    font-size: 1rem;
-    line-height: 1.25;
-    color: #0b0c0c;
-    width: 100%;
-    margin-bottom: 20px;
-    border-spacing: 0;
-    border-collapse: collapse;
-}
+    a:active {
+        color: #0b0c0c;
+    }
 
-th {
-    font-weight: 700;
-}
-th, td {
-    width: 50%;
-    padding: 10px 20px 10px 0;
-    border-bottom: 1px solid #b1b4b6;
-    text-align: left;
-    vertical-align: top;
+    a:focus {
+        color: #0b0c0c;
+    }
+
+    table {
+        font-weight: 400;
+        width: 100%;
+        margin-bottom: 20px;
+        border-spacing: 0;
+        border-collapse: collapse;
+
+        th {
+            font-weight: 700;
+        }
+
+        th, td {
+            width: 50%;
+            padding: 10px 20px 10px 0;
+            border-bottom: 1px solid #b1b4b6;
+            text-align: left;
+            vertical-align: top;
+        }
+    }
+
+    table#urls-table {
+        p {
+            margin-bottom: 0;
+        }
+    }
 }

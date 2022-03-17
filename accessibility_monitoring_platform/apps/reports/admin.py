@@ -8,6 +8,17 @@ from .models import Report, BaseTemplate, Section, TableRow
 from ..common.admin import ExportCsvMixin
 
 
+class SectionInline(admin.TabularInline):
+    model = Section
+    fields = ["name", "template_type", "content"]
+    readonly_fields = ["name", "template_type", "content"]
+    can_delete = False
+    extra = 0
+
+    def has_add_permission(self, request, obj):  # pylint: disable=unused-argument
+        return False
+
+
 class ReportAdmin(admin.ModelAdmin):
     """Django admin configuration for Report model"""
 
@@ -15,6 +26,7 @@ class ReportAdmin(admin.ModelAdmin):
     search_fields = ["case__organisation_name"]
     list_display = ["case", "created"]
     list_filter = ["ready_for_qa"]
+    inlines = [SectionInline]
 
 
 class BaseTemplateAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -28,8 +40,19 @@ class BaseTemplateAdmin(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
     def has_delete_permission(
-        self, request, obj=None
-    ):  # pylint: disable=unused-argument
+        self, request, obj=None  # pylint: disable=unused-argument
+    ):
+        return False
+
+
+class TableRowInline(admin.TabularInline):
+    model = TableRow
+    fields = ["cell_content_1", "cell_content_2"]
+    readonly_fields = ["cell_content_1", "cell_content_2"]
+    can_delete = False
+    extra = 0
+
+    def has_add_permission(self, request, obj):  # pylint: disable=unused-argument
         return False
 
 
@@ -39,6 +62,7 @@ class SectionAdmin(admin.ModelAdmin):
     readonly_fields = ["created", "version"]
     search_fields = ["name", "content"]
     list_display = ["report", "name", "position", "created"]
+    inlines = [TableRowInline]
 
 
 class TableRowAdmin(admin.ModelAdmin):
