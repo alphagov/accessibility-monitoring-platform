@@ -3,8 +3,11 @@ Forms - reports
 """
 from typing import List
 
+from django import forms
+
 from .models import (
     Report,
+    Section,
     READY_FOR_QA_CHOICES,
 )
 
@@ -33,4 +36,22 @@ class ReportMetadataUpdateForm(VersionForm):
             "version",
             "ready_for_qa",
             "notes",
+        ]
+
+
+class SectionUpdateForm(VersionForm):
+    """
+    Form for editing report section
+    """
+
+    content = AMPTextField(
+        label="",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "20"})
+    )
+
+    class Meta:
+        model = Section
+        fields: List[str] = [
+            "version",
+            "content",
         ]

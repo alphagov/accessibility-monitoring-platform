@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 
-from .forms import ReportMetadataUpdateForm
-from .models import Report
+from .forms import ReportMetadataUpdateForm, SectionUpdateForm
+from .models import Report, Section
 from .utils import generate_report_content
 
 from ..common.utils import (
@@ -101,5 +101,23 @@ class ReportMetadataUpdateView(ReportUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("reports:report-detail", kwargs=report_pk)
+        return super().get_success_url()
+
+
+class SectionUpdateView(ReportUpdateView):
+    """
+    View to update report metadata
+    """
+
+    model: Type[Section] = Section
+    context_object_name: str = "section"
+    form_class: Type[SectionUpdateForm] = SectionUpdateForm
+    template_name: str = "reports/forms/section.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
             return reverse("reports:report-detail", kwargs=report_pk)
         return super().get_success_url()

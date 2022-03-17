@@ -11,6 +11,7 @@ from .views import (
     rebuild_report,
     ReportDetailView,
     ReportMetadataUpdateView,
+    SectionUpdateView,
 )
 
 app_name: str = "reports"
@@ -34,5 +35,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-report-metadata/",
         login_required(ReportMetadataUpdateView.as_view()),
         name="edit-report-metadata",
+    ),
+    path(
+        "<int:pk>/edit-section/",
+        login_required(SectionUpdateView.as_view()),
+        name="edit-report-section",
     ),
 ]
