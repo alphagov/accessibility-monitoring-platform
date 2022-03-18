@@ -12,6 +12,7 @@ from .views import (
     ReportDetailView,
     ReportMetadataUpdateView,
     SectionUpdateView,
+    ReportPreviewTemplateView,
 )
 
 app_name: str = "reports"
@@ -25,6 +26,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/report-rebuild/",
         login_required(rebuild_report),
         name="report-rebuild",
+    ),
+    path(
+        "<int:pk>/report-preview/",
+        login_required(ReportPreviewTemplateView.as_view()),
+        name="report-preview",
     ),
     path(
         "<int:pk>/detail/",

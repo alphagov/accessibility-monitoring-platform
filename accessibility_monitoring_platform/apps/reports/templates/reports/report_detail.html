@@ -38,11 +38,12 @@
                         Rebuild report
                     </a>
                     <a
-                        href="{% url 'reports:edit-report-metadata' report.id %}"
+                        href="{% url 'reports:report-preview' report.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
+                        target="_blank"
                     >
                         Preview
                     </a>

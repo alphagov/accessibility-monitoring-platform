@@ -32,9 +32,9 @@ The automated tests were completed using the latest version of axe: [https://www
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
 4,7,2022-03-17 10:17:49.167440+00:00,Pages we checked,urls,,4
-5,12,2022-03-17 10:17:49.170277+00:00,The issues we found,issues,"Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.
+5,13,2022-03-17 10:17:49.170277+00:00,The issues we found,issues,"Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.
 
-## Issues
+### Issues
 
 {% if audit.failed_check_results %}
 The following errors were found.

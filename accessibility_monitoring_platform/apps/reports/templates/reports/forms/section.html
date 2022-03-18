@@ -80,6 +80,16 @@
                                 data-module="govuk-button"
                             />
                             <a
+                                href="{% url 'reports:report-preview' section.report.id %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                                target="_blank"
+                            >
+                                Preview
+                            </a>
+                            <a
                                 href="{% url 'reports:report-detail' section.report.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >

@@ -7,6 +7,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.forms.models import ModelForm
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 
@@ -147,3 +148,15 @@ class SectionUpdateView(ReportUpdateView):
             report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
             return reverse("reports:report-detail", kwargs=report_pk)
         return super().get_success_url()
+
+
+class ReportPreviewTemplateView(TemplateView):
+    """
+    View to preview the report
+    """
+    template_name: str = "reports/report_preview.html"
+
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+        context["report"] = get_object_or_404(Report, id=kwargs.get("pk"))
+        return context

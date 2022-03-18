@@ -1,0 +1,80 @@
+{% load common_tags %}
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Accessibility Monitoring report for {{ report.case.organisation_name }}</title>
+        <meta name="robots" content="nofollow, noindex">
+        <meta name="description" content="Accessibility Monitoring Platform">
+        <style>
+            body {font-family: arial,sans-serif; font-size: 12pt; padding: 20px;}
+            h2 {font-size: 20pt;}
+            h3 {font-size: 16pt;}
+            p, li {font-size: 12pt;}
+            table {
+                font-family: arial,sans-serif;
+                width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            tr, td {border: 1px solid black;}
+            th {text-align: left; width: 50%;}
+            th, td {padding: 5px;}
+            thead > tr {color: #ffffff; background-color: #1A5293;}
+        </style>
+    </head>
+    <body>
+        <img
+            src="{% static 'assets/cddo-co-logo-smallest.png' %}"
+            style="padding-bottom:10px;"
+            alt="Logos of Central Digital and Data Office and Cabinet Office"
+        />
+{% for section in report.section_set.all %}
+    {% if forloop.counter > 1 %}
+        <h2 id="{{ section.anchor }}" class="govuk-heading-l">{{ section.name }}</h2>
+    {% endif %}
+    {% if section.template_type == 'html' %}
+        {{ section.content|safe }}
+    {% else %}
+        {{ section.content|markdown_to_html }}
+    {% endif %}
+    {% if section.template_type == 'urls' and section.tablerow_set.all %}
+        <table id="urls-table" caption="Names and URLs of pages we checked">
+            <thead>
+                <tr>
+                    <th id="name">Page Name</th>
+                    <th id="url">URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in section.tablerow_set.all %}
+                    <tr valign="top" >
+                        <th headers="name">{{ row.cell_content_1|markdown_to_html }}</th>
+                        <td headers="url">{{ row.cell_content_2|markdown_to_html }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    {% if section.template_type == 'issues' and section.tablerow_set.all %}
+        <table id="issues-table" caption="Names and URLs of pages we checked">
+            <thead>
+                <tr>
+                    <th id="name">Issue and description</th>
+                    <th id="url">Where the issue was found</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in section.tablerow_set.all %}
+                    <tr valign="top" >
+                        <td headers="name">{{ row.cell_content_1|markdown_to_html }}</th>
+                        <td headers="url">{{ row.cell_content_2|markdown_to_html }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endfor %}
+
+</body>
+</html>
