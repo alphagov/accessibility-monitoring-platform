@@ -1,3 +1,4 @@
+# pylint: disable=all
 """
 Utilities for reports app
 """
@@ -13,7 +14,6 @@ from .models import (
     TEMPLATE_TYPE_URLS,
     TEMPLATE_TYPE_ISSUES,
 )
-
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description }}{% endif %}{% endif %}
 

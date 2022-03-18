@@ -6,13 +6,16 @@ from typing import Any, Dict, Type
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.forms.models import ModelForm
 from django.shortcuts import redirect, get_object_or_404
+from django.template import loader, Template
+
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 
 from .forms import ReportMetadataUpdateForm, SectionUpdateForm, TableRowFormset
-from .models import Report, Section
+from .models import Report, Section, PublishedReport
 from .utils import generate_report_content
 
 from ..common.utils import (
@@ -154,9 +157,55 @@ class ReportPreviewTemplateView(TemplateView):
     """
     View to preview the report
     """
+
     template_name: str = "reports/report_preview.html"
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
         context["report"] = get_object_or_404(Report, id=kwargs.get("pk"))
         return context
+
+
+def publish_report(
+    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+) -> HttpResponse:
+    """
+    Publish report
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        id (int): Id of report
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    report: Report = get_object_or_404(Report, id=pk)
+    template: Template = loader.get_template("reports/report_preview.html")
+    context = {"report": report}
+    html: str = template.render(context, request)
+    published_report: PublishedReport = PublishedReport.objects.create(
+        report=report,
+        created_by=request.user,
+        html_content=html,
+    )
+    return redirect(
+        reverse("reports:published-report-detail", kwargs={"pk": published_report.id})  # type: ignore
+    )
+
+
+class PublishedReportListView(ListView):
+    """
+    View of list of published reports
+    """
+
+    model: Type[PublishedReport] = PublishedReport
+    context_object_name: str = "published_reports"
+
+
+class PublishedReportDetailView(DetailView):
+    """
+    View of detail of a published report
+    """
+
+    model: Type[PublishedReport] = PublishedReport
+    context_object_name: str = "published_report"

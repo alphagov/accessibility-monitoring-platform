@@ -42,7 +42,6 @@ class Report(VersionModel):
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="report_user",
         blank=True,
         null=True,
     )
@@ -58,7 +57,7 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case}" f" | {format_date(self.created)}")  # type: ignore
+        return str(f"{self.case} | {format_date(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()
@@ -141,3 +140,37 @@ class TableRow(VersionModel):
     @property
     def anchor(self) -> str:
         return f"report-section-{self.id}"  # type: ignore
+
+
+class PublishedReport(VersionModel):
+    """
+    Model for published report
+    """
+
+    report = models.ForeignKey(
+        Report,
+        on_delete=models.PROTECT,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    html_content = models.TextField(default="", blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str(f"{self.report} | {format_date(self.created)}")  # type: ignore
+
+    def save(self, *args, **kwargs) -> None:
+        now = timezone.now()
+        if not self.created:
+            self.created = now
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self) -> str:
+        return reverse("reports:report-publish", kwargs={"pk": self.pk})

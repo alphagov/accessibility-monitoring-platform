@@ -158,7 +158,7 @@ def get_platform_settings() -> Platform:
 
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:
-    """Record model create or update event"""
+    """Record model update event"""
     value: Dict[str, str] = {}
     old_model = model_object.__class__.objects.get(pk=model_object.id)  # type: ignore
     value["old"] = serializers.serialize("json", [old_model])
@@ -167,7 +167,7 @@ def record_model_update_event(user: User, model_object: models.Model) -> None:
 
 
 def record_model_create_event(user: User, model_object: models.Model) -> None:
-    """Record model create or update event"""
+    """Record model create event"""
     value: Dict[str, str] = {"new": serializers.serialize("json", [model_object])}
     Event.objects.create(
         created_by=user,

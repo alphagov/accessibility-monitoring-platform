@@ -2,7 +2,7 @@
 
 {% load common_tags %}
 
-{% block title %}{{ audit.case.organisation_name }} | View report{% endblock %}
+{% block title %}{{ report.case.organisation_name }} | View report{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -47,7 +47,7 @@
                     >
                         Preview
                     </a>
-                    <a href="{% url 'reports:edit-report-metadata' report.id %}"
+                    <a href="{% url 'reports:report-publish' report.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"
@@ -67,6 +67,7 @@
             <div class="govuk-grid-column-full">
                 {% include 'reports/helpers/nav_contents.html' %}
                 {% include 'reports/details/metadata.html' %}
+                {% include 'reports/details/report_versions.html' %}
                 {% for section in report.section_set.all %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-two-thirds">
