@@ -4,6 +4,7 @@ Forms - reports
 from typing import List
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import (
     Report,
@@ -47,6 +48,12 @@ class SectionUpdateForm(VersionForm):
     content = AMPTextField(
         label="", widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "20"})
     )
+
+    def clean_content(self):
+        content = self.cleaned_data["content"]
+        if "<script>" in content or "</script>" in content:
+            raise ValidationError("<script> tags are not allowed")
+        return content
 
     class Meta:
         model = Section
