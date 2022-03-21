@@ -168,9 +168,7 @@ class ReportPreviewTemplateView(TemplateView):
         return context
 
 
-def publish_report(
-    request: HttpRequest, pk: int
-) -> HttpResponse:
+def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     Publish report
 
@@ -191,8 +189,7 @@ def publish_report(
         html_content=html,
     )
     report_details_url: str = reverse(
-        "cases:edit-report-details",
-        kwargs={"pk": report.case.id}
+        "cases:edit-report-details", kwargs={"pk": report.case.id}
     )
     messages.add_message(
         request,
@@ -202,7 +199,8 @@ def publish_report(
             f"""<a href="{report_details_url}"
                 class="govuk-link govuk-link--no-visited-state">
                 Report details
-            </a>""")
+            </a>"""
+        ),
     )
     return redirect(
         reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
