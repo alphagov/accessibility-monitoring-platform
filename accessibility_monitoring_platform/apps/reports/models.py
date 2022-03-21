@@ -22,13 +22,10 @@ READY_FOR_QA_CHOICES: List[Tuple[str, str]] = [
 ]
 
 TEMPLATE_TYPE_DEFAULT = "markdown"
-TEMPLATE_TYPE_URLS = "urls"
-TEMPLATE_TYPE_ISSUES = "issues"
+TEMPLATE_TYPE_HTML = "html"
 TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_DEFAULT, "Markdown"),
-    (TEMPLATE_TYPE_URLS, "Contains URL table"),
-    (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
-    ("html", "HTML"),
+    (TEMPLATE_TYPE_HTML, "HTML"),
 ]
 
 
@@ -111,31 +108,6 @@ class Section(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.report} - {self.name} (position {self.position})")
-
-    @property
-    def anchor(self) -> str:
-        return f"report-section-{self.id}"  # type: ignore
-
-
-class TableRow(VersionModel):
-    """
-    Model for row of table in report
-    """
-
-    section = models.ForeignKey(
-        Section,
-        on_delete=models.CASCADE,
-    )
-    created = models.DateTimeField(auto_now_add=True)
-    cell_content_1 = models.TextField(default="", blank=True)
-    cell_content_2 = models.TextField(default="", blank=True)
-    row_number = models.IntegerField()
-
-    class Meta:
-        ordering = ["section", "row_number"]
-
-    def __str__(self) -> str:
-        return str(f"{self.section}: Table row {self.row_number}")
 
     @property
     def anchor(self) -> str:

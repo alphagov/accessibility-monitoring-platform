@@ -1,5 +1,5 @@
 id,version,created,name,template_type,content,position
-1,6,2022-03-18 10:12:42.714906+00:00,Opening statement,markdown,"Date: {{ audit.date_of_test|date:""d F Y"" }}
+1,7,2022-03-18 15:04:48.985834+00:00,Opening statement,markdown,"Date: {{ audit.date_of_test|date:""d F Y"" }}
 
 Website: [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }})
 
@@ -15,7 +15,7 @@ You’ve been sent this report because [{{ audit.case.home_page_url }}]({{audit.
 * what you need to do next to fix the issues
 
 You can read more about the web accessibility regulations.",1
-2,5,2022-03-18 10:12:42.723729+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard: [https://www.w3.org/TR/WCAG21/](https://www.w3.org/TR/WCAG21/).
+2,6,2022-03-18 15:04:48.990197+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard: [https://www.w3.org/TR/WCAG21/](https://www.w3.org/TR/WCAG21/).
 
 {% if audit.case.is_website_compliant == 'not-compliant' %}
 Based on our testing, this site is not compliant with WCAG 2.1 AA. This means there are some things which would cause significant barriers to users with certain accessibility needs.
@@ -24,20 +24,70 @@ Based on our testing, this site is partially compliant with WCAG 2.1 AA. This me
 {% elif audit.case.is_website_compliant == 'compliant' %}
 Based on our testing, this site is compliant with WCAG 2.1 AA. This means no serious or critical issues were found during our testing. We run basic tests on a small part of your website so we can't say for certain that your entire site will meet the regulations.
 {% endif %}",2
-3,5,2022-03-18 10:12:42.726857+00:00,How we checked,markdown,"We use a mixture of simple manual checks and automated tests to find only the most common barriers to users with accessibility needs. We would expect your organisation to fully audit the website to find any other accessibility issues.
+3,6,2022-03-18 15:04:48.992234+00:00,How we checked,markdown,"We use a mixture of simple manual checks and automated tests to find only the most common barriers to users with accessibility needs. We would expect your organisation to fully audit the website to find any other accessibility issues.
 
 Manual checks included using each page without a mouse, viewing the page at different zoom settings, and simulating viewing the page on a small screen.
 
 The automated tests were completed using the latest version of axe: [https://www.deque.com/axe/](https://www.deque.com/axe/).
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
-4,8,2022-03-18 10:12:42.729234+00:00,Pages we checked,urls,,4
-5,15,2022-03-18 10:12:42.731032+00:00,The issues we found,issues,"Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.
+4,11,2022-03-18 15:04:48.994198+00:00,Pages we checked,html,"{% load common_tags %}
+<table id=""urls-to-copy"" caption=""Names and URLs of pages we checked"">
+	<thead>
+		<tr>
+			<th id=""name"">Page Name</th>
+			<th id=""url"">URL</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for page in audit.testable_pages %}
+			<tr valign=""top"" >
+				<td headers=""name"">{{ page }}</td>
+				<td headers=""url""><a href=""{{ page.url }}""  rel=""noopener noreferrer"" target=""_blank"">
+					{{ page.url }}</a></td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>",4
+5,18,2022-03-18 15:04:48.996085+00:00,The issues we found,html,"{% load common_tags %}
+<p>Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.</p>
 
-### Issues
-
-{% if audit.failed_check_results %}The following errors were found.{% else %}We found no major issues.{% endif %}",5
-6,5,2022-03-18 10:12:42.733370+00:00,Accessibility statement,markdown,"As part of the regulations you must publish an accessibility statement.
+<h3>Issues</h3>
+{% if audit.failed_check_results %}
+<p>The following errors were found.</p>
+{% else %}
+<p>We found no major issues.</p>
+{% endif %}                            
+<table id=""issues-table"" caption=""Names and URLs of pages we checked"">
+	<thead>
+		<tr>
+			<th id=""issue"">Issue and description</th>
+			<th id=""where-found"">Where the issue was found</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for check_result in audit.failed_check_results %}
+			<tr valign=""top"" >
+				<td headers=""issue"">
+					<p>
+						{% if check_result.wcag_definition.url_on_w3 %}
+							<a href=""{{ check_result.wcag_definition.url_on_w3 }}"" rel=""noopener noreferrer"" target=""_blank"">
+								{{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}{% endif %}
+						{% else %}
+							{{ check_result.wcag_definition.name }}
+						{% endif %}
+					</p>
+					{{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
+				</td>
+				<td headers=""location"">
+					<p>{{ check_result.page }}</p>
+					<ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>",5
+6,6,2022-03-18 15:04:48.997758+00:00,Accessibility statement,markdown,"As part of the regulations you must publish an accessibility statement.
 
 {{ audit.get_accessibility_statement_state_display }}
 
@@ -50,7 +100,7 @@ Tests were completed using different settings in the Google Chrome browser on Ma
 More information about accessibility statements can be found at: [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
 
 A sample statement can be found at: [https://www.gov.uk/government/publications/sample-accessibility-statement](https://www.gov.uk/government/publications/sample-accessibility-statement).",6
-7,5,2022-03-18 10:12:42.735270+00:00,What to do next,markdown,"It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible.
+7,6,2022-03-18 15:04:48.999539+00:00,What to do next,markdown,"It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible.
 
 {% if audit.report_options_next == 'errors' %}
 You should fix the issues that were found and do your own accessibility audit to check for issues that go beyond the scope of simple accessibility testing.
@@ -78,12 +128,12 @@ You need to review your accessibility statement to cover any other issues found 
 {% if audit.report_next_disproportionate_burden == 'yes' %}
 A disproportionate burden assessment must have been completed before adding this section to your accessibility statement. You need to send evidence of the assessment to us for review.
 {% endif %}",7
-8,5,2022-03-18 10:12:42.737617+00:00,Enforcement,markdown,"On behalf of the Minister for the Cabinet Office we provide the Equality and Human Rights Commission (EHRC) or Equality Commission for Northern Ireland (ECNI) with details about public sector bodies who have been monitored. If accessibility issues remain after giving you time to fix them, the EHRC or ECNI may take further action.
+8,6,2022-03-18 15:04:49.001481+00:00,Enforcement,markdown,"On behalf of the Minister for the Cabinet Office we provide the Equality and Human Rights Commission (EHRC) or Equality Commission for Northern Ireland (ECNI) with details about public sector bodies who have been monitored. If accessibility issues remain after giving you time to fix them, the EHRC or ECNI may take further action.
 
 Public sector bodies must publish an accessibility statement and review it regularly. If the decision is taken that a public sector body has failed to publish an accessibility statement or that the accessibility statement is incorrect, the Minister for the Cabinet Office may publish the name of the body and a copy of the decision.
 
 The enforcement process can be found at [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced).",8
-9,5,2022-03-18 10:12:42.740524+00:00,Contact and more information,markdown,"This test was conducted by the Central Digital and Data Office on behalf of the Minister of the Cabinet Office as part of their obligations to monitor the accessibility of public sector websites in the United Kingdom.
+9,6,2022-03-18 15:04:49.006094+00:00,Contact and more information,markdown,"This test was conducted by the Central Digital and Data Office on behalf of the Minister of the Cabinet Office as part of their obligations to monitor the accessibility of public sector websites in the United Kingdom.
 
 As the monitoring body we cannot offer specific advice on approaches or general accessibility queries other than questions directly related to the items in this report.
 

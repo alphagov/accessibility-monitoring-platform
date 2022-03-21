@@ -1,14 +1,13 @@
 """
 Forms - reports
 """
-from typing import Any, List
+from typing import List
 
 from django import forms
 
 from .models import (
     Report,
     Section,
-    TableRow,
     READY_FOR_QA_CHOICES,
 )
 
@@ -55,22 +54,3 @@ class SectionUpdateForm(VersionForm):
             "version",
             "content",
         ]
-
-
-class TableRowUpdateForm(forms.ModelForm):
-    """
-    Form for updating table row
-    """
-
-    cell_content_1 = AMPTextField(label="")
-    cell_content_2 = AMPTextField(label="")
-
-    class Meta:
-        model = TableRow
-        fields = [
-            "cell_content_1",
-            "cell_content_2",
-        ]
-
-
-TableRowFormset: Any = forms.modelformset_factory(TableRow, TableRowUpdateForm, extra=0)

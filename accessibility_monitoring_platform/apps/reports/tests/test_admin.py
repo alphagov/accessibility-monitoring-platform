@@ -39,7 +39,15 @@ def test_base_template_export_as_csv(admin_client):
     rows = list(cvs_reader)
 
     assert len(rows) == 3
-    assert rows[0] == ["id", "version", "created", "name", "template_type", "content", "position"]
+    assert rows[0] == [
+        "id",
+        "version",
+        "created",
+        "name",
+        "template_type",
+        "content",
+        "position",
+    ]
     assert rows[1][3] == BASE_TEMPLATE_NAME_1
     assert rows[1][5] == BASE_TEMPLATE_CONTENT_1
     assert rows[2][3] == BASE_TEMPLATE_NAME_2
