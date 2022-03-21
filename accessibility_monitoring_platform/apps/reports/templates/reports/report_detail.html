@@ -112,15 +112,15 @@
                                 <table id="issues-table" caption="Names and URLs of pages we checked">
                                     <thead>
                                         <tr>
-                                            <th id="name">Issue and description</th>
-                                            <th id="url">Where the issue was found</th>
+                                            <th id="issue">Issue and description</th>
+                                            <th id="where-found">Where the issue was found</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for row in section.tablerow_set.all %}
                                             <tr valign="top" >
-                                                <td headers="name">{{ row.cell_content_1|markdown_to_html }}</th>
-                                                <td headers="url">{{ row.cell_content_2|markdown_to_html }}</td>
+                                                <td headers="issue">{{ row.cell_content_1|markdown_to_html }}</th>
+                                                <td headers="where-found">{{ row.cell_content_2|markdown_to_html }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
