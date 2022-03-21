@@ -3,10 +3,12 @@ Views for reports app
 """
 from typing import Any, Dict, Type
 
+from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.forms.models import ModelForm
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader, Template
+from django.utils.safestring import mark_safe
 
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -167,7 +169,7 @@ class ReportPreviewTemplateView(TemplateView):
 
 
 def publish_report(
-    request: HttpRequest, pk: int  # pylint: disable=unused-argument
+    request: HttpRequest, pk: int
 ) -> HttpResponse:
     """
     Publish report
@@ -183,13 +185,27 @@ def publish_report(
     template: Template = loader.get_template("reports/report_preview.html")
     context = {"report": report}
     html: str = template.render(context, request)
-    published_report: PublishedReport = PublishedReport.objects.create(
+    PublishedReport.objects.create(
         report=report,
         created_by=request.user,
         html_content=html,
     )
+    report_details_url: str = reverse(
+        "cases:edit-report-details",
+        kwargs={"pk": report.case.id}
+    )
+    messages.add_message(
+        request,
+        messages.INFO,
+        mark_safe(
+            "HTML report successfully created! Return to "
+            f"""<a href="{report_details_url}"
+                class="govuk-link govuk-link--no-visited-state">
+                Report details
+            </a>""")
+    )
     return redirect(
-        reverse("reports:published-report-detail", kwargs={"pk": published_report.id})  # type: ignore
+        reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
     )
 
 
