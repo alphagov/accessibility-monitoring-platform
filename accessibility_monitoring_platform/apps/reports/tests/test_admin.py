@@ -1,5 +1,5 @@
 """
-Test - report admin actions
+Test - reports admin actions
 """
 import csv
 import io

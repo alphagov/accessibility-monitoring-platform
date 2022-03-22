@@ -61,6 +61,10 @@ PAGE_TITLES_BY_URL = {
     "/reminders/cases/[id]/reminder-create/": "Reminder",
     "/reminders/reminder-list/": "Reminders",
     "/report-issue/": "Report an issue",
+    "/reports/[id]/detail/": "View report",
+    "/reports/[id]/edit-report-metadata/": "Report metadata",
+    "/reports/[id]/edit-section/": "Report section update",
+    "/reports/[id]/published-reports/": "Report versions",
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
 }
