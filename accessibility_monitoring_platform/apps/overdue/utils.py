@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from ..cases.models import Case
 
 
-def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
+def get_overdue_cases(user_request: User) -> QuerySet[Case]:
     """Filters cases with overdue correspondence actions"""
     if user_request.id:  # type: ignore
         user: User = get_object_or_404(User, id=user_request.id)  # type: ignore
@@ -27,7 +27,7 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
                     report_followup_week_4_due_date__range=[start_date, end_date],
                     report_followup_week_4_sent_date=None,
                 )
-                | Q(report_followup_week_4_sent_date__range=[start_date, end_date])
+                | Q(report_followup_week_4_sent_date__range=[start_date, five_days_ago])
             ),
         )
 
@@ -58,3 +58,5 @@ def get_overdue_cases(user_request: User) -> Union[QuerySet[Case], None]:
 
         in_correspondence: QuerySet[Case] = sorted(in_correspondence, key=lambda t: t.next_action_due_date)  # type: ignore
         return in_correspondence
+    else:
+        return Case.objects.none()
