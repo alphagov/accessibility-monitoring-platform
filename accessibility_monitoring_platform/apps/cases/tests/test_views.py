@@ -14,7 +14,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ..models import Case, Contact
+from ..models import Case, Contact, TESTING_METHODOLOGY_PLATFORM
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
@@ -599,23 +599,17 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-no-psb-response",
             "save",
-            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
         ),
         ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
         (
             "cases:edit-review-changes",
             "save_continue",
-            "cases:edit-final-statement",
+            "cases:edit-twelve-week-retest",
         ),
-        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
+        ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
-            "cases:edit-final-statement",
-            "save_continue",
-            "cases:edit-final-website",
-        ),
-        ("cases:edit-final-website", "save", "cases:edit-final-website"),
-        (
-            "cases:edit-final-website",
+            "cases:edit-twelve-week-retest",
             "save_continue",
             "cases:edit-case-close",
         ),
@@ -643,13 +637,70 @@ def test_create_case_can_create_duplicate_cases(
         ),
     ],
 )
-def test_case_edit_redirects_based_on_button_pressed(
+def test_platform_case_edit_redirects_based_on_button_pressed(
     case_edit_path,
     button_name,
     expected_redirect_path,
     admin_client,
 ):
-    """Test that a successful case update redirects based on the button pressed"""
+    """
+    Test that a successful case update redirects based on the button pressed
+    when the case testing methodology is platform
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+
+    response: HttpResponse = admin_client.post(
+        reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "version": case.version,
+            button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
+    )
+
+
+@pytest.mark.parametrize(
+    "case_edit_path, button_name, expected_redirect_path",
+    [
+        (
+            "cases:edit-review-changes",
+            "save_continue",
+            "cases:edit-final-website",
+        ),
+        ("cases:edit-final-website", "save", "cases:edit-final-website"),
+        (
+            "cases:edit-final-website",
+            "save_continue",
+            "cases:edit-final-statement",
+        ),
+        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
+        (
+            "cases:edit-final-statement",
+            "save_continue",
+            "cases:edit-case-close",
+        ),
+    ],
+)
+def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
+    case_edit_path,
+    button_name,
+    expected_redirect_path,
+    admin_client,
+):
+    """
+    Test that a successful case update redirects based on the button pressed
+    when the case testing methodology is spreadsheet
+    """
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
@@ -1022,19 +1073,14 @@ def test_preferred_contact_displayed(admin_client):
         ),
         (
             "twelve_week_correspondence_complete_date",
-            "12 week correspondence",
+            "12-week correspondence",
             "edit-twelve-week-correspondence",
         ),
         ("review_changes_complete_date", "Reviewing changes", "edit-review-changes"),
         (
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-            "edit-final-statement",
-        ),
-        (
-            "final_website_complete_date",
-            "Final website compliance decision",
-            "edit-final-website",
+            "twelve_week_retest_complete_date",
+            "12-week retest",
+            "edit-twelve-week-retest",
         ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
         ("post_case_complete_date", "Post case summary", "edit-post-case"),
@@ -1045,11 +1091,60 @@ def test_preferred_contact_displayed(admin_client):
         ),
     ],
 )
-def test_section_complete_check_displayed_in_contents(
+def test_section_complete_check_displayed_in_contents_platform_methodology(
     flag_name, section_name, edit_url_name, admin_client
 ):
     """
     Test that the section complete tick is displayed in contents
+    when case testing methodology is platform
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    setattr(case, flag_name, TODAY)
+    case.save()
+    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
+            {section_name}<span class="govuk-visually-hidden">complete</span></a>
+            |
+            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+                Edit<span class="govuk-visually-hidden">complete</span>
+            </a>
+            &check;
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "flag_name, section_name, edit_url_name",
+    [
+        (
+            "final_website_complete_date",
+            "Final website compliance decision",
+            "edit-final-website",
+        ),
+        (
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
+            "edit-final-statement",
+        ),
+    ],
+)
+def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
+    flag_name, section_name, edit_url_name, admin_client
+):
+    """
+    Test that the section complete tick is displayed in contents
+    when case testing methodology is spreadsheet
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
@@ -1101,22 +1196,17 @@ def test_section_complete_check_displayed_in_contents(
         (
             "cases:edit-twelve-week-correspondence",
             "twelve_week_correspondence_complete_date",
-            "12 week correspondence",
+            "12-week correspondence",
+        ),
+        (
+            "cases:edit-twelve-week-retest",
+            "twelve_week_retest_complete_date",
+            "12-week retest",
         ),
         (
             "cases:edit-review-changes",
             "review_changes_complete_date",
             "Reviewing changes",
-        ),
-        (
-            "cases:edit-final-statement",
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-        ),
-        (
-            "cases:edit-final-website",
-            "final_website_complete_date",
-            "Final website compliance decision",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
         ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
@@ -1127,11 +1217,51 @@ def test_section_complete_check_displayed_in_contents(
         ),
     ],
 )
-def test_section_complete_check_displayed_in_steps(
+def test_section_complete_check_displayed_in_steps_platform_methodology(
     step_url, flag_name, step_name, admin_client
 ):
     """
     Test that the section complete tick is displayed in list of steps
+    when case testing methodology is platform
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    setattr(case, flag_name, TODAY)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(step_url, kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "step_url, flag_name, step_name",
+    [
+        (
+            "cases:edit-final-website",
+            "final_website_complete_date",
+            "Final website compliance decision",
+        ),
+        (
+            "cases:edit-final-statement",
+            "final_statement_complete_date",
+            "Final accessibility statement compliance decision",
+        ),
+    ],
+)
+def test_section_complete_check_displayed_in_steps_spreadsheet_methodology(
+    step_url, flag_name, step_name, admin_client
+):
+    """
+    Test that the section complete tick is displayed in list of steps
+    when case testing methodology is spreadsheet
     """
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
@@ -1146,6 +1276,93 @@ def test_section_complete_check_displayed_in_steps(
     assertContains(
         response,
         f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows the link to the test results page
+    when no test exists on the case.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "This case does not have a test.")
+
+    edit_test_results_url: str = reverse("cases:edit-test-results", kwargs={"pk": case.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{edit_test_results_url}"
+            class="govuk-link govuk-link--no-visited-state">
+                testing details
+        </a>""",
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows start retest button when a
+    test exists with no retest.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "This case does not have a retest.")
+    assertContains(response, "Click Start retest to move to the testing environment.")
+
+    start_retest_url: str = reverse("audits:audit-retest-start", kwargs={"pk": audit.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{start_retest_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+            Start retest
+        </a>""",
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows view retest button when a
+    test with a retest exists.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+    audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    view_retest_url: str = reverse("audits:audit-retest-detail", kwargs={"pk": audit.id})  # type: ignore
+    assertContains(
+        response,
+        f"""<a href="{view_retest_url}"
+            role="button" draggable="false" class="govuk-button govuk-button--secondary"
+            data-module="govuk-button">
+            View retest
+        </a>""",
         html=True,
     )
 
@@ -1474,8 +1691,8 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
         ("zendesk_url", "edit-report-correspondence"),
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
-        ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-final-website"),
+        ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-case-close"),
         ("zendesk_url", "edit-post-case"),
         ("trello_url", "edit-enforcement-body-correspondence"),
@@ -1576,8 +1793,8 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     "step_url",
     [
         "cases:edit-review-changes",
-        "cases:edit-final-statement",
         "cases:edit-final-website",
+        "cases:edit-final-statement",
         "cases:edit-case-close",
     ],
 )

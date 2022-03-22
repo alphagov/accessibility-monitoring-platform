@@ -46,11 +46,6 @@
                 </div>
                 <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text">
-                    <img
-                        src="{% static 'assets/cddo-co-logo-smallest.png' %}"
-                        style="padding-bottom:10px;"
-                        alt="Logos of Central Digital and Data Office and Cabinet Office"
-                    />
                     <p>Date: {{ audit.date_of_test|date:"d F Y" }}</p>
                     <p>
                         Website:
@@ -104,9 +99,21 @@
                             https://www.w3.org/TR/WCAG21/</a>.
                     </p>
 
+
                     <p>
-                        Based on our testing, this site is partially compliant with WCAG 2.1 AA.
-                        This means there are some things which are not fully accessible.
+                        {% if audit.case.is_website_compliant == 'not-compliant' %}
+                            Based on our testing, this site is not compliant with WCAG 2.1 AA.
+                            This means there are some things which would cause significant barriers
+                            to users with certain accessibility needs.
+                        {% elif audit.case.is_website_compliant == 'partially-compliant' %}
+                            Based on our testing, this site is partially compliant with WCAG 2.1 AA.
+                            This means there are some things which are not fully accessible.
+                        {% elif audit.case.is_website_compliant == 'compliant' %}
+                            Based on our testing, this site is compliant with WCAG 2.1 AA.
+                            This means no serious or critical issues were found during our testing.
+                            We run basic tests on a small part of your website so we can't say for
+                            certain that your entire site will meet the regulations.
+                        {% endif %}
                     </p>
 
                     <h1>How we checked</h1>
@@ -167,7 +174,11 @@
                     <h2>Issues</h2>
 
                     <p>
-                        The following errors were found.
+                        {% if audit.failed_check_results %}
+                            The following errors were found.
+                        {% else %}
+                            We found no major issues.
+                        {% endif %}
                     </p>
 
                     <table id="issues-to-copy" caption="Issues we found">
@@ -184,7 +195,7 @@
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
                                                 <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
-                                                    {{ check_result.wcag_definition.name }}</a>
+                                                    {{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}{% endif %}
                                             {% else %}
                                                 {{ check_result.wcag_definition.name }}
                                             {% endif %}

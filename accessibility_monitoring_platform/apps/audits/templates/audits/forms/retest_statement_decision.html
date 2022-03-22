@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ audit.case.organisation_name }} | 12-week accessibility statement compliance decision{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week retest</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Statement compliance decision
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week accessibility statement compliance decision' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                {% include 'audits/helpers/end_of_test.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+                            {% include 'common/amp_form_snippet.html' with form=case_form %}
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:audit-detail' audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to test view
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-decision' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

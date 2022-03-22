@@ -17,7 +17,6 @@ from ..common.forms import (
     AMPChoiceCheckboxWidget,
     AMPDateField,
     AMPDatePageCompleteField,
-    AMPModelChoiceField,
     AMPURLField,
 )
 from ..cases.models import (
@@ -25,6 +24,8 @@ from ..cases.models import (
     BOOLEAN_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
+    WEBSITE_STATE_FINAL_CHOICES,
+    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
 )
 from .models import (
     Audit,
@@ -48,6 +49,7 @@ from .models import (
     ACCESSIBILITY_STATEMENT_STATE_CHOICES,
     REPORT_OPTIONS_NEXT_CHOICES,
     CHECK_RESULT_STATE_CHOICES,
+    RETEST_CHECK_RESULT_STATE_CHOICES,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
@@ -142,14 +144,6 @@ class AuditPagesUpdateForm(VersionForm):
             "version",
             "audit_pages_complete_date",
         ]
-
-
-class AuditPageModelChoiceField(AMPModelChoiceField):
-    """Add completed tick to model choice labels"""
-
-    def label_from_instance(self, obj):
-        completed_tick: str = " ✓" if obj.complete_date else ""
-        return f"{obj}{completed_tick}"
 
 
 class AuditPageChecksForm(forms.Form):
@@ -680,4 +674,322 @@ class AuditReportTextUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "audit_report_text_complete_date",
+        ]
+
+
+class AuditRetestMetadataUpdateForm(VersionForm):
+    """
+    Form for editing audit retest metadata
+    """
+
+    retest_date = AMPDateField(label="Date of retest")
+    audit_retest_metadata_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "retest_date",
+            "audit_retest_metadata_complete_date",
+        ]
+
+
+class AuditRetestPagesUpdateForm(VersionForm):
+    """
+    Form for editing audit retest pages
+    """
+
+    audit_retest_pages_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_pages_complete_date",
+        ]
+
+
+class AuditRetestPageChecksForm(forms.Form):
+    """
+    Form for retesting checks for a page
+    """
+
+    retest_complete_date = AMPDatePageCompleteField(
+        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
+    )
+    retest_page_missing_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
+    )
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "retest_complete_date",
+            "retest_page_missing_date",
+        ]
+
+
+class RetestCheckResultFilterForm(forms.Form):
+    """
+    Form for filtering check results on retest
+    """
+
+    name = AMPCharFieldWide(label="")
+    fixed = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Fixed"})
+    )
+    not_fixed = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not fixed"})
+    )
+    not_retested = AMPChoiceCheckboxField(
+        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not retested"})
+    )
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "fixed",
+            "not_fixed",
+            "not_retested",
+        ]
+
+
+class RetestCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single check test on retest
+    """
+
+    id = forms.IntegerField(widget=forms.HiddenInput())
+    retest_state = AMPChoiceRadioField(
+        label="Issue fixed?",
+        choices=RETEST_CHECK_RESULT_STATE_CHOICES,
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
+    retest_notes = AMPTextField(label="Notes")
+
+    class Meta:
+        model = CheckResult
+        fields = [
+            "id",
+            "retest_state",
+            "retest_notes",
+        ]
+
+
+RetestCheckResultFormset: Any = forms.formset_factory(RetestCheckResultForm, extra=0)
+
+
+class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form for retest website compliance decision completion
+    """
+
+    audit_retest_website_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_website_decision_complete_date",
+        ]
+
+
+class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
+    """
+    Form to record final website compliance decision
+    """
+
+    website_state_final = AMPChoiceRadioField(
+        label="Final website compliance decision",
+        choices=WEBSITE_STATE_FINAL_CHOICES,
+    )
+    website_state_notes_final = AMPTextField(
+        label="Final website compliance decision notes",
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "website_state_final",
+            "website_state_notes_final",
+        ]
+
+
+class AuditRetestStatement1UpdateForm(VersionForm):
+    """
+    Form for retesting accessibility statement 1 checks
+    """
+
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to 12-week saved accessibility statement",
+    )
+    audit_retest_scope_state = AMPChoiceRadioField(
+        label="",
+        choices=SCOPE_STATE_CHOICES,
+    )
+    audit_retest_scope_notes = AMPTextField(label="Notes")
+    audit_retest_feedback_state = AMPChoiceRadioField(
+        label="",
+        choices=FEEDBACK_STATE_CHOICES,
+    )
+    audit_retest_feedback_notes = AMPTextField(label="Notes")
+    audit_retest_contact_information_state = AMPChoiceRadioField(
+        label="",
+        choices=CONTACT_INFORMATION_STATE_CHOICES,
+    )
+    audit_retest_contact_information_notes = AMPTextField(label="Notes")
+    audit_retest_enforcement_procedure_state = AMPChoiceRadioField(
+        label="",
+        choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
+    )
+    audit_retest_enforcement_procedure_notes = AMPTextField(label="Notes")
+    audit_retest_declaration_state = AMPChoiceRadioField(
+        label="",
+        choices=DECLARATION_STATE_CHOICES,
+    )
+    audit_retest_declaration_notes = AMPTextField(label="Notes")
+    audit_retest_compliance_state = AMPChoiceRadioField(
+        label="",
+        choices=COMPLIANCE_STATE_CHOICES,
+    )
+    audit_retest_compliance_notes = AMPTextField(label="Notes")
+    audit_retest_non_regulation_state = AMPChoiceRadioField(
+        label="",
+        choices=NON_REGULATION_STATE_CHOICES,
+    )
+    audit_retest_non_regulation_notes = AMPTextField(label="Notes")
+    audit_retest_statement_1_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_accessibility_statement_backup_url",
+            "audit_retest_scope_state",
+            "audit_retest_scope_notes",
+            "audit_retest_feedback_state",
+            "audit_retest_feedback_notes",
+            "audit_retest_contact_information_state",
+            "audit_retest_contact_information_notes",
+            "audit_retest_enforcement_procedure_notes",
+            "audit_retest_declaration_state",
+            "audit_retest_declaration_notes",
+            "audit_retest_compliance_state",
+            "audit_retest_compliance_notes",
+            "audit_retest_non_regulation_state",
+            "audit_retest_non_regulation_notes",
+            "audit_retest_statement_1_complete_date",
+        ]
+
+
+class AuditRetestStatement2UpdateForm(VersionForm):
+    """
+    Form for retesting accessibility statement 2 checks
+    """
+
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to 12-week saved accessibility statement",
+    )
+    audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
+        label="",
+        choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
+    )
+    audit_retest_disproportionate_burden_notes = AMPTextField(label="Notes")
+    audit_retest_content_not_in_scope_state = AMPChoiceRadioField(
+        label="",
+        choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
+    )
+    audit_retest_content_not_in_scope_notes = AMPTextField(label="Notes")
+    audit_retest_preparation_date_state = AMPChoiceRadioField(
+        label="",
+        choices=PREPARATION_DATE_STATE_CHOICES,
+    )
+    audit_retest_preparation_date_notes = AMPTextField(label="Notes")
+    audit_retest_review_state = AMPChoiceRadioField(
+        label="",
+        choices=REVIEW_STATE_CHOICES,
+    )
+    audit_retest_review_notes = AMPTextField(label="Notes")
+    audit_retest_method_state = AMPChoiceRadioField(
+        label="",
+        choices=METHOD_STATE_CHOICES,
+    )
+    audit_retest_method_notes = AMPTextField(label="Notes")
+    audit_retest_access_requirements_state = AMPChoiceRadioField(
+        label="",
+        choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
+    )
+    audit_retest_access_requirements_notes = AMPTextField(label="Notes")
+    audit_retest_statement_2_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_accessibility_statement_backup_url",
+            "audit_retest_disproportionate_burden_state",
+            "audit_retest_disproportionate_burden_notes",
+            "audit_retest_content_not_in_scope_state",
+            "audit_retest_content_not_in_scope_notes",
+            "audit_retest_preparation_date_state",
+            "audit_retest_preparation_date_notes",
+            "audit_retest_review_state",
+            "audit_retest_review_notes",
+            "audit_retest_method_state",
+            "audit_retest_method_notes",
+            "audit_retest_access_requirements_state",
+            "audit_retest_access_requirements_notes",
+            "audit_retest_statement_2_complete_date",
+        ]
+
+
+class AuditRetestStatementDecisionUpdateForm(VersionForm):
+    """
+    Form for retesting statement swcision
+    """
+
+    audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_decision_complete_date",
+        ]
+
+
+class CaseFinalStatementDecisionUpdateForm(VersionForm):
+    """
+    Form to record final accessibility statement compliance decision
+    """
+
+    is_disproportionate_claimed = AMPChoiceRadioField(
+        label="Disproportionate burden claimed?",
+        help_text="This field affects the case status",
+        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
+    )
+    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
+    accessibility_statement_screenshot_url = AMPURLField(
+        label="Link to accessibility statement screenshot"
+    )
+    accessibility_statement_state_final = AMPChoiceRadioField(
+        label="Final accessibility statement decision",
+        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
+    )
+    accessibility_statement_notes_final = AMPTextField(
+        label="Final accessibility statement notes",
+    )
+
+    class Meta:
+        model = Case
+        fields = [
+            "version",
+            "is_disproportionate_claimed",
+            "disproportionate_notes",
+            "accessibility_statement_screenshot_url",
+            "accessibility_statement_state_final",
+            "accessibility_statement_notes_final",
         ]

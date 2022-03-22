@@ -123,8 +123,12 @@
                 {% include 'cases/details/report_correspondence.html' %}
                 {% include 'cases/details/twelve_week_correspondence.html' %}
                 {% include 'cases/details/review_changes.html' %}
-                {% include 'cases/details/final_statement.html' %}
-                {% include 'cases/details/final_website.html' %}
+                {% if case.testing_methodology == 'platform' %}
+                    {% include 'cases/details/retesting_details.html' %}
+                {% else %}
+                    {% include 'cases/details/final_website.html' %}
+                    {% include 'cases/details/final_statement.html' %}
+                {% endif %}
                 {% include 'cases/details/case_close.html' %}
                 {% include 'cases/details/post_case.html' %}
                 {% include 'cases/details/equality_bodies_correspondence.html' %}
