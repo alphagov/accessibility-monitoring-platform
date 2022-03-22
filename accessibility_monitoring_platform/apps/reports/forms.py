@@ -1,7 +1,7 @@
 """
 Forms - reports
 """
-from typing import List
+from typing import Any, Mapping, List, Optional
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -10,6 +10,7 @@ from .models import (
     Report,
     Section,
     READY_FOR_QA_CHOICES,
+    TEMPLATE_TYPE_HTML,
 )
 
 from ..common.forms import (
@@ -45,19 +46,29 @@ class SectionUpdateForm(VersionForm):
     Form for editing report section
     """
 
+    template_type = forms.CharField(widget=forms.HiddenInput())
     content = AMPTextField(
         label="", widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "20"})
     )
 
-    def clean_content(self):
-        content = self.cleaned_data["content"]
-        if "<script>" in content or "</script>" in content:
-            raise ValidationError("<script> tags are not allowed")
-        return content
+    def clean(self):
+        """Check HTML content has no script tags."""
+        cleaned_data: Optional[Mapping[str, Any]] = super().clean()
+        if cleaned_data:
+            template_type: str = cleaned_data["template_type"]
+            if template_type == TEMPLATE_TYPE_HTML:
+                content: str = cleaned_data["content"]
+                if "<script>" in content or "</script>" in content:
+                    self.add_error(
+                        "content",
+                        "<script> tags are not allowed",
+                    )
+        return cleaned_data
 
     class Meta:
         model = Section
         fields: List[str] = [
             "version",
+            "template_type",
             "content",
         ]
