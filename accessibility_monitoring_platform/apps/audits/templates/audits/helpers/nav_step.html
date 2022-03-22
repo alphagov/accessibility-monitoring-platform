@@ -1,13 +1,13 @@
             <li>
-                {% if edit_name == 'audits:edit-audit-page-checks' %}
-                    {% if current_page == 'audits:edit-audit-page-checks' and page_id == page.id %}
+                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-audit-retest-page-checks' %}
+                    {% if current_page == edit_name and page_id == page.id %}
                         {{ page }}
-                        {% if page.complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                        {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                     {% else %}
-                        <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
-                            {{ page }}{% if page.complete_date %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                        <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ page }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% endif %}
-                    {% if page.complete_date %}&check;{% endif %}
+                    {% if complete %}&check;{% endif %}
                 {% else %}
                     {% if current_page == edit_name %}
                         {{ name }}

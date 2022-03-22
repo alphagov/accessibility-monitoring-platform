@@ -37,6 +37,7 @@ from ..utils import (
     get_statement_decision_rows,
     get_audit_report_options_rows,
     get_next_page_url,
+    get_next_retest_page_url,
 )
 
 USER_FIRST_NAME = "John"
@@ -582,4 +583,62 @@ def test_get_next_page_url_audit_with_pages():
     current_page: Page = audit.testable_pages[1]
     assert get_next_page_url(audit=audit, current_page=current_page) == reverse(
         "audits:edit-website-decision", kwargs=audit_pk
+    )
+
+
+@pytest.mark.django_db
+def test_get_next_retest_page_url_audit_with_no_pages():
+    """
+    Test get_next_retest_page_url returns url for website compliance decision
+    when audit has no testable pages.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    assert get_next_retest_page_url(audit=audit) == reverse(
+        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+    )
+
+
+@pytest.mark.django_db
+def test_get_next_retest_page_url_audit_with_pages():
+    """
+    Test get_next_retest_page_url returns urls for each testable page (with
+    errors) in audit in in turn.
+    """
+    audit: Audit = create_audit_and_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    for page in audit.testable_pages:
+        for check_result in page.all_check_results:
+            check_result.check_result_state = CHECK_RESULT_ERROR
+            check_result.save()
+
+    next_page: Page = audit.testable_pages[0]
+    next_page_pk: Dict[str, int] = {"pk": next_page.id}  # type: ignore
+    assert get_next_retest_page_url(audit=audit) == reverse(
+        "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
+    )
+
+    current_page: Page = audit.testable_pages[0]
+    next_page: Page = audit.testable_pages[1]
+    next_page_pk: Dict[str, int] = {"pk": next_page.id}  # type: ignore
+    assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
+        "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
+    )
+
+    current_page: Page = audit.testable_pages[1]
+    assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
+        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+    )
+
+
+@pytest.mark.django_db
+def test_get_next_retest_page_url_audit_with_no_errors():
+    """
+    Test get_next_retest_page_url returns url for website compliance decision
+    when audit has no pages with errors.
+    """
+    audit: Audit = create_audit_and_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    assert get_next_retest_page_url(audit=audit) == reverse(
+        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
     )

@@ -23,6 +23,7 @@ from ..models import (
     WcagDefinition,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NO_ERROR,
+    RETEST_CHECK_RESULT_DEFAULT,
 )
 
 PAGE_NAME = "Page name"
@@ -191,3 +192,19 @@ def test_page_all_check_results_returns_check_results():
     assert len(home_page.all_check_results) == 2
     assert home_page.all_check_results[0].type == TEST_TYPE_AXE
     assert home_page.all_check_results[1].type == TEST_TYPE_MANUAL
+
+
+@pytest.mark.django_db
+def test_check_result_returns_id_and_fields_for_retest():
+    """
+    Test check_result attribute of dict_for_retest returns id and fields for retest form.
+    """
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    check_result: CheckResult = home_page.all_check_results[0]
+
+    assert check_result.dict_for_retest == {
+        "id": check_result.id,  # type: ignore
+        "retest_state": RETEST_CHECK_RESULT_DEFAULT,
+        "retest_notes": "",
+    }

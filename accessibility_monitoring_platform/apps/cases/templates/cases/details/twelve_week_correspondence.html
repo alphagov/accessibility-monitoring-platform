@@ -1,13 +1,13 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 id="twelve-week-correspondence" class="govuk-heading-l">12 week correspondence</h2>
+        <h2 id="twelve-week-correspondence" class="govuk-heading-l">12-week correspondence</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
         <div class="govuk-button-group" style="flex-direction:row-reverse">
             <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit 12 week correspondence
+                Edit 12-week correspondence
             </a>
         </div>
     </div>
@@ -15,39 +15,39 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">12 week deadline due</th>
+            <th scope="row" class="govuk-table__header amp-width-one-half">12-week deadline due</th>
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_12_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">12 week update requested</th>
+            <th scope="row" class="govuk-table__header">12-week update requested</th>
             <td class="govuk-table__cell">{{ case.twelve_week_update_requested_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">1 week followup due</th>
+            <th scope="row" class="govuk-table__header">1-week followup due</th>
             <td class="govuk-table__cell">{{ case.twelve_week_1_week_chaser_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">1 week followup sent</th>
+            <th scope="row" class="govuk-table__header">1-week followup sent</th>
             <td class="govuk-table__cell">{{ case.twelve_week_1_week_chaser_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">4 week followup due</th>
+            <th scope="row" class="govuk-table__header">4-week followup due</th>
             <td class="govuk-table__cell">{{ case.twelve_week_4_week_chaser_due_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">4 week followup sent</th>
+            <th scope="row" class="govuk-table__header">4-week followup sent</th>
             <td class="govuk-table__cell">{{ case.twelve_week_4_week_chaser_sent_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">12 week update received</th>
+            <th scope="row" class="govuk-table__header">12-week update received</th>
             <td class="govuk-table__cell">{{ case.twelve_week_correspondence_acknowledged_date|date:"d/m/Y" }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">No response to 12 week deadline</th>
+            <th scope="row" class="govuk-table__header">No response to 12-week deadline</th>
             <td class="govuk-table__cell">{{ case.get_twelve_week_response_state_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">12 week correspondence notes</th>
+            <th scope="row" class="govuk-table__header">12-week correspondence notes</th>
             <td class="govuk-table__cell">
                 {% if case.twelve_week_correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.twelve_week_correspondence_notes }}</p>{% endif %}
             </td>
