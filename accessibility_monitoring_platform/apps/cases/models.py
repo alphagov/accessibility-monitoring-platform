@@ -124,15 +124,17 @@ REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
 ]
 
 TEST_STATUS_DEFAULT: str = "not-started"
+TEST_STATUS_COMPLETE: str = "complete"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("complete", "Complete"),
+    (TEST_STATUS_COMPLETE, "Complete"),
     ("in-progress", "In progress"),
     (TEST_STATUS_DEFAULT, "Not started"),
 ]
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
+ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT: str = "compliant"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
+    (ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT, "Compliant"),
     ("not-compliant", "Not compliant"),
     ("not-found", "Not found"),
     ("other", "Other"),
@@ -140,8 +142,9 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
 ]
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
+IS_WEBSITE_COMPLIANT_COMPLIANT: str = "compliant"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
+    (IS_WEBSITE_COMPLIANT_COMPLIANT, "Compliant"),
     ("not-compliant", "Not compliant"),
     ("partially-compliant", "Partially compliant"),
     ("other", "Other"),
@@ -194,16 +197,19 @@ WEBSITE_STATE_FINAL_CHOICES: List[Tuple[str, str]] = [
 ]
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
+CASE_COMPLETED_SEND: str = "complete-send"
+CASE_COMPLETED_NO_SEND: str = "complete-no-send"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("complete-send", "Case is complete and is ready to send to the equality body"),
-    ("complete-no-send", "Case should not be sent to the equality body"),
+    (CASE_COMPLETED_SEND, "Case is complete and is ready to send to the equality body"),
+    (CASE_COMPLETED_NO_SEND, "Case should not be sent to the equality body"),
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
 DEFAULT_ESCALATION_STATE: str = "not-started"
+ESCALATION_STATE_NO_ACTION: str = "no-action"
 ESCALATION_STATE_CHOICES: List[Tuple[str, str]] = [
     (
-        "no-action",
+        ESCALATION_STATE_NO_ACTION,
         "No further action is required and correspondence has closed regarding this issue",
     ),
     ("ongoing", "Correspondence ongoing"),

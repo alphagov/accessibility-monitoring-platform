@@ -3,9 +3,9 @@ from datetime import datetime, timedelta, date
 from django.contrib.auth.models import User
 from ..cases.models import (
     Case,
-    TEST_STATUS_CHOICES,
-    ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    IS_WEBSITE_COMPLIANT_CHOICES,
+    TEST_STATUS_COMPLETE,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
     REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
 )
@@ -35,9 +35,9 @@ def create_case(user: User) -> Case:
         organisation_name="org name",
         auditor=user,
         test_results_url="https://www.test-results.com",
-        test_status=TEST_STATUS_CHOICES[0][0],
-        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_CHOICES[0][0],
-        is_website_compliant=IS_WEBSITE_COMPLIANT_CHOICES[0][0],
+        test_status=TEST_STATUS_COMPLETE,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
         report_review_status=REPORT_READY_TO_REVIEW,
         reviewer=user,

@@ -63,7 +63,7 @@ class Report(VersionModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
-        return reverse("reports:edit-report-metadata", kwargs={"pk": self.pk})
+        return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
 
 class BaseTemplate(VersionModel):
