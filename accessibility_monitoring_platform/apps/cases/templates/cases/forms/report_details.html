@@ -41,13 +41,14 @@
                                         Edit report
                                     </a>
                                     <a
-                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                        href="{% url 'reports:report-preview' case.report.id %}"
                                         role="button"
                                         draggable="false"
                                         class="govuk-button govuk-button--secondary"
                                         data-module="govuk-button"
+                                        target="_blank"
                                     >
-                                        TODO: Preview report
+                                        Preview report in new tab
                                     </a>
                                 </div>
                                 <table class="govuk-table">
