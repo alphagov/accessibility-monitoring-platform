@@ -131,17 +131,39 @@ class SectionUpdateView(ReportUpdateView):
         return super().get_success_url()
 
 
-class ReportPreviewTemplateView(TemplateView):
+class ReportTemplateView(TemplateView):
+    """
+    View to for template with report in context
+    """
+
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+        context["report"] = get_object_or_404(Report, id=kwargs.get("pk"))
+        return context
+
+
+class ReportPreviewTemplateView(ReportTemplateView):
     """
     View to preview the report
     """
 
     template_name: str = "reports/report_preview.html"
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
-        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
-        context["report"] = get_object_or_404(Report, id=kwargs.get("pk"))
-        return context
+
+class ReportConfirmRebuildTemplateView(ReportTemplateView):
+    """
+    View to confirm rebuilding the report
+    """
+
+    template_name: str = "reports/report_confirm_rebuild.html"
+
+
+class ReportConfirmPublishTemplateView(ReportTemplateView):
+    """
+    View to confirm publishing the report
+    """
+
+    template_name: str = "reports/report_confirm_publish.html"
 
 
 def publish_report(request: HttpRequest, pk: int) -> HttpResponse:

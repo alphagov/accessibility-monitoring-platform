@@ -29,10 +29,10 @@
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
                     <a
-                        href="{% url 'reports:report-rebuild' report.id %}"
+                        href="{% url 'reports:report-confirm-rebuild' report.id %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button govuk-button--warning"
+                        class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     >
                         Rebuild report
@@ -47,7 +47,7 @@
                     >
                         Preview
                     </a>
-                    <a href="{% url 'reports:report-publish' report.id %}"
+                    <a href="{% url 'reports:report-confirm-publish' report.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"

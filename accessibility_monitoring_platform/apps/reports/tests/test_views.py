@@ -118,6 +118,14 @@ def test_report_published_message_shown(admin_client):
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
         ("reports:published-report-list", ">Report versions</h1>"),
         ("reports:report-preview", f"<p>{SECTION_CONTENT}</p>"),
+        (
+            "reports:report-confirm-rebuild",
+            ">Are you sure you want to rebuild the report?</h1>",
+        ),
+        (
+            "reports:report-confirm-publish",
+            ">Are you sure you want to create a HTML report?</h1>",
+        ),
     ],
 )
 def test_report_specific_page_loads(path_name, expected_header, admin_client):
