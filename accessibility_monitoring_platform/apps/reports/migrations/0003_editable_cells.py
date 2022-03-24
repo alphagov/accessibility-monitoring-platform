@@ -7,33 +7,65 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0002_populate_report_templates'),
+        ("reports", "0002_populate_report_templates"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='basetemplate',
-            name='template_type',
-            field=models.CharField(choices=[('markdown', 'Markdown'), ('urls', 'Contains URL table'), ('issues', 'Contains Issues table'), ('html', 'HTML')], default='markdown', max_length=20),
+            model_name="basetemplate",
+            name="template_type",
+            field=models.CharField(
+                choices=[
+                    ("markdown", "Markdown"),
+                    ("urls", "Contains URL table"),
+                    ("issues", "Contains Issues table"),
+                    ("html", "HTML"),
+                ],
+                default="markdown",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='section',
-            name='template_type',
-            field=models.CharField(choices=[('markdown', 'Markdown'), ('urls', 'Contains URL table'), ('issues', 'Contains Issues table'), ('html', 'HTML')], default='markdown', max_length=20),
+            model_name="section",
+            name="template_type",
+            field=models.CharField(
+                choices=[
+                    ("markdown", "Markdown"),
+                    ("urls", "Contains URL table"),
+                    ("issues", "Contains Issues table"),
+                    ("html", "HTML"),
+                ],
+                default="markdown",
+                max_length=20,
+            ),
         ),
         migrations.CreateModel(
-            name='TableRow',
+            name="TableRow",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('version', models.IntegerField(default=0)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('cell_content_1', models.TextField(blank=True, default='')),
-                ('cell_content_2', models.TextField(blank=True, default='')),
-                ('row_number', models.IntegerField()),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='reports.section')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("version", models.IntegerField(default=0)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("cell_content_1", models.TextField(blank=True, default="")),
+                ("cell_content_2", models.TextField(blank=True, default="")),
+                ("row_number", models.IntegerField()),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="reports.section",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['section', 'row_number'],
+                "ordering": ["section", "row_number"],
             },
         ),
     ]

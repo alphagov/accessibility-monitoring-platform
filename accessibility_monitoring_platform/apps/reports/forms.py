@@ -91,3 +91,6 @@ class TableRowUpdateForm(forms.ModelForm):
 
 
 TableRowFormset: Any = forms.modelformset_factory(TableRow, TableRowUpdateForm, extra=0)
+TableRowFormsetOneExtra: Any = forms.modelformset_factory(
+    TableRow, TableRowUpdateForm, extra=1
+)

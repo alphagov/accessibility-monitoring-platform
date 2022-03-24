@@ -70,6 +70,19 @@
                             </table>
                         </div>
                     </div>
+                    {% if table_rows_formset.forms %}
+                    <div id="add_row" class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Add row"
+                                name="add_row"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

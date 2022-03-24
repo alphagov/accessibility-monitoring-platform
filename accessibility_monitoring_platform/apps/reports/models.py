@@ -128,6 +128,7 @@ class TableRow(VersionModel):
         on_delete=models.CASCADE,
     )
     created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
     cell_content_1 = models.TextField(default="", blank=True)
     cell_content_2 = models.TextField(default="", blank=True)
     row_number = models.IntegerField()
