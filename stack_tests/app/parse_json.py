@@ -5,13 +5,13 @@ from typing import Any, TypedDict, Union, List
 import json
 from app.DockerBroker import DockerImagesPathsType
 
+
 class IntegrationTestsSettingsType(TypedDict):
     """Dictionary type for integration tests settings
 
     Args:
         TypedDict ([type]): Type for integration test object
     """
-
     name: str
     date: str
     docker_compose_path: str

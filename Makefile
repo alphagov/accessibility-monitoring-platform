@@ -91,6 +91,7 @@ breakdown_prototype:
 staging_env:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
 	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
+	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_report_viewer_stage_env_settings.json
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
 
 docker_is_running = $(shell curl -s -w "%{http_code}\n" http://0.0.0.0:8001 -o /dev/null)

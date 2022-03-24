@@ -33,5 +33,3 @@ def upload_db_to_s3(file_name: str, bucket: str, object_name: Union[str, None] =
         s3_client.upload_file(file_name, bucket, object_name)
     except ClientError as e:
         logging.error(e)
-        return False
-    return True

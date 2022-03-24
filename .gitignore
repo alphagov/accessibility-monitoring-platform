@@ -21,6 +21,7 @@ filehash.txt
 **/data/s3_files/*
 cases.csv
 temp_manifest.yml
+backup.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
