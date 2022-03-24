@@ -100,13 +100,7 @@ def test_report_published_message_shown(admin_client):
 
     assertContains(
         response,
-        f"""<div class="govuk-inset-text">
-            HTML report successfully created! Return to
-            <a href="{reverse("cases:edit-report-details", kwargs={"pk": report.case.id})}"
-                class="govuk-link govuk-link--no-visited-state">
-                Report details
-            </a>
-        </div>""",
+        """<div class="govuk-inset-text">HTML report successfully created!</div>""",
         html=True,
     )
 

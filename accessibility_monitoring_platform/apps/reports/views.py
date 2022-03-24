@@ -186,18 +186,11 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         created_by=request.user,
         html_content=html,
     )
-    report_details_url: str = reverse(
-        "cases:edit-report-details", kwargs={"pk": report.case.id}
-    )
     messages.add_message(
         request,
         messages.INFO,
         mark_safe(
-            "HTML report successfully created! Return to "
-            f"""<a href="{report_details_url}"
-                class="govuk-link govuk-link--no-visited-state">
-                Report details
-            </a>"""
+            "HTML report successfully created!"""
         ),
     )
     return redirect(
