@@ -93,6 +93,7 @@
                             {% else %}
                                 {{ section.content|markdown_to_html }}
                             {% endif %}
+                            {% include 'reports/helpers/tables.html' %}
                         </div>
                     </div>
                 {% endfor %}

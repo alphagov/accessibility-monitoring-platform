@@ -8,6 +8,7 @@ from django import forms
 from .models import (
     Report,
     Section,
+    TableRow,
     READY_FOR_QA_CHOICES,
     TEMPLATE_TYPE_HTML,
 )
@@ -71,3 +72,22 @@ class SectionUpdateForm(VersionForm):
             "template_type",
             "content",
         ]
+
+
+class TableRowUpdateForm(forms.ModelForm):
+    """
+    Form for updating table row
+    """
+
+    cell_content_1 = AMPTextField(label="")
+    cell_content_2 = AMPTextField(label="")
+
+    class Meta:
+        model = TableRow
+        fields = [
+            "cell_content_1",
+            "cell_content_2",
+        ]
+
+
+TableRowFormset: Any = forms.modelformset_factory(TableRow, TableRowUpdateForm, extra=0)

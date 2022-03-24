@@ -1,0 +1,37 @@
+{% load common_tags %}
+{% if section.template_type == 'urls' and section.tablerow_set.all %}
+<table id="urls-table" caption="Names and URLs of pages we checked">
+    <thead>
+        <tr>
+            <th id="name">Page Name</th>
+            <th id="url">URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in section.tablerow_set.all %}
+            <tr valign="top" >
+                <th headers="name">{{ row.cell_content_1|markdown_to_html }}</th>
+                <td headers="url">{{ row.cell_content_2|markdown_to_html }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if section.template_type == 'issues' and section.tablerow_set.all %}
+<table id="issues-table" caption="Names and URLs of pages we checked">
+    <thead>
+        <tr>
+            <th id="issue">Issue and description</th>
+            <th id="where-found">Where the issue was found</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in section.tablerow_set.all %}
+            <tr valign="top" >
+                <td headers="issue">{{ row.cell_content_1|markdown_to_html }}</th>
+                <td headers="where-found">{{ row.cell_content_2|markdown_to_html }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
