@@ -117,6 +117,14 @@ class Section(VersionModel):
     def anchor(self) -> str:
         return f"report-section-{self.id}"  # type: ignore
 
+    @property
+    def table_rows(self):
+        return self.tablerow_set.filter(is_deleted=False)  # type: ignore
+
+    @property
+    def deleted_table_rows(self):
+        return self.tablerow_set.filter(is_deleted=True)  # type: ignore
+
 
 class TableRow(VersionModel):
     """
@@ -138,10 +146,6 @@ class TableRow(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.section}: Table row {self.row_number}")
-
-    @property
-    def anchor(self) -> str:
-        return f"report-section-{self.id}"  # type: ignore
 
 
 class PublishedReport(VersionModel):

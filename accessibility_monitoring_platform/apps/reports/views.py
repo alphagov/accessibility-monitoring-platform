@@ -1,7 +1,7 @@
 """
 Views for reports app
 """
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -26,6 +26,7 @@ from .models import Report, Section, TableRow, PublishedReport
 from .utils import generate_report_content
 
 from ..common.utils import (
+    get_id_from_button_name,
     record_model_update_event,
 )
 from ..cases.models import Case
@@ -131,17 +132,20 @@ class SectionUpdateView(ReportUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        section: Section = self.object  # type: ignore
+
         if self.request.POST:
             table_rows_formset: TableRowFormset = TableRowFormset(self.request.POST)
         else:
             if "add_row" in self.request.GET:
                 table_rows_formset: TableRowFormsetOneExtra = TableRowFormsetOneExtra(
-                    queryset=self.object.tablerow_set.all(),  # type: ignore
+                    queryset=section.table_rows,  # type: ignore
                 )
             else:
                 table_rows_formset: TableRowFormset = TableRowFormset(
-                    queryset=self.object.tablerow_set.all(),  # type: ignore
+                    queryset=section.table_rows,  # type: ignore
                 )
+
         context["table_rows_formset"] = table_rows_formset
         return context
 
@@ -164,6 +168,26 @@ class SectionUpdateView(ReportUpdateView):
                     table_row.save()
         else:
             return super().form_invalid(form)
+
+        table_row_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="delete_table_row_",
+            querydict=self.request.POST,
+        )
+        if table_row_id_to_delete is not None:
+            table_row_to_delete: TableRow = TableRow.objects.get(id=table_row_id_to_delete)
+            table_row_to_delete.is_deleted = True
+            record_model_update_event(user=self.request.user, model_object=table_row_to_delete)  # type: ignore
+            table_row_to_delete.save()
+
+        table_row_id_to_undelete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="undelete_table_row_",
+            querydict=self.request.POST,
+        )
+        if table_row_id_to_undelete is not None:
+            table_row_to_undelete: TableRow = TableRow.objects.get(id=table_row_id_to_undelete)
+            table_row_to_undelete.is_deleted = False
+            record_model_update_event(user=self.request.user, model_object=table_row_to_undelete)  # type: ignore
+            table_row_to_undelete.save()
 
         return super().form_valid(form)
 

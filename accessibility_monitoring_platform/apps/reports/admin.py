@@ -70,7 +70,8 @@ class TableRowAdmin(admin.ModelAdmin):
 
     readonly_fields = ["created", "version"]
     search_fields = ["cell_content_1", "cell_content_2"]
-    list_display = ["section", "row_number", "created"]
+    list_display = ["section", "row_number", "created", "is_deleted"]
+    list_filter = ["is_deleted"]
 
 
 class PublishedReportAdmin(admin.ModelAdmin):

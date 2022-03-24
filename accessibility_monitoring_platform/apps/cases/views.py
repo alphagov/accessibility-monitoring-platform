@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 import urllib
 
 from django.contrib import messages
@@ -21,7 +21,6 @@ from django.views.generic.list import ListView
 
 from ..notifications.utils import read_notification
 
-from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
     format_date,
     download_as_csv,
@@ -441,7 +440,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                     contact.save()
         else:
             return super().form_invalid(form)
-        contact_id_to_delete: IntOrNone = get_id_from_button_name(
+        contact_id_to_delete: Optional[int] = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
         )
@@ -462,7 +461,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         elif "add_contact" in self.request.POST:
             return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
         else:
-            contact_id_to_delete: IntOrNone = get_id_from_button_name(
+            contact_id_to_delete: Optional[int] = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:

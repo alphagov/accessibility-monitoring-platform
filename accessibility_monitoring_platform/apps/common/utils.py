@@ -8,6 +8,7 @@ from typing import (
     Dict,
     List,
     Match,
+    Optional,
     Tuple,
     Type,
     Union,
@@ -24,7 +25,6 @@ from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
-from .typing import IntOrNone, StringOrNone
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
@@ -91,17 +91,17 @@ def extract_domain_from_url(url: str) -> str:
     return domain_match.group(1) if domain_match else ""
 
 
-def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> IntOrNone:
+def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> Optional[int]:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
     key_names: List[str] = [
         key for key in querydict.keys() if key.startswith(button_name_prefix)
     ]
-    object_id: IntOrNone = None
+    object_id: Optional[int] = None
     if len(key_names) == 1:
         id_string: str = key_names[0].replace(button_name_prefix, "")
-        object_id: IntOrNone = int(id_string) if id_string.isdigit() else None
+        object_id: Optional[int] = int(id_string) if id_string.isdigit() else None
     return object_id
 
 
@@ -114,7 +114,7 @@ def build_filters(
     """
     filters: Dict[str, Any] = {}
     for field_name, filter_name in field_and_filter_names:
-        value: StringOrNone = cleaned_data.get(field_name)
+        value: Optional[str] = cleaned_data.get(field_name)
         if value:
             filters[filter_name] = value
     return filters
