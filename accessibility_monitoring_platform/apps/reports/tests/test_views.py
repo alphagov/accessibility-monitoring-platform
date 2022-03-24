@@ -201,6 +201,10 @@ def test_report_edit_section_redirects_to_details(admin_client):
             "version": section.version,
             "template_type": "markdown",
             "save_exit": "Button value",
+            "form-TOTAL_FORMS": 0,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
         },
     )
 

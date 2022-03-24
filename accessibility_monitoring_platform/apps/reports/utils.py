@@ -41,28 +41,29 @@ def generate_report_content(report: Report) -> None:
             content=template.render(context=context),
             position=base_template.position,
         )
-        if section.template_type == TEMPLATE_TYPE_URLS:
-            for row_number, page in enumerate(
-                report.case.audit.testable_pages, start=1
-            ):
-                TableRow.objects.create(
-                    section=section,
-                    cell_content_1=str(page),
-                    cell_content_2=f"[{page.url}]({page.url})",
-                    row_number=row_number,
-                )
-        elif section.template_type == TEMPLATE_TYPE_ISSUES:
-            for row_number, check_result in enumerate(
-                report.case.audit.failed_check_results, start=1
-            ):
-                wcag_boilerplate_context: Context = Context(
-                    {"wcag_definition": check_result.wcag_definition}
-                )
-                TableRow.objects.create(
-                    section=section,
-                    cell_content_1=wcag_boilerplate_template.render(
-                        context=wcag_boilerplate_context
-                    ),
-                    cell_content_2=check_result.notes,
-                    row_number=row_number,
-                )
+        if report.case.audit:
+            if section.template_type == TEMPLATE_TYPE_URLS:
+                for row_number, page in enumerate(
+                    report.case.audit.testable_pages, start=1
+                ):
+                    TableRow.objects.create(
+                        section=section,
+                        cell_content_1=str(page),
+                        cell_content_2=f"[{page.url}]({page.url})",
+                        row_number=row_number,
+                    )
+            elif section.template_type == TEMPLATE_TYPE_ISSUES:
+                for row_number, check_result in enumerate(
+                    report.case.audit.failed_check_results, start=1
+                ):
+                    wcag_boilerplate_context: Context = Context(
+                        {"wcag_definition": check_result.wcag_definition}
+                    )
+                    TableRow.objects.create(
+                        section=section,
+                        cell_content_1=wcag_boilerplate_template.render(
+                            context=wcag_boilerplate_context
+                        ),
+                        cell_content_2=check_result.notes,
+                        row_number=row_number,
+                    )
