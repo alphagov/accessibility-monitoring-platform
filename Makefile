@@ -31,6 +31,10 @@ static_files_process_accessibility_monitoring_platform:
 static_files_process_report_viewer:
 	python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json
 
+static_files_process:
+	make static_files_process_accessibility_monitoring_platform
+	make static_files_process_report_viewer
+
 watch_accessibility_monitoring_platform:
 	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json"
 

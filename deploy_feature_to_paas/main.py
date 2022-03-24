@@ -126,7 +126,7 @@ if __name__ == "__main__":
     build_env.start()
 
     if args.build_direction == "up":
-        # build_env.clean_up()
+        build_env.clean_up()
         copy_db.clean_up()
 
     end: float = time.time()
