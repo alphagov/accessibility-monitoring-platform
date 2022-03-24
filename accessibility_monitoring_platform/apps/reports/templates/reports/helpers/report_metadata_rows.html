@@ -6,12 +6,16 @@
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
     <td class="govuk-table__cell amp-width-one-half">
-        <a
-            href="{% url 'audits:audit-detail' report.case.audit.id %}"
-            class="govuk-link govuk-link--no-visited-state"
-        >
-            Initial test
-        </a>
+        {% if report.case.audit %}
+            <a
+                href="{% url 'audits:audit-detail' report.case.audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Initial test
+            </a>
+        {% else %}
+            No test found.
+        {% endif %}
     </td>
 </tr>
 <tr class="govuk-table__row">

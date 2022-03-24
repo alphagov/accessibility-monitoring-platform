@@ -45,7 +45,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
     generate_report_content(report=report)
-    return redirect(reverse("reports:edit-report-metadata", kwargs={"pk": report.id}))  # type: ignore
+    return redirect(reverse("reports:report-detail", kwargs={"pk": report.id}))  # type: ignore
 
 
 def rebuild_report(

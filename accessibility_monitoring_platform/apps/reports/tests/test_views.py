@@ -46,7 +46,7 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:edit-report-metadata", kwargs={"pk": 1})
+    assert response.url == reverse("reports:report-detail", kwargs={"pk": 1})
 
 
 def test_rebuild_report_redirects(admin_client):
