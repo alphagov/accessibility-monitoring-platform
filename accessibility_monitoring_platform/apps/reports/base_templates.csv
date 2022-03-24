@@ -31,62 +31,12 @@ Manual checks included using each page without a mouse, viewing the page at diff
 The automated tests were completed using the latest version of axe: [https://www.deque.com/axe/](https://www.deque.com/axe/).
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
-4,12,2022-03-21 16:55:26.816023+00:00,Pages we checked,html,"{% load common_tags %}
-<table id=""urls-to-copy"" caption=""Names and URLs of pages we checked"">
-	<thead>
-		<tr>
-			<th id=""name"">Page Name</th>
-			<th id=""url"">URL</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for page in audit.testable_pages %}
-			<tr valign=""top"" >
-				<td headers=""name"">{{ page }}</td>
-				<td headers=""url""><a href=""{{ page.url }}""  rel=""noopener noreferrer"" target=""_blank"">
-					{{ page.url }}</a></td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table>",4
-5,19,2022-03-21 16:55:26.818137+00:00,The issues we found,html,"{% load common_tags %}
-<p>Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.</p>
+4,14,2022-03-21 16:55:26.816023+00:00,Pages we checked,urls,,4
+5,21,2022-03-21 16:55:26.818137+00:00,The issues we found,issues,"Only serious accessibility issues on the sample of pages we tested are listed in this report – these will cause problems for users with access needs when using your website. There are likely to be smaller errors which will make things more difficult for some users. You must carry out your own audit to find and fix issues on other pages.
 
-<h3>Issues</h3>
-{% if audit.failed_check_results %}
-<p>The following errors were found.</p>
-{% else %}
-<p>We found no major issues.</p>
-{% endif %}                            
-<table id=""issues-table"" caption=""Names and URLs of pages we checked"">
-	<thead>
-		<tr>
-			<th id=""issue"">Issue and description</th>
-			<th id=""where-found"">Where the issue was found</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for check_result in audit.failed_check_results %}
-			<tr valign=""top"" >
-				<td headers=""issue"">
-					<p>
-						{% if check_result.wcag_definition.url_on_w3 %}
-							<a href=""{{ check_result.wcag_definition.url_on_w3 }}"" rel=""noopener noreferrer"" target=""_blank"">
-								{{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}{% endif %}
-						{% else %}
-							{{ check_result.wcag_definition.name }}
-						{% endif %}
-					</p>
-					{{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
-				</td>
-				<td headers=""location"">
-					<p>{{ check_result.page }}</p>
-					<ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
-				</td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table>",5
+### Issues
+
+{% if audit.failed_check_results %}The following errors were found.{% else %}We found no major issues.{% endif %}",5
 6,7,2022-03-21 16:55:26.820959+00:00,Accessibility statement,markdown,"As part of the regulations you must publish an accessibility statement.
 
 {{ audit.get_accessibility_statement_state_display }}
