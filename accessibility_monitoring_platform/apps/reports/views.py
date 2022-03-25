@@ -189,6 +189,38 @@ class SectionUpdateView(ReportUpdateView):
             record_model_update_event(user=self.request.user, model_object=table_row_to_undelete)  # type: ignore
             table_row_to_undelete.save()
 
+        table_row_id_to_move_up: Optional[int] = get_id_from_button_name(
+            button_name_prefix="move_table_row_up_",
+            querydict=self.request.POST,
+        )
+        if table_row_id_to_move_up is not None:
+            table_row_to_move_up: TableRow = TableRow.objects.get(id=table_row_id_to_move_up)
+            original_row_number: int = table_row_to_move_up.row_number
+            table_row_to_swap_with: Optional[TableRow] = TableRow.objects.filter(
+                section=section, row_number__lt=original_row_number,
+            ).order_by("-row_number").first()
+            if table_row_to_swap_with:
+                table_row_to_move_up.row_number = table_row_to_swap_with.row_number
+                table_row_to_move_up.save()
+                table_row_to_swap_with.row_number = original_row_number
+                table_row_to_swap_with.save()
+
+        table_row_id_to_move_down: Optional[int] = get_id_from_button_name(
+            button_name_prefix="move_table_row_down_",
+            querydict=self.request.POST,
+        )
+        if table_row_id_to_move_down is not None:
+            table_row_to_move_down: TableRow = TableRow.objects.get(id=table_row_id_to_move_down)
+            original_row_number: int = table_row_to_move_down.row_number
+            table_row_to_swap_with: Optional[TableRow] = TableRow.objects.filter(
+                section=section, row_number__gt=original_row_number,
+            ).first()
+            if table_row_to_swap_with:
+                table_row_to_move_down.row_number = table_row_to_swap_with.row_number
+                table_row_to_move_down.save()
+                table_row_to_swap_with.row_number = original_row_number
+                table_row_to_swap_with.save()
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

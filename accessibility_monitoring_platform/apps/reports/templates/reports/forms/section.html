@@ -66,8 +66,20 @@
                                                     {% if row_form.instance.id %}
                                                         <input
                                                             type="submit"
-                                                            value="Remove row from report"
+                                                            value="Hide row from report"
                                                             name="delete_table_row_{{ row_form.instance.id }}"
+                                                            class="govuk-button govuk-button--secondary"
+                                                            data-module="govuk-button" />
+                                                        <input
+                                                            type="submit"
+                                                            value="Move row up"
+                                                            name="move_table_row_up_{{ row_form.instance.id }}"
+                                                            class="govuk-button govuk-button--secondary"
+                                                            data-module="govuk-button" />
+                                                        <input
+                                                            type="submit"
+                                                            value="Move row down"
+                                                            name="move_table_row_down_{{ row_form.instance.id }}"
                                                             class="govuk-button govuk-button--secondary"
                                                             data-module="govuk-button" />
                                                     {% endif %}
@@ -83,7 +95,7 @@
                     {% if section.deleted_table_rows %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Deleted rows</h2>
+                            <h2 class="govuk-heading-m">Hidden rows</h2>
                             <table class="govuk-table">
                                 <tbody class="govuk-table__body">
                                 {% for table_row in section.deleted_table_rows %}
@@ -92,12 +104,13 @@
                                             <div class="govuk-grid-row">
                                                 <div class="govuk-grid-column-one-half">
                                                     {{ table_row.cell_content_1|markdown_to_html}}
+                                                    This row is hidden and will not appear in the final report.
                                                 </div>
                                                 <div class="govuk-grid-column-one-half">
                                                     {{ table_row.cell_content_2|markdown_to_html}}
                                                     <input
                                                         type="submit"
-                                                        value="Unremove row from report"
+                                                        value="Unhide row from report"
                                                         name="undelete_table_row_{{ table_row.id }}"
                                                         class="govuk-button govuk-button--secondary"
                                                         data-module="govuk-button" />
@@ -109,8 +122,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        {% endif %}
                     </div>
+                    {% endif %}
                     {% if table_rows_formset.forms %}
                     <div id="add_row" class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
