@@ -174,7 +174,9 @@ class SectionUpdateView(ReportUpdateView):
             querydict=self.request.POST,
         )
         if table_row_id_to_delete is not None:
-            table_row_to_delete: TableRow = TableRow.objects.get(id=table_row_id_to_delete)
+            table_row_to_delete: TableRow = TableRow.objects.get(
+                id=table_row_id_to_delete
+            )
             table_row_to_delete.is_deleted = True
             record_model_update_event(user=self.request.user, model_object=table_row_to_delete)  # type: ignore
             table_row_to_delete.save()
@@ -184,7 +186,9 @@ class SectionUpdateView(ReportUpdateView):
             querydict=self.request.POST,
         )
         if table_row_id_to_undelete is not None:
-            table_row_to_undelete: TableRow = TableRow.objects.get(id=table_row_id_to_undelete)
+            table_row_to_undelete: TableRow = TableRow.objects.get(
+                id=table_row_id_to_undelete
+            )
             table_row_to_undelete.is_deleted = False
             record_model_update_event(user=self.request.user, model_object=table_row_to_undelete)  # type: ignore
             table_row_to_undelete.save()
@@ -194,11 +198,15 @@ class SectionUpdateView(ReportUpdateView):
             querydict=self.request.POST,
         )
         if table_row_id_to_move_up is not None:
-            table_row_to_move_up: TableRow = TableRow.objects.get(id=table_row_id_to_move_up)
+            table_row_to_move_up: TableRow = TableRow.objects.get(
+                id=table_row_id_to_move_up
+            )
             original_row_number: int = table_row_to_move_up.row_number
-            table_row_to_swap_with: Optional[TableRow] = TableRow.objects.filter(
-                section=section, row_number__lt=original_row_number,
-            ).order_by("-row_number").first()
+            table_row_to_swap_with: Optional[TableRow] = (
+                section.table_rows.filter(row_number__lt=original_row_number)
+                .order_by("-row_number")
+                .first()
+            )
             if table_row_to_swap_with:
                 table_row_to_move_up.row_number = table_row_to_swap_with.row_number
                 table_row_to_move_up.save()
@@ -210,10 +218,12 @@ class SectionUpdateView(ReportUpdateView):
             querydict=self.request.POST,
         )
         if table_row_id_to_move_down is not None:
-            table_row_to_move_down: TableRow = TableRow.objects.get(id=table_row_id_to_move_down)
+            table_row_to_move_down: TableRow = TableRow.objects.get(
+                id=table_row_id_to_move_down
+            )
             original_row_number: int = table_row_to_move_down.row_number
-            table_row_to_swap_with: Optional[TableRow] = TableRow.objects.filter(
-                section=section, row_number__gt=original_row_number,
+            table_row_to_swap_with: Optional[TableRow] = section.table_rows.filter(
+                row_number__gt=original_row_number
             ).first()
             if table_row_to_swap_with:
                 table_row_to_move_down.row_number = table_row_to_swap_with.row_number

@@ -91,7 +91,9 @@ def extract_domain_from_url(url: str) -> str:
     return domain_match.group(1) if domain_match else ""
 
 
-def get_id_from_button_name(button_name_prefix: str, querydict: QueryDict) -> Optional[int]:
+def get_id_from_button_name(
+    button_name_prefix: str, querydict: QueryDict
+) -> Optional[int]:
     """
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
