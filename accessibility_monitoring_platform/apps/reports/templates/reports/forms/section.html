@@ -50,45 +50,102 @@
                     </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
+                            <h2 class="govuk-heading-m">
+                                {% if section.template_type == 'urls' %}
+                                    Pages
+                                {% elif section.template_type == 'issues' %}
+                                    Issues
+                                {% endif %}
+                            </h2>
                             <table class="govuk-table">
+                                <thead>
+                                    <tr>
+                                        <td class="govuk-table__cell">
+                                            <div class="govuk-grid-row">
+                                                <div class="govuk-grid-column-one-half">
+                                                    {% if section.template_type == 'urls' %}
+                                                        <b>Page Name</b>
+                                                    {% elif section.template_type == 'issues' %}
+                                                        <b>Issue and description</b>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="govuk-grid-column-one-half">
+                                                    {% if section.template_type == 'urls' %}
+                                                        <b>URL</b>
+                                                    {% elif section.template_type == 'issues' %}
+                                                        <b>Where the issue was found</b>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                </thead>
                                 <tbody class="govuk-table__body">
                                 {% for row_form in table_rows_formset %}
                                     <tr class="govuk-table__row">
                                         <td class="govuk-table__cell">
-                                            <div class="govuk-grid-row">
-                                                <div class="govuk-grid-column-one-half">
-                                                    {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
-                                                    {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
-                                                    {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
-                                                </div>
-                                                <div class="govuk-grid-column-one-half">
-                                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
-                                                </div>
-                                            </div>
-                                            {% if row_form.instance.id %}
+                                            {% if row_form.instance.is_deleted %}
                                                 <div class="govuk-grid-row">
-                                                    <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end; margin-bottom:0;">
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {{ row_form.instance.cell_content_1|markdown_to_html}}
+                                                        {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
+                                                        {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
+                                                        {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
+                                                    </div>
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {{ row_form.instance.cell_content_2|markdown_to_html}}
+                                                        {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                                    </div>
+                                                </div>
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end;">
+                                                        <b>This row is hidden and will not appear in the final report.</b>
                                                         <input
                                                             type="submit"
-                                                            value="Hide row from report"
-                                                            name="delete_table_row_{{ row_form.instance.id }}"
+                                                            value="Unhide row from report"
+                                                            name="undelete_table_row_{{ row_form.instance.id }}"
                                                             class="govuk-link amp-button-as-link"
-                                                            data-module="govuk-button" />
-                                                        <input
-                                                            type="submit"
-                                                            value="Move row up"
-                                                            name="move_table_row_up_{{ row_form.instance.id }}"
-                                                            class="govuk-link amp-button-as-link"
-                                                            data-module="govuk-button" />
-                                                        <input
-                                                            type="submit"
-                                                            value="Move row down"
-                                                            name="move_table_row_down_{{ row_form.instance.id }}"
-                                                            class="govuk-link govuk-link--no-visited-state amp-button-as-link"
-                                                            style="margin-right:0;"
+                                                            style="margin-left:15px;margin-right:0;"
                                                             data-module="govuk-button" />
                                                     </div>
                                                 </div>
+                                            {% else %}
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
+                                                        {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
+                                                        {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
+                                                    </div>
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                                    </div>
+                                                </div>
+                                                {% if row_form.instance.id %}
+                                                    <div class="govuk-grid-row">
+                                                        <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end; margin-bottom:0;">
+                                                            <input
+                                                                type="submit"
+                                                                value="Hide row from report"
+                                                                name="delete_table_row_{{ row_form.instance.id }}"
+                                                                class="govuk-link amp-button-as-link"
+                                                                data-module="govuk-button" />
+                                                            <input
+                                                                type="submit"
+                                                                value="Move row up"
+                                                                name="move_table_row_up_{{ row_form.instance.id }}"
+                                                                class="govuk-link amp-button-as-link"
+                                                                data-module="govuk-button" />
+                                                            <input
+                                                                type="submit"
+                                                                value="Move row down"
+                                                                name="move_table_row_down_{{ row_form.instance.id }}"
+                                                                class="govuk-link govuk-link--no-visited-state amp-button-as-link"
+                                                                style="margin-right:0;"
+                                                                data-module="govuk-button" />
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -97,43 +154,6 @@
                             </table>
                         </div>
                     </div>
-                    {% if section.deleted_table_rows %}
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m">Hidden rows</h2>
-                            <table class="govuk-table">
-                                <tbody class="govuk-table__body">
-                                {% for table_row in section.deleted_table_rows %}
-                                    <tr class="govuk-table__row">
-                                        <td class="govuk-table__cell">
-                                            <div class="govuk-grid-row">
-                                                <div class="govuk-grid-column-one-half">
-                                                    {{ table_row.cell_content_1|markdown_to_html}}
-                                                </div>
-                                                <div class="govuk-grid-column-one-half">
-                                                    {{ table_row.cell_content_2|markdown_to_html}}
-                                                </div>
-                                            </div>
-                                            <div class="govuk-grid-row">
-                                                <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end;">
-                                                    <b>This row is hidden and will not appear in the final report.</b>
-                                                    <input
-                                                        type="submit"
-                                                        value="Unhide row from report"
-                                                        name="undelete_table_row_{{ table_row.id }}"
-                                                        class="govuk-link amp-button-as-link"
-                                                        style="margin-left:15px;margin-right:0;"
-                                                        data-module="govuk-button" />
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    {% endif %}
                     {% if table_rows_formset.forms %}
                     <div id="add_row" class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">

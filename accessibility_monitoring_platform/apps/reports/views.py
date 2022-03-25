@@ -3,6 +3,7 @@ Views for reports app
 """
 from typing import Any, Dict, List, Optional, Type
 
+from django import forms
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.forms.models import ModelForm
@@ -139,12 +140,17 @@ class SectionUpdateView(ReportUpdateView):
         else:
             if "add_row" in self.request.GET:
                 table_rows_formset: TableRowFormsetOneExtra = TableRowFormsetOneExtra(
-                    queryset=section.table_rows,  # type: ignore
+                    queryset=section.tablerow_set.all(),  # type: ignore
                 )
             else:
                 table_rows_formset: TableRowFormset = TableRowFormset(
-                    queryset=section.table_rows,  # type: ignore
+                    queryset=section.tablerow_set.all(),  # type: ignore
                 )
+
+        for form in table_rows_formset.forms:
+            if form.instance.is_deleted:
+                form.fields["cell_content_1"].widget = forms.HiddenInput()
+                form.fields["cell_content_2"].widget = forms.HiddenInput()
 
         context["table_rows_formset"] = table_rows_formset
         return context
