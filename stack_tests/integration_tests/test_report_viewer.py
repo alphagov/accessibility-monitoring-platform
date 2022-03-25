@@ -2,17 +2,17 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from app.parse_json import parse_integration_tests_json
 import argparse
-import re
 
 
 parser = argparse.ArgumentParser(description="Settings for integration tests")
 
 parser.add_argument(
-    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
+    "-s" "--settings-json",
+    dest="settings_json",
+    help="Path for json settings",
 )
 
 args = parser.parse_args()
@@ -42,13 +42,6 @@ class SeleniumTest(unittest.TestCase):
             executable_path=ChromeDriverManager().install(),
             options=options,
         )
-
-    # def login(self):
-    #     """Login in to platform"""
-    #     self.driver.get("http://localhost:8002/accounts/login/?next=/")
-    #     self.driver.find_element_by_name("username").send_keys("admin@email.com")
-    #     self.driver.find_element_by_name("password").send_keys("secret")
-    #     self.driver.find_element_by_xpath('//input[@value="Submit"]').click()
 
 
 class TestHomepage(SeleniumTest):

@@ -39,7 +39,11 @@ def check_input(args: Any, config: Any):
         print(config["space_name"])
         print(BColours.BOLD + "Creating app: " + BColours.ENDC, end="", flush=True)
         print(config["app_name"])
-        print(BColours.BOLD + "Creating report viewer app: " + BColours.ENDC, end="", flush=True)
+        print(
+            BColours.BOLD + "Creating report viewer app: " + BColours.ENDC,
+            end="",
+            flush=True,
+        )
         print(config["report_viewer_app_name"])
         print(BColours.BOLD + "Creating database: " + BColours.ENDC, end="", flush=True)
         print(config["db_name"])

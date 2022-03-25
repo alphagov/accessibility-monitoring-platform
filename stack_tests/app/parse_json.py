@@ -12,6 +12,7 @@ class IntegrationTestsSettingsType(TypedDict):
     Args:
         TypedDict ([type]): Type for integration test object
     """
+
     name: str
     date: str
     docker_compose_path: str
