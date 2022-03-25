@@ -15,9 +15,13 @@ from .models import (
     TEMPLATE_TYPE_ISSUES,
 )
 
-WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description }}{% endif %}{% endif %}
+WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %}: {{ wcag_definition.description|safe }}{% endif %}{% endif %}
+
 {{ wcag_definition.report_boilerplate }}
 """
+CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}
+
+* {{ check_result.notes|safe }}"""
 
 
 def generate_report_content(report: Report) -> None:
@@ -31,6 +35,7 @@ def generate_report_content(report: Report) -> None:
     report.section_set.all().delete()  # type: ignore
     context: Context = Context({"audit": report.case.audit})
     wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
+    check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
 
     for base_template in base_templates:
         template: Template = Template(base_template.content)
@@ -59,11 +64,16 @@ def generate_report_content(report: Report) -> None:
                     wcag_boilerplate_context: Context = Context(
                         {"wcag_definition": check_result.wcag_definition}
                     )
+                    check_result_context: Context = Context(
+                        {"check_result": check_result}
+                    )
                     TableRow.objects.create(
                         section=section,
                         cell_content_1=wcag_boilerplate_template.render(
                             context=wcag_boilerplate_context
                         ),
-                        cell_content_2=check_result.notes,
+                        cell_content_2=check_result_notes_template.render(
+                            context=check_result_context
+                        ),
                         row_number=row_number,
                     )
