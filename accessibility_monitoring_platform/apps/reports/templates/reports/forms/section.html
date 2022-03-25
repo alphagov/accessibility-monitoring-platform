@@ -63,28 +63,33 @@
                                                 </div>
                                                 <div class="govuk-grid-column-one-half">
                                                     {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
-                                                    {% if row_form.instance.id %}
+                                                </div>
+                                            </div>
+                                            {% if row_form.instance.id %}
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end; margin-bottom:0;">
                                                         <input
                                                             type="submit"
                                                             value="Hide row from report"
                                                             name="delete_table_row_{{ row_form.instance.id }}"
-                                                            class="govuk-button govuk-button--secondary"
+                                                            class="govuk-link amp-button-as-link"
                                                             data-module="govuk-button" />
                                                         <input
                                                             type="submit"
                                                             value="Move row up"
                                                             name="move_table_row_up_{{ row_form.instance.id }}"
-                                                            class="govuk-button govuk-button--secondary"
+                                                            class="govuk-link amp-button-as-link"
                                                             data-module="govuk-button" />
                                                         <input
                                                             type="submit"
                                                             value="Move row down"
                                                             name="move_table_row_down_{{ row_form.instance.id }}"
-                                                            class="govuk-button govuk-button--secondary"
+                                                            class="govuk-link govuk-link--no-visited-state amp-button-as-link"
+                                                            style="margin-right:0;"
                                                             data-module="govuk-button" />
-                                                    {% endif %}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -104,15 +109,20 @@
                                             <div class="govuk-grid-row">
                                                 <div class="govuk-grid-column-one-half">
                                                     {{ table_row.cell_content_1|markdown_to_html}}
-                                                    This row is hidden and will not appear in the final report.
                                                 </div>
                                                 <div class="govuk-grid-column-one-half">
                                                     {{ table_row.cell_content_2|markdown_to_html}}
+                                                </div>
+                                            </div>
+                                            <div class="govuk-grid-row">
+                                                <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end;">
+                                                    <b>This row is hidden and will not appear in the final report.</b>
                                                     <input
                                                         type="submit"
                                                         value="Unhide row from report"
                                                         name="undelete_table_row_{{ table_row.id }}"
-                                                        class="govuk-button govuk-button--secondary"
+                                                        class="govuk-link amp-button-as-link"
+                                                        style="margin-left:15px;margin-right:0;"
                                                         data-module="govuk-button" />
                                                 </div>
                                             </div>
