@@ -5,10 +5,10 @@ data/postgres-data/*
 db.sqlite3
 /accessibility_monitoring_platform/static/CACHE/
 /accessibility_monitoring_platform/static/compiled/*
+/report_viewer/static/CACHE/
+/report_viewer/static/compiled/*
 data/s3_files/*
 deploy_feature_to_paas/manifest.yml
-lighthouse-tests/results_noAuth.json
-lighthouse-tests/results_auth.json
 *.pyc
 requirements.txt
 ./docker/data/
@@ -21,6 +21,7 @@ filehash.txt
 **/data/s3_files/*
 cases.csv
 temp_manifest.yml
+backup.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

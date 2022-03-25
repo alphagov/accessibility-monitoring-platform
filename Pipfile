@@ -19,6 +19,7 @@ rcssmin = "*"
 xmltodict = "*"
 Markdown = "*"
 moto = "*"
+webdriver-manager = "*"
 
 [dev-packages]
 flake8 = "*"

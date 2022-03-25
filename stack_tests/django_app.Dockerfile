@@ -24,4 +24,4 @@ RUN pipenv lock -r > requirements.txt
 RUN pip3 install -r requirements.txt
 RUN npm i
 COPY accessibility_monitoring_platform/ /code/accessibility_monitoring_platform/
-RUN python3 -c 'from pulp import *; pulp()'
+RUN python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json

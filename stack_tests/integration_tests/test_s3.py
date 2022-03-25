@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+from webdriver_manager.chrome import ChromeDriverManager
 from app.parse_json import parse_integration_tests_json
 import argparse
 import re
@@ -42,7 +43,7 @@ class SeleniumTest(unittest.TestCase):
             options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
-            executable_path=f"""./stack_tests/chromedriver_{settings["chrome_version"]}""",
+            ChromeDriverManager().install(),
             options=options,
         )
 

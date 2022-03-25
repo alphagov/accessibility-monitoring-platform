@@ -20,6 +20,12 @@ omit =
         */stack_tests/*
         */deploy_feature_to_paas/*
         prepare_local_db.py
+        */report_viewer/asgi.py
+        */report_viewer/settings.py
+        */report_viewer/urls.py
+        */report_viewer/wsgi.py
+        */report_viewer/email.py
+        */report_viewer/settings/*
 
 
 [report]

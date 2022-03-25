@@ -1,0 +1,18 @@
+{
+    "static": {
+        "src": "./node_modules/govuk-frontend/govuk/assets",
+        "dest": "./report_viewer/static/compiled/assets"
+    },
+    "static_img": {
+        "src": "./report_viewer/static/img",
+        "dest": "./report_viewer/static/compiled/assets"
+    },
+    "css": {
+        "src": "./report_viewer/static/scss/init.scss",
+        "dest": "./report_viewer/static/compiled/css/init.css"
+    },
+    "js": {
+        "src": "./report_viewer/static/js",
+        "dest": "./report_viewer/static/compiled/js"
+    }
+}
