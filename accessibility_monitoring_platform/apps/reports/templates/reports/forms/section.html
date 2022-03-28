@@ -102,7 +102,20 @@
                                                             value="Unhide row from report"
                                                             name="undelete_table_row_{{ row_form.instance.id }}"
                                                             class="govuk-link amp-button-as-link"
-                                                            style="margin-left:15px;margin-right:0;"
+                                                            style="margin-left:15px;"
+                                                            data-module="govuk-button" />
+                                                        <input
+                                                            type="submit"
+                                                            value="Move row up"
+                                                            name="move_table_row_up_{{ row_form.instance.id }}"
+                                                            class="govuk-link amp-button-as-link"
+                                                            data-module="govuk-button" />
+                                                        <input
+                                                            type="submit"
+                                                            value="Move row down"
+                                                            name="move_table_row_down_{{ row_form.instance.id }}"
+                                                            class="govuk-link govuk-link--no-visited-state amp-button-as-link"
+                                                            style="margin-right:0;"
                                                             data-module="govuk-button" />
                                                     </div>
                                                 </div>

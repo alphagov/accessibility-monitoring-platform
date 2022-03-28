@@ -209,7 +209,7 @@ class SectionUpdateView(ReportUpdateView):
             )
             original_row_number: int = table_row_to_move_up.row_number
             table_row_to_swap_with: Optional[TableRow] = (
-                section.table_rows.filter(row_number__lt=original_row_number)
+                section.tablerow_set.filter(row_number__lt=original_row_number)  # type: ignore
                 .order_by("-row_number")
                 .first()
             )
@@ -228,7 +228,7 @@ class SectionUpdateView(ReportUpdateView):
                 id=table_row_id_to_move_down
             )
             original_row_number: int = table_row_to_move_down.row_number
-            table_row_to_swap_with: Optional[TableRow] = section.table_rows.filter(
+            table_row_to_swap_with: Optional[TableRow] = section.tablerow_set.filter(  # type: ignore
                 row_number__gt=original_row_number
             ).first()
             if table_row_to_swap_with:

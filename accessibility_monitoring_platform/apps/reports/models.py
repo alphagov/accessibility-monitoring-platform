@@ -121,10 +121,6 @@ class Section(VersionModel):
     def table_rows(self):
         return self.tablerow_set.filter(is_deleted=False)  # type: ignore
 
-    @property
-    def deleted_table_rows(self):
-        return self.tablerow_set.filter(is_deleted=True)  # type: ignore
-
 
 class TableRow(VersionModel):
     """
