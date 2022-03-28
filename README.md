@@ -4,6 +4,10 @@ The accessibility monitoring platform is to support the accessibility auditing p
 
 It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
+There are two Django applications included in this repo. The accessibility monitoring platform is a case management system that records testing data and publishes reports. 
+
+The report viewer is a public-facing application used for public service bodies to view published reports.
+
 ## Index
 
 - [Requirements](#Requirements)
@@ -39,9 +43,8 @@ To set up your local sandbox, follow the instructions below.
 1. Create a virtual environment
 2. Activate the virtual environment
 3. Copy .env.example as .env
-4. Create a Django secret key
-5. Fill in AWS_ACCESS_KEY_ID_S3_STORE and AWS_SECRET_ACCESS_KEY_S3_STORE in .env
-6. Run `make init`
+4. Fill in AWS_ACCESS_KEY_ID_S3_STORE and AWS_SECRET_ACCESS_KEY_S3_STORE in .env
+5. Run `make init`
 
 For example:
 
@@ -55,7 +58,7 @@ make init
 ---
 ## Start local development environment
 
-To launch the development environment:
+To start the accessibility monitoring platform environment:
 
 1. Start the pgAdmin, Postgres SQL, and Localstack environment
 2. Start the Django server
@@ -67,14 +70,31 @@ For example
 ```
 docker-compose up -d
 make start
-make watch
-make sync
+make watch_accessibility_monitoring_platform
+make sync_accessibility_monitoring_platform
 ```
+
+To start the report viewer platform:
+
+1. Start the pgAdmin, Postgres SQL, and Localstack environment
+2. Start the Django server
+3. Start the Pulp watch process in a new terminal
+4. Start browser-sync (if needed) in a new terminal
+
+For example
+
+```
+docker-compose up -d
+make start_report_viewer
+make watch_report_viewer
+make sync_report_viewer
+```
+
 ---
 
 ## Testing
 
-There is currently two types of automated testing; unit, and integration testing.
+There are currently two types of automated testing; unit, and integration testing.
 
 Unit testing is started with
 
@@ -103,7 +123,7 @@ Ensure your tests work with `make int_test` before creating a pull request.
 
 Pulp is our proprietary Python replacement for Gulp and handles the deployment of JS, SCSS, and static files.
 
-Gulp and Node were causing dependency issues, so we removed as much from the Node environment as could. It still uses Node to process the JS code, but Python manages the rest.
+Gulp and Node were causing dependency issues, so we removed as much from the Node environment as we could. It still uses Node to process the JS code, but Python manages the rest.
 
 It currently
 - Transpiles SCSS to CSS

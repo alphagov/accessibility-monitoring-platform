@@ -28,7 +28,7 @@ jobs:
         export INTEGRATION_TEST=FALSE
         export PLATFORM_VERSION=0.2.0
         npm i
-        python3 -c 'from pulp import pulp; pulp()'
+        make static_files_process
         make test
 
   int-test:

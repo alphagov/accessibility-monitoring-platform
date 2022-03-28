@@ -3,6 +3,7 @@
   "date": "20211006",
   "space_name": "monitoring-platform-staging",
   "app_name": "accessibility-monitoring-platform-staging",
+  "report_viewer_app_name": "accessibility-monitoring-report-viewer-staging",
   "db_name": "monitoring-platform-default-db",
   "db_ping_attempts": 21,
   "db_ping_interval": 30,

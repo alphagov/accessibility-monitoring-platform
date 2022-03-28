@@ -39,6 +39,28 @@ services:
             - INTEGRATION_TEST=TRUE
             - PLATFORM_VERSION=0.2
 
+    report_viewer:
+        image: "django_report_viewer:latest"
+        command: >
+            bash -c "
+            python3 manage_report_viewer.py collectstatic --noinput;
+            waitress-serve --port=8002 report_viewer.wsgi:application;
+            "
+        ports:
+            - "8002:8002"
+        depends_on:
+            - db
+            - localstack
+        environment:
+            - PGPASSWORD=secret
+            - VCAP_SERVICES={'aws-s3-bucket':[{'binding_guid':'00000000-0000-0000-0000-000000000000','credentials':{'aws_access_key_id':'key','aws_region':'us-east-1','aws_secret_access_key':'secret','bucket_name':'bucketname','deploy_env':''},'instance_guid':'00000000-0000-0000-0000-000000000000','instance_name':'instance_name','label':'aws-s3-bucket','name':'instance_name','plan':'default','tags':['s3'],'volume_mounts':[]}],'postgres':[{'credentials':{'uri':'postgres://admin:secret@db:5433/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'}]}
+            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8002'
+            - SECRET_KEY='123456789'
+            - DEBUG=TRUE
+            - PORT='8002'
+            - INTEGRATION_TEST=TRUE
+            - PLATFORM_VERSION=0.2
+
     localstack:
         image: localstack/localstack
         hostname: localstack

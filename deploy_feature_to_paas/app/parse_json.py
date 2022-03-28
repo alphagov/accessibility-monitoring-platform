@@ -27,6 +27,7 @@ class SettingsType(TypedDict):
     s3_bucket: str
     backup_db: bool
     s3_report_store: str
+    report_viewer_app_name: str
 
 
 def validate_json_dict(data: Any, class_type: Any) -> None:

@@ -1,31 +1,19 @@
+import os
+import json
+import sys
 from .helpers import (
     compile_sass_to_css,
     minify_javascript,
     recursive_copy,
 )
-import os
-
-paths = {
-    "static": {
-        "src": "./node_modules/govuk-frontend/govuk/assets",
-        "dest": "./accessibility_monitoring_platform/static/compiled/assets",
-    },
-    "static_img": {
-        "src": "./accessibility_monitoring_platform/static/img",
-        "dest": "./accessibility_monitoring_platform/static/compiled/assets",
-    },
-    "css": {
-        "src": "./accessibility_monitoring_platform/static/scss/init.scss",
-        "dest": "./accessibility_monitoring_platform/static/compiled/css/init.css",
-    },
-    "js": {
-        "src": "./accessibility_monitoring_platform/static/js",
-        "dest": "./accessibility_monitoring_platform/static/compiled/js",
-    },
-}
 
 
 def pulp():
+    filter_args_for_json_path = [x for x in sys.argv if ".json" in x]
+    json_string = filter_args_for_json_path[0]
+    with open(json_string) as json_file:
+        paths = json.load(json_file)
+
     minify_javascript(src=paths["js"]["src"], dest=paths["js"]["dest"])
 
     compile_sass_to_css(src=paths["css"]["src"], dest=paths["css"]["dest"])

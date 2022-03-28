@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
+from webdriver_manager.chrome import ChromeDriverManager
 
 from dotenv import load_dotenv
 from app.parse_json import parse_integration_tests_json
@@ -44,16 +45,13 @@ class SeleniumTest(unittest.TestCase):
             options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         self.driver: WebDriver = webdriver.Chrome(
-            executable_path=f"""./stack_tests/chromedriver_{settings["chrome_version"]}""",
+            executable_path=ChromeDriverManager().install(),
             options=options,
         )
 
     def login(self):
         """Login in to platform"""
         load_dotenv()
-        print(">>>")
-        print(os.getenv("SMOKE_TESTS_PASSWORD"))
-        print(">>>")
         if (
             os.getenv("SMOKE_TESTS_USERNAME") is None
             or os.getenv("SMOKE_TESTS_PASSWORD") is None
