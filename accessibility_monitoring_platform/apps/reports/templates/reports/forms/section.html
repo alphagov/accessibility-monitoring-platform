@@ -79,7 +79,7 @@
                                 </thead>
                                 <tbody class="govuk-table__body">
                                 {% for row_form in table_rows_formset %}
-                                    <tr class="govuk-table__row">
+                                    <tr id="row-{{ row_form.instance.id }}" class="govuk-table__row">
                                         {% if row_form.instance.is_deleted %}
                                             <td colspan="2" class="govuk-table__cell">
                                                 <div class="govuk-grid-row">

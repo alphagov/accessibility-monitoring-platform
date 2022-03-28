@@ -2,9 +2,16 @@
 """
 Utilities for reports app
 """
+from typing import Optional
 
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.template import Context, Template
+
+from ..common.utils import (
+    get_id_from_button_name,
+    record_model_update_event,
+)
 
 from .models import (
     Report,
@@ -77,3 +84,123 @@ def generate_report_content(report: Report) -> None:
                         ),
                         row_number=row_number,
                     )
+
+
+def delete_table_row(request: HttpRequest) -> Optional[int]:
+    """
+    Look for a button name in the request POST which indicates a
+    table row is to be deleted. If found, delete the row.
+
+    Args:
+        request (HttpRequest): The HTTP request.
+    """
+    table_row_id_to_delete: Optional[int] = get_id_from_button_name(
+        button_name_prefix="delete_table_row_",
+        querydict=request.POST,
+    )
+    if table_row_id_to_delete is not None:
+        table_row_to_delete: TableRow = TableRow.objects.get(
+            id=table_row_id_to_delete
+        )
+        table_row_to_delete.is_deleted = True
+        record_model_update_event(user=request.user, model_object=table_row_to_delete)  # type: ignore
+        table_row_to_delete.save()
+        return table_row_id_to_delete
+
+
+def undelete_table_row(request: HttpRequest) -> Optional[int]:
+    """
+    Look for a button name in the request POST which indicates a
+    table row is to be undeleted. If found, undelete the row.
+
+    Args:
+        request (HttpRequest): The HTTP request.
+    """
+    table_row_id_to_undelete: Optional[int] = get_id_from_button_name(
+        button_name_prefix="undelete_table_row_",
+        querydict=request.POST,
+    )
+    if table_row_id_to_undelete is not None:
+        table_row_to_undelete: TableRow = TableRow.objects.get(
+            id=table_row_id_to_undelete
+        )
+        table_row_to_undelete.is_deleted = False
+        record_model_update_event(user=request.user, model_object=table_row_to_undelete)  # type: ignore
+        table_row_to_undelete.save()
+        return table_row_id_to_undelete
+
+
+def move_table_row_up(request: HttpRequest, section: Section) -> Optional[int]:
+    """
+    Look for a button name in the request POST which indicates a
+    table row is to be moved up. If found, move the row up.
+
+    Args:
+        request (HttpRequest): The HTTP request.
+    """
+    table_row_id_to_move_up: Optional[int] = get_id_from_button_name(
+        button_name_prefix="move_table_row_up_",
+        querydict=request.POST,
+    )
+    if table_row_id_to_move_up is not None:
+        table_row_to_move_up: TableRow = TableRow.objects.get(
+            id=table_row_id_to_move_up
+        )
+        original_row_number: int = table_row_to_move_up.row_number
+        table_row_to_swap_with: Optional[TableRow] = (
+            section.tablerow_set.filter(row_number__lt=original_row_number)  # type: ignore
+            .order_by("-row_number")
+            .first()
+        )
+        if table_row_to_swap_with:
+            table_row_to_move_up.row_number = table_row_to_swap_with.row_number
+            table_row_to_move_up.save()
+            table_row_to_swap_with.row_number = original_row_number
+            table_row_to_swap_with.save()
+        return table_row_id_to_move_up
+
+
+def move_table_row_down(request: HttpRequest, section: Section) -> Optional[int]:
+    """
+    Look for a button name in the request POST which indicates a
+    table row is to be moved down. If found, move the row down.
+
+    Args:
+        request (HttpRequest): The HTTP request.
+    """
+    table_row_id_to_move_down: Optional[int] = get_id_from_button_name(
+        button_name_prefix="move_table_row_down_",
+        querydict=request.POST,
+    )
+    if table_row_id_to_move_down is not None:
+        table_row_to_move_down: TableRow = TableRow.objects.get(
+            id=table_row_id_to_move_down
+        )
+        original_row_number: int = table_row_to_move_down.row_number
+        table_row_to_swap_with: Optional[TableRow] = section.tablerow_set.filter(  # type: ignore
+            row_number__gt=original_row_number
+        ).first()
+        if table_row_to_swap_with:
+            table_row_to_move_down.row_number = table_row_to_swap_with.row_number
+            table_row_to_move_down.save()
+            table_row_to_swap_with.row_number = original_row_number
+            table_row_to_swap_with.save()
+        return table_row_id_to_move_down
+
+
+def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optional[int]:
+    """
+    Check for buttons by name in request.
+    If any are found then update the data accordingly.
+
+    Args:
+        request (HttpRequest): The HTTP request.
+    """
+    updated_table_row_id: Optional[int] = delete_table_row(request=request)
+    if updated_table_row_id is None:
+        updated_table_row_id = undelete_table_row(request=request)
+    if updated_table_row_id is None:
+        updated_table_row_id = move_table_row_up(request=request, section=section)
+    if updated_table_row_id is None:
+        updated_table_row_id = move_table_row_down(request=request, section=section)
+    return updated_table_row_id

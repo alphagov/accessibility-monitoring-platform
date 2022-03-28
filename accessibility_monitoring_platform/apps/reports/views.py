@@ -24,17 +24,15 @@ from .forms import (
     TableRowFormsetOneExtra,
 )
 from .models import Report, Section, TableRow, PublishedReport
-from .utils import generate_report_content
-
+from .utils import (
+    check_for_buttons_by_name,
+    generate_report_content,
+)
 from ..common.utils import (
-    get_id_from_button_name,
+    record_model_create_event,
     record_model_update_event,
 )
 from ..cases.models import Case
-
-from ..common.utils import (
-    record_model_create_event,
-)
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -175,80 +173,22 @@ class SectionUpdateView(ReportUpdateView):
         else:
             return super().form_invalid(form)
 
-        table_row_id_to_delete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="delete_table_row_",
-            querydict=self.request.POST,
-        )
-        if table_row_id_to_delete is not None:
-            table_row_to_delete: TableRow = TableRow.objects.get(
-                id=table_row_id_to_delete
-            )
-            table_row_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=table_row_to_delete)  # type: ignore
-            table_row_to_delete.save()
-
-        table_row_id_to_undelete: Optional[int] = get_id_from_button_name(
-            button_name_prefix="undelete_table_row_",
-            querydict=self.request.POST,
-        )
-        if table_row_id_to_undelete is not None:
-            table_row_to_undelete: TableRow = TableRow.objects.get(
-                id=table_row_id_to_undelete
-            )
-            table_row_to_undelete.is_deleted = False
-            record_model_update_event(user=self.request.user, model_object=table_row_to_undelete)  # type: ignore
-            table_row_to_undelete.save()
-
-        table_row_id_to_move_up: Optional[int] = get_id_from_button_name(
-            button_name_prefix="move_table_row_up_",
-            querydict=self.request.POST,
-        )
-        if table_row_id_to_move_up is not None:
-            table_row_to_move_up: TableRow = TableRow.objects.get(
-                id=table_row_id_to_move_up
-            )
-            original_row_number: int = table_row_to_move_up.row_number
-            table_row_to_swap_with: Optional[TableRow] = (
-                section.tablerow_set.filter(row_number__lt=original_row_number)  # type: ignore
-                .order_by("-row_number")
-                .first()
-            )
-            if table_row_to_swap_with:
-                table_row_to_move_up.row_number = table_row_to_swap_with.row_number
-                table_row_to_move_up.save()
-                table_row_to_swap_with.row_number = original_row_number
-                table_row_to_swap_with.save()
-
-        table_row_id_to_move_down: Optional[int] = get_id_from_button_name(
-            button_name_prefix="move_table_row_down_",
-            querydict=self.request.POST,
-        )
-        if table_row_id_to_move_down is not None:
-            table_row_to_move_down: TableRow = TableRow.objects.get(
-                id=table_row_id_to_move_down
-            )
-            original_row_number: int = table_row_to_move_down.row_number
-            table_row_to_swap_with: Optional[TableRow] = section.tablerow_set.filter(  # type: ignore
-                row_number__gt=original_row_number
-            ).first()
-            if table_row_to_swap_with:
-                table_row_to_move_down.row_number = table_row_to_swap_with.row_number
-                table_row_to_move_down.save()
-                table_row_to_swap_with.row_number = original_row_number
-                table_row_to_swap_with.save()
-
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        section: Section = self.object  # type: ignore
+        updated_table_row_id: Optional[int] = check_for_buttons_by_name(request=self.request, section=section)
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
             return reverse("reports:report-detail", kwargs=report_pk)
         if "add_row" in self.request.POST:
             section_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             url: str = reverse("reports:edit-report-section", kwargs=section_pk)
-            url: str = f"{url}?add_row=true"
+            url: str = f"{url}?add_row=true#row-None"
             return url
+        if updated_table_row_id is not None:
+            return f"{self.request.path}#row-{updated_table_row_id}"
         return super().get_success_url()
 
 
