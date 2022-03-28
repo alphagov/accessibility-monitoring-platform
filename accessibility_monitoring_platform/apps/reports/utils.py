@@ -99,9 +99,7 @@ def delete_table_row(request: HttpRequest) -> Optional[int]:
         querydict=request.POST,
     )
     if table_row_id_to_delete is not None:
-        table_row_to_delete: TableRow = TableRow.objects.get(
-            id=table_row_id_to_delete
-        )
+        table_row_to_delete: TableRow = TableRow.objects.get(id=table_row_id_to_delete)
         table_row_to_delete.is_deleted = True
         record_model_update_event(user=request.user, model_object=table_row_to_delete)  # type: ignore
         table_row_to_delete.save()

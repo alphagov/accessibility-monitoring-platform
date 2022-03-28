@@ -178,7 +178,9 @@ class SectionUpdateView(ReportUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         section: Section = self.object  # type: ignore
-        updated_table_row_id: Optional[int] = check_for_buttons_by_name(request=self.request, section=section)
+        updated_table_row_id: Optional[int] = check_for_buttons_by_name(
+            request=self.request, section=section
+        )
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
             return reverse("reports:report-detail", kwargs=report_pk)
