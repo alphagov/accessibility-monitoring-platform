@@ -196,10 +196,12 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     """
 
     for page_type in MANDATORY_PAGE_TYPES:
-        page: Page = Page.objects.create(audit=audit, page_type=page_type)  # type: ignore
         if page_type == PAGE_TYPE_HOME:
-            page.url = audit.case.home_page_url
-            page.save()
+            Page.objects.create(
+                audit=audit, page_type=page_type, url=audit.case.home_page_url
+            )
+        else:
+            Page.objects.create(audit=audit, page_type=page_type)
 
 
 def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:
