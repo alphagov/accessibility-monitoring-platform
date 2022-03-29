@@ -29,6 +29,10 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ 
 CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}
 
 * {{ check_result.notes|safe }}"""
+DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
+UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
+MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
+MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
 
 
 def generate_report_content(report: Report) -> None:
@@ -95,7 +99,7 @@ def delete_table_row(request: HttpRequest) -> Optional[int]:
         request (HttpRequest): The HTTP request.
     """
     table_row_id_to_delete: Optional[int] = get_id_from_button_name(
-        button_name_prefix="delete_table_row_",
+        button_name_prefix=DELETE_ROW_BUTTON_PREFIX,
         querydict=request.POST,
     )
     if table_row_id_to_delete is not None:
@@ -115,7 +119,7 @@ def undelete_table_row(request: HttpRequest) -> Optional[int]:
         request (HttpRequest): The HTTP request.
     """
     table_row_id_to_undelete: Optional[int] = get_id_from_button_name(
-        button_name_prefix="undelete_table_row_",
+        button_name_prefix=UNDELETE_ROW_BUTTON_PREFIX,
         querydict=request.POST,
     )
     if table_row_id_to_undelete is not None:
@@ -137,7 +141,7 @@ def move_table_row_up(request: HttpRequest, section: Section) -> Optional[int]:
         request (HttpRequest): The HTTP request.
     """
     table_row_id_to_move_up: Optional[int] = get_id_from_button_name(
-        button_name_prefix="move_table_row_up_",
+        button_name_prefix=MOVE_ROW_UP_BUTTON_PREFIX,
         querydict=request.POST,
     )
     if table_row_id_to_move_up is not None:
@@ -167,7 +171,7 @@ def move_table_row_down(request: HttpRequest, section: Section) -> Optional[int]
         request (HttpRequest): The HTTP request.
     """
     table_row_id_to_move_down: Optional[int] = get_id_from_button_name(
-        button_name_prefix="move_table_row_down_",
+        button_name_prefix=MOVE_ROW_DOWN_BUTTON_PREFIX,
         querydict=request.POST,
     )
     if table_row_id_to_move_down is not None:
