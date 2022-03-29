@@ -62,7 +62,7 @@
             {% include 'cases/helpers/case_title.html' with case=report.case %}
             {% include "cases/helpers/messages.html" %}
             {% if report.publishedreport_set.all %}
-                {% include 'reports/helpers/published_report.html' %}
+                {% include 'reports/helpers/published_report_warning.html' %}
             {% endif %}
         </div>
 
@@ -93,7 +93,12 @@
                             {% else %}
                                 {{ section.content|markdown_to_html }}
                             {% endif %}
-                            {% include 'reports/helpers/tables.html' %}
+                            {% if section.template_type == 'urls' and section.visible_table_rows.all %}
+                                {% include 'reports/helpers/table_urls.html' %}
+                            {% endif %}
+                            {% if section.template_type == 'issues' and section.visible_table_rows.all %}
+                                {% include 'reports/helpers/table_issues.html' %}
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}

@@ -12,7 +12,13 @@ from django.urls import reverse
 from ...audits.models import Audit
 from ...cases.models import Case
 
-from ..models import Report, PublishedReport, Section
+from ..models import Report, PublishedReport, TableRow, Section
+from ..utils import (
+    DELETE_ROW_BUTTON_PREFIX,
+    UNDELETE_ROW_BUTTON_PREFIX,
+    MOVE_ROW_UP_BUTTON_PREFIX,
+    MOVE_ROW_DOWN_BUTTON_PREFIX,
+)
 
 SECTION_NAME: str = "Section name"
 SECTION_CONTENT: str = "I am section content"
@@ -210,3 +216,41 @@ def test_report_edit_section_redirects_to_details(admin_client):
 
     assert response.status_code == 302
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+
+
+@pytest.mark.parametrize(
+    "button_prefix",
+    [
+        DELETE_ROW_BUTTON_PREFIX,
+        UNDELETE_ROW_BUTTON_PREFIX,
+        MOVE_ROW_UP_BUTTON_PREFIX,
+        MOVE_ROW_DOWN_BUTTON_PREFIX,
+    ],
+)
+@pytest.mark.django_db
+def test_report_edit_section_stays_on_page_on_row_button_pressed(
+    button_prefix, admin_client
+):
+    """Test that report edit section stays on page when row-related button pressed"""
+    report: Report = create_report()
+    section: Section = create_section(report)
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    table_row: TableRow = TableRow.objects.create(section=section, row_number=1)
+    table_row_id: int = table_row.id  # type: ignore
+    url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "version": section.version,
+            "template_type": "markdown",
+            f"{button_prefix}{table_row_id}": "Button value",
+            "form-TOTAL_FORMS": 0,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == f"{url}#row-{table_row_id}"
