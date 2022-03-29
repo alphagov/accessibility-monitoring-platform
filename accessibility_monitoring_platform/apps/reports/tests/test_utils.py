@@ -123,7 +123,9 @@ def test_delete_table_row(rf):
     """Test delete_table_row marks table row as deleted"""
     table_row: TableRow = create_table_row()
     table_row_id: int = table_row.id  # type: ignore
-    request: HttpRequest = rf.post("/", {f"{DELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"})
+    request: HttpRequest = rf.post(
+        "/", {f"{DELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"}
+    )
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@…", password="secret"
     )
@@ -142,7 +144,9 @@ def test_undelete_table_row(rf):
     """Test undelete_table_row marks table row as not deleted"""
     table_row: TableRow = create_table_row()
     table_row_id: int = table_row.id  # type: ignore
-    request: HttpRequest = rf.post("/", {f"{UNDELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"})
+    request: HttpRequest = rf.post(
+        "/", {f"{UNDELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"}
+    )
     user: User = User.objects.create_user(  # type: ignore
         username="mockuser", email="mockuser@…", password="secret"
     )
@@ -168,7 +172,9 @@ def test_move_table_row_up(rf):
         section=table_row.section, row_number=PREVIOUS_ROW_POSITION
     )
 
-    request: HttpRequest = rf.post("/", {f"{MOVE_ROW_UP_BUTTON_PREFIX}{table_row_id}": "Button"})
+    request: HttpRequest = rf.post(
+        "/", {f"{MOVE_ROW_UP_BUTTON_PREFIX}{table_row_id}": "Button"}
+    )
 
     move_table_row_up(request=request, section=table_row.section)
 
@@ -190,7 +196,9 @@ def test_move_table_row_down(rf):
         section=table_row.section, row_number=NEXT_ROW_POSITION
     )
 
-    request: HttpRequest = rf.post("/", {f"{MOVE_ROW_DOWN_BUTTON_PREFIX}{table_row_id}": "Button"})
+    request: HttpRequest = rf.post(
+        "/", {f"{MOVE_ROW_DOWN_BUTTON_PREFIX}{table_row_id}": "Button"}
+    )
 
     move_table_row_down(request=request, section=table_row.section)
 

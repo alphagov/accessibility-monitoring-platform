@@ -118,6 +118,10 @@ class Section(VersionModel):
         return f"report-section-{self.id}"  # type: ignore
 
     @property
+    def has_table(self):
+        return self.tablerow_set.count() > 0  # type: ignore
+
+    @property
     def visible_table_rows(self):
         return self.tablerow_set.filter(is_deleted=False)  # type: ignore
 

@@ -133,54 +133,60 @@ class SectionUpdateView(ReportUpdateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         section: Section = self.object  # type: ignore
 
-        if self.request.POST:
-            table_rows_formset: TableRowFormset = TableRowFormset(self.request.POST)
-        else:
-            if "add_row" in self.request.GET:
-                table_rows_formset: TableRowFormsetOneExtra = TableRowFormsetOneExtra(
-                    queryset=section.tablerow_set.all(),  # type: ignore
-                )
+        if section.has_table:
+            if self.request.POST:
+                table_rows_formset: TableRowFormset = TableRowFormset(self.request.POST)
             else:
-                table_rows_formset: TableRowFormset = TableRowFormset(
-                    queryset=section.tablerow_set.all(),  # type: ignore
-                )
+                if "add_row" in self.request.GET:
+                    table_rows_formset: TableRowFormsetOneExtra = (
+                        TableRowFormsetOneExtra(
+                            queryset=section.tablerow_set.all(),  # type: ignore
+                        )
+                    )
+                else:
+                    table_rows_formset: TableRowFormset = TableRowFormset(
+                        queryset=section.tablerow_set.all(),  # type: ignore
+                    )
 
-        for form in table_rows_formset.forms:
-            if form.instance.is_deleted:
-                form.fields["cell_content_1"].widget = forms.HiddenInput()
-                form.fields["cell_content_2"].widget = forms.HiddenInput()
+            for form in table_rows_formset.forms:
+                if form.instance.is_deleted:
+                    form.fields["cell_content_1"].widget = forms.HiddenInput()
+                    form.fields["cell_content_2"].widget = forms.HiddenInput()
 
-        context["table_rows_formset"] = table_rows_formset
+            context["table_rows_formset"] = table_rows_formset
         return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()
-        table_rows_formset: TableRowFormset = context["table_rows_formset"]
         section: Section = form.save(commit=False)
 
-        if table_rows_formset.is_valid():
-            table_rows: List[TableRow] = table_rows_formset.save(commit=False)
-            for table_row in table_rows:
-                if not table_row.section_id:  # type: ignore
-                    table_row.section = section
-                    table_row.row_number = section.tablerow_set.count() + 1  # type: ignore
-                    table_row.save()
-                    record_model_create_event(user=self.request.user, model_object=table_row)  # type: ignore
-                else:
-                    record_model_update_event(user=self.request.user, model_object=table_row)  # type: ignore
-                    table_row.save()
-        else:
-            return super().form_invalid(form)
-
+        if section.has_table:
+            table_rows_formset: TableRowFormset = context["table_rows_formset"]
+            if table_rows_formset.is_valid():
+                table_rows: List[TableRow] = table_rows_formset.save(commit=False)
+                for table_row in table_rows:
+                    if not table_row.section_id:  # type: ignore
+                        table_row.section = section
+                        table_row.row_number = section.tablerow_set.count() + 1  # type: ignore
+                        table_row.save()
+                        record_model_create_event(user=self.request.user, model_object=table_row)  # type: ignore
+                    else:
+                        record_model_update_event(user=self.request.user, model_object=table_row)  # type: ignore
+                        table_row.save()
+            else:
+                return super().form_invalid(form)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         section: Section = self.object  # type: ignore
-        updated_table_row_id: Optional[int] = check_for_buttons_by_name(
-            request=self.request, section=section
-        )
+        if section.has_table:
+            updated_table_row_id: Optional[int] = check_for_buttons_by_name(
+                request=self.request, section=section
+            )
+            if updated_table_row_id is not None:
+                return f"{self.request.path}#row-{updated_table_row_id}"
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
             return reverse("reports:report-detail", kwargs=report_pk)
@@ -189,8 +195,6 @@ class SectionUpdateView(ReportUpdateView):
             url: str = reverse("reports:edit-report-section", kwargs=section_pk)
             url: str = f"{url}?add_row=true#row-None"
             return url
-        if updated_table_row_id is not None:
-            return f"{self.request.path}#row-{updated_table_row_id}"
         return super().get_success_url()
 
 
