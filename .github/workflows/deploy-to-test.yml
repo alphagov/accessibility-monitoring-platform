@@ -31,7 +31,7 @@ jobs:
         export INTEGRATION_TEST=FALSE
         export PLATFORM_VERSION=0.2.0
         npm i
-        python3 -c 'from pulp import *; pulp()'
+        make static_files_process
         python manage.py collectstatic --noinput
         make test
 
@@ -93,7 +93,7 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         npm i
-        python3 -c 'from pulp import *; pulp()'
+        make static_files_process
         python manage.py collectstatic --noinput
 
     - name: Installing cloud foundry
@@ -119,6 +119,7 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         python3 stack_tests/main.py -s ./stack_tests/smoke_tests_test_env_settings.json
+        python3 stack_tests/main.py -s ./stack_tests/smoke_tests_report_viewer_test_env_settings.json
       env:
         SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
         SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}

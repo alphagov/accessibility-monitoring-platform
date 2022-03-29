@@ -16,6 +16,7 @@ class BuildEnv:
         build_direction: str,
         space_name: str,
         app_name: str,
+        report_viewer_app_name: str,
         db_name: str,
         template_object: Any,
         template_path: str,
@@ -43,6 +44,7 @@ class BuildEnv:
         self.build_direction = build_direction
         self.space_name = space_name
         self.app_name = app_name
+        self.report_viewer_app_name = report_viewer_app_name
         self.db_name = db_name
         self.db_ping_attempts = db_ping_attempts
         self.db_ping_interval = db_ping_interval
@@ -193,6 +195,7 @@ class BuildEnv:
             check=True,
         )  # Deploys Django app
         print(f">>> website: {self.app_name}.london.cloudapps.digital")
+        print(f">>> website: {self.report_viewer_app_name}.london.cloudapps.digital")
 
     def clean_up(self):
         """Removes local files"""

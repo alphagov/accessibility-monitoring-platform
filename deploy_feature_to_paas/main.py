@@ -25,11 +25,17 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
+    "-s" "--settings-json",
+    dest="settings_json",
+    help="Path for json settings",
 )
 
 parser.add_argument(
-    "-f" "--force", type=bool, dest="force", default=False, help="Skip yes input"
+    "-f" "--force",
+    type=bool,
+    dest="force",
+    default=False,
+    help="Skip yes input",
 )
 
 
@@ -50,22 +56,31 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config: SettingsType = parse_settings_json(args.settings_json)
 
+    git_branch_name: str = subprocess.check_output(
+        ["git", "branch", "--show-current"]
+    ).decode("utf-8")
+    user: Union[str, None] = os.environ.get("USER")
+    user_anon: str = user[:4] if user else "unknown"
+
     if config["space_name"] == "git_branch":
         print(">>> Creating space name from git branch")
-        git_branch_name: str = subprocess.check_output(
-            ["git", "branch", "--show-current"]
-        ).decode("utf-8")
-        user: Union[str, None] = os.environ.get("USER")
-        user_anon: str = user[:4] if user else "unknown"
         config["space_name"] = f"{user_anon}--{git_branch_name}".replace("\n", "")
+
+    if config["app_name"] == "git_branch":
+        print(">>> Creating app name from git branch")
         config["app_name"] = git_branch_name.replace("\n", "")
+
+    if config["report_viewer_app_name"] == "git_branch":
+        print(">>> Creating report viewer app name from git branch")
+        config["report_viewer_app_name"] = f"""{config["app_name"]}-report-viewer"""
 
     template_object = {
         "app_name": config["app_name"],
-        "url": config["app_name"],
+        "report_viewer_app_name": config["report_viewer_app_name"],
         "secret_key": get_random_secret_key(),
         "db": config["db_name"],
         "s3_report_store": config["s3_report_store"],
+        "PORT": "$PORT",
     }
 
     check_if_login()
@@ -98,12 +113,13 @@ if __name__ == "__main__":
         build_direction=args.build_direction,
         space_name=config["space_name"],
         app_name=config["app_name"],
+        report_viewer_app_name=config["report_viewer_app_name"],
         db_name=config["db_name"],
         template_object=template_object,
         template_path=config["template_path"],
         db_ping_attempts=config["db_ping_attempts"],
         db_ping_interval=config["db_ping_interval"],
-        manifest_path=config["temp_db_copy_path"],
+        manifest_path=config["temp_manifest_path"],
         backup_location="./backup.sql",
         s3_report_store=config["s3_report_store"],
     )

@@ -13,7 +13,8 @@ def main():
     """Run administrative tasks."""
     if local:
         os.environ.setdefault(
-            "DJANGO_SETTINGS_MODULE", "accessibility_monitoring_platform.settings.local"
+            "DJANGO_SETTINGS_MODULE",
+            "accessibility_monitoring_platform.settings.local",
         )
     else:
         os.environ.setdefault(
