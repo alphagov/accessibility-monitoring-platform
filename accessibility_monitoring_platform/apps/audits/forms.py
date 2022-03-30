@@ -824,7 +824,7 @@ class AuditRetestStatement1UpdateForm(VersionForm):
     """
 
     audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement",
+        label="Link to 12-week saved accessibility statement, only if not compliant",
     )
     audit_retest_scope_state = AMPChoiceRadioField(
         label="",
@@ -891,7 +891,7 @@ class AuditRetestStatement2UpdateForm(VersionForm):
     """
 
     audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement",
+        label="Link to 12-week saved accessibility statement, only if not compliant",
     )
     audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
         label="",
