@@ -30,6 +30,7 @@ from .models import (
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
     MANDATORY_PAGE_TYPES,
+    PAGE_TYPE_HOME,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
@@ -195,7 +196,12 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
     """
 
     for page_type in MANDATORY_PAGE_TYPES:
-        Page.objects.create(audit=audit, page_type=page_type)  # type: ignore
+        if page_type == PAGE_TYPE_HOME:
+            Page.objects.create(
+                audit=audit, page_type=page_type, url=audit.case.home_page_url
+            )
+        else:
+            Page.objects.create(audit=audit, page_type=page_type)
 
 
 def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:
