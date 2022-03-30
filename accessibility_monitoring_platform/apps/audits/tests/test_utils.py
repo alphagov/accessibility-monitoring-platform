@@ -27,8 +27,10 @@ from ..models import (
     TEST_TYPE_PDF,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
+    MANDATORY_PAGE_TYPES,
 )
 from ..utils import (
+    create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     get_audit_metadata_rows,
@@ -40,6 +42,7 @@ from ..utils import (
     get_next_retest_page_url,
 )
 
+HOME_PAGE_URL: str = "https://example.com/home"
 USER_FIRST_NAME = "John"
 USER_LAST_NAME = "Smith"
 TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: List[str] = [
@@ -412,6 +415,20 @@ def create_audit_and_check_results() -> Audit:
     )
 
     return audit
+
+
+@pytest.mark.django_db
+def test_create_mandatory_pages_for_new_audit():
+    """Test that the mandatory pages are created for a new audit"""
+    case: Case = Case.objects.create(home_page_url=HOME_PAGE_URL)
+    audit: Audit = Audit.objects.create(case=case)
+    create_mandatory_pages_for_new_audit(audit=audit)
+
+    assert audit.page_audit.count() == len(MANDATORY_PAGE_TYPES)  # type: ignore
+
+    home_page: Page = audit.page_audit.filter(page_type=PAGE_TYPE_HOME).first()  # type: ignore
+
+    assert home_page.url == HOME_PAGE_URL
 
 
 @pytest.mark.django_db

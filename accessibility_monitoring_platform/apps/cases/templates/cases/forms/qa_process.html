@@ -62,6 +62,13 @@
                         </div>
                     </div>
                 </form>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                        Submitting a comment does not save any changes in the above fields.
+                    </strong>
+                </div>
                 {% comments_app request=request case_id=case.id page="qa_process" %}
                 {% read_notification request=request %}
             </div>
