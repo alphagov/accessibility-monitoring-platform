@@ -1482,91 +1482,91 @@ class TestCaseRetestingUI(TestCase):
         self.assertTrue(ACCESSIBILITY_STATEMENT_RETEST_NOTES in self.driver.page_source)
 
 
-class TestCaseCreateReport(TestCase):
-    """
-    Test case for integration tests of case to create report
+# class TestCaseCreateReport(TestCase):
+#     """
+#     Test case for integration tests of case to create report
 
-    Methods
-    -------
-    setUp()
-        Create case and test to report
-    test_start_report()
-        Tests whether report can be created
-    """
+#     Methods
+#     -------
+#     setUp()
+#         Create case and test to report
+#     test_start_report()
+#         Tests whether report can be created
+#     """
 
-    def setUp(self):
-        """Create case and test to report"""
-        super().setUp()
-        self.driver.find_element_by_link_text("Create case").click()
-        self.driver.find_element_by_name("organisation_name").send_keys(
-            REPORT_ORGANISATION_NAME
-        )
-        self.driver.find_element_by_name("home_page_url").send_keys(
-            REPORT_HOME_PAGE_URL
-        )
-        self.driver.find_element_by_css_selector(
-            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
-        ).click()
-        self.driver.find_element_by_name("save_exit").click()
+#     def setUp(self):
+#         """Create case and test to report"""
+#         super().setUp()
+#         self.driver.find_element_by_link_text("Create case").click()
+#         self.driver.find_element_by_name("organisation_name").send_keys(
+#             REPORT_ORGANISATION_NAME
+#         )
+#         self.driver.find_element_by_name("home_page_url").send_keys(
+#             REPORT_HOME_PAGE_URL
+#         )
+#         self.driver.find_element_by_css_selector(
+#             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+#         ).click()
+#         self.driver.find_element_by_name("save_exit").click()
 
-        self.driver.find_element_by_link_text(REPORT_ORGANISATION_NAME).click()
+#         self.driver.find_element_by_link_text(REPORT_ORGANISATION_NAME).click()
 
-        self.driver.find_element_by_link_text("Edit case details").click()
-        self.driver.find_element_by_css_selector(
-            "input[type='radio'][name='testing_methodology'][value='platform']"
-        ).click()
-        self.driver.find_element_by_css_selector(
-            "input[type='radio'][name='report_methodology'][value='platform']"
-        ).click()
-        self.driver.find_element_by_name("save").click()
+#         self.driver.find_element_by_link_text("Edit case details").click()
+#         self.driver.find_element_by_css_selector(
+#             "input[type='radio'][name='testing_methodology'][value='platform']"
+#         ).click()
+#         self.driver.find_element_by_css_selector(
+#             "input[type='radio'][name='report_methodology'][value='platform']"
+#         ).click()
+#         self.driver.find_element_by_name("save").click()
 
-        self.driver.find_element_by_link_text("Case").click()
+#         self.driver.find_element_by_link_text("Case").click()
 
-        self.driver.find_element_by_link_text("Edit testing details").click()
-        self.driver.find_element_by_link_text("Start test").click()
-        self.driver.find_element_by_name("save").click()
+#         self.driver.find_element_by_link_text("Edit testing details").click()
+#         self.driver.find_element_by_link_text("Start test").click()
+#         self.driver.find_element_by_name("save").click()
 
-        self.driver.find_element_by_link_text("Case").click()
+#         self.driver.find_element_by_link_text("Case").click()
 
-    def test_create_report(self):
-        """Tests whether report can be created"""
-        self.driver.find_element_by_link_text("Edit report details").click()
-        self.driver.find_element_by_link_text("Create report").click()
+#     def test_create_report(self):
+#         """Tests whether report can be created"""
+#         self.driver.find_element_by_link_text("Edit report details").click()
+#         self.driver.find_element_by_link_text("Create report").click()
 
-        self.assertTrue(">View report</h1>" in self.driver.page_source)
+#         self.assertTrue(">View report</h1>" in self.driver.page_source)
 
 
-class TestCaseReportsUI(TestCase):
-    """
-    Test case for integration tests of case to update report
+# class TestCaseReportsUI(TestCase):
+#     """
+#     Test case for integration tests of case to update report
 
-    Methods
-    -------
-    setUp()
-        Create case and test to report
-    test_update_report()
-        Tests whether report can be updated
-    """
+#     Methods
+#     -------
+#     setUp()
+#         Create case and test to report
+#     test_update_report()
+#         Tests whether report can be updated
+#     """
 
-    def setUp(self):
-        """Create case and test to report"""
-        super().setUp()
-        self.driver.find_element_by_link_text(REPORT_ORGANISATION_NAME).click()
-        self.driver.find_element_by_link_text("Edit testing details").click()
-        self.driver.find_element_by_link_text("View test").click()
-        self.driver.find_element_by_link_text("Case").click()
+#     def setUp(self):
+#         """Create case and test to report"""
+#         super().setUp()
+#         self.driver.find_element_by_link_text(REPORT_ORGANISATION_NAME).click()
+#         self.driver.find_element_by_link_text("Edit testing details").click()
+#         self.driver.find_element_by_link_text("View test").click()
+#         self.driver.find_element_by_link_text("Case").click()
 
-    def test_update_report(self):
-        """Tests whether report can be updated"""
-        self.driver.find_element_by_link_text("Edit report details").click()
-        self.driver.find_element_by_link_text("View report").click()
+#     def test_update_report(self):
+#         """Tests whether report can be updated"""
+#         self.driver.find_element_by_link_text("Edit report details").click()
+#         self.driver.find_element_by_link_text("View report").click()
 
-        self.driver.find_elements_by_link_text("Edit")[1].click()
+#         self.driver.find_elements_by_link_text("Edit")[1].click()
 
-        self.assertTrue(">Opening statement</h1>" in self.driver.page_source)
+#         self.assertTrue(">Opening statement</h1>" in self.driver.page_source)
 
-        self.driver.find_element_by_name("content").send_keys(REPORT_UPDATED_OPENING)
-        self.driver.find_element_by_name("save_exit").click()
+#         self.driver.find_element_by_name("content").send_keys(REPORT_UPDATED_OPENING)
+#         self.driver.find_element_by_name("save_exit").click()
 
-        self.assertTrue(">View report</h1>" in self.driver.page_source)
-        self.assertTrue(REPORT_UPDATED_OPENING in self.driver.page_source)
+#         self.assertTrue(">View report</h1>" in self.driver.page_source)
+#         self.assertTrue(REPORT_UPDATED_OPENING in self.driver.page_source)
