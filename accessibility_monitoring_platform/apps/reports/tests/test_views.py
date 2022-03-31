@@ -174,6 +174,27 @@ def test_section_edit_page_loads(admin_client):
 
 
 @pytest.mark.django_db
+def test_report_edit_metadata_save_stays_on_page(admin_client):
+    """
+    Test that pressing the save button on report edit metadata stays on the same page
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "version": report.version,
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == url
+
+
+@pytest.mark.django_db
 def test_report_edit_metadata_redirects_to_details(admin_client):
     """Test that report edit metadata redirects to report details on save"""
     report: Report = create_report()
@@ -190,6 +211,31 @@ def test_report_edit_metadata_redirects_to_details(admin_client):
 
     assert response.status_code == 302
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+
+
+@pytest.mark.django_db
+def test_report_edit_section_save_button_stays_on_page(admin_client):
+    """Test pressing save button on report edit section stays on page"""
+    report: Report = create_report()
+    section: Section = create_section(report)
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "version": section.version,
+            "template_type": "markdown",
+            "save": "Button value",
+            "form-TOTAL_FORMS": 0,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == url
 
 
 @pytest.mark.django_db
