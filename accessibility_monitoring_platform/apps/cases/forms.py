@@ -44,9 +44,9 @@ from .models import (
     WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     TESTING_METHODOLOGY_CHOICES,
-    TESTING_METHODOLOGY_PLATFORM,
-    REPORT_METHODOLOGY_CHOICES,
-    REPORT_METHODOLOGY_PLATFORM,
+    # TESTING_METHODOLOGY_PLATFORM,
+    # REPORT_METHODOLOGY_CHOICES,
+    # REPORT_METHODOLOGY_PLATFORM,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_READY_TO_REVIEW,
@@ -161,10 +161,11 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="Testing methodology?",
         choices=TESTING_METHODOLOGY_CHOICES,
     )
-    report_methodology = AMPChoiceRadioField(
-        label="Report methodology?",
-        choices=REPORT_METHODOLOGY_CHOICES,
-    )
+    # Hide report metholdology for now
+    # report_methodology = AMPChoiceRadioField(
+    #     label="Report methodology?",
+    #     choices=REPORT_METHODOLOGY_CHOICES,
+    # )
 
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
@@ -174,23 +175,23 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         super().__init__(*args, **kwargs)
         self.fields["sector"].empty_label = "Unknown"
 
-    def clean(self):
-        cleaned_data = super().clean()
-        testing_methodology = cleaned_data.get("testing_methodology")  # type: ignore
-        report_methodology = cleaned_data.get("report_methodology")  # type: ignore
-        if (
-            testing_methodology != TESTING_METHODOLOGY_PLATFORM
-            and report_methodology == REPORT_METHODOLOGY_PLATFORM
-        ):
-            self.add_error(
-                "testing_methodology",
-                "Testing methodology has to be platform for reporting methodology to be platform",
-            )
-            self.add_error(
-                "report_methodology",
-                "For reporting methodology to be platform, testing methodology has to be platform",
-            )
-        return cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     testing_methodology = cleaned_data.get("testing_methodology")  # type: ignore
+    #     report_methodology = cleaned_data.get("report_methodology")  # type: ignore
+    #     if (
+    #         testing_methodology != TESTING_METHODOLOGY_PLATFORM
+    #         and report_methodology == REPORT_METHODOLOGY_PLATFORM
+    #     ):
+    #         self.add_error(
+    #             "testing_methodology",
+    #             "Testing methodology has to be platform for reporting methodology to be platform",
+    #         )
+    #         self.add_error(
+    #             "report_methodology",
+    #             "For reporting methodology to be platform, testing methodology has to be platform",
+    #         )
+    #     return cleaned_data
 
     class Meta:
         model = Case
@@ -201,7 +202,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "organisation_name",
             "enforcement_body",
             "testing_methodology",
-            "report_methodology",
+            # "report_methodology",
             "psb_location",
             "sector",
             "is_complaint",
