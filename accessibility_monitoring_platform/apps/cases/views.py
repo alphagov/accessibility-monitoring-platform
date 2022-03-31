@@ -19,7 +19,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..notifications.utils import read_notification
+from ..notifications.utils import add_notification, read_notification
 
 from ..common.typing import IntOrNone
 from ..common.utils import (  # type: ignore
@@ -382,7 +382,20 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     template_name: str = "cases/forms/qa_process.html"
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
+        """
+        Detect the submit button used and act accordingly.
+        Notify auditor is case has been QA approved.
+        """
+        if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
+            case: Case = self.object
+            if case.auditor:
+                add_notification(
+                    user=case.auditor,
+                    body=f"{self.request.user.get_full_name()} QA approved Case {case}",  # type: ignore
+                    path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+                    list_description=f"{case} - QA process",
+                    request=self.request,
+                )
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("cases:edit-contact-details", kwargs=case_pk)
