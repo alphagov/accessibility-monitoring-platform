@@ -14,10 +14,7 @@ from accessibility_monitoring_platform.apps.common.views import (
 urlpatterns = [
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
-    path(
-        "reportgenerator/",
-        include("accessibility_monitoring_platform.apps.report_generator.urls"),
-    ),
+    path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),
     path(
         "report/", include("accessibility_monitoring_platform.apps.s3_read_write.urls")
     ),

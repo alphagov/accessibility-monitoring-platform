@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}{{ section.report.case.organisation_name }} | {{ section.name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' section.report.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-detail' section.report.id %}">Report</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                {{ section.name }}
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading=section.name case=section.report.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include 'common/error_summary.html' %}
+                {% if section.has_table and table_rows_formset.errors %}
+                    {% for form in table_rows_formset.forms %}
+                        {% if form.errors %}
+                            {% include 'common/error_summary.html' %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <form method="post" action="{% url 'reports:edit-report-section' section.id %}">
+                    {% csrf_token %}
+                    {% if section.has_table %}
+                        {{ table_rows_formset.management_form }}
+                    {% endif %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    {% if section.has_table %}
+                        {% include "./section_table.html" %}
+                    {% endif %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and return to report view"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'reports:report-preview' section.report.id %}"
+                                role="button"
+                                draggable="false"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                                target="_blank"
+                            >
+                                Preview
+                            </a>
+                            <a
+                                href="{% url 'reports:report-detail' section.report.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to report view
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
