@@ -15,7 +15,12 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...notifications.models import Notifications
-from ..models import Case, Contact, TESTING_METHODOLOGY_PLATFORM, REPORT_APPROVED_STATUS_APPROVED
+from ..models import (
+    Case,
+    Contact,
+    TESTING_METHODOLOGY_PLATFORM,
+    REPORT_APPROVED_STATUS_APPROVED,
+)
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
@@ -24,6 +29,7 @@ from ..views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     format_due_date_help_text,
+    CaseQAProcessUpdateView,
 )
 from ...audits.models import Audit
 from ...common.models import (
@@ -1681,12 +1687,16 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
     )
 
 
-def test_qa_process_approval_notifies_auditor(admin_client):
-    """Test that approving the report on the qa process page notifies the auditor"""
+@pytest.mark.django_db
+def test_qa_process_approval_notifies_auditor(rf):
+    """Test approving the report on the QA process page notifies the auditor"""
     user: User = User.objects.create()
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
 
-    response: HttpResponse = admin_client.post(
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.post(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
         {
             "version": case.version,
@@ -1694,12 +1704,20 @@ def test_qa_process_approval_notifies_auditor(admin_client):
             "save": "Button value",
         },
     )
+    request.user = request_user
+
+    response: HttpResponse = CaseQAProcessUpdateView.as_view()(request, pk=case.id)  # type: ignore
+
     assert response.status_code == 302
 
-    notification: Optional[Notifications] = Notifications.objects.filter(user=user).first()
+    notification: Optional[Notifications] = Notifications.objects.filter(
+        user=user
+    ).first()
 
     assert notification is not None
-    assert notification.body == f" QA approved Case {case}"
+    assert (
+        notification.body == f"{request_user.get_full_name()} QA approved Case {case}"
+    )
 
 
 @pytest.mark.parametrize(
