@@ -3,7 +3,7 @@ Tests for cases views
 """
 from datetime import date, datetime, timedelta
 import pytest
-from typing import Dict, List
+from typing import Dict, List, Optional
 from backports.zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -14,7 +14,8 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ..models import Case, Contact, TESTING_METHODOLOGY_PLATFORM
+from ...notifications.models import Notifications
+from ..models import Case, Contact, TESTING_METHODOLOGY_PLATFORM, REPORT_APPROVED_STATUS_APPROVED
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
@@ -1680,6 +1681,27 @@ def test_report_ready_to_review_with_no_report_error_messages(admin_client):
     )
 
 
+def test_qa_process_approval_notifies_auditor(admin_client):
+    """Test that approving the report on the qa process page notifies the auditor"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        {
+            "version": case.version,
+            "report_approved_status": REPORT_APPROVED_STATUS_APPROVED,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    notification: Optional[Notifications] = Notifications.objects.filter(user=user).first()
+
+    assert notification is not None
+    assert notification.body == f" QA approved Case {case}"
+
+
 @pytest.mark.parametrize(
     "useful_link, edit_url_name",
     [
@@ -2076,15 +2098,21 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Website compliance notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{COMPLIANCE_DECISION_NOTES}</p></td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Website compliance notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                <p>{COMPLIANCE_DECISION_NOTES}</p>
+            </td>
         </tr>""",
         html=True,
     )
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance decision</th>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Initial accessibility statement compliance decision
+            </th>
             <td class="govuk-table__cell amp-width-one-half">Not compliant</td>
         </tr>""",
         html=True,
@@ -2092,8 +2120,12 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{ACCESSIBILITY_STATEMENT_NOTES}</p></td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Initial accessibility statement compliance notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                <p>{ACCESSIBILITY_STATEMENT_NOTES}</p>
+            </td>
         </tr>""",
         html=True,
     )
