@@ -472,7 +472,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         elif "save_continue" in self.request.POST:
             return reverse("cases:edit-report-correspondence", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
-            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
+            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
         else:
             contact_id_to_delete: Optional[int] = get_id_from_button_name(
                 "remove_contact_", self.request.POST
