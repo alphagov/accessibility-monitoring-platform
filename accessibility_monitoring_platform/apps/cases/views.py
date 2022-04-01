@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 import urllib
 
 from django.contrib import messages
@@ -21,8 +21,7 @@ from django.views.generic.list import ListView
 
 from ..notifications.utils import add_notification, read_notification
 
-from ..common.typing import IntOrNone
-from ..common.utils import (  # type: ignore
+from ..common.utils import (
     format_date,
     download_as_csv,
     extract_domain_from_url,
@@ -41,6 +40,7 @@ from .models import (
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_DEFAULT,
+    REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
     CaseCreateForm,
@@ -365,6 +365,18 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         read_notification(self.request)
         return context
 
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "report_draft_url",
+                "report_review_status",
+                "report_notes",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -441,7 +453,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                     contact.save()
         else:
             return super().form_invalid(form)
-        contact_id_to_delete: IntOrNone = get_id_from_button_name(
+        contact_id_to_delete: Optional[int] = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
         )
@@ -462,7 +474,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         elif "add_contact" in self.request.POST:
             return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
         else:
-            contact_id_to_delete: IntOrNone = get_id_from_button_name(
+            contact_id_to_delete: Optional[int] = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:

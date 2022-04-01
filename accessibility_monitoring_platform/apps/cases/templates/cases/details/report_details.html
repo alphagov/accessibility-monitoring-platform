@@ -14,8 +14,23 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% for row in report_details_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
+        {% if case.report %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Link to report</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    <a
+                        href="{% url 'reports:report-detail' case.report.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        View report
+                    </a>
+                </td>
+            </tr>
+            {% include 'reports/helpers/report_metadata_rows.html' with report=case.report %}
+        {% else %}
+            {% for row in report_details_rows %}
+                {% include 'cases/helpers/detail_row.html' with row=row %}
+            {% endfor %}
+        {% endif %}
     </tbody>
 </table>

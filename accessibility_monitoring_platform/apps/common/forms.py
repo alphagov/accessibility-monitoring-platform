@@ -260,7 +260,7 @@ class AMPAuditorModelChoiceField(AMPModelChoiceField):
 
     def label_from_instance(self, obj):
         """Return full name from user"""
-        return obj.get_full_name()
+        return obj.get_full_name()  # type: ignore
 
 
 class AMPQAAuditorModelChoiceField(AMPAuditorModelChoiceField):

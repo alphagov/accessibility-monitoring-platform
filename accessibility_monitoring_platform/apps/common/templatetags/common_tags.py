@@ -8,6 +8,7 @@ from typing import Any, List
 import markdown
 
 from django import template
+from django.conf import settings
 from django.utils.safestring import mark_safe
 
 register = template.Library()
@@ -25,4 +26,9 @@ def list_item_by_index(items: List[Any], index: int) -> Any:
 @register.filter
 def markdown_to_html(text: str) -> str:
     """Convert markdown text into html"""
-    return mark_safe(markdown.markdown(escape(text)))
+    return mark_safe(
+        markdown.markdown(
+            escape(text),
+            extensions=settings.MARKDOWN_EXTENSIONS,
+        )
+    )
