@@ -33,8 +33,9 @@ load_dotenv()
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -49,10 +50,13 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 
 
-# Application definition
-
 INSTALLED_APPS = [
+    "report_viewer.apps.viewer",
     "report_viewer.apps.homepage",
+    "accessibility_monitoring_platform.apps.common",
+    "accessibility_monitoring_platform.apps.cases",
+    "accessibility_monitoring_platform.apps.s3_read_write",
+    "accessibility_monitoring_platform.apps.reports",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -78,7 +82,7 @@ ROOT_URLCONF = "report_viewer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [os.path.join(BASE_DIR, "report_viewer/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -166,10 +170,10 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_DIRS = [BASE_DIR / "static/compiled/"]
+STATICFILES_DIRS = [BASE_DIR / "accessibility_monitoring_platform/static/compiled/"]
 
 STATIC_URL = os.path.join(BASE_DIR, "/static/")
-STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
+STATIC_ROOT = os.path.join(BASE_DIR, "accessibility_monitoring_platform/static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CONTACT_ADMIN_EMAIL = (

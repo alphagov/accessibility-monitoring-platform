@@ -27,12 +27,15 @@ from .models import Report, Section, TableRow, PublishedReport
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
+    report_viewer_url,
 )
 from ..common.utils import (
     record_model_create_event,
     record_model_update_event,
 )
 from ..cases.models import Case
+from ..s3_read_write.utils import S3ReadWriteReport
+from ..s3_read_write.models import S3Report
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -214,7 +217,15 @@ class ReportPreviewTemplateView(ReportTemplateView):
     View to preview the report
     """
 
-    template_name: str = "reports/report_preview.html"
+    template_name: str = "reports/acccessibility_report_container.html"
+
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+        template: Template = loader.get_template(
+            f"""reports/acccessibility_report_{context["report"].report_version}.html"""
+        )
+        context["html_report"] = template.render(context, self.request)
+        return context
 
 
 class ReportConfirmRebuildTemplateView(ReportTemplateView):
@@ -245,13 +256,22 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     report: Report = get_object_or_404(Report, id=pk)
-    template: Template = loader.get_template("reports/report_preview.html")
+    template: Template = loader.get_template(
+        f"""reports/acccessibility_report_{report.report_version}.html"""
+    )
     context = {"report": report}
     html: str = template.render(context, request)
     PublishedReport.objects.create(
         report=report,
         created_by=request.user,
         html_content=html,
+    )
+    S3RWReport: S3ReadWriteReport = S3ReadWriteReport()
+    S3RWReport.upload_string_to_s3_as_html(
+        html_content=html,
+        case=report.case,
+        user=request.user,  # type: ignore
+        report_version=report.report_version
     )
     messages.add_message(
         request,
@@ -270,6 +290,17 @@ class PublishedReportListView(ListView):
 
     model: Type[PublishedReport] = PublishedReport
     context_object_name: str = "published_reports"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        report = Report.objects.get(id=self.kwargs.get("pk"))
+        context["s3Reports"] = S3Report.objects.filter(case=report.case)
+        context["reportViewerUrl"] = report_viewer_url(self.request.META['HTTP_HOST'])
+        # 
+        # context["reportViewerUrl"] = report_viewer_url("localhost:8001")
+        print(context["reportViewerUrl"])
+
+        return context
 
 
 class PublishedReportDetailView(DetailView):

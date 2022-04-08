@@ -1,6 +1,4 @@
 import boto3
-from typing import Union
-import os
 import uuid
 import re
 from ...settings.base import DEBUG, DATABASES, UNDER_TEST, S3_MOCK_ENDPOINT
@@ -39,29 +37,30 @@ class S3ReadWriteReport:
         self.bucket: str = DATABASES["aws-s3-bucket"]["bucket_name"]
 
     def upload_string_to_s3_as_html(
-        self, html_content: str, case: Case, user: User
+        self,
+        html_content: str,
+        case: Case,
+        user: User,
+        report_version: int,
     ) -> str:
         version = 1
         if S3Report.objects.filter(case=case).exists():
             version = len(S3Report.objects.filter(case=case)) + 1
 
-        platform_version: Union[str, None] = os.getenv("PLATFORM_VERSION")
-        if platform_version is None:
-            platform_version = "0.1.0"
-
         guid: str = str(uuid.uuid4())
 
-        # version of platform
         s3_url_for_report: str = self.url_builder(
             organisation_name=case.organisation_name,
             case_id=case.id,  # type: ignore
             version=version,
-            platform_version=platform_version,
+            report_version=report_version,
             guid=guid,
         )
 
         self.s3_client.put_object(
-            Body=html_content, Bucket=self.bucket, Key=s3_url_for_report
+            Body=html_content,
+            Bucket=self.bucket,
+            Key=s3_url_for_report,
         )
 
         s3report = S3Report(
@@ -75,7 +74,7 @@ class S3ReadWriteReport:
         s3report.save()
         return s3report.guid
 
-    def retrieve_raw_html_from_s3_by_guid(self, guid: str):
+    def retrieve_raw_html_from_s3_by_guid(self, guid: str) -> str:
         if S3Report.objects.filter(guid=guid).exists():
             s3file = S3Report.objects.get(guid=guid)
             obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
@@ -87,10 +86,10 @@ class S3ReadWriteReport:
         organisation_name: str,
         case_id: int,
         version: int,
-        platform_version: str,
+        report_version: str,
         guid: str,
     ) -> str:
         clean_orgnisation_name: str = re.sub(
             "[^a-zA-Z0-9]", "_", organisation_name
         ).lower()
-        return f"""caseid_{case_id}/org_{clean_orgnisation_name}__reportid_{version}__platformversion_{platform_version}__guid_{guid}.html"""
+        return f"""caseid_{case_id}/org_{clean_orgnisation_name}__reportid_{version}__reportversion_{report_version}__guid_{guid}.html"""

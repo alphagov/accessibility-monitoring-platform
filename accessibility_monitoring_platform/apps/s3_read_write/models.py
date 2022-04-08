@@ -1,8 +1,7 @@
 from django.db import models
-from typing import Union, Any
+from typing import Union
 from django.contrib.auth.models import User
 from ..cases.models import Case
-import uuid
 import os
 
 
