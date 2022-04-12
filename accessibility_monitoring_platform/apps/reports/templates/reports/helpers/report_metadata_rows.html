@@ -20,10 +20,10 @@
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">
-        Report ready to be approved?
+        Report ready for QA process?
     </th>
     <td class="govuk-table__cell amp-width-one-half">
-        {{ report.get_ready_for_qa_display }}
+        {{ report.case.get_report_review_status_display }}
     </td>
 </tr>
 <tr class="govuk-table__row">

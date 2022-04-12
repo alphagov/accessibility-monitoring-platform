@@ -9,13 +9,11 @@ from .models import (
     Report,
     Section,
     TableRow,
-    READY_FOR_QA_CHOICES,
     TEMPLATE_TYPE_HTML,
 )
 
 from ..common.forms import (
     VersionForm,
-    AMPChoiceRadioField,
     AMPTextField,
 )
 
@@ -25,18 +23,12 @@ class ReportMetadataUpdateForm(VersionForm):
     Form for editing report metadata
     """
 
-    ready_for_qa = AMPChoiceRadioField(
-        label="Report ready for QA process?",
-        choices=READY_FOR_QA_CHOICES,
-        help_text="This field effects the case status",
-    )
     notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Report
         fields: List[str] = [
             "version",
-            "ready_for_qa",
             "notes",
         ]
 

@@ -371,7 +371,6 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
             for fieldname in [
                 "report_draft_url",
-                "report_review_status",
                 "report_notes",
             ]:
                 form.fields[fieldname].widget = forms.HiddenInput()

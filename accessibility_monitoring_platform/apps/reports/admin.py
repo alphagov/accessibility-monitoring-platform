@@ -25,7 +25,6 @@ class ReportAdmin(admin.ModelAdmin):
     readonly_fields = ["created"]
     search_fields = ["case__organisation_name"]
     list_display = ["case", "created"]
-    list_filter = ["ready_for_qa"]
     inlines = [SectionInline]
 
 

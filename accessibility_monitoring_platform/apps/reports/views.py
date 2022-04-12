@@ -247,7 +247,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     report: Report = get_object_or_404(Report, id=pk)
     template: Template = loader.get_template("reports/report_preview.html")
     context = {"report": report}
-    html: str = template.render(context, request)
+    html: str = template.render(context, request)  # type: ignore
     PublishedReport.objects.create(
         report=report,
         created_by=request.user,

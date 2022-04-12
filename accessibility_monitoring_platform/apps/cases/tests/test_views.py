@@ -332,7 +332,7 @@ def test_delete_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-list")
+    assert response.url == reverse("cases:case-list")  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -372,7 +372,7 @@ def test_suspend_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -394,7 +394,7 @@ def test_unsuspend_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -495,7 +495,7 @@ def test_create_case_redirects_based_on_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url
+    assert response.url == expected_redirect_url  # type: ignore
 
 
 @pytest.mark.django_db
@@ -553,7 +553,7 @@ def test_create_case_can_create_duplicate_cases(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url
+    assert response.url == expected_redirect_url  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -671,7 +671,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert (
-        response.url
+        response.url  # type: ignore
         == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
     )
 
@@ -725,7 +725,7 @@ def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert (
-        response.url
+        response.url  # type: ignore
         == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
     )
 
@@ -1631,58 +1631,6 @@ def test_status_change_message_shown(admin_client):
         """<div class="govuk-inset-text">
             Status changed from 'Unassigned case' to 'Test in progress'
         </div>""",
-        html=True,
-    )
-
-
-def test_report_ready_to_review_with_no_report_error_messages(admin_client):
-    """
-    Test that the report details page shows the expected error messages
-    when the report is set to ready to review while the link to report draft is empty
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),  # type: ignore
-        {
-            "report_draft_url": "",
-            "report_review_status": "ready-to-review",
-            "version": case.version,
-            "save": "Save and continue",
-        },
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<ul class="govuk-list govuk-error-summary__list">
-            <li>
-                <a href="#id_report_draft_url-label">
-                    Add link to report draft, if report is ready to be reviewed
-                </a>
-            </li>
-            <li>
-                <a href="#id_report_review_status-label">
-                    Report cannot be ready to be reviewed without a link to report draft
-                </a>
-            </li>
-        </ul>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span>
-            Add link to report draft, if report is ready to be reviewed
-        </p>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span>
-            Report cannot be ready to be reviewed without a link to report draft
-        </p>""",
         html=True,
     )
 
