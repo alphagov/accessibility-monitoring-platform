@@ -95,7 +95,6 @@
                         <div class="govuk-grid-column-full">
                             {% if case.report_methodology != 'platform' %}
                                 {% include 'common/amp_field.html' with field=form.report_draft_url %}
-                                {% include 'common/amp_field.html' with field=form.report_review_status %}
                                 {% include 'common/amp_field.html' with field=form.report_notes %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.reporting_details_complete_date %}

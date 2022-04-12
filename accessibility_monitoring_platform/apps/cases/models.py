@@ -340,15 +340,15 @@ class Case(VersionModel):
 
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
+    report_notes = models.TextField(default="", blank=True)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
+
+    # QA process
     report_review_status = models.CharField(
         max_length=200,
         choices=REPORT_REVIEW_STATUS_CHOICES,
         default=REPORT_REVIEW_STATUS_DEFAULT,
     )
-    report_notes = models.TextField(default="", blank=True)
-    reporting_details_complete_date = models.DateField(null=True, blank=True)
-
-    # QA process
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
