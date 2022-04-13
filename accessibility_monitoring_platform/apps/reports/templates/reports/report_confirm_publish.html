@@ -29,7 +29,13 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">Are you sure you want to create a HTML report?</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">
+                        {% if report.case.report_approved_status == 'yes' %}
+                            Are you sure you want to create a HTML report?
+                        {% else %}
+                            Unable to publish report without QA approval
+                        {% endif %}
+                    </h1>
                 </div>
             </div>
         </div>
@@ -38,21 +44,40 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <p class="govuk-body-m">This will create a new permanent link available to share externally.</p>
-                <p class="govuk-body-m">This will not update existing published reports.</p>
-                <p class="govuk-body-m">Do you wish to continue?</p>
+                {% if report.case.report_approved_status == 'yes' %}
+                    <p class="govuk-body-m">This will create a new permanent link available to share externally.</p>
+                    <p class="govuk-body-m">This will not update existing published reports.</p>
+                    <p class="govuk-body-m">Do you wish to continue?</p>
+                {% else %}
+                    <p class="govuk-body-m">The following requirements are needed to publish this report</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>
+                            Mark report as ready to review in
+                            <a
+                                href="{% url 'cases:edit-qa-process' report.case.id %}"
+                                class="govuk-link govuk-link--no-visited-state">
+                                case > QA process
+                            </a>
+                            {% if report.case.report_review_status == 'ready-to-review' %}&check;{% endif %}
+                        </li>
+                        <li>Have the report approved by another auditor</li>
+                    </ul>
+                    <p class="govuk-body-m">Once those requirements are complete, the report can be published.</p>
+            {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full govuk-button-group">
-                <a href="{% url 'reports:report-publish' report.id %}"
-                    role="button"
-                    draggable="false"
-                    class="govuk-button"
-                    data-module="govuk-button"
-                >
-                    Create HTML report
-                </a>
+                {% if report.case.report_approved_status == 'yes' %}
+                    <a href="{% url 'reports:report-publish' report.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Create HTML report
+                    </a>
+                {% endif %}
                 <a
                     href="{% url 'reports:report-detail' report.id %}"
                     class="govuk-link govuk-link--no-visited-state"
