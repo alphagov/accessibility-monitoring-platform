@@ -37,10 +37,6 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.report_review_status %}
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>On call</b></label>
-                                <div class="govuk-hint">{{ platform.active_qa_auditor.get_full_name }}</div>
-                            </div>
                             {% include 'common/amp_field.html' with field=form.reviewer %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Link to report draft</b></label>
@@ -65,7 +61,7 @@
                                 </div>
                             </div>
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
-                            {% if case.report_methodology == 'platform' %}
+                            {% if case.report_methodology == 'platform' and case.report %}
                                 <div class="govuk-form-group">
                                     <label class="govuk-label"><b>Published report</b></label>
                                     <div class="govuk-hint">
