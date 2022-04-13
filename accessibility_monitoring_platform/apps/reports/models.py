@@ -59,6 +59,10 @@ class Report(VersionModel):
     def get_absolute_url(self) -> str:
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
+    @property
+    def published_report(self):
+        return self.publishedreport_set.all().first()  # type: ignore
+
 
 class BaseTemplate(VersionModel):
     """

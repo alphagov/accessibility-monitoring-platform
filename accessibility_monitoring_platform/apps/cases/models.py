@@ -829,7 +829,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def contact_exists(self):
+    def contact_exists(self) -> bool:
         return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
