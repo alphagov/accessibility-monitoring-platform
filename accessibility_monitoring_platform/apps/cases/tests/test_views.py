@@ -16,6 +16,7 @@ from django.urls import reverse
 
 from ...notifications.models import Notifications
 from ..models import (
+    REPORT_METHODOLOGY_PLATFORM,
     Case,
     Contact,
     TESTING_METHODOLOGY_PLATFORM,
@@ -39,6 +40,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import format_date, get_field_names_for_export
+from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
@@ -2094,4 +2096,51 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
             </td>
         </tr>""",
         html=True,
+    )
+
+
+def test_platform_report_correspondence_shows_link_to_report_if_none_published(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports show a link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<p class="govuk-body-m">
+            A published report does not exist for this case. Create a report in
+            <a href="{report_detail_url}" class="govuk-link govuk-link--no-visited-state">
+                case > report
+            </a>
+        </p>""",
+        html=True,
+    )
+
+
+def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client):
+    """
+    Test cases using platform-based reports show a link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "A published report does not exist for this case.", html=True
     )

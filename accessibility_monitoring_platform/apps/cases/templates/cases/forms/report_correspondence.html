@@ -37,7 +37,12 @@
                 {% if case.report_methodology == 'platform' and case.report.publishedreport_set.count == 0 %}
                     <p class="govuk-body-m">
                         A published report does not exist for this case. Create a report in
-                        case > report
+                        <a
+                            href="{% url 'reports:report-detail' case.report.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            case > report
+                        </a>
                     </p>
                 {% endif %}
                 <form method="post" action="{% url 'cases:edit-report-correspondence' case.id %}">
