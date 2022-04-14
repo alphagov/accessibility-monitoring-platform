@@ -1,3 +1,4 @@
+{% load common_tags %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 id="report-details" class="govuk-heading-l">Report details</h2>
@@ -26,7 +27,22 @@
                     </a>
                 </td>
             </tr>
-            {% include 'reports/helpers/report_metadata_rows.html' with report=case.report %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header amp-width-one-half">View final HTML report</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                    {% if case.report.published_report %}
+                        <a href="{% url 'reports:published-report-detail' case.report.published_report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            {{ case.report.published_report }}
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                    </td>
+            </tr>
         {% else %}
             {% for row in report_details_rows %}
                 {% include 'cases/helpers/detail_row.html' with row=row %}

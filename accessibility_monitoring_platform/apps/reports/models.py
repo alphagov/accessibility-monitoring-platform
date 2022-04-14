@@ -59,6 +59,10 @@ class Report(VersionModel):
     def get_absolute_url(self) -> str:
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
+    @property
+    def published_report(self):
+        return self.publishedreport_set.all().first()  # type: ignore
+
 
 class BaseTemplate(VersionModel):
     """
@@ -160,7 +164,7 @@ class PublishedReport(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.report} | {format_date(self.created)}")  # type: ignore
+        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()
