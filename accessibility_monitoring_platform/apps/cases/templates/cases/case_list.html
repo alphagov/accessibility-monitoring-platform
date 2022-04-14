@@ -111,27 +111,52 @@
                                             </p>
                                         </div>
                                     </div>
-                                    {% if case.zendesk_url or case.trello_url %}
-                                        <div class="govuk-grid-row">
-                                            <div class="govuk-grid-column-full">
-                                                {% if case.zendesk_url %}
-                                                    <a href="{{ case.zendesk_url }}"
-                                                        class="govuk-link"
-                                                        style="margin-right: 15px"
-                                                        rel="noreferrer noopener"
-                                                        target="_blank"
-                                                        rel="noreferrer noopener">Zendesk</a>
-                                                {% endif %}
-                                                {% if case.trello_url %}
-                                                    <a href="{{ case.trello_url }}"
-                                                        class="govuk-link"
-                                                        rel="noreferrer noopener"
-                                                        target="_blank"
-                                                        rel="noreferrer noopener">Trello</a>
-                                                {% endif %}
-                                            </div>
+                                    <div class="govuk-grid-row">
+                                        <div class="govuk-grid-column-full">
+                                            {% if case.zendesk_url %}
+                                                <a href="{{ case.zendesk_url }}"
+                                                    class="govuk-link"
+                                                    style="margin-right: 15px"
+                                                    rel="noreferrer noopener"
+                                                    target="_blank"
+                                                    rel="noreferrer noopener">Zendesk</a>
+                                            {% endif %}
+                                            {% if case.trello_url %}
+                                                <a href="{{ case.trello_url }}"
+                                                    class="govuk-link"
+                                                    style="margin-right: 15px"
+                                                    rel="noreferrer noopener"
+                                                    target="_blank"
+                                                    rel="noreferrer noopener">Trello</a>
+                                            {% endif %}
+                                            {% if case.testing_methodology == 'platform' and case.audit %}
+                                                <a
+                                                    href="{% url 'audits:audit-detail' case.audit.id %}"
+                                                    class="govuk-link govuk-link--no-visited-state"
+                                                    style="margin-right: 15px"
+                                                >
+                                                    View test
+                                                </a>
+                                            {% endif %}
+                                            {% if case.report_methodology == 'platform' and case.report %}
+                                                <a
+                                                    href="{% url 'reports:report-detail' case.report.id %}"
+                                                    class="govuk-link govuk-link--no-visited-state"
+                                                >
+                                                    View report
+                                                </a>
+                                            {% elif case.report_final_pdf_url %}
+                                                <a
+                                                    href="{{ case.report_final_pdf_url }}"
+                                                    class="govuk-link govuk-link--no-visited-state"
+                                                    rel="noreferrer noopener"
+                                                    target="_blank"
+                                                >
+                                                    View final PDF report
+                                                </a>
+                                            {% endif %}
                                         </div>
-                                    {% endif %}
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
