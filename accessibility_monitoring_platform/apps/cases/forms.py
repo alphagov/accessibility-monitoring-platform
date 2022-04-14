@@ -26,6 +26,8 @@ from ..common.forms import (
     AMPURLField,
 )
 from ..common.models import Sector
+from ..reports.models import PublishedReport
+
 from .models import (
     Case,
     Contact,
@@ -354,6 +356,11 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     Form for updating report correspondence details
     """
 
+    published_report_sent = AMPModelChoiceField(
+        label="Select which report is sent to PSB",
+        queryset=PublishedReport.objects.none(),
+        empty_label=None,
+    )
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
@@ -370,6 +377,7 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "published_report_sent",
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",

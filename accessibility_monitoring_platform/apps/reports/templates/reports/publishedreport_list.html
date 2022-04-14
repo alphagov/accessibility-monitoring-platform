@@ -48,7 +48,7 @@
                     <tbody class="govuk-table__body">
                         {% for published_report in published_reports %}
                         <tr class="govuk-table__row">
-                            <th class="govuk-table__cell">{{ published_report.created|date:"d/m/Y"}}</th>
+                            <th class="govuk-table__cell">{{ published_report }}</th>
                             <td class="govuk-table__cell">
                                 <a href="{% url 'reports:published-report-detail' published_report.id %}"
                                     class="govuk-link govuk-link--no-visited-state"

@@ -19,6 +19,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
+from accessibility_monitoring_platform.apps.reports.models import PublishedReport
+
 from ..notifications.utils import add_notification, read_notification
 
 from ..common.utils import (
@@ -495,16 +497,36 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
+        case: Case = form.instance
         form.fields[
             "report_followup_week_1_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_1_due_date
-        )
+        ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
         form.fields[
             "report_followup_week_4_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_4_due_date
-        )
+        ].help_text = format_due_date_help_text(case.report_followup_week_4_due_date)
+        if (
+            case.report_methodology == REPORT_METHODOLOGY_PLATFORM
+            and case.report
+            and case.report.publishedreport_set.count() > 0
+        ):
+            published_reports: QuerySet[
+                PublishedReport
+            ] = case.report.publishedreport_set.all()
+            form.fields["published_report_sent"].queryset = published_reports
+            published_report_url: str = reverse(
+                "reports:published-report-list", kwargs={"pk": case.report.id}
+            )
+            form.fields["published_report_sent"].help_text = mark_safe(
+                f"""There are {published_reports.count()} report versions.
+            View all report versions in
+            <a href="{published_report_url}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                report versions</a>
+            """
+            )
+        else:
+            form.fields["published_report_sent"].widget = forms.HiddenInput()
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
