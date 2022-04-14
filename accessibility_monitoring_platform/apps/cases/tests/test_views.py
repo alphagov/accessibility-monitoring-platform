@@ -40,7 +40,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import format_date, get_field_names_for_export
-from ...reports.models import Report
+from ...reports.models import Report, PublishedReport
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
@@ -2129,12 +2129,11 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
 
 def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client):
     """
-    Test cases using platform-based reports show a link to report details if no
+    Test cases using platform-based reports show no link to report details if no
     report has been published.
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
-    report: Report = Report.objects.create(case=case)
-    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+    Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
@@ -2144,3 +2143,21 @@ def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client
     assertNotContains(
         response, "A published report does not exist for this case.", html=True
     )
+
+
+def test_platform_report_correspondence_shows_published_reports_field(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports shows a field report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    PublishedReport.objects.create(report=report)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Select which report is sent to PSB")
