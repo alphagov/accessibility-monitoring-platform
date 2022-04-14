@@ -143,6 +143,24 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
+def test_report_details_page_shows_warning(admin_client):
+    """
+    Test that the report details page shows a warning advising user to
+    mark report as ready to review
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    create_section(report)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "If this report is ready to be reviewed, mark it")
+
+
 def test_published_report_detail_page_loads(admin_client):
     """Test that the published report detail page loads"""
     report: Report = create_report()
