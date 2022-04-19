@@ -142,7 +142,7 @@ class TableRow(VersionModel):
         return str(f"{self.section}: Table row {self.row_number}")
 
 
-class PublishedReport(VersionModel):
+class PublishedReport(models.Model):
     """
     Model for published report
     """
@@ -151,6 +151,7 @@ class PublishedReport(VersionModel):
         Report,
         on_delete=models.PROTECT,
     )
+    version = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         User,
@@ -164,12 +165,13 @@ class PublishedReport(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.report} | {format_date(self.created)}")  # type: ignore
+        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()
         if not self.created:
             self.created = now
+            self.version = self.report.publishedreport_set.count() + 1  # type: ignore
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:

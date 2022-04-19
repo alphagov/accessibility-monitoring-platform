@@ -2100,6 +2100,34 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     )
 
 
+def test_platform_report_correspondence_shows_link_to_report_if_none_published(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports show a link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<p class="govuk-body-m">
+            A published report does not exist for this case. Create a report in
+            <a href="{report_detail_url}" class="govuk-link govuk-link--no-visited-state">
+                case > report
+            </a>
+        </p>""",
+        html=True,
+    )
+
+
 def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
     """
     Test that the QA process page shows that the link to report draft is none
@@ -2146,6 +2174,42 @@ def test_non_platform_qa_process_shows_link_to_draft_report(admin_client):
         </div>""",
         html=True,
     )
+
+
+def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client):
+    """
+    Test cases using platform-based reports show no link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "A published report does not exist for this case.", html=True
+    )
+
+
+def test_platform_report_correspondence_shows_published_reports_field(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports shows a field report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    PublishedReport.objects.create(report=report)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Select which report is sent to PSB")
 
 
 def test_platform_qa_process_shows_no_link_to_preview_report(admin_client):
