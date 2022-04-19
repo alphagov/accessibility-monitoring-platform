@@ -4,6 +4,8 @@ Tests for reports views
 import pytest
 from typing import Dict
 
+from moto import mock_s3
+
 from pytest_django.asserts import assertContains
 
 from django.http import HttpResponse
@@ -69,6 +71,7 @@ def test_rebuild_report_redirects(admin_client):
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
 
 
+@mock_s3
 def test_publish_report_redirects(admin_client):
     """
     Test that report publish creates a PublishedReport object and
@@ -93,6 +96,7 @@ def test_publish_report_redirects(admin_client):
     )
 
 
+@mock_s3
 def test_report_published_message_shown(admin_client):
     """Test publishing the report causes a message to be shown on the next page"""
     report: Report = create_report()

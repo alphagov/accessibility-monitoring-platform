@@ -25,12 +25,3 @@ class S3Report(models.Model):
     deprecated = models.BooleanField(default=False)
     guid = models.CharField(max_length=40, blank=True)
     platform_version = models.CharField(blank=True, default="0.1.0", max_length=40)
-
-    def save(self, *args, **kwargs):
-
-        platform_version: Union[str, None] = os.getenv("PLATFORM_VERSION")
-        if platform_version:
-            self.platform_version = platform_version
-        else:
-            self.platform_version = "0.1.0"
-        super().save(*args, **kwargs)

@@ -295,11 +295,10 @@ class PublishedReportListView(ListView):
         context = super().get_context_data(**kwargs)
         report = Report.objects.get(id=self.kwargs.get("pk"))
         context["s3Reports"] = S3Report.objects.filter(case=report.case)
-        context["reportViewerUrl"] = report_viewer_url(self.request.META['HTTP_HOST'])
-        # 
-        # context["reportViewerUrl"] = report_viewer_url("localhost:8001")
-        print(context["reportViewerUrl"])
-
+        if "HTTP_HOST" in self.request.META:
+            context["reportViewerUrl"] = report_viewer_url(self.request.META['HTTP_HOST'])
+        else:
+            context["reportViewerUrl"] = ""
         return context
 
 

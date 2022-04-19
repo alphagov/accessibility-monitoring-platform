@@ -41,7 +41,7 @@ class S3ReadWriteReport:
         html_content: str,
         case: Case,
         user: User,
-        report_version: int,
+        report_version: str,
     ) -> str:
         version = 1
         if S3Report.objects.filter(case=case).exists():
