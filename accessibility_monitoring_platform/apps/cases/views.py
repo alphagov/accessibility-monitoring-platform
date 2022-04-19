@@ -394,6 +394,17 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
 
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "report_final_odt_url",
+                "report_final_pdf_url",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
+
     def get_success_url(self) -> str:
         """
         Detect the submit button used and act accordingly.
