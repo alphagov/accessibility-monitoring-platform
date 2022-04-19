@@ -186,6 +186,7 @@ class ReportBoilerplate(models.Model):
     This contains text which is not expected to change but which ought not
     require software development to amend.
     """
+
     title = models.TextField(default="", blank=True)
     title_caption = models.TextField(default="", blank=True)
     sub_header = models.TextField(default="", blank=True)

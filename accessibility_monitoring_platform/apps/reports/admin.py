@@ -3,7 +3,14 @@ Admin for reports
 """
 from django.contrib import admin
 
-from .models import Report, BaseTemplate, Section, TableRow, PublishedReport, ReportBoilerplate
+from .models import (
+    Report,
+    BaseTemplate,
+    Section,
+    TableRow,
+    PublishedReport,
+    ReportBoilerplate,
+)
 
 from ..common.admin import ExportCsvMixin
 

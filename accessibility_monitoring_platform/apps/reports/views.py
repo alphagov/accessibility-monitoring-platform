@@ -11,7 +11,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template import loader, Template
 from django.utils.safestring import mark_safe
 
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
@@ -22,8 +22,9 @@ from .forms import (
     SectionUpdateForm,
     TableRowFormset,
     TableRowFormsetOneExtra,
+    ReportBoilerplateUpdateForm,
 )
-from .models import Report, Section, TableRow, PublishedReport
+from .models import Report, Section, TableRow, PublishedReport, ReportBoilerplate
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
@@ -279,3 +280,17 @@ class PublishedReportDetailView(DetailView):
 
     model: Type[PublishedReport] = PublishedReport
     context_object_name: str = "published_report"
+
+
+class ReportBoilerplateUpdateView(UpdateView):
+    """
+    View to update report boilerplate
+    """
+
+    form_class: Type[ReportBoilerplateUpdateForm] = ReportBoilerplateUpdateForm
+    template_name: str = "reports/forms/boilerplate.html"
+    success_url: str = reverse_lazy("dashboard:home")
+
+    def get_object(self, queryset=None):
+        """Return report boilerplate object"""
+        return ReportBoilerplate.objects.all().first()
