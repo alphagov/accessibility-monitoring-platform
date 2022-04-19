@@ -3,7 +3,7 @@ Admin for reports
 """
 from django.contrib import admin
 
-from .models import Report, BaseTemplate, Section, TableRow, PublishedReport
+from .models import Report, BaseTemplate, Section, TableRow, PublishedReport, ReportBoilerplate
 
 from ..common.admin import ExportCsvMixin
 
@@ -86,3 +86,4 @@ admin.site.register(BaseTemplate, BaseTemplateAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(TableRow, TableRowAdmin)
 admin.site.register(PublishedReport, PublishedReportAdmin)
+admin.site.register(ReportBoilerplate)

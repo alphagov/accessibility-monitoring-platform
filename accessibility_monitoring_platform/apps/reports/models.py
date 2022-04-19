@@ -176,3 +176,25 @@ class PublishedReport(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:report-publish", kwargs={"pk": self.pk})
+
+
+class ReportBoilerplate(models.Model):
+    """
+
+    Model for report boilerplate text.
+
+    This contains text which is not expected to change but which ought not
+    require software development to amend.
+    """
+    title = models.TextField(default="", blank=True)
+    title_caption = models.TextField(default="", blank=True)
+    sub_header = models.TextField(default="", blank=True)
+    sent_by = models.TextField(default="", blank=True)
+    contact = models.TextField(default="", blank=True)
+    related_content = models.TextField(default="", blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str("Report boilerplate")
