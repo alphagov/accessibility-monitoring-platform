@@ -359,10 +359,10 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
     assertContains(response, "Create HTML report")
 
 
-def test_edit_report_boilerplate_page_loads(admin_client):
-    """Test that the edit report boilerplate page loads"""
+def test_edit_report_wrapper_page_loads(admin_client):
+    """Test that the edit report wrapper page loads"""
     response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report-boilerplate")
+        reverse("reports:edit-report-wrapper")
     )
 
     assert response.status_code == 200

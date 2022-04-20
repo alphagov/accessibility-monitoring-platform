@@ -29,7 +29,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'reports:edit-report-boilerplate' %}">
+                <form method="post" action="{% url 'reports:edit-report-wrapper' %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">

@@ -92,7 +92,7 @@ TableRowFormsetOneExtra: Any = forms.modelformset_factory(
 
 class ReportWrapperUpdateForm(forms.ModelForm):
     """
-    Form for editing report boilerplate
+    Form for editing report wrapper text
     """
 
     title = AMPCharFieldWide(label="Title")

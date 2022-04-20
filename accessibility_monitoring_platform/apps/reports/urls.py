@@ -79,8 +79,8 @@ urlpatterns: List[URLPattern] = [
         name="published-report-detail",
     ),
     path(
-        "edit-report-boilerplate/",
+        "edit-report-wrapper/",
         login_required(ReportWrapperUpdateView.as_view()),
-        name="edit-report-boilerplate",
+        name="edit-report-wrapper",
     ),
 ]

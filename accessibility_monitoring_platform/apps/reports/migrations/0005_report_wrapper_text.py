@@ -3,7 +3,7 @@
 from django.db import migrations
 
 
-REPORT_BOILERPLATE = {
+REPORT_WRAPPER_TEXT = {
     "title": "Accessibility report for {{ report.case.domain }}",
     "title_caption": "Accessibility report",
     "sub_header": "Accessibility report",
@@ -19,7 +19,7 @@ REPORT_BOILERPLATE = {
 
 def populate_report_wrapper(apps, schema_editor):  # pylint: disable=unused-argument
     ReportWrapper = apps.get_model("reports", "ReportWrapper")
-    ReportWrapper.objects.create(**REPORT_BOILERPLATE)
+    ReportWrapper.objects.create(**REPORT_WRAPPER_TEXT)
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
