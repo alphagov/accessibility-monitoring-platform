@@ -1,10 +1,11 @@
 """
 Models - reports
 """
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
 
@@ -24,6 +25,30 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
+
+
+class ReportBoilerplate(models.Model):
+    """
+
+    Model for report boilerplate text.
+
+    This contains text which is not expected to change but which ought not
+    require software development to amend.
+    """
+
+    title = models.TextField(default="", blank=True)
+    title_caption = models.TextField(default="", blank=True)
+    sub_header = models.TextField(default="", blank=True)
+    sent_by = models.TextField(default="", blank=True)
+    contact = models.TextField(default="", blank=True)
+    related_content = models.TextField(default="", blank=True)
+
+    class Meta:
+        verbose_name_plural = "Report boilerplate"
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str("Report boilerplate")
 
 
 class Report(VersionModel):
@@ -58,6 +83,26 @@ class Report(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
+
+    @property
+    def boilerplate(self):
+        report_boilerplate: Optional[
+            ReportBoilerplate
+        ] = ReportBoilerplate.objects.all().first()
+        rendered_templates: Dict[str, str] = {}
+        if report_boilerplate is not None:
+            context: Context = Context({"report": self})
+            for field in [
+                "title",
+                "title_caption",
+                "sub_header",
+                "sent_by",
+                "contact",
+                "related_content",
+            ]:
+                template: Template = Template(getattr(report_boilerplate, field))
+                rendered_templates[field] = template.render(context=context)
+        return rendered_templates
 
     @property
     def published_report(self):
@@ -176,26 +221,3 @@ class PublishedReport(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:report-publish", kwargs={"pk": self.pk})
-
-
-class ReportBoilerplate(models.Model):
-    """
-
-    Model for report boilerplate text.
-
-    This contains text which is not expected to change but which ought not
-    require software development to amend.
-    """
-
-    title = models.TextField(default="", blank=True)
-    title_caption = models.TextField(default="", blank=True)
-    sub_header = models.TextField(default="", blank=True)
-    sent_by = models.TextField(default="", blank=True)
-    contact = models.TextField(default="", blank=True)
-    related_content = models.TextField(default="", blank=True)
-
-    class Meta:
-        ordering = ["-id"]
-
-    def __str__(self) -> str:
-        return str("Report boilerplate")

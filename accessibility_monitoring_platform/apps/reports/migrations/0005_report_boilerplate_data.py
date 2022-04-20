@@ -5,7 +5,7 @@ from django.db import migrations
 
 
 REPORT_BOILERPLATE = {
-    "title": "Accessibility report for {{domain}}",
+    "title": "Accessibility report for {{ report.case.domain }}",
     "title_caption": "Accessibility report",
     "sub_header": "Accessibility report",
     "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",

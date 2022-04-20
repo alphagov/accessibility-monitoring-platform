@@ -291,6 +291,6 @@ class ReportBoilerplateUpdateView(UpdateView):
     template_name: str = "reports/forms/boilerplate.html"
     success_url: str = reverse_lazy("dashboard:home")
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None):  # pylint: disable=unused-argument
         """Return report boilerplate object"""
         return ReportBoilerplate.objects.all().first()
