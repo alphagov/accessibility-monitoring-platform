@@ -22,9 +22,9 @@ from .forms import (
     SectionUpdateForm,
     TableRowFormset,
     TableRowFormsetOneExtra,
-    ReportBoilerplateUpdateForm,
+    ReportWrapperUpdateForm,
 )
-from .models import Report, Section, TableRow, PublishedReport, ReportBoilerplate
+from .models import Report, Section, TableRow, PublishedReport, ReportWrapper
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
@@ -282,15 +282,15 @@ class PublishedReportDetailView(DetailView):
     context_object_name: str = "published_report"
 
 
-class ReportBoilerplateUpdateView(UpdateView):
+class ReportWrapperUpdateView(UpdateView):
     """
-    View to update report boilerplate
+    View to update report wrapper
     """
 
-    form_class: Type[ReportBoilerplateUpdateForm] = ReportBoilerplateUpdateForm
-    template_name: str = "reports/forms/boilerplate.html"
+    form_class: Type[ReportWrapperUpdateForm] = ReportWrapperUpdateForm
+    template_name: str = "reports/forms/wrapper.html"
     success_url: str = reverse_lazy("dashboard:home")
 
     def get_object(self, queryset=None):  # pylint: disable=unused-argument
-        """Return report boilerplate object"""
-        return ReportBoilerplate.objects.all().first()
+        """Return report wrapper object"""
+        return ReportWrapper.objects.all().first()

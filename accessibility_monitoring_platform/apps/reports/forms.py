@@ -10,7 +10,7 @@ from .models import (
     Section,
     TableRow,
     TEMPLATE_TYPE_HTML,
-    ReportBoilerplate,
+    ReportWrapper,
 )
 
 from ..common.forms import (
@@ -90,7 +90,7 @@ TableRowFormsetOneExtra: Any = forms.modelformset_factory(
 )
 
 
-class ReportBoilerplateUpdateForm(forms.ModelForm):
+class ReportWrapperUpdateForm(forms.ModelForm):
     """
     Form for editing report boilerplate
     """
@@ -103,7 +103,7 @@ class ReportBoilerplateUpdateForm(forms.ModelForm):
     related_content = AMPTextField(label="Related content")
 
     class Meta:
-        model = ReportBoilerplate
+        model = ReportWrapper
         fields: List[str] = [
             "title",
             "title_caption",

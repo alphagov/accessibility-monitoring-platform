@@ -27,13 +27,13 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
 ]
 
 
-class ReportBoilerplate(models.Model):
+class ReportWrapper(models.Model):
     """
 
-    Model for report boilerplate text.
+    Model for report wrapper text.
 
-    This contains text which is not expected to change but which ought not
-    require software development to amend.
+    This contains text which wraps the report on its HTML page, is not expected
+    to change but which ought not require software development to amend.
     """
 
     title = models.TextField(default="", blank=True)
@@ -44,11 +44,11 @@ class ReportBoilerplate(models.Model):
     related_content = models.TextField(default="", blank=True)
 
     class Meta:
-        verbose_name_plural = "Report boilerplate"
+        verbose_name_plural = "Report wrapper text"
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str("Report boilerplate")
+        return str("Report wrapper text")
 
 
 class Report(VersionModel):
@@ -85,12 +85,10 @@ class Report(VersionModel):
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
     @property
-    def boilerplate(self):
-        report_boilerplate: Optional[
-            ReportBoilerplate
-        ] = ReportBoilerplate.objects.all().first()
+    def wrapper(self):
+        report_wrapper: Optional[ReportWrapper] = ReportWrapper.objects.all().first()
         rendered_templates: Dict[str, str] = {}
-        if report_boilerplate is not None:
+        if report_wrapper is not None:
             context: Context = Context({"report": self})
             for field in [
                 "title",
@@ -100,7 +98,7 @@ class Report(VersionModel):
                 "contact",
                 "related_content",
             ]:
-                template: Template = Template(getattr(report_boilerplate, field))
+                template: Template = Template(getattr(report_wrapper, field))
                 rendered_templates[field] = template.render(context=context)
         return rendered_templates
 

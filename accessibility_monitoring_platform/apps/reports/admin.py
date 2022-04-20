@@ -9,7 +9,7 @@ from .models import (
     Section,
     TableRow,
     PublishedReport,
-    ReportBoilerplate,
+    ReportWrapper,
 )
 
 from ..common.admin import ExportCsvMixin
@@ -93,4 +93,4 @@ admin.site.register(BaseTemplate, BaseTemplateAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(TableRow, TableRowAdmin)
 admin.site.register(PublishedReport, PublishedReportAdmin)
-admin.site.register(ReportBoilerplate)
+admin.site.register(ReportWrapper)

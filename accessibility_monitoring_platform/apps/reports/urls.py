@@ -18,7 +18,7 @@ from .views import (
     publish_report,
     PublishedReportListView,
     PublishedReportDetailView,
-    ReportBoilerplateUpdateView,
+    ReportWrapperUpdateView,
 )
 
 app_name: str = "reports"
@@ -80,7 +80,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "edit-report-boilerplate/",
-        login_required(ReportBoilerplateUpdateView.as_view()),
+        login_required(ReportWrapperUpdateView.as_view()),
         name="edit-report-boilerplate",
     ),
 ]
