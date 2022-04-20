@@ -8,6 +8,8 @@ from ...cases.models import Case
 
 from ..models import Report, Section, TableRow, PublishedReport
 
+DOMAIN: str = "example.com"
+
 
 @pytest.mark.django_db
 def test_report_created_timestamp_is_populated():
@@ -68,3 +70,17 @@ def test_published_report_created_timestamp_is_populated():
 
     assert published_report.created is not None
     assert isinstance(published_report.created, datetime)
+
+
+@pytest.mark.django_db
+def test_report_wrapper_text_is_rendered():
+    """
+    Test the Report wrapper is rendered correctly
+    """
+    case: Case = Case.objects.create()
+    case.domain = DOMAIN
+    case.save()
+    report: Report = Report.objects.create(case=case)
+
+    assert "title" in report.wrapper
+    assert report.wrapper["title"] == f"Accessibility report for {DOMAIN}"
