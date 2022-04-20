@@ -260,7 +260,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         f"""reports/acccessibility_report_{report.report_version}.html"""
     )
     context = {"report": report}
-    html: str = template.render(context, request)
+    html: str = template.render(context, request)  # type: ignore
     PublishedReport.objects.create(
         report=report,
         created_by=request.user,

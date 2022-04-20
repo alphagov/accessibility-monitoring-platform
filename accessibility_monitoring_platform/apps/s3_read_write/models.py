@@ -24,4 +24,3 @@ class S3Report(models.Model):
     visible = models.BooleanField(default=True)
     deprecated = models.BooleanField(default=False)
     guid = models.CharField(max_length=40, blank=True)
-    platform_version = models.CharField(blank=True, default="0.1.0", max_length=40)

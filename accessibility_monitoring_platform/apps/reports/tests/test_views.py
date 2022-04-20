@@ -6,13 +6,13 @@ from typing import Dict
 
 from moto import mock_s3
 
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from django.http import HttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit
-from ...cases.models import Case
+from ...cases.models import Case, REPORT_APPROVED_STATUS_APPROVED
 
 from ..models import Report, PublishedReport, TableRow, Section
 from ..utils import (
@@ -54,7 +54,7 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs={"pk": 1})
+    assert response.url == reverse("reports:report-detail", kwargs={"pk": 1})  # type: ignore
 
 
 def test_rebuild_report_redirects(admin_client):
@@ -68,7 +68,7 @@ def test_rebuild_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @mock_s3
@@ -89,7 +89,7 @@ def test_publish_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
     assert (
         PublishedReport.objects.filter(report=report).count()
         == number_of_published_reports + 1
@@ -128,7 +128,7 @@ def test_report_published_message_shown(admin_client):
         ),
         (
             "reports:report-confirm-publish",
-            ">Are you sure you want to create a HTML report?</h1>",
+            "Unable to publish report without QA approval",
         ),
     ],
 )
@@ -145,6 +145,24 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_header)
+
+
+def test_report_details_page_shows_warning(admin_client):
+    """
+    Test that the report details page shows a warning advising user to
+    mark report as ready to review
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    create_section(report)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "If this report is ready to be reviewed, mark it")
 
 
 def test_published_report_detail_page_loads(admin_client):
@@ -195,7 +213,7 @@ def test_report_edit_metadata_save_stays_on_page(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == url
+    assert response.url == url  # type: ignore
 
 
 @pytest.mark.django_db
@@ -214,7 +232,7 @@ def test_report_edit_metadata_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @pytest.mark.django_db
@@ -239,7 +257,7 @@ def test_report_edit_section_save_button_stays_on_page(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == url
+    assert response.url == url  # type: ignore
 
 
 @pytest.mark.django_db
@@ -265,7 +283,7 @@ def test_report_edit_section_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)
+    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -303,4 +321,43 @@ def test_report_edit_section_stays_on_page_on_row_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == f"{url}#row-{table_row_id}"
+    assert response.url == f"{url}#row-{table_row_id}"  # type: ignore
+
+
+def test_unapproved_report_confirm_publish_asks_for_approval(admin_client):
+    """
+    Test that the confirm publish page asks for report to be QA approved
+    when it has not been.
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-confirm-publish", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Unable to publish report without QA approval")
+    assertContains(response, "Have the report approved by another auditor")
+    assertNotContains(response, "Create HTML report")
+
+
+def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client):
+    """
+    Test that the confirm publish page does not ask for report to be QA approved
+    if it is already approved
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    case: Case = report.case  # type: ignore
+    case.report_approved_status = REPORT_APPROVED_STATUS_APPROVED
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-confirm-publish", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Are you sure you want to create a HTML report?")
+    assertNotContains(response, "Have the report approved by another auditor")
+    assertContains(response, "Create HTML report")

@@ -61,15 +61,17 @@
     <h2 class="govuk-heading-m bottom-margin-5">Frequently used links</h2>
     <ul class="govuk-list">
         <li>
-            <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                View case details
-            </a>
-        </li>
-        <li>
             <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Link to website
             </a>
         </li>
+        {% if case.report.published_report %}
+            <li>
+                <a href="{% url 'reports:published-report-detail' case.report.published_report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    View published report
+                </a>
+            </li>
+        {% endif %}
         {% if case.zendesk_url %}
             <li>
                 <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

@@ -37,7 +37,6 @@ services:
             - DEBUG=TRUE
             - PORT='8001'
             - INTEGRATION_TEST=TRUE
-            - PLATFORM_VERSION=0.2
 
     report_viewer:
         image: "django_report_viewer:latest"
@@ -59,7 +58,6 @@ services:
             - DEBUG=TRUE
             - PORT='8002'
             - INTEGRATION_TEST=TRUE
-            - PLATFORM_VERSION=0.2
 
     localstack:
         image: localstack/localstack

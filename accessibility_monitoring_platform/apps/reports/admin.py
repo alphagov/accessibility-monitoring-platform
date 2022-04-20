@@ -25,7 +25,6 @@ class ReportAdmin(admin.ModelAdmin):
     readonly_fields = ["created"]
     search_fields = ["case__organisation_name"]
     list_display = ["case", "created"]
-    list_filter = ["ready_for_qa"]
     inlines = [SectionInline]
 
 
@@ -79,7 +78,7 @@ class PublishedReportAdmin(admin.ModelAdmin):
 
     readonly_fields = ["created", "created_by", "version"]
     search_fields = ["created_by", "html_content"]
-    list_display = ["report", "created", "created_by"]
+    list_display = ["__str__", "report", "created", "created_by"]
 
 
 admin.site.register(Report, ReportAdmin)

@@ -14,13 +14,6 @@ from ..common.models import (
 )
 from ..common.utils import format_date
 
-READY_FOR_QA_DEFAULT = "not-started"
-READY_FOR_QA_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (READY_FOR_QA_DEFAULT, "Not started"),
-]
-
 TEMPLATE_TYPE_DEFAULT = "markdown"
 TEMPLATE_TYPE_HTML = "html"
 TEMPLATE_TYPE_URLS = "urls"
@@ -55,9 +48,6 @@ class Report(VersionModel):
     report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
 
     # Metadata
-    ready_for_qa = models.CharField(
-        max_length=20, choices=READY_FOR_QA_CHOICES, default=READY_FOR_QA_DEFAULT
-    )
     notes = models.TextField(default="", blank=True)
 
     class Meta:
@@ -74,6 +64,10 @@ class Report(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
+
+    @property
+    def published_report(self):
+        return self.publishedreport_set.all().first()  # type: ignore
 
 
 class BaseTemplate(VersionModel):
@@ -154,7 +148,7 @@ class TableRow(VersionModel):
         return str(f"{self.section}: Table row {self.row_number}")
 
 
-class PublishedReport(VersionModel):
+class PublishedReport(models.Model):
     """
     Model for published report
     """
@@ -163,6 +157,7 @@ class PublishedReport(VersionModel):
         Report,
         on_delete=models.PROTECT,
     )
+    version = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         User,
@@ -176,12 +171,13 @@ class PublishedReport(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.report} | {format_date(self.created)}")  # type: ignore
+        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()
         if not self.created:
             self.created = now
+            self.version = self.report.publishedreport_set.count() + 1  # type: ignore
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
