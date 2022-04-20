@@ -25,6 +25,14 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
+WRAPPER_TEXT_FIELDS: List[str] = [
+    "title",
+    "title_caption",
+    "sub_header",
+    "sent_by",
+    "contact",
+    "related_content",
+]
 
 
 class ReportWrapper(models.Model):
@@ -85,25 +93,26 @@ class Report(VersionModel):
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
     @property
-    def wrapper(self):
+    def wrapper(self) -> Dict[str, str]:
+        """
+        Renders the template values in ReportWrapper to return the text used to
+        wrap the report on its HTML page
+
+        Returns:
+            wrapper_text: Dictionary of wrapper text names and values
+        """
         report_wrapper: Optional[ReportWrapper] = ReportWrapper.objects.all().first()
-        rendered_templates: Dict[str, str] = {}
+        wrapper_text: Dict[str, str] = {}
         if report_wrapper is not None:
             context: Context = Context({"report": self})
-            for field in [
-                "title",
-                "title_caption",
-                "sub_header",
-                "sent_by",
-                "contact",
-                "related_content",
-            ]:
+            for field in WRAPPER_TEXT_FIELDS:
                 template: Template = Template(getattr(report_wrapper, field))
-                rendered_templates[field] = template.render(context=context)
-        return rendered_templates
+                wrapper_text[field] = template.render(context=context)
+        return wrapper_text
 
     @property
-    def published_report(self):
+    def published_report(self) -> Optional["PublishedReport"]:
+        """The most recently published report"""
         return self.publishedreport_set.all().first()  # type: ignore
 
 
