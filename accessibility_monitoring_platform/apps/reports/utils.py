@@ -219,6 +219,6 @@ def report_viewer_url(domain_name: str) -> str:
         return "https://accessibility-monitoring-platform-test.london.cloudapps.digital"
     else:
         domain_name_split = domain_name.split(".")
-        domain_name_split[0] = "".join(["https://", domain_name_split[0], "-report-viewer"])
+        domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"
         domain_name = ".".join(domain_name_split)
         return domain_name

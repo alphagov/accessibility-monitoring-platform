@@ -27,10 +27,7 @@ def test_upload_string_to_s3():
         </div>
     """
     s3rw.upload_string_to_s3_as_html(
-        html_content=raw_html,
-        case=case,
-        user=user,
-        report_version="v1_20220406"
+        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
     )
 
     s3report: S3Report = S3Report.objects.get(case=case)
@@ -64,10 +61,7 @@ def test_retrieve_raw_html():
         </div>
     """
     s3rw.upload_string_to_s3_as_html(
-        html_content=raw_html,
-        case=case,
-        user=user,
-        report_version="v1_20220406"
+        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
     )
 
     guid: str = S3Report.objects.get(case=case).guid
@@ -81,7 +75,9 @@ def test_retrieve_raw_html():
 def test_url_builder():
     s3rw: S3ReadWriteReport = S3ReadWriteReport()
     guid: str = "04f1a855-94b9-4ff5-a31f-f8982bc0736e"
-    res = f"caseid_1/org_orgname__reportid_1__reportversion_v1_20220406__guid_{guid}.html"
+    res = (
+        f"caseid_1/org_orgname__reportid_1__reportversion_v1_20220406__guid_{guid}.html"
+    )
     assert res == s3rw.url_builder(
         case_id=1,
         organisation_name="orgname",

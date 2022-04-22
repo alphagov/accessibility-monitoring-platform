@@ -224,7 +224,7 @@ class ReportPreviewTemplateView(ReportTemplateView):
         template: Template = loader.get_template(
             f"""reports/acccessibility_report_{context["report"].report_version}.html"""
         )
-        context["html_report"] = template.render(context, self.request)
+        context["html_report"] = template.render(context, self.request)  # type: ignore
         return context
 
 
@@ -271,7 +271,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         html_content=html,
         case=report.case,
         user=request.user,  # type: ignore
-        report_version=report.report_version
+        report_version=report.report_version,
     )
     messages.add_message(
         request,
@@ -294,9 +294,11 @@ class PublishedReportListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         report = Report.objects.get(id=self.kwargs.get("pk"))
-        context["s3Reports"] = S3Report.objects.filter(case=report.case)
+        context["s3_reports"] = S3Report.objects.filter(case=report.case)
         if "HTTP_HOST" in self.request.META:
-            context["reportViewerUrl"] = report_viewer_url(self.request.META['HTTP_HOST'])
+            context["reportViewerUrl"] = report_viewer_url(
+                self.request.META["HTTP_HOST"]
+            )
         else:
             context["reportViewerUrl"] = ""
         return context

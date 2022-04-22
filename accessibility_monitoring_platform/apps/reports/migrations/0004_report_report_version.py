@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0003_remove_report_ready_for_qa'),
+        ("reports", "0003_remove_report_ready_for_qa"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='report',
-            name='report_version',
-            field=models.TextField(default='v1_20220406'),
+            model_name="report",
+            name="report_version",
+            field=models.TextField(default="v1_20220406"),
         ),
     ]

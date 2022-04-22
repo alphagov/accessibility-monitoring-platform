@@ -15,8 +15,7 @@ class ViewReport(TemplateView):
         s3_rw = S3ReadWriteReport()
         raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
         report = Report.objects.get(case=s3report.case)
-        context = {
-            "html_report": raw_html,
-            "report": report
-        }
-        return render(request, "reports/acccessibility_report_container.html", context=context)
+        context = {"html_report": raw_html, "report": report}
+        return render(
+            request, "reports/acccessibility_report_container.html", context=context
+        )

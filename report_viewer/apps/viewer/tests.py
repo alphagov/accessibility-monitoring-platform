@@ -25,7 +25,7 @@ def test_view_report(admin_client):
         html_content=html,
         case=case,
         user=user,  # type: ignore
-        report_version="v1_202201401"
+        report_version="v1_202201401",
     )
     s3report: S3Report = S3Report.objects.all()[0]
 

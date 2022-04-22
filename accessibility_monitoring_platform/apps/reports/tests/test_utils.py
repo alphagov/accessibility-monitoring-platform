@@ -215,11 +215,16 @@ def test_move_table_row_down(rf):
     [
         ("http://localhost:8081", "http://localhost:8082"),
         ("http://localhost:8001", "http://localhost:8002"),
-        ("https://accessibility-monitoring-platform-production.com", "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital"),
-        ("https://accessibility-monitoring-platform-test.com", "https://accessibility-monitoring-platform-test.london.cloudapps.digital"),
+        (
+            "https://accessibility-monitoring-platform-production.com",
+            "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital",
+        ),
+        (
+            "https://accessibility-monitoring-platform-test.com",
+            "https://accessibility-monitoring-platform-test.london.cloudapps.digital",
+        ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
     ],
 )
 def test_report_viewer_url(domain_name, res):
-
     return res == report_viewer_url(domain_name)

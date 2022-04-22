@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('s3_read_write', '0001_initial'),
+        ("s3_read_write", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='s3report',
-            name='platform_version',
+            model_name="s3report",
+            name="platform_version",
         ),
     ]

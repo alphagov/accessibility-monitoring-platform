@@ -46,11 +46,12 @@
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
-                        {% for published_report in s3Reports %}
+                        {% for published_report in s3_reports %}
                         <tr class="govuk-table__row">
-                            <th class="govuk-table__cell">{{ published_report }}</th>
+                            <th class="govuk-table__cell">{{ published_report.created | date:"d/m/Y H:i" }}</th>
                             <td class="govuk-table__cell">
-                                <a href="{{reportViewerUrl}}/report/{{published_report.guid}}"
+                                <a
+                                    href="{{reportViewerUrl}}/report/{{published_report.guid}}"
                                     class="govuk-link govuk-link--no-visited-state"
                                     rel="noreferrer noopener"
                                     target="_blank">
