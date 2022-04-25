@@ -2,6 +2,10 @@
 {% load common_tags %}
 {% load static %}
 
+{% block title %}
+{{ report.wrapper.title }}
+{% endblock %}
+
 {% block content %}
 <div class="govuk-width-container">
     <noscript>
@@ -11,29 +15,29 @@
           }
         </style>
     </noscript>
-    <main id="main-content" class="govuk-main-wrapper">
+    <main id="main-content" class="govuk-main-wrapper amp-report">
         <div class="govuk-grid-row border-bottom-report">
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-!-margin-top-8 govuk-!-margin-bottom-8">
-                    <span class="govuk-caption-xl">Accessibility report</span>
-                    <h1 class="govuk-heading-xl">Accessibility report for {{report.case.domain}}</h1>
+                    <span class="govuk-caption-xl">{{ report.wrapper.title_caption }}</span>
+                    <h1 class="govuk-heading-xl">{{ report.wrapper.title }}</h1>
                 </div>
             </div>
-            <div class="govuk-grid-column-two-thirds govuk-!-margin-bottom-7">
-                <p class="govuk-body-l">
-                    Sub header for report. Really long text, really long text, really long text, really long text, really long text, really long text, really long text.
-                </p>
-            </div>
+            {% if report.wrapper.sub_header %}
+                <div class="govuk-grid-column-two-thirds govuk-!-margin-bottom-7">
+                    <p class="govuk-body-l">{{ report.wrapper.sub_header }}</p>
+                </div>
+            {% endif %}
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds metadata-container">
                 <dl class="govuk-body-m metadata">
                     <dt class="metadata-term">From: </dt>
-                    <dd><a class="govuk-link" href="https://www.gov.uk/government/organisations/government-digital-service">Goverment Digital Service</a></dd>
-                
+                    <dd>{{ report.wrapper.sent_by|markdown_to_html }}</dd>
+
                     <dt class="metadata-term">Contact: </dt>
-                    <dd><a class="govuk-link" href="mailto:email@address.com">email@address.com</a></dd>
-                
+                    <dd>{{ report.wrapper.contact|markdown_to_html }}</dd>
+
                     <dt class="metadata-term">Published</dt>
                     <dd>{{report.created|date:"d F Y"}}</dd>
                 </dl>
@@ -53,17 +57,7 @@
                     <h2 class="govuk-heading-m" id="related-content">Related content</h2>
                 </div>
                 <nav>
-                    <ul class="govuk-list related-content">
-                        <li>
-                            <a class="govuk-link" href="https://www.gov.uk/government/organisations/government-digital-service">Goverment Digital Service</a>
-                        </li>
-                        <li>
-                            <a class="govuk-link" href="https://www.gov.uk/government/organisations/government-digital-service">Goverment Digital Service</a>
-                        </li>
-                        <li>
-                            <a class="govuk-link" href="https://www.gov.uk/government/organisations/government-digital-service">Goverment Digital Service</a>
-                        </li>
-                    </ul>
+                    {{ report.wrapper.related_content|markdown_to_html }}
                 </nav>
             </div>
         </div>

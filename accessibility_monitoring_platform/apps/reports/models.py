@@ -25,6 +25,10 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
+REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
+REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
+    (REPORT_VERSION_DEFAULT, "Version 1"),
+]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "title_caption",
@@ -57,11 +61,6 @@ class ReportWrapper(models.Model):
 
     def __str__(self) -> str:
         return str("Report wrapper text")
-
-REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
-REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1"),
-]
 
 
 class Report(VersionModel):
@@ -97,6 +96,10 @@ class Report(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
+
+    @property
+    def template(self) -> str:
+        return f"reports/acccessibility_report_{self.report_version}.html"
 
     @property
     def wrapper(self) -> Dict[str, str]:
