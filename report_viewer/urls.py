@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.urls import path
 from django.conf.urls import include
+from django.views.defaults import page_not_found
+
+
+def custom_page_not_found(request):
+    return page_not_found(request, None)
+
 
 app_name = "apps"
 urlpatterns = [
     path("", include("report_viewer.apps.homepage.urls")),
+    path("report/", include("report_viewer.apps.viewer.urls")),
+    path("404/", custom_page_not_found),
 ]

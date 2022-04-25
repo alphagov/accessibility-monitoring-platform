@@ -1,27 +1,27 @@
-FROM ubuntu:focal
+FROM python:3.9.12
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
-RUN apt-get install -y python3 \
-    python3-pip \
-    nodejs \
-    npm \
-    libpq-dev \
-    python-dev \
-    python3-psycopg2 \
+RUN apt-get install -y python3-pip python-dev libpq-dev
+RUN apt-get install -y nodejs npm
+RUN apt-get install -y python3-psycopg2 \
     postgresql \
     postgresql-contrib
 WORKDIR /code
 COPY requirements.txt /code/
 COPY pulp/ /code/pulp/
+COPY manage_report_viewer.py /code/
 COPY manage.py /code/
 COPY package.json /code/
+COPY Makefile /code/
+COPY Pipfile /code/
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
-RUN pipenv install --dev
+RUN pipenv install -d
 RUN pipenv install
 RUN pipenv lock -r > requirements.txt
 RUN pip3 install -r requirements.txt
 RUN npm i
 COPY report_viewer/ /code/report_viewer/
-RUN python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json
+COPY accessibility_monitoring_platform/ /code/accessibility_monitoring_platform/
+RUN make static_files_process
