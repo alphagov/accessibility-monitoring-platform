@@ -2,6 +2,8 @@
 
 from django.db import migrations, models
 
+from ..models import REPORT_VERSION_DEFAULT
+
 
 class Migration(migrations.Migration):
 
@@ -13,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="report",
             name="report_version",
-            field=models.TextField(default="v1_20220406"),
+            field=models.TextField(default=REPORT_VERSION_DEFAULT),
         ),
     ]

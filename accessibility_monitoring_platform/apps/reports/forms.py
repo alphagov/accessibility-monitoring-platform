@@ -10,10 +10,12 @@ from .models import (
     Section,
     TableRow,
     TEMPLATE_TYPE_HTML,
+    ReportWrapper,
 )
 
 from ..common.forms import (
     VersionForm,
+    AMPCharFieldWide,
     AMPTextField,
 )
 
@@ -86,3 +88,27 @@ TableRowFormset: Any = forms.modelformset_factory(TableRow, TableRowUpdateForm, 
 TableRowFormsetOneExtra: Any = forms.modelformset_factory(
     TableRow, TableRowUpdateForm, extra=1
 )
+
+
+class ReportWrapperUpdateForm(forms.ModelForm):
+    """
+    Form for editing report wrapper text
+    """
+
+    title = AMPCharFieldWide(label="Title")
+    title_caption = AMPCharFieldWide(label="Title caption")
+    sub_header = AMPCharFieldWide(label="Sub header")
+    sent_by = AMPCharFieldWide(label="From (leave blank to hide)")
+    contact = AMPCharFieldWide(label="Contact (leave blank to hide)")
+    related_content = AMPTextField(label="Related content")
+
+    class Meta:
+        model = ReportWrapper
+        fields: List[str] = [
+            "title",
+            "title_caption",
+            "sub_header",
+            "sent_by",
+            "contact",
+            "related_content",
+        ]

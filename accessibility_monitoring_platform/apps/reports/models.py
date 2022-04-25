@@ -1,10 +1,11 @@
 """
 Models - reports
 """
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
 
@@ -24,6 +25,38 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
+WRAPPER_TEXT_FIELDS: List[str] = [
+    "title",
+    "title_caption",
+    "sub_header",
+    "sent_by",
+    "contact",
+    "related_content",
+]
+
+
+class ReportWrapper(models.Model):
+    """
+
+    Model for report wrapper text.
+
+    This contains text which wraps the report on its HTML page, is not expected
+    to change but which ought not require software development to amend.
+    """
+
+    title = models.TextField(default="", blank=True)
+    title_caption = models.TextField(default="", blank=True)
+    sub_header = models.TextField(default="", blank=True)
+    sent_by = models.TextField(default="", blank=True)
+    contact = models.TextField(default="", blank=True)
+    related_content = models.TextField(default="", blank=True)
+
+    class Meta:
+        verbose_name_plural = "Report wrapper text"
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return str("Report wrapper text")
 
 REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
 REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
@@ -66,7 +99,26 @@ class Report(VersionModel):
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
     @property
-    def published_report(self):
+    def wrapper(self) -> Dict[str, str]:
+        """
+        Renders the template values in ReportWrapper to return the text used to
+        wrap the report on its HTML page
+
+        Returns:
+            wrapper_text: Dictionary of wrapper text names and values
+        """
+        report_wrapper: Optional[ReportWrapper] = ReportWrapper.objects.all().first()
+        wrapper_text: Dict[str, str] = {}
+        if report_wrapper is not None:
+            context: Context = Context({"report": self})
+            for field in WRAPPER_TEXT_FIELDS:
+                template: Template = Template(getattr(report_wrapper, field))
+                wrapper_text[field] = template.render(context=context)
+        return wrapper_text
+
+    @property
+    def published_report(self) -> Optional["PublishedReport"]:
+        """The most recently published report"""
         return self.publishedreport_set.all().first()  # type: ignore
 
 

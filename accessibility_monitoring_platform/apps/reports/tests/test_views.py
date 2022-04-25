@@ -361,3 +361,14 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
     assertContains(response, "Are you sure you want to create a HTML report?")
     assertNotContains(response, "Have the report approved by another auditor")
     assertContains(response, "Create HTML report")
+
+
+def test_edit_report_wrapper_page_loads(admin_client):
+    """Test that the edit report wrapper page loads"""
+    response: HttpResponse = admin_client.get(
+        reverse("reports:edit-report-wrapper")
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ">Report viewer editor</h1>")
