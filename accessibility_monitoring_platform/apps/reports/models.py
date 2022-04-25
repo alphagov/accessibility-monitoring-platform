@@ -58,6 +58,7 @@ class ReportWrapper(models.Model):
     def __str__(self) -> str:
         return str("Report wrapper text")
 
+
 REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
 REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
     (REPORT_VERSION_DEFAULT, "Version 1"),

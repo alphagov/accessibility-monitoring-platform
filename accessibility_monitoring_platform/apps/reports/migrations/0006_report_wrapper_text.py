@@ -30,7 +30,7 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0005_reportwrapper_alter_report_report_version'),
+        ("reports", "0005_reportwrapper_alter_report_report_version"),
     ]
 
     operations = [
