@@ -206,3 +206,19 @@ def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optiona
     if updated_table_row_id is None:
         updated_table_row_id = move_table_row_down(request=request, section=section)
     return updated_table_row_id
+
+
+def report_viewer_url(domain_name: str) -> str:
+    if "localhost:8081" in domain_name:
+        return "http://localhost:8082"
+    elif "localhost:8001" in domain_name:
+        return "http://localhost:8002"
+    elif "accessibility-monitoring-platform-production" in domain_name:
+        return "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital"
+    elif "accessibility-monitoring-platform-test" in domain_name:
+        return "https://accessibility-monitoring-platform-test.london.cloudapps.digital"
+    else:
+        domain_name_split = domain_name.split(".")
+        domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"
+        domain_name = ".".join(domain_name_split)
+        return domain_name

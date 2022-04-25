@@ -37,6 +37,7 @@ services:
       - SERVICES=s3
       - AWS_DEFAULT_REGION=us-east-1
       - HOSTNAME_EXTERNAL=localstack
+      - DATA_DIR=${LOCALSTACK_DATA_DIR:-/tmp/localstack/data}
     volumes:
       - "./data/localstack-data:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"

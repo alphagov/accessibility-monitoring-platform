@@ -4,8 +4,7 @@ init:
 		&& pip install pipenv \
 		&& pipenv install -d \
 		&& npm i \
-		&& python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json \
-		&& python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json \
+		&& make static_files_process \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& python prepare_local_db.py \
 		&& ./manage.py migrate \
@@ -25,21 +24,19 @@ start:
 start_report_viewer:
 	python manage_report_viewer.py runserver 8082 
 
-static_files_process_accessibility_monitoring_platform:
+static_files_process:
 	python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json
-
-static_files_process_report_viewer:
 	python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json
 
-static_files_process:
-	make static_files_process_accessibility_monitoring_platform
-	make static_files_process_report_viewer
+collect_static:
+	python3 manage.py collectstatic --noinput
+	python3 manage_report_viewer.py collectstatic --noinput
 
 watch_accessibility_monitoring_platform:
-	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "python3 -c 'from pulp import *; pulp()' ./pulp/accessibility_monitoring_platform_settings.json"
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch accessibility_monitoring_platform/static/js --exec "make static_files_process; make collect_static"
 
 watch_report_viewer:
-	npx nodemon -e scss,js --watch report_viewer/static/scss --watch report_viewer/static/js --exec "python3 -c 'from pulp import *; pulp()' ./pulp/report_viewer_settings.json"
+	npx nodemon -e scss,js --watch accessibility_monitoring_platform/static/scss --watch report_viewer/static/js --exec "make static_files_process; make collect_static"
 
 sync_accessibility_monitoring_platform:
 	npx browser-sync start -p http://127.0.0.1:8081/ \

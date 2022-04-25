@@ -25,6 +25,11 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
 
+REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
+REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
+    (REPORT_VERSION_DEFAULT, "Version 1"),
+]
+
 
 class Report(VersionModel):
     """
@@ -40,6 +45,7 @@ class Report(VersionModel):
         null=True,
     )
     is_deleted = models.BooleanField(default=False)
+    report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
 
     # Metadata
     notes = models.TextField(default="", blank=True)

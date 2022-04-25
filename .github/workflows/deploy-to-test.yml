@@ -29,10 +29,9 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         export INTEGRATION_TEST=FALSE
-        export PLATFORM_VERSION=0.2.0
         npm i
         make static_files_process
-        python manage.py collectstatic --noinput
+        make collect_static
         make test
 
   int-test:
@@ -58,7 +57,6 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         export INTEGRATION_TEST=FALSE
-        export PLATFORM_VERSION=0.2.0
         pipenv lock -r > requirements.txt
         make int_test
       env:
@@ -94,7 +92,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         make static_files_process
-        python manage.py collectstatic --noinput
+        make collect_static
 
     - name: Installing cloud foundry
       run: |

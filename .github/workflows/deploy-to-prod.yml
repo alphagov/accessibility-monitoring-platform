@@ -30,7 +30,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         make static_files_process
-        python manage.py collectstatic --noinput
+        make collect_static
         make test
 
   int-test:
@@ -89,7 +89,7 @@ jobs:
         export DEBUG=TRUE
         npm i
         make static_files_process
-        python manage.py collectstatic --noinput
+        make collect_static
 
     - name: Installing cloud foundry
       run: |
