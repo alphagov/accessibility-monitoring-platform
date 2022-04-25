@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load common_tags %}
+
+{% block title %}
+    {{ report.case.organisation_name }}
+    | Publish report
+{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-detail' report.id %}">Report</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Publish report
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-button-group" style="display: flex;">
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">
+                        {% if report.case.report_approved_status == 'yes' %}
+                            Are you sure you want to create a HTML report?
+                        {% else %}
+                            Unable to publish report without QA approval
+                        {% endif %}
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div style="position: relative; top: -15px;">
+            {% include 'cases/helpers/case_title.html' with case=report.case %}
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% if report.case.report_approved_status == 'yes' %}
+                    <p class="govuk-body-m">This will create a new permanent link available to share externally.</p>
+                    <p class="govuk-body-m">This will not update existing published reports.</p>
+                    <p class="govuk-body-m">Do you wish to continue?</p>
+                {% else %}
+                    <p class="govuk-body-m">The following requirements are needed to publish this report</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>
+                            Mark report as ready to review in
+                            <a
+                                href="{% url 'cases:edit-qa-process' report.case.id %}"
+                                class="govuk-link govuk-link--no-visited-state">
+                                case > QA process
+                            </a>
+                            {% if report.case.report_review_status == 'ready-to-review' %}&check;{% endif %}
+                        </li>
+                        <li>Have the report approved by another auditor</li>
+                    </ul>
+                    <p class="govuk-body-m">Once those requirements are complete, the report can be published.</p>
+            {% endif %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                {% if report.case.report_approved_status == 'yes' %}
+                    <a href="{% url 'reports:report-publish' report.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Create HTML report
+                    </a>
+                {% endif %}
+                <a
+                    href="{% url 'reports:report-detail' report.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Cancel and return to report view
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

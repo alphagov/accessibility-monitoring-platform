@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 import urllib
 
 from django.contrib import messages
@@ -19,10 +19,11 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..notifications.utils import read_notification
+from accessibility_monitoring_platform.apps.reports.models import PublishedReport
 
-from ..common.typing import IntOrNone
-from ..common.utils import (  # type: ignore
+from ..notifications.utils import add_notification, read_notification
+
+from ..common.utils import (
     format_date,
     download_as_csv,
     extract_domain_from_url,
@@ -41,6 +42,7 @@ from .models import (
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_DEFAULT,
+    REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
     CaseCreateForm,
@@ -365,6 +367,17 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         read_notification(self.request)
         return context
 
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "report_draft_url",
+                "report_notes",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -381,8 +394,32 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
 
+    def get_form(self):
+        """Hide fields if testing using platform"""
+        form = super().get_form()
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            for fieldname in [
+                "report_final_odt_url",
+                "report_final_pdf_url",
+            ]:
+                form.fields[fieldname].widget = forms.HiddenInput()
+        return form
+
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
+        """
+        Detect the submit button used and act accordingly.
+        Notify auditor is case has been QA approved.
+        """
+        if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
+            case: Case = self.object
+            if case.auditor:
+                add_notification(
+                    user=case.auditor,
+                    body=f"{self.request.user.get_full_name()} QA approved Case {case}",  # type: ignore
+                    path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+                    list_description=f"{case} - QA process",
+                    request=self.request,
+                )
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("cases:edit-contact-details", kwargs=case_pk)
@@ -428,7 +465,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                     contact.save()
         else:
             return super().form_invalid(form)
-        contact_id_to_delete: IntOrNone = get_id_from_button_name(
+        contact_id_to_delete: Optional[int] = get_id_from_button_name(
             button_name_prefix="remove_contact_",
             querydict=self.request.POST,
         )
@@ -447,9 +484,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         elif "save_continue" in self.request.POST:
             return reverse("cases:edit-report-correspondence", kwargs=case_pk)
         elif "add_contact" in self.request.POST:
-            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true"
+            return f"{reverse('cases:edit-contact-details', kwargs=case_pk)}?add_extra=true#contact-None"
         else:
-            contact_id_to_delete: IntOrNone = get_id_from_button_name(
+            contact_id_to_delete: Optional[int] = get_id_from_button_name(
                 "remove_contact_", self.request.POST
             )
             if contact_id_to_delete is not None:
@@ -471,16 +508,36 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
+        case: Case = form.instance
         form.fields[
             "report_followup_week_1_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_1_due_date
-        )
+        ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
         form.fields[
             "report_followup_week_4_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.report_followup_week_4_due_date
-        )
+        ].help_text = format_due_date_help_text(case.report_followup_week_4_due_date)
+        if (
+            case.report_methodology == REPORT_METHODOLOGY_PLATFORM
+            and case.report
+            and case.report.publishedreport_set.count() > 0
+        ):
+            published_reports: QuerySet[
+                PublishedReport
+            ] = case.report.publishedreport_set.all()
+            form.fields["published_report_sent"].queryset = published_reports
+            published_report_url: str = reverse(
+                "reports:published-report-list", kwargs={"pk": case.report.id}
+            )
+            form.fields["published_report_sent"].help_text = mark_safe(
+                f"""There are {published_reports.count()} report versions.
+            View all report versions in
+            <a href="{published_report_url}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                report versions</a>
+            """
+            )
+        else:
+            form.fields["published_report_sent"].widget = forms.HiddenInput()
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):

@@ -3,7 +3,7 @@ Tests for cases views
 """
 from datetime import date, datetime, timedelta
 import pytest
-from typing import Dict, List
+from typing import Dict, List, Optional
 from backports.zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -14,7 +14,14 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ..models import Case, Contact, TESTING_METHODOLOGY_PLATFORM
+from ...notifications.models import Notifications
+from ..models import (
+    REPORT_METHODOLOGY_PLATFORM,
+    Case,
+    Contact,
+    TESTING_METHODOLOGY_PLATFORM,
+    REPORT_APPROVED_STATUS_APPROVED,
+)
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
@@ -23,6 +30,7 @@ from ..views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
     format_due_date_help_text,
+    CaseQAProcessUpdateView,
 )
 from ...audits.models import Audit
 from ...common.models import (
@@ -32,6 +40,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import format_date, get_field_names_for_export
+from ...reports.models import PublishedReport, Report
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
@@ -52,6 +61,7 @@ I am"""
 COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
+DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
 
 
@@ -325,7 +335,7 @@ def test_delete_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-list")
+    assert response.url == reverse("cases:case-list")  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -365,7 +375,7 @@ def test_suspend_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -387,7 +397,7 @@ def test_unsuspend_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
@@ -488,7 +498,7 @@ def test_create_case_redirects_based_on_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url
+    assert response.url == expected_redirect_url  # type: ignore
 
 
 @pytest.mark.django_db
@@ -546,7 +556,7 @@ def test_create_case_can_create_duplicate_cases(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url
+    assert response.url == expected_redirect_url  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -664,7 +674,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert (
-        response.url
+        response.url  # type: ignore
         == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
     )
 
@@ -718,7 +728,7 @@ def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert (
-        response.url
+        response.url  # type: ignore
         == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
     )
 
@@ -1628,55 +1638,36 @@ def test_status_change_message_shown(admin_client):
     )
 
 
-def test_report_ready_to_review_with_no_report_error_messages(admin_client):
-    """
-    Test that the report details page shows the expected error messages
-    when the report is set to ready to review while the link to report draft is empty
-    """
-    case: Case = Case.objects.create()
+@pytest.mark.django_db
+def test_qa_process_approval_notifies_auditor(rf):
+    """Test approving the report on the QA process page notifies the auditor"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME, auditor=user)
 
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),  # type: ignore
+    request_user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    request = rf.post(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
         {
-            "report_draft_url": "",
-            "report_review_status": "ready-to-review",
             "version": case.version,
-            "save": "Save and continue",
+            "report_approved_status": REPORT_APPROVED_STATUS_APPROVED,
+            "save": "Button value",
         },
     )
+    request.user = request_user
 
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<ul class="govuk-list govuk-error-summary__list">
-            <li>
-                <a href="#id_report_draft_url-label">
-                    Add link to report draft, if report is ready to be reviewed
-                </a>
-            </li>
-            <li>
-                <a href="#id_report_review_status-label">
-                    Report cannot be ready to be reviewed without a link to report draft
-                </a>
-            </li>
-        </ul>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span>
-            Add link to report draft, if report is ready to be reviewed
-        </p>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span>
-            Report cannot be ready to be reviewed without a link to report draft
-        </p>""",
-        html=True,
+    response: HttpResponse = CaseQAProcessUpdateView.as_view()(request, pk=case.id)  # type: ignore
+
+    assert response.status_code == 302
+
+    notification: Optional[Notifications] = Notifications.objects.filter(
+        user=user
+    ).first()
+
+    assert notification is not None
+    assert (
+        notification.body == f"{request_user.get_full_name()} QA approved Case {case}"
     )
 
 
@@ -2076,15 +2067,21 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Website compliance notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{COMPLIANCE_DECISION_NOTES}</p></td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Website compliance notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                <p>{COMPLIANCE_DECISION_NOTES}</p>
+            </td>
         </tr>""",
         html=True,
     )
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance decision</th>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Initial accessibility statement compliance decision
+            </th>
             <td class="govuk-table__cell amp-width-one-half">Not compliant</td>
         </tr>""",
         html=True,
@@ -2092,8 +2089,268 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes"><p>{ACCESSIBILITY_STATEMENT_NOTES}</p></td>
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Initial accessibility statement compliance notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                <p>{ACCESSIBILITY_STATEMENT_NOTES}</p>
+            </td>
         </tr>""",
         html=True,
     )
+
+
+def test_platform_report_correspondence_shows_link_to_report_if_none_published(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports show a link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<p class="govuk-body-m">
+            A published report does not exist for this case. Create a report in
+            <a href="{report_detail_url}" class="govuk-link govuk-link--no-visited-state">
+                case > report
+            </a>
+        </p>""",
+        html=True,
+    )
+
+
+def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
+    """
+    Test that the QA process page shows that the link to report draft is none
+    when none is set and the report methodology is not platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Link to report draft</b></label>
+            <div class="govuk-hint">None</div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_non_platform_qa_process_shows_link_to_draft_report(admin_client):
+    """
+    Test that the QA process page shows the link to report draft
+    when the report methodology is not platform.
+    """
+    case: Case = Case.objects.create(report_draft_url=DRAFT_REPORT_URL)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label class="govuk-label"><b>Link to report draft</b></label>
+            <div class="govuk-hint">
+                <a href="{DRAFT_REPORT_URL}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to report draft
+                </a>
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client):
+    """
+    Test cases using platform-based reports show no link to report details if no
+    report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "A published report does not exist for this case.", html=True
+    )
+
+
+def test_platform_report_correspondence_shows_published_reports_field(
+    admin_client,
+):
+    """
+    Test cases using platform-based reports shows a field report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report: Report = Report.objects.create(case=case)
+    PublishedReport.objects.create(report=report)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Select which report is sent to PSB")
+
+
+def test_platform_qa_process_shows_no_link_to_preview_report(admin_client):
+    """
+    Test that the QA process page shows that the link to report draft is none
+    when no report exists and the report methodology is platform.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<div class="govuk-form-group">
+            <label class="govuk-label"><b>Link to report draft</b></label>
+            <div class="govuk-hint">None</div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_platform_qa_process_shows_link_to_preview_report(admin_client):
+    """
+    Test that the QA process page shows the link to preview draft
+    when the report methodology is platform.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+
+    report: Report = Report.objects.create(case=case)
+    report_preview_url: str = reverse("reports:report-preview", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label class="govuk-label"><b>Link to report draft</b></label>
+            <div class="govuk-hint">
+                <a href="{report_preview_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Report preview
+                </a>
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_platform_qa_process_shows_link_to_publish_report(admin_client):
+    """
+    Test that the QA process page shows the link to publish the report
+    when the report methodology is platform and report has not been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+
+    report: Report = Report.objects.create(case=case)
+    report_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label class="govuk-label"><b>Published report</b></label>
+            <div class="govuk-hint">
+                HTML report has not been published. Publish report in
+                <a href="{report_url}" rel="noreferrer noopener" class="govuk-link">
+                    case > report
+                </a>
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_platform_qa_process_shows_link_to_published_report(admin_client):
+    """
+    Test that the QA process page shows the link to published report
+    when the report methodology is platform and report has been published.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+
+    report: Report = Report.objects.create(case=case)
+    published_report: PublishedReport = PublishedReport.objects.create(report=report)
+    published_report_url: str = reverse("reports:published-report-detail", kwargs={"pk": published_report.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label class="govuk-label"><b>Published report</b></label>
+            <div class="govuk-hint">
+                <a href="{published_report_url}" rel="noreferrer noopener"
+                    target="_blank" class="govuk-link">
+                    View final HTML report
+                </a>
+            </div>
+        </div>""",
+        html=True,
+    )
+
+
+def test_non_platform_qa_process_shows_final_report_fields(admin_client):
+    """
+    Test that the QA process page shows the final report fields
+    when the report methodology is not platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Link to final PDF report")
+    assertContains(response, "Link to final ODT report")
+
+
+def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
+    """
+    Test that the QA process page does not show the final report fields
+    when the report methodology is platform.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertNotContains(response, "Link to final PDF report")
+    assertNotContains(response, "Link to final ODT report")

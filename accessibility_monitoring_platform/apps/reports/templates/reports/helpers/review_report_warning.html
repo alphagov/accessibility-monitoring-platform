@@ -1,0 +1,9 @@
+<div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+            If this report is ready to be reviewed, mark it in
+            <a href="{% url 'cases:edit-qa-process' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Case > QA process</a>
+    </strong>
+</div>

@@ -113,17 +113,28 @@ TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
     (TESTING_METHODOLOGY_DEFAULT, "Testing spreadsheet"),
 ]
 
+REPORT_METHODOLOGY_PLATFORM: str = "platform"
+REPORT_METHODOLOGY_DEFAULT: str = "odt"
+REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
+    (
+        REPORT_METHODOLOGY_PLATFORM,
+        "Platform (requires Platform in testing methodology)",
+    ),
+    (REPORT_METHODOLOGY_DEFAULT, "ODT templates"),
+]
 
 TEST_STATUS_DEFAULT: str = "not-started"
+TEST_STATUS_COMPLETE: str = "complete"
 TEST_STATUS_CHOICES: List[Tuple[str, str]] = [
-    ("complete", "Complete"),
+    (TEST_STATUS_COMPLETE, "Complete"),
     ("in-progress", "In progress"),
     (TEST_STATUS_DEFAULT, "Not started"),
 ]
 
 ACCESSIBILITY_STATEMENT_DECISION_DEFAULT: str = "unknown"
+ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT: str = "compliant"
 ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
+    (ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT, "Compliant"),
     ("not-compliant", "Not compliant"),
     ("not-found", "Not found"),
     ("other", "Other"),
@@ -131,8 +142,9 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
 ]
 
 IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
+IS_WEBSITE_COMPLIANT_COMPLIANT: str = "compliant"
 IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
+    (IS_WEBSITE_COMPLIANT_COMPLIANT, "Compliant"),
     ("not-compliant", "Not compliant"),
     ("partially-compliant", "Partially compliant"),
     ("other", "Other"),
@@ -185,16 +197,19 @@ WEBSITE_STATE_FINAL_CHOICES: List[Tuple[str, str]] = [
 ]
 
 DEFAULT_CASE_COMPLETED: str = "no-decision"
+CASE_COMPLETED_SEND: str = "complete-send"
+CASE_COMPLETED_NO_SEND: str = "complete-no-send"
 CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
-    ("complete-send", "Case is complete and is ready to send to the equality body"),
-    ("complete-no-send", "Case should not be sent to the equality body"),
+    (CASE_COMPLETED_SEND, "Case is complete and is ready to send to the equality body"),
+    (CASE_COMPLETED_NO_SEND, "Case should not be sent to the equality body"),
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
 DEFAULT_ESCALATION_STATE: str = "not-started"
+ESCALATION_STATE_NO_ACTION: str = "no-action"
 ESCALATION_STATE_CHOICES: List[Tuple[str, str]] = [
     (
-        "no-action",
+        ESCALATION_STATE_NO_ACTION,
         "No further action is required and correspondence has closed regarding this issue",
     ),
     ("ongoing", "Correspondence ongoing"),
@@ -292,6 +307,11 @@ class Case(VersionModel):
         choices=TESTING_METHODOLOGY_CHOICES,
         default=TESTING_METHODOLOGY_DEFAULT,
     )
+    report_methodology = models.CharField(
+        max_length=20,
+        choices=REPORT_METHODOLOGY_CHOICES,
+        default=REPORT_METHODOLOGY_DEFAULT,
+    )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
@@ -320,15 +340,15 @@ class Case(VersionModel):
 
     # Report details page
     report_draft_url = models.TextField(default="", blank=True)
+    report_notes = models.TextField(default="", blank=True)
+    reporting_details_complete_date = models.DateField(null=True, blank=True)
+
+    # QA process
     report_review_status = models.CharField(
         max_length=200,
         choices=REPORT_REVIEW_STATUS_CHOICES,
         default=REPORT_REVIEW_STATUS_DEFAULT,
     )
-    report_notes = models.TextField(default="", blank=True)
-    reporting_details_complete_date = models.DateField(null=True, blank=True)
-
-    # QA process
     reviewer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -350,6 +370,13 @@ class Case(VersionModel):
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
+    published_report_sent = models.ForeignKey(
+        "reports.PublishedReport",
+        on_delete=models.PROTECT,
+        related_name="case_published_report_sent",
+        blank=True,
+        null=True,
+    )
     report_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)
@@ -725,10 +752,12 @@ class Case(VersionModel):
         elif self.status == "case-closed-sent-to-equalities-body":
             return [
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equality body pursuing this case should be yes to move to 'In correspondence with equalities body'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 },
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 },
@@ -736,6 +765,7 @@ class Case(VersionModel):
         elif self.status == "in-correspondence-with-equalities-body":
             return [
                 {
+                    # pylint: disable-next=line-too-long
                     "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 }
@@ -806,7 +836,7 @@ class Case(VersionModel):
         return "Unknown"
 
     @property
-    def contact_exists(self):
+    def contact_exists(self) -> bool:
         return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
@@ -820,6 +850,10 @@ class Case(VersionModel):
     @property
     def audit(self):
         return self.audit_case.filter(is_deleted=False).first()  # type: ignore
+
+    @property
+    def report(self):
+        return self.report_case.filter(is_deleted=False).first()  # type: ignore
 
 
 class Contact(models.Model):

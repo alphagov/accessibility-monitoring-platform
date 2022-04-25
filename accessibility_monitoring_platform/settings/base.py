@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.comments",
     "accessibility_monitoring_platform.apps.reminders",
     "accessibility_monitoring_platform.apps.overdue",
-    "accessibility_monitoring_platform.apps.report_generator",
+    "accessibility_monitoring_platform.apps.reports",
     "accessibility_monitoring_platform.apps.s3_read_write",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -171,3 +171,5 @@ CONTACT_ADMIN_EMAIL = (
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
+
+MARKDOWN_EXTENSIONS = []

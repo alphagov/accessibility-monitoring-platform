@@ -26,6 +26,8 @@ from ..common.forms import (
     AMPURLField,
 )
 from ..common.models import Sector
+from ..reports.models import PublishedReport
+
 from .models import (
     Case,
     Contact,
@@ -44,6 +46,9 @@ from .models import (
     WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     TESTING_METHODOLOGY_CHOICES,
+    TESTING_METHODOLOGY_PLATFORM,
+    REPORT_METHODOLOGY_CHOICES,
+    REPORT_METHODOLOGY_PLATFORM,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_READY_TO_REVIEW,
@@ -158,7 +163,10 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="Testing methodology?",
         choices=TESTING_METHODOLOGY_CHOICES,
     )
-
+    # report_methodology = AMPChoiceRadioField(
+    #     label="Report methodology?",
+    #     choices=REPORT_METHODOLOGY_CHOICES,
+    # )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -166,6 +174,24 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["sector"].empty_label = "Unknown"
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     testing_methodology = cleaned_data.get("testing_methodology")  # type: ignore
+    #     report_methodology = cleaned_data.get("report_methodology")  # type: ignore
+    #     if (
+    #         testing_methodology != TESTING_METHODOLOGY_PLATFORM
+    #         and report_methodology == REPORT_METHODOLOGY_PLATFORM
+    #     ):
+    #         self.add_error(
+    #             "testing_methodology",
+    #             "Testing methodology has to be platform for reporting methodology to be platform",
+    #         )
+    #         self.add_error(
+    #             "report_methodology",
+    #             "For reporting methodology to be platform, testing methodology has to be platform",
+    #         )
+    #     return cleaned_data
 
     class Meta:
         model = Case
@@ -176,6 +202,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "organisation_name",
             "enforcement_body",
             "testing_methodology",
+            # "report_methodology",
             "psb_location",
             "sector",
             "is_complaint",
@@ -227,35 +254,14 @@ class CaseReportDetailsUpdateForm(VersionForm):
     """
 
     report_draft_url = AMPURLField(label="Link to report draft")
-    report_review_status = AMPChoiceRadioField(
-        label="Report ready to be reviewed?",
-        choices=REPORT_REVIEW_STATUS_CHOICES,
-        help_text="This field affects the case status",
-    )
     report_notes = AMPTextField(label="Report details notes")
     reporting_details_complete_date = AMPDatePageCompleteField()
-
-    def clean(self):
-        cleaned_data = super().clean()
-        report_draft_url = cleaned_data.get("report_draft_url")
-        report_review_status = cleaned_data.get("report_review_status")
-        if report_review_status == REPORT_READY_TO_REVIEW and not report_draft_url:
-            self.add_error(
-                "report_draft_url",
-                "Add link to report draft, if report is ready to be reviewed",
-            )
-            self.add_error(
-                "report_review_status",
-                "Report cannot be ready to be reviewed without a link to report draft",
-            )
-        return cleaned_data
 
     class Meta:
         model = Case
         fields = [
             "version",
             "report_draft_url",
-            "report_review_status",
             "report_notes",
             "reporting_details_complete_date",
         ]
@@ -266,6 +272,11 @@ class CaseQAProcessUpdateForm(VersionForm):
     Form for updating QA process
     """
 
+    report_review_status = AMPChoiceRadioField(
+        label="Report ready to be reviewed?",
+        choices=REPORT_REVIEW_STATUS_CHOICES,
+        help_text="This field affects the case status",
+    )
     reviewer = AMPAuditorModelChoiceField(label="QA Auditor")
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
@@ -281,6 +292,7 @@ class CaseQAProcessUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "report_review_status",
             "reviewer",
             "report_approved_status",
             "reviewer_notes",
@@ -344,6 +356,11 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     Form for updating report correspondence details
     """
 
+    published_report_sent = AMPModelChoiceField(
+        label="Select which report is sent to PSB",
+        queryset=PublishedReport.objects.none(),
+        empty_label=None,
+    )
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
@@ -360,6 +377,7 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "published_report_sent",
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
