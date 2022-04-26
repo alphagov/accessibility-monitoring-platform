@@ -222,7 +222,7 @@ class ReportPreviewTemplateView(ReportTemplateView):
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
-        template: Template = loader.get_template(context["report"].template)
+        template: Template = loader.get_template(context["report"].template_path)
         context["html_report"] = template.render(context, self.request)  # type: ignore
         return context
 

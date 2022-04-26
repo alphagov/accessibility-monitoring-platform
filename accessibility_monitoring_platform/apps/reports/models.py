@@ -98,7 +98,7 @@ class Report(VersionModel):
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
     @property
-    def template(self) -> str:
+    def template_path(self) -> str:
         return f"reports/acccessibility_report_{self.report_version}.html"
 
     @property
