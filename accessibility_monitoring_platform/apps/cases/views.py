@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 import urllib
 
 from django.contrib import messages
@@ -18,8 +18,6 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-
-from accessibility_monitoring_platform.apps.reports.models import PublishedReport
 
 from ..notifications.utils import add_notification, read_notification
 
@@ -208,7 +206,7 @@ class CaseListView(ListView):
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
-        get_without_page: Dict[str, str] = {
+        get_without_page: Dict[str, Union[str, List[object]]] = {
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
@@ -405,21 +403,25 @@ class CaseQAProcessUpdateView(CaseUpdateView):
                 form.fields[fieldname].widget = forms.HiddenInput()
         return form
 
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Notify auditor if case has been QA approved."""
+        if form.changed_data and "report_approved_status" in form.changed_data:
+            if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
+                case: Case = self.object  # type: ignore
+                if case.auditor:
+                    add_notification(
+                        user=case.auditor,
+                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",  # type: ignore
+                        path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+                        list_description=f"{case} - QA process",
+                        request=self.request,
+                    )
+        return super().form_valid(form=form)
+
     def get_success_url(self) -> str:
         """
         Detect the submit button used and act accordingly.
-        Notify auditor is case has been QA approved.
         """
-        if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
-            case: Case = self.object
-            if case.auditor:
-                add_notification(
-                    user=case.auditor,
-                    body=f"{self.request.user.get_full_name()} QA approved Case {case}",  # type: ignore
-                    path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
-                    list_description=f"{case} - QA process",
-                    request=self.request,
-                )
         if "save_continue" in self.request.POST:
             case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("cases:edit-contact-details", kwargs=case_pk)
@@ -580,7 +582,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
         ].help_text = format_due_date_help_text(
-            form.instance.twelve_week_1_week_chaser_due_date
+            form.instance.twelve_week_1_week_chaser_due_date  # type: ignore
         )
         return form
 
@@ -659,10 +661,10 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate retested_website_date help text with link to test results for this case"""
         form = super().get_form()
-        if form.instance.test_results_url:
-            if form.instance.test_results_url:
+        if form.instance.test_results_url:  # type: ignore
+            if form.instance.test_results_url:  # type: ignore
                 form.fields["retested_website_date"].help_text = mark_safe(
-                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
+                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'  # type: ignore
                     ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
                 )
         return form
