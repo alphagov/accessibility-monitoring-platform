@@ -50,9 +50,6 @@
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-full">
-                            {% if case.report_methodology == 'platform' and case.report.publishedreport_set.count > 0 %}
-                                {% include 'common/amp_field.html' with field=form.published_report_sent %}
-                            {% endif %}
                             {% include 'common/amp_field.html' with field=form.report_sent_date %}
                             {% include 'common/amp_field.html' with field=form.report_followup_week_1_sent_date %}
                             {% include 'common/amp_field.html' with field=form.report_followup_week_4_sent_date %}

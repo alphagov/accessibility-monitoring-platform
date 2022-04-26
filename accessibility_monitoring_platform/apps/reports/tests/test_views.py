@@ -365,9 +365,7 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
 
 def test_edit_report_wrapper_page_loads(admin_client):
     """Test that the edit report wrapper page loads"""
-    response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report-wrapper")
-    )
+    response: HttpResponse = admin_client.get(reverse("reports:edit-report-wrapper"))
 
     assert response.status_code == 200
 

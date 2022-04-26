@@ -6,29 +6,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0004_report_report_version'),
+        ("reports", "0004_report_report_version"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ReportWrapper',
+            name="ReportWrapper",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.TextField(blank=True, default='')),
-                ('title_caption', models.TextField(blank=True, default='')),
-                ('sub_header', models.TextField(blank=True, default='')),
-                ('sent_by', models.TextField(blank=True, default='')),
-                ('contact', models.TextField(blank=True, default='')),
-                ('related_content', models.TextField(blank=True, default='')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.TextField(blank=True, default="")),
+                ("title_caption", models.TextField(blank=True, default="")),
+                ("sub_header", models.TextField(blank=True, default="")),
+                ("sent_by", models.TextField(blank=True, default="")),
+                ("contact", models.TextField(blank=True, default="")),
+                ("related_content", models.TextField(blank=True, default="")),
             ],
             options={
-                'verbose_name_plural': 'Report wrapper text',
-                'ordering': ['-id'],
+                "verbose_name_plural": "Report wrapper text",
+                "ordering": ["-id"],
             },
         ),
         migrations.AlterField(
-            model_name='report',
-            name='report_version',
-            field=models.TextField(default='v1_0_0__20220406'),
+            model_name="report",
+            name="report_version",
+            field=models.TextField(default="v1_0_0__20220406"),
         ),
     ]
