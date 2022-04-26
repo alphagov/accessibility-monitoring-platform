@@ -1,3 +1,4 @@
+"""Models for s3 read write app"""
 from django.db import models
 from django.contrib.auth.models import User
 from ..cases.models import Case
@@ -25,4 +26,7 @@ class S3Report(models.Model):
     guid = models.CharField(max_length=40, blank=True)
 
     def __str__(self) -> str:
-        return str(f"{self.case} | {format_date(self.created)} | {self.s3_directory}")  # type: ignore
+        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
+
+    def get_absolute_url(self):
+        return f"/report/{self.guid}"

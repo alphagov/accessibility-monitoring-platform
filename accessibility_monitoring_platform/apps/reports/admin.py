@@ -8,7 +8,6 @@ from .models import (
     BaseTemplate,
     Section,
     TableRow,
-    PublishedReport,
     ReportWrapper,
 )
 
@@ -80,17 +79,8 @@ class TableRowAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
-class PublishedReportAdmin(admin.ModelAdmin):
-    """Django admin configuration for PublishedReport model"""
-
-    readonly_fields = ["created", "created_by", "version"]
-    search_fields = ["created_by", "html_content"]
-    list_display = ["__str__", "report", "created", "created_by"]
-
-
 admin.site.register(Report, ReportAdmin)
 admin.site.register(BaseTemplate, BaseTemplateAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(TableRow, TableRowAdmin)
-admin.site.register(PublishedReport, PublishedReportAdmin)
 admin.site.register(ReportWrapper)

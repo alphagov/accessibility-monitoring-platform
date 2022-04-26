@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...notifications.models import Notifications
+from ...s3_read_write.models import S3Report
 from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
     Case,
@@ -40,7 +41,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import format_date, get_field_names_for_export
-from ...reports.models import PublishedReport, Report
+from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
@@ -2282,21 +2283,23 @@ def test_platform_qa_process_shows_link_to_published_report(admin_client):
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
 
-    report: Report = Report.objects.create(case=case)
-    published_report: PublishedReport = PublishedReport.objects.create(report=report)
-    published_report_url: str = reverse("reports:published-report-detail", kwargs={"pk": published_report.id})  # type: ignore
+    s3_report: S3Report = S3Report.objects.create(case=case, version=0)
+    s3_report_url: str = f"/report/{s3_report.guid}"
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
     )
 
     assert response.status_code == 200
+    import pdb
+
+    pdb.set_trace()
     assertContains(
         response,
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Published report</b></label>
             <div class="govuk-hint">
-                <a href="{published_report_url}" rel="noreferrer noopener"
+                <a href="{s3_report_url}" rel="noreferrer noopener"
                     target="_blank" class="govuk-link">
                     View final HTML report
                 </a>

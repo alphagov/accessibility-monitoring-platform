@@ -3,15 +3,18 @@ Context processors
 """
 from typing import Dict, Union
 
+from django.http import HttpRequest
+
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
 from ..reminders.utils import get_number_of_reminders_for_user
+from ..reports.utils import report_viewer_url_prefix
 from ..overdue.utils import get_overdue_cases
 from .forms import AMPTopMenuForm
 
 
 def platform_page(
-    request,
+    request: HttpRequest,
 ) -> Dict[str, Union[AMPTopMenuForm, str, Platform, int]]:
     """
     Populate context for template rendering. Include search form for top menu,
@@ -37,6 +40,7 @@ def platform_page(
         "top_menu_form": AMPTopMenuForm(),
         "prototype_name": prototype_name,
         "platform": platform,
-        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
-        "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),
+        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),  # type: ignore
+        "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),  # type: ignore
+        "report_viewer_url_prefix": report_viewer_url_prefix(request=request),
     }

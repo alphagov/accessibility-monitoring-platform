@@ -26,7 +26,6 @@ from ..common.forms import (
     AMPURLField,
 )
 from ..common.models import Sector
-from ..reports.models import PublishedReport
 
 from .models import (
     Case,

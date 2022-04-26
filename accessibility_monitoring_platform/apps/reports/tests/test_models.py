@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ...cases.models import Case
 
-from ..models import Report, Section, TableRow, PublishedReport
+from ..models import Report, Section, TableRow
 
 DOMAIN: str = "example.com"
 
@@ -57,19 +57,6 @@ def test_deleted_table_rows_are_not_visible():
 
     assert section.visible_table_rows.count() == 1
     assert undeleted_table_row in section.visible_table_rows
-
-
-@pytest.mark.django_db
-def test_published_report_created_timestamp_is_populated():
-    """
-    Test the PublishedReport created field is populated on creation
-    """
-    case: Case = Case.objects.create()
-    report: Report = Report.objects.create(case=case)
-    published_report: PublishedReport = PublishedReport.objects.create(report=report)
-
-    assert published_report.created is not None
-    assert isinstance(published_report.created, datetime)
 
 
 @pytest.mark.django_db

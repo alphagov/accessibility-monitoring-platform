@@ -64,7 +64,7 @@
             {% if report.case.report_review_status == 'not-started' %}
                 {% include 'reports/helpers/review_report_warning.html' %}
             {% endif %}
-            {% if report.publishedreport_set.all %}
+            {% if report.case.s3report_set.all %}
                 {% include 'reports/helpers/published_report_warning.html' %}
             {% endif %}
         </div>
