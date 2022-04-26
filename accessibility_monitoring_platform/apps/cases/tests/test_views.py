@@ -2291,9 +2291,7 @@ def test_platform_qa_process_shows_link_to_published_report(admin_client):
     )
 
     assert response.status_code == 200
-    import pdb
 
-    pdb.set_trace()
     assertContains(
         response,
         f"""<div class="govuk-form-group">
