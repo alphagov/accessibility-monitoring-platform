@@ -2282,8 +2282,8 @@ def test_platform_qa_process_shows_link_to_published_report(admin_client):
     when the report methodology is platform and report has been published.
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
-
-    s3_report: S3Report = S3Report.objects.create(case=case, version=0)
+    Report.objects.create(case=case)
+    s3_report: S3Report = S3Report.objects.create(case=case, guid="guid", version=0)
     s3_report_url: str = f"/report/{s3_report.guid}"
 
     response: HttpResponse = admin_client.get(
@@ -2297,7 +2297,7 @@ def test_platform_qa_process_shows_link_to_published_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Published report</b></label>
             <div class="govuk-hint">
-                <a href="{s3_report_url}" rel="noreferrer noopener"
+                <a href="https://-report-viewer{s3_report_url}" rel="noreferrer noopener"
                     target="_blank" class="govuk-link">
                     View final HTML report
                 </a>
