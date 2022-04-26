@@ -43,7 +43,7 @@
                     <dd>{{ report.wrapper.contact|markdown_to_html }}</dd>
 
                     <dt class="metadata-term">Published</dt>
-                    <dd>{{report.created|date:"d F Y"}}</dd>
+                    <dd>{{ report.published_report.created|date:"d F Y" }}</dd>
                 </dl>
                 <div class="iff-javascript-enabled">
                     <button onclick="window.print();" class="govuk-link print-button no-print"> Print this page </button>

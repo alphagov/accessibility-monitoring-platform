@@ -218,7 +218,7 @@ class ReportPreviewTemplateView(ReportTemplateView):
     View to preview the report
     """
 
-    template_name: str = "reports/accessibility_report_container.html"
+    template_name: str = "reports/report_preview.html"
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
@@ -289,7 +289,7 @@ class S3ReportListView(ListView):
     def get_queryset(self) -> QuerySet[S3Report]:
         """Find S3 reports for case"""
         report: Report = Report.objects.get(id=self.kwargs.get("pk"))
-        return S3Report.objects.filter(case=report.case)
+        return S3Report.objects.filter(case=report.case).order_by("-id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
