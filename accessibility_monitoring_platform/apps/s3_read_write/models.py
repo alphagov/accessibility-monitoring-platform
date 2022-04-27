@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from ..common.utils import format_date
 
+REPORT_VIEWER_URL_PATH: str = "/report/"
+
 
 class S3Report(models.Model):
     """
@@ -26,7 +28,7 @@ class S3Report(models.Model):
     guid = models.CharField(max_length=40, blank=True)
 
     def __str__(self) -> str:
-        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
+        return f"v{self.version} - {self.created:%-I:%M%p} {format_date(self.created)}".lower()
 
     def get_absolute_url(self):
-        return f"/report/{self.guid}"
+        return f"{REPORT_VIEWER_URL_PATH}{self.guid}"

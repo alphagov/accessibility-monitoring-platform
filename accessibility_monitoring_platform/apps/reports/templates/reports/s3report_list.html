@@ -48,7 +48,7 @@
                     <tbody class="govuk-table__body">
                         {% for s3_report in s3_reports %}
                         <tr class="govuk-table__row">
-                            <th class="govuk-table__cell">{{ s3_report.created | date:"d/m/Y H:i" }}</th>
+                            <th class="govuk-table__cell">{{ s3_report }}</th>
                             <td class="govuk-table__cell">
                                 <a
                                     href="{{ report_viewer_url_prefix }}{{ s3_report.get_absolute_url }}"
