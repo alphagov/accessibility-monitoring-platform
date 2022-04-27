@@ -2297,7 +2297,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Published report</b></label>
             <div class="govuk-hint">
-                <a href="https://-report-viewer{s3_report_url}" rel="noreferrer noopener"
+                <a href="{s3_report_url}" rel="noreferrer noopener"
                     target="_blank" class="govuk-link">
                     View final HTML report
                 </a>

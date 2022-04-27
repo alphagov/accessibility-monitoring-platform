@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import S3Report
 
 
-class S2ReportAdmin(admin.ModelAdmin):
+class S3ReportAdmin(admin.ModelAdmin):
     """Django admin configuration for Section model"""
 
     readonly_fields = ["created", "version"]
@@ -11,4 +11,4 @@ class S2ReportAdmin(admin.ModelAdmin):
     list_display = ["__str__", "case", "created_by", "created"]
 
 
-admin.site.register(S3Report, S2ReportAdmin)
+admin.site.register(S3Report, S3ReportAdmin)

@@ -86,10 +86,7 @@ def test_publish_report_redirects(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
-    assert (
-        S3Report.objects.filter(case=report.case).count()
-        == number_of_s3_reports + 1
-    )
+    assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
 
 
 @mock_s3

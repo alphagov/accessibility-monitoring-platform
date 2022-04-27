@@ -4,6 +4,8 @@ Tests for reports models
 import pytest
 from datetime import datetime
 
+from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+
 from ...cases.models import Case
 
 from ..models import Report, Section, TableRow
@@ -60,9 +62,9 @@ def test_deleted_table_rows_are_not_visible():
 
 
 @pytest.mark.django_db
-def test_report_wrapper_text_is_rendered():
+def test_report_wrapper_text_is_correct():
     """
-    Test the Report wrapper is rendered correctly
+    Test the Report wrapper is correct
     """
     case: Case = Case.objects.create()
     case.domain = DOMAIN
@@ -71,3 +73,27 @@ def test_report_wrapper_text_is_rendered():
 
     assert "title" in report.wrapper
     assert report.wrapper["title"] == f"Accessibility report for {DOMAIN}"
+
+
+@pytest.mark.django_db
+def test_report_template_path_is_correct():
+    """
+    Test the Report template path is correct
+    """
+    case: Case = Case.objects.create()
+    report: Report = Report.objects.create(case=case)
+
+    assert report.template_path == "reports/accessibility_report_v1_0_0__20220406.html"
+
+
+@pytest.mark.django_db
+def test_latest_s3_report_returned():
+    """
+    Test the Report.latest_s3_report is the most recent one
+    """
+    case: Case = Case.objects.create()
+    report: Report = Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0)
+    second_s3_report: S3Report = S3Report.objects.create(case=case, version=1)
+
+    assert report.latest_s3_report == second_s3_report
