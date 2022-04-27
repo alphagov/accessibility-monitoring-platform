@@ -59,7 +59,7 @@ PAGE_TITLES_BY_URL = {
     "/report-issue/": "Report an issue",
     "/reports/[id]/detail/": "View report",
     "/reports/[id]/edit-report-metadata/": "Report metadata",
-    "/reports/s3-reports/[id]/": "Report versions",
+    "/reports/[id]/s3-reports/": "Report versions",
     "/reports/sections/[id]/edit-section/": "Report section update",
     "/user/account_details/": "Account details",
     "/user/register/": "Register",
@@ -68,7 +68,7 @@ PAGE_TITLES_BY_URL = {
 
 def get_page_title(path: str) -> str:  # noqa: C901
     """Derive page title from path"""
-    path_without_id = re.sub(r"\d+", "[id]", path)
+    path_without_id = re.sub(r"/\d+/", "/[id]/", path)
     page_heading: str = PAGE_TITLES_BY_URL.get(
         path_without_id, "Accessibility Monitoring Platform"
     )

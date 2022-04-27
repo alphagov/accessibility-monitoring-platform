@@ -13,6 +13,7 @@ from django.urls import reverse
 
 from ...audits.models import Audit
 from ...cases.models import Case, REPORT_APPROVED_STATUS_APPROVED
+from ...s3_read_write.models import S3Report
 
 from ..models import Report, TableRow, Section
 from ..utils import (
@@ -76,6 +77,7 @@ def test_publish_report_redirects(admin_client):
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    number_of_s3_reports: int = S3Report.objects.filter(case=report.case).count()
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publish", kwargs=report_pk_kwargs),
@@ -84,6 +86,10 @@ def test_publish_report_redirects(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert (
+        S3Report.objects.filter(case=report.case).count()
+        == number_of_s3_reports + 1
+    )
 
 
 @mock_s3

@@ -8,7 +8,7 @@ from django.http import HttpRequest
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
 from ..reminders.utils import get_number_of_reminders_for_user
-from ..reports.utils import report_viewer_url_prefix
+from ..reports.utils import get_report_viewer_url_prefix
 from ..overdue.utils import get_overdue_cases
 from .forms import AMPTopMenuForm
 
@@ -42,5 +42,5 @@ def platform_page(
         "platform": platform,
         "number_of_reminders": get_number_of_reminders_for_user(user=request.user),  # type: ignore
         "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),  # type: ignore
-        "report_viewer_url_prefix": report_viewer_url_prefix(request=request),
+        "report_viewer_url_prefix": get_report_viewer_url_prefix(request=request),
     }

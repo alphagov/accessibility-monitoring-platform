@@ -6,7 +6,7 @@ from django.db import migrations
 REPORT_WRAPPER_TEXT = {
     "title": "Accessibility report for {{ report.case.domain }}",
     "title_caption": "Accessibility report",
-    "sub_header": "Accessibility report",
+    "sub_header": "",
     "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",
     "contact": "[accessibility-monitoring-team@gov.uk](mailto:accessibility-monitoring-team@gov.uk)",
     "related_content": """

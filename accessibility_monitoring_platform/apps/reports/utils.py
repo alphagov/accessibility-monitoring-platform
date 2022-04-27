@@ -208,7 +208,7 @@ def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optiona
     return updated_table_row_id
 
 
-def report_viewer_url_prefix(request: HttpRequest) -> str:
+def get_report_viewer_url_prefix(request: HttpRequest) -> str:
     """Derive report viewer app's domain name from that of the platform in a request"""
     domain_name: str = request.META["HTTP_HOST"] if "HTTP_HOST" in request.META else ""
     if "localhost:8081" in domain_name:

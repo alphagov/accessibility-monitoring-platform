@@ -25,20 +25,20 @@
             </div>
         </div>
         {% if s3_report.guid != report.latest_s3_report.guid %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                        <span class="govuk-warning-text__assistive">Warning</span>
-                            A newer version of this report is available.
-                            The most up to date version of the report can be viewed
-                            <a href="{{ report.latest_s3_report.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
-                                here</a>
-                    </strong>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
+                                A newer version of this report is available.
+                                The most up to date version of the report can be viewed
+                                <a href="{{ report.latest_s3_report.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
+                                    here</a>
+                        </strong>
+                    </div>
                 </div>
             </div>
-        </div>
         {% endif %}
         <div class="govuk-grid-row border-bottom-report">
             <div class="govuk-grid-column-two-thirds">
@@ -66,7 +66,7 @@
                     <dd>{{ s3_report.created|date:"d F Y" }}</dd>
                 </dl>
                 <div class="iff-javascript-enabled">
-                    <button onclick="window.print();" class="govuk-link print-button no-print"> Print this page </button>
+                    <button onclick="window.print();" class="govuk-link print-button no-print">Print this page</button>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@ from ..utils import (
     move_table_row_up,
     generate_report_content,
     undelete_table_row,
-    report_viewer_url_prefix,
+    get_report_viewer_url_prefix,
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
     MOVE_ROW_UP_BUTTON_PREFIX,
@@ -233,4 +233,4 @@ def test_move_table_row_down(rf):
 )
 def test_report_viewer_url(http_host, res):
     mock_request: MockRequest = MockRequest(http_host=http_host)
-    return res == report_viewer_url_prefix(request=mock_request)  # type: ignore
+    return res == get_report_viewer_url_prefix(request=mock_request)  # type: ignore
