@@ -119,7 +119,7 @@ class Report(VersionModel):
         return wrapper_text
 
     @property
-    def published_report(self) -> Optional[S3Report]:
+    def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
         return self.case.s3report_set.all().last()  # type: ignore
 

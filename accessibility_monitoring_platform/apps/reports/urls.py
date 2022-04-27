@@ -68,9 +68,9 @@ urlpatterns: List[URLPattern] = [
         name="report-publish",
     ),
     path(
-        "<int:pk>/published-reports/",
+        "<int:pk>/s3-reports/",
         login_required(S3ReportListView.as_view()),
-        name="published-report-list",
+        name="s3-report-list",
     ),
     path(
         "edit-report-wrapper/",

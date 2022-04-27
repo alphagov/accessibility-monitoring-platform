@@ -2276,9 +2276,9 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
     )
 
 
-def test_platform_qa_process_shows_link_to_published_report(admin_client):
+def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     """
-    Test that the QA process page shows the link to published report
+    Test that the QA process page shows the link to report on S3
     when the report methodology is platform and report has been published.
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)

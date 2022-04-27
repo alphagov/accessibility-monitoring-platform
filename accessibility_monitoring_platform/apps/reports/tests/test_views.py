@@ -24,7 +24,6 @@ from ..utils import (
 
 SECTION_NAME: str = "Section name"
 SECTION_CONTENT: str = "I am section content"
-PUBLISHED_REPORT_HTML: str = "<p>I am a published report</p>"
 
 
 def create_report() -> Report:
@@ -111,7 +110,7 @@ def test_report_published_message_shown(admin_client):
     [
         ("reports:report-detail", ">View report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
-        ("reports:published-report-list", ">Report versions</h1>"),
+        ("reports:s3-report-list", ">Report versions</h1>"),
         ("reports:report-preview", f"<p>{SECTION_CONTENT}</p>"),
         (
             "reports:report-confirm-rebuild",

@@ -4,7 +4,7 @@
         <p class="govuk-body-m">
             There are {{ report.case.s3report_set.count }} report versions.
             {% if report.case.s3report_set.count > 0 %}
-                View all report versions in <a href="{% url 'reports:published-report-list' report.id %}"
+                View all report versions in <a href="{% url 'reports:s3-report-list' report.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
                     report versions</a>.
