@@ -1037,10 +1037,10 @@ class TestCaseTestingUI(TestCase):
         Tests whether case test accessibility_statement 2 can be updated
     test_update_test_statement_compliance()
         Tests whether case test accessibility statement compliance can be updated
-    test_update_test_test_summary()
-        Tests whether case test summary page can be updated
     test_update_test_report_options()
         Tests whether case test report options page can be updated
+    test_update_test_test_summary()
+        Tests whether case test summary page can be updated
     test_update_test_report_text()
         Tests whether case test report text page can be updated
     """
@@ -1203,22 +1203,6 @@ class TestCaseTestingUI(TestCase):
         self.assertTrue(">View test</h1>" in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES in self.driver.page_source)
 
-    def test_update_test_test_summary(self):
-        """Tests whether case test summary page can be updated"""
-        self.driver.find_element_by_link_text(
-            "Edit accessibility statement compliance decision"
-        ).click()
-        self.driver.find_element_by_link_text("Test summary").click()
-
-        self.driver.find_element_by_css_selector(
-            "#id_audit_summary_complete_date"
-        ).click()
-
-        self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Test").click()
-
-        self.assertTrue(">View test</h1>" in self.driver.page_source)
-
     def test_update_test_report_options(self):
         """Tests whether case test report options page can be updated"""
         self.driver.find_element_by_link_text("Edit report options").click()
@@ -1235,6 +1219,22 @@ class TestCaseTestingUI(TestCase):
             "An accessibility statement for the website was not found."
             in self.driver.page_source
         )
+
+    def test_update_test_test_summary(self):
+        """Tests whether case test summary page can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit accessibility statement compliance decision"
+        ).click()
+        self.driver.find_element_by_link_text("Test summary").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_audit_summary_complete_date"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
 
     def test_update_test_report_text(self):
         """Tests whether case test report text page can be updated"""
