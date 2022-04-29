@@ -12,11 +12,6 @@
         margin-bottom: 15px;
     }
 
-    ul {
-        padding: 0;
-        list-style-type: none;
-    }
-
     li {
         margin-top: 5px;
         margin-bottom: 5px;
@@ -170,12 +165,6 @@
     li {
         margin-top: 5px;
         margin-bottom: 5px;
-        list-style-type: none; /* Remove bullets */
-    }
-
-    ul {
-        padding: 0;
-        list-style-type: none;
     }
 
     a {
@@ -234,5 +223,18 @@
         p {
             margin-bottom: 0;
         }
+    }
+}
+
+.amp-no-bullet-points {
+    ul {
+        padding: 0;
+        list-style-type: none;
+    }
+
+    li {
+        margin-top: 5px;
+        margin-bottom: 5px;
+        list-style-type: none; /* Remove bullets */
     }
 }
