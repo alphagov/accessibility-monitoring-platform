@@ -20,7 +20,7 @@ from ..utils import (
     move_table_row_up,
     generate_report_content,
     undelete_table_row,
-    report_viewer_url,
+    get_report_viewer_url_prefix,
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
     MOVE_ROW_UP_BUTTON_PREFIX,
@@ -31,6 +31,11 @@ NUMBER_OF_BASE_TEMPLATES: int = 9
 PREVIOUS_ROW_POSITION: int = 1
 ORIGINAL_ROW_POSITION: int = 2
 NEXT_ROW_POSITION: int = 3
+
+
+class MockRequest:
+    def __init__(self, http_host: str):
+        self.META = {"HTTP_HOST": http_host}  # pylint: disable=invalid-name
 
 
 def create_table_row() -> TableRow:
@@ -211,7 +216,7 @@ def test_move_table_row_down(rf):
 
 
 @pytest.mark.parametrize(
-    "domain_name, res",
+    "http_host, res",
     [
         ("http://localhost:8081", "http://localhost:8082"),
         ("http://localhost:8001", "http://localhost:8002"),
@@ -224,7 +229,9 @@ def test_move_table_row_down(rf):
             "https://accessibility-monitoring-platform-test.london.cloudapps.digital",
         ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
+        ("", ""),
     ],
 )
-def test_report_viewer_url(domain_name, res):
-    return res == report_viewer_url(domain_name)
+def test_report_viewer_url(http_host, res):
+    mock_request: MockRequest = MockRequest(http_host=http_host)
+    return res == get_report_viewer_url_prefix(request=mock_request)  # type: ignore

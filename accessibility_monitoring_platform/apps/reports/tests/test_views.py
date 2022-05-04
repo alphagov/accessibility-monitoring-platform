@@ -13,8 +13,9 @@ from django.urls import reverse
 
 from ...audits.models import Audit
 from ...cases.models import Case, REPORT_APPROVED_STATUS_APPROVED
+from ...s3_read_write.models import S3Report
 
-from ..models import Report, PublishedReport, TableRow, Section
+from ..models import Report, TableRow, Section
 from ..utils import (
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -24,7 +25,6 @@ from ..utils import (
 
 SECTION_NAME: str = "Section name"
 SECTION_CONTENT: str = "I am section content"
-PUBLISHED_REPORT_HTML: str = "<p>I am a published report</p>"
 
 
 def create_report() -> Report:
@@ -32,7 +32,6 @@ def create_report() -> Report:
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
-    PublishedReport.objects.create(report=report, html_content=PUBLISHED_REPORT_HTML)
     return report
 
 
@@ -74,14 +73,11 @@ def test_rebuild_report_redirects(admin_client):
 @mock_s3
 def test_publish_report_redirects(admin_client):
     """
-    Test that report publish creates a PublishedReport object and
-    redirects to report details
+    Test that report publish redirects to report details
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
-    number_of_published_reports: int = PublishedReport.objects.filter(
-        report=report
-    ).count()
+    number_of_s3_reports: int = S3Report.objects.filter(case=report.case).count()
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publish", kwargs=report_pk_kwargs),
@@ -90,10 +86,7 @@ def test_publish_report_redirects(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
-    assert (
-        PublishedReport.objects.filter(report=report).count()
-        == number_of_published_reports + 1
-    )
+    assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
 
 
 @mock_s3
@@ -120,7 +113,7 @@ def test_report_published_message_shown(admin_client):
     [
         ("reports:report-detail", ">View report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
-        ("reports:published-report-list", ">Report versions</h1>"),
+        ("reports:s3-report-list", ">Report versions</h1>"),
         ("reports:report-preview", f"<p>{SECTION_CONTENT}</p>"),
         (
             "reports:report-confirm-rebuild",
@@ -163,21 +156,6 @@ def test_report_details_page_shows_warning(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "If this report is ready to be reviewed, mark it")
-
-
-def test_published_report_detail_page_loads(admin_client):
-    """Test that the published report detail page loads"""
-    report: Report = create_report()
-    published_report: PublishedReport = report.publishedreport_set.first()  # type: ignore
-    published_report_pk_kwargs: Dict[str, int] = {"pk": published_report.id}  # type: ignore
-    create_section(report)
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:published-report-detail", kwargs=published_report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, PUBLISHED_REPORT_HTML)
 
 
 def test_section_edit_page_loads(admin_client):
