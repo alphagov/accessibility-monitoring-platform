@@ -161,10 +161,11 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="Testing methodology?",
         choices=TESTING_METHODOLOGY_CHOICES,
     )
-    report_methodology = AMPChoiceRadioField(
-        label="Report methodology?",
-        choices=REPORT_METHODOLOGY_CHOICES,
-    )
+
+    # report_methodology = AMPChoiceRadioField(     # Uncomment when reports are ready to be deployed
+    #     label="Report methodology?",
+    #     choices=REPORT_METHODOLOGY_CHOICES,
+    # )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")
     case_details_complete_date = AMPDatePageCompleteField()
@@ -200,7 +201,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "organisation_name",
             "enforcement_body",
             "testing_methodology",
-            "report_methodology",
+            # "report_methodology", # Uncomment when reports are ready to be deployed
             "psb_location",
             "sector",
             "is_complaint",
