@@ -161,7 +161,8 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         label="Testing methodology?",
         choices=TESTING_METHODOLOGY_CHOICES,
     )
-    # report_methodology = AMPChoiceRadioField(
+
+    # report_methodology = AMPChoiceRadioField(     # Uncomment when reports are ready to be deployed
     #     label="Report methodology?",
     #     choices=REPORT_METHODOLOGY_CHOICES,
     # )
@@ -200,7 +201,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "organisation_name",
             "enforcement_body",
             "testing_methodology",
-            # "report_methodology",
+            # "report_methodology", # Uncomment when reports are ready to be deployed
             "psb_location",
             "sector",
             "is_complaint",
