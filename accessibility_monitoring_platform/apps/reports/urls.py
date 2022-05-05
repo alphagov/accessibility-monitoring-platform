@@ -16,8 +16,7 @@ from .views import (
     ReportPreviewTemplateView,
     ReportConfirmPublishTemplateView,
     publish_report,
-    PublishedReportListView,
-    PublishedReportDetailView,
+    S3ReportListView,
     ReportWrapperUpdateView,
 )
 
@@ -69,14 +68,9 @@ urlpatterns: List[URLPattern] = [
         name="report-publish",
     ),
     path(
-        "<int:pk>/published-reports/",
-        login_required(PublishedReportListView.as_view()),
-        name="published-report-list",
-    ),
-    path(
-        "published-reports/<int:pk>/",
-        login_required(PublishedReportDetailView.as_view()),
-        name="published-report-detail",
+        "<int:pk>/s3-reports/",
+        login_required(S3ReportListView.as_view()),
+        name="s3-report-list",
     ),
     path(
         "edit-report-wrapper/",

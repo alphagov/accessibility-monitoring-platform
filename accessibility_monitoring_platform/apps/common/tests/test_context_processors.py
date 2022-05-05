@@ -23,6 +23,7 @@ class MockRequest:
         self.path = path
         self.absolute_uri = absolute_uri
         self.user = user
+        self.META = {}  # pylint: disable=invalid-name
 
     def build_absolute_uri(self):
         return self.absolute_uri
@@ -73,7 +74,9 @@ def test_platform_page_template_context():
     )
     platform_page_context: Dict[
         str, Union[AMPTopMenuForm, str, Platform, int]
-    ] = platform_page(mock_request)
+    ] = platform_page(
+        mock_request
+    )  # type: ignore
 
     assert platform_page_context["prototype_name"] == "prototype-name"
     assert platform_page_context["platform"] is not None

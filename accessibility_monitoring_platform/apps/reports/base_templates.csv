@@ -1,9 +1,5 @@
 id,version,created,name,template_type,content,position
-1,9,2022-03-21 16:55:26.801142+00:00,Opening statement,markdown,"Date: {{ audit.date_of_test|date:""d F Y"" }}
-
-Website: [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }})
-
-Website accessibility regulations came into force on 23 September 2018. The regulations mean that public sector bodies now have a legal obligation to meet accessibility requirements for their websites.
+1,9,2022-03-21 16:55:26.801142+00:00,Introduction,markdown,"Website accessibility regulations came into force on 23 September 2018. The regulations mean that public sector bodies now have a legal obligation to meet accessibility requirements for their websites.
 
 To check how well the public sector are meeting the requirements, the Central Digital and Data Office (part of the Cabinet Office) has been monitoring a sample of public sector websites.
 
