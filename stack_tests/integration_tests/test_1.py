@@ -171,6 +171,9 @@ REPORT_ORGANISATION_NAME: str = "Report generator organisation"
 REPORT_HOME_PAGE_URL: str = "https://example-report-gen.com"
 REPORT_UPDATED_OPENING: str = "Updated report opening statement."
 
+PUBLISH_REPORT_ORGANISATION_NAME: str = "Report publish organisation"
+PUBLISH_REPORT_HOME_PAGE_URL: str = "https://example-report-publish.com"
+
 
 class SeleniumTest(unittest.TestCase):
     """
@@ -1482,7 +1485,7 @@ class TestCaseRetestingUI(TestCase):
         self.assertTrue(ACCESSIBILITY_STATEMENT_RETEST_NOTES in self.driver.page_source)
 
 
-# class TestCaseCreateReport(TestCase):
+# class TestCaseCreateReport(TestCase): # Uncomment when reports are ready to deployed
 #     """
 #     Test case for integration tests of case to create report
 
@@ -1563,10 +1566,128 @@ class TestCaseRetestingUI(TestCase):
 
 #         self.driver.find_elements_by_link_text("Edit")[1].click()
 
-#         self.assertTrue(">Opening statement</h1>" in self.driver.page_source)
+#         self.assertTrue(">Introduction</h1>" in self.driver.page_source)
 
 #         self.driver.find_element_by_name("content").send_keys(REPORT_UPDATED_OPENING)
 #         self.driver.find_element_by_name("save_exit").click()
 
 #         self.assertTrue(">View report</h1>" in self.driver.page_source)
 #         self.assertTrue(REPORT_UPDATED_OPENING in self.driver.page_source)
+
+
+# class TestCasePublishUnapprovedReport(TestCase):
+#     """
+#     Test case for trying to publish an unapproved report
+
+#     Methods
+#     -------
+#     setUp()
+#         Create case, test and report
+#     test_unapproved_report_cannot_be_published
+#         Tests report without QA approval cannot be published
+#     """
+
+#     def setUp(self):
+#         """Create case and test to report"""
+#         super().setUp()
+#         self.driver.find_element_by_link_text("Create case").click()
+#         self.driver.find_element_by_name("organisation_name").send_keys(
+#             PUBLISH_REPORT_ORGANISATION_NAME
+#         )
+#         self.driver.find_element_by_name("home_page_url").send_keys(
+#             PUBLISH_REPORT_HOME_PAGE_URL
+#         )
+#         self.driver.find_element_by_css_selector(
+#             f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
+#         ).click()
+#         self.driver.find_element_by_name("save_exit").click()
+
+#         self.driver.find_element_by_link_text(PUBLISH_REPORT_ORGANISATION_NAME).click()
+#         self.driver.find_element_by_link_text("Edit case details").click()
+#         self.driver.find_element_by_css_selector(
+#             "input[type='radio'][name='testing_methodology'][value='platform']"
+#         ).click()
+#         self.driver.find_element_by_css_selector(
+#             "input[type='radio'][name='report_methodology'][value='platform']"
+#         ).click()
+#         self.driver.find_element_by_name("save").click()
+
+#         self.driver.find_element_by_link_text("Case").click()
+
+#         self.driver.find_element_by_link_text("Edit testing details").click()
+#         self.driver.find_element_by_link_text("Start test").click()
+#         self.driver.find_element_by_name("save").click()
+
+#         self.driver.find_element_by_link_text("Case").click()
+
+#         self.driver.find_element_by_link_text("Edit report details").click()
+#         self.driver.find_element_by_link_text("Create report").click()
+
+#     def test_unapproved_report_cannot_be_published(self):
+#         """Tests report without QA approval cannot be published"""
+#         self.driver.find_element_by_link_text("Publish HTML report").click()
+#         self.assertTrue("Unable to publish report without QA approval" in self.driver.page_source)
+
+
+# class TestCasePublishReport(TestCase):
+#     """
+#     Test case for integration tests of case to publish report
+
+#     Methods
+#     -------
+#     setUp()
+#         Approve report
+#     test_publish_report()
+#         Tests whether report can be published
+#     """
+
+#     def setUp(self):
+#         """Approve report"""
+#         super().setUp()
+#         self.driver.find_element_by_link_text(PUBLISH_REPORT_ORGANISATION_NAME).click()
+
+#         self.driver.find_element_by_link_text("Edit QA process").click()
+#         self.driver.find_element_by_css_selector("#id_report_approved_status_0").click()
+#         self.driver.find_element_by_name("save").click()
+
+#         self.driver.find_element_by_link_text("Case").click()
+
+#     def test_publish_report(self):
+#         """Tests whether report can be published"""
+#         self.driver.find_element_by_link_text("Edit report details").click()
+#         self.driver.find_element_by_link_text("View report").click()
+
+#         self.driver.find_element_by_link_text("Publish HTML report").click()
+#         self.assertTrue("Are you sure you want to create a HTML report?" in self.driver.page_source)
+
+#         self.driver.find_element_by_link_text("Create HTML report").click()
+
+#         self.assertTrue(">View report</h1>" in self.driver.page_source)
+#         self.assertTrue("HTML report successfully created!" in self.driver.page_source)
+
+
+# class TestCaseViewPublishedReport(TestCase):
+#     """
+#     Test case for integration tests of viewing published (S3) report
+
+#     Methods
+#     -------
+#     setUp()
+#         Navigate to published report
+#     test_view_report()
+#         Tests whether published (S3) report can be viewed
+#     """
+
+#     def setUp(self):
+#         """Navigate to published (S3) report"""
+#         super().setUp()
+#         self.driver.find_element_by_link_text(PUBLISH_REPORT_ORGANISATION_NAME).click()
+
+#     def test_view_report(self):
+#         """Tests whether published (S3) report can be viewed"""
+#         self.driver.find_element_by_id("latest_s3_report").click()
+
+#         new_window_handle: str = self.driver.window_handles[-1]
+#         self.driver.switch_to_window(new_window_handle)
+
+#         self.assertTrue("Accessibility report for example-report-publish.com" in self.driver.page_source)

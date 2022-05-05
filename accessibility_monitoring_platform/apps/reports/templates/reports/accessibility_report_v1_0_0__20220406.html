@@ -1,12 +1,12 @@
 {% load common_tags %}
 {% load static %}
 
-<div> 
+<div class="amp-no-bullet-points">
     <nav>
         <h2 id="contents">Contents</h2>
         <ul>
             {% for section in report.section_set.all %}
-                <li>
+                <li style="list-style-type: none;">
                     <a href="#{{ section.anchor }}">{{ section.name }}</a>
                 </li>
             {% endfor %}

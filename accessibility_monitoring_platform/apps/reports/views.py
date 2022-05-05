@@ -5,8 +5,9 @@ from typing import Any, Dict, List, Optional, Type
 
 from django import forms
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader, Template
 from django.utils.safestring import mark_safe
@@ -24,11 +25,10 @@ from .forms import (
     TableRowFormsetOneExtra,
     ReportWrapperUpdateForm,
 )
-from .models import Report, Section, TableRow, PublishedReport, ReportWrapper
+from .models import Report, Section, TableRow, ReportWrapper
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
-    report_viewer_url,
 )
 from ..common.utils import (
     record_model_create_event,
@@ -218,13 +218,11 @@ class ReportPreviewTemplateView(ReportTemplateView):
     View to preview the report
     """
 
-    template_name: str = "reports/acccessibility_report_container.html"
+    template_name: str = "reports/report_preview.html"
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
-        template: Template = loader.get_template(
-            f"""reports/acccessibility_report_{context["report"].report_version}.html"""
-        )
+        template: Template = loader.get_template(context["report"].template_path)
         context["html_report"] = template.render(context, self.request)  # type: ignore
         return context
 
@@ -258,17 +256,12 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     report: Report = get_object_or_404(Report, id=pk)
     template: Template = loader.get_template(
-        f"""reports/acccessibility_report_{report.report_version}.html"""
+        f"""reports/accessibility_report_{report.report_version}.html"""
     )
     context = {"report": report}
     html: str = template.render(context, request)  # type: ignore
-    PublishedReport.objects.create(
-        report=report,
-        created_by=request.user,
-        html_content=html,
-    )
-    S3RWReport: S3ReadWriteReport = S3ReadWriteReport()
-    S3RWReport.upload_string_to_s3_as_html(
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
         case=report.case,
         user=request.user,  # type: ignore
@@ -284,34 +277,25 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-class PublishedReportListView(ListView):
+class S3ReportListView(ListView):
     """
     View of list of published reports
     """
 
-    model: Type[PublishedReport] = PublishedReport
-    context_object_name: str = "published_reports"
+    model: Type[S3Report] = S3Report
+    template_name: str = "reports/s3report_list.html"
+    context_object_name: str = "s3_reports"
+
+    def get_queryset(self) -> QuerySet[S3Report]:
+        """Find S3 reports for case"""
+        report: Report = Report.objects.get(id=self.kwargs.get("pk"))
+        return S3Report.objects.filter(case=report.case).order_by("-id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        report = Report.objects.get(id=self.kwargs.get("pk"))
-        context["s3_reports"] = S3Report.objects.filter(case=report.case)
-        if "HTTP_HOST" in self.request.META:
-            context["reportViewerUrl"] = report_viewer_url(
-                self.request.META["HTTP_HOST"]
-            )
-        else:
-            context["reportViewerUrl"] = ""
+        report: Report = Report.objects.get(id=self.kwargs.get("pk"))
+        context["report"] = report
         return context
-
-
-class PublishedReportDetailView(DetailView):
-    """
-    View of detail of a published report
-    """
-
-    model: Type[PublishedReport] = PublishedReport
-    context_object_name: str = "published_report"
 
 
 class ReportWrapperUpdateView(UpdateView):
