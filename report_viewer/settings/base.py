@@ -184,3 +184,5 @@ CONTACT_ADMIN_EMAIL = (
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
+
+MARKDOWN_EXTENSIONS = []
