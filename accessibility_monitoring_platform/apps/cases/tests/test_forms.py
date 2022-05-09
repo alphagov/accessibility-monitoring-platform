@@ -4,7 +4,8 @@ Test forms of cases app
 import pytest
 from typing import List, Tuple
 
-from ..forms import CaseSearchForm
+from ..forms import CaseSearchForm, CaseDetailUpdateForm
+from ..models import Case
 
 USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
 HOME_PAGE_URL: str = "https://example.com"
@@ -19,7 +20,7 @@ def test_case_search_form_user_field_includes_choice_of_unassigned(fieldname):
     assert form.fields[fieldname].choices == USER_CHOICES  # type: ignore
 
 
-# @pytest.mark.parametrize(
+# @pytest.mark.parametrize( # Uncomment when reports are ready to deployed
 #     "testing_methodology, report_methodology, expected_valid",
 #     [
 #         ("platform", "platform", True),

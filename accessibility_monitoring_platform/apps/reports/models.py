@@ -10,9 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..cases.models import Case
-from ..common.models import (
-    VersionModel,
-)
+from ..common.models import VersionModel
+from ..s3_read_write.models import S3Report
 from ..common.utils import format_date
 
 TEMPLATE_TYPE_DEFAULT = "markdown"
@@ -24,6 +23,10 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_URLS, "Contains URL table"),
     (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
+]
+REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
+REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
+    (REPORT_VERSION_DEFAULT, "Version 1"),
 ]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
@@ -57,12 +60,6 @@ class ReportWrapper(models.Model):
 
     def __str__(self) -> str:
         return str("Report wrapper text")
-
-
-REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
-REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1"),
-]
 
 
 class Report(VersionModel):
@@ -100,6 +97,10 @@ class Report(VersionModel):
         return reverse("reports:report-detail", kwargs={"pk": self.pk})
 
     @property
+    def template_path(self) -> str:
+        return f"reports/accessibility_report_{self.report_version}.html"
+
+    @property
     def wrapper(self) -> Dict[str, str]:
         """
         Renders the template values in ReportWrapper to return the text used to
@@ -118,9 +119,9 @@ class Report(VersionModel):
         return wrapper_text
 
     @property
-    def published_report(self) -> Optional["PublishedReport"]:
+    def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
-        return self.publishedreport_set.all().first()  # type: ignore
+        return self.case.s3report_set.all().last()  # type: ignore
 
 
 class BaseTemplate(VersionModel):
@@ -199,39 +200,3 @@ class TableRow(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.section}: Table row {self.row_number}")
-
-
-class PublishedReport(models.Model):
-    """
-    Model for published report
-    """
-
-    report = models.ForeignKey(
-        Report,
-        on_delete=models.PROTECT,
-    )
-    version = models.IntegerField(default=0)
-    created = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True,
-    )
-    html_content = models.TextField(default="", blank=True)
-
-    class Meta:
-        ordering = ["-id"]
-
-    def __str__(self) -> str:
-        return str(f"v{self.version} - {self.created.strftime('%H:%M')} {format_date(self.created)}")  # type: ignore
-
-    def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
-        if not self.created:
-            self.created = now
-            self.version = self.report.publishedreport_set.count() + 1  # type: ignore
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self) -> str:
-        return reverse("reports:report-publish", kwargs={"pk": self.pk})

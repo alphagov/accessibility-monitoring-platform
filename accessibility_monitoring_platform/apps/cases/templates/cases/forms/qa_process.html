@@ -65,8 +65,8 @@
                                 <div class="govuk-form-group">
                                     <label class="govuk-label"><b>Published report</b></label>
                                     <div class="govuk-hint">
-                                        {% if case.report.published_report %}
-                                            <a href="{% url 'reports:published-report-detail' case.report.published_report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        {% if case.report.latest_s3_report %}
+                                            <a href="{{ report_viewer_url_prefix }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                                                 View final HTML report
                                             </a>
                                         {% else %}

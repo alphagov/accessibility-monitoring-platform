@@ -1,11 +1,7 @@
 id,version,created,name,template_type,content,position
-1,9,2022-03-21 16:55:26.801142+00:00,Opening statement,markdown,"Date: {{ audit.date_of_test|date:""d F Y"" }}
+1,9,2022-03-21 16:55:26.801142+00:00,Introduction,markdown,"Website accessibility regulations came into force on 23 September 2018. The regulations mean that public sector bodies now have a legal obligation to meet accessibility requirements for their websites.
 
-Website: [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }})
-
-Website accessibility regulations came into force on 23 September 2018. The regulations mean that public sector bodies now have a legal obligation to meet accessibility requirements for their websites.
-
-To check how well the public sector are meeting the requirements, the Central Digital and Data Office (part of the Cabinet Office) has been monitoring a sample of public sector websites.
+To check how well the public sector are meeting the requirements, the Government Digital Service (part of the Cabinet Office) has been monitoring a sample of public sector websites.
 
 You’ve been sent this report because [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) is one of the websites we’ve monitored. This document explains:
 
@@ -83,7 +79,7 @@ A disproportionate burden assessment must have been completed before adding this
 Public sector bodies must publish an accessibility statement and review it regularly. If the decision is taken that a public sector body has failed to publish an accessibility statement or that the accessibility statement is incorrect, the Minister for the Cabinet Office may publish the name of the body and a copy of the decision.
 
 The enforcement process can be found at [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps#how-the-accessibility-regulations-will-be-monitored-and-enforced).",8
-9,7,2022-03-21 16:55:26.841893+00:00,Contact and more information,markdown,"This test was conducted by the Central Digital and Data Office on behalf of the Minister of the Cabinet Office as part of their obligations to monitor the accessibility of public sector websites in the United Kingdom.
+9,7,2022-03-21 16:55:26.841893+00:00,Contact and more information,markdown,"This test was conducted by the Government Digital Service on behalf of the Minister of the Cabinet Office as part of their obligations to monitor the accessibility of public sector websites in the United Kingdom.
 
 As the monitoring body we cannot offer specific advice on approaches or general accessibility queries other than questions directly related to the items in this report.
 
