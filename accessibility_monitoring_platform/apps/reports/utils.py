@@ -219,7 +219,7 @@ def get_report_viewer_url_prefix(request: HttpRequest) -> str:
         elif "accessibility-monitoring-platform-production" in domain_name:
             return "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital"
         elif "accessibility-monitoring-platform-test" in domain_name:
-            return "https://accessibility-monitoring-platform-test.london.cloudapps.digital"
+            return "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital"
         else:
             domain_name_split = domain_name.split(".")
             domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"
