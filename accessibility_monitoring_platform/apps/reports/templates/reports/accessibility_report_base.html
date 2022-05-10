@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load common_tags %}
+{% load static %}
+
+{% block title %}
+{{ report.wrapper.title }}
+{% endblock %}
+
+{% block content %}
+{% include 'reports/accessibility_report_container.html' %}
+{% endblock %}
