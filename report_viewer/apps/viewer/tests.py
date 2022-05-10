@@ -92,8 +92,8 @@ def test_view_older_report(client):
     assertContains(response, "A newer version of this report is available.")
     assertNotContains(response, '<h2 id="contents">Contents</h2>')
 
-    newer_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).last()
-    report_guid_kwargs: Dict[str, int] = {"guid": newer_s3report.guid}  # type: ignore
+    newest_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).last()
+    report_guid_kwargs: Dict[str, int] = {"guid": newest_s3report.guid}  # type: ignore
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
