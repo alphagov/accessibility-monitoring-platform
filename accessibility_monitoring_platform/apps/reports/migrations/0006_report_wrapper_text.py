@@ -10,9 +10,10 @@ REPORT_WRAPPER_TEXT = {
     "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",
     "contact": "[accessibility-monitoring-team@gov.uk](mailto:accessibility-monitoring-team@gov.uk)",
     "related_content": """
-* [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)
-* [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)
-* [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)
+* [Understanding accessibility requirements for public sector bodies](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps)
+* [Make your website or app accessible and publish an accessibility statement](https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement)
+* [Public sector website and mobile application accessibility monitoring](https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring)
+* [Accessibility monitoring: How we test](https://www.gov.uk/guidance/accessibility-monitoring-how-we-test)
     """,
 }
 
