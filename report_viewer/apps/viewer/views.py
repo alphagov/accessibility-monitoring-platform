@@ -18,5 +18,5 @@ class ViewReport(TemplateView):
         report = Report.objects.get(case=s3_report.case)
         context = {"html_report": raw_html, "report": report, "s3_report": s3_report}
         return render(
-            request, "reports/accessibility_report_container.html", context=context
+            request, "reports/accessibility_report_base.html", context=context
         )
