@@ -1,0 +1,28 @@
+{% load common_tags %}
+
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">Date of retest</th>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.audit.retest_date|date:"d/m/Y" }}</td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">
+        {{ case.audit.audit_retest_metadata_notes|markdown_to_html }}
+    </td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance decision</th>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.get_website_state_final_display }}</td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance notes</th>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.website_state_notes_final|markdown_to_html }}</td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance status</th>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_final_display }}</td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance notes</th>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.accessibility_statement_notes_final|markdown_to_html }}</td>
+</tr>
