@@ -205,6 +205,21 @@ class BuildEnv:
     def down(self):
         """Breaks down an environment in PaaS"""
         print(">>> breaking down environment in PaaS")
+
+        print(f"cf target -s {self.space_name}")
+        self.bash_command(
+            command=f"cf target -s {self.space_name}",
+            check=f"space:          {self.space_name}",
+        )
+
+        cf_apps_ls: str = subprocess.check_output("cf apps", shell=True).decode("utf-8")
+
+        if "accessibility-monitoring-platform-test" in cf_apps_ls:
+            raise Exception("The prototype build detected it may be in the testing env")
+
+        if "accessibility-monitoring-platform-production" in cf_apps_ls:
+            raise Exception("The prototype build detected it may be in the testing env")
+
         attempts: int = 0
         self.remove_s3_bucket()
         while attempts < self.db_ping_attempts:

@@ -1,5 +1,5 @@
 {
-  "name": "deploy_feature_settings_0.2.0",
+  "name": "deploy_feature_settings_0.2.1",
   "date": "20220309",
   "space_name": "git_branch",
   "app_name": "git_branch",
@@ -13,6 +13,6 @@
   "db_instance_to_copy": "monitoring-platform-default-db",
   "temp_db_copy_path": "./backup.sql",
   "s3_bucket": "paas-s3-broker-prod-lon-d9a58299-d162-49b5-8547-483663b17914",
-  "s3_report_store": "s3-report-store",
+  "s3_report_store": "s3-report-store-prototype",
   "backup_db": false
 }
