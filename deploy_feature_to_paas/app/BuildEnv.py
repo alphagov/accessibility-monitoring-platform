@@ -218,7 +218,7 @@ class BuildEnv:
             raise Exception("The prototype build detected it may be in the testing env")
 
         if "accessibility-monitoring-platform-production" in cf_apps_ls:
-            raise Exception("The prototype build detected it may be in the testing env")
+            raise Exception("The prototype build detected it may be in the production env")
 
         attempts: int = 0
         self.remove_s3_bucket()
