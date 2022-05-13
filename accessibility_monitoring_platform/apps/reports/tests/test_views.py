@@ -53,7 +53,7 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs={"pk": 1})  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})  # type: ignore
 
 
 def test_rebuild_report_redirects(admin_client):
