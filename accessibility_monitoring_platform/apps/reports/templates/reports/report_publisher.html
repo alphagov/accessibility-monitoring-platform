@@ -48,6 +48,15 @@
                 </div>
             </div>
         </div>
+        {% if report.case.report_review_status == 'not-started' %}
+            {% include 'reports/helpers/qa_process_notification.html' %}
+        {% endif %}
+        {% if report.case.report_approved_status == 'yes' and not report.case.s3report_set.all %}
+            {% include 'reports/helpers/publish_notification.html' %}
+        {% endif %}
+        {% if report.case.s3report_set.all %}
+            {% include 'reports/helpers/s3_report_notification.html' %}
+        {% endif %}
     </main>
     {% include 'reports/accessibility_report_container.html' %}
 </div>

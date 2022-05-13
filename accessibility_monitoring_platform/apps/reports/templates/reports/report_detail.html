@@ -52,12 +52,6 @@
         <div style="position: relative; top: -15px;">
             {% include 'cases/helpers/case_title.html' with case=report.case %}
             {% include "cases/helpers/messages.html" %}
-            {% if report.case.report_review_status == 'not-started' %}
-                {% include 'reports/helpers/review_report_warning.html' %}
-            {% endif %}
-            {% if report.case.s3report_set.all %}
-                {% include 'reports/helpers/s3_report_warning.html' %}
-            {% endif %}
         </div>
 
         <div class="govuk-grid-row">

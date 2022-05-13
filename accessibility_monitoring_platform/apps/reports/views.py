@@ -273,7 +273,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         mark_safe("HTML report successfully created!" ""),
     )
     return redirect(
-        reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+        reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
     )
 
 
