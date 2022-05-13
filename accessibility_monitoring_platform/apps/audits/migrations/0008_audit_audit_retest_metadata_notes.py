@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('audits', '0007_add_12_week_retest'),
+        ("audits", "0007_add_12_week_retest"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='audit',
-            name='audit_retest_metadata_notes',
-            field=models.TextField(blank=True, default=''),
+            model_name="audit",
+            name="audit_retest_metadata_notes",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

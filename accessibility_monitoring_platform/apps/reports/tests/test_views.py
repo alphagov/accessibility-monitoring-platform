@@ -85,7 +85,7 @@ def test_publish_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)  # type: ignore
     assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
 
 
@@ -140,9 +140,9 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
-def test_report_details_page_shows_warning(admin_client):
+def test_report_details_page_shows_notification(admin_client):
     """
-    Test that the report details page shows a warning advising user to
+    Test that the report details page shows a notification advising user to
     mark report as ready to review
     """
     report: Report = create_report()
@@ -150,12 +150,15 @@ def test_report_details_page_shows_warning(admin_client):
     create_section(report)
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-detail", kwargs=report_pk_kwargs)
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
     )
 
     assert response.status_code == 200
 
-    assertContains(response, "If this report is ready to be reviewed, mark it")
+    assertContains(
+        response,
+        "If this report is ready to be reviewed, mark 'Report ready to be reviewed' in QA process.",
+    )
 
 
 def test_section_edit_page_loads(admin_client):
