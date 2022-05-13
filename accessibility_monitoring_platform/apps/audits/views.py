@@ -537,6 +537,22 @@ class AuditStatementDecisionUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-report-options", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditReportOptionsUpdateView(AuditUpdateView):
+    """
+    View to update report options
+    """
+
+    form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
+    template_name: str = "audits/forms/report_options.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("audits:edit-audit-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -575,22 +591,6 @@ class AuditSummaryUpdateView(AuditUpdateView):
         )
 
         return context
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-report-options", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditReportOptionsUpdateView(AuditUpdateView):
-    """
-    View to update report options
-    """
-
-    form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
-    template_name: str = "audits/forms/report_options.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

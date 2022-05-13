@@ -214,8 +214,8 @@ def test_create_audit_redirects(admin_client):
             "audits:edit-statement-decision",
             "Accessibility statement compliance decision",
         ),
-        ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-options", "Report options"),
+        ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-text", "Report text"),
         ("audits:audit-retest-detail", "View 12-week retest"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
@@ -277,12 +277,6 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-statement-decision",
             "save_continue",
-            "audits:edit-audit-summary",
-        ),
-        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
-        (
-            "audits:edit-audit-summary",
-            "save_continue",
             "audits:edit-audit-report-options",
         ),
         (
@@ -292,6 +286,12 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
         (
             "audits:edit-audit-report-options",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        (
+            "audits:edit-audit-summary",
             "save_continue",
             "audits:edit-audit-report-text",
         ),
