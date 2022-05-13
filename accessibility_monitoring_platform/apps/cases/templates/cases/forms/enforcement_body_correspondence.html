@@ -42,26 +42,7 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
-                            <input
-                                type="submit"
-                                value="Save and exit"
-                                name="save_exit"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                            />
-                            <a
-                                href="{% url 'cases:case-detail' case.id %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Cancel and return to case view
-                            </a>
+                            {% include 'cases/helpers/save_continue_cancel.html' %}
                         </div>
                     </div>
                 </form>

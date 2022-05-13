@@ -600,7 +600,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-twelve-week-correspondence",
             "save_continue",
-            "cases:edit-review-changes",
+            "cases:edit-twelve-week-retest",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -612,27 +612,21 @@ def test_create_case_can_create_duplicate_cases(
             "save",
             "cases:edit-case-close",
         ),
-        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
-        (
-            "cases:edit-review-changes",
-            "save_continue",
-            "cases:edit-twelve-week-retest",
-        ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
             "cases:edit-twelve-week-retest",
+            "save_continue",
+            "cases:edit-review-changes",
+        ),
+        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
+        (
+            "cases:edit-review-changes",
             "save_continue",
             "cases:edit-case-close",
         ),
         ("cases:edit-case-close", "save", "cases:edit-case-close"),
         (
             "cases:edit-case-close",
-            "save_continue",
-            "cases:edit-post-case",
-        ),
-        ("cases:edit-post-case", "save", "cases:edit-post-case"),
-        (
-            "cases:edit-post-case",
             "save_continue",
             "cases:edit-enforcement-body-correspondence",
         ),
@@ -643,6 +637,12 @@ def test_create_case_can_create_duplicate_cases(
         ),
         (
             "cases:edit-enforcement-body-correspondence",
+            "save_continue",
+            "cases:edit-post-case",
+        ),
+        ("cases:edit-post-case", "save", "cases:edit-post-case"),
+        (
+            "cases:edit-post-case",
             "save_exit",
             "cases:case-detail",
         ),
@@ -683,6 +683,11 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
+        (
+            "cases:edit-twelve-week-retest",
+            "save_continue",
+            "cases:edit-review-changes",
+        ),
         (
             "cases:edit-review-changes",
             "save_continue",
@@ -1094,12 +1099,12 @@ def test_preferred_contact_displayed(admin_client):
             "edit-twelve-week-retest",
         ),
         ("case_close_complete_date", "Closing the case", "edit-case-close"),
-        ("post_case_complete_date", "Post case summary", "edit-post-case"),
         (
             "enforcement_correspondence_complete_date",
             "Equality body summary",
             "edit-enforcement-body-correspondence",
         ),
+        ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
 def test_section_complete_check_displayed_in_contents_platform_methodology(
@@ -1220,12 +1225,12 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
             "Reviewing changes",
         ),
         ("cases:edit-case-close", "case_close_complete_date", "Closing the case"),
-        ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
         (
             "cases:edit-enforcement-body-correspondence",
             "enforcement_correspondence_complete_date",
             "Equality body summary",
         ),
+        ("cases:edit-post-case", "post_case_complete_date", "Post case summary"),
     ],
 )
 def test_section_complete_check_displayed_in_steps_platform_methodology(
@@ -1686,8 +1691,8 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-final-website"),
         ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-case-close"),
-        ("zendesk_url", "edit-post-case"),
         ("trello_url", "edit-enforcement-body-correspondence"),
+        ("zendesk_url", "edit-post-case"),
     ],
 )
 def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):

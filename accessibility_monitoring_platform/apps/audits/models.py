@@ -398,6 +398,7 @@ class Audit(VersionModel):
 
     # retest metadata page
     retest_date = models.DateField(null=True, blank=True)
+    audit_retest_metadata_notes = models.TextField(default="", blank=True)
     audit_retest_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Retest pages

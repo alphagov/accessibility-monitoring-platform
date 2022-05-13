@@ -130,14 +130,14 @@ urlpatterns: List[URLPattern] = [
         name="edit-case-close",
     ),
     path(
-        "<int:pk>/edit-post-case/",
-        login_required(PostCaseUpdateView.as_view()),
-        name="edit-post-case",
-    ),
-    path(
         "<int:pk>/edit-enforcement-body-correspondence/",
         login_required(CaseEnforcementBodyCorrespondenceUpdateView.as_view()),
         name="edit-enforcement-body-correspondence",
+    ),
+    path(
+        "<int:pk>/edit-post-case/",
+        login_required(PostCaseUpdateView.as_view()),
+        name="edit-post-case",
     ),
     path(
         "<int:pk>/delete-case/",

@@ -21,6 +21,12 @@
             <td class="govuk-table__cell amp-width-one-half">{{ audit.retest_date|date:'d/m/Y' }}</td>
         </tr>
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ audit.audit_retest_metadata_notes|markdown_to_html }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">Original date test</th>
             <td class="govuk-table__cell amp-width-one-half">{{ audit.date_of_test|date:'d/m/Y' }}</td>
         </tr>

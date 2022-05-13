@@ -737,23 +737,6 @@ class TestCaseUpdates(TestCase):
             "Case should not be sent to the equality body" in self.driver.page_source
         )
 
-    def test_update_case_edit_post_case(self):
-        """Tests whether post case summary can be updated"""
-        self.driver.find_element_by_link_text("Edit post case summary").click()
-
-        self.assertTrue(">Post case summary</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
-        self.driver.find_element_by_name("post_case_notes").send_keys(POST_CASE_NOTES)
-        self.driver.find_element_by_css_selector("#id_post_case_complete_date").click()
-
-        self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Case").click()
-
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
-        self.assertTrue(POST_CASE_NOTES in self.driver.page_source)
-
     def test_update_case_edit_enforcement_body_summary(self):
         """Tests whether enforcement body summary can be updated"""
         self.driver.find_element_by_link_text("Edit equality body summary").click()
@@ -793,6 +776,23 @@ class TestCaseUpdates(TestCase):
         self.assertTrue(
             ENFORCEMENT_BODY_CORRESPONDENCE_NOTES in self.driver.page_source
         )
+
+    def test_update_case_edit_post_case(self):
+        """Tests whether post case summary can be updated"""
+        self.driver.find_element_by_link_text("Edit post case summary").click()
+
+        self.assertTrue(">Post case summary</h1>" in self.driver.page_source)
+
+        self.driver.find_element_by_name("psb_appeal_notes").send_keys(PSB_APPEAL_NOTES)
+        self.driver.find_element_by_name("post_case_notes").send_keys(POST_CASE_NOTES)
+        self.driver.find_element_by_css_selector("#id_post_case_complete_date").click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Case").click()
+
+        self.assertTrue(">View case</h1>" in self.driver.page_source)
+        self.assertTrue(PSB_APPEAL_NOTES in self.driver.page_source)
+        self.assertTrue(POST_CASE_NOTES in self.driver.page_source)
 
     def test_update_case_edit_report_followup_dates(self):
         """Tests whether report followup dates can be updated"""
@@ -1040,10 +1040,10 @@ class TestCaseTestingUI(TestCase):
         Tests whether case test accessibility_statement 2 can be updated
     test_update_test_statement_compliance()
         Tests whether case test accessibility statement compliance can be updated
-    test_update_test_test_summary()
-        Tests whether case test summary page can be updated
     test_update_test_report_options()
         Tests whether case test report options page can be updated
+    test_update_test_test_summary()
+        Tests whether case test summary page can be updated
     test_update_test_report_text()
         Tests whether case test report text page can be updated
     """
@@ -1206,22 +1206,6 @@ class TestCaseTestingUI(TestCase):
         self.assertTrue(">View test</h1>" in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_NOTES in self.driver.page_source)
 
-    def test_update_test_test_summary(self):
-        """Tests whether case test summary page can be updated"""
-        self.driver.find_element_by_link_text(
-            "Edit accessibility statement compliance decision"
-        ).click()
-        self.driver.find_element_by_link_text("Test summary").click()
-
-        self.driver.find_element_by_css_selector(
-            "#id_audit_summary_complete_date"
-        ).click()
-
-        self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Test").click()
-
-        self.assertTrue(">View test</h1>" in self.driver.page_source)
-
     def test_update_test_report_options(self):
         """Tests whether case test report options page can be updated"""
         self.driver.find_element_by_link_text("Edit report options").click()
@@ -1238,6 +1222,22 @@ class TestCaseTestingUI(TestCase):
             "An accessibility statement for the website was not found."
             in self.driver.page_source
         )
+
+    def test_update_test_test_summary(self):
+        """Tests whether case test summary page can be updated"""
+        self.driver.find_element_by_link_text(
+            "Edit accessibility statement compliance decision"
+        ).click()
+        self.driver.find_element_by_link_text("Test summary").click()
+
+        self.driver.find_element_by_css_selector(
+            "#id_audit_summary_complete_date"
+        ).click()
+
+        self.driver.find_element_by_name("save").click()
+        self.driver.find_element_by_link_text("Test").click()
+
+        self.assertTrue(">View test</h1>" in self.driver.page_source)
 
     def test_update_test_report_text(self):
         """Tests whether case test report text page can be updated"""

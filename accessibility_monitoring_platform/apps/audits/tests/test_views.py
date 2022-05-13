@@ -5,12 +5,12 @@ import pytest
 
 from typing import Dict, List
 
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ...cases.models import Case
+from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM
 from ..models import (
     PAGE_TYPE_PDF,
     Audit,
@@ -214,8 +214,8 @@ def test_create_audit_redirects(admin_client):
             "audits:edit-statement-decision",
             "Accessibility statement compliance decision",
         ),
-        ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-options", "Report options"),
+        ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-text", "Report text"),
         ("audits:audit-retest-detail", "View 12-week retest"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
@@ -277,12 +277,6 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-statement-decision",
             "save_continue",
-            "audits:edit-audit-summary",
-        ),
-        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
-        (
-            "audits:edit-audit-summary",
-            "save_continue",
             "audits:edit-audit-report-options",
         ),
         (
@@ -292,6 +286,12 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
         (
             "audits:edit-audit-report-options",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
+        (
+            "audits:edit-audit-summary",
             "save_continue",
             "audits:edit-audit-report-text",
         ),
@@ -835,4 +835,57 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.accessibility_statement_notes_final
         == ACCESSIBILITY_STATEMENT_NOTES
+    )
+
+
+def test_report_text_not_shown_when_platform_report(admin_client):
+    """
+    Test that report text is not shown when case is using report methodology of platform
+    """
+    audit: Audit = create_audit_and_wcag()
+    case: Case = audit.case
+    case.report_methodology = REPORT_METHODOLOGY_PLATFORM
+    case.save()
+
+    audit_pk: int = audit.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-report-text", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Copy report to clipboard")
+    assertNotContains(
+        response, """<h1 class="govuk-heading-l">Report text</h1>""", html=True
+    )
+    assertNotContains(response, "This is the end of the testing process.")
+    assertContains(
+        response,
+        "Report text should not be used when the report methodology is set to Platform.",
+    )
+
+
+def test_report_text_shown_when_not_platform_report(admin_client):
+    """
+    Test that report text is shown when case is not using report methodology of platform
+    """
+    audit: Audit = create_audit_and_wcag()
+
+    audit_pk: int = audit.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-report-text", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Copy report to clipboard")
+    assertContains(
+        response, """<h1 class="govuk-heading-l">Report text</h1>""", html=True
+    )
+    assertContains(response, "This is the end of the testing process.")
+    assertNotContains(
+        response,
+        "Report text should not be used when the report methodology is set to Platform.",
     )

@@ -226,7 +226,7 @@ def test_move_table_row_down(rf):
         ),
         (
             "https://accessibility-monitoring-platform-test.com",
-            "https://accessibility-monitoring-platform-test.london.cloudapps.digital",
+            "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital",
         ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
         ("", ""),

@@ -683,6 +683,7 @@ class AuditRetestMetadataUpdateForm(VersionForm):
     """
 
     retest_date = AMPDateField(label="Date of retest")
+    audit_retest_metadata_notes = AMPTextField(label="Notes")
     audit_retest_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -690,6 +691,7 @@ class AuditRetestMetadataUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "retest_date",
+            "audit_retest_metadata_notes",
             "audit_retest_metadata_complete_date",
         ]
 
