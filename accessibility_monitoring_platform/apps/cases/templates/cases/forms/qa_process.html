@@ -43,8 +43,8 @@
                                 <div class="govuk-hint">
                                     {% if case.report_methodology == 'platform' %}
                                         {% if case.report %}
-                                            <a href="{% url 'reports:report-preview' case.report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                                Report preview
+                                            <a href="{% url 'reports:report-publisher' case.report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                                Report publisher
                                             </a>
                                         {% else %}
                                             None

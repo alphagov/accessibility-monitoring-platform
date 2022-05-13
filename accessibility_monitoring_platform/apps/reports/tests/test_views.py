@@ -111,13 +111,13 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:report-detail", ">View report</h1>"),
+        ("reports:report-detail", ">Edit report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
         ("reports:s3-report-list", ">Report versions</h1>"),
-        ("reports:report-preview", f"<p>{SECTION_CONTENT}</p>"),
+        ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
-            "reports:report-confirm-rebuild",
-            ">Are you sure you want to rebuild the report?</h1>",
+            "reports:report-confirm-refresh",
+            ">Are you sure you want to refresh the report?</h1>",
         ),
         (
             "reports:report-confirm-publish",

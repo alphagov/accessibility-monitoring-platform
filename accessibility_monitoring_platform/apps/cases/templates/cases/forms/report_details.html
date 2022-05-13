@@ -33,23 +33,13 @@
                                 {% if case.report %}
                                     <div class="govuk-button-group">
                                         <a
-                                            href="{% url 'reports:report-detail' case.report.id %}"
+                                            href="{% url 'reports:report-publisher' case.report.id %}"
                                             role="button"
                                             draggable="false"
                                             class="govuk-button govuk-button--secondary"
                                             data-module="govuk-button"
                                         >
-                                            View report
-                                        </a>
-                                        <a
-                                            href="{% url 'reports:report-preview' case.report.id %}"
-                                            role="button"
-                                            draggable="false"
-                                            class="govuk-button govuk-button--secondary"
-                                            data-module="govuk-button"
-                                            target="_blank"
-                                        >
-                                            Preview report in new tab
+                                            Go to report publisher
                                         </a>
                                     </div>
                                     <table class="govuk-table">
