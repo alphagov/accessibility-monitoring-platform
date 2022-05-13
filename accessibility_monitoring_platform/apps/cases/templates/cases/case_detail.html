@@ -122,10 +122,11 @@
                 {% include 'cases/details/contact_details.html' %}
                 {% include 'cases/details/report_correspondence.html' %}
                 {% include 'cases/details/twelve_week_correspondence.html' %}
-                {% include 'cases/details/review_changes.html' %}
                 {% if case.testing_methodology == 'platform' %}
                     {% include 'cases/details/retesting_details.html' %}
-                {% else %}
+                {% endif %}
+                {% include 'cases/details/review_changes.html' %}
+                {% if case.testing_methodology != 'platform' %}
                     {% include 'cases/details/final_website.html' %}
                     {% include 'cases/details/final_statement.html' %}
                 {% endif %}

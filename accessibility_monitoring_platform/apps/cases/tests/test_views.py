@@ -600,7 +600,7 @@ def test_create_case_can_create_duplicate_cases(
         (
             "cases:edit-twelve-week-correspondence",
             "save_continue",
-            "cases:edit-review-changes",
+            "cases:edit-twelve-week-retest",
         ),
         (
             "cases:edit-twelve-week-correspondence-due-dates",
@@ -612,15 +612,15 @@ def test_create_case_can_create_duplicate_cases(
             "save",
             "cases:edit-case-close",
         ),
-        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
-        (
-            "cases:edit-review-changes",
-            "save_continue",
-            "cases:edit-twelve-week-retest",
-        ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
             "cases:edit-twelve-week-retest",
+            "save_continue",
+            "cases:edit-review-changes",
+        ),
+        ("cases:edit-review-changes", "save", "cases:edit-review-changes"),
+        (
+            "cases:edit-review-changes",
             "save_continue",
             "cases:edit-case-close",
         ),
@@ -683,6 +683,11 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
 @pytest.mark.parametrize(
     "case_edit_path, button_name, expected_redirect_path",
     [
+        (
+            "cases:edit-twelve-week-retest",
+            "save_continue",
+            "cases:edit-review-changes",
+        ),
         (
             "cases:edit-review-changes",
             "save_continue",
