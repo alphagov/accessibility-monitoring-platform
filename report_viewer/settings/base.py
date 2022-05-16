@@ -52,7 +52,6 @@ CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 
 INSTALLED_APPS = [
     "report_viewer.apps.viewer",
-    "report_viewer.apps.homepage",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.cases",
     "accessibility_monitoring_platform.apps.s3_read_write",

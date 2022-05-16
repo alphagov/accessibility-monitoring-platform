@@ -3,13 +3,14 @@ Middleware for report viewer
 """
 from django.http import HttpResponsePermanentRedirect
 
-ROOT_REDIRECT_DESTINATION = "http://www.accessibility-monitoring.service.gov.uk/"
+ROOT_REDIRECT_DESTINATION: str = "http://www.accessibility-monitoring.service.gov.uk/"
 
 
 class RootRedirectMiddleware:
     """
-    When request is for root then redirect to http://www.accessibility-monitoring.service.gov.uk/
+    When request is for root ('/') then redirect to www url
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
