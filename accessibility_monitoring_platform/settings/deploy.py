@@ -3,6 +3,7 @@ Production deployment settings
 """
 
 import os
+import sys
 from .base import *
 
 
@@ -28,10 +29,13 @@ if os.getenv("EMAIL_NOTIFY_API_KEY") and os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_HSTS_SECONDS = 2592000  # One month in seconds
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+under_test = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
+
+if not under_test:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_HSTS_SECONDS = 2592000  # One month in seconds
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
