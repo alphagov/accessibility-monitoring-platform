@@ -58,8 +58,3 @@ class TestHomepage(SeleniumTest):
             "Page not found" in self.driver.page_source,
             True,
         )
-        self.assertEqual(
-            "If you entered a web address, check it is correct."
-            in self.driver.page_source,
-            True,
-        )
