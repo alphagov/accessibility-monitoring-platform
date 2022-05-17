@@ -10,7 +10,9 @@ import argparse
 parser = argparse.ArgumentParser(description="Settings for integration tests")
 
 parser.add_argument(
-    "-s" "--settings-json", dest="settings_json", help="Path for json settings"
+    "-s" "--settings-json",
+    dest="settings_json",
+    help="Path for json settings",
 )
 
 args = parser.parse_args()
@@ -46,9 +48,13 @@ class TestHomepage(SeleniumTest):
     Test case for integration tests of report viewer
     Methods
     -------
-    test_homepage_redirects()
-        Tests whether user redirected out of report viewer from homepage
+    test_404_displays_correctly()
+        Tests whether user can see 404
     """
 
-    def test_homepage_redirects(self):
-        self.driver.get(f"""{settings["testing_endpoint"]}""")
+    def test_404_displays_correctly(self):
+        self.driver.get("http://localhost:8002/report")
+        self.assertEqual(
+            "Page not found" in self.driver.page_source,
+            True,
+        )
