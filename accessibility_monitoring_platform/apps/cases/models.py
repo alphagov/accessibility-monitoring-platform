@@ -558,7 +558,9 @@ class Case(VersionModel):
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
         ):
             return "complete"
-        elif self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS:
+        elif (
+            self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+        ):
             return "in-correspondence-with-equalities-body"
         elif self.sent_to_enforcement_body_sent_date is not None:
             return "case-closed-sent-to-equalities-body"

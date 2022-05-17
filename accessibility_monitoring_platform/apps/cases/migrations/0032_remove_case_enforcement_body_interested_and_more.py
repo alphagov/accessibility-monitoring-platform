@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0031_populate_pursuing'),
+        ("cases", "0031_populate_pursuing"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='case',
-            name='enforcement_body_interested',
+            model_name="case",
+            name="enforcement_body_interested",
         ),
         migrations.RemoveField(
-            model_name='case',
-            name='escalation_state',
+            model_name="case",
+            name="escalation_state",
         ),
     ]
