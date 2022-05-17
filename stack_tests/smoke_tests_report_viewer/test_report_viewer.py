@@ -47,12 +47,17 @@ class TestHomepage(SeleniumTest):
     Methods
     -------
     test_404_displays_correctly()
-        Tests whether user can see 404
+        Tests whether user can see 404 page
     """
 
     def test_404_displays_correctly(self):
         self.driver.get(f"""{settings["testing_endpoint"]}""")
         self.assertEqual(
             "Page not found" in self.driver.page_source,
+            True,
+        )
+        self.assertEqual(
+            "If you entered a web address, check it is correct."
+            in self.driver.page_source,
             True,
         )
