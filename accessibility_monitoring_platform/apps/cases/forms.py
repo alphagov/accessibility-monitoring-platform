@@ -494,12 +494,12 @@ class CaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
     retested_website_date = AMPDateField(
         label="Retested website?",
         help_text="There is no test spreadsheet for this case",
+    )
+    psb_progress_notes = AMPTextField(
+        label="Summary of progress made from public sector body"
     )
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
@@ -512,8 +512,8 @@ class CaseReviewChangesUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "psb_progress_notes",
             "retested_website_date",
+            "psb_progress_notes",
             "is_ready_for_final_decision",
             "review_changes_complete_date",
         ]
