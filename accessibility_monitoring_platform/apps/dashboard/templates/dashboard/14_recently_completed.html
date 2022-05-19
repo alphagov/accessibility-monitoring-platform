@@ -40,7 +40,7 @@
 {% endif %}
 <p class="govuk-body">
     {% if show_all_cases %}
-        <a href="{% url 'cases:case-list' %}?search=&status=complete" class="govuk-link">
+        <a href="{% url 'cases:case-list' %}?status=complete" class="govuk-link">
             All completed cases</a>
     {% else %}
     <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=complete" class="govuk-link">
