@@ -396,7 +396,6 @@ class Case(VersionModel):
     # 12-week correspondence dates
     # report_followup_week_12_due_date from report followup dates page
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
-    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
 
     # Twelve week retest
     twelve_week_retest_complete_date = models.DateField(null=True, blank=True)
@@ -535,7 +534,6 @@ class Case(VersionModel):
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
-            return self.twelve_week_4_week_chaser_due_date
 
     @property
     def next_action_due_date_tense(self) -> str:
