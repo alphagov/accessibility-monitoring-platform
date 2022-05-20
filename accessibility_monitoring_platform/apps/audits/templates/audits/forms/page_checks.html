@@ -139,7 +139,14 @@
                                         <div class="govuk-details__text">
                                             <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                                             {% for issue in matching_issues %}
-                                                <li><b>{{ issue.page }}:</b> {{ issue.notes|markdown_to_html }}</li>
+                                                <li>
+                                                    <span onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">
+                                                        <b>{{ issue.page }}:</b>
+                                                        &#10597;
+                                                        (click to populate)
+                                                    </span>
+                                                    {{ issue.notes|markdown_to_html }}
+                                                </li>
                                             {% endfor %}
                                             </ul>
                                         </div>
@@ -170,4 +177,13 @@
     </main>
     <script src="{% static 'js/audits_check_filter.js' %}"></script>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script type="text/javascript">
+    function copyTextToInput(targetId, text) {
+        target = document.getElementById(targetId)
+        target.value = text
+    }
+</script>
 {% endblock %}
