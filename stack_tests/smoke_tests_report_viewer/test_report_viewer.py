@@ -51,7 +51,7 @@ class TestHomepage(SeleniumTest):
     """
 
     def test_404_displays_correctly(self):
-        self.driver.get(f"""{settings["testing_endpoint"]}""")
+        self.driver.get(f"""{settings["testing_endpoint"]}/report""")
         self.assertEqual(
             "Page not found" in self.driver.page_source,
             True,
