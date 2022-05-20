@@ -35,8 +35,6 @@ from .models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     DELETE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
-    ENFORCEMENT_BODY_INTERESTED_CHOICES,
-    ESCALATION_STATE_CHOICES,
     PREFERRED_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
     BOOLEAN_CHOICES,
@@ -44,6 +42,7 @@ from .models import (
     IS_DISPROPORTIONATE_CLAIMED_CHOICES,
     WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
+    ENFORCEMENT_BODY_PURSUING_CHOICES,
     TESTING_METHODOLOGY_CHOICES,
     TESTING_METHODOLOGY_PLATFORM,
     REPORT_METHODOLOGY_CHOICES,
@@ -230,7 +229,7 @@ class CaseTestResultsUpdateForm(VersionForm):
     is_website_compliant = AMPChoiceRadioField(
         label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
-    compliance_decision_notes = AMPTextField(label="Compliance notes")
+    compliance_decision_notes = AMPTextField(label="Website compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -494,12 +493,12 @@ class CaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
     retested_website_date = AMPDateField(
         label="Retested website?",
         help_text="There is no test spreadsheet for this case",
+    )
+    psb_progress_notes = AMPTextField(
+        label="Summary of progress made from public sector body"
     )
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
@@ -512,8 +511,8 @@ class CaseReviewChangesUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
-            "psb_progress_notes",
             "retested_website_date",
+            "psb_progress_notes",
             "is_ready_for_final_decision",
             "review_changes_complete_date",
         ]
@@ -641,18 +640,13 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         label="Date sent to equality body",
         help_text="This field affects the case status",
     )
-    enforcement_body_interested = AMPChoiceRadioField(
+    enforcement_body_pursuing = AMPChoiceRadioField(
         label="Equality body pursuing this case?",
-        choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
+        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         help_text="This field affects the case status",
     )
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
-    )
-    escalation_state = AMPChoiceRadioField(
-        label="Equalities body correspondence completed?",
-        choices=ESCALATION_STATE_CHOICES,
-        help_text="This field affects the case status",
     )
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
@@ -661,9 +655,8 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         fields = [
             "version",
             "sent_to_enforcement_body_sent_date",
-            "enforcement_body_interested",
+            "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
-            "escalation_state",
             "enforcement_correspondence_complete_date",
         ]
 

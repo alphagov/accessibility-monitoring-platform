@@ -11,7 +11,8 @@ from ..models import (
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     CASE_COMPLETED_NO_SEND,
-    ESCALATION_STATE_NO_ACTION,
+    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
+    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     BOOLEAN_TRUE,
 )
 from django.contrib.auth.models import User
@@ -264,7 +265,7 @@ def test_case_status_in_correspondence_with_equalities_body():
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
-        enforcement_body_interested="yes",
+        enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     )
     case.save()
     assert case.status == "in-correspondence-with-equalities-body"
@@ -289,8 +290,7 @@ def test_case_status_equality_bodies_complete():
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
-        enforcement_body_interested="yes",
-        escalation_state=ESCALATION_STATE_NO_ACTION,
+        enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     )
     case.save()
     assert case.status == "complete"

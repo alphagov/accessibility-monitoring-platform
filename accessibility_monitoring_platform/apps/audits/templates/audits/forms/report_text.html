@@ -35,22 +35,19 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">Warning</span>
-                        {% if audit.case.report_methodology == 'platform' %}
-                            Report text should not be used when the report methodology is set to Platform.
-                            Create the report in
-                            <a href="{% url 'cases:edit-report-details' audit.case.id %}" class="govuk-link govuk-link--no-visited-state">
-                                Case > Report details</a>
-                        {% else %}
-                            This is the end of the testing process. Return to
-                            <a href="{% url 'cases:edit-test-results' audit.case.id %}" class="govuk-link govuk-link--no-visited-state">
-                                Case > Testing details</a>
-                        {% endif %}
-                    </strong>
-                </div>
+                {% if audit.case.report_methodology == 'platform' %}
+                    {% include 'audits/helpers/methodology_platform_notification.html' %}
+                {% else %}
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
+                                This is the end of the testing process. Return to
+                                <a href="{% url 'cases:edit-test-results' audit.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    Case > Testing details</a>
+                        </strong>
+                    </div>
+                {% endif %}
                 {% if audit.case.report_methodology != 'platform' %}
                     <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text">
