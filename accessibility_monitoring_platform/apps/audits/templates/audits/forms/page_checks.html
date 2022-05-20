@@ -4,6 +4,8 @@
 
 {% load static %}
 
+{% load common_tags %}
+
 {% block title %}{{ page.audit.case.organisation_name }} | Testing {{ page }}{% endblock %}
 
 {% block content %}
@@ -122,10 +124,28 @@
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
-                    {% for wcag_definition, form in wcag_definitions_and_forms %}
+                    {% for wcag_definition, form, matching_issues in wcag_definitions_and_forms %}
                         <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
                             <div class="govuk-grid-column-full">
-                                {% include 'common/amp_form_snippet.html' %}
+                                {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                                {% include 'common/amp_field.html' with field=form.check_result_state %}
+                                {% if matching_issues %}
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Matching errors
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                                            {% for issue in matching_issues %}
+                                                <li><b>{{ issue.page }}:</b> {{ issue.notes|markdown_to_html }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </details>
+                                {% endif %}
+                                {% include 'common/amp_field.html' with field=form.notes %}
                             </div>
                         </div>
                     {% endfor %}
