@@ -21,7 +21,6 @@ settings = parse_integration_tests_json(settings_path=args.settings_json)
 class SeleniumTest(unittest.TestCase):
     """
     Test case for integration tests
-
     Methods
     -------
     setUp()
@@ -45,16 +44,20 @@ class SeleniumTest(unittest.TestCase):
 class TestHomepage(SeleniumTest):
     """
     Test case for integration tests of report viewer
-
     Methods
     -------
-    test_homepage_displays_correctly()
-        Tests whether user can see homepage
+    test_404_displays_correctly()
+        Tests whether user can see 404 page
     """
 
-    def test_homepage_displays_correctly(self):
-        self.driver.get(f"""{settings["testing_endpoint"]}""")
+    def test_404_displays_correctly(self):
+        self.driver.get(f"""{settings["testing_endpoint"]}/report""")
         self.assertEqual(
-            "This is the homepage of the report viewer" in self.driver.page_source,
+            "Page not found" in self.driver.page_source,
+            True,
+        )
+        self.assertEqual(
+            "If you entered a web address, check it is correct."
+            in self.driver.page_source,
             True,
         )

@@ -205,17 +205,6 @@ CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
-DEFAULT_ESCALATION_STATE: str = "not-started"
-ESCALATION_STATE_NO_ACTION: str = "no-action"
-ESCALATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    (
-        ESCALATION_STATE_NO_ACTION,
-        "No further action is required and correspondence has closed regarding this issue",
-    ),
-    ("ongoing", "Correspondence ongoing"),
-    (DEFAULT_ESCALATION_STATE, "Not started"),
-]
-
 DELETE_DECISION_DEFAULT: str = "not-psb"
 DELETE_DECISION_CHOICES: List[Tuple[str, str]] = [
     (DELETE_DECISION_DEFAULT, "Organisation is not a public sector body"),
@@ -232,11 +221,13 @@ QA_STATUS_CHOICES: List[Tuple[str, str]] = [
     ("qa_approved", "QA approved"),
 ]
 
-ENFORCEMENT_BODY_INTERESTED_DEFAULT: str = "not-selected"
-ENFORCEMENT_BODY_INTERESTED_CHOICES: List[Tuple[str, str]] = [
-    ("yes", "Yes"),
-    ("no", "No"),
-    (ENFORCEMENT_BODY_INTERESTED_DEFAULT, "Not selected"),
+ENFORCEMENT_BODY_PURSUING_NO: str = "no"
+ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS: str = "yes-in-progress"
+ENFORCEMENT_BODY_PURSUING_YES_COMPLETED: str = "yes-completed"
+ENFORCEMENT_BODY_PURSUING_CHOICES: List[Tuple[str, str]] = [
+    (ENFORCEMENT_BODY_PURSUING_YES_COMPLETED, "Yes, completed"),
+    (ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS, "Yes, in progress"),
+    (ENFORCEMENT_BODY_PURSUING_NO, "No"),
 ]
 
 PREFERRED_DEFAULT: str = "unknown"
@@ -405,7 +396,6 @@ class Case(VersionModel):
     # 12-week correspondence dates
     # report_followup_week_12_due_date from report followup dates page
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
-    twelve_week_4_week_chaser_due_date = models.DateField(null=True, blank=True)
 
     # Twelve week retest
     twelve_week_retest_complete_date = models.DateField(null=True, blank=True)
@@ -462,20 +452,15 @@ class Case(VersionModel):
     post_case_notes = models.TextField(default="", blank=True)
     post_case_complete_date = models.DateField(null=True, blank=True)
 
-    # Equality body correspondence page
+    # Equality body pursuit page
     case_updated_date = models.DateField(null=True, blank=True)
     sent_to_enforcement_body_sent_date = models.DateField(null=True, blank=True)
-    enforcement_body_interested = models.CharField(
+    enforcement_body_pursuing = models.CharField(
         max_length=20,
-        choices=ENFORCEMENT_BODY_INTERESTED_CHOICES,
-        default=ENFORCEMENT_BODY_INTERESTED_DEFAULT,
+        choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
+        default=ENFORCEMENT_BODY_PURSUING_NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
-    escalation_state = models.CharField(
-        max_length=20,
-        choices=ESCALATION_STATE_CHOICES,
-        default=DEFAULT_ESCALATION_STATE,
-    )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Delete case page
@@ -549,7 +534,6 @@ class Case(VersionModel):
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
-            return self.twelve_week_4_week_chaser_due_date
 
     @property
     def next_action_due_date_tense(self) -> str:
@@ -569,10 +553,12 @@ class Case(VersionModel):
             return "deleted"
         elif (
             self.case_completed == "complete-no-send"
-            or self.escalation_state == "no-action"
+            or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
         ):
             return "complete"
-        elif self.enforcement_body_interested == "yes":
+        elif (
+            self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS
+        ):
             return "in-correspondence-with-equalities-body"
         elif self.sent_to_enforcement_body_sent_date is not None:
             return "case-closed-sent-to-equalities-body"
