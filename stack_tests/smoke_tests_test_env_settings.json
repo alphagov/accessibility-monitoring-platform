@@ -3,7 +3,7 @@
     "date": "20211008",
     "docker_compose_path": "",
     "docker_images_paths": [],
-    "testing_endpoint": "https://accessibility-monitoring-platform-test.london.cloudapps.digital/report",
+    "testing_endpoint": "https://accessibility-monitoring-platform-test.london.cloudapps.digital/",
     "connect_attempts": 30,
     "test_dir": "./stack_tests/smoke_tests/",
     "path_for_xml_results": "./result.xml",
