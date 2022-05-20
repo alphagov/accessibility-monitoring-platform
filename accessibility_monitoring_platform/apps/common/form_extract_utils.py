@@ -36,6 +36,14 @@ EXCLUDED_FIELDS = [
     "audit_summary_complete_date",
     "manual_checks_complete_date",
     "axe_checks_complete_date",
+    "case_close_complete_date",
+    "contact_details_complete_date",
+    "final_statement_complete_date",
+    "final_website_complete_date",
+    "post_case_complete_date",
+    "review_changes_complete_date",
+    "twelve_week_correspondence_complete_date",
+    "twelve_week_retest_complete_date",
 ]
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",
