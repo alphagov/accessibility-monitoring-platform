@@ -222,19 +222,13 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     Check that the next_action_due_date is correctly calculated
     when case status is in 12-week correspondence.
     """
-    any_old_date: date = date(2020, 4, 1)
     twelve_week_1_week_chaser_due_date: date = date(2020, 1, 1)
-    twelve_week_4_week_chaser_due_date: date = date(2020, 1, 4)
 
     case: Case = Case(
         status="in-12-week-correspondence",
-        twelve_week_1_week_chaser_sent_date=any_old_date,
         twelve_week_1_week_chaser_due_date=twelve_week_1_week_chaser_due_date,
-        twelve_week_4_week_chaser_due_date=twelve_week_4_week_chaser_due_date,
     )
-    assert case.next_action_due_date == twelve_week_4_week_chaser_due_date
 
-    case.twelve_week_1_week_chaser_sent_date = None
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
 

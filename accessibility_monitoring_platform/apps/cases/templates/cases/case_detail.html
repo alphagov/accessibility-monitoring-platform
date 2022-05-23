@@ -19,7 +19,7 @@
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
                     <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>
-                    {% if case.escalation_state == 'no-action' %}
+                    {% if case.enforcement_body_pursuing == 'yes-completed' %}
                         <strong class="govuk-tag" style="position: relative; top: -5px;">
                             completed
                         </strong>

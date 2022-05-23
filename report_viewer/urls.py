@@ -24,7 +24,6 @@ def custom_page_not_found(request):
 
 app_name = "apps"
 urlpatterns = [
-    path("", include("report_viewer.apps.homepage.urls")),
     path("report/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
 ]

@@ -52,7 +52,6 @@ CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 
 INSTALLED_APPS = [
     "report_viewer.apps.viewer",
-    "report_viewer.apps.homepage",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.cases",
     "accessibility_monitoring_platform.apps.s3_read_write",
@@ -68,6 +67,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "report_viewer.middleware.RootRedirectMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

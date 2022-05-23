@@ -8,8 +8,6 @@
                 {% for page in audit.testable_pages %}
                     {% if page.failed_check_results %}
                         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-page-checks' complete=page.retest_complete_date %}
-                    {% else %}
-                        <li>{{ page }} has no errors</li>
                     {% endif %}
                 {% endfor %}
             </ul>
