@@ -140,11 +140,10 @@
                                             <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                                             {% for issue in matching_issues %}
                                                 <li>
-                                                    <span onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">
-                                                        <b>{{ issue.page }}:</b>
-                                                        &#10597;
-                                                        (click to populate)
-                                                    </span>
+                                                    <b>{{ issue.page }}:</b>
+                                                    <summary class="govuk-details__summary">
+                                                    (<span class="govuk-details__summary-text" onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">click to populate</span>)
+                                                    </summary>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
                                             {% endfor %}
