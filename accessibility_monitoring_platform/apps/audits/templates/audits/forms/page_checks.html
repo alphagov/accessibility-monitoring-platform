@@ -116,7 +116,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <hr style="width:100%;">
-                            <h2 class="govuk-heading-m" id="number_of_errors">Showing {{ wcag_definitions_and_forms|length }} errors</h2>
+                            <h2 class="govuk-heading-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</h2>
                         </div>
                     </div>
                     {% include 'common/error_summary.html' %}
@@ -124,7 +124,7 @@
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
-                    {% for wcag_definition, form, matching_issues in wcag_definitions_and_forms %}
+                    {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
                         <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
                             <div class="govuk-grid-column-full">
                                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}

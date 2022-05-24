@@ -382,13 +382,13 @@ class AuditPageChecksFormView(FormView):
                 )
             )
 
-        wcag_definitions_and_forms: List[
+        definitions_forms_errors: List[
             Tuple[WcagDefinition, CheckResultForm, List[CheckResult]]
         ] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
             wcag_definition: WcagDefinition = wcag_definitions[count]
             check_results_form.fields["check_result_state"].label = wcag_definition
-            wcag_definitions_and_forms.append(
+            definitions_forms_errors.append(
                 (
                     wcag_definition,
                     check_results_form,
@@ -397,7 +397,7 @@ class AuditPageChecksFormView(FormView):
             )
 
         context["check_results_formset"] = check_results_formset
-        context["wcag_definitions_and_forms"] = wcag_definitions_and_forms
+        context["definitions_forms_errors"] = definitions_forms_errors
 
         return context
 
