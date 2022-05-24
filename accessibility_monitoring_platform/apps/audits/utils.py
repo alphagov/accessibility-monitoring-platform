@@ -252,7 +252,9 @@ def get_next_retest_page_url(
     return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
 
-def other_page_failed_check_results(page: Page) -> Dict[WcagDefinition, List[CheckResult]]:
+def other_page_failed_check_results(
+    page: Page,
+) -> Dict[WcagDefinition, List[CheckResult]]:
     """
     Find all failed check results for other pages.
     Return them in a dictionary keyed by their WcagDefinitions.
@@ -263,14 +265,16 @@ def other_page_failed_check_results(page: Page) -> Dict[WcagDefinition, List[Che
     Returns:
         Dict[WcagDefinition, List[CheckResult]]: Dictionary of failed check results
     """
-    failed_check_results_by_wcag_definition: Dict[WcagDefinition, List[CheckResult]] = {}
+    failed_check_results_by_wcag_definition: Dict[
+        WcagDefinition, List[CheckResult]
+    ] = {}
     for check_result in page.audit.failed_check_results.exclude(page=page):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
             failed_check_results_by_wcag_definition[
                 check_result.wcag_definition
             ].append(check_result)
         else:
-            failed_check_results_by_wcag_definition[
-                check_result.wcag_definition
-            ] = [check_result]
+            failed_check_results_by_wcag_definition[check_result.wcag_definition] = [
+                check_result
+            ]
     return failed_check_results_by_wcag_definition

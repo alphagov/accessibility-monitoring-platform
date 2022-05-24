@@ -366,7 +366,9 @@ class AuditPageChecksFormView(FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
-        other_pages_failed_check_results: Dict[WcagDefinition, List[CheckResult]] = other_page_failed_check_results(page=self.page)
+        other_pages_failed_check_results: Dict[
+            WcagDefinition, List[CheckResult]
+        ] = other_page_failed_check_results(page=self.page)
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
         if self.request.POST:

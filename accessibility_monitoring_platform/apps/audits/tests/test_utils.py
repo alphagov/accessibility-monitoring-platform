@@ -691,10 +691,15 @@ def test_other_page_failed_check_results():
             type=wcag_definition_manual.type,
             check_result_state=CHECK_RESULT_ERROR,
         )
-    failed_check_results: Dict[WcagDefinition, List[CheckResult]] = other_page_failed_check_results(page=extra_page)
+    failed_check_results: Dict[
+        WcagDefinition, List[CheckResult]
+    ] = other_page_failed_check_results(page=extra_page)
 
     assert len(home_page.failed_check_results) == 1
     assert wcag_definition_manual in failed_check_results
     assert len(failed_check_results[wcag_definition_manual]) == 1
 
-    assert failed_check_results[wcag_definition_manual][0] == home_page.failed_check_results[0]
+    assert (
+        failed_check_results[wcag_definition_manual][0]
+        == home_page.failed_check_results[0]
+    )
