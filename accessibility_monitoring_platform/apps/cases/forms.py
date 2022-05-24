@@ -161,9 +161,11 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         choices=TESTING_METHODOLOGY_CHOICES,
     )
 
-    report_methodology = AMPChoiceRadioField(     # Uncomment when reports are ready to be deployed
-        label="Report methodology?",
-        choices=REPORT_METHODOLOGY_CHOICES,
+    report_methodology = (
+        AMPChoiceRadioField(  # Uncomment when reports are ready to be deployed
+            label="Report methodology?",
+            choices=REPORT_METHODOLOGY_CHOICES,
+        )
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     notes = AMPTextField(label="Notes")

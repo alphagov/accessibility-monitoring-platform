@@ -12,7 +12,11 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit
-from ...cases.models import Case, REPORT_APPROVED_STATUS_APPROVED
+from ...cases.models import (
+    Case,
+    REPORT_APPROVED_STATUS_APPROVED,
+    REPORT_READY_TO_REVIEW,
+)
 from ...s3_read_write.models import S3Report
 
 from ..models import Report, TableRow, Section
@@ -351,3 +355,26 @@ def test_edit_report_wrapper_page_loads(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ">Report viewer editor</h1>")
+
+
+def test_report_details_page_shows_report_awaiting_approval(admin_client):
+    """
+    Test that the report details page shows a notification advising user to
+    mark report as ready to review
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    case: Case = report.case  # type: ignore
+    case.report_review_status = REPORT_READY_TO_REVIEW
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        "The report is waiting to be approved by the QA auditor.",
+    )

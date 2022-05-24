@@ -1626,7 +1626,9 @@ class TestCasePublishUnapprovedReport(TestCase):
     def test_unapproved_report_cannot_be_published(self):
         """Tests report without QA approval cannot be published"""
         self.driver.find_element_by_link_text("Publish HTML report").click()
-        self.assertTrue("Unable to publish report without QA approval" in self.driver.page_source)
+        self.assertTrue(
+            "Unable to publish report without QA approval" in self.driver.page_source
+        )
 
 
 class TestCasePublishReport(TestCase):
@@ -1658,7 +1660,9 @@ class TestCasePublishReport(TestCase):
         self.driver.find_element_by_link_text("Go to report publisher").click()
 
         self.driver.find_element_by_link_text("Publish HTML report").click()
-        self.assertTrue("Are you sure you want to create a HTML report?" in self.driver.page_source)
+        self.assertTrue(
+            "Are you sure you want to create a HTML report?" in self.driver.page_source
+        )
 
         self.driver.find_element_by_link_text("Create HTML report").click()
 
@@ -1690,4 +1694,7 @@ class TestCaseViewPublishedReport(TestCase):
         new_window_handle: str = self.driver.window_handles[-1]
         self.driver.switch_to_window(new_window_handle)
 
-        self.assertTrue("Accessibility report for example-report-publish.com" in self.driver.page_source)
+        self.assertTrue(
+            "Accessibility report for example-report-publish.com"
+            in self.driver.page_source
+        )
