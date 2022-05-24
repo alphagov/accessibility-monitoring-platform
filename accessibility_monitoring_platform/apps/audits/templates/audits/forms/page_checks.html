@@ -141,7 +141,7 @@
                                             {% for issue in matching_issues %}
                                                 <li>
                                                     <b>{{ issue.page }}</b>
-                                                    <span class="amp-control" onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">Click to populate error details</span>
+                                                    <span tabIndex="0" class="amp-control" onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
                                             {% endfor %}
