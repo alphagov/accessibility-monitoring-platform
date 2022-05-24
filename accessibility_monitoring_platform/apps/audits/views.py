@@ -72,6 +72,7 @@ from .utils import (
     create_mandatory_pages_for_new_audit,
     get_next_page_url,
     get_next_retest_page_url,
+    other_page_failed_check_results,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -365,18 +366,7 @@ class AuditPageChecksFormView(FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
-        failed_check_results_by_wcag_definition: Dict[
-            WcagDefinition, List[CheckResult]
-        ] = {}
-        for check_result in self.page.audit.failed_check_results.exclude(page=self.page):
-            if check_result.wcag_definition in failed_check_results_by_wcag_definition:
-                failed_check_results_by_wcag_definition[
-                    check_result.wcag_definition
-                ].append(check_result)
-            else:
-                failed_check_results_by_wcag_definition[
-                    check_result.wcag_definition
-                ] = [check_result]
+        other_pages_failed_check_results: Dict[WcagDefinition, List[CheckResult]] = other_page_failed_check_results(page=self.page)
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
         if self.request.POST:
@@ -400,7 +390,7 @@ class AuditPageChecksFormView(FormView):
                 (
                     wcag_definition,
                     check_results_form,
-                    failed_check_results_by_wcag_definition.get(wcag_definition, []),
+                    other_pages_failed_check_results.get(wcag_definition, []),
                 )
             )
 
