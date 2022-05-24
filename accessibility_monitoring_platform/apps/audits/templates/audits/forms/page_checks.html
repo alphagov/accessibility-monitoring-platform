@@ -141,7 +141,11 @@
                                             {% for issue in matching_issues %}
                                                 <li>
                                                     <b>{{ issue.page }}</b>
-                                                    <span tabIndex="0" class="amp-control" onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)">Click to populate error details</span>
+                                                    <span tabIndex="0"
+                                                        class="amp-control"
+                                                        onclick="copyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        onkeypress="copyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        >Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
                                             {% endfor %}
@@ -178,7 +182,8 @@
 
 {% block extrascript %}
 <script type="text/javascript">
-    function copyTextToInput(targetId, text) {
+    function copyTextToInput(event, targetId, text) {
+        event.preventDefault()
         target = document.getElementById(targetId)
         target.value = text
     }
