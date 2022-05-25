@@ -183,9 +183,11 @@
 {% block extrascript %}
 <script type="text/javascript">
     function copyTextToInput(event, targetId, text) {
-        event.preventDefault()
-        target = document.getElementById(targetId)
-        target.value = text
+        if (event.code === "Enter" || event.code === "Space") {
+            event.preventDefault()
+            target = document.getElementById(targetId)
+            target.value = text
+        }
     }
 </script>
 {% endblock %}
