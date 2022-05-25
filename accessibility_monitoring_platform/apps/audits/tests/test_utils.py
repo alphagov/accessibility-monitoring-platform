@@ -100,7 +100,7 @@ EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="",
-        label="Website compliance notes",
+        label="Initial website compliance notes",
         type="notes",
         extra_label="",
         external_url=True,

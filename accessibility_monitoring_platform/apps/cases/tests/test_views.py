@@ -2074,7 +2074,7 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
         response,
         f"""<tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">
-                Website compliance notes
+                Initial website compliance notes
             </th>
             <td class="govuk-table__cell amp-width-one-half amp-notes">
                 <p>{COMPLIANCE_DECISION_NOTES}</p>
