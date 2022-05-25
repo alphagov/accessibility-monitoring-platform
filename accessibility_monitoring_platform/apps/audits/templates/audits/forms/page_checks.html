@@ -143,8 +143,8 @@
                                                     <b>{{ issue.page }}</b>
                                                     <span tabIndex="0"
                                                         class="amp-control"
-                                                        onclick="copyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
-                                                        onkeypress="copyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        onclick="clickCopyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
                                                         >Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
@@ -182,7 +182,11 @@
 
 {% block extrascript %}
 <script type="text/javascript">
-    function copyTextToInput(event, targetId, text) {
+    function clickCopyTextToInput(targetId, text) {
+        target = document.getElementById(targetId)
+        target.value = text
+    }
+    function keyboardCopyTextToInput(event, targetId, text) {
         if (event.code === "Enter" || event.code === "Space") {
             event.preventDefault()
             target = document.getElementById(targetId)
