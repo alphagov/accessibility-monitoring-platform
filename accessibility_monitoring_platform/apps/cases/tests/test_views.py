@@ -2230,7 +2230,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
 
     report: Report = Report.objects.create(case=case)
-    report_preview_url: str = reverse("reports:report-preview", kwargs={"pk": report.id})  # type: ignore
+    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
@@ -2242,8 +2242,8 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">
-                <a href="{report_preview_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Report preview
+                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Report publisher
                 </a>
             </div>
         </div>""",

@@ -12,7 +12,11 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit
-from ...cases.models import Case, REPORT_APPROVED_STATUS_APPROVED
+from ...cases.models import (
+    Case,
+    REPORT_APPROVED_STATUS_APPROVED,
+    REPORT_READY_TO_REVIEW,
+)
 from ...s3_read_write.models import S3Report
 
 from ..models import Report, TableRow, Section
@@ -53,7 +57,7 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs={"pk": 1})  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})  # type: ignore
 
 
 def test_rebuild_report_redirects(admin_client):
@@ -85,7 +89,7 @@ def test_publish_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)  # type: ignore
     assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
 
 
@@ -111,13 +115,13 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:report-detail", ">View report</h1>"),
+        ("reports:report-detail", ">Edit report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
         ("reports:s3-report-list", ">Report versions</h1>"),
-        ("reports:report-preview", f"<p>{SECTION_CONTENT}</p>"),
+        ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
-            "reports:report-confirm-rebuild",
-            ">Are you sure you want to rebuild the report?</h1>",
+            "reports:report-confirm-refresh",
+            ">Are you sure you want to refresh the report?</h1>",
         ),
         (
             "reports:report-confirm-publish",
@@ -140,9 +144,9 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
-def test_report_details_page_shows_warning(admin_client):
+def test_report_details_page_shows_notification(admin_client):
     """
-    Test that the report details page shows a warning advising user to
+    Test that the report details page shows a notification advising user to
     mark report as ready to review
     """
     report: Report = create_report()
@@ -150,12 +154,15 @@ def test_report_details_page_shows_warning(admin_client):
     create_section(report)
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-detail", kwargs=report_pk_kwargs)
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
     )
 
     assert response.status_code == 200
 
-    assertContains(response, "If this report is ready to be reviewed, mark it")
+    assertContains(
+        response,
+        "If this report is ready to be reviewed, mark 'Report ready to be reviewed' in QA process.",
+    )
 
 
 def test_section_edit_page_loads(admin_client):
@@ -348,3 +355,26 @@ def test_edit_report_wrapper_page_loads(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ">Report viewer editor</h1>")
+
+
+def test_report_details_page_shows_report_awaiting_approval(admin_client):
+    """
+    Test that the report details page shows a notification advising user to
+    mark report as ready to review
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    case: Case = report.case  # type: ignore
+    case.report_review_status = REPORT_READY_TO_REVIEW
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        "The report is waiting to be approved by the QA auditor.",
+    )

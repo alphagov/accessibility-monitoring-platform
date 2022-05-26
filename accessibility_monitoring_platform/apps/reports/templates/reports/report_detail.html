@@ -2,7 +2,7 @@
 
 {% load common_tags %}
 
-{% block title %}{{ report.case.organisation_name }} | View report{% endblock %}
+{% block title %}{{ report.case.organisation_name }} | Edit report{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -15,7 +15,10 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                View report
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Edit report
             </li>
         </ol>
     </div>
@@ -23,37 +26,25 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View report</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">Edit report</h1>
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
                     <a
-                        href="{% url 'reports:report-confirm-rebuild' report.id %}"
+                        href="{% url 'reports:report-confirm-refresh' report.id %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button govuk-button--secondary"
+                        class="govuk-button govuk-button--warning"
                         data-module="govuk-button"
                     >
-                        Rebuild report
+                        Refresh report
                     </a>
                     <a
-                        href="{% url 'reports:report-preview' report.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                        target="_blank"
+                        href="{% url 'reports:report-publisher' report.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
                     >
-                        Preview
-                    </a>
-                    <a href="{% url 'reports:report-confirm-publish' report.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Publish HTML report
+                        Return to report publisher
                     </a>
                 </div>
             </div>
@@ -61,19 +52,12 @@
         <div style="position: relative; top: -15px;">
             {% include 'cases/helpers/case_title.html' with case=report.case %}
             {% include "cases/helpers/messages.html" %}
-            {% if report.case.report_review_status == 'not-started' %}
-                {% include 'reports/helpers/review_report_warning.html' %}
-            {% endif %}
-            {% if report.case.s3report_set.all %}
-                {% include 'reports/helpers/s3_report_warning.html' %}
-            {% endif %}
         </div>
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'reports/helpers/nav_contents.html' %}
                 {% include 'reports/details/metadata.html' %}
-                {% include 'reports/details/report_versions.html' %}
                 {% for section in report.section_set.all %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-two-thirds">

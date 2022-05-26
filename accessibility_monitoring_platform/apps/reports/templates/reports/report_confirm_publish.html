@@ -18,7 +18,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-detail' report.id %}">Report</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 Publish report
@@ -46,7 +46,7 @@
             <div class="govuk-grid-column-full">
                 {% if report.case.report_approved_status == 'yes' %}
                     <p class="govuk-body-m">This will create a new permanent link available to share externally.</p>
-                    <p class="govuk-body-m">This will not update existing published reports.</p>
+                    <p class="govuk-body-m">A link to the new report will be shown in outdated reports.</p>
                     <p class="govuk-body-m">Do you wish to continue?</p>
                 {% else %}
                     <p class="govuk-body-m">The following requirements are needed to publish this report</p>
@@ -79,10 +79,10 @@
                     </a>
                 {% endif %}
                 <a
-                    href="{% url 'reports:report-detail' report.id %}"
+                    href="{% url 'reports:report-publisher' report.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Cancel and return to report view
+                    Cancel and return to report publisher
                 </a>
             </div>
         </div>

@@ -4,7 +4,7 @@
 
 {% block title %}
     {{ report.case.organisation_name }}
-    | Rebuild report
+    | Refresh report
 {% endblock %}
 
 {% block content %}
@@ -18,10 +18,10 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-detail' report.id %}">Report</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Rebuild report
+                Refresh report
             </li>
         </ol>
     </div>
@@ -29,7 +29,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">Are you sure you want to rebuild the report?</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">Are you sure you want to refresh the report?</h1>
                 </div>
             </div>
         </div>
@@ -38,8 +38,9 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <p class="govuk-body-m">Rebuilding the report will replace the existing report with up to date case and test information.</p>
-                <p class="govuk-body-m">Rebuilding the report should be used when the case or testing data has changed since initially starting the report.</p>
+                <p class="govuk-body-m">Refresh the report will replace the existing report with up to date case and test information.</p>
+                <p class="govuk-body-m">Refreshing the report should be used when the case or testing data has changed since initially starting the report.</p>
+                <p class="govuk-body-m"><b>Any changes you have made to the report will be lost.</b></p>
                 <p class="govuk-body-m">Do you wish to continue?</p>
             </div>
         </div>
@@ -51,13 +52,13 @@
                     class="govuk-button"
                     data-module="govuk-button"
                 >
-                    Rebuild report
+                    Refresh report
                 </a>
                 <a
-                    href="{% url 'reports:report-detail' report.id %}"
+                    href="{% url 'reports:report-publisher' report.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Cancel and return to report view
+                    Cancel and return to report publisher
                 </a>
             </div>
         </div>

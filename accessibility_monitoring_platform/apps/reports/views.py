@@ -54,7 +54,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
     generate_report_content(report=report)
-    return redirect(reverse("reports:report-detail", kwargs={"pk": report.id}))  # type: ignore
+    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))  # type: ignore
 
 
 def rebuild_report(
@@ -213,12 +213,12 @@ class ReportTemplateView(TemplateView):
         return context
 
 
-class ReportPreviewTemplateView(ReportTemplateView):
+class ReportPublisherTemplateView(ReportTemplateView):
     """
     View to preview the report
     """
 
-    template_name: str = "reports/report_preview.html"
+    template_name: str = "reports/report_publisher.html"
 
     def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
@@ -227,12 +227,12 @@ class ReportPreviewTemplateView(ReportTemplateView):
         return context
 
 
-class ReportConfirmRebuildTemplateView(ReportTemplateView):
+class ReportConfirmRefreshTemplateView(ReportTemplateView):
     """
-    View to confirm rebuilding the report
+    View to confirm refreshing the report
     """
 
-    template_name: str = "reports/report_confirm_rebuild.html"
+    template_name: str = "reports/report_confirm_refresh.html"
 
 
 class ReportConfirmPublishTemplateView(ReportTemplateView):
@@ -273,7 +273,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         mark_safe("HTML report successfully created!" ""),
     )
     return redirect(
-        reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+        reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
     )
 
 

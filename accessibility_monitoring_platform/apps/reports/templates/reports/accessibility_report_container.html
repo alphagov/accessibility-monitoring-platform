@@ -54,8 +54,10 @@
                         <dt class="metadata-term">Contact: </dt>
                         <dd>{{ report.wrapper.contact|markdown_to_html }}</dd>
 
-                        <dt class="metadata-term">Published</dt>
-                        <dd>{{ s3_report.created|date:"d F Y" }}</dd>
+                        {% if s3_report %}
+                            <dt class="metadata-term">Published</dt>
+                            <dd>{{ s3_report.created|date:"d F Y" }}</dd>
+                        {% endif %}
                     </dl>
                     <div class="iff-javascript-enabled">
                         <button onclick="window.print();" class="govuk-link print-button no-print">Print this page</button>
