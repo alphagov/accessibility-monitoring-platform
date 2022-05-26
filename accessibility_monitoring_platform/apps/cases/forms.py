@@ -231,7 +231,7 @@ class CaseTestResultsUpdateForm(VersionForm):
     is_website_compliant = AMPChoiceRadioField(
         label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
     )
-    compliance_decision_notes = AMPTextField(label="Website compliance notes")
+    compliance_decision_notes = AMPTextField(label="Initial website compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:

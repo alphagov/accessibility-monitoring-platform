@@ -250,3 +250,31 @@ def get_next_retest_page_url(
     current_page_position: int = testable_pages_with_errors.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}  # type: ignore
     return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
+
+
+def other_page_failed_check_results(
+    page: Page,
+) -> Dict[WcagDefinition, List[CheckResult]]:
+    """
+    Find all failed check results for other pages.
+    Return them in a dictionary keyed by their WcagDefinitions.
+
+    Args:
+        page (Page): Page object
+
+    Returns:
+        Dict[WcagDefinition, List[CheckResult]]: Dictionary of failed check results
+    """
+    failed_check_results_by_wcag_definition: Dict[
+        WcagDefinition, List[CheckResult]
+    ] = {}
+    for check_result in page.audit.failed_check_results.exclude(page=page):
+        if check_result.wcag_definition in failed_check_results_by_wcag_definition:
+            failed_check_results_by_wcag_definition[
+                check_result.wcag_definition
+            ].append(check_result)
+        else:
+            failed_check_results_by_wcag_definition[check_result.wcag_definition] = [
+                check_result
+            ]
+    return failed_check_results_by_wcag_definition

@@ -24,6 +24,7 @@ from ..models import (
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_PDF,
     PAGE_TYPE_FORM,
+    PAGE_TYPE_EXTRA,
     TEST_TYPE_PDF,
     TEST_TYPE_AXE,
     TEST_TYPE_MANUAL,
@@ -40,6 +41,7 @@ from ..utils import (
     get_audit_report_options_rows,
     get_next_page_url,
     get_next_retest_page_url,
+    other_page_failed_check_results,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -100,7 +102,7 @@ EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="",
-        label="Website compliance notes",
+        label="Initial website compliance notes",
         type="notes",
         extra_label="",
         external_url=True,
@@ -658,4 +660,46 @@ def test_get_next_retest_page_url_audit_with_no_errors():
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     assert get_next_retest_page_url(audit=audit) == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+    )
+
+
+@pytest.mark.django_db
+def test_other_page_failed_check_results():
+    """
+    Test other_page_failed_check_results returns a dictionary of all the failed
+    check results entered for other pages
+    """
+    audit: Audit = create_audit_and_check_results()
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    extra_page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra"
+    )
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
+        type=TEST_TYPE_MANUAL
+    )
+    for page in audit.html_pages:
+        CheckResult.objects.create(
+            audit=audit,
+            page=page,
+            wcag_definition=wcag_definition_manual,
+            type=wcag_definition_manual.type,
+        )
+        CheckResult.objects.create(
+            audit=audit,
+            page=page,
+            wcag_definition=wcag_definition_manual,
+            type=wcag_definition_manual.type,
+            check_result_state=CHECK_RESULT_ERROR,
+        )
+    failed_check_results: Dict[
+        WcagDefinition, List[CheckResult]
+    ] = other_page_failed_check_results(page=extra_page)
+
+    assert len(home_page.failed_check_results) == 1
+    assert wcag_definition_manual in failed_check_results
+    assert len(failed_check_results[wcag_definition_manual]) == 1
+
+    assert (
+        failed_check_results[wcag_definition_manual][0]
+        == home_page.failed_check_results[0]
     )
