@@ -72,6 +72,7 @@ from .utils import (
     create_mandatory_pages_for_new_audit,
     get_next_page_url,
     get_next_retest_page_url,
+    other_page_failed_check_results,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -365,6 +366,9 @@ class AuditPageChecksFormView(FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
+        other_pages_failed_check_results: Dict[
+            WcagDefinition, List[CheckResult]
+        ] = other_page_failed_check_results(page=self.page)
         wcag_definitions: List[WcagDefinition] = list(WcagDefinition.objects.all())
 
         if self.request.POST:
@@ -372,20 +376,28 @@ class AuditPageChecksFormView(FormView):
                 self.request.POST
             )
         else:
-
             check_results_formset: CheckResultFormset = CheckResultFormset(
                 initial=get_all_possible_check_results_for_page(
                     page=self.page, wcag_definitions=wcag_definitions
                 )
             )
-        wcag_definitions_and_forms: List[Tuple[WcagDefinition, CheckResultForm]] = []
+
+        definitions_forms_errors: List[
+            Tuple[WcagDefinition, CheckResultForm, List[CheckResult]]
+        ] = []
         for count, check_results_form in enumerate(check_results_formset.forms):
             wcag_definition: WcagDefinition = wcag_definitions[count]
             check_results_form.fields["check_result_state"].label = wcag_definition
-            wcag_definitions_and_forms.append((wcag_definition, check_results_form))
+            definitions_forms_errors.append(
+                (
+                    wcag_definition,
+                    check_results_form,
+                    other_pages_failed_check_results.get(wcag_definition, []),
+                )
+            )
 
         context["check_results_formset"] = check_results_formset
-        context["wcag_definitions_and_forms"] = wcag_definitions_and_forms
+        context["definitions_forms_errors"] = definitions_forms_errors
 
         return context
 

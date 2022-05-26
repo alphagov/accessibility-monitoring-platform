@@ -257,7 +257,7 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
         help_text="This field effects the case status",
         choices=IS_WEBSITE_COMPLIANT_CHOICES,
     )
-    compliance_decision_notes = AMPTextField(label="Website compliance notes")
+    compliance_decision_notes = AMPTextField(label="Initial website compliance notes")
 
     class Meta:
         model = Case

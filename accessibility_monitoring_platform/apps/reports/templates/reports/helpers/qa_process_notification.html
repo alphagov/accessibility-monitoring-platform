@@ -1,0 +1,17 @@
+<div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+    <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            Action required
+        </h2>
+    </div>
+    <div class="govuk-notification-banner__content">
+        <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            The report needs to be approved by a QA auditor before it can be published.
+        </h3>
+        <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            If this report is ready to be reviewed, mark 'Report ready to be reviewed' in QA process.
+        </h3>
+        <p class="govuk-body"><a class="govuk-notification-banner__link" href="{% url 'cases:edit-qa-process' report.case.id %}">
+            Go to QA process</a></p>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="govuk-notification-banner govuk-notification-banner--success" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+    <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            Success
+        </h2>
+    </div>
+    <div class="govuk-notification-banner__content">
+        <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            The most recent report was published at
+            {{ report.latest_s3_report.created|date:"g.iA"|lower }} {{ report.latest_s3_report.created|date:"d F Y" }}.
+        </h3>
+        <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            Go to the
+            <a href="{{ report_viewer_url_prefix }}{{ report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                latest published HTML report</a>
+            for {{ report.case.organisation_name }}.
+        </h3>
+        <p class="govuk-body"><a class="govuk-notification-banner__link" href="{% url 'cases:edit-qa-process' report.case.id %}">
+            Go to QA process</a></p>
+    </div>
+</div>

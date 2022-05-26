@@ -8,7 +8,7 @@ REPORT_WRAPPER_TEXT = {
     "title_caption": "Accessibility report",
     "sub_header": "",
     "sent_by": "[Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service)",
-    "contact": "[accessibility-monitoring-team@gov.uk](mailto:accessibility-monitoring-team@gov.uk)",
+    "contact": "[accessibility-monitoring@digital.cabinet-office.gov.uk](mailto:accessibility-monitoring@digital.cabinet-office.gov.uk)",
     "related_content": """
 * [Understanding accessibility requirements for public sector bodies](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps)
 * [Make your website or app accessible and publish an accessibility statement](https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement)

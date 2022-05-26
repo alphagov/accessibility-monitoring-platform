@@ -28,7 +28,7 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ 
 """
 CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}
 
-* {{ check_result.notes|safe }}"""
+{{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
