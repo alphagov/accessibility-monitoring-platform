@@ -7,7 +7,7 @@
             {% if help_details %}
                 <details class="govuk-details" data-module="govuk-details">
                     <summary class="govuk-details__summary">
-                        <span class="govuk-details__summary-text">Example of {{ field.label }}</span>
+                        <span class="govuk-details__summary-text">Example of {{ field.label|lower }}</span>
                     </summary>
                     <div class="govuk-details__text">{% include help_details %}</div>
                 </details>

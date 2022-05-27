@@ -1,7 +1,7 @@
 """ Comments view - handles posting and editing comments """
 from typing import Union, List, Any
-from datetime import datetime
-from django.utils import timezone
+import datetime
+
 from django.db.models import QuerySet
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import View
@@ -9,6 +9,7 @@ from django.forms.models import ModelForm
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpRequest
 from django.contrib.auth.models import User
+
 from ..cases.models import Case
 from .models import Comments, CommentsHistory
 from .forms import SubmitCommentForm, EditCommentForm
@@ -154,7 +155,7 @@ class CommentEditView(UpdateView):
         """Updates comment and saves comment history"""
         form.instance.created_by = self.model.user
         obj: Comments = form.save(commit=False)
-        obj.updated_date = datetime.now(tz=timezone.utc)
+        obj.updated_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
         save_comment_history(obj)
         obj.save()
