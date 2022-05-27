@@ -1692,7 +1692,7 @@ class TestCaseViewPublishedReport(TestCase):
         self.driver.find_element_by_id("latest_s3_report").click()
 
         new_window_handle: str = self.driver.window_handles[-1]
-        self.driver.switch_to_window(new_window_handle)
+        self.driver.switch_to.window(new_window_handle)
 
         self.assertTrue(
             "Accessibility report for example-report-publish.com"
