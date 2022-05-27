@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.http import HttpResponse
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 
 from .middleware import RootRedirectMiddleware, ROOT_REDIRECT_DESTINATION
 
@@ -35,3 +35,16 @@ class RootRedirectMiddlewareTests(SimpleTestCase):
         )
 
         self.assertIs(response, self.dummy_response)
+
+
+class HealthcheckViewTest(TestCase):
+    """
+    Test that the healthcheck endpoint is working
+    """
+
+    def test_healthcheck_url_works(self):
+        """Test athat the healthcheck endpoint responds correctly"""
+        response = self.client.get("/healthcheck/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"healthcheck": "ok"})
