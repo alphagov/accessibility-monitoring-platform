@@ -40,7 +40,13 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">Original notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">{{ audit.exemptions_notes|markdown_to_html }}</td>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {% if audit.exemptions_notes %}
+                    {{ audit.exemptions_notes|markdown_to_html }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
         </tr>
     </tbody>
 </table>
