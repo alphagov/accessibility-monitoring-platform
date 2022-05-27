@@ -804,11 +804,11 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
     """
 
     website_state_final = AMPChoiceRadioField(
-        label="Final website compliance decision",
+        label="12-week website compliance decision",
         choices=WEBSITE_STATE_FINAL_CHOICES,
     )
     website_state_notes_final = AMPTextField(
-        label="Final website compliance decision notes",
+        label="12-week website compliance decision notes",
     )
 
     class Meta:
