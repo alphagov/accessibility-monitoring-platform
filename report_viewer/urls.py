@@ -13,8 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
 from django.conf.urls import include
+from django.http import JsonResponse
+from django.urls import path
 from django.views.defaults import page_not_found
 
 
@@ -22,8 +23,13 @@ def custom_page_not_found(request):
     return page_not_found(request, None)
 
 
+def healthcheck(request):
+    return JsonResponse({"healthcheck": "ok"})
+
+
 app_name = "apps"
 urlpatterns = [
     path("report/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
+    path("healthcheck/", healthcheck),
 ]
