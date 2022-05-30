@@ -1,8 +1,8 @@
 <nav role="navigation" style="margin-bottom:40px">
     <h2 class="govuk-heading-m bottom-margin-5">Test steps</h2>
     <ul class="govuk-list">
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='Test metadata' complete=audit.audit_retest_metadata_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='Pages comparison' complete=audit.audit_retest_pages_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
         {% if audit.testable_pages %}
             <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                 {% for page in audit.testable_pages %}
@@ -12,10 +12,10 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='Website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='Accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='Accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='Statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
+        {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
     </ul>
     <h2 class="govuk-heading-m bottom-margin-5">Frequently used links</h2>
     <ul class="govuk-list">
