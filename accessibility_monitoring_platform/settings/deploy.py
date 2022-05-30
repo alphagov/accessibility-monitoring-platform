@@ -36,4 +36,3 @@ SECURE_HSTS_SECONDS = 2592000  # One month in seconds
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_AGE = 60 * 60 * 20  # Twenty hours in seconds
-
