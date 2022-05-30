@@ -2,7 +2,7 @@
     {% if field.field.widget.input_type == 'radio' %}
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                <label id="{{ field.auto_id }}-label" class="govuk-label"><b>{{ field.label }}</b></label>
+                <h2 id="{{ field.auto_id }}-label" class="govuk-fieldset__heading">{{ field.label }}</h2>
             </legend>
             {% if help_details %}
                 <details class="govuk-details" data-module="govuk-details">
@@ -16,7 +16,7 @@
             {{ field }}
         </fieldset>
     {% else %}
-        <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+        <h2 id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}">{{ field.label }}</h2>
         {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
         {% include 'common/field_errors.html' with errors=field.errors %}
         {{ field }}
