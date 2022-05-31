@@ -9,7 +9,7 @@ applications:
     - s3-report-store
   env:
     DEBUG: FALSE
-    ALLOWED_HOSTS: 'accessibility-monitoring-platform-production.london.cloudapps.digital'
+    ALLOWED_HOSTS: 'platform.accessibility-monitoring.service.gov.uk accessibility-monitoring-platform-production.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
   processes:
   - type: web
@@ -25,7 +25,7 @@ applications:
     - s3-report-store
   env:
     DEBUG: FALSE
-    ALLOWED_HOSTS: 'accessibility-monitoring-report-viewer-production.london.cloudapps.digital'
+    ALLOWED_HOSTS: 'reports.accessibility-monitoring.service.gov.uk accessibility-monitoring-report-viewer-production.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
   processes:
   - type: web
