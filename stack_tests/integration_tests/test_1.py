@@ -1299,7 +1299,7 @@ class TestCaseStartRetest(TestCase):
         self.driver.find_element_by_link_text("Edit 12-week retest").click()
         self.driver.find_element_by_link_text("Start retest").click()
 
-        self.assertTrue(">12-week retest metadata</h1>" in self.driver.page_source)
+        self.assertTrue(">12-week test metadata</h1>" in self.driver.page_source)
 
 
 class TestCaseRetestingUI(TestCase):
@@ -1346,7 +1346,7 @@ class TestCaseRetestingUI(TestCase):
 
     def test_update_retest_metadata(self):
         """Tests whether case retest metadata can be updated"""
-        self.driver.find_element_by_link_text("Edit retest metadata").click()
+        self.driver.find_element_by_link_text("Edit 12-week test metadata").click()
 
         self.driver.find_element_by_name("retest_date_0").clear()
         self.driver.find_element_by_name("retest_date_0").send_keys(DATE_OF_RETEST_DD)
@@ -1356,21 +1356,21 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_name("retest_date_2").send_keys(DATE_OF_RETEST_YYYY)
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue("31/12/2022" in self.driver.page_source)
 
     def test_update_retest_pages(self):
         """Tests whether case retest pages can be updated"""
-        self.driver.find_element_by_link_text("Edit pages comparison").click()
+        self.driver.find_element_by_link_text("Edit 12-week pages comparison").click()
 
         self.driver.find_element_by_name("audit_retest_pages_complete_date").click()
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
 
     def test_update_retest_page_check_results(self):
         """Tests whether check result retest for page can be recorded"""
@@ -1388,7 +1388,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_name("save").click()
         self.driver.find_element_by_link_text("Case").click()
         self.driver.find_element_by_link_text("View retest").click()
-        self.driver.find_element_by_link_text("Edit pages comparison").click()
+        self.driver.find_element_by_link_text("Edit 12-week pages comparison").click()
         self.driver.find_element_by_link_text("Home page").click()
 
         self.driver.find_element_by_css_selector("#id_form-0-retest_state_0").click()
@@ -1397,15 +1397,15 @@ class TestCaseRetestingUI(TestCase):
         )
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue(CHECK_RESULT_RETEST_NOTES in self.driver.page_source)
 
     def test_update_retest_website_compliance(self):
         """Tests whether case retest website compliance can be updated"""
         self.driver.find_element_by_link_text(
-            "Edit website compliance decision"
+            "Edit 12-week website compliance decision"
         ).click()
 
         self.driver.find_element_by_css_selector(
@@ -1416,14 +1416,14 @@ class TestCaseRetestingUI(TestCase):
         )
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue(WEBSITE_COMPLIANCE_RETEST_NOTES in self.driver.page_source)
 
     def test_update_retest_accessibility_statement_1(self):
         """Tests whether case retest accessibility_statement 1 can be updated"""
-        self.driver.find_element_by_link_text("Edit accessibility statement").click()
+        self.driver.find_element_by_link_text("Edit 12-week accessibility statement").click()
 
         self.driver.find_element_by_name(
             "audit_retest_accessibility_statement_backup_url"
@@ -1436,16 +1436,16 @@ class TestCaseRetestingUI(TestCase):
         )
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_URL_BACKUP_3 in self.driver.page_source)
         self.assertTrue(SCOPE_RETEST_NOTES in self.driver.page_source)
 
     def test_update_retest_accessibility_statement_2(self):
         """Tests whether case retest accessibility_statement 2 can be updated"""
-        self.driver.find_element_by_link_text("Edit accessibility statement").click()
-        self.driver.find_element_by_link_text("Accessibility statement Pt. 2").click()
+        self.driver.find_element_by_link_text("Edit 12-week accessibility statement").click()
+        self.driver.find_element_by_link_text("12-week accessibility statement Pt. 2").click()
 
         self.driver.find_element_by_name(
             "audit_retest_accessibility_statement_backup_url"
@@ -1458,16 +1458,16 @@ class TestCaseRetestingUI(TestCase):
         ).send_keys(DISPROPORTIONATE_BURDEN_RETEST_NOTES)
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_URL_BACKUP_4 in self.driver.page_source)
         self.assertTrue(DISPROPORTIONATE_BURDEN_RETEST_NOTES in self.driver.page_source)
 
     def test_update_retest_statement_compliance(self):
         """Tests whether case retest accessibility statement compliance can be updated"""
         self.driver.find_element_by_link_text(
-            "Edit accessibility statement compliance decision"
+            "Edit 12-week accessibility statement compliance decision"
         ).click()
 
         self.driver.find_element_by_css_selector(
@@ -1478,9 +1478,9 @@ class TestCaseRetestingUI(TestCase):
         ).send_keys(ACCESSIBILITY_STATEMENT_RETEST_NOTES)
 
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("12-week retest").click()
+        self.driver.find_element_by_link_text("12-week test").click()
 
-        self.assertTrue(">View 12-week retest</h1>" in self.driver.page_source)
+        self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
         self.assertTrue(ACCESSIBILITY_STATEMENT_RETEST_NOTES in self.driver.page_source)
 
 

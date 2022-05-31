@@ -217,8 +217,8 @@ def test_create_audit_redirects(admin_client):
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-summary", "Test summary"),
         ("audits:edit-audit-report-text", "Report text"),
-        ("audits:audit-retest-detail", "View 12-week retest"),
-        ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
+        ("audits:audit-retest-detail", "View 12-week test"),
+        ("audits:edit-audit-retest-metadata", "12-week test metadata"),
         ("audits:edit-audit-retest-pages", "12-week pages comparison"),
         (
             "audits:edit-audit-retest-website-decision",
