@@ -35,10 +35,13 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'audits/helpers/accessibility_statement_link.html' %}
+                    {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_retest=0 %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
+                            {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
+                            {% if audit.accessibility_statement_backup_url_date %}
+                                <p class="govuk-body" style="margin-top: -20px;"> Added {{audit.accessibility_statement_backup_url_date}} </p>
+                            {% endif %}
                             {% include 'audits/helpers/test_statement_field_info.html' with field=form.scope_state help_details='audits/statement_examples/scope_state.html' %}
                             {% include 'common/amp_field.html' with field=form.scope_notes %}
                             {% include 'audits/helpers/test_statement_field_info.html' with field=form.feedback_state help_details='audits/statement_examples/feedback_state.html' %}

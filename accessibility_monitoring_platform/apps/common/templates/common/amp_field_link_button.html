@@ -1,0 +1,36 @@
+<div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
+    <label id="{{ field.auto_id }}-label" class="govuk-label" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+    {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
+    {% include 'common/field_errors.html' with errors=field.errors %}
+    <div
+        style="display: flex; align-items: center; white-space: nowrap; overflow: hidden;"
+        id="open_link_input_div"
+    >
+        {{ field }}
+        <a
+            class="govuk-link govuk-link--no-visited-state"
+            id="my_link"
+            target="_blank"
+            style="margin-left: 10px; display: none;"
+        >
+            Open link
+        </a>
+    </div>
+    <script>
+        inputLink = document.getElementById('open_link_input_div').querySelectorAll('input[type=text]')[0]
+        inputLink.addEventListener('input', (e) => link_logic(e.target.value))
+        a = document.getElementById('my_link')
+        function link_logic(value) {
+            if (value == '' || value.includes('https://') == false) {
+                a.setAttribute('style', "pointer-events: none; text-decoration: none; cursor: default; color: black; display: block; margin-left: 10px;")
+                a.setAttribute('href', "javascript:;")
+                a.setAttribute('target', "")
+            } else {
+                a.setAttribute('style', "margin-left: 10px;")
+                a.setAttribute('href', value)
+                a.setAttribute('target', "_blank")
+            }
+        }
+        link_logic(inputLink.value)
+    </script>
+</div>
