@@ -55,7 +55,7 @@
         </div>
 
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
+            <div class="govuk-grid-column-full report-contents-{{report.report_version}}">
                 {% include 'reports/helpers/nav_contents.html' %}
                 {% include 'reports/details/metadata.html' %}
                 {% for section in report.section_set.all %}
@@ -74,7 +74,7 @@
                         </div>
                     </div>
                     <div class="govuk-grid-row" style="margin-bottom:30px;">
-                        <div class="govuk-grid-column-full amp-report">
+                        <div class="govuk-grid-column-full">
                             {% if section.template_type == 'html' %}
                                 {{ section.content|safe }}
                             {% else %}

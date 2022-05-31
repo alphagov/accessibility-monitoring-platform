@@ -2,15 +2,15 @@
 <table id="issues-table" caption="Names and URLs of pages we checked">
     <thead>
         <tr>
-            <th style="width:10px;">#</th>
-            <th id="where-found">Where the issue was found</th>
-            <th id="issue">Issue and description</th>
+            <th style="width:6%">#</th>
+            <th style="width:47%" id="where-found">Where the issue was found</th>
+            <th style="width:47%" id="issue">Issue and description</th>
         </tr>
     </thead>
     <tbody>
         {% for row in section.visible_table_rows.all %}
             <tr valign="top">
-                <td style="width:10px;">{{ forloop.counter }}</td>
+                <td>{{ forloop.counter }}</td>
                 <td headers="where-found">{{ row.cell_content_2|markdown_to_html }}</td>
                 <td headers="issue">{{ row.cell_content_1|markdown_to_html }}</td>
             </tr>
