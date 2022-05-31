@@ -19,14 +19,6 @@
     </td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">
-        Report ready for QA process?
-    </th>
-    <td class="govuk-table__cell amp-width-one-half">
-        {{ report.case.get_report_review_status_display }}
-    </td>
-</tr>
-<tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ report.notes|markdown_to_html }}</td>
 </tr>
