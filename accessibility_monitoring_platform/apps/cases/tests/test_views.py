@@ -2289,7 +2289,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
     Report.objects.create(case=case)
     s3_report: S3Report = S3Report.objects.create(case=case, guid="guid", version=0)
-    s3_report_url: str = f"/report/{s3_report.guid}"
+    s3_report_url: str = f"/reports/{s3_report.guid}"
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
