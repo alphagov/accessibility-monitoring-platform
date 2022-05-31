@@ -1,0 +1,18 @@
+<nav role="navigation" style="margin-bottom:40px">
+    <p class="govuk-body-m">
+        {% if current == 'users:account_details' %}
+            Account details
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">
+                Account details</a>
+        {% endif %}
+    </p>
+    <p class="govuk-body-m">
+        {% if current == 'reports:edit-report-wrapper' %}
+            Report viewer editor
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reports:edit-report-wrapper' %}">
+                Report viewer editor</a>
+        {% endif %}
+    </p>
+</nav>

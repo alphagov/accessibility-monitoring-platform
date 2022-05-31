@@ -10,46 +10,56 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
+                Settings
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
                 Account details
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper">
-        <h1 class="govuk-heading-xl">Account details</h1>
-        <p class="govuk-body-l">You can change your details on this page</p>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="govuk-inset-text">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            {% if is_qa_auditor %}
-                {% include 'common/amp_field.html' with field=form.active_qa_auditor %}
-            {% endif %}
-            {% include 'common/amp_field.html' with field=form.email_notifications %}
-            {% include 'common/amp_field.html' with field=form.first_name %}
-            {% include 'common/amp_field.html' with field=form.last_name %}
-            {% include 'common/amp_field.html' with field=form.email %}
-            {% include 'common/amp_field.html' with field=form.email_confirm %}
-            <div class="form_default">
-                <div class="form-group form-field-default">
-                    <label class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ form.password.label }}</label>
-                    {% if form.password.help_text %}<div class="govuk-hint">{{ form.password.help_text }}</div>{% endif %}
-                    {% include 'common/field_errors.html' with errors=form.password.errors %}
-                    {{form.password}}
-                </div>
-                <div class="form-space"> </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'settings/nav_steps.html' with current='users:account_details' %}
             </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Account details</h1>
+                <p class="govuk-body-l">You can change your details on this page</p>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="govuk-inset-text">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    {% if is_qa_auditor %}
+                        {% include 'common/amp_field.html' with field=form.active_qa_auditor %}
+                    {% endif %}
+                    {% include 'common/amp_field.html' with field=form.email_notifications %}
+                    {% include 'common/amp_field.html' with field=form.first_name %}
+                    {% include 'common/amp_field.html' with field=form.last_name %}
+                    {% include 'common/amp_field.html' with field=form.email %}
+                    {% include 'common/amp_field.html' with field=form.email_confirm %}
+                    <div class="form_default">
+                        <div class="form-group form-field-default">
+                            <label class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ form.password.label }}</label>
+                            {% if form.password.help_text %}<div class="govuk-hint">{{ form.password.help_text }}</div>{% endif %}
+                            {% include 'common/field_errors.html' with errors=form.password.errors %}
+                            {{form.password}}
+                        </div>
+                        <div class="form-space"> </div>
+                    </div>
 
-            <div class="govuk-button-group">
-                <input type="submit" value="Update account details" class="govuk-button" data-module="govuk-button"/>
-                <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state">
-                    Cancel and return to dashboard
-                </a>
+                    <div class="govuk-button-group">
+                        <input type="submit" value="Update account details" class="govuk-button" data-module="govuk-button"/>
+                        <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state">
+                            Cancel and return to dashboard
+                        </a>
+                    </div>
+
+                </form>
             </div>
-
-        </form>
+        </div>
     </main>
 </div>
 {% endblock %}
