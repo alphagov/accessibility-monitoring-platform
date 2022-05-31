@@ -1423,7 +1423,9 @@ class TestCaseRetestingUI(TestCase):
 
     def test_update_retest_accessibility_statement_1(self):
         """Tests whether case retest accessibility_statement 1 can be updated"""
-        self.driver.find_element_by_link_text("Edit 12-week accessibility statement").click()
+        self.driver.find_element_by_link_text(
+            "Edit 12-week accessibility statement"
+        ).click()
 
         self.driver.find_element_by_name(
             "audit_retest_accessibility_statement_backup_url"
@@ -1444,8 +1446,12 @@ class TestCaseRetestingUI(TestCase):
 
     def test_update_retest_accessibility_statement_2(self):
         """Tests whether case retest accessibility_statement 2 can be updated"""
-        self.driver.find_element_by_link_text("Edit 12-week accessibility statement").click()
-        self.driver.find_element_by_link_text("12-week accessibility statement Pt. 2").click()
+        self.driver.find_element_by_link_text(
+            "Edit 12-week accessibility statement"
+        ).click()
+        self.driver.find_element_by_link_text(
+            "12-week accessibility statement Pt. 2"
+        ).click()
 
         self.driver.find_element_by_name(
             "audit_retest_accessibility_statement_backup_url"

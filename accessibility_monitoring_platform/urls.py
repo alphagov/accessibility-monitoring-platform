@@ -16,9 +16,6 @@ urlpatterns = [
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
     path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),
     path(
-        "report/", include("accessibility_monitoring_platform.apps.s3_read_write.urls")
-    ),
-    path(
         "reminders/", include("accessibility_monitoring_platform.apps.reminders.urls")
     ),
     path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
