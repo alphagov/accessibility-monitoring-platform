@@ -36,8 +36,8 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}" style="display: unset;">
+                <div>
+                    {% include 'common/error_summary.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Filter WCAG error</h2>
@@ -71,6 +71,8 @@
                             />
                         </div>
                     </div>
+                </div>
+                <form method="post" action="{% url 'audits:edit-audit-retest-page-checks' page.id %}" style="display: unset;">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-one-half">
