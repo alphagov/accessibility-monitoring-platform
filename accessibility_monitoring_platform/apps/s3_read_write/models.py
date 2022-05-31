@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from ..common.utils import format_date
 
-REPORT_VIEWER_URL_PATH: str = "/report/"
+REPORT_VIEWER_URL_PATH: str = "/reports/"
 
 
 class S3Report(models.Model):

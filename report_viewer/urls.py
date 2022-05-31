@@ -29,7 +29,7 @@ def healthcheck(request):
 
 app_name = "apps"
 urlpatterns = [
-    path("report/", include("report_viewer.apps.viewer.urls")),
+    path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
     path("healthcheck/", healthcheck),
 ]
