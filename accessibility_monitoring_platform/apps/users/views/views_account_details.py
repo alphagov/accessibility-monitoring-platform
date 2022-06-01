@@ -73,7 +73,7 @@ def account_details(request: HttpRequest) -> HttpResponse:
             )
             notification_settings.save()
 
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             messages.success(request, "Successfully saved details!")
             return redirect("users:account_details")
         messages.error(request, "There were errors in the form")

@@ -56,7 +56,7 @@ class AMPChoiceCheckboxWidget(AMPBooleanCheckboxWidget):
             context["widget"]["attrs"]["checked"] = False
         return context
 
-    def value_from_datadict(self, data, files, name):
+    def value_from_datadict(self, data, files, name):  # pylint: disable=unused-argument
         """If checkbox is ticked, return 'yes' otherwise return 'no'"""
         if name not in data:
             # A missing value means False because HTML form submission does not
@@ -137,7 +137,7 @@ class AMPDateWidget(forms.MultiWidget):
             return ""
         if day == "" and month == "" and year == "":
             return ""
-        return "{}-{}-{}".format(year, month, day)
+        return f"{year}-{month}-{day}"
 
 
 class AMPCharField(forms.CharField):

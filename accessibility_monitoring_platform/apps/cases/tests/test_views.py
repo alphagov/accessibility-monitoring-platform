@@ -1507,7 +1507,6 @@ def test_calculate_twelve_week_chaser_dates():
     )
 
     assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)  # type: ignore
-    assert updated_case.twelve_week_4_week_chaser_due_date == date(2020, 1, 29)  # type: ignore
 
 
 @pytest.mark.parametrize(

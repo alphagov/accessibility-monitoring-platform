@@ -113,13 +113,9 @@ def calculate_twelve_week_chaser_dates(
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
         case.twelve_week_1_week_chaser_due_date = None
-        case.twelve_week_4_week_chaser_due_date = None
     else:
         case.twelve_week_1_week_chaser_due_date = (
             twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
-        )
-        case.twelve_week_4_week_chaser_due_date = (
-            twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
         )
     return case
 
