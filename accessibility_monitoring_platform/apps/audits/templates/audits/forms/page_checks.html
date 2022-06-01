@@ -36,7 +36,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}" style="display: unset;">
+                <div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m">Search WCAG error</h2>
@@ -81,6 +81,8 @@
                             />
                         </div>
                     </div>
+                </div>
+                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}" style="display: unset;">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-one-half">
