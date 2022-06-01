@@ -41,7 +41,7 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("dashboard:home")
+    assert response.url == reverse("dashboard:home")  # type: ignore
 
     if subject or message:
         assert len(mailoutbox) == 1
@@ -52,3 +52,11 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
         assert email.to == [settings.CONTACT_ADMIN_EMAIL]
     else:
         assert len(mailoutbox) == 0
+
+
+def test_active_qa_audit_page_renders(admin_client):
+    """Test active qa audit page is rendered"""
+    response: HttpResponse = admin_client.get(reverse("common:edit-active-qa-auditor"))
+
+    assert response.status_code == 200
+    assertContains(response, ">Active QA auditor</h1>")
