@@ -33,7 +33,6 @@ from .models import (
     STATUS_CHOICES,
     TEST_STATUS_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    DELETE_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     PREFERRED_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
@@ -660,26 +659,6 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
             "enforcement_correspondence_complete_date",
-        ]
-
-
-class CaseDeleteForm(VersionForm):
-    """
-    Form for archiving a case
-    """
-
-    delete_reason = AMPChoiceRadioField(
-        label="Reason why?",
-        choices=DELETE_DECISION_CHOICES,
-    )
-    delete_notes = AMPTextField(label="More information?")
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "delete_reason",
-            "delete_notes",
         ]
 
 

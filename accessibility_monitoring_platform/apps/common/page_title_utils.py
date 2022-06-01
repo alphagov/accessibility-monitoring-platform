@@ -31,7 +31,6 @@ PAGE_TITLES_BY_URL = {
     "/audits/pages/[id]/edit-audit-page/": "Edit page details",
     "/audits/pages/[id]/edit-audit-retest-page-checks/": "Retesting",
     "/cases/": "Search",
-    "/cases/[id]/delete-case/": "Delete case",
     "/cases/[id]/edit-case-close/": "Closing the case",
     "/cases/[id]/edit-case-details/": "Case details",
     "/cases/[id]/edit-contact-details/": "Contact details",
