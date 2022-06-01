@@ -91,6 +91,10 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "deleted",
         "Deleted",
     ),
+    (
+        "suspended",
+        "Suspended",
+    ),
 ]
 
 DEFAULT_TEST_TYPE: str = "simplified"
@@ -551,6 +555,8 @@ class Case(VersionModel):
     def set_status(self) -> str:  # noqa: C901
         if self.is_deleted:
             return "deleted"
+        elif self.is_suspended:
+            return "suspended"
         elif (
             self.case_completed == "complete-no-send"
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
@@ -567,16 +573,19 @@ class Case(VersionModel):
         elif self.auditor is None:
             return "unassigned-case"
         elif (
-            self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
+            self.is_website_compliant
+            == IS_WEBSITE_COMPLIANT_DEFAULT
             or self.accessibility_statement_state
             == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         ):
             return "test-in-progress"
         elif (
-            self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
+            self.is_website_compliant
+            != IS_WEBSITE_COMPLIANT_DEFAULT
             and self.accessibility_statement_state
             != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
-            and self.report_review_status != "ready-to-review"
+            and self.report_review_status
+            != "ready-to-review"
         ):
             return "report-in-progress"
         elif (
