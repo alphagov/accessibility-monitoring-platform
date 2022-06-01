@@ -18,21 +18,42 @@
                     The report viewer editor changes the dynamic content in the report.
                     Do not change without approval from a senior auditor.
                 </p>
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'reports:edit-report-wrapper' %}">
-                    {% csrf_token %}
+                {% if user.is_staff %}
+                    {% include 'common/error_summary.html' %}
+                    <form method="post" action="{% url 'reports:edit-report-wrapper' %}">
+                        {% csrf_token %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                {% include 'common/amp_form_snippet.html' %}
+                            </div>
+                            <div class="govuk-grid-column-full govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Save"
+                                    name="save"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <a
+                                    href="{% url 'dashboard:home' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Cancel and return to dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            <p class="govuk-body-m">
+                                <b>Admin access is required to edit the report viewer.
+                                Request access from an existing admin.</b>
+                            </p>
                         </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
                             <a
                                 href="{% url 'dashboard:home' %}"
                                 class="govuk-link govuk-link--no-visited-state"
@@ -41,7 +62,7 @@
                             </a>
                         </div>
                     </div>
-                </form>
+                {% endif %}
             </div>
         </div>
     </main>

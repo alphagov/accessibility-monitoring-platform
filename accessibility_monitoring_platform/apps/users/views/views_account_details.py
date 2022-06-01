@@ -19,14 +19,11 @@ from accessibility_monitoring_platform.apps.common.utils import (
 from accessibility_monitoring_platform.apps.notifications.models import (
     NotificationsSettings,
 )
-from accessibility_monitoring_platform.apps.common.models import Platform
-from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 
 
 class AccountDetailsContext(TypedDict):
     form: UpdateUserForm
     form_groups: List[str]
-    is_qa_auditor: bool
 
 
 @login_required
@@ -81,7 +78,6 @@ def account_details(request: HttpRequest) -> HttpResponse:
     context: AccountDetailsContext = {
         "form": form,
         "form_groups": ["last_name", "email_confirm"],
-        "is_qa_auditor": user.groups.filter(name="QA auditor").exists(),
     }
 
     return render(request, "users/account_details.html", context)

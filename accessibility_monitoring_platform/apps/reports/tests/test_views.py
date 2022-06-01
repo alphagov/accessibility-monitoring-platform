@@ -30,6 +30,9 @@ from ..utils import (
 SECTION_NAME: str = "Section name"
 SECTION_CONTENT: str = "I am section content"
 
+USER_NAME = "user1"
+USER_PASSWORD = "bar"
+
 
 def create_report() -> Report:
     """Create a report"""
@@ -355,6 +358,44 @@ def test_edit_report_wrapper_page_loads(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ">Report viewer editor</h1>")
+
+
+def test_edit_report_wrapper_page_non_staff_user(client, django_user_model):
+    """
+    Test that non-admin users are not given a UI to edit report wrapper text.
+    """
+    user = django_user_model.objects.create_user(
+        username=USER_NAME, password=USER_PASSWORD
+    )
+    client.force_login(user)
+
+    response = client.get(reverse("reports:edit-report-wrapper"))
+
+    assertContains(response, "Admin access is required to edit the report viewer.")
+    assertNotContains(
+        response,
+        """<input type="text" name="sub_header" class="govuk-input" id="id_sub_header">""",
+        html=True,
+    )
+
+
+def test_edit_report_wrapper_page_staff_user(client, django_user_model):
+    """
+    Test that admin users are given a UI to edit report wrapper text.
+    """
+    user = django_user_model.objects.create_user(
+        username=USER_NAME, password=USER_PASSWORD, is_staff=True
+    )
+    client.force_login(user)
+
+    response = client.get(reverse("reports:edit-report-wrapper"))
+
+    assertNotContains(response, "Admin access is required to edit the report viewer.")
+    assertContains(
+        response,
+        """<input type="text" name="sub_header" class="govuk-input" id="id_sub_header">""",
+        html=True,
+    )
 
 
 def test_report_details_page_shows_report_awaiting_approval(admin_client):
