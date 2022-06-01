@@ -8,10 +8,10 @@ from django.core.mail import EmailMessage
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 
-from .forms import AMPContactAdminForm, AMPIssueReportForm
-from .models import IssueReport
+from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
+from .models import IssueReport, Platform
 from .page_title_utils import get_page_title
 
 
@@ -91,3 +91,22 @@ URL: https://{self.request.get_host()}{issue_report.page_url}
             to=[settings.CONTACT_ADMIN_EMAIL],
         )
         email.send()
+
+
+class ActiveQAAuditorUpdateView(UpdateView):
+    """
+    Update active QA auditor
+    """
+
+    model: Type[Platform] = Platform
+    context_object_name: str = "platform"
+    form_class: Type[ActiveQAAuditorUpdateForm] = ActiveQAAuditorUpdateForm
+    template_name: str = "common/settings/active_qa_auditor.html"
+
+    def get_object(self) -> Platform:
+        """Return the platform-wide settings"""
+        return Platform.objects.get(pk=1)
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        return self.request.path

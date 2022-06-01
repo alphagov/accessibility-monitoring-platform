@@ -8,6 +8,14 @@
         {% endif %}
     </p>
     <p class="govuk-body-m">
+        {% if current == 'common:edit-active-qa-auditor' %}
+            Active QA auditor
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-active-qa-auditor' %}">
+                Active QA auditor</a>
+        {% endif %}
+    </p>
+    <p class="govuk-body-m">
         {% if current == 'reports:edit-report-wrapper' %}
             Report viewer editor
         {% else %}

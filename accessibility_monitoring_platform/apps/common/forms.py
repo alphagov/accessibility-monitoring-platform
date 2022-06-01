@@ -8,7 +8,7 @@ from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import IssueReport
+from .models import IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -389,3 +389,17 @@ class AMPTopMenuForm(forms.Form):
             }
         )
     )
+
+
+class ActiveQAAuditorUpdateForm(forms.ModelForm):
+    """
+    Form for updating the active QA auditor platform setting
+    """
+
+    active_qa_auditor = AMPQAAuditorModelChoiceField(label="Active QA auditor")
+
+    class Meta:
+        model = Platform
+        fields = [
+            "active_qa_auditor",
+        ]

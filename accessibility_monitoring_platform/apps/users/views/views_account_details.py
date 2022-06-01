@@ -51,12 +51,9 @@ def account_details(request: HttpRequest) -> HttpResponse:
         )
         notification_settings.save()
 
-    platform: Platform = get_platform_settings()
-
     initial: Dict[str, Any] = model_to_dict(user)
     initial["email_confirm"] = initial["email"]
     initial["email_notifications"] = notification_settings.email_notifications_enabled
-    initial["active_qa_auditor"] = platform.active_qa_auditor
 
     form: UpdateUserForm = UpdateUserForm(
         data=request.POST or None, request=request, initial=initial
@@ -76,12 +73,7 @@ def account_details(request: HttpRequest) -> HttpResponse:
             )
             notification_settings.save()
 
-            active_qa_auditor: User = form.cleaned_data["active_qa_auditor"]
-            if platform.active_qa_auditor != active_qa_auditor:
-                platform.active_qa_auditor = active_qa_auditor
-                platform.save()
-
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Successfully saved details!")
             return redirect("users:account_details")
         messages.error(request, "There were errors in the form")
