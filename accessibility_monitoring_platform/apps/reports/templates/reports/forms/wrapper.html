@@ -46,10 +46,14 @@
                 {% else %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <p class="govuk-body-m">
-                                <b>Admin access is required to edit the report viewer.
-                                Request access from an existing admin.</b>
-                            </p>
+                            <div class="govuk-warning-text">
+                                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                                <strong class="govuk-warning-text__text">
+                                    <span class="govuk-warning-text__assistive">Warning</span>
+                                    Admin access is required to edit the report viewer.
+                                    Request access from an existing admin.
+                                </strong>
+                            </div>
                         </div>
                     </div>
                     <div class="govuk-grid-row">
