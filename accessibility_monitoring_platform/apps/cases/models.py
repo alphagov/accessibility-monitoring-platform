@@ -536,7 +536,7 @@ class Case(VersionModel):
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
 
-        return datetime(2020, 5, 17)
+        return datetime(1970, 1, 1)
 
     @property
     def next_action_due_date_tense(self) -> str:
