@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from datetime import datetime
 
 from ..common.utils import extract_domain_from_url
 from ..common.models import (
@@ -536,7 +535,7 @@ class Case(VersionModel):
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
 
-        return datetime(1970, 1, 1)
+        return date(1970, 1, 1)
 
     @property
     def next_action_due_date_tense(self) -> str:
