@@ -110,7 +110,7 @@ def test_returns_no_overdue_cases():
     case.twelve_week_1_week_chaser_sent_date = TODAY
     case.save()
 
-    assert get_overdue_cases(user) == []
+    assert list(get_overdue_cases(user)) == []
 
 
 @pytest.mark.django_db
