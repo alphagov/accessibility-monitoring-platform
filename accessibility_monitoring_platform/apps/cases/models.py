@@ -520,7 +520,7 @@ class Case(VersionModel):
         return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
-    def next_action_due_date(self) -> Optional[date]:
+    def next_action_due_date(self) -> date:
         if self.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
@@ -538,6 +538,8 @@ class Case(VersionModel):
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
+
+        return date(1970, 1, 1)
 
     @property
     def next_action_due_date_tense(self) -> str:
