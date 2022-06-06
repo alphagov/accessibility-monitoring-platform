@@ -517,7 +517,7 @@ class Case(VersionModel):
         return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
-    def next_action_due_date(self) -> Optional[date]:
+    def next_action_due_date(self) -> date:
         if self.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
