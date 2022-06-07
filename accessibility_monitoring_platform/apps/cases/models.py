@@ -538,6 +538,7 @@ class Case(VersionModel):
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
+            return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)
 
         return date(1970, 1, 1)
 
