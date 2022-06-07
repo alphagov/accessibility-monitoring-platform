@@ -70,24 +70,13 @@
                                                 View final HTML report
                                             </a>
                                         {% else %}
-                                            HTML report has not been published.
-                                            {% if case.report %}
-                                                Publish report in
-                                                <a
-                                                    href="{% url 'reports:report-detail' case.report.id %}"
-                                                    class="govuk-link govuk-link--no-visited-state"
-                                                >
-                                                    case > report
-                                                </a>
-                                            {% else %}
-                                                Create report in
-                                                <a
-                                                    href="{% url 'cases:edit-report-details' case.id %}"
-                                                    class="govuk-link govuk-link--no-visited-state"
-                                                >
-                                                    case > report details
-                                                </a>
-                                            {% endif %}
+                                            HTML report has not been published. Publish report in
+                                            <a
+                                                href="{% url 'reports:report-detail' case.report.id %}"
+                                                class="govuk-link govuk-link--no-visited-state"
+                                            >
+                                                case > report
+                                            </a>
                                         {% endif %}
                                     </div>
                                 </div>
