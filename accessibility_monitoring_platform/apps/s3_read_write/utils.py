@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from .models import S3Report
 
+NO_REPORT_HTML: str = "<p>Does not exist</p>"
+
 
 class S3ReadWriteReport:
     def __init__(self) -> None:
@@ -69,6 +71,7 @@ class S3ReadWriteReport:
             s3_directory=s3_url_for_report,
             version=version,
             guid=guid,
+            html=html_content,
         )
 
         s3report.save()
@@ -79,7 +82,7 @@ class S3ReadWriteReport:
             s3file = S3Report.objects.get(guid=guid)
             obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
             return obj.get()["Body"].read().decode("utf-8")
-        return "<p> Does not exist </p>"
+        return NO_REPORT_HTML
 
     def url_builder(
         self,

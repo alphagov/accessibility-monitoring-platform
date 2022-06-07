@@ -17,6 +17,7 @@ from ..models import (
 )
 from django.contrib.auth.models import User
 
+
 @pytest.mark.django_db
 def test_case_status_suspended():
     """Test case status returns unassigned-case"""
@@ -24,9 +25,10 @@ def test_case_status_suspended():
         created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
-        is_suspended=True
+        is_suspended=True,
     )
     assert case.status == "suspended"
+
 
 @pytest.mark.django_db
 def test_case_status_unassigned():
