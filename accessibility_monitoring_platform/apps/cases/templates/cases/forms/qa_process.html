@@ -71,7 +71,10 @@
                                             </a>
                                         {% else %}
                                             HTML report has not been published. Publish report in
-                                            <a href="{% url 'reports:report-detail' case.report.id %}" rel="noreferrer noopener" class="govuk-link">
+                                            <a
+                                                href="{% url 'reports:report-detail' case.report.id %}"
+                                                class="govuk-link govuk-link--no-visited-state"
+                                            >
                                                 case > report
                                             </a>
                                         {% endif %}

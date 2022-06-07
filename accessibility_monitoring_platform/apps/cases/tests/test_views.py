@@ -2271,8 +2271,9 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Published report</b></label>
             <div class="govuk-hint">
-                HTML report has not been published. Publish report in
-                <a href="{report_url}" rel="noreferrer noopener" class="govuk-link">
+                HTML report has not been published.
+                Publish report in
+                <a href="{report_url}" class="govuk-link govuk-link--no-visited-state">
                     case > report
                 </a>
             </div>
@@ -2342,3 +2343,27 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assert response.status_code == 200
     assertNotContains(response, "Link to final PDF report")
     assertNotContains(response, "Link to final ODT report")
+
+
+def test_report_corespondence_shows_link_to_create_report(admin_client):
+    """
+    Test that the report correspondence page shows link to create report
+    if one does not exist.
+    """
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})  #type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<p class="govuk-body-m">
+            A published report does not exist for this case. Create a report in
+            <a href="{report_details_url}" class="govuk-link govuk-link--no-visited-state">
+                case > report details
+            </a>
+        </p>""",
+        html=True)
