@@ -11,18 +11,18 @@
         <table class="govuk-table">
             <thead>
                 <tr>
-                    <th scope="col" class="govuk-table__cell">
+                    <th scope="col" class="govuk-table__cell" style="width:52%;">
                         {% if section.template_type == 'urls' %}
                             Page Name
                         {% elif section.template_type == 'issues' %}
-                            Issue and description
+                            Where the issue was found
                         {% endif %}
                     </th>
                     <th scope="col" class="govuk-table__cell">
                         {% if section.template_type == 'urls' %}
                             URL
                         {% elif section.template_type == 'issues' %}
-                            Where the issue was found
+                            Issue and description
                         {% endif %}
                     </th>
 
@@ -35,13 +35,13 @@
                         <td colspan="2" class="govuk-table__cell">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {{ row_form.instance.cell_content_1|markdown_to_html}}
+                                    {{ row_form.instance.cell_content_2|markdown_to_html}}
                                     {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
                                     {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
-                                    {{ row_form.instance.cell_content_2|markdown_to_html}}
+                                    {{ row_form.instance.cell_content_1|markdown_to_html}}
                                     {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
                                 </div>
                             </div>
@@ -72,13 +72,17 @@
                             </div>
                         </td>
                     {% else %}
-                        <td class="govuk-table__cell">
-                            {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
-                            {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
-                            {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
-                        </td>
-                        <td class="govuk-table__cell">
-                            {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                        <td colspan="2" class="govuk-table__cell">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
+                                    {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
+                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
+                                </div>
+                            </div>
                             {% if row_form.instance.id %}
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-full govuk-button-group" style="justify-content:flex-end; margin-bottom:0;">
