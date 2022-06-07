@@ -678,7 +678,7 @@ class Case(VersionModel):
             return [
                 {
                     "text": "Report ready to be reviewed needs to be Yes",
-                    "url": "cases:edit-report-details",
+                    "url": "cases:edit-qa-process",
                 },
             ]
         elif self.status == "qa-in-progress":
