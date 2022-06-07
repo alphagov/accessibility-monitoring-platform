@@ -80,8 +80,11 @@ class S3ReadWriteReport:
     def retrieve_raw_html_from_s3_by_guid(self, guid: str) -> str:
         if S3Report.objects.filter(guid=guid).exists():
             s3file = S3Report.objects.get(guid=guid)
-            obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
-            return obj.get()["Body"].read().decode("utf-8")
+            try:
+                obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
+                return obj.get()["Body"].read().decode("utf-8")
+            except self.s3_client.exceptions.NoSuchKey:
+                return NO_REPORT_HTML
         return NO_REPORT_HTML
 
     def url_builder(
