@@ -7,8 +7,8 @@ from django.urls import reverse
 
 
 def test_login_required(client):
-    url = reverse("contact-admin")
+    url = reverse("common:contact-admin")
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 302
-    assert response.url == f"/accounts/login/?next={url}"
+    assert response.url == f"/accounts/login/?next={url}"  # type: ignore

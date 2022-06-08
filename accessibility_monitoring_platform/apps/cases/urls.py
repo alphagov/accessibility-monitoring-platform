@@ -1,5 +1,5 @@
 """
-URLS for dashboard
+URLS for cases
 """
 from typing import List
 
