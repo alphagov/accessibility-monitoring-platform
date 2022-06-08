@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Comments ({{unread_notifications}}){% endblock %}
+{% load l10n %}
+
+{% block title %}Comments ({{ unread_notifications }}){% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -10,7 +12,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Comments ({{unread_notifications}})
+                Comments ({{ unread_notifications }})
             </li>
         </ol>
     </div>
@@ -27,50 +29,72 @@
                 {{ message }}
             </div>
         {% endfor %}
-        {% if notifications|length == 0 %}
-            <p class="govuk-body"> You have no unread comments </p>
-        {% else %}
-            {% include "common/pagination_controls.html" %}
-            <table class="govuk-table case-dashboard">
-                <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
-                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Page</th>
-                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Description</th>
-                        <th scope="col" class="govuk-table__header amp-width-one-quarter">Mark as seen</th>
-                    </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                    {% for notification in notifications %}
-                        <tr class="govuk-table__row ">
-                            <th scope="row" class="govuk-table__header amp-width-one-quarter">
-                                {% if notification.read %}
-                                    {{notification.created_date|date:"d/m/Y"}}
-                                {% else %}
-                                    <strong class="govuk-tag govuk-tag--red">
-                                        {{notification.created_date|date:"d/m/Y"}}
-                                    </strong>
-                                {% endif %}
-                            </th>
-                            <td class="govuk-table__cell amp-width-one-quarter">
-                                <a href="{{notification.path}}" class="govuk-link"> {{notification.list_description}} </a>
-                            </td>
-                            <td class="govuk-table__cell amp-width-one-quarter"> {{notification.body}} </td>
-                            {% if notification.read %}
-                                <td class="govuk-table__cell amp-width-one-quarter">
-                                    <a href="{% url 'notifications:unhide-notification' notification.id %}" class="govuk-link"> Mark as unseen </a>
-                                </td>
-                            {% else %}
-                                <td class="govuk-table__cell amp-width-one-quarter">
-                                    <a href="{% url 'notifications:hide-notification' notification.id %}" class="govuk-link"> Mark as seen </a>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% include "common/pagination_controls.html" %}
-        {% endif %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                <p class="govuk-body">
+                    Viewing {{ notifications|length|localize }}
+                    {% if showing == 'all' %}{% else %}unread{% endif %}
+                    comments
+                </p>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                    <a
+                        href="?showing={% if showing == 'all' %}unread{% else %}all{% endif %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary float-right"
+                        data-module="govuk-button"
+                    >
+                        View {% if showing == 'all' %}unread{% else %}all{% endif %} comments
+                    </a>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% if notifications|length == 0 %}
+                    <p class="govuk-body"> You have no unread comments </p>
+                {% else %}
+                    <table class="govuk-table case-dashboard">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Page</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Description</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-quarter">Mark as seen</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            {% for notification in notifications %}
+                                <tr class="govuk-table__row ">
+                                    <th scope="row" class="govuk-table__header amp-width-one-quarter">
+                                        {% if notification.read %}
+                                            {{notification.created_date|date:"d/m/Y"}}
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--red">
+                                                {{notification.created_date|date:"d/m/Y"}}
+                                            </strong>
+                                        {% endif %}
+                                    </th>
+                                    <td class="govuk-table__cell amp-width-one-quarter">
+                                        <a href="{{notification.path}}" class="govuk-link"> {{notification.list_description}} </a>
+                                    </td>
+                                    <td class="govuk-table__cell amp-width-one-quarter"> {{notification.body}} </td>
+                                    {% if notification.read %}
+                                        <td class="govuk-table__cell amp-width-one-quarter">
+                                            <a href="{% url 'notifications:unhide-notification' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as unseen </a>
+                                        </td>
+                                    {% else %}
+                                        <td class="govuk-table__cell amp-width-one-quarter">
+                                            <a href="{% url 'notifications:hide-notification' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as seen </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
     </main>
 </div>
 

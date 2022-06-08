@@ -58,7 +58,9 @@ def test_hide_notification():
     )
     assert response.status_code == 200
 
-    response: HttpResponse = client.get(reverse("notifications:notifications-list"))
+    response: HttpResponse = client.get(
+        f'{reverse("notifications:notifications-list")}?showing=all'
+    )
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is True  # type: ignore
     assertContains(response, "(0)")
@@ -93,7 +95,9 @@ def test_unhide_notification():
     )
     assert response.status_code == 200
 
-    response: HttpResponse = client.get(reverse("notifications:notifications-list"))
+    response: HttpResponse = client.get(
+        f'{reverse("notifications:notifications-list")}?showing=all'
+    )
     assert response.status_code == 200
     assert Notifications.objects.get(id=notification.id).read is True  # type: ignore
     assertContains(response, "(0)")

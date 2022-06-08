@@ -17,15 +17,18 @@ class NotificationsView(ListView):
     model = Notifications
     template_name: str = "notifications/view_notifications.html"
     context_object_name: str = "notifications"
-    paginate_by: int = 10
 
     def get_queryset(self) -> QuerySet[Notifications]:
-        """Get undeleted reminders for logged in user"""
-        return Notifications.objects.filter(user=self.request.user)
+        """Get reminders for logged in user"""
+        notifications: QuerySet[Notifications] = Notifications.objects.filter(user=self.request.user)
+        if self.request.GET.get("showing", "unread") == "unread":
+            return notifications.filter(read=False)
+        return notifications
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         notifications: QuerySet[Notifications] = self.get_queryset()
+        context["showing"] = self.request.GET.get("showing", "unread")
         context["unread_notifications"] = len(notifications.filter(read=False))
         return context
 
@@ -49,7 +52,10 @@ class HideNotificationView(ListView):
         else:
             messages.error(request, "An error occured")
 
-        return HttpResponseRedirect(reverse_lazy("notifications:notifications-list"))
+        showing_flag: str = self.request.GET.get("showing", "unread")
+        return HttpResponseRedirect(
+            f'{reverse_lazy("notifications:notifications-list")}?showing={showing_flag}'
+        )
 
 
 class UnhideNotificationView(ListView):
@@ -71,4 +77,7 @@ class UnhideNotificationView(ListView):
         else:
             messages.error(request, "An error occured")
 
-        return HttpResponseRedirect(reverse_lazy("notifications:notifications-list"))
+        showing_flag: str = self.request.GET.get("showing", "unread")
+        return HttpResponseRedirect(
+            f'{reverse_lazy("notifications:notifications-list")}?showing={showing_flag}'
+        )
