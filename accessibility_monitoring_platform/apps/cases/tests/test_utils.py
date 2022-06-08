@@ -21,15 +21,13 @@ ORGANISATION_NAME: str = "Organisation name one"
 
 CONTACTS = [
     Contact(
-        first_name="First 1",
-        last_name="Last 1",
+        name="Name 1",
         job_title="Job title 1",
         email="email1",
         notes="notes1",
     ),
     Contact(
-        first_name="First 2",
-        last_name="Last 2",
+        name="Name 2",
         job_title="Job title 2",
         email="email2",
         notes="notes2",
@@ -126,7 +124,7 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     [
         (
             ColumnAndFieldNames(column_name="Contact name", field_name=None),
-            "First 1 Last 1\nFirst 2 Last 2",
+            "Name 1\nName 2",
         ),
         (
             ColumnAndFieldNames(column_name="Job title", field_name=None),

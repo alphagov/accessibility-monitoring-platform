@@ -850,8 +850,7 @@ class Contact(models.Model):
     """
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
-    first_name = models.CharField(max_length=200, default="", blank=True)
-    last_name = models.CharField(max_length=200, default="", blank=True)
+    name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     email = models.CharField(max_length=200, default="", blank=True)
     preferred = models.CharField(
@@ -864,10 +863,6 @@ class Contact(models.Model):
 
     class Meta:
         ordering = ["-preferred", "-id"]
-
-    @property
-    def name(self) -> str:
-        return f"{self.first_name} {self.last_name}"
 
     def __str__(self) -> str:
         return str(f"Contact {self.name} {self.email}")
