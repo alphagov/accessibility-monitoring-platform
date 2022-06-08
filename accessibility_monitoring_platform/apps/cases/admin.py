@@ -19,13 +19,12 @@ class ContactAdmin(admin.ModelAdmin):
     """Django admin configuration for Contact model"""
 
     search_fields = [
-        "first_name",
-        "last_name",
+        "name",
         "job_title",
         "email",
         "case__organisation_name",
     ]
-    list_display = ["email", "first_name", "last_name", "job_title", "case"]
+    list_display = ["email", "name", "job_title", "case"]
     autocomplete_fields = ["case"]
 
 

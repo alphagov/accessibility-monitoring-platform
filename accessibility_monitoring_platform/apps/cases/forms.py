@@ -306,8 +306,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     Form for updating a contact
     """
 
-    first_name = AMPCharFieldWide(label="First name")
-    last_name = AMPCharFieldWide(label="Last name")
+    name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
     preferred = AMPChoiceRadioField(
@@ -318,8 +317,7 @@ class CaseContactUpdateForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            "first_name",
-            "last_name",
+            "name",
             "job_title",
             "email",
             "preferred",

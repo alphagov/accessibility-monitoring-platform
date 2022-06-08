@@ -31,8 +31,7 @@ CASE_DETAILS_NOTES = """I am
 a multiline
 case details note, I am"""
 
-CONTACT_FIRST_NAME = "Contact first name"
-CONTACT_LAST_NAME = "Contact last name"
+CONTACT_NAME = "Contact first name Contact last name"
 CONTACT_JOB_TITLE = "Contact title"
 EMAIL = "contact_email@example.com"
 CONTACT_NOTES = """I am
@@ -368,11 +367,8 @@ class TestCaseUpdates(TestCase):
         self.assertTrue(">Contact details</h1>" in self.driver.page_source)
         self.driver.find_element_by_xpath('//input[@value="Create contact"]').click()
 
-        self.driver.find_element_by_name("form-0-first_name").send_keys(
-            CONTACT_FIRST_NAME
-        )
-        self.driver.find_element_by_name("form-0-last_name").send_keys(
-            CONTACT_LAST_NAME
+        self.driver.find_element_by_name("form-0-name").send_keys(
+            CONTACT_NAME
         )
         self.driver.find_element_by_name("form-0-job_title").send_keys(
             CONTACT_JOB_TITLE
@@ -386,8 +382,7 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue(CONTACT_FIRST_NAME in self.driver.page_source)
-        self.assertTrue(CONTACT_LAST_NAME in self.driver.page_source)
+        self.assertTrue(CONTACT_NAME in self.driver.page_source)
         self.assertTrue(CONTACT_JOB_TITLE in self.driver.page_source)
         self.assertTrue(EMAIL in self.driver.page_source)
         self.assertTrue(CONTACT_NOTES in self.driver.page_source)
