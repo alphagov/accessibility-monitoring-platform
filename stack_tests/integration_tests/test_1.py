@@ -367,9 +367,7 @@ class TestCaseUpdates(TestCase):
         self.assertTrue(">Contact details</h1>" in self.driver.page_source)
         self.driver.find_element_by_xpath('//input[@value="Create contact"]').click()
 
-        self.driver.find_element_by_name("form-0-name").send_keys(
-            CONTACT_NAME
-        )
+        self.driver.find_element_by_name("form-0-name").send_keys(CONTACT_NAME)
         self.driver.find_element_by_name("form-0-job_title").send_keys(
             CONTACT_JOB_TITLE
         )

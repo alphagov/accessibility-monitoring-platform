@@ -183,9 +183,7 @@ def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str
     and return as a single string.
     """
     if column.column_name == CONTACT_NAME_COLUMN_NAME:
-        return "\n".join(
-            [contact.name for contact in contacts]
-        )
+        return "\n".join([contact.name for contact in contacts])
     elif column.column_name == JOB_TITLE_COLUMN_NAME:
         return "\n".join([contact.job_title for contact in contacts])
     elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:

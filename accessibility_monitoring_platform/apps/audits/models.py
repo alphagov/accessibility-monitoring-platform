@@ -415,7 +415,9 @@ class Audit(VersionModel):
     audit_retest_accessibility_statement_backup_url = models.TextField(
         default="", blank=True
     )
-    audit_retest_accessibility_statement_backup_url_date = models.DateField(null=True, blank=True)
+    audit_retest_accessibility_statement_backup_url_date = models.DateField(
+        null=True, blank=True
+    )
     audit_retest_declaration_state = models.CharField(
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,
@@ -511,16 +513,28 @@ class Audit(VersionModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__original_accessibility_statement_backup_url = self.accessibility_statement_backup_url
-        self.__original_audit_retest_accessibility_statement_backup_url = self.audit_retest_accessibility_statement_backup_url
+        self.__original_accessibility_statement_backup_url = (
+            self.accessibility_statement_backup_url
+        )
+        self.__original_audit_retest_accessibility_statement_backup_url = (
+            self.audit_retest_accessibility_statement_backup_url
+        )
 
     def save(self, *args, **kwargs) -> None:
-        if self.accessibility_statement_backup_url != self.__original_accessibility_statement_backup_url:
+        if (
+            self.accessibility_statement_backup_url
+            != self.__original_accessibility_statement_backup_url
+        ):
             self.accessibility_statement_backup_url_date = timezone.now()
-        if self.audit_retest_accessibility_statement_backup_url != self.__original_audit_retest_accessibility_statement_backup_url:
+        if (
+            self.audit_retest_accessibility_statement_backup_url
+            != self.__original_audit_retest_accessibility_statement_backup_url
+        ):
             self.audit_retest_accessibility_statement_backup_url_date = timezone.now()
         super().save(*args, **kwargs)
-        self.__original_accessibility_statement_backup_url = self.accessibility_statement_backup_url
+        self.__original_accessibility_statement_backup_url = (
+            self.accessibility_statement_backup_url
+        )
 
     @property
     def report_accessibility_issues(self) -> List[str]:

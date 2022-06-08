@@ -3,9 +3,7 @@
 from django.db import migrations
 
 
-def populate_contact_name(
-    apps, schema_editor
-):  # pylint: disable=unused-argument
+def populate_contact_name(apps, schema_editor):  # pylint: disable=unused-argument
     Contact = apps.get_model("cases", "Contact")
     for contact in Contact.objects.all():
         contact.name = f"{contact.first_name} {contact.last_name}"
@@ -23,7 +21,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            populate_contact_name, reverse_code=reverse_code
-        ),
+        migrations.RunPython(populate_contact_name, reverse_code=reverse_code),
     ]

@@ -2278,4 +2278,5 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
                 case > report details
             </a>
         </p>""",
-        html=True)
+        html=True,
+    )
