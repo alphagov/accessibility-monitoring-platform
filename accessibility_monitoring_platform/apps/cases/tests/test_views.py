@@ -96,34 +96,6 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     assertNotContains(response, "Deleted Contact")
 
 
-def test_case_list_view_leaves_out_deleted_case(admin_client):
-    """Test that the case list view page does not include deleted cases"""
-    Case.objects.create(organisation_name="Not Deleted")
-    Case.objects.create(organisation_name="Is Deleted", is_deleted=True)
-
-    response: HttpResponse = admin_client.get(reverse("cases:case-list"))
-
-    assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
-    assertContains(response, "Not Deleted")
-    assertNotContains(response, "Is Deleted")
-
-
-def test_case_list_view_filtering_by_deleted_includes_deleted_contact(admin_client):
-    """Test that deleted Cases are included in context when filtering by status 'deleted'"""
-    Case.objects.create(organisation_name="Not Deleted")
-    Case.objects.create(organisation_name="Is Deleted", is_deleted=True)
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("cases:case-list")}?status=deleted'
-    )
-
-    assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
-    assertContains(response, "Is Deleted")
-    assertNotContains(response, "Not Deleted")
-
-
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
@@ -322,44 +294,6 @@ def test_case_export_single_view(admin_client):
 
     assert response.status_code == 200
     assertContains(response, case_fields_to_export_str)
-
-
-def test_delete_case_view(admin_client):
-    """Test that delete case view deletes case"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:delete-case", kwargs={"pk": case.id}),  # type: ignore
-        {
-            "version": case.version,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("cases:case-list")  # type: ignore
-
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
-
-    assert case_from_db.is_deleted
-
-
-def test_restore_case_view(admin_client):
-    """Test that restore case view restores case"""
-    case: Case = Case.objects.create(is_deleted=True)
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:restore-case", kwargs={"pk": case.id}),  # type: ignore
-        {
-            "version": case.version,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs={"pk": case.id})  # type: ignore
-
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
-
-    assert case_from_db.is_deleted is False
 
 
 def test_suspend_case_view(admin_client):
@@ -1842,23 +1776,6 @@ def test_create_case_also_creates_event(admin_client):
     event: Event = Event.objects.get(content_type=content_type, object_id=case.id)  # type: ignore
 
     assert event.type == EVENT_TYPE_MODEL_CREATE
-
-
-def test_delete_case_creates_update_event(admin_client):
-    """Test that delete case also creates update event"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:delete-case", kwargs={"pk": case.id}),  # type: ignore
-        {"version": 1},
-    )
-
-    assert response.status_code == 302
-
-    content_type: ContentType = ContentType.objects.get_for_model(Case)
-    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)  # type: ignore
-
-    assert event.type == EVENT_TYPE_MODEL_UPDATE
 
 
 def test_updating_case_create_event(admin_client):

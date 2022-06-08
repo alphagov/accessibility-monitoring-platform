@@ -23,10 +23,6 @@
                         <strong class="govuk-tag" style="position: relative; top: -5px;">
                             completed
                         </strong>
-                    {% elif case.is_deleted %}
-                        <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
-                            deleted
-                        </strong>
                     {% endif %}
                 </div>
             </div>
@@ -60,27 +56,6 @@
                             data-module="govuk-button"
                         >
                             Suspend case
-                        </a>
-                    {% endif %}
-                    {% if case.is_deleted %}
-                        <a
-                            href="{% url 'cases:restore-case' case.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--warning"
-                            data-module="govuk-button"
-                        >
-                            Restore
-                        </a>
-                    {% else %}
-                        <a
-                            href="{% url 'cases:delete-case' case.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        >
-                            Delete case
                         </a>
                     {% endif %}
                 </div>

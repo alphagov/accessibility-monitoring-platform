@@ -131,13 +131,6 @@ TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_DD = "24"
 TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_MM = "7"
 TWELVE_WEEK_4_WEEK_CHASER_DUE_DATE_YYYY = "2021"
 
-DELETE_NOTES = """I am
-a multiline
-deletion note, I am"""
-
-ORGANISATION_NAME_TO_DELETE = "Example Organisation to Delete"
-HOME_PAGE_URL_TO_DELETE = "https://example-to-delete.com"
-
 TEST_ORGANISATION_NAME = "Test Organisation"
 TEST_HOME_PAGE_URL = "https://example-test.com"
 DATE_OF_TEST_DD = "31"
@@ -909,70 +902,6 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_name("save_continue").click()
 
         self.assertTrue(">Closing the case</h1>" in self.driver.page_source)
-
-
-class TestCaseDelete(TestCase):
-    """
-    Test case for integration tests of case deletion
-
-    Methods
-    -------
-    setUp()
-        Create case to delete
-    test_delete_case()
-        Tests whether case can be deleted
-    test_restore_deleted_case()
-        Tests whether deleted case can be restored
-    """
-
-    def setUp(self):
-        """Create case to update"""
-        super().setUp()
-        self.driver.find_element_by_link_text("Create case").click()
-        self.driver.find_element_by_name("organisation_name").send_keys(
-            ORGANISATION_NAME_TO_DELETE
-        )
-        self.driver.find_element_by_name("home_page_url").send_keys(
-            HOME_PAGE_URL_TO_DELETE
-        )
-        self.driver.find_element_by_css_selector(
-            f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
-        ).click()
-        self.driver.find_element_by_name("save_exit").click()
-
-    def test_delete_case(self):
-        """Tests whether case can be deleted"""
-        self.driver.find_element_by_link_text(ORGANISATION_NAME_TO_DELETE).click()
-        self.driver.find_element_by_link_text("Delete case").click()
-        self.assertTrue(">Delete case</h1>" in self.driver.page_source)
-
-        self.driver.find_element_by_css_selector("#id_delete_reason_0").click()
-        self.driver.find_element_by_name("delete_notes").send_keys(DELETE_NOTES)
-
-        self.driver.find_element_by_name("delete").click()
-
-        self.assertTrue(">Search</h1>" in self.driver.page_source)
-        self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
-
-    def test_restore_deleted_case(self):
-        """Tests whether deleted case can be restored"""
-        self.driver.find_element_by_link_text("Search").click()
-        self.assertFalse(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
-
-        select = Select(self.driver.find_element_by_id("id_status"))
-        select.select_by_visible_text("Deleted")
-        self.driver.find_element_by_css_selector("input[type='submit']").click()
-
-        self.assertTrue(ORGANISATION_NAME_TO_DELETE in self.driver.page_source)
-        self.driver.find_element_by_link_text(ORGANISATION_NAME_TO_DELETE).click()
-
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("deleted" in self.driver.page_source)
-
-        self.driver.find_element_by_link_text("Restore").click()
-
-        self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertFalse("deleted" in self.driver.page_source)
 
 
 class TestCaseStartTest(TestCase):

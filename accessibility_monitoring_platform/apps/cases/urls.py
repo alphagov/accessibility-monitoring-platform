@@ -20,7 +20,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseQAProcessUpdateView,
     CaseReportCorrespondenceUpdateView,
     CaseReportFollowupDueDatesUpdateView,
-    CaseDeleteUpdateView,
     CaseNoPSBResponseUpdateView,
     CaseTwelveWeekCorrespondenceUpdateView,
     CaseTwelveWeekCorrespondenceDueDatesUpdateView,
@@ -33,7 +32,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseEnforcementBodyCorrespondenceUpdateView,
     CaseSuspendUpdateView,
     CaseUnsuspendUpdateView,
-    restore_case,
 )
 
 app_name: str = "cases"
@@ -140,11 +138,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-post-case",
     ),
     path(
-        "<int:pk>/delete-case/",
-        login_required(CaseDeleteUpdateView.as_view()),
-        name="delete-case",
-    ),
-    path(
         "<int:pk>/suspend-case/",
         login_required(CaseSuspendUpdateView.as_view()),
         name="suspend-case",
@@ -153,10 +146,5 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/unsuspend-case/",
         login_required(CaseUnsuspendUpdateView.as_view()),
         name="unsuspend-case",
-    ),
-    path(
-        "<int:pk>/restore-case/",
-        login_required(restore_case),
-        name="restore-case",
     ),
 ]
