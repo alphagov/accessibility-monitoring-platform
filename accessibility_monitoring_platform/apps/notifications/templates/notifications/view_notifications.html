@@ -81,11 +81,11 @@
                                     <td class="govuk-table__cell amp-width-one-quarter"> {{notification.body}} </td>
                                     {% if notification.read %}
                                         <td class="govuk-table__cell amp-width-one-quarter">
-                                            <a href="{% url 'notifications:unhide-notification' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as unseen </a>
+                                            <a href="{% url 'notifications:mark-notification-unread' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as unseen </a>
                                         </td>
                                     {% else %}
                                         <td class="govuk-table__cell amp-width-one-quarter">
-                                            <a href="{% url 'notifications:hide-notification' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as seen </a>
+                                            <a href="{% url 'notifications:mark-notification-read' notification.id %}?showing={{ showing }}" class="govuk-link"> Mark as seen </a>
                                         </td>
                                     {% endif %}
                                 </tr>

@@ -20,7 +20,9 @@ class NotificationsView(ListView):
 
     def get_queryset(self) -> QuerySet[Notifications]:
         """Get reminders for logged in user"""
-        notifications: QuerySet[Notifications] = Notifications.objects.filter(user=self.request.user)
+        notifications: QuerySet[Notifications] = Notifications.objects.filter(
+            user=self.request.user
+        )
         if self.request.GET.get("showing", "unread") == "unread":
             return notifications.filter(read=False)
         return notifications
@@ -33,21 +35,21 @@ class NotificationsView(ListView):
         return context
 
 
-class HideNotificationView(ListView):
+class NotificationMarkAsReadView(ListView):
     """
-    Hides notification
+    Mark notification as read
     """
 
     model = Notifications
 
     def get(self, request, pk):
         """Hides a notification"""
-        notifications: Notifications = Notifications.objects.get(pk=pk)
+        notification: Notifications = Notifications.objects.get(pk=pk)
         if (
-            notifications.user.id == request.user.id
+            notification.user.id == request.user.id
         ):  # Checks whether the comment was posted by user
-            notifications.read = True
-            notifications.save()
+            notification.read = True
+            notification.save()
             messages.success(request, "Notification marked as seen")
         else:
             messages.error(request, "An error occured")
@@ -58,21 +60,21 @@ class HideNotificationView(ListView):
         )
 
 
-class UnhideNotificationView(ListView):
+class NotificationMarkAsUnreadView(ListView):
     """
-    Unhides notification
+    Marks notification as unread
     """
 
     model = Notifications
 
     def get(self, request, pk):
-        """Unhides a notification"""
-        notifications: Notifications = Notifications.objects.get(pk=pk)
+        """Marks a notification as unread"""
+        notification: Notifications = Notifications.objects.get(pk=pk)
         if (
-            notifications.user.id == request.user.id
+            notification.user.id == request.user.id
         ):  # Checks whether the comment was posted by user
-            notifications.read = False
-            notifications.save()
+            notification.read = False
+            notification.save()
             messages.success(request, "Notification marked as unseen")
         else:
             messages.error(request, "An error occured")
