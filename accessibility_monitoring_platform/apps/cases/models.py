@@ -91,6 +91,10 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "deleted",
         "Deleted",
     ),
+    (
+        "suspended",
+        "Suspended",
+    ),
 ]
 
 DEFAULT_TEST_TYPE: str = "simplified"
@@ -534,6 +538,9 @@ class Case(VersionModel):
         if self.status == "in-12-week-correspondence":
             if self.twelve_week_1_week_chaser_sent_date is None:
                 return self.twelve_week_1_week_chaser_due_date
+            return self.twelve_week_1_week_chaser_sent_date + timedelta(days=5)
+
+        return date(1970, 1, 1)
 
         return date(1970, 1, 1)
 
@@ -553,6 +560,8 @@ class Case(VersionModel):
     def set_status(self) -> str:  # noqa: C901
         if self.is_deleted:
             return "deleted"
+        elif self.is_suspended:
+            return "suspended"
         elif (
             self.case_completed == "complete-no-send"
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
@@ -671,7 +680,7 @@ class Case(VersionModel):
             return [
                 {
                     "text": "Report ready to be reviewed needs to be Yes",
-                    "url": "cases:edit-report-details",
+                    "url": "cases:edit-qa-process",
                 },
             ]
         elif self.status == "qa-in-progress":

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ audit.case.organisation_name }} | View 12-week retest{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | View 12-week test{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,7 +13,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                12-week retest
+                12-week test
             </li>
         </ol>
     </div>
@@ -21,7 +21,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View 12-week retest</h1>
+                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View 12-week test</h1>
                     {% if audit.is_deleted %}
                         <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
                             deleted
@@ -31,8 +31,8 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
-                    <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                        View case
+                    <a href="{% url 'audits:audit-detail' audit.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        View test
                     </a>
                 </div>
             </div>

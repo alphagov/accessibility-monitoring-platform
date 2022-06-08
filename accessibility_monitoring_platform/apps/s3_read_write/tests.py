@@ -4,7 +4,7 @@ from moto import mock_s3
 from datetime import datetime
 from django.contrib.auth.models import User
 from ..cases.models import Case
-from .utils import S3ReadWriteReport
+from .utils import S3ReadWriteReport, NO_REPORT_HTML
 from .models import S3Report
 from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 
@@ -85,3 +85,33 @@ def test_url_builder():
         report_version="v1_20220406",
         guid=guid,
     )
+
+
+@pytest.mark.django_db
+@mock_s3
+def test_s3_no_such_key():
+    s3rw: S3ReadWriteReport = S3ReadWriteReport()
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        created=datetime.now().tzinfo,
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+    )
+    raw_html: str = f"""
+        <div>
+            <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
+            <p class="govuk-body-l">Case id {case.id}.</p>
+            <p class="govuk-body-l">datetime: {datetime.now()}.</p>
+        </div>
+    """
+    s3rw.upload_string_to_s3_as_html(
+        html_content=raw_html, case=case, user=user, report_version="v1_20220406"
+    )
+
+    s3_report: S3Report = S3Report.objects.get(case=case)
+    s3_report.s3_directory = "not-a-valid-dir"
+    s3_report.save()
+    guid: str = s3_report.guid
+    res: str = s3rw.retrieve_raw_html_from_s3_by_guid(guid)
+
+    assert res == NO_REPORT_HTML

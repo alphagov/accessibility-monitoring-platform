@@ -6,43 +6,58 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Report viewer editor
-            </li>
-        </ol>
-    </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    {% include 'common/settings/breadcrumbs.html' with current='Report viewer editor' %}
+    <main id="main-content" class="govuk-main-wrapper">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='reports:edit-report-wrapper' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl" style="margin-bottom:15px">Report viewer editor</h1>
                 <p class="govuk-body-m">
                     The report viewer editor changes the dynamic content in the report.
                     Do not change without approval from a senior auditor.
                 </p>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'reports:edit-report-wrapper' %}">
-                    {% csrf_token %}
+                {% if user.is_staff %}
+                    {% include 'common/error_summary.html' %}
+                    <form method="post" action="{% url 'reports:edit-report-wrapper' %}">
+                        {% csrf_token %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                {% include 'common/amp_form_snippet.html' %}
+                            </div>
+                            <div class="govuk-grid-column-full govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Save"
+                                    name="save"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <a
+                                    href="{% url 'dashboard:home' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Cancel and return to dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_form_snippet.html' %}
+                            <div class="govuk-warning-text">
+                                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                                <strong class="govuk-warning-text__text">
+                                    <span class="govuk-warning-text__assistive">Warning</span>
+                                    Admin access is required to edit the report viewer.
+                                    Request access from an existing admin.
+                                </strong>
+                            </div>
                         </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Save"
-                                name="save"
-                                class="govuk-button"
-                                data-module="govuk-button"
-                            />
                             <a
                                 href="{% url 'dashboard:home' %}"
                                 class="govuk-link govuk-link--no-visited-state"
@@ -51,7 +66,7 @@
                             </a>
                         </div>
                     </div>
-                </form>
+                {% endif %}
             </div>
         </div>
     </main>

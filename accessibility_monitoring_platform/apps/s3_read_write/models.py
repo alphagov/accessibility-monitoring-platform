@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from ..cases.models import Case
 from ..common.utils import format_date
 
-REPORT_VIEWER_URL_PATH: str = "/report/"
+REPORT_VIEWER_URL_PATH: str = "/reports/"
 
 
 class S3Report(models.Model):
@@ -26,6 +26,7 @@ class S3Report(models.Model):
     visible = models.BooleanField(default=True)
     deprecated = models.BooleanField(default=False)
     guid = models.CharField(max_length=40, blank=True)
+    html = models.TextField(default="", blank=True)
 
     def __str__(self) -> str:
         return f"v{self.version} - {self.created:%-I:%M%p} {format_date(self.created)}".lower()

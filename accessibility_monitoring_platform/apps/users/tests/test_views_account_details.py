@@ -15,7 +15,6 @@ from ...notifications.models import NotificationsSettings
 
 
 class FormRequestAccountDetails(TypedDict):
-    active_qa_auditor: int
     email_notifications_enabled: str
     first_name: str
     last_name: str
@@ -77,7 +76,6 @@ class UserViewTests(TestCase):
         self.client.login(username="joe_blogs", password="12345")
 
         data: Dict[str, str] = {
-            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
@@ -94,7 +92,6 @@ class UserViewTests(TestCase):
         messages: List[str] = [str(x) for x in list(response.context["messages"])]
         self.assertEqual(messages[0], "Successfully saved details!")
         platform: Platform = get_platform_settings()
-        self.assertTrue(platform.active_qa_auditor == user)
 
     def test_account_details_post_errors_appear(self):
         """Tests if error message appears if there is a mistake in the form"""
@@ -105,7 +102,6 @@ class UserViewTests(TestCase):
         self.client.login(username="joe_blogs", password="12345")
 
         data: Dict[str, str] = {
-            "active_qa_auditor": user.id,  # type: ignore
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",

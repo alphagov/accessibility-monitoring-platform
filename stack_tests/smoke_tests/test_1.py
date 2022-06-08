@@ -169,7 +169,7 @@ class TestAccountDetails(SeleniumTest):
         """Tests whether user can login"""
         self.login()
         # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
-        self.driver.find_element_by_link_text("Account details").click()
+        self.driver.find_element_by_link_text("Settings").click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Account details</h1>"""
             in self.driver.page_source,

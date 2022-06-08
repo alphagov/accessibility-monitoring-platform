@@ -231,6 +231,11 @@ def test_next_action_due_date_for_in_12_week_correspondence():
 
     assert case.next_action_due_date == twelve_week_1_week_chaser_due_date
 
+    twelve_week_1_week_chaser_sent_date: date = date(2020, 1, 1)
+    case.twelve_week_1_week_chaser_sent_date = twelve_week_1_week_chaser_sent_date
+
+    assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(days=5)
+
 
 @pytest.mark.parametrize(
     "status",

@@ -69,6 +69,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "axes",
+]
+
+AUTHENTICATION_BACKENDS = [
+    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    "axes.backends.AxesBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 MIDDLEWARE = [
@@ -80,6 +87,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "accessibility_monitoring_platform.urls"
@@ -173,3 +182,12 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DATE_FORMAT = "d/m/Y"
 
 MARKDOWN_EXTENSIONS = []
+
+# django-axes
+AXES_ONLY_USER_FAILURES = True  # Block only on username
+
+if UNDER_TEST:
+    #  django-axes is incompatible with the platform test environment
+    INSTALLED_APPS.remove("axes")
+    AUTHENTICATION_BACKENDS.remove("axes.backends.AxesBackend")
+    MIDDLEWARE.remove("axes.middleware.AxesMiddleware")

@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
@@ -54,7 +53,6 @@ from .forms import (
     CaseQAProcessUpdateForm,
     CaseReportCorrespondenceUpdateForm,
     CaseReportFollowupDueDatesUpdateForm,
-    CaseDeleteForm,
     CaseNoPSBContactUpdateForm,
     CaseTwelveWeekCorrespondenceUpdateForm,
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
@@ -113,13 +111,9 @@ def calculate_twelve_week_chaser_dates(
     """Calculate chaser dates based on a twelve week update requested date"""
     if twelve_week_update_requested_date is None:
         case.twelve_week_1_week_chaser_due_date = None
-        case.twelve_week_4_week_chaser_due_date = None
     else:
         case.twelve_week_1_week_chaser_due_date = (
             twelve_week_update_requested_date + timedelta(days=ONE_WEEK_IN_DAYS)
-        )
-        case.twelve_week_4_week_chaser_due_date = (
-            twelve_week_update_requested_date + timedelta(days=FOUR_WEEKS_IN_DAYS)
         )
     return case
 
@@ -781,27 +775,6 @@ class PostCaseUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseDeleteUpdateView(CaseUpdateView):
-    """
-    View to delete case
-    """
-
-    form_class: Type[CaseDeleteForm] = CaseDeleteForm
-    template_name: str = "cases/forms/delete.html"
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        case: Case = form.save(commit=False)
-        case.is_deleted = True
-        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
-        case.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Work out url to redirect to on success"""
-        return reverse("cases:case-list")
-
-
 class CaseSuspendUpdateView(CaseUpdateView):
     """
     View to suspend case
@@ -891,23 +864,3 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
     return download_ehrc_cases(cases=filter_cases(form=case_search_form))
-
-
-def restore_case(
-    request: HttpRequest, pk: int  # pylint: disable=unused-argument
-) -> HttpResponse:
-    """
-    Restore deleted case
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk (int): Id of case to restore
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    case: Case = get_object_or_404(Case, id=pk)
-    case.is_deleted = False
-    record_model_update_event(user=request.user, model_object=case)  # type: ignore
-    case.save()
-    return redirect(reverse("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore

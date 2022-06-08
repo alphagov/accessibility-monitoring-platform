@@ -8,7 +8,7 @@ from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import IssueReport
+from .models import IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -56,7 +56,7 @@ class AMPChoiceCheckboxWidget(AMPBooleanCheckboxWidget):
             context["widget"]["attrs"]["checked"] = False
         return context
 
-    def value_from_datadict(self, data, files, name):
+    def value_from_datadict(self, data, files, name):  # pylint: disable=unused-argument
         """If checkbox is ticked, return 'yes' otherwise return 'no'"""
         if name not in data:
             # A missing value means False because HTML form submission does not
@@ -137,7 +137,7 @@ class AMPDateWidget(forms.MultiWidget):
             return ""
         if day == "" and month == "" and year == "":
             return ""
-        return "{}-{}-{}".format(year, month, day)
+        return f"{year}-{month}-{day}"
 
 
 class AMPCharField(forms.CharField):
@@ -389,3 +389,17 @@ class AMPTopMenuForm(forms.Form):
             }
         )
     )
+
+
+class ActiveQAAuditorUpdateForm(forms.ModelForm):
+    """
+    Form for updating the active QA auditor platform setting
+    """
+
+    active_qa_auditor = AMPQAAuditorModelChoiceField(label="Active QA auditor")
+
+    class Meta:
+        model = Platform
+        fields = [
+            "active_qa_auditor",
+        ]

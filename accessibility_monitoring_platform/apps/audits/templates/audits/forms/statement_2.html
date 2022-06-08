@@ -35,21 +35,24 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'audits/helpers/accessibility_statement_link.html' %}
+                    {% include 'audits/helpers/accessibility_statement_link.html'  with twelve_week_test=0 %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.accessibility_statement_backup_url %}
-                            {% include 'common/amp_field_help_details.html' with field=form.disproportionate_burden_state help_details='audits/statement_examples/disproportionate_burden_state.html' %}
+                            {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
+                            {% if audit.accessibility_statement_backup_url_date %}
+                                <p class="govuk-body" style="margin-top: -20px;"> Added {{audit.accessibility_statement_backup_url_date}} </p>
+                            {% endif %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.disproportionate_burden_state help_details='audits/statement_examples/disproportionate_burden_state.html' %}
                             {% include 'common/amp_field.html' with field=form.disproportionate_burden_notes %}
-                            {% include 'common/amp_field_help_details.html' with field=form.content_not_in_scope_state help_details='audits/statement_examples/content_not_in_scope_state.html' %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.content_not_in_scope_state help_details='audits/statement_examples/content_not_in_scope_state.html' %}
                             {% include 'common/amp_field.html' with field=form.content_not_in_scope_notes %}
-                            {% include 'common/amp_field_help_details.html' with field=form.preparation_date_state help_details='audits/statement_examples/preparation_date_state.html' %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.preparation_date_state help_details='audits/statement_examples/preparation_date_state.html' %}
                             {% include 'common/amp_field.html' with field=form.preparation_date_notes %}
-                            {% include 'common/amp_field_help_details.html' with field=form.review_state help_details='audits/statement_examples/review_state.html' %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.review_state help_details='audits/statement_examples/review_state.html' %}
                             {% include 'common/amp_field.html' with field=form.review_notes %}
-                            {% include 'common/amp_field_help_details.html' with field=form.method_state help_details='audits/statement_examples/method_state.html' %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.method_state help_details='audits/statement_examples/method_state.html' %}
                             {% include 'common/amp_field.html' with field=form.method_notes %}
-                            {% include 'common/amp_field_help_details.html' with field=form.access_requirements_state help_details='audits/statement_examples/access_requirements_state.html' %}
+                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.access_requirements_state help_details='audits/statement_examples/access_requirements_state.html' %}
                             {% include 'common/amp_field.html' with field=form.access_requirements_notes %}
                             {% include 'common/amp_field.html' with field=form.audit_statement_2_complete_date %}
                         </div>

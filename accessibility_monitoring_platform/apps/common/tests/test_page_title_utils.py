@@ -1,5 +1,5 @@
 """
-Test - function to dervice page title from url path
+Test - function to derive page title from url path
 """
 import pytest
 
@@ -17,8 +17,8 @@ ORGANISATION_NAME: str = "Organisation name"
     [
         (reverse("cases:case-list"), "Search"),
         (reverse("cases:case-create"), "Create case"),
-        (reverse("contact-admin"), "Contact admin"),
-        (reverse("issue-report"), "Report an issue"),
+        (reverse("common:contact-admin"), "Contact admin"),
+        (reverse("common:issue-report"), "Report an issue"),
     ],
 )
 def test_page_title_returned(path, page_title):

@@ -17,10 +17,10 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week retest</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Accessibility statement Pt. 1
+                12-week accessibility statement Pt. 1
             </li>
         </ol>
     </div>
@@ -37,10 +37,13 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'audits/helpers/accessibility_statement_link.html' %}
+                    {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                            {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                            {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                                <p class="govuk-body" style="margin-top: -20px;"> Added {{audit.audit_retest_accessibility_statement_backup_url_date}} </p>
+                            {% endif %}
                             {% include 'audits/helpers/retest_statement_field_info.html' with name='Scope' example='audits/statement_examples/scope_state.html' decision=audit.get_scope_state_display notes=audit.scope_notes %}
                             {% include 'common/amp_field.html' with field=form.audit_retest_scope_state %}
                             {% include 'common/amp_field.html' with field=form.audit_retest_scope_notes %}
