@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Notifications(models.Model):
+class Notification(models.Model):
     """Django model for notifications"""
 
     user = models.ForeignKey(
@@ -29,7 +29,7 @@ class Notifications(models.Model):
         return f"Notification {self.body} for {self.user}"
 
 
-class NotificationsSettings(models.Model):
+class NotificationSetting(models.Model):
     """Django model for notifications settings"""
 
     user = models.OneToOneField(

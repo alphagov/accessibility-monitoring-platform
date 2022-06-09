@@ -1,9 +1,8 @@
 """Template tag for notifications"""
-from typing import Any
 from django import template
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ..models import Notifications
+from ..models import Notification
 
 register = template.Library()
 
@@ -21,7 +20,7 @@ def notifications_count(request: HttpRequest) -> int:
     int
         Number of notifications
     """
-    count: QuerySet[Notifications] = Notifications.objects.filter(
+    count: QuerySet[Notification] = Notification.objects.filter(
         user=request.user,
         read=False,
     )
@@ -42,7 +41,7 @@ def read_notification(request: HttpRequest) -> str:
     str
         Returns empty string to avoid outputting to html template
     """
-    notifications: QuerySet[Notifications] = Notifications.objects.filter(
+    notifications: QuerySet[Notification] = Notification.objects.filter(
         user=request.user, path=request.path, read=False
     )
     for notification in notifications:

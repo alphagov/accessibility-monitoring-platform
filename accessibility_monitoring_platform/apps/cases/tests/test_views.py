@@ -14,7 +14,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ...notifications.models import Notifications
+from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
@@ -1597,7 +1597,7 @@ def test_qa_process_approval_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    notification: Optional[Notifications] = Notifications.objects.filter(
+    notification: Optional[Notification] = Notification.objects.filter(
         user=user
     ).first()
 

@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template.loader import get_template
 
-from .models import Notifications, NotificationsSettings
+from .models import Notification, NotificationSetting
 
 
 class EmailContextType(TypedDict):
@@ -20,7 +20,7 @@ class EmailContextType(TypedDict):
 
 def add_notification(
     user: User, body: str, path: str, list_description: str, request: HttpRequest
-) -> Notifications:
+) -> Notification:
     """Adds notification to DB. Also handles email notifications.
 
     Parameters
@@ -41,14 +41,14 @@ def add_notification(
     Notifications
         Notifications model
     """
-    notification: Notifications = Notifications(
+    notification: Notification = Notification(
         user=user, body=body, path=path, list_description=list_description
     )
     notification.save()
-    if NotificationsSettings.objects.filter(pk=user.id).exists():  # type: ignore
-        email_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)  # type: ignore
+    if NotificationSetting.objects.filter(pk=user.id).exists():  # type: ignore
+        email_settings: NotificationSetting = NotificationSetting.objects.get(pk=user.id)  # type: ignore
     else:
-        email_settings: NotificationsSettings = NotificationsSettings(
+        email_settings: NotificationSetting = NotificationSetting(
             user=user,
             email_notifications_enabled=False,
         )
@@ -83,7 +83,7 @@ def read_notification(request: HttpRequest) -> None:
     ----------
     request : HttpRequest
     """
-    notifications: QuerySet[Notifications] = Notifications.objects.filter(
+    notifications: QuerySet[Notification] = Notification.objects.filter(
         user=request.user, path=request.path, read=False
     )
     for notification in notifications:

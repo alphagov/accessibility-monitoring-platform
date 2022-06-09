@@ -17,7 +17,7 @@ from accessibility_monitoring_platform.apps.common.utils import (
     record_model_update_event,
 )
 from accessibility_monitoring_platform.apps.notifications.models import (
-    NotificationsSettings,
+    NotificationSetting,
 )
 
 
@@ -39,10 +39,10 @@ def account_details(request: HttpRequest) -> HttpResponse:
     """
     request_temp: Any = request
     user: User = get_object_or_404(User, id=request_temp.user.id)
-    if NotificationsSettings.objects.filter(pk=user.id).exists():  # type: ignore
-        notification_settings: NotificationsSettings = NotificationsSettings.objects.get(pk=user.id)  # type: ignore
+    if NotificationSetting.objects.filter(pk=user.id).exists():  # type: ignore
+        notification_settings: NotificationSetting = NotificationSetting.objects.get(pk=user.id)  # type: ignore
     else:
-        notification_settings: NotificationsSettings = NotificationsSettings(
+        notification_settings: NotificationSetting = NotificationSetting(
             user=user,
             email_notifications_enabled=False,
         )
