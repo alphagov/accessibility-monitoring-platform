@@ -78,19 +78,6 @@ def test_case_completed_timestamp_is_updated_on_completion():
 
 
 @pytest.mark.django_db
-def test_contact_name_is_as_expected():
-    """Test that name is a combination of first_name and last_name"""
-    case: Case = Case.objects.create()
-    contact: Contact = Contact.objects.create(
-        case=case,
-        first_name="Joe",
-        last_name="Bloggs",
-    )
-
-    assert contact.name == "Joe Bloggs"
-
-
-@pytest.mark.django_db
 def test_contact_created_timestamp_is_populated():
     """Test the created field is populated the first time the Contact is saved"""
     case: Case = Case.objects.create()
@@ -107,12 +94,12 @@ def test_contact_created_timestamp_is_not_updated():
     contact: Contact = Contact.objects.create(case=case)
 
     original_created_timestamp: datetime = contact.created
-    updated_first_name: str = "updated first name"
-    contact.first_name = updated_first_name
+    updated_name: str = "updated name"
+    contact.name = updated_name
     contact.save()
     updated_contact: Contact = Contact.objects.get(pk=contact.id)  # type: ignore
 
-    assert updated_contact.first_name == updated_first_name
+    assert updated_contact.name == updated_name
     assert updated_contact.created == original_created_timestamp
 
 
@@ -234,7 +221,9 @@ def test_next_action_due_date_for_in_12_week_correspondence():
     twelve_week_1_week_chaser_sent_date: date = date(2020, 1, 1)
     case.twelve_week_1_week_chaser_sent_date = twelve_week_1_week_chaser_sent_date
 
-    assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(days=5)
+    assert case.next_action_due_date == twelve_week_1_week_chaser_sent_date + timedelta(
+        days=5
+    )
 
 
 @pytest.mark.parametrize(

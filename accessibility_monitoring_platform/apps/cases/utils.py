@@ -5,7 +5,7 @@ Utility functions for cases app
 from collections import namedtuple
 import csv
 from datetime import date, datetime
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
 from django.db.models import Q, QuerySet
@@ -122,7 +122,7 @@ def get_sent_date(
     If there is a new value in the form and no date on the database then use the date from the form.
     If there is no value in the form (i.e. the checkbox is unchecked), set the date on the database to None.
     """
-    date_on_form: date = form.cleaned_data.get(sent_date_name)
+    date_on_form: Optional[date] = form.cleaned_data.get(sent_date_name)
     if date_on_form is None:
         return None
     date_on_db: date = getattr(case_from_db, sent_date_name)
@@ -183,9 +183,7 @@ def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str
     and return as a single string.
     """
     if column.column_name == CONTACT_NAME_COLUMN_NAME:
-        return "\n".join(
-            [f"{contact.first_name} {contact.last_name}" for contact in contacts]
-        )
+        return "\n".join([contact.name for contact in contacts])
     elif column.column_name == JOB_TITLE_COLUMN_NAME:
         return "\n".join([contact.job_title for contact in contacts])
     elif column.column_name == CONTACT_DETAIL_COLUMN_NAME:

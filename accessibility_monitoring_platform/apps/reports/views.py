@@ -160,6 +160,16 @@ class SectionUpdateView(ReportUpdateView):
             context["table_rows_formset"] = table_rows_formset
         return context
 
+    def get_form(self):
+        """Populate help text with dates"""
+        form = super().get_form()
+        section: Section = self.object  # type: ignore
+        if section.has_table:
+            form.fields["content"].widget = forms.Textarea(
+                attrs={"class": "govuk-textarea", "rows": "7"}
+            )
+        return form
+
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: Dict[str, Any] = self.get_context_data()

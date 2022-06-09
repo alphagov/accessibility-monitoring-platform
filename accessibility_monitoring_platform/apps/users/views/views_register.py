@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from accessibility_monitoring_platform.apps.users.forms import CustomUserCreationForm
 from accessibility_monitoring_platform.apps.notifications.models import (
-    NotificationsSettings,
+    NotificationSetting,
 )
 
 
@@ -41,7 +41,7 @@ def register(request: HttpRequest) -> HttpResponse:
             user: User = form.save()
             user.username = form.cleaned_data["email"]
             user.save()
-            NotificationsSettings(user=user).save()
+            NotificationSetting(user=user).save()
             login(request, user)
             return redirect(reverse("dashboard:home"))
 

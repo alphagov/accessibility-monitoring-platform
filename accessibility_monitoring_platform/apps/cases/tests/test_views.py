@@ -14,7 +14,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ...notifications.models import Notifications
+from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
@@ -78,13 +78,11 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     case: Case = Case.objects.create()
     undeleted_contact: Contact = Contact.objects.create(
         case=case,
-        first_name="Undeleted",
-        last_name="Contact",
+        name="Undeleted Contact",
     )
     Contact.objects.create(
         case=case,
-        first_name="Deleted",
-        last_name="Contact",
+        name="Deleted Contact",
         is_deleted=True,
     )
 
@@ -705,8 +703,7 @@ def test_add_contact(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "",
-            "form-0-first_name": "",
-            "form-0-last_name": "",
+            "form-0-name": "",
             "form-0-job_title": "",
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
@@ -1600,7 +1597,7 @@ def test_qa_process_approval_notifies_auditor(rf):
 
     assert response.status_code == 302
 
-    notification: Optional[Notifications] = Notifications.objects.filter(
+    notification: Optional[Notification] = Notification.objects.filter(
         user=user
     ).first()
 
@@ -1810,8 +1807,7 @@ def test_add_contact_also_creates_event(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "",
-            "form-0-first_name": "",
-            "form-0-last_name": "",
+            "form-0-name": "",
             "form-0-job_title": "",
             "form-0-email": CONTACT_EMAIL,
             "form-0-notes": "",
@@ -2267,7 +2263,7 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
     if one does not exist.
     """
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
-    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})  #type: ignore
+    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
@@ -2282,4 +2278,5 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
                 case > report details
             </a>
         </p>""",
-        html=True)
+        html=True,
+    )
