@@ -156,6 +156,22 @@
                                     </details>
                                 {% endif %}
                                 {% include 'common/amp_field.html' with field=form.notes %}
+                                <details class="govuk-details" data-module="govuk-details">
+                                    <summary class="govuk-details__summary">
+                                        <span class="govuk-details__summary-text">
+                                            Preview
+                                        </span>
+                                    </summary>
+                                    <div id="preview-{{ form.notes.auto_id }}" class="govuk-details__text"></div>
+                                </details>
+                                <script type="text/javascript">
+                                    window.addEventListener("load", function() {
+                                        document.getElementById("{{ form.notes.auto_id }}").oninput = function() {
+                                            previewMarkdown("{{ form.notes.auto_id }}", "preview-{{ form.notes.auto_id }}");
+                                        };
+                                        previewMarkdown("{{ form.notes.auto_id }}", "preview-{{ form.notes.auto_id }}");
+                                    });
+                                </script>
                             </div>
                         </div>
                     {% endfor %}
@@ -183,6 +199,7 @@
 {% endblock %}
 
 {% block extrascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script type="text/javascript">
     function clickCopyTextToInput(targetId, text) {
         target = document.getElementById(targetId)
@@ -194,6 +211,12 @@
             target = document.getElementById(targetId)
             target.value = text
         }
+    }
+    let converter = new showdown.Converter();
+    function previewMarkdown(sourceId, targetId) {
+        markdown = document.getElementById(sourceId).value;
+        targetElement = document.getElementById(targetId);
+        targetElement.innerHTML = converter.makeHtml(markdown);
     }
 </script>
 {% endblock %}
