@@ -13,9 +13,7 @@ READ_NOTIFICATION_BODY: str = "Read notification"
 def test_list_notifications_defaults_to_showing_unread(admin_client, admin_user):
     """Test list of notifications defaults to showing unread"""
     Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(
-        user=admin_user, body=READ_NOTIFICATION_BODY, read=True
-    )
+    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
 
     response: HttpResponse = admin_client.get(
         f'{reverse("notifications:notifications-list")}'
@@ -28,9 +26,7 @@ def test_list_notifications_defaults_to_showing_unread(admin_client, admin_user)
 def test_list_notifications_shows_unread_on_demand(admin_client, admin_user):
     """Test list of notifications shows unread on demand"""
     Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(
-        user=admin_user, body=READ_NOTIFICATION_BODY, read=True
-    )
+    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
 
     response: HttpResponse = admin_client.get(
         f'{reverse("notifications:notifications-list")}?showing=unread'
@@ -43,9 +39,7 @@ def test_list_notifications_shows_unread_on_demand(admin_client, admin_user):
 def test_list_notifications_shows_all_on_demand(admin_client, admin_user):
     """Test list of notifications shows all on demand"""
     Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notification.objects.create(
-        user=admin_user, body=READ_NOTIFICATION_BODY, read=True
-    )
+    Notification.objects.create(user=admin_user, body=READ_NOTIFICATION_BODY, read=True)
 
     response: HttpResponse = admin_client.get(
         f'{reverse("notifications:notifications-list")}?showing=all'
