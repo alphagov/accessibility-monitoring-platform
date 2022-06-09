@@ -2,7 +2,7 @@
 import pytest
 from datetime import datetime
 from django.contrib.auth.models import User
-from ..models import Notifications, NotificationsSettings
+from ..models import Notification, NotificationSetting
 from .create_user import create_user
 
 
@@ -10,7 +10,7 @@ from .create_user import create_user
 def test_notifications_model_returns_str():
     """Notifications returns correct string"""
     user0: User = create_user()
-    notifications: Notifications = Notifications(
+    notifications: Notification = Notification(
         user=user0,
         body="this is a notification",
         created_date=datetime.now(),
@@ -24,5 +24,5 @@ def test_notifications_model_returns_str():
 def test_notifications_settings_returns_str():
     """NotificationsSettings returns correct string"""
     user0: User = create_user()
-    notifications = NotificationsSettings(user=user0, email_notifications_enabled=True)
+    notifications = NotificationSetting(user=user0, email_notifications_enabled=True)
     assert str(notifications) == "user0@email.com - email_notifications_enabled is True"

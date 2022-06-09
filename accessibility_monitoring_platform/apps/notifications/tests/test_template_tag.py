@@ -5,7 +5,7 @@ from django.template import Context, Template
 from django.test import RequestFactory
 from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.models import User
-from ..models import Notifications
+from ..models import Notification
 from .create_user import create_user
 
 
@@ -24,7 +24,7 @@ def test_template_tag_notifications_count_renders_correctly():
     rendered_template: str = template_to_render.render(context)
     assert "0" in rendered_template
 
-    Notifications(
+    Notification(
         user=user0, body="this is a notification", created_date=datetime.now()
     ).save()
     context: Context = Context({"request": request})
@@ -39,7 +39,7 @@ def test_template_tag_notifications_count_renders_correctly():
 def test_template_tag_read_notification_renders_correctly():
     """Tests to see if template tag read_notification marks a notification as read"""
     user0: User = create_user()
-    Notifications(
+    Notification(
         user=user0,
         body="this is a notification",
         created_date=datetime.now(),
@@ -55,5 +55,5 @@ def test_template_tag_read_notification_renders_correctly():
     )
     template_to_render.render(context)
 
-    notification: Notifications = Notifications.objects.get(id=1)
+    notification: Notification = Notification.objects.get(id=1)
     assert notification.read is True

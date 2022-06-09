@@ -4,7 +4,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 from django.http import HttpResponse
 from django.urls import reverse
 
-from ..models import Notifications
+from ..models import Notification
 
 UNREAD_NOTIFICATION_BODY: str = "Unread notification"
 READ_NOTIFICATION_BODY: str = "Read notification"
@@ -12,8 +12,8 @@ READ_NOTIFICATION_BODY: str = "Read notification"
 
 def test_list_notifications_defaults_to_showing_unread(admin_client, admin_user):
     """Test list of notifications defaults to showing unread"""
-    Notifications.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notifications.objects.create(
+    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
+    Notification.objects.create(
         user=admin_user, body=READ_NOTIFICATION_BODY, read=True
     )
 
@@ -27,8 +27,8 @@ def test_list_notifications_defaults_to_showing_unread(admin_client, admin_user)
 
 def test_list_notifications_shows_unread_on_demand(admin_client, admin_user):
     """Test list of notifications shows unread on demand"""
-    Notifications.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notifications.objects.create(
+    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
+    Notification.objects.create(
         user=admin_user, body=READ_NOTIFICATION_BODY, read=True
     )
 
@@ -42,8 +42,8 @@ def test_list_notifications_shows_unread_on_demand(admin_client, admin_user):
 
 def test_list_notifications_shows_all_on_demand(admin_client, admin_user):
     """Test list of notifications shows all on demand"""
-    Notifications.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
-    Notifications.objects.create(
+    Notification.objects.create(user=admin_user, body=UNREAD_NOTIFICATION_BODY)
+    Notification.objects.create(
         user=admin_user, body=READ_NOTIFICATION_BODY, read=True
     )
 
@@ -57,7 +57,7 @@ def test_list_notifications_shows_all_on_demand(admin_client, admin_user):
 
 def test_mark_notification_as_read(admin_client, admin_user):
     """Test marking notification as read"""
-    notification: Notifications = Notifications.objects.create(
+    notification: Notification = Notification.objects.create(
         user=admin_user, body=READ_NOTIFICATION_BODY
     )
 
@@ -69,14 +69,14 @@ def test_mark_notification_as_read(admin_client, admin_user):
     assert response.status_code == 200
     assertContains(response, "Notification marked as seen")
 
-    notification_from_db: Notifications = Notifications.objects.get(id=notification.id)  # type: ignore
+    notification_from_db: Notification = Notification.objects.get(id=notification.id)  # type: ignore
 
     assert notification_from_db.read
 
 
 def test_mark_notification_as_unread(admin_client, admin_user):
     """Test marking notification as unread"""
-    notification: Notifications = Notifications.objects.create(
+    notification: Notification = Notification.objects.create(
         user=admin_user, body=READ_NOTIFICATION_BODY, read=True
     )
 
@@ -90,6 +90,6 @@ def test_mark_notification_as_unread(admin_client, admin_user):
     assert response.status_code == 200
     assertContains(response, "Notification marked as unseen")
 
-    notification_from_db: Notifications = Notifications.objects.get(id=notification.id)  # type: ignore
+    notification_from_db: Notification = Notification.objects.get(id=notification.id)  # type: ignore
 
     assert not notification_from_db.read

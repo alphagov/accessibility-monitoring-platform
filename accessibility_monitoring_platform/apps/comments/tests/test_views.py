@@ -13,7 +13,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from ..models import Comments, CommentsHistory
 from ...cases.models import Case
 from ...comments.tests.test_templatetags import mock_get_response
-from ...notifications.models import Notifications
+from ...notifications.models import Notification
 from ..views import save_comment_history, add_comment_notification
 from .create_user import create_user, USER_PASSWORD
 
@@ -101,7 +101,7 @@ def test_add_comment_notification():
 
     res: bool = add_comment_notification(request=request2, obj=comment2)
     assert res is True
-    assert len(Notifications.objects.all()) == 1
+    assert len(Notification.objects.all()) == 1
 
 
 @pytest.mark.django_db

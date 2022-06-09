@@ -6,21 +6,21 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
-from .models import Notifications
+from .models import Notification
 
 
-class NotificationsView(ListView):
+class NotificationView(ListView):
     """
     Lists all notifications for user
     """
 
-    model = Notifications
+    model = Notification
     template_name: str = "notifications/view_notifications.html"
     context_object_name: str = "notifications"
 
-    def get_queryset(self) -> QuerySet[Notifications]:
+    def get_queryset(self) -> QuerySet[Notification]:
         """Get reminders for logged in user"""
-        notifications: QuerySet[Notifications] = Notifications.objects.filter(
+        notifications: QuerySet[Notification] = Notification.objects.filter(
             user=self.request.user
         )
         if self.request.GET.get("showing", "unread") == "unread":
@@ -29,7 +29,7 @@ class NotificationsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        notifications: QuerySet[Notifications] = self.get_queryset()
+        notifications: QuerySet[Notification] = self.get_queryset()
         context["showing"] = self.request.GET.get("showing", "unread")
         context["unread_notifications"] = len(notifications.filter(read=False))
         return context
@@ -40,11 +40,11 @@ class NotificationMarkAsReadView(ListView):
     Mark notification as read
     """
 
-    model = Notifications
+    model = Notification
 
     def get(self, request, pk):
         """Hides a notification"""
-        notification: Notifications = Notifications.objects.get(pk=pk)
+        notification: Notification = Notification.objects.get(pk=pk)
         if (
             notification.user.id == request.user.id
         ):  # Checks whether the comment was posted by user
@@ -65,11 +65,11 @@ class NotificationMarkAsUnreadView(ListView):
     Marks notification as unread
     """
 
-    model = Notifications
+    model = Notification
 
     def get(self, request, pk):
         """Marks a notification as unread"""
-        notification: Notifications = Notifications.objects.get(pk=pk)
+        notification: Notification = Notification.objects.get(pk=pk)
         if (
             notification.user.id == request.user.id
         ):  # Checks whether the comment was posted by user

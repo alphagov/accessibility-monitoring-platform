@@ -2,11 +2,11 @@
 Admin for notifications
 """
 from django.contrib import admin
-from .models import Notifications, NotificationsSettings
+from .models import Notification, NotificationSetting
 
 
 class NotificationsAdmin(admin.ModelAdmin):
-    """Django admin configuration for Notifications model"""
+    """Django admin configuration for Notification model"""
 
     readonly_fields = ["created_date"]
     search_fields = [
@@ -38,5 +38,5 @@ class NotificationsSettingsAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Notifications, NotificationsAdmin)
-admin.site.register(NotificationsSettings, NotificationsSettingsAdmin)
+admin.site.register(Notification, NotificationsAdmin)
+admin.site.register(NotificationSetting, NotificationsSettingsAdmin)

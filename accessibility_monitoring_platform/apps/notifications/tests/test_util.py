@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.core.handlers.wsgi import WSGIRequest
-from ..models import Notifications, NotificationsSettings
+from ..models import Notification, NotificationSetting
 from ..utils import read_notification, add_notification
 from .create_user import create_user
 
@@ -13,7 +13,7 @@ from .create_user import create_user
 def test_read_notifications_marks_notification_as_read():
     """test to check if read_notifications function marks notifications as read"""
     user0: User = create_user()
-    notification: Notifications = Notifications(
+    notification: Notification = Notification(
         user=user0, body="this is a notification", created_date=datetime.now(), path="/"
     )
     notification.save()
@@ -22,14 +22,14 @@ def test_read_notifications_marks_notification_as_read():
     request.user = user0
 
     read_notification(request)
-    assert Notifications.objects.get(id=notification.id).read is True  # type: ignore
+    assert Notification.objects.get(id=notification.id).read is True  # type: ignore
 
 
 @pytest.mark.django_db
 def test_add_notification_creates_notification_and_sends_email(mailoutbox):
     """test to check if add_notification adds notification and sends email"""
     user0: User = create_user()
-    NotificationsSettings(user=user0).save()
+    NotificationSetting(user=user0).save()
     factory = RequestFactory()
     request: WSGIRequest = factory.get("/")
     request.user = user0
@@ -40,7 +40,7 @@ def test_add_notification_creates_notification_and_sends_email(mailoutbox):
         list_description="There is a notification",
         request=request,
     )
-    assert Notifications.objects.get(id=1).body == "this is a notification"
+    assert Notification.objects.get(id=1).body == "this is a notification"
     assert len(mailoutbox) == 1
     assert (
         mailoutbox[0].subject
@@ -52,7 +52,7 @@ def test_add_notification_creates_notification_and_sends_email(mailoutbox):
 def test_add_notification_creates_notification_and_sends_no_email(mailoutbox):
     """test to check if add_notification adds notification and doesn't send email"""
     user0: User = create_user()
-    NotificationsSettings(
+    NotificationSetting(
         user=user0,
         email_notifications_enabled=False,
     ).save()
@@ -66,7 +66,7 @@ def test_add_notification_creates_notification_and_sends_no_email(mailoutbox):
         list_description="There is a notification",
         request=request,
     )
-    assert Notifications.objects.get(id=1).body == "this is a notification"
+    assert Notification.objects.get(id=1).body == "this is a notification"
     assert len(mailoutbox) == 0
 
 
@@ -74,7 +74,7 @@ def test_add_notification_creates_notification_and_sends_no_email(mailoutbox):
 def test_creates_new_email_notification_model_when_null(mailoutbox):
     """test to see if add_notification will create a NotificationsSettings model when none exists"""
     user0: User = create_user()
-    assert len(NotificationsSettings.objects.all()) == 0
+    assert len(NotificationSetting.objects.all()) == 0
     factory: RequestFactory = RequestFactory()
     request: WSGIRequest = factory.get("/")
     request.user = user0
@@ -85,10 +85,10 @@ def test_creates_new_email_notification_model_when_null(mailoutbox):
         list_description="There is a notification",
         request=request,
     )
-    assert Notifications.objects.get(id=1).body == "this is a notification"
+    assert Notification.objects.get(id=1).body == "this is a notification"
     assert len(mailoutbox) == 0
-    assert len(NotificationsSettings.objects.all()) == 1
-    assert NotificationsSettings.objects.get(user=1).user.email == user0.email
+    assert len(NotificationSetting.objects.all()) == 1
+    assert NotificationSetting.objects.get(user=1).user.email == user0.email
     assert (
-        NotificationsSettings.objects.get(user=1).email_notifications_enabled is False
+        NotificationSetting.objects.get(user=1).email_notifications_enabled is False
     )
