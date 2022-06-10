@@ -156,22 +156,7 @@
                                     </details>
                                 {% endif %}
                                 {% include 'common/amp_field.html' with field=form.notes %}
-                                <details class="govuk-details" data-module="govuk-details">
-                                    <summary class="govuk-details__summary">
-                                        <span class="govuk-details__summary-text">
-                                            Preview
-                                        </span>
-                                    </summary>
-                                    <div id="preview-{{ form.notes.auto_id }}" class="govuk-details__text"></div>
-                                </details>
-                                <script type="text/javascript">
-                                    window.addEventListener("load", function() {
-                                        document.getElementById("{{ form.notes.auto_id }}").oninput = function() {
-                                            previewMarkdown("{{ form.notes.auto_id }}", "preview-{{ form.notes.auto_id }}");
-                                        };
-                                        previewMarkdown("{{ form.notes.auto_id }}", "preview-{{ form.notes.auto_id }}");
-                                    });
-                                </script>
+                                {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
                             </div>
                         </div>
                     {% endfor %}
