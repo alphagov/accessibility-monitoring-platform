@@ -4,7 +4,13 @@ Test templatetags of common app
 from datetime import date, datetime
 import pytest
 
-from ..templatetags.common_tags import gds_date, gds_datetime, gds_time, list_item_by_index, markdown_to_html
+from ..templatetags.common_tags import (
+    gds_date,
+    gds_datetime,
+    gds_time,
+    list_item_by_index,
+    markdown_to_html,
+)
 
 
 @pytest.mark.parametrize(

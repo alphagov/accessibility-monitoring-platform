@@ -515,7 +515,9 @@ class TestCaseUpdates(TestCase):
         self.assertTrue(
             "Due 28 January 2021" in self.driver.page_source
         )  # 4-week followup date
-        self.assertTrue("Due 25 March 2021" in self.driver.page_source)  # 12-week deadline
+        self.assertTrue(
+            "Due 25 March 2021" in self.driver.page_source
+        )  # 12-week deadline
 
     def test_update_case_edit_12_week_correspondence(self):
         """Tests whether 12-week correspondence can be updated"""

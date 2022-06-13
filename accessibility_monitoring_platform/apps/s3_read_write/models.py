@@ -2,7 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from ..cases.models import Case
-from ..common.templatetags.common_tags import gds_datetime
+from ..common.utils import format_gds_datetime
 
 REPORT_VIEWER_URL_PATH: str = "/reports/"
 
@@ -29,7 +29,7 @@ class S3Report(models.Model):
     html = models.TextField(default="", blank=True)
 
     def __str__(self) -> str:
-        return f"v{self.version} - {gds_datetime(self.created)}"
+        return f"v{self.version} - {format_gds_datetime(self.created)}"
 
     def get_absolute_url(self):
         return f"{REPORT_VIEWER_URL_PATH}{self.guid}"

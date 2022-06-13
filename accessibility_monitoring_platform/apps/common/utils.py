@@ -186,3 +186,22 @@ def list_to_dictionary_of_lists(
     for item in items:
         dict_of_lists_of_items.setdefault(getattr(item, group_by_attr), []).append(item)
     return dict_of_lists_of_items
+
+
+def format_gds_date(date_to_format: date) -> str:
+    """Format date according to GDS style guide"""
+    return f"{date_to_format:%-d %B %Y}" if date_to_format else ""
+
+
+def format_gds_time(datetime_to_format: datetime) -> str:
+    """Format time according to GDS style guide"""
+    return f"{datetime_to_format:%-I:%M%p}".lower() if datetime_to_format else ""
+
+
+def format_gds_datetime(datetime_to_format: datetime) -> str:
+    """Format date and time according to GDS style guide"""
+    return (
+        f"{format_gds_date(datetime_to_format)} {format_gds_time(datetime_to_format)}"
+        if datetime_to_format
+        else ""
+    )

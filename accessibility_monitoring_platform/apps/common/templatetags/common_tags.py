@@ -12,6 +12,12 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
+from ..utils import (  # pylint: disable=relative-beyond-top-level
+    format_gds_date,
+    format_gds_datetime,
+    format_gds_time,
+)
+
 register = template.Library()
 
 
@@ -38,16 +44,16 @@ def markdown_to_html(text: str) -> str:
 @register.filter
 def gds_date(date_to_format: date) -> str:
     """Format date according to GDS style guide"""
-    return f"{date_to_format:%-d %B %Y}" if date_to_format else ""
+    return format_gds_date(date_to_format)
 
 
 @register.filter
 def gds_time(datetime_to_format: datetime) -> str:
     """Format time according to GDS style guide"""
-    return f"{datetime_to_format:%-I:%M%p}".lower() if datetime_to_format else ""
+    return format_gds_time(datetime_to_format)
 
 
 @register.filter
 def gds_datetime(datetime_to_format: datetime) -> str:
     """Format date and time according to GDS style guide"""
-    return f"{gds_date(datetime_to_format)} {gds_time(datetime_to_format)}" if datetime_to_format else ""
+    return format_gds_datetime(datetime_to_format)

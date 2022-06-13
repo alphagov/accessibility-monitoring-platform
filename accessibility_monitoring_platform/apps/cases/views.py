@@ -32,7 +32,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
     FieldLabelAndValue,
 )
-from ..common.templatetags.common_tags import gds_date
+from ..common.utils import format_gds_date
 from .models import (
     Case,
     Contact,
@@ -122,7 +122,7 @@ def format_due_date_help_text(due_date: date) -> str:
     """Format date and prefix with 'Due' if present"""
     if due_date is None:
         return "None"
-    return f"Due {gds_date(due_date)}"
+    return f"Due {format_gds_date(due_date)}"
 
 
 class CaseDetailView(DetailView):

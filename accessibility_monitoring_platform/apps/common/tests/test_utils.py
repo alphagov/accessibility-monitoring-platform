@@ -24,6 +24,9 @@ from ..utils import (
     build_filters,
     download_as_csv,
     extract_domain_from_url,
+    format_gds_date,
+    format_gds_datetime,
+    format_gds_time,
     get_id_from_button_name,
     convert_date_to_datetime,
     validate_url,
@@ -257,3 +260,39 @@ def test_list_to_dictionary_of_lists():
         "key2": [mock_3],
         "key3": [mock_4],
     }
+
+
+@pytest.mark.parametrize(
+    "date_to_format,expected_result",
+    [
+        (date(2021, 4, 1), "1 April 2021"),
+        (None, ""),
+    ],
+)
+def test_format_gds_date(date_to_format, expected_result):
+    """Test date formatted according to GDS style guide."""
+    assert format_gds_date(date_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 4, 1, 9, 1), "9:01am"),
+        (None, ""),
+    ],
+)
+def test_format_gds_time(datetime_to_format, expected_result):
+    """Test time formatted according to GDS style guide."""
+    assert format_gds_time(datetime_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 4, 1, 9, 1), "1 April 2021 9:01am"),
+        (None, ""),
+    ],
+)
+def test_format_gds_datetime(datetime_to_format, expected_result):
+    """Test date and time formatted according to GDS style guide."""
+    assert format_gds_datetime(datetime_to_format) == expected_result
