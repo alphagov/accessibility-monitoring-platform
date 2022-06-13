@@ -1,8 +1,8 @@
 {% if tense == "future" %}
-    <strong>{{ date_to_tag|date:"d/m/Y" }}</strong>
+    <strong>{{ date_to_tag|gds_date }}</strong>
 {% else %}
     <div>
-        <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|date:"d/m/Y" }}</strong>
+        <strong class="govuk-tag govuk-tag--red">{{ date_to_tag|gds_date }}</strong>
         <span class="govuk-visually-hidden">{% if tense == "past" %}over{% endif %}due</span>
         <span class="amp-alert-icon" aria-hidden="true">!</span>
     </div>

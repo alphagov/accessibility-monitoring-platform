@@ -2,8 +2,6 @@
 
 {% load l10n %}
 
-{% load common_tags %}
-
 {% load static %}
 
 {% block title %}{{ audit.case.organisation_name }} | Report text{% endblock %}
@@ -51,7 +49,7 @@
                 {% if audit.case.report_methodology != 'platform' %}
                     <h1 class="govuk-heading-l">Report text</h1>
                     <div id="report-text">
-                    <p>Date: {{ audit.date_of_test|date:"d F Y" }}</p>
+                    <p>Date: {{ audit.date_of_test|gds_date }}</p>
                     <p>
                         Website:
                         <a
@@ -98,7 +96,7 @@
                         We checked
                         <a href="{{ audit.case.home_page_url }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">{{audit.case.home_page_url }}</a>
                         on
-                        {{ audit.date_of_test|date:"d F Y" }}
+                        {{ audit.date_of_test|gds_date }}
                         against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard:
                         <a href="https://www.w3.org/TR/WCAG21/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.w3.org/TR/WCAG21/</a>.

@@ -1,5 +1,3 @@
-{% load common_tags %}
-
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">{{ row.label }}</th>
             <td class="govuk-table__cell amp-width-one-half{% if row.type == 'notes' %} amp-notes{% endif %}">
@@ -29,7 +27,7 @@
                 {% elif row.type == 'notes' %}
                     {% if row.value %}{{ row.value|markdown_to_html }}{% endif %}
                 {% elif row.type == 'date' %}
-                    {{ row.value|date:"d/m/Y" }}
+                    {{ row.value|gds_date }}
                 {% else %}
                     {{ row.value }}
                 {% endif %}

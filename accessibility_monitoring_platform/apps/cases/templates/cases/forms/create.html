@@ -80,7 +80,7 @@
                             <tbody class="govuk-table__body">
                                 {% for case in duplicate_cases %}
                                     <tr class="govuk-table__row">
-                                        <td class="govuk-table__cell">{{ case.created|date:"d/m/Y" }}</td>
+                                        <td class="govuk-table__cell">{{ case.created|gds_date }}</td>
                                         <td class="govuk-table__cell">
                                             <a href="{% url 'cases:case-detail' case.id %}"
                                                 class="govuk-link govuk-link--no-visited-state">

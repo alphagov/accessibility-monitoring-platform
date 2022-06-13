@@ -24,7 +24,7 @@
                 <th scope="row" class="govuk-table__header amp-width-one-half">Details</th>
             </tr>
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell amp-width-one-half">{{ case.reminder.due_date|date:"d/m/Y" }}</td>
+                <td class="govuk-table__cell amp-width-one-half">{{ case.reminder.due_date|gds_date }}</td>
                 <td class="govuk-table__cell amp-width-one-half"><p class="govuk-body-m cases-notes">{{ case.reminder.description }}</p></td>
             </tr>
         </tbody>

@@ -16,9 +16,7 @@ def test_notifications_model_returns_str():
         user=user,
         body="this is a notification",
     )
-    assert (
-        str(notification) == f"Notification this is a notification for {user}"
-    )
+    assert str(notification) == f"Notification this is a notification for {user}"
 
 
 @pytest.mark.django_db

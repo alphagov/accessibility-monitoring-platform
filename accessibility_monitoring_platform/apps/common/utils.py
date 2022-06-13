@@ -149,11 +149,6 @@ def validate_url(url: str) -> None:
         raise ValidationError("URL must start with http:// or https://")
 
 
-def format_date(date_to_format: date) -> str:
-    """Format a date as a string"""
-    return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
-
-
 def get_platform_settings() -> Platform:
     """Return the platform-wide settings"""
     return Platform.objects.get(pk=1)

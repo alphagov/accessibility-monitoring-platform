@@ -17,7 +17,7 @@ from ..common.models import (
     BOOLEAN_TRUE,
     BOOLEAN_FALSE,
 )
-from ..common.utils import format_date
+from ..common.templatetags.common_tags import gds_date
 
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
@@ -505,7 +505,7 @@ class Audit(VersionModel):
 
     def __str__(self) -> str:
         return str(
-            f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
+            f"{self.case}" f" | {gds_date(self.date_of_test)}"  # type: ignore
         )
 
     def get_absolute_url(self) -> str:

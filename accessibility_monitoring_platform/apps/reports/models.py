@@ -12,7 +12,7 @@ from django.utils import timezone
 from ..cases.models import Case
 from ..common.models import VersionModel
 from ..s3_read_write.models import S3Report
-from ..common.utils import format_date
+from ..common.templatetags.common_tags import gds_datetime
 
 TEMPLATE_TYPE_DEFAULT = "markdown"
 TEMPLATE_TYPE_HTML = "html"
@@ -85,7 +85,7 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case} | {format_date(self.created)}")  # type: ignore
+        return str(f"{self.case} | {gds_datetime(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()

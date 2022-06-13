@@ -2,8 +2,6 @@
 
 {% load l10n %}
 
-{% load common_tags %}
-
 {% block title %}{{ audit.case.organisation_name }} | 12-week test metadata{% endblock %}
 
 {% block content %}
@@ -43,7 +41,7 @@
                             {% include 'common/amp_field.html' with field=form.audit_retest_metadata_notes %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Original date test</b></label>
-                                <div class="govuk-hint">{{ audit.date_of_test|date:'d/m/Y' }}</div>
+                                <div class="govuk-hint">{{ audit.date_of_test|gds_date }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Original screen size</b></label>

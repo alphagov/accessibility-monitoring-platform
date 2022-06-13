@@ -32,7 +32,7 @@
                 <div class="govuk-body">
                     <p class="govuk-!-font-size-19 govuk-!-font-weight-bold">Report sent on</p>
                     <p class="govuk-!-font-weight-regular">
-                        {% if case.report_sent_date %}{{ case.report_sent_date|date:"d/m/Y" }}{% else %}None{% endif %}
+                        {% if case.report_sent_date %}{{ case.report_sent_date|gds_date }}{% else %}None{% endif %}
                     </p>
                 </div>
                 <form method="post" action="{% url 'cases:edit-report-followup-due-dates' case.id %}">

@@ -27,7 +27,6 @@ from ..utils import (
     get_id_from_button_name,
     convert_date_to_datetime,
     validate_url,
-    format_date,
     get_platform_settings,
     record_model_create_event,
     record_model_update_event,
@@ -211,11 +210,6 @@ def test_validate_url_raises_validation_error():
         validate_url("no protocol")
 
     assert "URL must start with http:// or https://" in str(excinfo.value)
-
-
-def test_format_date():
-    """Test format_date returns date strings in uk format dd/mm/yyyy"""
-    assert format_date(date(2020, 12, 31)) == "31/12/2020"
 
 
 @pytest.mark.django_db

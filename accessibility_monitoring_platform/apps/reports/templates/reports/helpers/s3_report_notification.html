@@ -7,7 +7,7 @@
     <div class="govuk-notification-banner__content">
         <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
             The most recent report was published at
-            {{ report.latest_s3_report.created|date:"g.iA"|lower }} {{ report.latest_s3_report.created|date:"d F Y" }}.
+            {{ report.latest_s3_report.created|gds_datetime }}.
         </h3>
         <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
             Go to the
