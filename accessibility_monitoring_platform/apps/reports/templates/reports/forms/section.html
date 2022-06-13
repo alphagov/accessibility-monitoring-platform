@@ -86,7 +86,7 @@
 {% block extrascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script type="text/javascript">
-    let converter = new showdown.Converter();
+    const converter = new showdown.Converter();
     function previewMarkdown(sourceId, targetId) {
         markdown = document.getElementById(sourceId).value;
         targetElement = document.getElementById(targetId);
