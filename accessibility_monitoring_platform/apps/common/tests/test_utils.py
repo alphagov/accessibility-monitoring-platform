@@ -34,6 +34,7 @@ from ..utils import (
     record_model_create_event,
     record_model_update_event,
     list_to_dictionary_of_lists,
+    undo_double_escapes,
 )
 
 
@@ -296,3 +297,10 @@ def test_format_gds_time(datetime_to_format, expected_result):
 def test_format_gds_datetime(datetime_to_format, expected_result):
     """Test date and time formatted according to GDS style guide."""
     assert format_gds_datetime(datetime_to_format) == expected_result
+
+
+def test_undo_double_escapes():
+    """
+    Test Undo double escapes, where & has been replaced with &amp; in escaped html
+    """
+    assert undo_double_escapes("&amp;lt;tag&amp;gt;&amp;quot;") == "&lt;tag&gt;&quot;"

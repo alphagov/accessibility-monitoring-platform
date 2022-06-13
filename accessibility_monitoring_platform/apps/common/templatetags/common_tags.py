@@ -16,6 +16,7 @@ from ..utils import (  # pylint: disable=relative-beyond-top-level
     format_gds_date,
     format_gds_datetime,
     format_gds_time,
+    undo_double_escapes
 )
 
 register = template.Library()
@@ -33,12 +34,11 @@ def list_item_by_index(items: List[Any], index: int) -> Any:
 @register.filter
 def markdown_to_html(text: str) -> str:
     """Convert markdown text into html"""
-    return mark_safe(
-        markdown.markdown(
-            escape(text),
-            extensions=settings.MARKDOWN_EXTENSIONS,
-        )
+    html: str = markdown.markdown(
+        escape(text),
+        extensions=settings.MARKDOWN_EXTENSIONS,
     )
+    return mark_safe(undo_double_escapes(html))
 
 
 @register.filter

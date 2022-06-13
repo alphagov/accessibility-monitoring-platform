@@ -205,3 +205,12 @@ def format_gds_datetime(datetime_to_format: datetime) -> str:
         if datetime_to_format
         else ""
     )
+
+
+def undo_double_escapes(html: str) -> str:
+    """Undo double escapes, where & has been replaced with &amp; in escaped html"""
+    return (
+        html.replace("&amp;lt;", "&lt;")
+        .replace("&amp;gt;", "&gt;")
+        .replace("&amp;quot;", "&quot;")
+    )
