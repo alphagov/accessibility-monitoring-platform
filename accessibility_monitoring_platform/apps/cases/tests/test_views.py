@@ -2020,7 +2020,26 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
     )
 
 
-def test_platform_report_details_shows_notification_if_fully_compliant(
+@pytest.mark.parametrize(
+    "edit_url_name",
+    [
+        "case-detail",
+        "edit-case-details",
+        "edit-test-results",
+        "edit-report-details",
+        "edit-qa-process",
+        "edit-contact-details",
+        "edit-report-correspondence",
+        "edit-twelve-week-correspondence",
+        "edit-twelve-week-retest",
+        "edit-review-changes",
+        "edit-case-close",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
+    ],
+)
+def test_platform_shows_notification_if_fully_compliant(
+    edit_url_name,
     admin_client,
 ):
     """
@@ -2033,7 +2052,7 @@ def test_platform_report_details_shows_notification_if_fully_compliant(
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),  # type: ignore
     )
     assert response.status_code == 200
 
