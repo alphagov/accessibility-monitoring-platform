@@ -6,14 +6,14 @@ import subprocess
 import os
 from django.core.management.utils import get_random_secret_key
 from datetime import datetime
-from app.BuildEnv import BuildEnv
-from app.CopyDB import CopyDB
-from app.upload_db_to_s3 import upload_db_to_s3
-from app.parse_json import (
+from .app.BuildEnv import BuildEnv
+from .app.CopyDB import CopyDB
+from .app.upload_db_to_s3 import upload_db_to_s3
+from .app.parse_json import (
     parse_settings_json,
     SettingsType,
 )
-from app.check_input import check_input
+from .app.check_input import check_input
 
 
 parser = argparse.ArgumentParser(description="Deploy feature branch to PaaS")
@@ -39,11 +39,12 @@ parser.add_argument(
 )
 
 
-def check_if_login() -> bool:
-    process = subprocess.Popen("cf spaces".split(), stdout=subprocess.PIPE)
+def check_if_cf_logged_in() -> bool:
+    process: subprocess.Popen = subprocess.Popen("cf spaces".split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
-    if "FAILED" in output.decode("utf-8"):
-        raise Exception(f"""Error not logged into CF - {output.decode("utf-8")}""")
+    decoded_output: str = output.decode("utf-8")
+    if "FAILED" in decoded_output:
+        raise Exception(f"""Error not logged into CF - {decoded_output}""")
     return True
 
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         "PORT": "$PORT",
     }
 
-    check_if_login()
+    check_if_cf_logged_in()
 
     check_input(args, config)
 
