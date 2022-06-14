@@ -28,6 +28,9 @@
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
+                        {% if case.accessibility_statement_state == 'compliant' and case.is_website_compliant == 'compliant' %}
+                            {% include 'cases/helpers/compliant_website_notification.html' %}
+                        {% endif %}
                         {% if case.report_methodology == 'platform' %}
                             {% if case.audit %}
                                 {% if case.report %}

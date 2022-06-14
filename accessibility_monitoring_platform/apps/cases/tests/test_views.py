@@ -22,6 +22,8 @@ from ..models import (
     Contact,
     TESTING_METHODOLOGY_PLATFORM,
     REPORT_APPROVED_STATUS_APPROVED,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -2014,6 +2016,33 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
                 <p>{ACCESSIBILITY_STATEMENT_NOTES}</p>
             </td>
         </tr>""",
+        html=True,
+    )
+
+
+def test_platform_report_details_shows_notification_if_fully_compliant(
+    admin_client,
+):
+    """
+    Test cases with fully compliant website and accessibility statement show
+    notification to that effect on report details page.
+    """
+    case: Case = Case.objects.create(
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-report-details", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            The case has a compliant website and a compliant accessibility statement
+            and does not require any further actions.
+        </h3>""",
         html=True,
     )
 
