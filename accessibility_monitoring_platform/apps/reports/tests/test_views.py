@@ -124,7 +124,7 @@ def test_report_published_message_shown(admin_client):
         ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
             "reports:report-confirm-refresh",
-            ">Are you sure you want to refresh the report?</h1>",
+            ">Are you sure you want to reset the report?</h1>",
         ),
         (
             "reports:report-confirm-publish",
