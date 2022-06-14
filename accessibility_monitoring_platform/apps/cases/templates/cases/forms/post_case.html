@@ -47,7 +47,7 @@
                                 <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
                                 <div class="govuk-hint">
                                     {% if case.psb_appeal_deadline %}
-                                        {{ case.psb_appeal_deadline|gds_date }}
+                                        {{ case.psb_appeal_deadline|amp_date }}
                                     {% else %}
                                         None
                                     {% endif %}

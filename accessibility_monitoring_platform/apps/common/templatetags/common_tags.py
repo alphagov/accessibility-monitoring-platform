@@ -13,9 +13,9 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from ..utils import (  # pylint: disable=relative-beyond-top-level
-    format_gds_date,
-    format_gds_datetime,
-    format_gds_time,
+    amp_format_date,
+    amp_format_datetime,
+    amp_format_time,
     undo_double_escapes
 )
 
@@ -42,18 +42,18 @@ def markdown_to_html(text: str) -> str:
 
 
 @register.filter
-def gds_date(date_to_format: date) -> str:
+def amp_date(date_to_format: date) -> str:
     """Format date according to GDS style guide"""
-    return format_gds_date(date_to_format)
+    return amp_format_date(date_to_format)
 
 
 @register.filter
-def gds_time(datetime_to_format: datetime) -> str:
+def amp_time(datetime_to_format: datetime) -> str:
     """Format time according to GDS style guide"""
-    return format_gds_time(datetime_to_format)
+    return amp_format_time(datetime_to_format)
 
 
 @register.filter
-def gds_datetime(datetime_to_format: datetime) -> str:
+def amp_datetime(datetime_to_format: datetime) -> str:
     """Format date and time according to GDS style guide"""
-    return format_gds_datetime(datetime_to_format)
+    return amp_format_datetime(datetime_to_format)

@@ -2,7 +2,7 @@
     <div style="vertical-align: middle;">
         <p class="govuk-body" id="comments{{counter}}">
             <b class="govuk-body-l govuk-!-font-weight-bold">{{ item.user.first_name }} {{ item.user.last_name }} </b>
-            on {{ item.created_date|gds_datetime }}
+            on {{ item.created_date|amp_datetime }}
         </p>
     </div>
     <p class="govuk-body">
@@ -31,7 +31,7 @@
     <div>
         {% if item.updated_date  %}
             <p class="govuk-body-s">
-                Last edited {{ item.updated_date|gds_datetime }}
+                Last edited {{ item.updated_date|amp_datetime }}
             </p>
         {% endif %}
     </div>

@@ -41,7 +41,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import get_field_names_for_export
-from ...common.utils import format_gds_date
+from ...common.utils import amp_format_date
 from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
@@ -870,15 +870,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
 
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_gds_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_gds_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_gds_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
         html=True,
     )
 

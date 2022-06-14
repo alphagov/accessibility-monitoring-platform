@@ -27,7 +27,7 @@
                 {% elif row.type == 'notes' %}
                     {% if row.value %}{{ row.value|markdown_to_html }}{% endif %}
                 {% elif row.type == 'date' %}
-                    {{ row.value|gds_date }}
+                    {{ row.value|amp_date }}
                 {% else %}
                     {{ row.value }}
                 {% endif %}

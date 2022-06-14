@@ -24,9 +24,9 @@ from ..utils import (
     build_filters,
     download_as_csv,
     extract_domain_from_url,
-    format_gds_date,
-    format_gds_datetime,
-    format_gds_time,
+    amp_format_date,
+    amp_format_datetime,
+    amp_format_time,
     get_id_from_button_name,
     convert_date_to_datetime,
     validate_url,
@@ -270,9 +270,9 @@ def test_list_to_dictionary_of_lists():
         (None, ""),
     ],
 )
-def test_format_gds_date(date_to_format, expected_result):
+def test_amp_format_date(date_to_format, expected_result):
     """Test date formatted according to GDS style guide."""
-    assert format_gds_date(date_to_format) == expected_result
+    assert amp_format_date(date_to_format) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -282,9 +282,9 @@ def test_format_gds_date(date_to_format, expected_result):
         (None, ""),
     ],
 )
-def test_format_gds_time(datetime_to_format, expected_result):
+def test_amp_format_time(datetime_to_format, expected_result):
     """Test time formatted according to GDS style guide."""
-    assert format_gds_time(datetime_to_format) == expected_result
+    assert amp_format_time(datetime_to_format) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -294,9 +294,9 @@ def test_format_gds_time(datetime_to_format, expected_result):
         (None, ""),
     ],
 )
-def test_format_gds_datetime(datetime_to_format, expected_result):
+def test_amp_format_datetime(datetime_to_format, expected_result):
     """Test date and time formatted according to GDS style guide."""
-    assert format_gds_datetime(datetime_to_format) == expected_result
+    assert amp_format_datetime(datetime_to_format) == expected_result
 
 
 def test_undo_double_escapes():

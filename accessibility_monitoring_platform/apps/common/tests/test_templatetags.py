@@ -5,9 +5,9 @@ from datetime import date, datetime
 import pytest
 
 from ..templatetags.common_tags import (
-    gds_date,
-    gds_datetime,
-    gds_time,
+    amp_date,
+    amp_datetime,
+    amp_time,
     list_item_by_index,
     markdown_to_html,
 )
@@ -46,9 +46,9 @@ def test_markdown_to_html_escapes_html():
         (None, ""),
     ],
 )
-def test_gds_date(date_to_format, expected_result):
+def test_amp_date(date_to_format, expected_result):
     """Test date formatted according to GDS style guide."""
-    assert gds_date(date_to_format) == expected_result
+    assert amp_date(date_to_format) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -58,9 +58,9 @@ def test_gds_date(date_to_format, expected_result):
         (None, ""),
     ],
 )
-def test_gds_time(datetime_to_format, expected_result):
+def test_amp_time(datetime_to_format, expected_result):
     """Test time formatted according to GDS style guide."""
-    assert gds_time(datetime_to_format) == expected_result
+    assert amp_time(datetime_to_format) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -70,6 +70,6 @@ def test_gds_time(datetime_to_format, expected_result):
         (None, ""),
     ],
 )
-def test_gds_datetime(datetime_to_format, expected_result):
+def test_amp_datetime(datetime_to_format, expected_result):
     """Test date and time formatted according to GDS style guide."""
-    assert gds_datetime(datetime_to_format) == expected_result
+    assert amp_datetime(datetime_to_format) == expected_result
