@@ -31,7 +31,6 @@ REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
     "title_caption",
-    "sub_header",
     "sent_by",
     "contact",
     "related_content",
@@ -49,7 +48,6 @@ class ReportWrapper(models.Model):
 
     title = models.TextField(default="", blank=True)
     title_caption = models.TextField(default="", blank=True)
-    sub_header = models.TextField(default="", blank=True)
     sent_by = models.TextField(default="", blank=True)
     contact = models.TextField(default="", blank=True)
     related_content = models.TextField(default="", blank=True)
