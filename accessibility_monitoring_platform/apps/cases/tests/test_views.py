@@ -1718,43 +1718,6 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     assert updated_case.reviewer == admin_user
 
 
-@pytest.mark.parametrize(
-    "step_url",
-    [
-        "cases:edit-review-changes",
-        "cases:edit-final-website",
-        "cases:edit-final-statement",
-        "cases:edit-case-close",
-    ],
-)
-def test_case_final_views_show_warning_when_no_problems_found(step_url, admin_client):
-    """
-    Test that the case final views contain a warning if the website and accessibility statement
-    are compliant
-    """
-    case: Case = Case.objects.create(
-        is_website_compliant="compliant", accessibility_statement_state="compliant"
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-warning-text">
-            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                The public sector body website is compliant and has no issues with the accessibility statement.
-                The case can be marked as completed with no further action.
-            </strong>
-        </div>""",
-        html=True,
-    )
-
-
 @pytest.mark.django_db
 def test_create_case_also_creates_event(admin_client):
     """Test that create case also creates event"""
@@ -2033,6 +1996,8 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
         "edit-twelve-week-correspondence",
         "edit-twelve-week-retest",
         "edit-review-changes",
+        "edit-final-website",
+        "edit-final-statement",
         "edit-case-close",
         "edit-enforcement-body-correspondence",
         "edit-post-case",
