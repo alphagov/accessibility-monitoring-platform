@@ -2024,8 +2024,7 @@ def test_platform_shows_notification_if_fully_compliant(
     assertContains(
         response,
         """<h3 class="govuk-notification-banner__heading" style="max-width:100%;">
-            The case has a compliant website and a compliant accessibility statement
-            and does not require any further actions.
+            The case has a compliant website and a compliant accessibility statement.
         </h3>""",
         html=True,
     )

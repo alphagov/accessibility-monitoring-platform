@@ -8,14 +8,14 @@
                     </h2>
                 </div>
                 <div class="govuk-notification-banner__content">
-                    <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
-                        The case has a compliant website and a compliant accessibility statement
-                        and does not require any further action.
-                    </h3>
-                    {% if case.case_completed != 'complete-no-send' %}
+                    {% if case.case_completed == 'complete-no-send' %}
                         <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
                             The case has a compliant website and a compliant accessibility statement
-                            and does not require any further actions.
+                            and does not require any further action.
+                        </h3>
+                    {% else %}
+                        <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+                            The case has a compliant website and a compliant accessibility statement.
                         </h3>
                         <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
                             Select ‘Case should not be sent to the equality body’ in Closing the case and save.
