@@ -21,7 +21,6 @@ from django.views.generic.list import ListView
 from ..notifications.utils import add_notification, read_notification
 
 from ..common.utils import (
-    format_date,
     download_as_csv,
     extract_domain_from_url,
     get_field_names_for_export,
@@ -33,6 +32,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
     FieldLabelAndValue,
 )
+from ..common.utils import amp_format_date
 from .models import (
     Case,
     Contact,
@@ -122,7 +122,7 @@ def format_due_date_help_text(due_date: date) -> str:
     """Format date and prefix with 'Due' if present"""
     if due_date is None:
         return "None"
-    return f"Due {format_date(due_date)}"
+    return f"Due {amp_format_date(due_date)}"
 
 
 class CaseDetailView(DetailView):

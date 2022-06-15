@@ -40,7 +40,8 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import format_date, get_field_names_for_export
+from ...common.utils import get_field_names_for_export
+from ...common.utils import amp_format_date
 from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
@@ -866,17 +867,18 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     )
 
     assert response.status_code == 200
+
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
         html=True,
     )
 
@@ -1443,7 +1445,7 @@ def test_calculate_twelve_week_chaser_dates():
 @pytest.mark.parametrize(
     "due_date, expected_help_text",
     [
-        (date(2020, 1, 1), "Due 01/01/2020"),
+        (date(2020, 1, 1), "Due 1 January 2020"),
         (None, "None"),
     ],
 )

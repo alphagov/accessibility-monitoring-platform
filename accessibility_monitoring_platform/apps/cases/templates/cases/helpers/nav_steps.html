@@ -36,7 +36,7 @@
         <p class="govuk-body-m">
         {% if case.reminder %}
             <a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                Reminder due {{ case.reminder.due_date|date:"d/m/Y" }}
+                Reminder due {{ case.reminder.due_date|amp_date }}
             </a>
         {% else %}
             <a href="{% url "reminders:reminder-create" case.id %}" class="govuk-link govuk-link--no-visited-state">

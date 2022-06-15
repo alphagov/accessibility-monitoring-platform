@@ -17,7 +17,7 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header amp-width-one-quarter">{{case.created|date:"d/m/Y"}}</th>
+                    <th scope="row" class="govuk-table__header amp-width-one-quarter">{{case.created|amp_date}}</th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{% url 'cases:case-detail' case.id %}" class="govuk-link"> {{case.organisation_name|truncatechars:25}}  </a>
                     </td>

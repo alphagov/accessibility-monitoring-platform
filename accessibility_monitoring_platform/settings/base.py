@@ -106,6 +106,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "accessibility_monitoring_platform.apps.common.context_processors.platform_page",
             ],
+            "builtins": [
+                "accessibility_monitoring_platform.apps.common.templatetags.common_tags"
+            ],
         },
     },
 ]

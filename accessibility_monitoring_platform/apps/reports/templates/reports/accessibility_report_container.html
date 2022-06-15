@@ -1,4 +1,3 @@
-{% load common_tags %}
 <div class="govuk-width-container">
     <noscript>
         <style>
@@ -56,7 +55,7 @@
 
                         {% if s3_report %}
                             <dt class="metadata-term">Published</dt>
-                            <dd>{{ s3_report.created|date:"d F Y" }}</dd>
+                            <dd>{{ s3_report.created|amp_date }}</dd>
                         {% endif %}
                     </dl>
                     <div class="iff-javascript-enabled">
