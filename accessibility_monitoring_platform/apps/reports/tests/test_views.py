@@ -374,7 +374,8 @@ def test_edit_report_wrapper_page_non_staff_user(client, django_user_model):
     assertContains(response, "Admin access is required to edit the report viewer.")
     assertNotContains(
         response,
-        """<input type="text" name="sub_header" class="govuk-input" id="id_sub_header">""",
+        """<input type="text" name="title_caption" value="Accessibility report"
+            class="govuk-input" id="id_title_caption">""",
         html=True,
     )
 
@@ -393,7 +394,8 @@ def test_edit_report_wrapper_page_staff_user(client, django_user_model):
     assertNotContains(response, "Admin access is required to edit the report viewer.")
     assertContains(
         response,
-        """<input type="text" name="sub_header" class="govuk-input" id="id_sub_header">""",
+        """<input type="text" name="title_caption" value="Accessibility report"
+            class="govuk-input" id="id_title_caption">""",
         html=True,
     )
 
