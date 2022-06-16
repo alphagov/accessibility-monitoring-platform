@@ -142,8 +142,8 @@ def test_case_list_view_filters_by_psb_location(admin_client):
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_filters_by_sector(admin_client):
-    """Test that the case list view page can be filtered by case number"""
+def test_case_list_view_filters_by_sector_name(admin_client):
+    """Test that the case list view page can be filtered by sector name"""
     sector: Sector = Sector.objects.create(name="Defence")
     Case.objects.create(organisation_name="Included", sector=sector)
     Case.objects.create(organisation_name="Excluded")
