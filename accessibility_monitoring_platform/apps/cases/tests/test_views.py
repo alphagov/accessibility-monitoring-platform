@@ -243,16 +243,16 @@ def test_case_list_view_user_unassigned_filters(
 
 def test_case_list_view_date_range_filters(admin_client):
     """Test that the case list view page can be filtered by date range"""
-    included_created_date: datetime = datetime(
+    included_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
     )
-    excluded_created_date: datetime = datetime(
+    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
     )
-    Case.objects.create(organisation_name="Included", created=included_created_date)
-    Case.objects.create(organisation_name="Excluded", created=excluded_created_date)
+    Case.objects.create(organisation_name="Included", sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date)
+    Case.objects.create(organisation_name="Excluded", sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date)
 
-    url_parameters = "start_date_0=1&start_date_1=6&start_date_2=2021&end_date_0=10&end_date_1=6&end_date_2=2021"
+    url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )

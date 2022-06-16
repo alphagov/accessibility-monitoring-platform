@@ -74,6 +74,15 @@ from .utils import (
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
+ADVANCED_SEARCH_FIELDS: List[str] = [
+    "date_start_0",
+    "date_start_1",
+    "date_start_2",
+    "date_end_0",
+    "date_end_1",
+    "date_end_2",
+    "sector",
+]
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -204,6 +213,11 @@ class CaseListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
+        context["advanced_search_open"] = [
+            True
+            for field_name in ADVANCED_SEARCH_FIELDS
+            if get_without_page.get(field_name)
+        ]
         context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
         return context

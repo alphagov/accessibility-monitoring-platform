@@ -56,10 +56,14 @@ status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
 DEFAULT_SORT: str = "-id"
-SORT_CHOICES = [
+SORT_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
     ("organisation_name", "Alphabetic"),
+]
+
+DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
 ]
 
 
@@ -86,6 +90,10 @@ class CaseSearchForm(AMPDateRangeForm):
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
+    date_type = AMPChoiceField(label="Date filter", choices=DATE_TYPE_CHOICES)
+    date_start = AMPDateField(label="Date start")
+    date_end = AMPDateField(label="Date end")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
