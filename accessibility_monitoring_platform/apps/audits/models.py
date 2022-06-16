@@ -17,7 +17,7 @@ from ..common.models import (
     BOOLEAN_TRUE,
     BOOLEAN_FALSE,
 )
-from ..common.utils import format_date
+from ..common.utils import amp_format_date
 
 SCREEN_SIZE_DEFAULT: str = "15in"
 SCREEN_SIZE_CHOICES: List[Tuple[str, str]] = [
@@ -184,27 +184,27 @@ RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
 ]
 
 REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
-    "accessibility_statement_not_correct_format": "It was not in the correct format",
-    "accessibility_statement_not_specific_enough": "It was not specific enough",
-    "accessibility_statement_missing_accessibility_issues": "Accessibility issues were found during the test that"
+    "accessibility_statement_not_correct_format": "it was not in the correct format",
+    "accessibility_statement_not_specific_enough": "it was not specific enough",
+    "accessibility_statement_missing_accessibility_issues": "accessibility issues were found during the test that"
     " were not included in the statement",
-    "accessibility_statement_missing_mandatory_wording": "Mandatory wording is missing",
-    "accessibility_statement_needs_more_re_disproportionate": "We require more information covering the"
+    "accessibility_statement_missing_mandatory_wording": "mandatory wording is missing",
+    "accessibility_statement_needs_more_re_disproportionate": "we require more information covering the"
     " disproportionate burden claim",
-    "accessibility_statement_needs_more_re_accessibility": "It required more information detailing the accessibility"
+    "accessibility_statement_needs_more_re_accessibility": "it required more information detailing the accessibility"
     " issues",
-    "accessibility_statement_deadline_not_complete": "It includes a deadline of XXX for fixing XXX issues and this"
+    "accessibility_statement_deadline_not_complete": "it includes a deadline of XXX for fixing XXX issues and this"
     " has not been completed",
-    "accessibility_statement_deadline_not_sufficient": "It includes a deadline of XXX for fixing XXX issues and"
+    "accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
     " this is not sufficient",
-    "accessibility_statement_out_of_date": "It is out of date and needs to be reviewed",
-    "accessibility_statement_template_update": "It is a requirement that accessibility statements are accessible."
+    "accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
+    "accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
     " Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML"
     " version of your full accessibility statement.",
-    "accessibility_statement_accessible": "In 2020 the GOV.UK sample template was updated to include an extra"
+    "accessibility_statement_accessible": "in 2020 the GOV.UK sample template was updated to include an extra"
     " mandatory piece of information to outline the scope of your accessibility statement. This needs to be added to"
     " your statement.",
-    "accessibility_statement_prominent": "Your statement should be prominently placed on the homepage of the website"
+    "accessibility_statement_prominent": "your statement should be prominently placed on the homepage of the website"
     " or made available on every web page, for example in a static header or footer, as per the legislative"
     " requirement.",
 }
@@ -504,9 +504,7 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(
-            f"{self.case}" f" | {format_date(self.date_of_test)}"  # type: ignore
-        )
+        return str(f"{self.case}" f" | {amp_format_date(self.date_of_test)}")  # type: ignore
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})

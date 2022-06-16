@@ -2,6 +2,7 @@
 Common templatetags
 """
 
+from datetime import date, datetime
 from html import escape
 from typing import Any, List
 
@@ -10,6 +11,13 @@ import markdown
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
+
+from ..utils import (  # pylint: disable=relative-beyond-top-level
+    amp_format_date,
+    amp_format_datetime,
+    amp_format_time,
+    undo_double_escapes
+)
 
 register = template.Library()
 
@@ -26,9 +34,26 @@ def list_item_by_index(items: List[Any], index: int) -> Any:
 @register.filter
 def markdown_to_html(text: str) -> str:
     """Convert markdown text into html"""
-    return mark_safe(
-        markdown.markdown(
-            escape(text),
-            extensions=settings.MARKDOWN_EXTENSIONS,
-        )
+    html: str = markdown.markdown(
+        escape(text),
+        extensions=settings.MARKDOWN_EXTENSIONS,
     )
+    return mark_safe(undo_double_escapes(html))
+
+
+@register.filter
+def amp_date(date_to_format: date) -> str:
+    """Format date according to GDS style guide"""
+    return amp_format_date(date_to_format)
+
+
+@register.filter
+def amp_time(datetime_to_format: datetime) -> str:
+    """Format time according to GDS style guide"""
+    return amp_format_time(datetime_to_format)
+
+
+@register.filter
+def amp_datetime(datetime_to_format: datetime) -> str:
+    """Format date and time according to GDS style guide"""
+    return amp_format_datetime(datetime_to_format)

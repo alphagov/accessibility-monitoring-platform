@@ -4,8 +4,6 @@
 
 {% load static %}
 
-{% load common_tags %}
-
 {% block title %}{{ page.audit.case.organisation_name }} | Testing {{ page }}{% endblock %}
 
 {% block content %}
@@ -156,6 +154,7 @@
                                     </details>
                                 {% endif %}
                                 {% include 'common/amp_field.html' with field=form.notes %}
+                                {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
                             </div>
                         </div>
                     {% endfor %}
@@ -183,6 +182,7 @@
 {% endblock %}
 
 {% block extrascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script type="text/javascript">
     function clickCopyTextToInput(targetId, text) {
         target = document.getElementById(targetId)
@@ -194,6 +194,12 @@
             target = document.getElementById(targetId)
             target.value = text
         }
+    }
+    const converter = new showdown.Converter();
+    function previewMarkdown(sourceId, targetId) {
+        markdown = document.getElementById(sourceId).value;
+        targetElement = document.getElementById(targetId);
+        targetElement.innerHTML = converter.makeHtml(markdown);
     }
 </script>
 {% endblock %}

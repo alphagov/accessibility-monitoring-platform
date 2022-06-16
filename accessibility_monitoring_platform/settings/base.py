@@ -106,6 +106,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "accessibility_monitoring_platform.apps.common.context_processors.platform_page",
             ],
+            "builtins": [
+                "accessibility_monitoring_platform.apps.common.templatetags.common_tags"
+            ],
         },
     },
 ]
@@ -181,7 +184,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
 
-MARKDOWN_EXTENSIONS = []
+MARKDOWN_EXTENSIONS = ["fenced_code"]
 
 # django-axes
 AXES_ONLY_USER_FAILURES = True  # Block only on username
