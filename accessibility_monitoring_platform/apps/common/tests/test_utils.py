@@ -35,6 +35,7 @@ from ..utils import (
     record_model_update_event,
     list_to_dictionary_of_lists,
     undo_double_escapes,
+    check_dict_for_truthy_values,
 )
 
 
@@ -304,3 +305,23 @@ def test_undo_double_escapes():
     Test Undo double escapes, where & has been replaced with &amp; in escaped html
     """
     assert undo_double_escapes("&amp;lt;tag&amp;gt;&amp;quot;") == "&lt;tag&gt;&quot;"
+
+
+@pytest.mark.parametrize(
+    "dictionary,keys_to_check,expected_result",
+    [
+        ({}, ["missing_key"], False),
+        ({"truthy_key": True}, ["truthy_key"], True),
+        ({"truthy_key": True, "falsey_key": False}, ["falsey_key"], False),
+        (
+            {"truthy_key_1": True, "truthy_key_2": True},
+            ["truthy_key_1", "truthy_key_2"],
+            True,
+        ),
+    ],
+)
+def test_check_dict_for_truthy_values(dictionary, keys_to_check, expected_result):
+    """
+    Test dictionary contains at least one truthy values for list of keys to check.
+    """
+    assert check_dict_for_truthy_values(dictionary, keys_to_check) == expected_result

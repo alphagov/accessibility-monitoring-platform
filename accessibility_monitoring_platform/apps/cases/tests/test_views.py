@@ -249,12 +249,38 @@ def test_case_list_view_date_range_filters(admin_client):
     excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
     )
-    Case.objects.create(organisation_name="Included", sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date)
-    Case.objects.create(organisation_name="Excluded", sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date)
+    Case.objects.create(
+        organisation_name="Included",
+        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
+    )
+    Case.objects.create(
+        organisation_name="Excluded",
+        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
+    )
 
     url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_sector_filter(admin_client):
+    """Test that the case list view page can be filtered by sector"""
+    sector: Sector = Sector.objects.create(name="test sector")
+
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    included_case.sector = sector
+    included_case.save()
+
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?sector={sector.id}"  # type: ignore
     )
 
     assert response.status_code == 200

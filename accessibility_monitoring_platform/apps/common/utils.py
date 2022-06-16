@@ -214,3 +214,8 @@ def undo_double_escapes(html: str) -> str:
         .replace("&amp;gt;", "&gt;")
         .replace("&amp;quot;", "&quot;")
     )
+
+
+def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
+    """Check list of keys in dictionary for at least one truthy value"""
+    return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0

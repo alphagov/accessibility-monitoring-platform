@@ -27,6 +27,7 @@ from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
+    check_dict_for_truthy_values,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -213,11 +214,9 @@ class CaseListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
-        context["advanced_search_open"] = [
-            True
-            for field_name in ADVANCED_SEARCH_FIELDS
-            if get_without_page.get(field_name)
-        ]
+        context["advanced_search_open"] = check_dict_for_truthy_values(
+            dictionary=get_without_page, keys_to_check=ADVANCED_SEARCH_FIELDS
+        )
         context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
         return context
