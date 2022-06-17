@@ -20,3 +20,10 @@
         </div>
     {% endfor %}
 </div>
+<p class="govuk-body-m" style="margin-top:10px;margin-bottom:0;">
+    <span class="amp-control" tabIndex="0"
+        onkeypress="keypressPopulateWithTodaysDate(event, '{{ widget.subwidgets.0.attrs.id }}', '{{ widget.subwidgets.1.attrs.id }}', '{{ widget.subwidgets.2.attrs.id }}')"
+        onclick="populateWithTodaysDate('{{ widget.subwidgets.0.attrs.id }}', '{{ widget.subwidgets.1.attrs.id }}', '{{ widget.subwidgets.2.attrs.id }}')">
+        Populate with today's date
+    </span>
+</p>

@@ -143,7 +143,7 @@
                                                     <b>{{ issue.page }}</b>
                                                     <span tabIndex="0"
                                                         class="amp-control"
-                                                        onclick="clickCopyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
                                                         onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
                                                         >Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
@@ -184,15 +184,14 @@
 {% block extrascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script type="text/javascript">
-    function clickCopyTextToInput(targetId, text) {
+    function copyTextToInput(targetId, text) {
         target = document.getElementById(targetId)
         target.value = text
     }
     function keyboardCopyTextToInput(event, targetId, text) {
         if (event.code === "Enter" || event.code === "Space") {
             event.preventDefault()
-            target = document.getElementById(targetId)
-            target.value = text
+            copyTextToInput(targetId, text)
         }
     }
     const converter = new showdown.Converter();
