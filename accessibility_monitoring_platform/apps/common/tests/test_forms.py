@@ -83,7 +83,7 @@ EXPECTED_DATE_WIDGET_HTML: str = """
 <p class="govuk-body-m" style="margin-top:10px;margin-bottom:0;">
     <span class="amp-control" tabIndex="0"
         onkeypress="keypressPopulateWithTodaysDate(event, \'\', \'\', \'\')"
-        onclick="clickPopulateWithTodaysDate(\'\', \'\', \'\')">
+        onclick="populateWithTodaysDate(\'\', \'\', \'\')">
         Populate with today's date
     </span>
 </p>"""
