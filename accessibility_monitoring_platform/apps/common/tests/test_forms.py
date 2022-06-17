@@ -79,7 +79,11 @@ EXPECTED_DATE_WIDGET_HTML: str = """
                     inputmode="numeric">
             </div>
         </div>
-</div>"""
+</div>
+<p class="govuk-body-m amp-control" style="margin-top:10px;margin-bottom:0;"
+   onclick="populateWithTodaysDate(\'\', \'\', \'\')">
+   Populate with today's date
+</p>"""
 
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
     ("yes", "Yes"),
