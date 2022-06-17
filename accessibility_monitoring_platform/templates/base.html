@@ -91,11 +91,20 @@
     </div>
     <script src="{% static 'js/index.js' %}"></script>
     <script type="text/javascript">
-      function populateWithTodaysDate(dayId, monthId, yearId) {
-        const today = new Date();
+      function clickPopulateWithTodaysDate(dayId, monthId, yearId) {
+        const today = new Date()
         document.getElementById(dayId).value = today.getDate()
         document.getElementById(monthId).value = today.getMonth() + 1  //January is 0!
         document.getElementById(yearId).value = today.getFullYear()
+      }
+      function keypressPopulateWithTodaysDate(event, dayId, monthId, yearId) {
+        if (event.code === "Enter" || event.code === "Space") {
+          event.preventDefault()
+          const today = new Date()
+          document.getElementById(dayId).value = today.getDate()
+          document.getElementById(monthId).value = today.getMonth() + 1  //January is 0!
+          document.getElementById(yearId).value = today.getFullYear()
+        }
       }
   </script>
     {% block extrascript %}
