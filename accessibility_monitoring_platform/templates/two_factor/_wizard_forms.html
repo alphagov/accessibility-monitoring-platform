@@ -1,0 +1,24 @@
+
+{{ wizard.management_form }}
+
+<div class="form_default">
+  {% if wizard.form.username %}
+    <label class="govuk-label govuk-label--m" for="{{wizard.form.username.auto_id}}">Email</label>
+  {% endif %}
+  {{ wizard.form.username }}
+  <span class="govuk-label">{{wizard.username.help_text}}</span>
+  {% if wizard.field.errors %}
+    <span class="govuk-error-message">
+      <span class="govuk-visually-hidden">Error:</span> {{wizard.username.errors}}
+    </span>
+  {% endif %}
+
+  <label class="govuk-label govuk-label--m" for="{{wizard.form.password.auto_id}}">{{ wizard.form.password.label }}</label>
+  {{wizard.form.password}}
+  <span class="govuk-label">{{wizard.form.password.help_text}}</span>
+
+  <label class="govuk-label govuk-label--m" for="{{wizard.form.otp_token.auto_id}}">{{ wizard.form.otp_token.label }}</label>
+  {{wizard.form.otp_token}}
+  <span class="govuk-label">{{wizard.form.password.otp_token}}</span>
+
+</div>
