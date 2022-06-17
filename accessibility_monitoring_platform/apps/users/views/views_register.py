@@ -42,7 +42,7 @@ def register(request: HttpRequest) -> HttpResponse:
             user.username = form.cleaned_data["email"]
             user.save()
             NotificationSetting(user=user).save()
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            user.backend = "django.contrib.auth.backends.ModelBackend"
             login(request, user)
             return redirect(reverse("dashboard:home"))
 

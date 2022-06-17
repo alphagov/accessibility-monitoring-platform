@@ -59,9 +59,11 @@ class DashboardView(TemplateView):
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
 
-
         mfa_disabled = True
-        if EmailDevice.objects.filter(user=self.request.user).exists() and EmailDevice.objects.get(user=self.request.user).confirmed:
+        if (
+            EmailDevice.objects.filter(user=self.request.user).exists()
+            and EmailDevice.objects.get(user=self.request.user).confirmed
+        ):
             mfa_disabled = False
 
         context.update(
@@ -76,7 +78,7 @@ class DashboardView(TemplateView):
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
-                "mfa_disabled": mfa_disabled
+                "mfa_disabled": mfa_disabled,
             }
         )
         return context

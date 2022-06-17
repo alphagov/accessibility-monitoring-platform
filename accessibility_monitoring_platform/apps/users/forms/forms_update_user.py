@@ -50,10 +50,13 @@ class UpdateUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request: HttpRequest = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        if EmailDevice.objects.filter(user=self.request.user).exists() and EmailDevice.objects.get(user=self.request.user).confirmed:
-            self.fields['enable_2fa'].initial = BOOLEAN_CHOICES[1][0]
+        if (
+            EmailDevice.objects.filter(user=self.request.user).exists()
+            and EmailDevice.objects.get(user=self.request.user).confirmed
+        ):
+            self.fields["enable_2fa"].initial = BOOLEAN_CHOICES[1][0]
         else:
-            self.fields['enable_2fa'].initial = BOOLEAN_CHOICES[0][0]
+            self.fields["enable_2fa"].initial = BOOLEAN_CHOICES[0][0]
 
     class Meta:
         model = User
@@ -77,7 +80,9 @@ class UpdateUserForm(forms.ModelForm):
         enable_2fa = self.cleaned_data.get("enable_2fa")
         if enable_2fa == BOOLEAN_CHOICES[1][0]:
             if EmailDevice.objects.filter(user=self.request.user).exists() is False:
-                EmailDevice.objects.create(user=self.request.user, name="default", confirmed=True)
+                EmailDevice.objects.create(
+                    user=self.request.user, name="default", confirmed=True
+                )
 
             if EmailDevice.objects.get(user=self.request.user).confirmed is False:
                 email_device = EmailDevice.objects.get(user=self.request.user)
