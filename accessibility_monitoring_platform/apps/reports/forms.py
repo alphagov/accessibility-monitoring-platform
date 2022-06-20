@@ -96,7 +96,6 @@ class ReportWrapperUpdateForm(forms.ModelForm):
     """
 
     title = AMPCharFieldWide(label="Title")
-    title_caption = AMPCharFieldWide(label="Title caption")
     sent_by = AMPCharFieldWide(label="From (leave blank to hide)")
     contact = AMPCharFieldWide(label="Contact (leave blank to hide)")
     related_content = AMPTextField(label="Related content")
@@ -105,7 +104,6 @@ class ReportWrapperUpdateForm(forms.ModelForm):
         model = ReportWrapper
         fields: List[str] = [
             "title",
-            "title_caption",
             "sent_by",
             "contact",
             "related_content",
