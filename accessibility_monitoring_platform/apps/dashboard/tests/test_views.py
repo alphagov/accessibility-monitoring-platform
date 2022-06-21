@@ -24,7 +24,7 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 302
-    assert response.url == f"/accounts/login/?next={url}"
+    assert response.url == f"/account/login/?next={url}"  # type: ignore
 
 
 @pytest.mark.parametrize(

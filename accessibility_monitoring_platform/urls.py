@@ -7,9 +7,11 @@ from django.conf.urls import include
 from django.views.generic import RedirectView
 from two_factor.urls import urlpatterns as tf_urls
 
+
 urlpatterns = [
     path("", include(tf_urls)),
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
+    path("accounts/login/", RedirectView.as_view(url="/")),
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
     path("common/", include("accessibility_monitoring_platform.apps.common.urls")),
     path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),

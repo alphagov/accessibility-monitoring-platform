@@ -1,7 +1,6 @@
 """
 Form - UpdateUserForm for users
 """
-from typing import List, Tuple
 from django.contrib.auth.models import User
 from django import forms
 from django.http import HttpRequest
@@ -13,11 +12,11 @@ from ...common.forms import (
     AMPChoiceCheckboxField,
     AMPQAAuditorModelChoiceField,
 )
-
-BOOLEAN_CHOICES: List[Tuple[str, str]] = [
-    ("no", "No"),
-    ("yes", "Yes"),
-]
+from ...common.models import (
+    BOOLEAN_FALSE,
+    BOOLEAN_TRUE,
+    BOOLEAN_CHOICES,
+)
 
 
 class UpdateUserForm(forms.ModelForm):
@@ -54,9 +53,9 @@ class UpdateUserForm(forms.ModelForm):
             EmailDevice.objects.filter(user=self.request.user).exists()
             and EmailDevice.objects.get(user=self.request.user).confirmed
         ):
-            self.fields["enable_2fa"].initial = BOOLEAN_CHOICES[1][0]
+            self.fields["enable_2fa"].initial = BOOLEAN_TRUE
         else:
-            self.fields["enable_2fa"].initial = BOOLEAN_CHOICES[0][0]
+            self.fields["enable_2fa"].initial = BOOLEAN_FALSE
 
     class Meta:
         model = User
@@ -78,14 +77,14 @@ class UpdateUserForm(forms.ModelForm):
 
     def clean_enable_2fa(self):
         enable_2fa = self.cleaned_data.get("enable_2fa")
-        if enable_2fa == BOOLEAN_CHOICES[1][0]:
+        if enable_2fa == BOOLEAN_TRUE:
             if EmailDevice.objects.filter(user=self.request.user).exists() is False:
                 EmailDevice.objects.create(
                     user=self.request.user, name="default", confirmed=True
                 )
 
             if EmailDevice.objects.get(user=self.request.user).confirmed is False:
-                email_device = EmailDevice.objects.get(user=self.request.user)
+                email_device: EmailDevice = EmailDevice.objects.get(user=self.request.user)
                 email_device.confirmed = True
                 email_device.save()
             return enable_2fa
@@ -93,7 +92,7 @@ class UpdateUserForm(forms.ModelForm):
             if EmailDevice.objects.filter(user=self.request.user).exists() is False:
                 return enable_2fa
 
-            email_device = EmailDevice.objects.get(user=self.request.user)
+            email_device: EmailDevice = EmailDevice.objects.get(user=self.request.user)
             if email_device.confirmed is True:
                 email_device.confirmed = False
                 email_device.save()

@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from app.parse_json import parse_integration_tests_json
 import argparse
@@ -192,10 +193,10 @@ class SeleniumTest(unittest.TestCase):
 
     def login(self):
         """Login in to platform"""
-        self.driver.get("http://localhost:8001/accounts/login/?next=/")
-        self.driver.find_element_by_name("username").send_keys("admin@email.com")
-        self.driver.find_element_by_name("password").send_keys("secret")
-        self.driver.find_element_by_xpath('//input[@value="Submit"]').click()
+        self.driver.get("http://localhost:8001/account/login/?next=/")
+        self.driver.find_element_by_name("auth-username").send_keys("admin@email.com")
+        self.driver.find_element_by_name("auth-password").send_keys("secret")
+        self.driver.find_element_by_name("auth-password").send_keys(Keys.RETURN)
 
 
 class TestLogin(SeleniumTest):

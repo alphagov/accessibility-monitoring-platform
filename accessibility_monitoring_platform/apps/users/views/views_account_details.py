@@ -2,7 +2,7 @@
 Views - account_details - users
 """
 
-from typing import TypedDict, List, Any, Dict
+from typing import TypedDict, Any, Dict
 
 from django.contrib.auth import login
 from django.shortcuts import redirect, render, get_object_or_404

@@ -3,12 +3,16 @@ Tests for update user form - users
 """
 
 from typing import Dict, Optional, TypedDict
-
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django_otp.plugins.otp_email.models import EmailDevice
+from django.test import Client
+from django.core import mail
+from django.contrib import auth
+
 
 from ..forms import UpdateUserForm
 from ..models import EmailInclusionList
@@ -35,17 +39,11 @@ class UpdateUserFormTestCase(TestCase):
     test_form_conforms()
         Tests if form.is_valid() is working as expected
 
-    test_unregistered_email_returns_error()
-        Returns an error with email not in inclusion list
-
-    test_email_already_in_use_returns_error()
-        Returns an error if email is already in use
-
-    test_form_mismatched_email_fields_returns_error()
-        Returns an error if email fields are mismatched
-
     test_incorrect_password_returns_error()
         Returns an error if password is incorrect
+
+    test_2fa_initiates_correctly()
+        Tests to see if 2FA works as expected
     """
 
     def setUp(self):
@@ -56,11 +54,15 @@ class UpdateUserFormTestCase(TestCase):
         """Tests if form.is_valid() is working as expected"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
-            username="admin2@email.com", email="admin2@email.com"
+            username="admin2@email.com",
+            email="admin2@email.com",
         )
         user.set_password("12345")
         user.save()
-        self.client.login(username="admin2@email.com", password="12345")
+        self.client.login(
+            username="admin2@email.com",
+            password="12345",
+        )
 
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
@@ -68,118 +70,30 @@ class UpdateUserFormTestCase(TestCase):
         data: Dict[str, str] = {
             "first_name": "Joe",
             "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
             "password": "12345",
         }
 
         form: UpdateUserForm = UpdateUserForm(
-            data=data or None, request=request, initial={}
+            data=data or None,
+            request=request,
+            initial={},
         )
 
         self.assertTrue(form.is_valid())
-
-    def test_unregistered_email_returns_error(self):
-        """Returns an error with email not in inclusion list"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        user: User = User.objects.create(
-            username="admin2@email.com", email="admin2@email.com"
-        )
-        user.set_password("12345")
-        user.save()
-        self.client.login(username="admin2@email.com", password="12345")
-
-        request: HttpRequest = self.factory.get(reverse("users:account_details"))
-        request.user = user
-
-        data: Dict[str, str] = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "UNREGISTERED@email.com",
-            "email_confirm": "UNREGISTERED@email.com",
-            "password": "12345",
-        }
-
-        form: UpdateUserForm = UpdateUserForm(
-            data=data or None, request=request, initial={}
-        )
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["This email is not permitted to sign up"]
-        )
-
-    def test_email_already_in_use_returns_error(self):
-        """Returns an error if email is already in use"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        EmailInclusionList.objects.create(inclusion_email="OLD_EMAIL@email.com")
-        user: User = User.objects.create(email="OLD_EMAIL@email.com")
-        user.save()
-
-        user: User = User.objects.create(
-            username="admin2@email.com", email="admin2@email.com"
-        )
-        user.set_password("12345")
-        user.save()
-
-        self.client.login(username="admin2@email.com", password="12345")
-
-        request: HttpRequest = self.factory.get(reverse("users:account_details"))
-        request.user = user
-
-        data: Dict[str, str] = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "OLD_EMAIL@email.com",
-            "email_confirm": "OLD_EMAIL@email.com",
-            "password": "12345",
-        }
-
-        form: UpdateUserForm = UpdateUserForm(
-            data=data or None, request=request, initial={}
-        )
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["This email is already registered"]
-        )
-
-    def test_form_mismatched_email_fields_returns_error(self):
-        """Returns an error if email fields are mismatched"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        user: User = User.objects.create(
-            username="admin2@email.com", email="admin2@email.com"
-        )
-        user.set_password("12345")
-        user.save()
-        self.client.login(username="admin2@email.com", password="12345")
-
-        request: HttpRequest = self.factory.get(reverse("users:account_details"))
-        request.user = user
-
-        data: Dict[str, str] = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin3@email.com",
-            "password": "12345",
-        }
-
-        form: UpdateUserForm = UpdateUserForm(
-            data=data or None, request=request, initial={}
-        )
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["The email fields do not match"]
-        )
 
     def test_incorrect_password_returns_error(self):
         """Returns an error if password is incorrect"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
-            username="admin2@email.com", email="admin2@email.com"
+            username="admin2@email.com",
+            email="admin2@email.com",
         )
         user.set_password("12345")
         user.save()
-        self.client.login(username="admin2@email.com", password="12345")
+        self.client.login(
+            username="admin2@email.com",
+            password="12345",
+        )
 
         request: HttpRequest = self.factory.get(reverse("users:account_details"))
         request.user = user
@@ -193,7 +107,81 @@ class UpdateUserFormTestCase(TestCase):
         }
 
         form: UpdateUserForm = UpdateUserForm(
-            data=data or None, request=request, initial={}
+            data=data or None,
+            request=request,
+            initial={},
         )
 
         self.assertEqual(form.errors["password"], ["Password is incorrect"])
+
+    def test_2fa_initiates_correctly(self):
+        """ Tests to see if 2FA works as expected """
+        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
+        user: User = User.objects.create(
+            username="admin2@email.com",
+            email="admin2@email.com",
+        )
+        user.set_password("12345")
+        user.save()
+        self.client.login(
+            username="admin2@email.com",
+            password="12345",
+        )
+
+        self.assertFalse(EmailDevice.objects.filter(user=user).exists())
+
+        request: HttpRequest = self.factory.get(reverse("users:account_details"))
+        request.user = user
+
+        data = {
+            "first_name": "Joe",
+            "last_name": "Blogs",
+            "email": "admin2@email.com",
+            "email_confirm": "admin2@email.com",
+            "password": "12345",
+            "enable_2fa": True,
+        }
+
+        form: UpdateUserForm = UpdateUserForm(
+            data=data or None,
+            request=request,
+            initial={},
+        )
+
+        self.assertTrue(form.is_valid())
+        self.assertTrue(EmailDevice.objects.filter(user=user).exists())
+
+        self.client.logout()
+
+        url: str = reverse("dashboard:home")
+        c = Client()
+        user = auth.get_user(c)
+        self.assertEqual(user.is_authenticated, False)
+        response = c.get(url)
+        self.assertTrue(response.status_code == 302)
+        self.assertTrue(response.url == f"/account/login/?next={url}")  # type: ignore
+
+        auth_data = {
+            "auth-username": "admin2@email.com",
+            "auth-password": "12345",
+            "login_view-current_step": "auth",
+        }
+        response = c.post("/account/login/", data=auth_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Token")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].body), 7)
+        user = auth.get_user(self.client)
+        self.assertEqual(user.is_authenticated, False)
+
+        auth_data = {
+            "token-otp_token": int(mail.outbox[0].body[:-1]),
+            "login_view-current_step": "token",
+        }
+        response = c.post("/account/login/", data=auth_data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertRedirects(response, url)
+
+        user = auth.get_user(c)
+        self.assertEqual(user.is_authenticated, True)
