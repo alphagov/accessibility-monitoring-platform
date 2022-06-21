@@ -38,9 +38,9 @@ PAGE_TYPE_PDF: str = "pdf"
 PAGE_TYPE_FORM: str = "form"
 PAGE_TYPE_CORONAVIRUS: str = "coronavirus"
 PAGE_TYPE_CHOICES: List[Tuple[str, str]] = [
-    (PAGE_TYPE_EXTRA, "Additional page"),
-    (PAGE_TYPE_HOME, "Home page"),
-    (PAGE_TYPE_CONTACT, "Contact page"),
+    (PAGE_TYPE_EXTRA, "Additional"),
+    (PAGE_TYPE_HOME, "Home"),
+    (PAGE_TYPE_CONTACT, "Contact"),
     (PAGE_TYPE_STATEMENT, "Accessibility statement"),
     (PAGE_TYPE_CORONAVIRUS, "Coronavirus"),
     (PAGE_TYPE_PDF, "PDF"),
