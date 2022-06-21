@@ -427,10 +427,10 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     )
     assert response.status_code == 200
     assertContains(
-        response, """<h2 class="govuk-heading-m">Home Page</h2>""", html=True
+        response, """<h2 class="govuk-heading-m">Home</h2>""", html=True
     )
     assertContains(
-        response, """<h2 class="govuk-heading-m">Contact Page</h2>""", html=True
+        response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True
     )
     assertContains(
         response,
@@ -542,7 +542,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional page")
+    assertContains(response, "Testing Additional")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
@@ -718,7 +718,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Retesting Additional page")
+    assertContains(response, "Retesting Additional")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
 

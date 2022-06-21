@@ -26,7 +26,7 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ 
 
 {{ wcag_definition.report_boilerplate|safe }}
 """
-CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}
+CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}{% if check_result.page.page_type != 'pdf' %} page{% endif %}:
 
 {{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"

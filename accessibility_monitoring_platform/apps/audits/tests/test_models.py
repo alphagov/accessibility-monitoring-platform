@@ -129,7 +129,7 @@ def test_page_string():
     audit: Audit = create_audit_and_pages()
     page: Page = audit.every_page[0]
 
-    assert str(page) == "Additional page"
+    assert str(page) == "Additional"
 
     page.name = PAGE_NAME
 
