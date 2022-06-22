@@ -115,7 +115,7 @@ class UpdateUserFormTestCase(TestCase):
         self.assertEqual(form.errors["password"], ["Password is incorrect"])
 
     def test_2fa_initiates_correctly(self):
-        """ Tests to see if 2FA works as expected """
+        """Tests to see if 2FA works as expected"""
         EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
         user: User = User.objects.create(
             username="admin2@email.com",
@@ -154,10 +154,10 @@ class UpdateUserFormTestCase(TestCase):
         self.client.logout()
 
         url: str = reverse("dashboard:home")
-        c = Client()
-        user = auth.get_user(c)
+        client: Client = Client()
+        user = auth.get_user(client)  # type: ignore
         self.assertEqual(user.is_authenticated, False)
-        response = c.get(url)
+        response = client.get(url)
         self.assertTrue(response.status_code == 302)
         self.assertTrue(response.url == f"/account/login/?next={url}")  # type: ignore
 
@@ -166,22 +166,21 @@ class UpdateUserFormTestCase(TestCase):
             "auth-password": "12345",
             "login_view-current_step": "auth",
         }
-        response = c.post("/account/login/", data=auth_data)
+        response = client.post("/account/login/", data=auth_data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Token")
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].body), 7)
-        user = auth.get_user(self.client)
+        user = auth.get_user(self.client)  # type: ignore
         self.assertEqual(user.is_authenticated, False)
 
         auth_data = {
             "token-otp_token": int(mail.outbox[0].body[:-1]),
             "login_view-current_step": "token",
         }
-        response = c.post("/account/login/", data=auth_data)
-        self.assertEqual(response.status_code, 302)
+        response = client.post("/account/login/", data=auth_data)
 
-        self.assertRedirects(response, url)
+        self.assertRedirects(response, url)  # type: ignore
 
-        user = auth.get_user(c)
+        user = auth.get_user(client)  # type: ignore
         self.assertEqual(user.is_authenticated, True)

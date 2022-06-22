@@ -6,6 +6,7 @@ from django import forms
 from django.http import HttpRequest
 from django_otp.plugins.otp_email.models import EmailDevice
 from typing import Any
+from ...common.utils import checks_if_2fa_is_enabled
 from ...common.forms import (
     AMPChoiceCheckboxWidget,
     AMPCharFieldWide,
@@ -49,10 +50,7 @@ class UpdateUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request: HttpRequest = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        if (
-            EmailDevice.objects.filter(user=self.request.user).exists()
-            and EmailDevice.objects.get(user=self.request.user).confirmed
-        ):
+        if checks_if_2fa_is_enabled(self.request):
             self.fields["enable_2fa"].initial = BOOLEAN_TRUE
         else:
             self.fields["enable_2fa"].initial = BOOLEAN_FALSE
@@ -80,11 +78,15 @@ class UpdateUserForm(forms.ModelForm):
         if enable_2fa == BOOLEAN_TRUE:
             if EmailDevice.objects.filter(user=self.request.user).exists() is False:
                 EmailDevice.objects.create(
-                    user=self.request.user, name="default", confirmed=True
+                    user=self.request.user,
+                    name="default",
+                    confirmed=True,
                 )
 
             if EmailDevice.objects.get(user=self.request.user).confirmed is False:
-                email_device: EmailDevice = EmailDevice.objects.get(user=self.request.user)
+                email_device: EmailDevice = EmailDevice.objects.get(
+                    user=self.request.user
+                )
                 email_device.confirmed = True
                 email_device.save()
             return enable_2fa
