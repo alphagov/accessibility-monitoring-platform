@@ -427,10 +427,10 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     )
     assert response.status_code == 200
     assertContains(
-        response, """<h2 class="govuk-heading-m">Home Page</h2>""", html=True
+        response, """<h2 class="govuk-heading-m">Home</h2>""", html=True
     )
     assertContains(
-        response, """<h2 class="govuk-heading-m">Contact Page</h2>""", html=True
+        response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True
     )
     assertContains(
         response,
@@ -542,7 +542,7 @@ def test_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Testing Additional page")
+    assertContains(response, "Testing Additional")
     assertContains(response, "Showing 2 errors")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
@@ -718,7 +718,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Retesting Additional page")
+    assertContains(response, "Retesting Additional")
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
@@ -889,3 +889,63 @@ def test_report_text_shown_when_not_platform_report(admin_client):
         response,
         "Report text should not be used when the report methodology is set to Platform.",
     )
+
+
+def test_all_initial_statement_one_notes_included_on_retest(admin_client):
+    """
+    Test that initial statement one notes all on retest page
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit.scope_notes = "Initial scope notes"
+    audit.feedback_notes = "Initial feedback notes"
+    audit.contact_information_notes = "Initial contact information notes"
+    audit.enforcement_procedure_notes = "Initial enforcement procedure notes"
+    audit.declaration_notes = "Initial declaration notes"
+    audit.compliance_notes = "Initial compliance notes"
+    audit.non_regulation_notes = "Initial non-regulation notes"
+    audit.save()
+
+    audit_pk: int = audit.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-1", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Initial scope notes")
+    assertContains(response, "Initial feedback notes")
+    assertContains(response, "Initial contact information notes")
+    assertContains(response, "Initial enforcement procedure notes")
+    assertContains(response, "Initial declaration notes")
+    assertContains(response, "Initial compliance notes")
+    assertContains(response, "Initial non-regulation notes")
+
+
+def test_all_initial_statement_two_notes_included_on_retest(admin_client):
+    """
+    Test that initial statement two notes all on retest page
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit.disproportionate_burden_notes = "Initial disproportional burden notes"
+    audit.content_not_in_scope_notes = "Initial not in scope notes"
+    audit.preparation_date_notes = "Initial preperation date notes"
+    audit.review_notes = "Initial review notes"
+    audit.method_notes = "Initial method notes"
+    audit.access_requirements_notes = "Initial access requirements notes"
+    audit.save()
+
+    audit_pk: int = audit.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-retest-statement-2", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Initial disproportional burden notes")
+    assertContains(response, "Initial not in scope notes")
+    assertContains(response, "Initial preperation date notes")
+    assertContains(response, "Initial review notes")
+    assertContains(response, "Initial method notes")
+    assertContains(response, "Initial access requirements notes")

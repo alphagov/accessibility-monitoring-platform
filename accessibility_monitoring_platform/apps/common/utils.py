@@ -150,11 +150,6 @@ def validate_url(url: str) -> None:
         raise ValidationError("URL must start with http:// or https://")
 
 
-def format_date(date_to_format: date) -> str:
-    """Format a date as a string"""
-    return date_to_format.strftime("%d/%m/%Y") if date_to_format else "None"
-
-
 def get_platform_settings() -> Platform:
     """Return the platform-wide settings"""
     return Platform.objects.get(pk=1)
@@ -194,6 +189,25 @@ def list_to_dictionary_of_lists(
     return dict_of_lists_of_items
 
 
+def amp_format_date(date_to_format: date) -> str:
+    """Format date according to GDS style guide"""
+    return f"{date_to_format:%-d %B %Y}" if date_to_format else ""
+
+
+def amp_format_time(datetime_to_format: datetime) -> str:
+    """Format time according to GDS style guide"""
+    return f"{datetime_to_format:%-I:%M%p}".lower() if datetime_to_format else ""
+
+
+def amp_format_datetime(datetime_to_format: datetime) -> str:
+    """Format date and time according to GDS style guide"""
+    return (
+        f"{amp_format_date(datetime_to_format)} {amp_format_time(datetime_to_format)}"
+        if datetime_to_format
+        else ""
+    )
+
+
 def undo_double_escapes(html: str) -> str:
     """Undo double escapes, where & has been replaced with &amp; in escaped html"""
     return (
@@ -209,3 +223,8 @@ def checks_if_2fa_is_enabled(request: HttpRequest) -> bool:
         EmailDevice.objects.filter(user=request.user).exists()
         and EmailDevice.objects.get(user=request.user).confirmed
     )
+
+
+def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
+    """Check list of keys in dictionary for at least one truthy value"""
+    return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0

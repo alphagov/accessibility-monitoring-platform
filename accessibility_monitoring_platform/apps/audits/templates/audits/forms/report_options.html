@@ -52,13 +52,119 @@
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_accessible %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_prominent %}
                             {% include 'common/amp_field.html' with field=form.report_options_next %}
+                            <details class="govuk-details" data-module="govuk-details">
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">
+                                        Report text preview
+                                    </span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    <p class="govuk-body">
+                                        You should fix the issues that were found and do your own accessibility
+                                        audit to check for issues that go beyond the scope of simple accessibility testing.
+                                    </p>
+                                    <p class="govuk-body"><b>Or</b></p>
+                                    <p class="govuk-body">
+                                            You should do your own accessibility audit to check for issues that go beyond
+                                        the scope of simple accessibility testing.
+                                    </p>
+                                </div>
+                            </details>
 
                             <p class="govuk-body">Then choose all options which apply</p>
-                            {% include 'common/amp_field.html' with field=form.report_next_change_statement %}
-                            {% include 'common/amp_field.html' with field=form.report_next_no_statement %}
-                            {% include 'common/amp_field.html' with field=form.report_next_statement_not_right %}
-                            {% include 'common/amp_field.html' with field=form.report_next_statement_matches %}
-                            {% include 'common/amp_field.html' with field=form.report_next_disproportionate_burden %}
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=form.report_next_change_statement %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Report text preview
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            You need to review your accessibility statement to cover the issues found
+                                            in this report and any others found during your own audit.
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=form.report_next_no_statement %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Report text preview
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            You need to write and publish an accessibility statement that
+                                            meets the required legislative format.
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=form.report_next_statement_not_right %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Report text preview
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            You need to review your accessibility statement to cover the
+                                            issues found in this report, including ones related to your
+                                            accessibility statement, and any other accessibility issues
+                                            found during your own site audit.
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=form.report_next_statement_matches %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Report text preview
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            You need to review your accessibility statement to cover any other issues
+                                            found during your own audit.
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=form.report_next_disproportionate_burden %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <details class="govuk-details" data-module="govuk-details">
+                                        <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                                Report text preview
+                                            </span>
+                                        </summary>
+                                        <div class="govuk-details__text">
+                                            A disproportionate burden assessment must have been completed before adding
+                                            this section to your accessibility statement. You need to send evidence of
+                                            the assessment to us for review.
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
 
                             {% include 'common/amp_field.html' with field=form.audit_report_options_complete_date %}
                         </div>

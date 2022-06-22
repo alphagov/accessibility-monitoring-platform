@@ -96,6 +96,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "builtins": [
+                "accessibility_monitoring_platform.apps.common.templatetags.common_tags"
+            ],
         },
     },
 ]

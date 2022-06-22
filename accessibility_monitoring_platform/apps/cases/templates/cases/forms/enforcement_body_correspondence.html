@@ -23,6 +23,7 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Equality body summary' %}
             </div>
         </div>
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.no_psb_contact == 'yes' %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>

@@ -63,11 +63,11 @@
           <div class="govuk-header__content">
             <a href="/" class="govuk-header__link govuk-header__link--homepage">
               <span class="govuk-header__link--service-name">
-                Accessibility Monitoring Platform
+                Accessibility monitoring platform
                 {% if 'localhost' in request.build_absolute_uri %}
-                    - Local
+                    - local
                 {% elif 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
-                    - Test
+                    - test
                 {% endif %}
               </span>
             </a>
@@ -90,6 +90,20 @@
 
     </div>
     <script src="{% static 'js/index.js' %}"></script>
+    <script type="text/javascript">
+      function populateWithTodaysDate(dayId, monthId, yearId) {
+        const today = new Date()
+        document.getElementById(dayId).value = today.getDate()
+        document.getElementById(monthId).value = today.getMonth() + 1  //January is 0!
+        document.getElementById(yearId).value = today.getFullYear()
+      }
+      function keypressPopulateWithTodaysDate(event, dayId, monthId, yearId) {
+        if (event.code === "Enter" || event.code === "Space") {
+          event.preventDefault()
+          populateWithTodaysDate(dayId, monthId, yearId)
+        }
+      }
+  </script>
     {% block extrascript %}
     {% endblock %}
   </body>

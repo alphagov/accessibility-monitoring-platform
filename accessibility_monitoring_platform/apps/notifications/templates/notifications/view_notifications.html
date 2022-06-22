@@ -68,10 +68,10 @@
                                 <tr class="govuk-table__row ">
                                     <th scope="row" class="govuk-table__header amp-width-one-quarter">
                                         {% if notification.read %}
-                                            {{notification.created_date|date:"d/m/Y"}}
+                                            {{notification.created_date|amp_date}}
                                         {% else %}
                                             <strong class="govuk-tag govuk-tag--red">
-                                                {{notification.created_date|date:"d/m/Y"}}
+                                                {{notification.created_date|amp_date}}
                                             </strong>
                                         {% endif %}
                                     </th>

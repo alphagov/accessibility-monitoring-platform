@@ -12,7 +12,7 @@ from django.utils import timezone
 from ..cases.models import Case
 from ..common.models import VersionModel
 from ..s3_read_write.models import S3Report
-from ..common.utils import format_date
+from ..common.utils import amp_format_datetime
 
 TEMPLATE_TYPE_DEFAULT = "markdown"
 TEMPLATE_TYPE_HTML = "html"
@@ -30,8 +30,6 @@ REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
 ]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
-    "title_caption",
-    "sub_header",
     "sent_by",
     "contact",
     "related_content",
@@ -48,8 +46,6 @@ class ReportWrapper(models.Model):
     """
 
     title = models.TextField(default="", blank=True)
-    title_caption = models.TextField(default="", blank=True)
-    sub_header = models.TextField(default="", blank=True)
     sent_by = models.TextField(default="", blank=True)
     contact = models.TextField(default="", blank=True)
     related_content = models.TextField(default="", blank=True)
@@ -85,7 +81,7 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case} | {format_date(self.created)}")  # type: ignore
+        return str(f"{self.case} | {amp_format_datetime(self.created)}")  # type: ignore
 
     def save(self, *args, **kwargs) -> None:
         now = timezone.now()

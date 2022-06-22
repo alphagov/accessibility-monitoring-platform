@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-{% load common_tags %}
-
 {% block title %}{{ report.case.organisation_name }} | Edit report{% endblock %}
 
 {% block content %}
@@ -38,7 +36,7 @@
                         class="govuk-button govuk-button--warning"
                         data-module="govuk-button"
                     >
-                        Refresh report
+                        Reset report
                     </a>
                     <a
                         href="{% url 'reports:report-publisher' report.id %}"

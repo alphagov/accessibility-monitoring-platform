@@ -503,20 +503,22 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("31/12/2020" in self.driver.page_source)
-        self.assertTrue("01/04/2021" in self.driver.page_source)
+        self.assertTrue("31 December 2020" in self.driver.page_source)
+        self.assertTrue("1 April 2021" in self.driver.page_source)
         self.assertTrue(ZENDESK_URL in self.driver.page_source)
         self.assertTrue(REPORT_CORRESPONDENCE_NOTES in self.driver.page_source)
 
         # Check due dates have been calculated
         self.driver.find_element_by_link_text("Edit report correspondence").click()
         self.assertTrue(
-            "Due 07/01/2021" in self.driver.page_source
+            "Due 7 January 2021" in self.driver.page_source
         )  # 1-week followup date
         self.assertTrue(
-            "Due 28/01/2021" in self.driver.page_source
+            "Due 28 January 2021" in self.driver.page_source
         )  # 4-week followup date
-        self.assertTrue("Due 25/03/2021" in self.driver.page_source)  # 12-week deadline
+        self.assertTrue(
+            "Due 25 March 2021" in self.driver.page_source
+        )  # 12-week deadline
 
     def test_update_case_edit_12_week_correspondence(self):
         """Tests whether 12-week correspondence can be updated"""
@@ -586,8 +588,8 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("01/03/2021" in self.driver.page_source)
-        self.assertTrue("01/07/2021" in self.driver.page_source)
+        self.assertTrue("1 March 2021" in self.driver.page_source)
+        self.assertTrue("1 July 2021" in self.driver.page_source)
         self.assertTrue(TWELVE_WEEK_CORRESPONDENCE_NOTES in self.driver.page_source)
 
     def test_update_case_edit_review_changes(self):
@@ -624,7 +626,7 @@ class TestCaseUpdates(TestCase):
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
         self.assertTrue(PSB_PROGRESS_NOTES in self.driver.page_source)
-        self.assertTrue("01/08/2021" in self.driver.page_source)
+        self.assertTrue("1 August 2021" in self.driver.page_source)
 
     def test_update_case_edit_final_statement(self):
         """Tests whether final statement can be updated"""
@@ -717,7 +719,7 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("13/08/2021" in self.driver.page_source)
+        self.assertTrue("13 August 2021" in self.driver.page_source)
         self.assertTrue("No recommendation made" in self.driver.page_source)
         self.assertTrue(RECOMMENDATION_NOTES in self.driver.page_source)
         self.assertTrue(
@@ -758,7 +760,7 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_link_text("Case").click()
 
         self.assertTrue(">View case</h1>" in self.driver.page_source)
-        self.assertTrue("15/08/2021" in self.driver.page_source)
+        self.assertTrue("15 August 2021" in self.driver.page_source)
         self.assertTrue(
             ENFORCEMENT_BODY_CORRESPONDENCE_NOTES in self.driver.page_source
         )
@@ -831,9 +833,9 @@ class TestCaseUpdates(TestCase):
 
         self.assertTrue(">Report correspondence</h1>" in self.driver.page_source)
 
-        self.assertTrue("Due 16/08/2021" in self.driver.page_source)
-        self.assertTrue("Due 20/08/2021" in self.driver.page_source)
-        self.assertTrue("Due 31/08/2021" in self.driver.page_source)
+        self.assertTrue("Due 16 August 2021" in self.driver.page_source)
+        self.assertTrue("Due 20 August 2021" in self.driver.page_source)
+        self.assertTrue("Due 31 August 2021" in self.driver.page_source)
 
     def test_update_case_edit_twelve_week_correspondence_dates(self):
         """Tests whether 12-week correspondence dates can be updated"""
@@ -874,8 +876,8 @@ class TestCaseUpdates(TestCase):
         self.driver.find_element_by_name("save_return").click()
 
         self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
-        self.assertTrue("Due 13/07/2021" in self.driver.page_source)
-        self.assertTrue("Due 20/07/2021" in self.driver.page_source)
+        self.assertTrue("Due 13 July 2021" in self.driver.page_source)
+        self.assertTrue("Due 20 July 2021" in self.driver.page_source)
 
     def test_update_case_edit_psb_is_unresponsive(self):
         """
@@ -1019,7 +1021,7 @@ class TestCaseTestingUI(TestCase):
         self.driver.find_element_by_link_text("Test").click()
 
         self.assertTrue(">View test</h1>" in self.driver.page_source)
-        self.assertTrue("31/12/2021" in self.driver.page_source)
+        self.assertTrue("31 December 2021" in self.driver.page_source)
         self.assertTrue("15 inch" in self.driver.page_source)
         self.assertTrue(EXEMPTION_NOTES in self.driver.page_source)
 
@@ -1033,14 +1035,14 @@ class TestCaseTestingUI(TestCase):
         self.driver.find_element_by_link_text("Test").click()
 
         self.assertTrue(">View test</h1>" in self.driver.page_source)
-        self.assertTrue("Home page" in self.driver.page_source)
+        self.assertTrue("Home" in self.driver.page_source)
 
     def test_update_test_page_check_results(self):
         """Tests whether check result for page can be recorded"""
         self.driver.find_element_by_link_text("Edit pages").click()
         self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
 
         self.driver.find_element_by_css_selector(
             "#id_form-0-check_result_state_0"
@@ -1282,7 +1284,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("12-week test").click()
 
         self.assertTrue(">View 12-week test</h1>" in self.driver.page_source)
-        self.assertTrue("31/12/2022" in self.driver.page_source)
+        self.assertTrue("31 December 2022" in self.driver.page_source)
 
     def test_update_retest_pages(self):
         """Tests whether case retest pages can be updated"""
@@ -1302,7 +1304,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("Edit pages").click()
         self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
         self.driver.find_element_by_css_selector(
             "#id_form-0-check_result_state_0"
         ).click()
@@ -1312,7 +1314,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("Case").click()
         self.driver.find_element_by_link_text("View retest").click()
         self.driver.find_element_by_link_text("Edit 12-week pages comparison").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
 
         self.driver.find_element_by_css_selector("#id_form-0-retest_state_0").click()
         self.driver.find_element_by_name("form-0-retest_notes").send_keys(

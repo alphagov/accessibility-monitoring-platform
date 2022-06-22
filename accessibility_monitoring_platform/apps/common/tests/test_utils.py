@@ -27,16 +27,19 @@ from ..utils import (
     build_filters,
     download_as_csv,
     extract_domain_from_url,
+    amp_format_date,
+    amp_format_datetime,
+    amp_format_time,
     get_id_from_button_name,
     convert_date_to_datetime,
     validate_url,
-    format_date,
     get_platform_settings,
     record_model_create_event,
     record_model_update_event,
     list_to_dictionary_of_lists,
     undo_double_escapes,
     checks_if_2fa_is_enabled,
+    check_dict_for_truthy_values,
 )
 
 
@@ -218,11 +221,6 @@ def test_validate_url_raises_validation_error():
     assert "URL must start with http:// or https://" in str(excinfo.value)
 
 
-def test_format_date():
-    """Test format_date returns date strings in uk format dd/mm/yyyy"""
-    assert format_date(date(2020, 12, 31)) == "31/12/2020"
-
-
 @pytest.mark.django_db
 def test_get_platform_settings():
     """Test get_platform_settings returns the platform settings row"""
@@ -270,6 +268,42 @@ def test_list_to_dictionary_of_lists():
     }
 
 
+@pytest.mark.parametrize(
+    "date_to_format,expected_result",
+    [
+        (date(2021, 4, 1), "1 April 2021"),
+        (None, ""),
+    ],
+)
+def test_amp_format_date(date_to_format, expected_result):
+    """Test date formatted according to GDS style guide."""
+    assert amp_format_date(date_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 4, 1, 9, 1), "9:01am"),
+        (None, ""),
+    ],
+)
+def test_amp_format_time(datetime_to_format, expected_result):
+    """Test time formatted according to GDS style guide."""
+    assert amp_format_time(datetime_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 4, 1, 9, 1), "1 April 2021 9:01am"),
+        (None, ""),
+    ],
+)
+def test_amp_format_datetime(datetime_to_format, expected_result):
+    """Test date and time formatted according to GDS style guide."""
+    assert amp_format_datetime(datetime_to_format) == expected_result
+
+
 def test_undo_double_escapes():
     """
     Test Undo double escapes, where & has been replaced with &amp; in escaped html
@@ -301,3 +335,23 @@ def test_checks_if_2fa_is_enabled(admin_client):
     email_device.save()
 
     assert checks_if_2fa_is_enabled(request) is True
+
+
+@pytest.mark.parametrize(
+    "dictionary,keys_to_check,expected_result",
+    [
+        ({}, ["missing_key"], False),
+        ({"truthy_key": True}, ["truthy_key"], True),
+        ({"truthy_key": True, "falsey_key": False}, ["falsey_key"], False),
+        (
+            {"truthy_key_1": True, "truthy_key_2": True},
+            ["truthy_key_1", "truthy_key_2"],
+            True,
+        ),
+    ],
+)
+def test_check_dict_for_truthy_values(dictionary, keys_to_check, expected_result):
+    """
+    Test dictionary contains at least one truthy values for list of keys to check.
+    """
+    assert check_dict_for_truthy_values(dictionary, keys_to_check) == expected_result

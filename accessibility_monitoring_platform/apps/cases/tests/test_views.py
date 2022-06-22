@@ -22,6 +22,8 @@ from ..models import (
     Contact,
     TESTING_METHODOLOGY_PLATFORM,
     REPORT_APPROVED_STATUS_APPROVED,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -40,7 +42,8 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import format_date, get_field_names_for_export
+from ...common.utils import get_field_names_for_export
+from ...common.utils import amp_format_date
 from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
@@ -139,8 +142,8 @@ def test_case_list_view_filters_by_psb_location(admin_client):
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_filters_by_sector(admin_client):
-    """Test that the case list view page can be filtered by case number"""
+def test_case_list_view_filters_by_sector_name(admin_client):
+    """Test that the case list view page can be filtered by sector name"""
     sector: Sector = Sector.objects.create(name="Defence")
     Case.objects.create(organisation_name="Included", sector=sector)
     Case.objects.create(organisation_name="Excluded")
@@ -240,18 +243,44 @@ def test_case_list_view_user_unassigned_filters(
 
 def test_case_list_view_date_range_filters(admin_client):
     """Test that the case list view page can be filtered by date range"""
-    included_created_date: datetime = datetime(
+    included_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
     )
-    excluded_created_date: datetime = datetime(
+    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
     )
-    Case.objects.create(organisation_name="Included", created=included_created_date)
-    Case.objects.create(organisation_name="Excluded", created=excluded_created_date)
+    Case.objects.create(
+        organisation_name="Included",
+        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
+    )
+    Case.objects.create(
+        organisation_name="Excluded",
+        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
+    )
 
-    url_parameters = "start_date_0=1&start_date_1=6&start_date_2=2021&end_date_0=10&end_date_1=6&end_date_2=2021"
+    url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_sector_filter(admin_client):
+    """Test that the case list view page can be filtered by sector"""
+    sector: Sector = Sector.objects.create(name="test sector")
+
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    included_case.sector = sector
+    included_case.save()
+
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?sector={sector.id}"  # type: ignore
     )
 
     assert response.status_code == 200
@@ -866,17 +895,18 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     )
 
     assert response.status_code == 200
+
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<div class="govuk-hint">Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f'<span class="govuk-hint">Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</span>',
         html=True,
     )
 
@@ -1443,7 +1473,7 @@ def test_calculate_twelve_week_chaser_dates():
 @pytest.mark.parametrize(
     "due_date, expected_help_text",
     [
-        (date(2020, 1, 1), "Due 01/01/2020"),
+        (date(2020, 1, 1), "Due 1 January 2020"),
         (None, "None"),
     ],
 )
@@ -1716,43 +1746,6 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     assert updated_case.reviewer == admin_user
 
 
-@pytest.mark.parametrize(
-    "step_url",
-    [
-        "cases:edit-review-changes",
-        "cases:edit-final-website",
-        "cases:edit-final-statement",
-        "cases:edit-case-close",
-    ],
-)
-def test_case_final_views_show_warning_when_no_problems_found(step_url, admin_client):
-    """
-    Test that the case final views contain a warning if the website and accessibility statement
-    are compliant
-    """
-    case: Case = Case.objects.create(
-        is_website_compliant="compliant", accessibility_statement_state="compliant"
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-warning-text">
-            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                The public sector body website is compliant and has no issues with the accessibility statement.
-                The case can be marked as completed with no further action.
-            </strong>
-        </div>""",
-        html=True,
-    )
-
-
 @pytest.mark.django_db
 def test_create_case_also_creates_event(admin_client):
     """Test that create case also creates event"""
@@ -2014,6 +2007,53 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
                 <p>{ACCESSIBILITY_STATEMENT_NOTES}</p>
             </td>
         </tr>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_url_name",
+    [
+        "case-detail",
+        "edit-case-details",
+        "edit-test-results",
+        "edit-report-details",
+        "edit-qa-process",
+        "edit-contact-details",
+        "edit-report-correspondence",
+        "edit-twelve-week-correspondence",
+        "edit-twelve-week-retest",
+        "edit-review-changes",
+        "edit-final-website",
+        "edit-final-statement",
+        "edit-case-close",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
+    ],
+)
+def test_platform_shows_notification_if_fully_compliant(
+    edit_url_name,
+    admin_client,
+):
+    """
+    Test cases with fully compliant website and accessibility statement show
+    notification to that effect on report details page.
+    """
+    case: Case = Case.objects.create(
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+            The case has a compliant website and a compliant accessibility statement.
+        </h3>""",
         html=True,
     )
 
