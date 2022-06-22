@@ -21,8 +21,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 from django.db.models.fields.reverse_related import ManyToOneRel
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.http.request import QueryDict
+from django_otp.plugins.otp_email.models import EmailDevice
 
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
 
@@ -213,6 +214,14 @@ def undo_double_escapes(html: str) -> str:
         html.replace("&amp;lt;", "&lt;")
         .replace("&amp;gt;", "&gt;")
         .replace("&amp;quot;", "&quot;")
+    )
+
+
+def checks_if_2fa_is_enabled(request: HttpRequest) -> bool:
+    """Checks if 2FA is enabled for user"""
+    return (
+        EmailDevice.objects.filter(user=request.user).exists()
+        and EmailDevice.objects.get(user=request.user).confirmed
     )
 
 

@@ -29,4 +29,4 @@ def test_login_required(method, url, client):
     response: HttpResponse = getattr(client, method)(url)
 
     assert response.status_code == 302
-    assert response.url == f"/accounts/login/?next={url}"
+    assert response.url == f"/account/login/?next={url}"  # type: ignore

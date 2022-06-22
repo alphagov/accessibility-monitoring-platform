@@ -62,14 +62,14 @@ class SeleniumTest(unittest.TestCase):
                 "Missing SMOKE_TESTS_USERNAME and SMOKE_TESTS_PASSWORD from .env"
             )
 
-        self.driver.get(f"""{settings["testing_endpoint"]}accounts/login/?next=/""")
-        self.driver.find_element_by_name("username").send_keys(
+        self.driver.get(f"""{settings["testing_endpoint"]}account/login/?next=/""")
+        self.driver.find_element_by_name("auth-username").send_keys(
             os.getenv("SMOKE_TESTS_USERNAME")
         )
-        self.driver.find_element_by_name("password").send_keys(
+        self.driver.find_element_by_name("auth-password").send_keys(
             os.getenv("SMOKE_TESTS_PASSWORD")
         )
-        self.driver.find_element_by_xpath("""//input[@value="Submit"]""").click()
+        self.driver.find_element_by_name("password").send_keys(Keys.RETURN)
 
 
 class TestLogin(SeleniumTest):

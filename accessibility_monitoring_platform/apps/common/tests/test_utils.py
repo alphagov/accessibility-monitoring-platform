@@ -11,8 +11,11 @@ from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.http.request import QueryDict
+from django_otp.plugins.otp_email.models import EmailDevice
+from django.test.client import RequestFactory
+
 
 from ..models import (
     Event,
@@ -35,6 +38,7 @@ from ..utils import (
     record_model_update_event,
     list_to_dictionary_of_lists,
     undo_double_escapes,
+    checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
 )
 
@@ -305,6 +309,32 @@ def test_undo_double_escapes():
     Test Undo double escapes, where & has been replaced with &amp; in escaped html
     """
     assert undo_double_escapes("&amp;lt;tag&amp;gt;&amp;quot;") == "&lt;tag&gt;&quot;"
+
+
+def test_checks_if_2fa_is_enabled(admin_client):
+    """Test to check whether checks_if_2fa_is_enabled works as expected"""
+    user: User = User.objects.create(
+        email="uesr@email.com",
+        password="123456",
+    )
+    factory: RequestFactory = RequestFactory()
+    request: HttpRequest = factory.get("/")
+    request.user = user
+
+    assert checks_if_2fa_is_enabled(request) is False
+
+    email_device: EmailDevice = EmailDevice.objects.create(
+        user=user,
+        name="default",
+        confirmed=False,
+    )
+
+    assert checks_if_2fa_is_enabled(request) is False
+
+    email_device.confirmed = True
+    email_device.save()
+
+    assert checks_if_2fa_is_enabled(request) is True
 
 
 @pytest.mark.parametrize(
