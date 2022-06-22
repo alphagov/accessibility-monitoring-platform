@@ -16,7 +16,7 @@ from ..utils import (  # pylint: disable=relative-beyond-top-level
     amp_format_date,
     amp_format_datetime,
     amp_format_time,
-    undo_double_escapes
+    undo_double_escapes,
 )
 
 register = template.Library()

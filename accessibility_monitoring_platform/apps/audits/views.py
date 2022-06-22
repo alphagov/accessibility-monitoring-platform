@@ -76,8 +76,8 @@ from .utils import (
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
-    "Home Page",
-    "Contact Page",
+    "Home",
+    "Contact",
     "Accessibility Statement",
     "PDF",
     "A Form",

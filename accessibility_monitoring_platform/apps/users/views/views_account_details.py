@@ -2,7 +2,7 @@
 Views - account_details - users
 """
 
-from typing import TypedDict, List, Any, Dict
+from typing import TypedDict, Any, Dict
 
 from django.contrib.auth import login
 from django.shortcuts import redirect, render, get_object_or_404
@@ -23,7 +23,6 @@ from accessibility_monitoring_platform.apps.notifications.models import (
 
 class AccountDetailsContext(TypedDict):
     form: UpdateUserForm
-    form_groups: List[str]
 
 
 @login_required
@@ -49,7 +48,6 @@ def account_details(request: HttpRequest) -> HttpResponse:
         notification_settings.save()
 
     initial: Dict[str, Any] = model_to_dict(user)
-    initial["email_confirm"] = initial["email"]
     initial["email_notifications"] = notification_settings.email_notifications_enabled
 
     form: UpdateUserForm = UpdateUserForm(
@@ -58,8 +56,6 @@ def account_details(request: HttpRequest) -> HttpResponse:
 
     if request.method == "POST":
         if form.is_valid():
-            user.username = form.cleaned_data["email"]
-            user.email = form.cleaned_data["email"]
             user.first_name = form.cleaned_data["first_name"]
             user.last_name = form.cleaned_data["last_name"]
             record_model_update_event(user=request.user, model_object=user)  # type: ignore
@@ -77,7 +73,6 @@ def account_details(request: HttpRequest) -> HttpResponse:
 
     context: AccountDetailsContext = {
         "form": form,
-        "form_groups": ["last_name", "email_confirm"],
     }
 
     return render(request, "users/account_details.html", context)

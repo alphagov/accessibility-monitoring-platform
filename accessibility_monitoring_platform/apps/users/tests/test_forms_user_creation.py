@@ -73,7 +73,7 @@ class CustomUserCreationFormTestCase(TestCase):
         data: FormRequestRegister = {
             "first_name": "Joe",
             "last_name": "Blogs",
-            "email": "admin2@email.com",
+            "email": "admin3@email.com",
             "email_confirm": "admin3@email.com",
             "password1": "12345",
             "password2": "12345",

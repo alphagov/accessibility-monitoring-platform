@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from app.parse_json import parse_integration_tests_json
 import argparse
@@ -192,10 +193,10 @@ class SeleniumTest(unittest.TestCase):
 
     def login(self):
         """Login in to platform"""
-        self.driver.get("http://localhost:8001/accounts/login/?next=/")
-        self.driver.find_element_by_name("username").send_keys("admin@email.com")
-        self.driver.find_element_by_name("password").send_keys("secret")
-        self.driver.find_element_by_xpath('//input[@value="Submit"]').click()
+        self.driver.get("http://localhost:8001/account/login/?next=/")
+        self.driver.find_element_by_name("auth-username").send_keys("admin@email.com")
+        self.driver.find_element_by_name("auth-password").send_keys("secret")
+        self.driver.find_element_by_name("auth-password").send_keys(Keys.RETURN)
 
 
 class TestLogin(SeleniumTest):
@@ -1034,14 +1035,14 @@ class TestCaseTestingUI(TestCase):
         self.driver.find_element_by_link_text("Test").click()
 
         self.assertTrue(">View test</h1>" in self.driver.page_source)
-        self.assertTrue("Home page" in self.driver.page_source)
+        self.assertTrue("Home" in self.driver.page_source)
 
     def test_update_test_page_check_results(self):
         """Tests whether check result for page can be recorded"""
         self.driver.find_element_by_link_text("Edit pages").click()
         self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
 
         self.driver.find_element_by_css_selector(
             "#id_form-0-check_result_state_0"
@@ -1303,7 +1304,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("Edit pages").click()
         self.driver.find_element_by_name("standard-0-url").send_keys(HOME_PAGE_URL)
         self.driver.find_element_by_name("save").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
         self.driver.find_element_by_css_selector(
             "#id_form-0-check_result_state_0"
         ).click()
@@ -1313,7 +1314,7 @@ class TestCaseRetestingUI(TestCase):
         self.driver.find_element_by_link_text("Case").click()
         self.driver.find_element_by_link_text("View retest").click()
         self.driver.find_element_by_link_text("Edit 12-week pages comparison").click()
-        self.driver.find_element_by_link_text("Home page").click()
+        self.driver.find_elements_by_link_text("Home")[2].click()
 
         self.driver.find_element_by_css_selector("#id_form-0-retest_state_0").click()
         self.driver.find_element_by_name("form-0-retest_notes").send_keys(

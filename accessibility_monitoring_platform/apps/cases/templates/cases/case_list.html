@@ -178,6 +178,17 @@
                                         {% include 'common/amp_field.html' with field=form.status %}
                                         {% include 'common/amp_field.html' with field=form.auditor %}
                                         {% include 'common/amp_field.html' with field=form.reviewer %}
+                                        <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
+                                            <summary class="govuk-details__summary">
+                                                <span class="govuk-details__summary-text">Advanced search</span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                {% include 'common/amp_field.html' with field=form.date_type %}
+                                                {% include 'common/amp_field.html' with field=form.date_start %}
+                                                {% include 'common/amp_field.html' with field=form.date_end %}
+                                                {% include 'common/amp_field.html' with field=form.sector %}
+                                            </div>
+                                        </details>
                                         {% include 'common/amp_field.html' with field=form.sort_by %}
                                 </div>
                             </div>

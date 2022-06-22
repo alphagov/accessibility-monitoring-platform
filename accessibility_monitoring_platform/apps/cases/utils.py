@@ -22,8 +22,9 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
     ("status", "status"),
-    ("start_date", "created__gte"),
-    ("end_date", "created__lte"),
+    ("date_start", "sent_to_enforcement_body_sent_date__gte"),
+    ("date_end", "sent_to_enforcement_body_sent_date__lte"),
+    ("sector", "sector_id"),
 ]
 
 CONTACT_NAME_COLUMN_NAME = "Contact name"
