@@ -69,7 +69,7 @@ class SeleniumTest(unittest.TestCase):
         self.driver.find_element_by_name("auth-password").send_keys(
             os.getenv("SMOKE_TESTS_PASSWORD")
         )
-        self.driver.find_element_by_name("password").send_keys(Keys.RETURN)
+        self.driver.find_element_by_name("auth-password").send_keys(Keys.RETURN)
 
 
 class TestLogin(SeleniumTest):
