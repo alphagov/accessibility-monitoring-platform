@@ -3,11 +3,12 @@ URLs - users
 """
 
 from django.urls import path
-from accessibility_monitoring_platform.apps.users.views import register, account_details
+
+from .views import UserCreateView, UserUpdateView
 
 
 app_name = "users"
 urlpatterns = [
-    path("register/", register, name="register"),
-    path("account_details/", account_details, name="account_details"),
+    path("register/", UserCreateView.as_view(), name="register"),
+    path("account-details/", UserUpdateView.as_view(), name="account_details"),
 ]
