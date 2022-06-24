@@ -1,231 +1,184 @@
 """
-Tests for view - users
+Tests for users views
 """
-from typing import Dict, TypedDict, List
+import pytest
 
-from django.test import TestCase
-from django.contrib.auth.models import Group, User
+from typing import List
+
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 
-from ...common.models import Platform
-from ...common.utils import get_platform_settings
-from ...notifications.models import NotificationSetting
+from pytest_django.asserts import assertContains
 
 from ..models import EmailInclusionList
 
+from .test_forms import UserCreateFormData, UserUpdateFormData
 
-class FormRequestRegister(TypedDict):
-    first_name: str
-    last_name: str
-    email: str
-    email_confirm: str
-    password1: str
-    password2: str
-
-
-class UserRegisterViewTests(TestCase):
-    """
-    View tests for users
-
-    Methods
-    -------
-    setUp()
-        Sets up the test environment
-
-    test_register_loads_correctly_no_auth()
-        Tests register without authentication
-
-    test_register_redirects_with_auth()
-        Tests register reidrects with authentication
-
-    test_register_post_redirects()
-        Tests whether if register redirects after registering
-
-    test_register_post_saves_correctly()
-        Tests if register saves to the database correctly
-
-    test_register_post_errors_appear()
-        Tests whether errors appear if there is a mistake in the form
-
-    """
-
-    def setUp(self):
-        """Creates a user for testing the views"""
-        user: User = User.objects.create(username="testuser")
-        user.set_password("12345")
-        user.save()
-
-    def test_register_loads_correctly_no_auth(self):
-        """Tests if register page loads correctly"""
-        response: HttpResponse = self.client.get(reverse("users:register"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Fill in the form below to create an account")
-
-    def test_register_redirects_with_auth(self):
-        """Tests if register redirects when logged in"""
-        self.client.login(username="testuser", password="12345")
-        response: HttpResponse = self.client.get(
-            path=reverse("users:register"), follow=True
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response, """<h1 class="govuk-heading-xl">Your cases</h1>""", html=True
-        )
-
-    def test_register_post_redirects(self):
-        """Tests if register redirects to dashboard after post request"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-        response: HttpResponse = self.client.post(
-            reverse("users:register"), data=data, follow=True
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Your cases")
-
-    def test_register_post_saves_correctly(self):
-        """Tests if register saves to the database correctly"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-        response: HttpResponse = self.client.post(
-            reverse("users:register"), data=data, follow=True
-        )
-        self.assertEqual(response.status_code, 200)
-        user: User = get_object_or_404(User, email="admin2@email.com")
-        self.assertEqual(user.first_name, "Joe")
-        self.assertEqual(user.last_name, "Blogs")
-        self.assertEqual(user.email, "admin2@email.com")
-        self.assertEqual(user.username, "admin2@email.com")
-
-    def test_register_post_errors_appear(self):
-        """Tests if error message appears if there is a mistake in the form"""
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin3@email.com",
-            "email_confirm": "admin3@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-        response: HttpResponse = self.client.post(
-            reverse("users:register"), data=data, follow=True
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This email is not permitted to sign up")
+FIRST_NAME: str = "Joe"
+LAST_NAME: str = "Bloggs"
+VALID_USER_EMAIL: str = "valid@example.com"
+INVALID_USER_EMAIL: str = "invalid@example.com"
+VALID_PASSWORD: str = "12345"
+INVALID_PASSWORD: str = "WRONG"
+VALID_USER_CREATE_FORM_DATA: UserCreateFormData = {
+    "first_name": FIRST_NAME,
+    "last_name": LAST_NAME,
+    "email": VALID_USER_EMAIL,
+    "email_confirm": VALID_USER_EMAIL,
+    "password1": VALID_PASSWORD,
+    "password2": VALID_PASSWORD,
+}
+EMAIL_NOTIFICATIONS: str = "yes"
+ENABLE_2FA: str = "yes"
+VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
+    "email_notifications": EMAIL_NOTIFICATIONS,
+    "enable_2fa": ENABLE_2FA,
+    "first_name": FIRST_NAME,
+    "last_name": LAST_NAME,
+    "password": VALID_PASSWORD,
+}
 
 
-class UserViewTests(TestCase):
-    """
-    View tests for users
+def create_user() -> User:
+    """Create valid user"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    user: User = User.objects.create(
+        username=VALID_USER_EMAIL,
+        email=VALID_USER_EMAIL,
+    )
+    user.set_password(VALID_PASSWORD)
+    user.save()
+    return user
 
-    Methods
-    -------
-    setUp()
-        Sets up the test environment
 
-    test_account_details_loads_correctly_with_auth()
-        Tests account details with authentication
+@pytest.mark.django_db
+def test_register_loads_correctly_no_auth(client):
+    """Tests if register page loads correctly"""
+    response: HttpResponse = client.get(reverse("users:register"))
 
-    test_account_details_loads_correctly_no_auth()
-        Tests account details with no authentication
+    assert response.status_code == 200
+    assertContains(response, "Fill in the form below to create an account")
 
-    test_account_details_post_saves_correctly
-        Tests if the form saves correctly and shows the success message
 
-    test_account_details_post_errors_appear
-        Tests whether errors appear if there is a mistake in the form
-    """
+def test_register_redirects_with_auth(admin_client):
+    """Tests if register redirects when logged in"""
+    response: HttpResponse = admin_client.get(
+        path=reverse("users:register"), follow=True
+    )
 
-    def setUp(self):
-        """Creates a user for testing the views"""
-        user: User = User.objects.create(username="testuser")
-        user.set_password("12345")
-        user.save()
-        NotificationSetting(user=user).save()
-        self.user = user
+    assert response.status_code == 200
+    assertContains(
+        response, """<h1 class="govuk-heading-xl">Your cases</h1>""", html=True
+    )
 
-    def test_account_details_loads_correctly_with_auth(self):
-        """Tests if a user is logged in and can access account details"""
-        self.client.login(username="testuser", password="12345")
-        response: HttpResponse = self.client.get(
-            reverse("users:account_details", kwargs={"pk": self.user.id})
-        )
-        self.assertEqual(str(response.context["user"]), "testuser")
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Account details")
 
-    # def test_account_details_loads_correctly_no_auth(self):
-    #     """Tests if a unauthenticated user returns a 302 response"""
-    #     import pdb; pdb.set_trace()
-    #     response: HttpResponse = self.client.get(reverse("users:account_details", kwargs={"pk": self.user.id}))
-    #     self.assertEqual(response.status_code, 302)
+@pytest.mark.django_db
+def test_register_post_redirects(client):
+    """Tests if register redirects to dashboard after post request"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
 
-    def test_account_details_post_saves_correctly(self):
-        """Tests if form saves correctly and show success message"""
-        EmailInclusionList.objects.create(inclusion_email="admin@email.com")
-        user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
-        user.set_password("12345")
-        user.save()
-        qa_auditor_group: Group = Group.objects.create(name="QA auditor")
-        user.groups.add(qa_auditor_group)
-        self.client.login(username="joe_blogs", password="12345")
+    response: HttpResponse = client.post(
+        reverse("users:register"), data=VALID_USER_CREATE_FORM_DATA, follow=True
+    )
 
-        data: Dict[str, str] = {
-            "email_notifications_enabled": "yes",
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin@email.com",
-            "email_confirm": "admin@email.com",
-            "password": "12345",
-        }
+    assert response.status_code == 200
+    assertContains(response, "Your cases")
 
-        response: HttpResponse = self.client.post(
-            reverse("users:account_details", kwargs={"pk": user.id}),
-            data=data,
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Account details")
-        messages: List[str] = [str(x) for x in list(response.context["messages"])]
-        self.assertEqual(messages[0], "Successfully saved details!")
-        platform: Platform = get_platform_settings()
 
-    def test_account_details_post_errors_appear(self):
-        """Tests if error message appears if there is a mistake in the form"""
-        user: User = User.objects.create(username="joe_blogs", email="admin@email.com")
-        user.set_password("12345")
-        user.save()
-        NotificationSetting(user=user).save()
-        self.client.login(username="joe_blogs", password="12345")
+@pytest.mark.django_db
+def test_register_post_saves_correctly(client):
+    """Tests if register saves to the database correctly"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
 
-        data: Dict[str, str] = {
-            "email_notifications_enabled": "yes",
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin@email.com",
-            "email_confirm": "admin@email.com",
-            "password": "123456",
-        }
+    response: HttpResponse = client.post(
+        reverse("users:register"), data=VALID_USER_CREATE_FORM_DATA, follow=True
+    )
 
-        response: HttpResponse = self.client.post(
-            reverse("users:account_details", kwargs={"pk": user.id}),
-            data=data,
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Password is incorrect")
+    assert response.status_code == 200
+
+    user: User = User.objects.get(email=VALID_USER_EMAIL)
+
+    assert user.first_name == FIRST_NAME
+    assert user.last_name == LAST_NAME
+    assert user.email == VALID_USER_EMAIL
+    assert user.username == VALID_USER_EMAIL
+
+
+@pytest.mark.django_db
+def test_register_post_errors_appear(client):
+    """Tests if error message appears if there is a mistake in the form"""
+    data: UserCreateFormData = VALID_USER_CREATE_FORM_DATA.copy()
+
+    response: HttpResponse = client.post(
+        reverse("users:register"), data=data, follow=True
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "This email is not permitted to sign up")
+
+
+@pytest.mark.django_db
+def test_account_details_loads_correctly_with_auth(client):
+    """Tests if a user is logged in and can access account details"""
+    user: User = create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    response: HttpResponse = client.get(
+        reverse("users:account_details", kwargs={"pk": user.id})  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assert str(response.context["user"]) == VALID_USER_EMAIL
+    assertContains(response, "Account details")
+
+
+# @pytest.mark.django_db
+# def test_account_details_loads_correctly_no_auth(client):
+#     """Tests if a unauthenticated user returns a 302 response"""
+#     user: User = create_user()
+#     import pdb; pdb.set_trace()
+#     response: HttpResponse = client.get(
+#         reverse("users:account_details", kwargs={"pk": user.id})  # type: ignore
+#     )
+#     assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_account_details_post_saves_correctly(client):
+    """Tests if form saves correctly and show success message"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    user: User = create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    response: HttpResponse = client.post(
+        reverse("users:account_details", kwargs={"pk": user.id}),  # type: ignore
+        data=VALID_USER_UPDATE_FORM_DATA,
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Account details")
+
+    messages: List[str] = [str(x) for x in list(response.context["messages"])]
+    assert messages[0] == "Successfully saved details!"
+
+
+@pytest.mark.django_db
+def test_account_details_post_errors_appear(client):
+    """Tests if error message appears if there is a mistake in the form"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    user: User = create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
+    data["password"] = INVALID_PASSWORD
+
+    response: HttpResponse = client.post(
+        reverse("users:account_details", kwargs={"pk": user.id}),  # type: ignore
+        data=data,
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Password is incorrect")

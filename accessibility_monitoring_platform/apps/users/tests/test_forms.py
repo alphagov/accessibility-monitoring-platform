@@ -2,7 +2,7 @@
 Tests for users forms
 """
 import pytest
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from django.contrib.auth.models import User
 
