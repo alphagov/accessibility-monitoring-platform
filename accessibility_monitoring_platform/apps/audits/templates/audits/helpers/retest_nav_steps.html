@@ -3,6 +3,7 @@
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
         {% if audit.testable_pages %}
+            <p class="govuk-body no-bottom-margin">Pages:</p>
             <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                 {% for page in audit.testable_pages %}
                     {% if page.failed_check_results %}
