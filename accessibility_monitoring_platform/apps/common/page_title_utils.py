@@ -60,7 +60,7 @@ PAGE_TITLES_BY_URL = {
     "/reports/[id]/edit-report-metadata/": "Report metadata",
     "/reports/[id]/s3-reports/": "Report versions",
     "/reports/sections/[id]/edit-section/": "Report section update",
-    "/user/account_details/": "Account details",
+    "/user/[id]/edit-user/": "Account details",
     "/user/register/": "Register",
 }
 

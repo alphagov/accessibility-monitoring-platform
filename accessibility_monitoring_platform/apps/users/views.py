@@ -112,5 +112,5 @@ class UserUpdateView(UpdateView):
 
         messages.success(self.request, "Successfully saved details!")
         return HttpResponseRedirect(
-            reverse("users:account_details", kwargs={"pk": user.id})  # type: ignore
+            reverse("users:edit-user", kwargs={"pk": user.id})  # type: ignore
         )

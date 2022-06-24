@@ -1,9 +1,9 @@
 <nav role="navigation" style="margin-bottom:40px">
     <p class="govuk-body-m">
-        {% if current == 'users:account_details' %}
+        {% if current == 'users:edit-user' %}
             Account details
         {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' request.user.id %}">
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">
                 Account details</a>
         {% endif %}
     </p>

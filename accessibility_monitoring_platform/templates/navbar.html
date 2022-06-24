@@ -29,7 +29,7 @@
         </div>
         <div class="govuk-grid-column-three-quarters">
                 <ul class="govuk-list nav-menu-list">
-                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' request.user.id %}">Settings</a></li>
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
                     <li style="padding-left: 10px"> | </li>
                     <li style="padding-left: 10px"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
