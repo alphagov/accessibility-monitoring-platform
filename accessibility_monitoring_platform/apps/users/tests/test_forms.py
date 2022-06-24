@@ -1,27 +1,21 @@
 """
 Tests for users forms
 """
-
-from typing import Dict, Optional, TypedDict
+import pytest
+from typing import Optional, TypedDict
 
 from django.contrib.auth.models import User
-from django.test import TestCase
-from django.test.client import RequestFactory
 
 from ..forms import UserCreateForm, UserUpdateForm
 from ..models import EmailInclusionList
 
-
-class FormRequestAccountDetails(TypedDict):
-    first_name: str
-    last_name: str
-    email: str
-    email_confirm: str
-    password: str
-    active_qa_auditor: Optional[int]
+VALID_USER_EMAIL: str = "valid@example.com"
+INVALID_USER_EMAIL: str = "invalid@example.com"
+VALID_PASSWORD: str = "12345"
+INVALID_PASSWORD: str = "wrong_password"
 
 
-class FormRequestRegister(TypedDict):
+class UserCreateFormData(TypedDict):
     first_name: str
     last_name: str
     email: str
@@ -30,177 +24,108 @@ class FormRequestRegister(TypedDict):
     password2: str
 
 
-class UserCreateFormTestCase(TestCase):
-    """
-    Form tests for registering users
-
-    Methods
-    -------
-    setUp()
-        Sets up the test environment
-
-    test_form_conforms()
-        Tests if form.is_valid() is working as expected
-
-    test_form_email_not_in_inclusion_list()
-        Returns an error with email not in inclusion list
-
-    test_form_email_already_registered_error()
-        Returns an error if email is already registered
-
-    test_form_emails_do_not_match()
-        Returns an error if emails do not match
-    """
-
-    def setUp(self):
-        """Sets up the test environment with a request factory"""
-        self.factory: RequestFactory = RequestFactory()
-
-    def test_form_conforms(self):
-        """Tests if form.is_valid() is working as expected"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-
-        form: UserCreateForm = UserCreateForm(data=data)
-
-        self.assertTrue(form.is_valid())
-
-    def test_form_email_not_in_inclusion_list(self):
-        """Returns an error with email not in inclusion list"""
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin3@email.com",
-            "email_confirm": "admin3@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-
-        form: UserCreateForm = UserCreateForm(data=data)
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["This email is not permitted to sign up"]
-        )
-
-    def test_form_email_already_registered_error(self):
-        """Returns an error if email is already registered"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        User.objects.create(username="admin2@email.com", email="admin2@email.com")
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-
-        form: UserCreateForm = UserCreateForm(data=data)
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["This email is already registered"]
-        )
-
-    def test_form_emails_do_not_match(self):
-        """Returns an error if emails do not match"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        data: FormRequestRegister = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin3@email.com",
-            "password1": "12345",
-            "password2": "12345",
-        }
-
-        form: UserCreateForm = UserCreateForm(data=data)
-
-        self.assertEqual(
-            form.errors["email_confirm"], ["The email fields do not match"]
-        )
+class UserUpdateFormData(TypedDict):
+    email_notifications: str
+    enable_2fa: str
+    first_name: str
+    last_name: str
+    password: str
 
 
-class UserUpdateFormTestCase(TestCase):
-    """
-    Form tests for update user
+VALID_USER_CREATE_FORM_DATA: UserCreateFormData = {
+    "first_name": "Joe",
+    "last_name": "Blogs",
+    "email": VALID_USER_EMAIL,
+    "email_confirm": VALID_USER_EMAIL,
+    "password1": VALID_PASSWORD,
+    "password2": VALID_PASSWORD,
+}
+VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
+    "email_notifications": "no",
+    "enable_2fa": "no",
+    "first_name": "Joe",
+    "last_name": "Blogs",
+    "password": VALID_PASSWORD,
+}
 
-    Methods
-    -------
-    setUp()
-        Sets up the test environment
 
-    test_form_conforms()
-        Tests if form.is_valid() is working as expected
+def create_user() -> User:
+    """Create valid user"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    user: User = User.objects.create(
+        username=VALID_USER_EMAIL,
+        email=VALID_USER_EMAIL,
+    )
+    user.set_password(VALID_PASSWORD)
+    user.save()
+    return user
 
-    test_incorrect_password_returns_error()
-        Returns an error if password is incorrect
-    """
 
-    def setUp(self):
-        """Sets up the test environment with a request factory"""
-        self.factory: RequestFactory = RequestFactory()
+@pytest.mark.django_db
+def test_valid_user_create_form():
+    """Tests if form.is_valid() is working as expected"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
 
-    def test_form_conforms(self):
-        """Tests if form.is_valid() is working as expected"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        user: User = User.objects.create(
-            username="admin2@email.com",
-            email="admin2@email.com",
-        )
-        user.set_password("12345")
-        user.save()
-        self.client.login(
-            username="admin2@email.com",
-            password="12345",
-        )
+    form: UserCreateForm = UserCreateForm(data=VALID_USER_CREATE_FORM_DATA)
 
-        data: Dict[str, str] = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "password": "12345",
-        }
+    assert form.is_valid()
 
-        form: UserUpdateForm = UserUpdateForm(
-            data=data or None,
-            user=user,
-            initial={},
-        )
 
-        self.assertTrue(form.is_valid())
+@pytest.mark.django_db
+def test_form_email_not_in_inclusion_list():
+    """Returns an error with email not in inclusion list"""
+    data: UserCreateFormData = VALID_USER_CREATE_FORM_DATA.copy()
+    data["email"] = INVALID_USER_EMAIL
+    data["email_confirm"] = INVALID_USER_EMAIL
 
-    def test_incorrect_password_returns_error(self):
-        """Returns an error if password is incorrect"""
-        EmailInclusionList.objects.create(inclusion_email="admin2@email.com")
-        user: User = User.objects.create(
-            username="admin2@email.com",
-            email="admin2@email.com",
-        )
-        user.set_password("12345")
-        user.save()
-        self.client.login(
-            username="admin2@email.com",
-            password="12345",
-        )
+    form: UserCreateForm = UserCreateForm(data=data)
 
-        data: Dict[str, str] = {
-            "first_name": "Joe",
-            "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password": "WRONG_PASSWORD",
-        }
+    assert form.errors["email_confirm"] == ["This email is not permitted to sign up"]
 
-        form: UserUpdateForm = UserUpdateForm(
-            data=data or None,
-            user=user,
-            initial={},
-        )
 
-        self.assertEqual(form.errors["password"], ["Password is incorrect"])
+@pytest.mark.django_db
+def test_form_email_already_registered_error():
+    """Returns an error if email is already registered"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    User.objects.create(username=VALID_USER_EMAIL, email=VALID_USER_EMAIL)
+
+    form: UserCreateForm = UserCreateForm(data=VALID_USER_CREATE_FORM_DATA)
+
+    assert form.errors["email_confirm"] == ["This email is already registered"]
+
+
+@pytest.mark.django_db
+def test_form_emails_do_not_match():
+    """Returns an error if emails do not match"""
+    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    data: UserCreateFormData = VALID_USER_CREATE_FORM_DATA.copy()
+    data["email_confirm"] = INVALID_USER_EMAIL
+
+    form: UserCreateForm = UserCreateForm(data=data)
+
+    assert form.errors["email_confirm"] == ["The email fields do not match"]
+
+
+@pytest.mark.django_db
+def test_valid_user_update_form():
+    """Tests if form.is_valid() is working as expected"""
+    user: User = create_user()
+
+    form: UserUpdateForm = UserUpdateForm(
+        data=VALID_USER_UPDATE_FORM_DATA,
+        user=user,
+    )
+
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_incorrect_password_returns_error():
+    """Returns an error if password is incorrect"""
+    user: User = create_user()
+    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
+    data["password"] = INVALID_PASSWORD
+
+    form: UserUpdateForm = UserUpdateForm(data=data or None, user=user)
+
+    assert form.errors["password"] == ["Password is incorrect"]
