@@ -7,7 +7,7 @@ from typing import TypedDict
 from django.contrib.auth.models import User
 
 from ..forms import UserCreateForm, UserUpdateForm
-from ..models import EmailInclusionList
+from ..models import AllowedEmail
 
 VALID_USER_EMAIL: str = "valid@example.com"
 INVALID_USER_EMAIL: str = "invalid@example.com"
@@ -51,7 +51,7 @@ VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
 
 def create_user() -> User:
     """Create valid user"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     user: User = User.objects.create(
         username=VALID_USER_EMAIL,
         email=VALID_USER_EMAIL,
@@ -64,7 +64,7 @@ def create_user() -> User:
 @pytest.mark.django_db
 def test_valid_user_create_form():
     """Tests if form.is_valid() is working as expected"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
 
     form: UserCreateForm = UserCreateForm(data=VALID_USER_CREATE_FORM_DATA)
 
@@ -86,7 +86,7 @@ def test_form_email_not_in_inclusion_list():
 @pytest.mark.django_db
 def test_form_email_already_registered_error():
     """Returns an error if email is already registered"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     User.objects.create(username=VALID_USER_EMAIL, email=VALID_USER_EMAIL)
 
     form: UserCreateForm = UserCreateForm(data=VALID_USER_CREATE_FORM_DATA)
@@ -97,7 +97,7 @@ def test_form_email_already_registered_error():
 @pytest.mark.django_db
 def test_form_emails_do_not_match():
     """Returns an error if emails do not match"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     data: UserCreateFormData = VALID_USER_CREATE_FORM_DATA.copy()
     data["email_confirm"] = INVALID_USER_EMAIL
 

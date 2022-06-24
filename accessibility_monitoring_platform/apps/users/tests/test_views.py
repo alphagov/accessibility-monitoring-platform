@@ -11,7 +11,7 @@ from django.http import HttpResponse
 
 from pytest_django.asserts import assertContains
 
-from ..models import EmailInclusionList
+from ..models import AllowedEmail
 
 from .test_forms import UserCreateFormData, UserUpdateFormData
 
@@ -42,7 +42,7 @@ VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
 
 def create_user() -> User:
     """Create valid user"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     user: User = User.objects.create(
         username=VALID_USER_EMAIL,
         email=VALID_USER_EMAIL,
@@ -76,7 +76,7 @@ def test_register_redirects_with_auth(admin_client):
 @pytest.mark.django_db
 def test_register_post_redirects(client):
     """Tests if register redirects to dashboard after post request"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
 
     response: HttpResponse = client.post(
         reverse("users:register"), data=VALID_USER_CREATE_FORM_DATA, follow=True
@@ -89,7 +89,7 @@ def test_register_post_redirects(client):
 @pytest.mark.django_db
 def test_register_post_saves_correctly(client):
     """Tests if register saves to the database correctly"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
 
     response: HttpResponse = client.post(
         reverse("users:register"), data=VALID_USER_CREATE_FORM_DATA, follow=True
@@ -148,7 +148,7 @@ def test_edit_user_loads_correctly_no_auth(client):
 @pytest.mark.django_db
 def test_edit_user_post_saves_correctly(client):
     """Tests if form saves correctly and show success message"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
@@ -168,7 +168,7 @@ def test_edit_user_post_saves_correctly(client):
 @pytest.mark.django_db
 def test_edit_user_post_errors_appear(client):
     """Tests if error message appears if there is a mistake in the form"""
-    EmailInclusionList.objects.create(inclusion_email=VALID_USER_EMAIL)
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 

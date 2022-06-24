@@ -17,7 +17,7 @@ from ..common.forms import (
     AMPChoiceCheckboxField,
 )
 from ..common.models import BOOLEAN_CHOICES
-from .models import EmailInclusionList
+from .models import AllowedEmail
 
 
 class UserCreateForm(UserCreationForm):
@@ -61,8 +61,8 @@ class UserCreateForm(UserCreationForm):
         email_confirm: Optional[str] = self.cleaned_data.get("email_confirm")
 
         try:
-            EmailInclusionList.objects.get(inclusion_email=email)
-        except EmailInclusionList.DoesNotExist as e:
+            AllowedEmail.objects.get(inclusion_email=email)
+        except AllowedEmail.DoesNotExist as e:
             raise ValidationError(
                 "This email is not permitted to sign up",
                 code="email_is_not_permitted",
