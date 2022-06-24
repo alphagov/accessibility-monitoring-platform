@@ -71,7 +71,7 @@ class DashboardView(TemplateView):
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
-                "mfa_disabled": not checks_if_2fa_is_enabled(self.request),
+                "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
             }
         )
         return context

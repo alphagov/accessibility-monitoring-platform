@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Account details{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with current='Account details' %}
+    <main id="main-content" class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='users:account_details' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Account details</h1>
+                <p class="govuk-body-l">You can change your details on this page</p>
+                {% include 'common/error_summary.html' %}
+                <form method="post">
+                    {% csrf_token %}
+                    {% include 'common/amp_form_snippet.html' %}
+                    <div class="govuk-button-group">
+                        <input type="submit" value="Update account details" class="govuk-button" data-module="govuk-button"/>
+                        <a href="{% url 'dashboard:home' %}" class="govuk-link govuk-link--no-visited-state">
+                            Cancel and return to dashboard
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

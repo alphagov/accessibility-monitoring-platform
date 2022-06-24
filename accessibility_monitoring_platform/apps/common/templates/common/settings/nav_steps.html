@@ -3,7 +3,7 @@
         {% if current == 'users:account_details' %}
             Account details
         {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' %}">
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:account_details' request.user.id %}">
                 Account details</a>
         {% endif %}
     </p>
