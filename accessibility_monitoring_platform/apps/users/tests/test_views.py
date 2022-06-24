@@ -9,8 +9,10 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import HttpResponse
 
+from django_otp.plugins.otp_email.models import EmailDevice
 from pytest_django.asserts import assertContains
 
+from ...notifications.models import NotificationSetting
 from ..models import AllowedEmail
 
 from .test_forms import UserCreateFormData, UserUpdateFormData
@@ -29,7 +31,7 @@ VALID_USER_CREATE_FORM_DATA: UserCreateFormData = {
     "password1": VALID_PASSWORD,
     "password2": VALID_PASSWORD,
 }
-EMAIL_NOTIFICATIONS: str = "yes"
+EMAIL_NOTIFICATIONS: str = "on"
 ENABLE_2FA: str = "yes"
 VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
     "email_notifications": EMAIL_NOTIFICATIONS,
@@ -104,6 +106,12 @@ def test_register_post_saves_correctly(client):
     assert user.email == VALID_USER_EMAIL
     assert user.username == VALID_USER_EMAIL
 
+    notificiation_setting: NotificationSetting = NotificationSetting.objects.get(
+        user=user
+    )
+
+    assert notificiation_setting.email_notifications_enabled
+
 
 @pytest.mark.django_db
 def test_register_post_errors_appear(client):
@@ -152,17 +160,34 @@ def test_edit_user_post_saves_correctly(client):
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
+    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
+    del data["email_notifications"]
     response: HttpResponse = client.post(
         reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
-        data=VALID_USER_UPDATE_FORM_DATA,
+        data=data,
         follow=True,
     )
 
     assert response.status_code == 200
     assertContains(response, "Account details")
 
+    updated_user: User = User.objects.get(email=VALID_USER_EMAIL)
+
+    assert updated_user.first_name == FIRST_NAME
+    assert updated_user.last_name == LAST_NAME
+
     messages: List[str] = [str(x) for x in list(response.context["messages"])]
     assert messages[0] == "Successfully saved details!"
+
+    notificiation_setting: NotificationSetting = NotificationSetting.objects.get(
+        user=user
+    )
+
+    assert not notificiation_setting.email_notifications_enabled
+
+    email_device: EmailDevice = EmailDevice.objects.get(user=user, name="default")
+
+    assert email_device.confirmed
 
 
 @pytest.mark.django_db
