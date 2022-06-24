@@ -70,7 +70,9 @@ class UserRegisterViewTests(TestCase):
             path=reverse("users:register"), follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, """<h1 class="govuk-heading-xl">Your cases</h1>""", html=True)
+        self.assertContains(
+            response, """<h1 class="govuk-heading-xl">Your cases</h1>""", html=True
+        )
 
     def test_register_post_redirects(self):
         """Tests if register redirects to dashboard after post request"""
@@ -160,7 +162,9 @@ class UserViewTests(TestCase):
     def test_account_details_loads_correctly_with_auth(self):
         """Tests if a user is logged in and can access account details"""
         self.client.login(username="testuser", password="12345")
-        response: HttpResponse = self.client.get(reverse("users:account_details", kwargs={"pk": self.user.id}))
+        response: HttpResponse = self.client.get(
+            reverse("users:account_details", kwargs={"pk": self.user.id})
+        )
         self.assertEqual(str(response.context["user"]), "testuser")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Account details")

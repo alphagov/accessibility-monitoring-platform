@@ -16,7 +16,11 @@ from ..common.models import (
     BOOLEAN_FALSE,
     BOOLEAN_TRUE,
 )
-from ..common.utils import checks_if_2fa_is_enabled, record_model_create_event, record_model_update_event
+from ..common.utils import (
+    checks_if_2fa_is_enabled,
+    record_model_create_event,
+    record_model_update_event,
+)
 from ..notifications.models import NotificationSetting
 
 from .forms import UserCreateForm, UserUpdateForm
@@ -76,15 +80,17 @@ class UserUpdateView(UpdateView):
             form.fields["enable_2fa"].initial = BOOLEAN_TRUE
         else:
             form.fields["enable_2fa"].initial = BOOLEAN_FALSE
-        notification_setting, _ = NotificationSetting.objects.get_or_create(
-            user=user
-        )
-        form.fields["email_notifications"].initial = notification_setting.email_notifications_enabled
+        notification_setting, _ = NotificationSetting.objects.get_or_create(user=user)
+        form.fields[
+            "email_notifications"
+        ].initial = notification_setting.email_notifications_enabled
         return form
 
     def form_valid(self, form: UserUpdateForm):
         """Process contents of valid form"""
-        user: User = User.objects.get(id=self.object.id)  # Ignore password field in form
+        user: User = User.objects.get(
+            id=self.object.id
+        )  # Ignore password field in form
 
         user.first_name = form.cleaned_data["first_name"]
         user.last_name = form.cleaned_data["last_name"]

@@ -171,9 +171,7 @@ class AMPPasswordField(forms.CharField):
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault(
             "widget",
-            forms.PasswordInput(
-                attrs={"class": "govuk-input"}
-            ),
+            forms.PasswordInput(attrs={"class": "govuk-input"}),
         )
         super().__init__(*args, **kwargs)
 
