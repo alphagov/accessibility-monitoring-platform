@@ -133,15 +133,16 @@ def test_account_details_loads_correctly_with_auth(client):
     assertContains(response, "Account details")
 
 
-# @pytest.mark.django_db
-# def test_account_details_loads_correctly_no_auth(client):
-#     """Tests if a unauthenticated user returns a 302 response"""
-#     user: User = create_user()
-#     import pdb; pdb.set_trace()
-#     response: HttpResponse = client.get(
-#         reverse("users:account_details", kwargs={"pk": user.id})  # type: ignore
-#     )
-#     assert response.status_code == 302
+@pytest.mark.django_db
+def test_account_details_loads_correctly_no_auth(client):
+    """Tests if a unauthenticated user returns a 302 response"""
+    user: User = create_user()
+    url: str = reverse("users:account_details", kwargs={"pk": user.id})  # type: ignore
+
+    response: HttpResponse = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == f"/account/login/?next={url}"  # type: ignore
 
 
 @pytest.mark.django_db
