@@ -3,7 +3,7 @@ Tests for users views
 """
 import pytest
 
-from typing import List
+from typing import List, TypedDict
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -15,7 +15,7 @@ from pytest_django.asserts import assertContains
 from ...notifications.models import NotificationSetting
 from ..models import AllowedEmail
 
-from .test_forms import UserCreateFormData, UserUpdateFormData
+from .test_forms import UserCreateFormData
 
 FIRST_NAME: str = "Joe"
 LAST_NAME: str = "Bloggs"
@@ -33,8 +33,16 @@ VALID_USER_CREATE_FORM_DATA: UserCreateFormData = {
 }
 EMAIL_NOTIFICATIONS: str = "on"
 ENABLE_2FA: str = "yes"
+
+
+class UserUpdateFormData(TypedDict):
+    enable_2fa: str
+    first_name: str
+    last_name: str
+    password: str
+
+
 VALID_USER_UPDATE_FORM_DATA: UserUpdateFormData = {
-    "email_notifications": EMAIL_NOTIFICATIONS,
     "enable_2fa": ENABLE_2FA,
     "first_name": FIRST_NAME,
     "last_name": LAST_NAME,
@@ -161,7 +169,6 @@ def test_edit_user_post_saves_correctly(client):
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
     data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
-    del data["email_notifications"]
     response: HttpResponse = client.post(
         reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
         data=data,
