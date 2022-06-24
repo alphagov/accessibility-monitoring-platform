@@ -25,16 +25,7 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Final website compliance decision' %}
             </div>
         </div>
-        {% if case.is_website_compliant == 'compliant' and case.accessibility_statement_state == 'compliant' %}
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">Warning</span>
-                    The public sector body website is compliant and has no issues with the accessibility statement.
-                    The case can be marked as completed with no further action.
-                </strong>
-            </div>
-        {% endif %}
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}

@@ -23,6 +23,7 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Post case summary' %}
             </div>
         </div>
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.no_psb_contact == 'yes' %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
@@ -47,9 +48,9 @@
                                 <label class="govuk-label"><b>Public sector body statement appeal deadline</b></label>
                                 <div class="govuk-hint">
                                     {% if case.psb_appeal_deadline %}
-                                    {{ case.psb_appeal_deadline|date:'d/m/Y' }}
+                                        {{ case.psb_appeal_deadline|amp_date }}
                                     {% else %}
-                                    None
+                                        None
                                     {% endif %}
                                 </div>
                             </div>

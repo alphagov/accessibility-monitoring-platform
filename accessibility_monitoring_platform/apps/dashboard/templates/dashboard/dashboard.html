@@ -12,6 +12,24 @@
             &nbsp Status is programatically assigned and may label cases incorrectly
         </div>
         <div class="govuk-grid-row">
+            {% if mfa_disabled %}
+                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                      <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                        Important
+                      </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <h3 class="govuk-notification-banner__heading">
+                            Two-factor authentication has not been setup for your account.
+                        </h3>
+                        <p class="govuk-body">
+                            Enable in 2FA in <a class="govuk-notification-banner__link" href="{% url 'users:account_details' %}">Settings > Account details</a>. 
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="govuk-grid-column-one-third">
                 <h1 class="govuk-heading-xl">{{ page_title }}</h1>
             </div>

@@ -1,0 +1,16 @@
+<details class="govuk-details" data-module="govuk-details">
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+            Preview
+        </span>
+    </summary>
+    <div id="preview-{{ field_id }}" class="govuk-details__text"></div>
+</details>
+<script type="text/javascript">
+    window.addEventListener("load", function() {
+        document.getElementById("{{ field_id }}").oninput = function() {
+            previewMarkdown("{{ field_id }}", "preview-{{ field_id }}");
+        };
+        previewMarkdown("{{ field_id }}", "preview-{{ field_id }}");
+    });
+</script>

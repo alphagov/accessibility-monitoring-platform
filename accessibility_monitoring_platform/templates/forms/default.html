@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 
 <div class="form_default">
+  {% include 'common/error_summary.html' %}
   <form method="post">
     {% csrf_token %}
     {% for field in form %}
-      <div class="form-group form-field-default">
-        <label class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ field.label }}</label>
+      <div class="form-group form-field-default{% if field.errors %} govuk-form-group--error{% endif %}">
+        <label id="{{ field.auto_id }}-label" class="govuk-label govuk-label--m" for="{{field.auto_id}}">{{ field.label }}</label>
         {% if field.help_text %}<div class="govuk-hint">{{ field.help_text }}</div>{% endif %}
         {% include 'common/field_errors.html' with errors=field.errors %}
         {{field}}
       </div>
-
-      {% if field.errors %}
-        <span class="govuk-error-message">
-          <span class="govuk-visually-hidden">Error:</span> {{field.errors}}
-        </span>
-      {% endif %}
 
       {% if field.name in form_groups %}
           <div class="form-space"> </div>

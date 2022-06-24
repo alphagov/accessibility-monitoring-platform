@@ -85,7 +85,9 @@ class UserViewTests(TestCase):
         }
 
         response: HttpResponse = self.client.post(
-            reverse("users:account_details"), data=data, follow=True
+            reverse("users:account_details"),
+            data=data,
+            follow=True,
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Account details")
@@ -105,15 +107,17 @@ class UserViewTests(TestCase):
             "email_notifications_enabled": "yes",
             "first_name": "Joe",
             "last_name": "Blogs",
-            "email": "admin2@email.com",
-            "email_confirm": "admin2@email.com",
-            "password": "12345",
+            "email": "admin@email.com",
+            "email_confirm": "admin@email.com",
+            "password": "123456",
         }
 
         response: HttpResponse = self.client.post(
-            reverse("users:account_details"), data=data, follow=True
+            reverse("users:account_details"),
+            data=data,
+            follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This email is not permitted to sign up")
+        self.assertContains(response, "Password is incorrect")
         messages: List[str] = [str(x) for x in list(response.context["messages"])]
         self.assertEqual(messages[0], "There were errors in the form")

@@ -21,18 +21,19 @@ from django.views.generic.list import ListView
 from ..notifications.utils import add_notification, read_notification
 
 from ..common.utils import (
-    format_date,
     download_as_csv,
     extract_domain_from_url,
     get_field_names_for_export,
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
+    check_dict_for_truthy_values,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
     FieldLabelAndValue,
 )
+from ..common.utils import amp_format_date
 from .models import (
     Case,
     Contact,
@@ -74,6 +75,15 @@ from .utils import (
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
+ADVANCED_SEARCH_FIELDS: List[str] = [
+    "date_start_0",
+    "date_start_1",
+    "date_start_2",
+    "date_end_0",
+    "date_end_1",
+    "date_end_2",
+    "sector",
+]
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -122,7 +132,7 @@ def format_due_date_help_text(due_date: date) -> str:
     """Format date and prefix with 'Due' if present"""
     if due_date is None:
         return "None"
-    return f"Due {format_date(due_date)}"
+    return f"Due {amp_format_date(due_date)}"
 
 
 class CaseDetailView(DetailView):
@@ -204,6 +214,9 @@ class CaseListView(ListView):
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
 
+        context["advanced_search_open"] = check_dict_for_truthy_values(
+            dictionary=get_without_page, keys_to_check=ADVANCED_SEARCH_FIELDS
+        )
         context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
         return context

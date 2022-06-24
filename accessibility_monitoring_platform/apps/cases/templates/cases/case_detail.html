@@ -65,6 +65,7 @@
             {% include 'cases/helpers/case_title.html' %}
             {% include "cases/helpers/messages.html" %}
         </div>
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.is_suspended %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>

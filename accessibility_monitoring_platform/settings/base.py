@@ -70,6 +70,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "axes",
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_email",  # <- if you want email capability.
+    "two_factor",
+    "two_factor.plugins.email",  # <- if you want email capability.
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -87,6 +93,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
     "axes.middleware.AxesMiddleware",
 ]
@@ -105,6 +112,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "accessibility_monitoring_platform.apps.common.context_processors.platform_page",
+            ],
+            "builtins": [
+                "accessibility_monitoring_platform.apps.common.templatetags.common_tags"
             ],
         },
     },
@@ -160,6 +170,7 @@ USE_TZ = True
 
 LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "dashboard:home"
+LOGIN_URL = "two_factor:login"
 
 
 STATICFILES_FINDERS = (
@@ -177,11 +188,15 @@ CONTACT_ADMIN_EMAIL = (
     "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
 )
 
+DEFAULT_FROM_EMAIL = (
+    "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
+)
+
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
 
-MARKDOWN_EXTENSIONS = []
+MARKDOWN_EXTENSIONS = ["fenced_code"]
 
 # django-axes
 AXES_ONLY_USER_FAILURES = True  # Block only on username
@@ -191,3 +206,6 @@ if UNDER_TEST:
     INSTALLED_APPS.remove("axes")
     AUTHENTICATION_BACKENDS.remove("axes.backends.AxesBackend")
     MIDDLEWARE.remove("axes.middleware.AxesMiddleware")
+
+
+TWO_FACTOR_REMEMBER_COOKIE_AGE = 60 * 60 * 24  # 2FA expires after 24 hours

@@ -23,6 +23,7 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Report correspondence' %}
             </div>
         </div>
+        {% include 'cases/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
@@ -32,6 +33,14 @@
                         class="govuk-link govuk-link--no-visited-state"
                     >
                         Edit report followup due dates
+                    </a>
+                </p>
+                <p class="govuk-body-m">
+                    <a
+                        href="{% url 'cases:edit-no-psb-response' case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        Unable to send report or no response from public sector body?
                     </a>
                 </p>
                 {% if case.report_methodology == 'platform' and case.s3report_set.count == 0 %}
@@ -59,33 +68,32 @@
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.report_sent_date %}
-                            {% include 'common/amp_field.html' with field=form.report_followup_week_1_sent_date %}
-                            {% include 'common/amp_field.html' with field=form.report_followup_week_4_sent_date %}
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>12-week deadline</b></label>
-                                <div class="govuk-hint">
-                                    {% if case.report_followup_week_12_due_date %}
-                                        Due {{ case.report_followup_week_12_due_date|date:"d/m/Y" }}
-                                    {% else %}
-                                        None
-                                    {% endif %}
+                            {% include 'common/amp_field_two_column.html' with field=form.report_sent_date %}
+                            <hr style="width:100%;">
+                            {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_1_sent_date %}
+                            <hr style="width:100%;">
+                            {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_4_sent_date %}
+                            <hr style="width:100%;">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-half">
+                                    <label class="govuk-label"><b>12-week deadline</b></label>
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    <span class="govuk-hint">
+                                        {% if case.report_followup_week_12_due_date %}
+                                            Due {{ case.report_followup_week_12_due_date|amp_date }}
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </span>
                                 </div>
                             </div>
-                            {% include 'common/amp_field.html' with field=form.report_acknowledged_date %}
+                            <hr style="width:100%;">
+                            {% include 'common/amp_field_two_column.html' with field=form.report_acknowledged_date %}
+                            <hr style="width:100%;">
                             {% include 'common/amp_field.html' with field=form.zendesk_url %}
                             {% include 'common/amp_field.html' with field=form.correspondence_notes %}
                             {% include 'common/amp_field.html' with field=form.report_correspondence_complete_date %}
-                        </div>
-                        <div class="govuk-grid-column-full">
-                            <p class="govuk-body-m">
-                                <a
-                                    href="{% url 'cases:edit-no-psb-response' case.id %}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Unable to send report or no response from public sector body?
-                                </a>
-                            </p>
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'cases/helpers/save_continue_cancel.html' %}

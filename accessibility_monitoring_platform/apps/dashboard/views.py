@@ -9,7 +9,7 @@ from typing import Dict, List, Union
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-
+from ..common.utils import checks_if_2fa_is_enabled
 from ..cases.models import Case
 
 from .utils import (
@@ -58,6 +58,7 @@ class DashboardView(TemplateView):
             key=lambda case: (case.created),  # type: ignore
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
+
         context.update(
             {
                 "cases_by_status": cases_by_status,
@@ -70,6 +71,7 @@ class DashboardView(TemplateView):
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
+                "mfa_disabled": not checks_if_2fa_is_enabled(self.request),
             }
         )
         return context
