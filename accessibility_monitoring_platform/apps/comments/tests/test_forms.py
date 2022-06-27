@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
 
 from ..forms import SubmitCommentForm, EditCommentForm
-from ..models import Comments
+from ..models import Comment
 
 from .create_user import create_user
 
@@ -26,7 +26,7 @@ def test_edit_comment_form_form_valid(rf):
     form: EditCommentForm = EditCommentForm(
         data={"body": "this is a comment"},
         initial={"request": request},
-        instance=Comments(user=user),
+        instance=Comment(user=user),
     )
     assert form.is_valid() is True
 
@@ -43,7 +43,7 @@ def test_edit_comment_form_form_invalid(rf):
     form: EditCommentForm = EditCommentForm(
         data={"body": "this is a comment"},
         initial={"request": request},
-        instance=Comments(user=user1),
+        instance=Comment(user=user1),
     )
 
     assert form.is_valid() is False

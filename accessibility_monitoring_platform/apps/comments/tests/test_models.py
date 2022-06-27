@@ -4,15 +4,15 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 
-from ..models import Comments, CommentsHistory
+from ..models import Comment, CommentHistory
 from .create_user import create_user
 
 
 @pytest.mark.django_db
-def test_comments_model_returns_str():
-    """Comments returns correct string"""
+def test_comment_model_returns_str():
+    """Comment returns correct string"""
     user: User = create_user()
-    comment: Comments = Comments(
+    comment: Comment = Comment(
         user=user,
         page="page",
         body="this is a comment",
@@ -22,16 +22,16 @@ def test_comments_model_returns_str():
 
 
 @pytest.mark.django_db
-def test_comments_history_model_returns_str():
-    """CommentsHistory returns correct string"""
+def test_comment_history_model_returns_str():
+    """CommentHistory returns correct string"""
     user: User = create_user()
-    comment: Comments = Comments(
+    comment: Comment = Comment(
         user=user,
         page="page",
         body="this is a comment",
         created_date=datetime.now(),
     )
-    comment_history: CommentsHistory = CommentsHistory(
+    comment_history: CommentHistory = CommentHistory(
         comment=comment,
         before="this is a comment",
         after="this is a new comment",

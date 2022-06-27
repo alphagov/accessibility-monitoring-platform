@@ -14,20 +14,20 @@ from ..cases.models import Case
 from ..notifications.utils import add_notification
 
 from .forms import SubmitCommentForm, EditCommentForm
-from .models import Comments, CommentsHistory
+from .models import Comment, CommentHistory
 
 
-def save_comment_history(comment: Comments) -> bool:
+def save_comment_history(comment: Comment) -> bool:
     """Will take a new comment object and save the history to comment history"""
-    original_comment: Comments = Comments.objects.get(pk=comment.id)  # type: ignore
-    history: CommentsHistory = CommentsHistory(
+    original_comment: Comment = Comment.objects.get(pk=comment.id)  # type: ignore
+    history: CommentHistory = CommentHistory(
         comment=comment, before=original_comment.body, after=comment.body
     )
     history.save()
     return True
 
 
-def add_comment_notification(request: HttpRequest, comment: Comments) -> bool:
+def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     """
     Will notify all users in a comment thread if they have commented. Will also notify the QA auditor if
     the comment section is in "edit-report-details"
@@ -36,8 +36,8 @@ def add_comment_notification(request: HttpRequest, comment: Comments) -> bool:
     ----------
     request : HttpRequest
         Django request
-    comment : Comments
-        Comments object
+    comment : Comment
+        Comment object
 
     Returns
     -------
@@ -45,7 +45,7 @@ def add_comment_notification(request: HttpRequest, comment: Comments) -> bool:
         Returns true if function is successful
     """
     user_ids: Set[int] = set(
-        Comments.objects.filter(path=comment.path, hidden=False).values_list(
+        Comment.objects.filter(path=comment.path, hidden=False).values_list(
             "user", flat=True
         )
     )
@@ -99,7 +99,7 @@ class CreateCaseCommentFormView(FormView):
         comment_path: str = reverse("cases:edit-qa-process", kwargs={"pk": case_id})
 
         form = SubmitCommentForm(self.request.POST)
-        comment: Comments = form.save(commit=False)
+        comment: Comment = form.save(commit=False)
 
         comment.user = self.request.user
         comment.page = "qa_process"
@@ -115,11 +115,11 @@ class CreateCaseCommentFormView(FormView):
 class CommentDeleteView(View):
     """Post view for deleting a comment"""
 
-    model = Comments
+    model = Comment
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponseRedirect:
         """Deletes a comment"""
-        comment: Comments = Comments.objects.get(pk=pk)
+        comment: Comment = Comment.objects.get(pk=pk)
         if comment.user.id == request.user.id:  # type: ignore # Checks whether the comment was posted by user
             comment.hidden = True
             comment.save()
@@ -135,7 +135,7 @@ class CommentEditView(UpdateView):
     View to record final decision details
     """
 
-    model = Comments
+    model = Comment
     form_class = EditCommentForm
     template_name: str = "edit_comment.html"
     context_object_name: str = "comment"
@@ -148,7 +148,7 @@ class CommentEditView(UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Updates comment and saves comment history"""
         form.instance.created_by = self.model.user
-        comment: Comments = form.save(commit=False)
+        comment: Comment = form.save(commit=False)
         comment.updated_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
         save_comment_history(comment)

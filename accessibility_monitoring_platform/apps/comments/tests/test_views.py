@@ -12,16 +12,16 @@ from django.urls import reverse
 from ...cases.models import Case
 from ...notifications.models import Notification
 
-from ..models import Comments, CommentsHistory
+from ..models import Comment, CommentHistory
 from ..views import save_comment_history, add_comment_notification
 from .create_user import create_user, USER_PASSWORD
 
 
 @pytest.mark.django_db
 def test_save_comment_history():
-    """Tests if comment history function saves edited comments in CommentsHistory"""
+    """Tests if comment history function saves edited comment in CommentHistory"""
     user0: User = create_user()
-    comment: Comments = Comments(
+    comment: Comment = Comment(
         user=user0,
         page="page",
         body="this is a comment",
@@ -29,7 +29,7 @@ def test_save_comment_history():
     )
     comment.save()
 
-    comment2: Comments = Comments(
+    comment2: Comment = Comment(
         id=1,
         user=user0,
         page="page",
@@ -40,7 +40,7 @@ def test_save_comment_history():
     res: bool = save_comment_history(comment=comment2)
     assert res is True
 
-    comment_history: CommentsHistory = CommentsHistory.objects.get(id=1)
+    comment_history: CommentHistory = CommentHistory.objects.get(id=1)
     assert (
         str(comment_history)
         == "Comment this is a comment was updated to this is a newer comment"
@@ -63,7 +63,7 @@ def test_add_comment_notification(rf):
 
     comment_path: str = (reverse("cases:edit-qa-process", kwargs={"pk": case.id}),)  # type: ignore
 
-    comment: Comments = Comments(
+    comment: Comment = Comment(
         case=case,
         user=user0,
         page="edit-qa-process",
@@ -79,7 +79,7 @@ def test_add_comment_notification(rf):
     request2: WSGIRequest = rf.get("/")
     request2.user = user1
 
-    comment2: Comments = Comments(
+    comment2: Comment = Comment(
         case=case,
         user=user1,
         page="edit-qa-process",
@@ -124,7 +124,7 @@ def test_post_comment():
     )
     assertContains(response, "1 comment")
     assertContains(response, "this is a comment")
-    assert len(Comments.objects.all()) == 1
+    assert len(Comment.objects.all()) == 1
 
 
 @pytest.mark.django_db
@@ -147,7 +147,7 @@ def test_delete_comment():
         follow=True,
     )
     assert response.status_code == 200
-    assert Comments.objects.get(id=1).hidden is False
+    assert Comment.objects.get(id=1).hidden is False
 
     client.get(
         reverse(
@@ -169,7 +169,7 @@ def test_delete_comment():
         """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
     )
     assertContains(response, "0 comments")
-    assert Comments.objects.get(id=1).hidden is True
+    assert Comment.objects.get(id=1).hidden is True
 
 
 @pytest.mark.django_db
@@ -216,5 +216,5 @@ def test_edit_comment():
     assertContains(response, "1 comment")
     assertContains(response, "this is an updated comment")
     assertContains(response, "Last edited")
-    assert len(Comments.objects.all()) == 1
-    assert len(CommentsHistory.objects.all()) == 1
+    assert len(Comment.objects.all()) == 1
+    assert len(CommentHistory.objects.all()) == 1
