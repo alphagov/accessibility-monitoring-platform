@@ -673,8 +673,8 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+            audit: Audit = self.object
+            return get_next_retest_page_url(audit=audit)
         return super().get_success_url()
 
 
@@ -689,8 +689,8 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit: Audit = self.object
-            return get_next_retest_page_url(audit=audit)
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
         return super().get_success_url()
 
 

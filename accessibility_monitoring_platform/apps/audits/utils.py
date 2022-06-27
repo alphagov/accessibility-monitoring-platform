@@ -238,14 +238,14 @@ def get_next_retest_page_url(
         page for page in audit.testable_pages if page.failed_check_results
     ]
     if not testable_pages_with_errors:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}  # type: ignore
         return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
     if testable_pages_with_errors[-1] == current_page:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}  # type: ignore
