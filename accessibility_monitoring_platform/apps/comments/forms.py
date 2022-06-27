@@ -30,7 +30,7 @@ class EditCommentForm(forms.ModelForm):
         fields: List[str] = ["body"]
 
     def clean_body(self) -> str:
-        body: str = self.cleaned_data.get("body")
+        body: str = self.cleaned_data.get("body", "")
         if self.initial["request"].user.id != self.instance.user.id:
             raise ValidationError("A problem occured. Please contact an admin.")
         return body

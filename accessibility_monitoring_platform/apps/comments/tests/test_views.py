@@ -4,16 +4,15 @@ from pytest_django.asserts import assertContains
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.test import RequestFactory, Client
-from django.http import HttpResponse
-from django.urls import reverse
-from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.handlers.wsgi import WSGIRequest
+from django.http import HttpResponse
+from django.test import RequestFactory, Client
+from django.urls import reverse
+
+from ...cases.models import Case
+from ...notifications.models import Notification
 
 from ..models import Comments, CommentsHistory
-from ...cases.models import Case
-from ...comments.tests.test_templatetags import mock_get_response
-from ...notifications.models import Notification
 from ..views import save_comment_history, add_comment_notification
 from .create_user import create_user, USER_PASSWORD
 
@@ -38,7 +37,7 @@ def test_save_comment_history():
         created_date=datetime.now(),
     )
 
-    res: bool = save_comment_history(obj=comment2)
+    res: bool = save_comment_history(comment=comment2)
     assert res is True
 
     comment_history: CommentsHistory = CommentsHistory.objects.get(id=1)
@@ -49,7 +48,7 @@ def test_save_comment_history():
 
 
 @pytest.mark.django_db
-def test_add_comment_notification():
+def test_add_comment_notification(rf):
     """Test if add_comment_notification creates a notification"""
     case: Case = Case.objects.create(
         created=datetime.now().tzinfo,
@@ -62,10 +61,7 @@ def test_add_comment_notification():
     request: WSGIRequest = factory.get("/")
     request.user = user0
 
-    middleware: SessionMiddleware = SessionMiddleware(mock_get_response)  # type: ignore
-    middleware.process_request(request)
-    request.session.save()
-    request.session["comment_path"] = "/cases/1/edit-qa-process/"
+    comment_path: str = (reverse("cases:edit-qa-process", kwargs={"pk": case.id}),)  # type: ignore
 
     comment: Comments = Comments(
         case=case,
@@ -73,21 +69,15 @@ def test_add_comment_notification():
         page="edit-qa-process",
         body="this is a comment",
         created_date=datetime.now(),
-        path=request.session["comment_path"],
+        path=comment_path,
     )
     comment.save()
-    res: bool = add_comment_notification(request=request, obj=comment)
+    res: bool = add_comment_notification(request=request, comment=comment)
     assert res is True
 
     user1: User = create_user()
-    factory: RequestFactory = RequestFactory()
-    request2: WSGIRequest = factory.get("/")
+    request2: WSGIRequest = rf.get("/")
     request2.user = user1
-
-    middleware: SessionMiddleware = SessionMiddleware(mock_get_response)  # type: ignore
-    middleware.process_request(request2)
-    request2.session.save()
-    request2.session["comment_path"] = "/cases/1/edit-qa-process/"
 
     comment2: Comments = Comments(
         case=case,
@@ -95,11 +85,11 @@ def test_add_comment_notification():
         page="edit-qa-process",
         body="this is a comment by a second user",
         created_date=datetime.now(),
-        path=request2.session["comment_path"],
+        path=comment_path,
     )
     comment2.save()
 
-    res: bool = add_comment_notification(request=request2, obj=comment2)
+    res: bool = add_comment_notification(request=request2, comment=comment2)
     assert res is True
     assert len(Notification.objects.all()) == 1
 
@@ -123,7 +113,7 @@ def test_post_comment():
         )
     )
     response: HttpResponse = client.post(
-        reverse("comments:post-comment"),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
         data={"body": "this is a comment"},
         follow=True,
     )
@@ -152,7 +142,7 @@ def test_delete_comment():
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
     )
     response: HttpResponse = client.post(
-        reverse("comments:post-comment"),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
         data={"body": "this is a comment"},
         follow=True,
     )
@@ -202,7 +192,7 @@ def test_edit_comment():
         )
     )
     client.post(
-        reverse("comments:post-comment"),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
         data={"body": "this is a comment"},
         follow=True,
     )

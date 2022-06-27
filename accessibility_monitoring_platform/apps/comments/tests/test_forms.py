@@ -1,10 +1,12 @@
 """ Tests - test for comments forms """
 import pytest
+
 from django.contrib.auth.models import User
-from django.test import RequestFactory
 from django.core.handlers.wsgi import WSGIRequest
+
 from ..forms import SubmitCommentForm, EditCommentForm
 from ..models import Comments
+
 from .create_user import create_user
 
 
@@ -16,28 +18,26 @@ def test_submit_comment_form_form_valid():
 
 
 @pytest.mark.django_db
-def test_edit_comment_form_form_valid():
+def test_edit_comment_form_form_valid(rf):
     """EditCommentForm returns True when validating valid form"""
-    user0: User = create_user()
-    factory: RequestFactory = RequestFactory()
-    request: WSGIRequest = factory.get("/")
-    request.user = user0
+    user: User = create_user()
+    request: WSGIRequest = rf.get("/")
+    request.user = user
     form: EditCommentForm = EditCommentForm(
         data={"body": "this is a comment"},
         initial={"request": request},
-        instance=Comments(user=user0),
+        instance=Comments(user=user),
     )
     assert form.is_valid() is True
 
 
 @pytest.mark.django_db
-def test_edit_comment_form_form_invalid():
+def test_edit_comment_form_form_invalid(rf):
     """EditCommentForm returns False when validating invalid form"""
     user0: User = create_user()
     user1: User = create_user()
 
-    factory: RequestFactory = RequestFactory()
-    request: WSGIRequest = factory.get("/")
+    request: WSGIRequest = rf.get("/")
     request.user = user0
 
     form: EditCommentForm = EditCommentForm(
