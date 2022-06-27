@@ -25,6 +25,8 @@ from ..forms import (
     AMPDateField,
     AMPDateSentField,
     AMPDateRangeForm,
+    AMPPasswordField,
+    AMPNewPasswordField,
 )
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
@@ -136,6 +138,8 @@ def test_amp_date_widget_html_uses_govuk_classes():
         (AMPChoiceField, forms.ChoiceField),
         (AMPChoiceRadioField, forms.ChoiceField),
         (AMPDateField, forms.DateField),
+        (AMPPasswordField, forms.CharField),
+        (AMPNewPasswordField, forms.CharField),
     ],
 )
 def test_amp_field_class_subclasses_expected_class(field_class, expected_superclass):
@@ -169,6 +173,8 @@ def test_amp_field_is_not_required(field_class):
         (AMPChoiceField, forms.Select),
         (AMPChoiceRadioField, AMPRadioSelectWidget),
         (AMPDateField, AMPDateWidget),
+        (AMPPasswordField, forms.PasswordInput),
+        (AMPNewPasswordField, forms.PasswordInput),
     ],
 )
 def test_amp_field_uses_expected_widget(field_class, expected_widget):
@@ -220,6 +226,21 @@ def test_amp_date_field_widget_attrs():
     """Check AMPDateField widget has no default attrs"""
     field: AMPDateField = AMPDateField(label="Label text")
     assert field.widget.attrs == {}
+
+
+def test_amp_password_field_widget_attrs():
+    """Check AMPPasswordField widget attr defaults"""
+    field: AMPPasswordField = AMPPasswordField(label="Label text")
+    assert field.widget.attrs == {"class": "govuk-input"}
+
+
+def test_amp_new_password_field_widget_attrs():
+    """Check AMPNewPasswordField widget attr defaults"""
+    field: AMPNewPasswordField = AMPNewPasswordField(label="Label text")
+    assert field.widget.attrs == {
+        "autocomplete": "new-password",
+        "class": "govuk-input",
+    }
 
 
 def test_amp_date_range_form_valid_dates():

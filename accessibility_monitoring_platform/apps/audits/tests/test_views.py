@@ -426,12 +426,8 @@ def test_standard_pages_appear_on_pages_page(admin_client):
         reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),  # type: ignore
     )
     assert response.status_code == 200
-    assertContains(
-        response, """<h2 class="govuk-heading-m">Home</h2>""", html=True
-    )
-    assertContains(
-        response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True
-    )
+    assertContains(response, """<h2 class="govuk-heading-m">Home</h2>""", html=True)
+    assertContains(response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True)
     assertContains(
         response,
         """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",
