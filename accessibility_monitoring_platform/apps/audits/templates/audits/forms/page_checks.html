@@ -141,11 +141,11 @@
                                             {% for issue in matching_issues %}
                                                 <li>
                                                     <b>{{ issue.page }}</b>
-                                                    <textarea id="{{ form.notes.auto_id }}-{{ loop.counter }}" hidden>{{ issue.notes|safe }}</textarea>
+                                                    <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ issue.notes }}</textarea>
                                                     <span tabIndex="0"
                                                         class="amp-control"
-                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ loop.counter }}')"
-                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ loop.counter }}')"
+                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
+                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
                                                         >Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
