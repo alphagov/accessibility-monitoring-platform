@@ -5,6 +5,7 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ("cases", "0037_remove_contact_first_name_remove_contact_last_name"),
