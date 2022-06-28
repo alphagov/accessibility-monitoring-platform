@@ -3,8 +3,9 @@ Tests for users views
 """
 import pytest
 
-from typing import List, TypedDict
+from typing import Dict, List, TypedDict, Union
 
+from django.contrib import auth
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import HttpResponse
@@ -215,3 +216,84 @@ def test_edit_user_post_errors_appear(client):
 
     assert response.status_code == 200
     assertContains(response, "Password is incorrect")
+
+
+@pytest.mark.django_db
+def test_2fa_not_enabled_on_user_creation(client):
+    """Tests to see if 2FA EmailDevice not created when user is registered"""
+    AllowedEmail.objects.create(inclusion_email=VALID_USER_EMAIL)
+
+    response: HttpResponse = client.post(
+        reverse("users:register"), data=VALID_USER_CREATE_FORM_DATA, follow=True
+    )
+
+    assert response.status_code == 200
+
+    user: User = User.objects.get(email=VALID_USER_EMAIL)
+
+    assert not EmailDevice.objects.filter(user=user).exists()
+
+
+@pytest.mark.django_db
+def test_2fa_not_enabled_on_user_update(client):
+    """Test user can be updated and not enable 2FA"""
+    user: User = create_user()
+    client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
+
+    data: Dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()  # type: ignore
+    del data["enable_2fa"]
+
+    response: HttpResponse = client.post(
+        reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
+        data=data,
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    email_device: EmailDevice = EmailDevice.objects.get(user=user, name="default")
+
+    assert not email_device.confirmed
+
+
+@pytest.mark.django_db
+def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
+    """Test user with 2FA can login with emailed token"""
+    user: User = create_user()
+    EmailDevice.objects.create(user=user, name="default", confirmed=True)
+
+    url: str = reverse("dashboard:home")
+
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == f"/account/login/?next={url}"  # type: ignore
+
+    auth_data: Dict[str, str] = {
+        "auth-username": VALID_USER_EMAIL,
+        "auth-password": VALID_PASSWORD,
+        "login_view-current_step": "auth",
+    }
+
+    response = client.post("/account/login/", data=auth_data, follow=True)
+
+    assert response.status_code == 200
+    assertContains(response, "Token")
+
+    user = auth.get_user(client)  # type: ignore
+    assert not user.is_authenticated
+
+    assert len(mailoutbox) == 1
+    assert len(mailoutbox[0].body) == 7
+
+    token_data: Dict[str, Union[str, int]] = {
+        "token-otp_token": mailoutbox[0].body.strip(),
+        "login_view-current_step": "token",
+    }
+
+    response = client.post("/account/login/", data=token_data, follow=True)
+
+    assert response.status_code == 200
+
+    user = auth.get_user(client)  # type: ignore
+    assert user.is_authenticated
