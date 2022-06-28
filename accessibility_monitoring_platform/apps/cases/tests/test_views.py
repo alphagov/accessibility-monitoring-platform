@@ -1382,6 +1382,26 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     )
 
 
+def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform_testing(admin_client):
+    """
+    Test that the case review changes view contains no mention of the lack of a link
+    to the test results if none is on case and the methodology is platform.
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        '<div class="govuk-hint">'
+        "There is no test spreadsheet for this case"
+        "</div>",
+    )
+
+
 @pytest.mark.parametrize(
     "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
 )
