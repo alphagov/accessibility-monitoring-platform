@@ -1382,7 +1382,9 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     )
 
 
-def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform_testing(admin_client):
+def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform_testing(
+    admin_client,
+):
     """
     Test that the case review changes view contains no mention of the lack of a link
     to the test results if none is on case and the methodology is platform.

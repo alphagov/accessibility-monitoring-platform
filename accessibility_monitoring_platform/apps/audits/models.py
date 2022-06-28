@@ -119,6 +119,7 @@ METHOD_STATE_CHOICES: List[Tuple[str, str]] = [
 REVIEW_STATE_DEFAULT: str = "not-present"
 REVIEW_STATE_CHOICES: List[Tuple[str, str]] = [
     ("present", "Present and correct"),
+    ("out-of-date", "Present but out of date"),
     (REVIEW_STATE_DEFAULT, "Not included"),
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
