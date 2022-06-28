@@ -968,30 +968,18 @@ class CaseFinalStatementDecisionUpdateForm(VersionForm):
     Form to record final accessibility statement compliance decision
     """
 
-    is_disproportionate_claimed = AMPChoiceRadioField(
-        label="Disproportionate burden claimed?",
-        help_text="This field affects the case status",
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_screenshot_url = AMPURLField(
-        label="Link to accessibility statement screenshot"
-    )
     accessibility_statement_state_final = AMPChoiceRadioField(
-        label="Final accessibility statement decision",
+        label="12-week accessibility statement compliance decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
     accessibility_statement_notes_final = AMPTextField(
-        label="Final accessibility statement notes",
+        label="12-week accessibility statement compliance notes",
     )
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_screenshot_url",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
         ]
