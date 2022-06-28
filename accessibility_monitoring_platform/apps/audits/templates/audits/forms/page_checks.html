@@ -141,10 +141,11 @@
                                             {% for issue in matching_issues %}
                                                 <li>
                                                     <b>{{ issue.page }}</b>
+                                                    <textarea id="{{ form.notes.auto_id }}-{{ loop.counter }}" hidden>{{ issue.notes|safe }}</textarea>
                                                     <span tabIndex="0"
                                                         class="amp-control"
-                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
-                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', `{{ issue.notes }}`)"
+                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ loop.counter }}')"
+                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ loop.counter }}')"
                                                         >Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
@@ -184,14 +185,15 @@
 {% block extrascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script type="text/javascript">
-    function copyTextToInput(targetId, text) {
+    function copyTextToInput(targetId, sourceId) {
+        markdown = document.getElementById(sourceId).value;
         target = document.getElementById(targetId)
-        target.value = text
+        target.value = markdown
     }
-    function keyboardCopyTextToInput(event, targetId, text) {
+    function keyboardCopyTextToInput(event, targetId, sourceId) {
         if (event.code === "Enter" || event.code === "Space") {
             event.preventDefault()
-            copyTextToInput(targetId, text)
+            copyTextToInput(targetId, sourceId)
         }
     }
     const converter = new showdown.Converter();
