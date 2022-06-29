@@ -1,12 +1,12 @@
-"""Models for comments and comment history"""
+"""Models for comment and comment history"""
 from typing import List
 from django.db import models
 from django.contrib.auth.models import User
 from accessibility_monitoring_platform.apps.cases.models import Case
 
 
-class Comments(models.Model):
-    """Comments model"""
+class Comment(models.Model):
+    """Comment model"""
 
     case = models.ForeignKey(
         Case,
@@ -38,11 +38,11 @@ class Comments(models.Model):
         return f"Comment {self.body} by {self.user}"
 
 
-class CommentsHistory(models.Model):
-    """Comments history model"""
+class CommentHistory(models.Model):
+    """Comment history model"""
 
     comment = models.ForeignKey(
-        Comments,
+        Comment,
         on_delete=models.PROTECT,
         related_name="comment",
         blank=True,
@@ -54,7 +54,7 @@ class CommentsHistory(models.Model):
 
     class Meta:
         verbose_name: str = "Comment history"
-        verbose_name_plural: str = "Comments history"
+        verbose_name_plural: str = "Comment histories"
 
     def __str__(self) -> str:
         return f"Comment {self.before} was updated to {self.after}"

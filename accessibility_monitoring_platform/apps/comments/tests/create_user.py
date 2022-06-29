@@ -11,7 +11,7 @@ def create_user() -> User:
     Returns:
         User: A user model
     """
-    num: int = len(User.objects.all())
+    num: int = User.objects.count()
     user: User = User.objects.create(
         username=f"user{num}@email.com", email=f"user{num}@email.com"
     )
