@@ -15,7 +15,7 @@
                 <br>
                 <a href="{{ audit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     {% if audit.accessibility_statement_backup_url_date %}
-                        Initial accessibility statement backup - added {{audit.accessibility_statement_backup_url_date}}
+                        Initial accessibility statement backup - added {{ audit.accessibility_statement_backup_url_date }}
                     {% else %}
                         Initial accessibility statement backup
                     {% endif %}
@@ -24,8 +24,8 @@
             {% if audit.audit_retest_accessibility_statement_backup_url and twelve_week_test %}
                 <br>
                 <a href="{{ audit.audit_retest_accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    {% if audit.accessibility_statement_backup_url_date %}
-                        12-week accessibility statement backup - added {{audit.audit_retest_accessibility_statement_backup_url_date}}
+                    {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                        12-week accessibility statement backup - added {{ audit.audit_retest_accessibility_statement_backup_url_date }}
                     {% else %}
                         12-week accessibility statement backup
                     {% endif %}
