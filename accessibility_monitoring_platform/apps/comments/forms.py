@@ -3,7 +3,7 @@ from typing import List
 from django import forms
 from django.core.exceptions import ValidationError
 from ..common.forms import AMPTextField
-from .models import Comments
+from .models import Comment
 
 
 class SubmitCommentForm(forms.ModelForm):
@@ -14,7 +14,7 @@ class SubmitCommentForm(forms.ModelForm):
     body: AMPTextField = AMPTextField(label="Enter your comment")
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = ["body"]
 
 
@@ -26,11 +26,11 @@ class EditCommentForm(forms.ModelForm):
     body: AMPTextField = AMPTextField(label="Enter your comment")
 
     class Meta:
-        model = Comments
+        model = Comment
         fields: List[str] = ["body"]
 
     def clean_body(self) -> str:
-        body: str = self.cleaned_data.get("body")
+        body: str = self.cleaned_data.get("body", "")
         if self.initial["request"].user.id != self.instance.user.id:
             raise ValidationError("A problem occured. Please contact an admin.")
         return body

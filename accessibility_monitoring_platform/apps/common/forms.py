@@ -165,6 +165,31 @@ class AMPCharFieldWide(forms.CharField):
         super().__init__(*args, **kwargs)
 
 
+class AMPPasswordField(forms.CharField):
+    """Password field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault(
+            "widget",
+            forms.PasswordInput(attrs={"class": "govuk-input"}),
+        )
+        super().__init__(*args, **kwargs)
+
+
+class AMPNewPasswordField(forms.CharField):
+    """New password field in the style of GDS design system"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs.setdefault("strip", False)
+        kwargs.setdefault(
+            "widget",
+            forms.PasswordInput(
+                attrs={"autocomplete": "new-password", "class": "govuk-input"}
+            ),
+        )
+        super().__init__(*args, **kwargs)
+
+
 class AMPURLField(forms.CharField):
     """Character input field with url validation in the style of GDS design system"""
 

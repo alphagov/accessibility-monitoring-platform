@@ -2,11 +2,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Comments, CommentsHistory
+from .models import Comment, CommentHistory
 
 
-class CommentsAdmin(admin.ModelAdmin):
-    """Django admin configuration for Comments model"""
+class CommentAdmin(admin.ModelAdmin):
+    """Django admin configuration for Comment model"""
 
     readonly_fields = ["created_date"]
     search_fields = [
@@ -28,8 +28,8 @@ class CommentsAdmin(admin.ModelAdmin):
     ]
 
 
-class CommentsHistoryAdmin(admin.ModelAdmin):
-    """Django admin configuration for Comments model"""
+class CommentHistoryAdmin(admin.ModelAdmin):
+    """Django admin configuration for CommentHistory model"""
 
     readonly_fields = ["created_date"]
     search_fields = [
@@ -44,5 +44,5 @@ class CommentsHistoryAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Comments, CommentsAdmin)
-admin.site.register(CommentsHistory, CommentsHistoryAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(CommentHistory, CommentHistoryAdmin)

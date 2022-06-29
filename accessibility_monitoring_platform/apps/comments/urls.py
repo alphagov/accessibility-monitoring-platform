@@ -5,7 +5,7 @@ URLS for comment section
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from accessibility_monitoring_platform.apps.comments.views import (
-    CommentsPostView,
+    CreateCaseCommentFormView,
     CommentEditView,
     CommentDeleteView,
 )
@@ -14,7 +14,9 @@ from accessibility_monitoring_platform.apps.comments.views import (
 app_name = "comments"
 urlpatterns = [
     path(
-        "post-comment/", login_required(CommentsPostView.as_view()), name="post-comment"
+        "<int:case_id>/create-case-comment/",
+        login_required(CreateCaseCommentFormView.as_view()),
+        name="create-case-comment",
     ),
     path(
         "<int:pk>/remove-comment/",

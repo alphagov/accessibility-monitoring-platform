@@ -1,32 +1,33 @@
 """ Comments view - handles posting and editing comments """
-from typing import Union, List, Any
+from typing import Set
 import datetime
 
-from django.db.models import QuerySet
-from django.views.generic.edit import FormView, UpdateView
-from django.views.generic import View
-from django.forms.models import ModelForm
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpRequest
 from django.contrib.auth.models import User
+from django.forms.models import ModelForm
+from django.http import HttpResponseRedirect, HttpRequest
+from django.urls import reverse
+from django.views.generic import View
+from django.views.generic.edit import FormView, UpdateView
 
 from ..cases.models import Case
-from .models import Comments, CommentsHistory
-from .forms import SubmitCommentForm, EditCommentForm
 from ..notifications.utils import add_notification
 
+from .forms import SubmitCommentForm, EditCommentForm
+from .models import Comment, CommentHistory
 
-def save_comment_history(obj: Comments) -> bool:
+
+def save_comment_history(comment: Comment) -> bool:
     """Will take a new comment object and save the history to comment history"""
-    original_comment: Comments = Comments.objects.get(pk=obj.id)  # type: ignore
-    history: CommentsHistory = CommentsHistory(
-        comment=obj, before=original_comment.body, after=obj.body
+    original_comment: Comment = Comment.objects.get(pk=comment.id)  # type: ignore
+    history: CommentHistory = CommentHistory(
+        comment=comment, before=original_comment.body, after=comment.body
     )
     history.save()
     return True
 
 
-def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
+def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     """
     Will notify all users in a comment thread if they have commented. Will also notify the QA auditor if
     the comment section is in "edit-report-details"
@@ -35,105 +36,98 @@ def add_comment_notification(request: HttpRequest, obj: Comments) -> bool:
     ----------
     request : HttpRequest
         Django request
-    obj : Comments
-        Comments object
+    comment : Comment
+        Comment object
 
     Returns
     -------
     bool
         Returns true if function is successful
     """
-    users_on_thread: QuerySet[Comments] = (
-        Comments.objects.filter(
-            path=request.session.get("comment_path"),
-            hidden=False,
+    user_ids: Set[int] = set(
+        Comment.objects.filter(path=comment.path, hidden=False).values_list(
+            "user", flat=True
         )
-        .values_list("user", flat=True)
-        .distinct()
     )
 
-    users_on_thread_list: List[Any] = list(users_on_thread)
-    users_on_thread_list_int: List[int] = [int(x) for x in users_on_thread_list]
-
     # If commentor is not auditor, then it add auditor to list of ids
-    if obj.case.auditor and request.user != obj.case.auditor:
-        users_on_thread_list_int.append(obj.case.auditor.id)
+    if comment.case.auditor and request.user != comment.case.auditor:
+        user_ids.add(comment.case.auditor.id)
 
-    # If page is edit-qa-process, then it finds the QA and adds them to the list of ids
+    # If page is edit-qa-process, then it find the QA and add them to the set of ids
     if (
-        obj.case
-        and obj.case.reviewer
-        and request.session.get("comment_path")
-        and "edit-qa-process" in str(request.session.get("comment_path"))
+        comment.case
+        and comment.case.reviewer
+        and "edit-qa-process" in str(comment.path)
     ):
-        users_on_thread_list_int.append(obj.case.reviewer.id)
+        user_ids.add(comment.case.reviewer.id)
 
-    unique_values = list(set(users_on_thread_list_int))  # Gets the unique user ids
+    # Remove the commentor from the list of ids
+    if request.user.id in user_ids:  # type: ignore
+        user_ids.remove(request.user.id)  # type: ignore
 
-    # Removes the commentor from the list of ids
-    if request.user.id in unique_values:  # type: ignore
-        unique_values.remove(request.user.id)  # type: ignore
+    first_name: str = request.user.first_name  # type: ignore
+    last_name: str = request.user.last_name  # type: ignore
+    body: str = (
+        f"{first_name} {last_name} left a message in discussion:\n\n{comment.body}"
+    )
+    list_description: str = f"{comment.case.organisation_name} | {comment.page.replace('_', ' ').capitalize() }"
 
-    for target_user_id in unique_values:
+    for target_user_id in user_ids:
         target_user = User.objects.get(id=target_user_id)
-        first_name: str = request.user.first_name  # type: ignore
-        last_name: str = request.user.last_name  # type: ignore
         add_notification(
             user=target_user,
-            body=f"{first_name} {last_name} left a message in discussion:\n\n{obj.body}",
-            path=str(request.session.get("comment_path")),
-            list_description=f"{obj.case.organisation_name} | {obj.page.replace('_', ' ').capitalize() }",
+            body=body,
+            path=comment.path,
+            list_description=list_description,
             request=request,
         )
     return True
 
 
-class CommentsPostView(FormView):
+class CreateCaseCommentFormView(FormView):
     """
-    Post comment
+    Create comment for case
     """
 
     form_class = SubmitCommentForm
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Process contents of valid form"""
+        case_id: int = self.kwargs.get("case_id")
+        case: Case = Case.objects.get(id=case_id)
+        comment_path: str = reverse("cases:edit-qa-process", kwargs={"pk": case_id})
+
         form = SubmitCommentForm(self.request.POST)
-        obj: Comments = form.save(commit=False)
+        comment: Comment = form.save(commit=False)
 
-        obj.user = self.request.user
-        obj.page = self.request.session.get("comment_page")
-        obj.path = self.request.session.get("comment_path")
-        if self.request.session.get("case_id"):
-            obj.case = Case.objects.get(pk=self.request.session.get("case_id"))
-        obj.save()
+        comment.user = self.request.user
+        comment.page = "qa_process"
+        comment.case = case
+        comment.path = comment_path
+        comment.save()
 
-        add_comment_notification(self.request, obj)
+        add_comment_notification(self.request, comment)
 
-        path: Union[str, None] = self.request.session.get("comment_path")
-        if path:
-            return HttpResponseRedirect(f"{path}#comments")
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect(f"{comment_path}#comments")
 
 
 class CommentDeleteView(View):
     """Post view for deleting a comment"""
 
-    model = Comments
+    model = Comment
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponseRedirect:
         """Deletes a comment"""
-        comments: Comments = Comments.objects.get(pk=pk)
-        if comments.user.id == request.user.id:  # type: ignore # Checks whether the comment was posted by user
-            comments.hidden = True
-            comments.save()
+        comment: Comment = Comment.objects.get(pk=pk)
+        if comment.user.id == request.user.id:  # type: ignore # Checks whether the comment was posted by user
+            comment.hidden = True
+            comment.save()
             messages.success(request, "Comment successfully removed")
         else:
             messages.error(request, "An error occured")
 
-        path: Union[str, None] = self.request.session.get("comment_path")
-        if path:
-            return HttpResponseRedirect(path)
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect(comment.path)
 
 
 class CommentEditView(UpdateView):
@@ -141,7 +135,7 @@ class CommentEditView(UpdateView):
     View to record final decision details
     """
 
-    model = Comments
+    model = Comment
     form_class = EditCommentForm
     template_name: str = "edit_comment.html"
     context_object_name: str = "comment"
@@ -154,14 +148,11 @@ class CommentEditView(UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Updates comment and saves comment history"""
         form.instance.created_by = self.model.user
-        obj: Comments = form.save(commit=False)
-        obj.updated_date = datetime.datetime.now(tz=datetime.timezone.utc)
+        comment: Comment = form.save(commit=False)
+        comment.updated_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
-        save_comment_history(obj)
-        obj.save()
+        save_comment_history(comment)
+        comment.save()
 
         messages.success(self.request, "Comment succesfully updated")
-        path: Union[str, None] = self.request.session.get("comment_path")
-        if path:
-            return HttpResponseRedirect(path)
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect(comment.path)

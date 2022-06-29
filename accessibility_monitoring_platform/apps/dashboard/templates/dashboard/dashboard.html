@@ -24,7 +24,7 @@
                             Two-factor authentication has not been setup for your account.
                         </h3>
                         <p class="govuk-body">
-                            Enable in 2FA in <a class="govuk-notification-banner__link" href="{% url 'users:account_details' %}">Settings > Account details</a>. 
+                            Enable in 2FA in <a class="govuk-notification-banner__link" href="{% url 'users:edit-user' request.user.id %}">Settings > Account details</a>.
                         </p>
                     </div>
                 </div>

@@ -101,7 +101,7 @@
                         Submitting a comment does not save any changes in the above fields.
                     </strong>
                 </div>
-                {% comments_app request=request case_id=case.id page="qa_process" %}
+                {% comments_app request=request case=case %}
                 {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">
