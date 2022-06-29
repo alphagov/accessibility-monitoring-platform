@@ -21,7 +21,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 from django.db.models.fields.reverse_related import ManyToOneRel
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse
 from django.http.request import QueryDict
 from django_otp.plugins.otp_email.models import EmailDevice
 
