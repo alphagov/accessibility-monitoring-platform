@@ -16,7 +16,6 @@ from .utils import (
     group_cases_by_status,
     group_cases_by_qa_status,
     return_cases_requiring_user_review,
-    return_recently_completed_cases,
 )
 
 
@@ -45,9 +44,6 @@ class DashboardView(TemplateView):
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
             cases=all_cases, user=user
-        )
-        cases_by_status["recently_completed"] = return_recently_completed_cases(
-            cases=cases
         )
 
         incomplete_cases: List[Case] = [
