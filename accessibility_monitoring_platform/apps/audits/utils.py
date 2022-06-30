@@ -110,11 +110,17 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         )
         for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
     ]
+    report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
+        label=AuditReportOptionsUpdateForm.base_fields["report_options_notes"].label,
+        value=audit.report_options_notes,
+        type=FieldLabelAndValue.NOTES_TYPE,
+    )
     return (
         [accessibility_statement_state_row]
         + accessibility_statement_issues_rows
         + [report_options_next_row]
         + report_next_issues_rows
+        + [report_options_notes]
     )
 
 
