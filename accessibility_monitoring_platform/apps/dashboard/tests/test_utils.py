@@ -1,12 +1,9 @@
 """Test dashboard utility functions"""
-import pytest
-
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import List, Union
 
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from ...cases.models import Case
 

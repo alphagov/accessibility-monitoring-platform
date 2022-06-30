@@ -89,9 +89,9 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     for status_key, status, field_to_sort_by in status_parametres:
         cases_by_status[status_key] = sorted(
             [case for case in cases if case.status == status],
-            key=lambda case: (
-                getattr(case, field_to_sort_by) is None,
-                getattr(case, field_to_sort_by),
+            key=lambda case, sort_key=field_to_sort_by: (
+                getattr(case, sort_key) is None,
+                getattr(case, sort_key),
             ),
         )
     return cases_by_status
@@ -105,7 +105,7 @@ def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
     ]:
         cases_by_status[key] = sorted(
             [case for case in cases if case.qa_status == qa_status],
-            key=lambda case: getattr(case, field_to_sort_by),
+            key=lambda case, sort_key=field_to_sort_by: getattr(case, sort_key),
         )
     return cases_by_status
 
