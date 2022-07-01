@@ -3,19 +3,17 @@
         <th scope="row" class="govuk-table__header amp-width-one-half">Original test</th>
         <th scope="row" class="govuk-table__header amp-width-one-half">12-week retest</th>
     </tr>
-    {% for check_result in page.failed_check_results %}
-        {% if hide_fixed and check_result.retest_state == 'fixed' %}{% else %}
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell amp-width-one-half">
-                    <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
-                    <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
-                </td>
-                <td class="govuk-table__cell amp-width-one-half">
-                    <label class="govuk-label"><b>{{ check_result.get_retest_state_display }}</b></label>
-                    <div class="govuk-hint">{{ check_result.retest_notes|markdown_to_html }}</div>
-                </td>
-            </tr>
-        {% endif %}
+    {% for check_result in check_results %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell amp-width-one-half">
+                <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
+                <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+            </td>
+            <td class="govuk-table__cell amp-width-one-half">
+                <label class="govuk-label"><b>{{ check_result.get_retest_state_display }}</b></label>
+                <div class="govuk-hint">{{ check_result.retest_notes|markdown_to_html }}</div>
+            </td>
+        </tr>
     {% endfor %}
 </tbody>
 

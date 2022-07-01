@@ -633,6 +633,10 @@ class Page(models.Model):
         return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
 
     @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+
+    @property
     def check_results_by_wcag_definition(self):
         check_results: QuerySet[CheckResult] = self.all_check_results
         return {
