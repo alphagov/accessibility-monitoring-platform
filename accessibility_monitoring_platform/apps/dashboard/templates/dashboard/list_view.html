@@ -221,7 +221,15 @@
             </h2>
         </div>
         <div id="accordion-post-case-content-complete" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-complete">
-            {% include "./14_completed.html" with cases=cases_by_status.completed %}
+            <p class="govuk-body">
+                {% if show_all_cases %}
+                    <a href="{% url 'cases:case-list' %}?status=complete" class="govuk-link">
+                        View all cases with status "Complete"</a>
+                {% else %}
+                    <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=complete" class="govuk-link">
+                        View all your cases with status "Complete"</a>
+                {% endif %}
+            </p>
         </div>
     </div>
 </div>
