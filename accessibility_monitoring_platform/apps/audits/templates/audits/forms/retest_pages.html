@@ -30,6 +30,25 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        {% if hide_fixed %}
+                           <a
+                                href="?show-all=true"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Show all errors
+                            </a>
+                        {% else %}
+                            <a
+                                href="?hide-fixed=true"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Hide fixed errors
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% include 'common/error_summary.html' %}
                 {% for page in audit.testable_pages %}
                     <div class="govuk-grid-row">
