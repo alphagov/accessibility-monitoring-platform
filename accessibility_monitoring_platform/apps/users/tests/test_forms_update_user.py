@@ -180,7 +180,7 @@ class UpdateUserFormTestCase(TestCase):
         }
         response = client.post("/account/login/", data=auth_data)
 
-        # self.assertRedirects(response, url)  # This is failing due to response returning an inconsistent status code 
+        # self.assertRedirects(response, url)  # This is failing due to response returning an inconsistent status code
 
         user = auth.get_user(client)  # type: ignore
         self.assertEqual(user.is_authenticated, True)

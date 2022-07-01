@@ -40,7 +40,10 @@ parser.add_argument(
 
 
 def check_if_cf_logged_in() -> bool:
-    process: subprocess.Popen = subprocess.Popen("cf spaces".split(), stdout=subprocess.PIPE)
+    process: subprocess.Popen = subprocess.Popen(
+        "cf spaces".split(),
+        stdout=subprocess.PIPE,
+    )
     output = process.communicate()[0]
     decoded_output: str = output.decode("utf-8")
     if "FAILED" in decoded_output:
@@ -48,17 +51,13 @@ def check_if_cf_logged_in() -> bool:
     return True
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    print(
-        ">>> deploys_feature_to_paas creates a new environment in PaaS for testing new features"
-    )
-    start: float = time.time()
-    args = parser.parse_args()
-    config: SettingsType = parse_settings_json(args.settings_json)
-
+def reconfigure_config_file(config: SettingsType) -> SettingsType:
     git_branch_name: str = subprocess.check_output(
-        ["git", "branch", "--show-current"]
+        [
+            "git",
+            "branch",
+            "--show-current",
+        ]
     ).decode("utf-8")
     user: Union[str, None] = os.environ.get("USER")
     user_anon: str = user[:4] if user else "unknown"
@@ -74,7 +73,18 @@ if __name__ == "__main__":
     if config["report_viewer_app_name"] == "git_branch":
         print(">>> Creating report viewer app name from git branch")
         config["report_viewer_app_name"] = f"""{config["app_name"]}-report-viewer"""
+    return config
 
+
+if __name__ == "__main__":
+    load_dotenv()
+    print(
+        ">>> deploys_feature_to_paas creates a new environment in PaaS for testing new features"
+    )
+    start: float = time.time()
+    args = parser.parse_args()
+    config: SettingsType = parse_settings_json(args.settings_json)
+    config: SettingsType = reconfigure_config_file(config)
     template_object = {
         "app_name": config["app_name"],
         "report_viewer_app_name": config["report_viewer_app_name"],
@@ -121,7 +131,7 @@ if __name__ == "__main__":
         db_ping_attempts=config["db_ping_attempts"],
         db_ping_interval=config["db_ping_interval"],
         manifest_path=config["temp_manifest_path"],
-        backup_location="./backup.sql",
+        temp_db_copy_path="./backup.sql",
         s3_report_store=config["s3_report_store"],
     )
     build_env.start()

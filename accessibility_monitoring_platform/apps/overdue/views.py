@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import ListView
 from django.db.models.query import QuerySet
 from ..cases.models import Case

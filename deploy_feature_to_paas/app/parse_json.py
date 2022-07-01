@@ -1,7 +1,5 @@
 """ parse_json - parses settings json"""
-import os
-from pathlib import Path
-from typing import Any, TypedDict, Union, List
+from typing import Any, TypedDict, List
 import json
 
 
@@ -30,20 +28,22 @@ class SettingsType(TypedDict):
     report_viewer_app_name: str
 
 
-def validate_json_dict(data: Any, class_type: Any) -> None:
+def validate_json_dict(data: Any, class_type: Any) -> bool:
     """Very basic type checker for dictionary. Does not check embedded dictionaries.
     If checking fails, it raises an error
 
     Args:
         data (dictionary): dictionary to type check
         class_type (class): class to check dictionary against
+
+    return:
+        True if data conforms to type
     """
     class_keys: List[str] = list(class_type.__dict__["__annotations__"])
     data_keys: List[str] = list(data)
     diff: List[str] = list(set(class_keys) - set(data_keys))
     diff2: List[str] = list(set(data_keys) - set(class_keys))
 
-    invalid_fields = []
     if diff or diff2:  # Detects if there are missing fields in JSON
         missing: str = ""
         extra: str = ""
@@ -55,6 +55,7 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
             f"Missing or invalid values in json settings file - {missing} {extra}"
         )
 
+    invalid_fields = []
     for key in data:
         if key in data:
             if type(data[key]) != class_type.__dict__["__annotations__"][key] and (
@@ -68,12 +69,11 @@ def validate_json_dict(data: Any, class_type: Any) -> None:
         type_guide: str = ""
         for field in invalid_fields:
             type_guide += f"""\n    - {field} should be {class_type.__dict__["__annotations__"][field]} is currently {type(data[field])}"""
-        raise Exception(
-            f"""Types in integration settings json were invalid: {type_guide}"""
-        )
+        raise Exception(f"""Types in json were invalid: {type_guide}""")
+    return True
 
 
-def parse_settings_json(settings_path: Union[str, None] = None) -> SettingsType:
+def parse_settings_json(settings_path: str) -> SettingsType:
     """Loads integrations settings json. Defaults to ./stack_tests/integration_tests_settings.json if
     no file name is given.
 
@@ -83,13 +83,9 @@ def parse_settings_json(settings_path: Union[str, None] = None) -> SettingsType:
     Returns:
         SettingsType: Settings data as dictionary
     """
-    if settings_path is None:
-        dir_path: str = os.path.dirname(os.path.realpath(__file__))
-        path: Path = Path(dir_path)
-        settings_path = f"{path.parent.absolute()}/deploy_feature_settings.json"
-
     with open(file=settings_path) as fp:
         contents: str = fp.read()
+
     settings: SettingsType = json.loads(contents)
     validate_json_dict(settings, SettingsType)
     print(">>> Settings loaded correctly")
