@@ -632,6 +632,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    report_options_notes = AMPTextField(label="Notes")
     audit_report_options_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -657,6 +658,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "report_next_statement_not_right",
             "report_next_statement_matches",
             "report_next_disproportionate_burden",
+            "report_options_notes",
             "audit_report_options_complete_date",
         ]
 
