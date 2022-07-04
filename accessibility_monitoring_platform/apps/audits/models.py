@@ -178,8 +178,9 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
 RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
+RETEST_CHECK_RESULT_FIXED: str = "fixed"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("fixed", "Fixed"),
+    (RETEST_CHECK_RESULT_FIXED, "Fixed"),
     ("not-fixed", "Not fixed"),
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
@@ -631,6 +632,10 @@ class Page(models.Model):
     @property
     def failed_check_results(self):
         return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
+
+    @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
     def check_results_by_wcag_definition(self):

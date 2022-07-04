@@ -3,7 +3,7 @@
         <th scope="row" class="govuk-table__header amp-width-one-half">Original test</th>
         <th scope="row" class="govuk-table__header amp-width-one-half">12-week retest</th>
     </tr>
-    {% for check_result in page.failed_check_results %}
+    {% for check_result in check_results %}
         <tr class="govuk-table__row">
             <td class="govuk-table__cell amp-width-one-half">
                 <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
