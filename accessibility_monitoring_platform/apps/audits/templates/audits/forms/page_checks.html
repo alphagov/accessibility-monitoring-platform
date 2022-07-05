@@ -143,10 +143,10 @@
                                                     <b>{{ issue.page }}</b>
                                                     <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ issue.notes }}</textarea>
                                                     <span tabIndex="0"
-                                                        class="amp-control"
-                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
-                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
-                                                        >Click to populate error details</span>
+                                                        class="amp-control amp-copy-error"
+                                                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
+                                                        targetId="{{ form.notes.auto_id }}">
+                                                        Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
                                             {% endfor %}
@@ -178,29 +178,10 @@
             </div>
         </div>
     </main>
-    <script src="{% static 'js/audits_check_filter.js' %}"></script>
 </div>
 {% endblock %}
 
 {% block extrascript %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
-<script type="text/javascript">
-    function copyTextToInput(targetId, sourceId) {
-        markdown = document.getElementById(sourceId).value;
-        target = document.getElementById(targetId)
-        target.value = markdown
-    }
-    function keyboardCopyTextToInput(event, targetId, sourceId) {
-        if (event.code === "Enter" || event.code === "Space") {
-            event.preventDefault()
-            copyTextToInput(targetId, sourceId)
-        }
-    }
-    const converter = new showdown.Converter();
-    function previewMarkdown(sourceId, targetId) {
-        markdown = document.getElementById(sourceId).value;
-        targetElement = document.getElementById(targetId);
-        targetElement.innerHTML = converter.makeHtml(markdown);
-    }
-</script>
+<script src="{% static 'js/audits_check_filter.js' %}"></script>
+<script src="{% static 'js/audits_copy_error.js' %}"></script>
 {% endblock %}
