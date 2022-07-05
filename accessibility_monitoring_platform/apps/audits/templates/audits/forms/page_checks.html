@@ -178,12 +178,12 @@
             </div>
         </div>
     </main>
-    <script src="{% static 'js/audits_check_filter.js' %}"></script>
-    <script src="{% static 'js/markdown_preview.js' %}"></script>
 </div>
 {% endblock %}
 
 {% block extrascript %}
+<script src="{% static 'js/audits_check_filter.js' %}"></script>
+<script src="{% static 'js/markdown_preview.js' %}"></script>
 <script type="text/javascript">
     function copyTextToInput(targetId, sourceId) {
         sourceValue = document.getElementById(sourceId).value;
