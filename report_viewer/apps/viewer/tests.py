@@ -20,6 +20,18 @@ from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWri
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 
+def test_view_accessibility_statement(client):
+    """Test accessibility statement renders"""
+    response: HttpResponse = client.get(reverse("viewer:accessibility-statement"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1 class="govuk-heading-xl">Accessibility statement</h1>""",
+        html=True,
+    )
+
+
 @pytest.mark.django_db
 @mock_s3
 def test_view_report(client):

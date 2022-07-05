@@ -9,6 +9,10 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import Report
 
 
+class AccessibilityStatementTemplateView(TemplateView):
+    template_name: str = "viewer/accessibility_statement.html"
+
+
 class ViewReport(TemplateView):
     """
     View of report on S3
