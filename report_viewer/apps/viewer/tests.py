@@ -126,7 +126,7 @@ def test_view_report_not_on_s3(client):
     Report.objects.create(case=case)
     Audit.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
-    HTML_ON_DB: str = "<p>Text on DB</p>"
+    html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
         case=case,
@@ -135,7 +135,7 @@ def test_view_report_not_on_s3(client):
     )
     s3_report: Optional[S3Report] = S3Report.objects.all().first()
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
-    s3_report.html = HTML_ON_DB  # type: ignore
+    s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
 
     report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
@@ -144,4 +144,4 @@ def test_view_report_not_on_s3(client):
     )
     assert response.status_code == 200
 
-    assertContains(response, HTML_ON_DB)
+    assertContains(response, html_on_db)
