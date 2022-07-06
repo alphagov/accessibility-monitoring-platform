@@ -14,20 +14,27 @@ from django.template import loader, Template
 from django.urls import reverse
 
 from accessibility_monitoring_platform.apps.cases.models import Case
+from accessibility_monitoring_platform.apps.common.models import Platform
+from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.reports.models import Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 
+@pytest.mark.django_db
 def test_view_accessibility_statement(client):
     """Test accessibility statement renders"""
+    platform: Platform = get_platform_settings()
+    platform.report_viewer_accessibility_statement = "# Accessibility statement"
+    platform.save()
+
     response: HttpResponse = client.get(reverse("viewer:accessibility-statement"))
 
     assert response.status_code == 200
     assertContains(
         response,
-        """<h1 class="govuk-heading-xl">Accessibility statement</h1>""",
+        """<h1>Accessibility statement</h1>""",
         html=True,
     )
 

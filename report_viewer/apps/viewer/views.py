@@ -1,16 +1,26 @@
 """Views for report viewer"""
+from typing import Any, Dict
+
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
+
+from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
+from accessibility_monitoring_platform.apps.reports.models import Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import (
     S3ReadWriteReport,
     NO_REPORT_HTML,
 )
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
-from accessibility_monitoring_platform.apps.reports.models import Report
 
 
 class AccessibilityStatementTemplateView(TemplateView):
     template_name: str = "viewer/accessibility_statement.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["platform"] = get_platform_settings()
+        return context
 
 
 class ViewReport(TemplateView):

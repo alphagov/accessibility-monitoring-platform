@@ -18,8 +18,7 @@ Accessibility Statement
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">Accessibility statement</h1>
-                <p class="govuk-body">Placeholder</p>
+                {{ platform.report_viewer_accessibility_statement|markdown_to_html }}
             </div>
         </div>
     </main>
