@@ -178,8 +178,9 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
 RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
+RETEST_CHECK_RESULT_FIXED: str = "fixed"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("fixed", "Fixed"),
+    (RETEST_CHECK_RESULT_FIXED, "Fixed"),
     ("not-fixed", "Not fixed"),
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
@@ -394,6 +395,7 @@ class Audit(VersionModel):
     report_next_disproportionate_burden = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Report text
@@ -630,6 +632,10 @@ class Page(models.Model):
     @property
     def failed_check_results(self):
         return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
+
+    @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
     def check_results_by_wcag_definition(self):

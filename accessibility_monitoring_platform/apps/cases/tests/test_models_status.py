@@ -1,8 +1,12 @@
 """
 Tests for automated statuses
 """
-from datetime import datetime
 import pytest
+
+from datetime import datetime
+
+from django.contrib.auth.models import User
+
 from ..models import (
     Case,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
@@ -15,14 +19,12 @@ from ..models import (
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     BOOLEAN_TRUE,
 )
-from django.contrib.auth.models import User
 
 
 @pytest.mark.django_db
 def test_case_status_suspended():
     """Test case status returns unassigned-case"""
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         is_suspended=True,
@@ -34,7 +36,6 @@ def test_case_status_suspended():
 def test_case_status_unassigned():
     """Test case status returns unassigned-case"""
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
@@ -46,12 +47,10 @@ def test_case_status_test_in_progress():
     """Test case status returns test-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
     )
-    case.save()
     assert case.status == "test-in-progress"
 
 
@@ -60,14 +59,12 @@ def test_case_status_report_in_progress():
     """Test case status returns report-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
     )
-    case.save()
     assert case.status == "report-in-progress"
 
 
@@ -76,7 +73,6 @@ def test_case_status_qa_in_progress():
     """Test case status returns qa-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -84,7 +80,6 @@ def test_case_status_qa_in_progress():
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         report_review_status=REPORT_READY_TO_REVIEW,
     )
-    case.save()
     assert case.status == "qa-in-progress"
 
 
@@ -93,7 +88,6 @@ def test_case_status_report_ready_to_send():
     """Test case status returns report-ready-to-send"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -102,7 +96,6 @@ def test_case_status_report_ready_to_send():
         report_review_status=REPORT_READY_TO_REVIEW,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
-    case.save()
     assert case.status == "report-ready-to-send"
 
 
@@ -111,7 +104,6 @@ def test_case_status_in_report_correspondence():
     """Test case status returns in-report-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -121,7 +113,6 @@ def test_case_status_in_report_correspondence():
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
     )
-    case.save()
     assert case.status == "in-report-correspondence"
 
 
@@ -130,7 +121,6 @@ def test_case_status_in_probation_period():
     """Test case status returns in-probation-period"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -141,7 +131,6 @@ def test_case_status_in_probation_period():
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
     )
-    case.save()
     assert case.status == "in-probation-period"
 
 
@@ -150,7 +139,6 @@ def test_case_status_in_12_week_correspondence():
     """Test case status returns in-12-week-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -162,7 +150,6 @@ def test_case_status_in_12_week_correspondence():
         report_acknowledged_date=datetime.now(),
         twelve_week_update_requested_date=datetime.now(),
     )
-    case.save()
     assert case.status == "in-12-week-correspondence"
 
 
@@ -171,7 +158,6 @@ def test_case_status_reviewing_changes():
     """Test case status returns reviewing-changes"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -184,7 +170,6 @@ def test_case_status_reviewing_changes():
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
     )
-    case.save()
     assert case.status == "reviewing-changes"
 
 
@@ -193,7 +178,6 @@ def test_case_status_final_decision_due():
     """Test case status returns final-decision-due"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -207,7 +191,6 @@ def test_case_status_final_decision_due():
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         is_ready_for_final_decision=BOOLEAN_TRUE,
     )
-    case.save()
     assert case.status == "final-decision-due"
 
 
@@ -216,7 +199,6 @@ def test_case_status_case_closed_waiting_to_be_sent():
     """Test case status returns case-closed-waiting-to-be-sent"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -230,7 +212,6 @@ def test_case_status_case_closed_waiting_to_be_sent():
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         case_completed=CASE_COMPLETED_SEND,
     )
-    case.save()
     assert case.status == "case-closed-waiting-to-be-sent"
 
 
@@ -239,7 +220,6 @@ def test_case_status_case_closed_sent_to_equality_bodies():
     """Test case status returns case-closed-sent-to-equalities-body"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -254,7 +234,6 @@ def test_case_status_case_closed_sent_to_equality_bodies():
         case_completed=CASE_COMPLETED_SEND,
         sent_to_enforcement_body_sent_date=datetime.now(),
     )
-    case.save()
     assert case.status == "case-closed-sent-to-equalities-body"
 
 
@@ -263,7 +242,6 @@ def test_case_status_in_correspondence_with_equalities_body():
     """Test case status returns in-correspondence-with-equalities-body"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -279,7 +257,6 @@ def test_case_status_in_correspondence_with_equalities_body():
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     )
-    case.save()
     assert case.status == "in-correspondence-with-equalities-body"
 
 
@@ -288,7 +265,6 @@ def test_case_status_equality_bodies_complete():
     """Test case status returns complete"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -304,7 +280,6 @@ def test_case_status_equality_bodies_complete():
         sent_to_enforcement_body_sent_date=datetime.now(),
         enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     )
-    case.save()
     assert case.status == "complete"
 
 
@@ -313,7 +288,6 @@ def test_case_status_complete():
     """Test case status returns complete when case is exempt"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -321,7 +295,6 @@ def test_case_status_complete():
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         case_completed=CASE_COMPLETED_NO_SEND,
     )
-    case.save()
     assert case.status == "complete"
 
 
@@ -330,7 +303,6 @@ def test_case_qa_status_unassigned_qa_case():
     """Test case returns unassigned-qa-case for qa_status"""
     user = User.objects.create()
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -338,7 +310,6 @@ def test_case_qa_status_unassigned_qa_case():
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         report_review_status=REPORT_READY_TO_REVIEW,
     )
-    case.save()
     assert case.qa_status == "unassigned-qa-case"
 
 
@@ -348,7 +319,6 @@ def test_case_qa_status_in_qa():
     user = User.objects.create(username="1")
     user2 = User.objects.create(username="2")
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -357,7 +327,6 @@ def test_case_qa_status_in_qa():
         report_review_status=REPORT_READY_TO_REVIEW,
         reviewer=user2,
     )
-    case.save()
     assert case.qa_status == "in-qa"
 
 
@@ -367,7 +336,6 @@ def test_case_qa_status_qa_approved():
     user = User.objects.create(username="1")
     user2 = User.objects.create(username="2")
     case = Case.objects.create(
-        created=datetime.now().tzinfo,
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -377,5 +345,4 @@ def test_case_qa_status_qa_approved():
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         reviewer=user2,
     )
-    case.save()
     assert case.qa_status == "qa-approved"

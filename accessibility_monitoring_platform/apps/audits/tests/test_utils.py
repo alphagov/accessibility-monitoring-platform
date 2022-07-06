@@ -362,6 +362,13 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         extra_label="",
         external_url=True,
     ),
+    FieldLabelAndValue(
+        value="",
+        label="Notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
 ]
 
 

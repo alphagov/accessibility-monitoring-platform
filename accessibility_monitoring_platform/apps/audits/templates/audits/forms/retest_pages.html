@@ -30,6 +30,25 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        {% if hide_fixed %}
+                           <a
+                                href="?show-all=true"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Show all errors
+                            </a>
+                        {% else %}
+                            <a
+                                href="?hide-fixed=true"
+                                class="govuk-button govuk-button--secondary"
+                            >
+                                Hide fixed errors
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% include 'common/error_summary.html' %}
                 {% for page in audit.testable_pages %}
                     <div class="govuk-grid-row">
@@ -52,9 +71,19 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if page.failed_check_results %}
-                                <table class="govuk-table view-test-accordion-table">
-                                    {% include 'audits/helpers/retest_page_comparison.html' %}
-                                </table>
+                                {% if hide_fixed %}
+                                    {% if page.unfixed_check_results %}
+                                        <table class="govuk-table view-test-accordion-table">
+                                            {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.unfixed_check_results %}
+                                        </table>
+                                    {% else %}
+                                        <p class="govuk-body-m">There are no unfixed errors on this page</p>
+                                    {% endif %}
+                                {% else %}
+                                    <table class="govuk-table view-test-accordion-table">
+                                        {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.failed_check_results %}
+                                    </table>
+                                {% endif %}
                             {% else %}
                                 <p class="govuk-body-m">There are no recorded errors on this page</p>
                             {% endif %}
