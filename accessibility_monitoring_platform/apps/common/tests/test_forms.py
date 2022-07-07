@@ -83,9 +83,10 @@ EXPECTED_DATE_WIDGET_HTML: str = """
         </div>
 </div>
 <p class="govuk-body-m" style="margin-top:10px;margin-bottom:0;">
-    <span class="amp-control" tabIndex="0"
-        onkeypress="keypressPopulateWithTodaysDate(event, \'\', \'\', \'\')"
-        onclick="populateWithTodaysDate(\'\', \'\', \'\')">
+    <span class="amp-control amp-populate-date" tabIndex="0"
+        dayFieldId=""
+        monthFieldId=""
+        yearFieldId="">
         Populate with today's date
     </span>
 </p>"""
