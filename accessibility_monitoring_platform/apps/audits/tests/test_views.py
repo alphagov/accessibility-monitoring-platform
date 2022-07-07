@@ -19,6 +19,7 @@ from ..models import (
     WcagDefinition,
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NOT_TESTED,
+    RETEST_CHECK_RESULT_FIXED,
     PAGE_TYPE_EXTRA,
     TEST_TYPE_AXE,
     TEST_TYPE_PDF,
@@ -31,14 +32,15 @@ WCAG_TYPE_PDF_NAME: str = "WCAG PDF name"
 EXTRA_PAGE_NAME: str = "Extra page name"
 EXTRA_PAGE_URL: str = "https://extra-page.com"
 CHECK_RESULT_NOTES: str = "Check result notes"
-NEW_PAGE_NAME = "New page name"
-NEW_PAGE_URL = "https://example.com/extra"
-UPDATED_PAGE_NAME = "Updated page name"
-UPDATED_PAGE_URL = "https://example.com/updated"
-IS_WEBSITE_COMPLIANT = "partially-compliant"
-COMPLIANCE_DECISION_NOTES = "Website decision notes"
-ACCESSIBILITY_STATEMENT_STATE = "not-compliant"
-ACCESSIBILITY_STATEMENT_NOTES = "Accessibility statement notes"
+NEW_PAGE_NAME: str = "New page name"
+NEW_PAGE_URL: str = "https://example.com/extra"
+UPDATED_PAGE_NAME: str = "Updated page name"
+UPDATED_PAGE_URL: str = "https://example.com/updated"
+IS_WEBSITE_COMPLIANT: str = "partially-compliant"
+COMPLIANCE_DECISION_NOTES: str = "Website decision notes"
+ACCESSIBILITY_STATEMENT_STATE: str = "not-compliant"
+ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility statement notes"
+FIXED_ERROR_NOTES: str = "Fixed error notes"
 
 
 def create_audit() -> Audit:
@@ -778,6 +780,43 @@ def test_retest_page_checks_edit_saves_results(admin_client):
 
     assert updated_page.retest_complete_date
     assert updated_page.retest_page_missing_date
+
+
+def test_retest_page_shows_and_hides_fixed_errors(admin_client):
+    """Test retest page conditionally shows and hides fixed errors"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
+    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_pdf,
+        check_result_state=CHECK_RESULT_ERROR,
+        retest_state=RETEST_CHECK_RESULT_FIXED,
+        notes=FIXED_ERROR_NOTES,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition_axe,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, FIXED_ERROR_NOTES)
+
+    response: HttpResponse = admin_client.get(f"{url}?hide-fixed=true")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, FIXED_ERROR_NOTES)
 
 
 def test_retest_website_decision_saved_on_case(admin_client):

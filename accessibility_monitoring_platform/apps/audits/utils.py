@@ -110,11 +110,17 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         )
         for field_name, label in REPORT_NEXT_ISSUE_TEXT.items()
     ]
+    report_options_notes: FieldLabelAndValue = FieldLabelAndValue(
+        label=AuditReportOptionsUpdateForm.base_fields["report_options_notes"].label,
+        value=audit.report_options_notes,
+        type=FieldLabelAndValue.NOTES_TYPE,
+    )
     return (
         [accessibility_statement_state_row]
         + accessibility_statement_issues_rows
         + [report_options_next_row]
         + report_next_issues_rows
+        + [report_options_notes]
     )
 
 
@@ -238,14 +244,14 @@ def get_next_retest_page_url(
         page for page in audit.testable_pages if page.failed_check_results
     ]
     if not testable_pages_with_errors:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     if current_page is None:
         next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}  # type: ignore
         return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
     if testable_pages_with_errors[-1] == current_page:
-        return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
+        return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
     next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}  # type: ignore

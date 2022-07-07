@@ -25,7 +25,6 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     IS_WEBSITE_COMPLIANT_CHOICES,
     WEBSITE_STATE_FINAL_CHOICES,
-    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
 )
 from .models import (
     Audit,
@@ -559,6 +558,17 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_eass_link = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={
+                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                    "accessibility_statement_eass_link"
+                ]
+            }
+        ),
+    )
     accessibility_statement_template_update = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
@@ -633,6 +643,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    report_options_notes = AMPTextField(label="Notes")
     audit_report_options_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -649,6 +660,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_deadline_not_complete",
             "accessibility_statement_deadline_not_sufficient",
             "accessibility_statement_out_of_date",
+            "accessibility_statement_eass_link",
             "accessibility_statement_template_update",
             "accessibility_statement_accessible",
             "accessibility_statement_prominent",
@@ -658,6 +670,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "report_next_statement_not_right",
             "report_next_statement_matches",
             "report_next_disproportionate_burden",
+            "report_options_notes",
             "audit_report_options_complete_date",
         ]
 
@@ -968,30 +981,18 @@ class CaseFinalStatementDecisionUpdateForm(VersionForm):
     Form to record final accessibility statement compliance decision
     """
 
-    is_disproportionate_claimed = AMPChoiceRadioField(
-        label="Disproportionate burden claimed?",
-        help_text="This field affects the case status",
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_screenshot_url = AMPURLField(
-        label="Link to accessibility statement screenshot"
-    )
     accessibility_statement_state_final = AMPChoiceRadioField(
-        label="Final accessibility statement decision",
+        label="12-week accessibility statement compliance decision",
         choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     )
     accessibility_statement_notes_final = AMPTextField(
-        label="Final accessibility statement notes",
+        label="12-week accessibility statement compliance notes",
     )
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_screenshot_url",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
         ]

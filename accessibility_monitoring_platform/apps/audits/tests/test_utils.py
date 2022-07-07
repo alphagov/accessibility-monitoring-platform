@@ -297,6 +297,13 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="No",
+        label="it must link directly to the Equality Advisory and Support Service (EASS) website",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="No",
         label="it is a requirement that accessibility statements are accessible. Some users may experience"
         " difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your"
         " full accessibility statement.",
@@ -359,6 +366,13 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         value="No",
         label="Disproportionate burden",
         type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="Notes",
+        type="notes",
         extra_label="",
         external_url=True,
     ),
@@ -608,13 +622,13 @@ def test_get_next_page_url_audit_with_pages():
 @pytest.mark.django_db
 def test_get_next_retest_page_url_audit_with_no_pages():
     """
-    Test get_next_retest_page_url returns url for website compliance decision
+    Test get_next_retest_page_url returns url for retest pages
     when audit has no testable pages.
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     assert get_next_retest_page_url(audit=audit) == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+        "audits:edit-audit-retest-pages", kwargs=audit_pk
     )
 
 
@@ -646,7 +660,7 @@ def test_get_next_retest_page_url_audit_with_pages():
 
     current_page: Page = audit.testable_pages[1]
     assert get_next_retest_page_url(audit=audit, current_page=current_page) == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+        "audits:edit-audit-retest-pages", kwargs=audit_pk
     )
 
 
@@ -659,7 +673,7 @@ def test_get_next_retest_page_url_audit_with_no_errors():
     audit: Audit = create_audit_and_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
     assert get_next_retest_page_url(audit=audit) == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+        "audits:edit-audit-retest-pages", kwargs=audit_pk
     )
 
 

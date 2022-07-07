@@ -687,7 +687,9 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate retested_website_date help text with link to test results for this case"""
         form = super().get_form()
-        if form.instance.test_results_url:  # type: ignore
+        if form.instance.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
+            form.fields["retested_website_date"].help_text = ""
+        else:
             if form.instance.test_results_url:  # type: ignore
                 form.fields["retested_website_date"].help_text = mark_safe(
                     f'The retest form can be found in the <a href="{form.instance.test_results_url}"'  # type: ignore

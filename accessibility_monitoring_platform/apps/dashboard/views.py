@@ -16,7 +16,6 @@ from .utils import (
     group_cases_by_status,
     group_cases_by_qa_status,
     return_cases_requiring_user_review,
-    return_recently_completed_cases,
 )
 
 
@@ -46,9 +45,6 @@ class DashboardView(TemplateView):
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
             cases=all_cases, user=user
         )
-        cases_by_status["recently_completed"] = return_recently_completed_cases(
-            cases=cases
-        )
 
         incomplete_cases: List[Case] = [
             case for case in all_cases if case.status != "complete"
@@ -71,7 +67,7 @@ class DashboardView(TemplateView):
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
-                "mfa_disabled": not checks_if_2fa_is_enabled(self.request),
+                "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
             }
         )
         return context

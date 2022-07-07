@@ -4,6 +4,6 @@ Admin - users
 
 from django.contrib import admin
 
-from .models import EmailInclusionList
+from .models import AllowedEmail
 
-admin.site.register(EmailInclusionList)
+admin.site.register(AllowedEmail)

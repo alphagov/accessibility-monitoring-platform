@@ -189,7 +189,15 @@
             </h2>
         </div>
         <div id="accordion-post-case-content-case-closed-sent-to-equalities-body" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-case-closed-sent-to-equalities-body">
-            {% include "./12_in_correspondence_with_equality_body.html" with cases=cases_by_status.case_closed_sent_to_equalities_body %}
+            <p class="govuk-body">
+                {% if show_all_cases %}
+                    <a href="{% url 'cases:case-list' %}?status=case-closed-sent-to-equalities-body" class="govuk-link">
+                        View all cases with status "Case closed and sent to equalities body"</a>
+                {% else %}
+                    <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=case-closed-sent-to-equalities-body" class="govuk-link">
+                        View all your cases with status "Case closed and sent to equalities body"</a>
+                {% endif %}
+            </p>
         </div>
     </div>
     <div class="govuk-accordion__section ">
@@ -208,12 +216,20 @@
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
                 <span class="govuk-accordion__section-button" id="accordion-post-case-heading-complete">
-                    Completed cases - {{ cases_by_status.recently_completed|length }}
+                    Completed cases - {{ cases_by_status.completed|length }}
                 </span>
             </h2>
         </div>
         <div id="accordion-post-case-content-complete" class="govuk-accordion__section-content" aria-labelledby="accordion-post-case-heading-complete">
-            {% include "./14_recently_completed.html" with cases=cases_by_status.recently_completed %}
+            <p class="govuk-body">
+                {% if show_all_cases %}
+                    <a href="{% url 'cases:case-list' %}?status=complete" class="govuk-link">
+                        View all cases with status "Complete"</a>
+                {% else %}
+                    <a href="{% url 'cases:case-list' %}?auditor={{ user.id }}&status=complete" class="govuk-link">
+                        View all your cases with status "Complete"</a>
+                {% endif %}
+            </p>
         </div>
     </div>
 </div>

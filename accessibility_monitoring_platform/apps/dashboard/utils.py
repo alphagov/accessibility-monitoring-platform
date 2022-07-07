@@ -79,14 +79,19 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
             "in-correspondence-with-equalities-body",
             "report_followup_week_12_due_date",
         ),
+        (
+            "completed",
+            "complete",
+            "completed_date",
+        ),
     ]
 
-    for key, status, field_to_sort_by in status_parametres:
-        cases_by_status[key] = sorted(
+    for status_key, status, field_to_sort_by in status_parametres:
+        cases_by_status[status_key] = sorted(
             [case for case in cases if case.status == status],
-            key=lambda case: (
-                getattr(case, field_to_sort_by) is None,
-                getattr(case, field_to_sort_by),
+            key=lambda case, sort_key=field_to_sort_by: (
+                getattr(case, sort_key) is None,
+                getattr(case, sort_key),
             ),
         )
     return cases_by_status
@@ -100,7 +105,7 @@ def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
     ]:
         cases_by_status[key] = sorted(
             [case for case in cases if case.qa_status == qa_status],
-            key=lambda case: getattr(case, field_to_sort_by),
+            key=lambda case, sort_key=field_to_sort_by: getattr(case, sort_key),
         )
     return cases_by_status
 
@@ -113,18 +118,4 @@ def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Ca
     return sorted(  # sort by case ID
         cases_requiring_user_review,
         key=lambda case: case.id,  # type: ignore
-    )
-
-
-def return_recently_completed_cases(cases: List[Case]) -> List[Case]:
-    """Find cases which are complete and were completed in the last 30 days"""
-    recently_completed_cases: List[Case] = [
-        case for case in cases if case.status == "complete"
-    ]
-    return sorted(
-        recently_completed_cases,
-        key=lambda case: (
-            case.completed_date is None,
-            case.completed_date,
-        ),
     )

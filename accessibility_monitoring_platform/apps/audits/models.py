@@ -119,6 +119,7 @@ METHOD_STATE_CHOICES: List[Tuple[str, str]] = [
 REVIEW_STATE_DEFAULT: str = "not-present"
 REVIEW_STATE_CHOICES: List[Tuple[str, str]] = [
     ("present", "Present and correct"),
+    ("out-of-date", "Present but out of date"),
     (REVIEW_STATE_DEFAULT, "Not included"),
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
@@ -177,8 +178,9 @@ CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
     (CHECK_RESULT_NOT_TESTED, "Not tested"),
 ]
 RETEST_CHECK_RESULT_DEFAULT: str = "not-retested"
+RETEST_CHECK_RESULT_FIXED: str = "fixed"
 RETEST_CHECK_RESULT_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("fixed", "Fixed"),
+    (RETEST_CHECK_RESULT_FIXED, "Fixed"),
     ("not-fixed", "Not fixed"),
     (RETEST_CHECK_RESULT_DEFAULT, "Not retested"),
 ]
@@ -198,6 +200,7 @@ REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
     " this is not sufficient",
     "accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
+    "accessibility_statement_eass_link": "it must link directly to the Equality Advisory and Support Service (EASS) website",
     "accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
     " Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML"
     " version of your full accessibility statement.",
@@ -364,6 +367,9 @@ class Audit(VersionModel):
     accessibility_statement_out_of_date = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    accessibility_statement_eass_link = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     accessibility_statement_template_update = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
@@ -393,6 +399,7 @@ class Audit(VersionModel):
     report_next_disproportionate_burden = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
     # Report text
@@ -629,6 +636,10 @@ class Page(models.Model):
     @property
     def failed_check_results(self):
         return self.all_check_results.filter(check_result_state=CHECK_RESULT_ERROR)
+
+    @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
     def check_results_by_wcag_definition(self):

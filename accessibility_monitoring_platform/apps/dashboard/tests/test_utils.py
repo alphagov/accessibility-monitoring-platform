@@ -1,12 +1,9 @@
 """Test dashboard utility functions"""
-import pytest
-
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import List, Union
 
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from ...cases.models import Case
 
@@ -14,7 +11,6 @@ from ..utils import (
     group_cases_by_status,
     group_cases_by_qa_status,
     return_cases_requiring_user_review,
-    return_recently_completed_cases,
 )
 
 FIRST_DATE = date(2021, 1, 1)
@@ -335,6 +331,7 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
             twelve_week_correspondence_acknowledged_date=FIRST_DATE,
         ),
     ],
+    "completed": [],
 }
 
 EXPECTED_MOCK_CASES_BY_QA_STATUS = {
@@ -384,37 +381,3 @@ def test_return_cases_requiring_user_review():
     assert (
         return_cases_requiring_user_review(cases=all_cases, user=user) == expected_cases
     )
-
-
-def test_return_recently_completed_cases():
-    """Test completed cases, compled in the last 30 days"""
-    twenty_eight_days_ago: datetime = timezone.now() - timedelta(28)
-    twenty_nine_days_ago: datetime = timezone.now() - timedelta(29)
-    thirty_one_days_ago: datetime = timezone.now() - timedelta(31)
-
-    mock_case_1: MockCase = MockCase(
-        id=1,
-        completed_date=twenty_nine_days_ago,
-        status="complete",
-    )
-    mock_case_2: MockCase = MockCase(
-        id=2,
-        completed_date=twenty_eight_days_ago,
-        status="complete",
-    )
-    mock_case_3 = MockCase(
-        id=3,
-        completed_date=thirty_one_days_ago,
-        status="complete",
-    )
-    all_cases: List[Case] = [  # type: ignore
-        mock_case_3,
-        mock_case_2,
-        mock_case_1,
-    ]
-    expected_cases = [
-        mock_case_3,
-        mock_case_1,
-        mock_case_2,
-    ]
-    assert return_recently_completed_cases(cases=all_cases) == expected_cases

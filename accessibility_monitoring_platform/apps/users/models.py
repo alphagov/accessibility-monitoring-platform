@@ -5,11 +5,11 @@ Models - users
 from django.db import models
 
 
-class EmailInclusionList(models.Model):
+class AllowedEmail(models.Model):
     """
-    Model for EmailInclusionList.
+    Model for AllowedEmail.
 
-    This contains a list of emails that are allowed to sign
+    This model contains emails that are allowed to sign
     up to the app.
     """
 

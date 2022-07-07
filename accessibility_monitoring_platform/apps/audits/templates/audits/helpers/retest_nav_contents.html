@@ -2,9 +2,9 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <ul class="govuk-list">
         {% include './nav_content.html' with anchor='audit-retest-metadata' edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
-        {% include './nav_content.html' with anchor='audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
         {% if audit.testable_pages %}
-           <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+            <p class="govuk-body no-bottom-margin">Pages:</p>
+            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
                 {% for page in audit.testable_pages %}
                     {% if page.failed_check_results %}
                         {% include './nav_content.html' with edit_name='audits:edit-audit-retest-page-checks' name=page complete=page.retest_complete_date %}
@@ -12,6 +12,7 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        {% include './nav_content.html' with anchor='audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
         {% include './nav_content.html' with anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
         {% include './nav_content.html' with anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
         {% include './nav_content.html' with anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
