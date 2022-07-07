@@ -20,7 +20,7 @@ config_1 = {
     "temp_db_copy_path": "./backup.sql",
     "s3_bucket": "s3_bucket",
     "s3_report_store": "s3_bucket",
-    "backup_db": False
+    "backup_db": False,
 }
 
 config_2 = {
@@ -39,7 +39,7 @@ config_2 = {
     "temp_db_copy_path": "./backup.sql",
     "s3_bucket": "s3_bucket",
     "s3_report_store": "s3_bucket",
-    "backup_db": False
+    "backup_db": False,
 }
 
 
@@ -64,7 +64,8 @@ def test_main_completes_successfully(
     mock_build_env,
 ):
     """Tests if main function completes successfully"""
-    class MockParser():
+
+    class MockParser:
         build_direction = "up"
         settings_json = "./file.json"
         force = False
@@ -81,5 +82,8 @@ def test_main_completes_successfully(
     mock_build_env.return_value.start.return_value = True
     mock_build_env.return_value.clean_up.return_value = True
     assert main()
-    assert "deploys_feature_to_paas creates a new environment in PaaS for testing new features" in mock_stdout.getvalue()
+    assert (
+        "deploys_feature_to_paas creates a new environment in PaaS for testing new features"
+        in mock_stdout.getvalue()
+    )
     assert "Process took" in mock_stdout.getvalue()

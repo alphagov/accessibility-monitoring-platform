@@ -107,7 +107,9 @@ def test_BuildEnv_incorrect_build_direction_raises_exception():
         ),
     ],
 )
-def test_BuildEnv_init_raises_exception_if_using_protected_space_names(space_name, app_name, exception):
+def test_BuildEnv_init_raises_exception_if_using_protected_space_names(
+    space_name, app_name, exception
+):
     """Tests if protected space names are protected"""
     with pytest.raises(Exception) as exc_info:
         BuildEnv(
