@@ -558,6 +558,17 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_eass_link = AMPChoiceCheckboxField(
+        label="",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={
+                "label": REPORT_ACCESSIBILITY_ISSUE_TEXT[
+                    "accessibility_statement_eass_link"
+                ]
+            }
+        ),
+    )
     accessibility_statement_template_update = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
@@ -649,6 +660,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_deadline_not_complete",
             "accessibility_statement_deadline_not_sufficient",
             "accessibility_statement_out_of_date",
+            "accessibility_statement_eass_link",
             "accessibility_statement_template_update",
             "accessibility_statement_accessible",
             "accessibility_statement_prominent",
