@@ -297,6 +297,13 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
     ),
     FieldLabelAndValue(
         value="No",
+        label="it must link directly to the Equality Advisory and Support Service (EASS) website",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="No",
         label="it is a requirement that accessibility statements are accessible. Some users may experience"
         " difficulties using PDF documents. It may be beneficial for users if there was a HTML version of your"
         " full accessibility statement.",
