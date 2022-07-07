@@ -836,6 +836,10 @@ class Case(VersionModel):
         )
 
     @property
+    def psb_response(self):
+        return self.no_psb_contact == BOOLEAN_FALSE
+
+    @property
     def audit(self):
         return self.audit_case.filter(is_deleted=False).first()  # type: ignore
 
