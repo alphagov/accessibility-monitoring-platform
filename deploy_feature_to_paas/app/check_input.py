@@ -57,7 +57,6 @@ def print_prototype_settings(config: SettingsType) -> bool:
 def check_input(args: Any, config: SettingsType):
     if not args.force and args.build_direction == "up":
         print_prototype_settings(config)
-
         while True:
             print("Do you wish to continue?:[y/n] ", end="", flush=True)
             x: str = input().lower()

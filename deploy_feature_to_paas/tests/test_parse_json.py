@@ -1,8 +1,8 @@
-from typing import TypedDict, List
 import json
-import os
-from unittest import mock
 import io
+import os
+from typing import TypedDict, List
+from unittest import mock
 
 import pytest
 from deploy_feature_to_paas.app.parse_json import (
@@ -12,6 +12,7 @@ from deploy_feature_to_paas.app.parse_json import (
 
 
 def test_validate_json_dict_validates_successfully():
+    """Tests if dictionary validates correctly with TypedDict"""
     data = {"string": "string", "num": 1, "list": [1, 2, 3]}
 
     class DataType(TypedDict):
@@ -23,6 +24,7 @@ def test_validate_json_dict_validates_successfully():
 
 
 def test_validate_json_dict__detects_extra_data():
+    """Tests if validate_json_dict identifies additional data fields"""
     data = {"string": "string", "num": 1, "list": [1, 2, 3], "extra_fields": 1}
 
     class DataType(TypedDict):
@@ -38,6 +40,7 @@ def test_validate_json_dict__detects_extra_data():
 
 
 def test_validate_json_dict_detects_missing_data():
+    """Tests if validate_json_dict identifies missing data fields"""
     data = {
         "string": "string",
         "num": 1,
@@ -56,7 +59,12 @@ def test_validate_json_dict_detects_missing_data():
 
 
 def test_validate_json_dict_detects_incorrect_types():
-    data = {"string": "string", "num": 1, "listInt": [1, 2, 3]}
+    """Tests if validate_json_dict detects incorrect data types"""
+    data = {
+        "string": "string",
+        "num": 1,
+        "listInt": [1, 2, 3],
+    }
 
     class DataType(TypedDict):
         string: int
@@ -75,6 +83,7 @@ def test_validate_json_dict_detects_incorrect_types():
 
 @mock.patch("sys.stdout", new_callable=io.StringIO)
 def test_parse_settings_json(mock_stdout):
+    """Tests if parse_settings_json returns a dictionary object"""
     JSON_DATA = "data.json"
     data = {
         "name": "str",

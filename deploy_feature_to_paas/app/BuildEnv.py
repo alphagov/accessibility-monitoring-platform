@@ -104,7 +104,6 @@ class BuildEnv:
         """Creates cf manifest file from template and saves it to local dir"""
         print(">>> creating manifest")
         with open(self.template_path, "r") as f:
-            # print(f)
             src: Template = Template(f.read())
             result: str = src.substitute(self.template_object)
             with open(self.manifest_path, "w") as the_file:
@@ -152,14 +151,14 @@ class BuildEnv:
             stdin=yes_pipe_process.stdout,
             stdout=subprocess.PIPE,
         )
-        yes_pipe_process.stdout.close()  # Allow ps_process to receive a SIGPIPE if grep_process exits.
+        yes_pipe_process.stdout.close()  # type: ignore
         output: bytes = install_process.communicate()[0]
         if "successfully installed" not in output.decode("utf-8"):
             raise Exception(
                 f"""yes | cf install-plugin conduit - {output.decode("utf-8")}"""
             )
 
-    def up(self):
+    def up(self) -> bool:
         """Script for creating an environment in PaaS"""
         print(">>> building environment in PaaS")
         self.create_requirements()
@@ -205,6 +204,7 @@ class BuildEnv:
         )  # Deploys Django app
         print(f">>> website: {self.app_name}.london.cloudapps.digital")
         print(f">>> website: {self.report_viewer_app_name}.london.cloudapps.digital")
+        return True
 
     def clean_up(self) -> bool:
         """Removes local files"""
@@ -223,7 +223,6 @@ class BuildEnv:
         )
 
         cf_apps_ls: str = subprocess.check_output("cf apps", shell=True).decode("utf-8")
-
         if "accessibility-monitoring-platform-test" in cf_apps_ls:
             raise Exception("The prototype build detected it may be in the testing env")
 
@@ -245,16 +244,15 @@ class BuildEnv:
                 stdout=subprocess.PIPE,
             )  # Checks if space has been deleted
             output: bytes = process.communicate()[0]
-
             if self.space_name not in output.decode("utf-8"):
                 print(f">>> {self.space_name} has been deleted")
                 return True
             attempts += 1
             time.sleep(self.db_ping_interval)
-
         raise Exception(f"""{self.space_name} did not break down correctly""")
 
     def remove_s3_bucket(self) -> bool:
+        """Empties and removes S3 bucket"""
         services: str = os.popen("cf services").read()
         if "aws-s3-bucket" in services:
             os.system(
@@ -279,6 +277,7 @@ class BuildEnv:
         return True
 
     def get_aws_credentials(self):
+        """Gets AWS credentials from Cloud Foundry"""
         res: str = os.popen(
             f"cf service-key {self.s3_report_store} temp_service_key"
         ).read()
@@ -306,8 +305,9 @@ class BuildEnv:
             "bucket_name": bucket_name,
         }
 
-    def parse_aws_credential(self, arr: List[str], substring: str) -> str:
-        index: int = [idx for idx, s in enumerate(arr) if substring in s][0]
+    def parse_aws_credential(self, arr: List[str], key: str) -> str:
+        """Parses CF AWS credentials"""
+        index: int = [idx for idx, s in enumerate(arr) if key in s][0]
         value: str = arr[index + 1]
         value_clean: str = "".join(c for c in value if c not in '",')
         return value_clean

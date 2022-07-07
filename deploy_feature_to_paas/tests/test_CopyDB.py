@@ -1,10 +1,10 @@
-from unittest import mock
-import subprocess
-import pytest
-import os
 import io
+import os
+from unittest import mock
+
+import pytest
+
 from deploy_feature_to_paas.app.CopyDB import CopyDB
-import sys
 
 
 SPACE_NAME = "space_name"
@@ -12,10 +12,11 @@ DB_NAME = "db_name"
 PATH = "./file.sql"
 
 
-@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.change_space")
-@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.install_conduit")
 @mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.copy_db")
+@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.install_conduit")
+@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.change_space")
 def test_start_calls_correctly(change_space_mock, install_conduit_mock, copy_db_mock):
+    """Test CopyDB.start calls correctly"""
     copy_db = CopyDB(
         space_name=SPACE_NAME,
         db_name=DB_NAME,
@@ -29,6 +30,7 @@ def test_start_calls_correctly(change_space_mock, install_conduit_mock, copy_db_
 
 @mock.patch("subprocess.Popen")
 def test_install_conduit_completes_correctly(mock_popen):
+    """Test install conduit command completes correctly"""
     installation_return = b"""
         Plugin conduit 0.0.13 is already installed. Uninstalling existing plugin...
         OK
@@ -52,6 +54,7 @@ def test_install_conduit_completes_correctly(mock_popen):
 
 @mock.patch("subprocess.Popen")
 def test_install_conduit_raises_exception(mock_popen):
+    """Test install conduit raises exception when installation cancelled"""
     installation_return = b"Plugin installation cancelled"
     mock_popen.return_value.stdout = io.StringIO("")
     mock_popen.return_value.stdin = io.StringIO("")
@@ -70,6 +73,7 @@ def test_install_conduit_raises_exception(mock_popen):
 
 @mock.patch("subprocess.Popen")
 def test_change_space_completes_correctly(mock_popen):
+    """Test change space works correctly"""
     change_space_return = f"""
         API endpoint:   https://api.com
         API version:    3.116.0
@@ -91,6 +95,7 @@ def test_change_space_completes_correctly(mock_popen):
 
 @mock.patch("subprocess.Popen")
 def test_copy_db_raises_exception(mock_popen):
+    """Test copy_db raises exception when space is not found"""
     change_space_return = """
         Space 'fake-space' not found.
         FAILED
@@ -114,6 +119,7 @@ def test_copy_db_raises_exception(mock_popen):
 
 @mock.patch("os.system")
 def test_copy_db_completes_successfully(mock_os):
+    """Test copy_db completes successfully"""
     change_space_return: str = "copies database"
     mock_os.return_value = change_space_return
     copy_db = CopyDB(
@@ -126,6 +132,7 @@ def test_copy_db_completes_successfully(mock_os):
 
 
 def test_clean_up_completes_successfully_with_file():
+    """Test clean up completes with file"""
     with open(PATH, "w") as f:
         f.write("Create a new db file!")
 
@@ -140,6 +147,7 @@ def test_clean_up_completes_successfully_with_file():
 
 
 def test_clean_up_completes_successfully_without_file():
+    """Test clean up completes without file"""
     copy_db: CopyDB = CopyDB(
         space_name=SPACE_NAME,
         db_name=DB_NAME,

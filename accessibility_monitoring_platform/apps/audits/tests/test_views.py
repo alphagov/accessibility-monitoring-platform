@@ -74,7 +74,7 @@ def test_delete_audit_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(
+    assert response.url == reverse(  # type: ignore
         "cases:edit-test-results", kwargs={"pk": audit.case.id}
     )
 
@@ -98,7 +98,7 @@ def test_restore_audit_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("audits:audit-detail", kwargs=audit_pk)
+    assert response.url == reverse("audits:audit-detail", kwargs=audit_pk)  # type: ignore
 
     audit_from_db: Audit = Audit.objects.get(**audit_pk)
 
@@ -120,7 +120,7 @@ def test_delete_page_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(
+    assert response.url == reverse(  # type: ignore
         "audits:edit-audit-pages",
         kwargs=audit_pk,
     )
@@ -174,7 +174,7 @@ def test_restore_page_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(
+    assert response.url == reverse(  # type: ignore
         "audits:edit-audit-pages",
         kwargs=audit_pk,
     )
@@ -198,7 +198,7 @@ def test_create_audit_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("audits:edit-audit-metadata", kwargs={"pk": 1})
+    assert response.url == reverse("audits:edit-audit-metadata", kwargs={"pk": 1})  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -377,7 +377,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
-    assert response.url == expected_path
+    assert response.url == expected_path  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -413,7 +413,7 @@ def test_pages_redirects_based_on_button_pressed(
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
-    assert response.url == expected_path
+    assert response.url == expected_path  # type: ignore
 
 
 def test_standard_pages_appear_on_pages_page(admin_client):
@@ -620,7 +620,7 @@ def test_page_checks_edit_stays_on_page(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == url
+    assert response.url == url  # type: ignore
 
 
 def test_website_decision_saved_on_case(admin_client):
@@ -683,7 +683,7 @@ def test_start_retest_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse(
+    assert response.url == reverse(  # type: ignore
         "audits:edit-audit-retest-metadata", kwargs={"pk": audit_pk}
     )
 

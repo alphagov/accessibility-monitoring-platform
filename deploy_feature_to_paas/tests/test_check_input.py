@@ -6,7 +6,8 @@ from deploy_feature_to_paas.app.check_input import print_prototype_settings
 
 
 @mock.patch("sys.stdout", new_callable=io.StringIO)
-def test_upload_file_to_s3_successfully(mock_stdout):
+def test_check_input_outputs_the_correct_information(mock_stdout):
+    """Test whether check_input prints the correct settings"""
     data: SettingsType = {
         "name": "str",
         "date": "str",

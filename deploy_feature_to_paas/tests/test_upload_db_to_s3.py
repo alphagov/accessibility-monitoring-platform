@@ -1,8 +1,10 @@
-from deploy_feature_to_paas.app.upload_db_to_s3 import upload_db_to_s3
-from moto import mock_s3
-import boto3
 import os
+
+import boto3
+from moto import mock_s3
 import pytest
+
+from deploy_feature_to_paas.app.upload_db_to_s3 import upload_db_to_s3
 
 
 FILENAME = "file.txt"
@@ -12,6 +14,7 @@ OBJECTNAME = "/objectname.txt"
 
 @mock_s3
 def test_upload_file_to_s3_successfully():
+    """Tests if a file can be uploaded to S3 succesfully"""
     with open(FILENAME, "w") as f:
         f.write("Create a new text file!")
 
@@ -33,6 +36,7 @@ def test_upload_file_to_s3_successfully():
 
 @mock_s3
 def test_upload_file_to_s3_defaults_object_name():
+    """Tests if the object name defaults correctly"""
     with open(FILENAME, "w") as f:
         f.write("Create a new text file!")
 
@@ -54,6 +58,7 @@ def test_upload_file_to_s3_defaults_object_name():
 
 @mock_s3
 def test_upload_file_to_s3_raises_exception():
+    """Tests upload_file_to_s3() raises exception when a bucket does not exist"""
     with open(FILENAME, "w") as f:
         f.write("Create a new text file!")
 
