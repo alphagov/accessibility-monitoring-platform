@@ -40,6 +40,23 @@ def test_view_accessibility_statement(client):
 
 
 @pytest.mark.django_db
+def test_view_privacy_notice(client):
+    """Test privacy notice renders"""
+    platform: Platform = get_platform_settings()
+    platform.report_viewer_privacy_notice = "# Privacy notice"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("viewer:privacy-notice"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>Privacy notice</h1>""",
+        html=True,
+    )
+
+
+@pytest.mark.django_db
 @mock_s3
 def test_view_report(client):
     """Test view report shows report text from S3"""

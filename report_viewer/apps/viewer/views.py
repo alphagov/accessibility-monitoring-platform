@@ -13,14 +13,20 @@ from accessibility_monitoring_platform.apps.s3_read_write.utils import (
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 
-class AccessibilityStatementTemplateView(TemplateView):
-    template_name: str = "viewer/accessibility_statement.html"
-
+class PlatformTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["platform"] = get_platform_settings()
         return context
+
+
+class AccessibilityStatementTemplateView(PlatformTemplateView):
+    template_name: str = "viewer/accessibility_statement.html"
+
+
+class PrivacyNoticeTemplateView(PlatformTemplateView):
+    template_name: str = "viewer/privacy_notice.html"
 
 
 class ViewReport(TemplateView):

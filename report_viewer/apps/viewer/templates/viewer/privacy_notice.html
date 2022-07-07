@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-Accessibility statement
+Privacy notice
 {% endblock %}
 
 {% block content %}
@@ -18,7 +18,7 @@ Accessibility statement
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {{ platform.report_viewer_accessibility_statement|markdown_to_html }}
+                {{ platform.report_viewer_privacy_notice|markdown_to_html }}
             </div>
         </div>
     </main>
