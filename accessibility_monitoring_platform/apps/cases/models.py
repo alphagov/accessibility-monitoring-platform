@@ -836,7 +836,7 @@ class Case(VersionModel):
         )
 
     @property
-    def psb_response(self):
+    def psb_response(self) -> bool:
         return self.no_psb_contact == BOOLEAN_FALSE
 
     @property
