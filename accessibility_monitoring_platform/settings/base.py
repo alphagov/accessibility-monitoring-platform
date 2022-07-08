@@ -200,6 +200,7 @@ MARKDOWN_EXTENSIONS = ["fenced_code"]
 
 # django-axes
 AXES_ONLY_USER_FAILURES = True  # Block only on username
+AXES_FAILURE_LIMIT = 20
 
 if UNDER_TEST:
     #  django-axes is incompatible with the platform test environment
