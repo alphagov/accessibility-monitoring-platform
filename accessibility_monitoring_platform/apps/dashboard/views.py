@@ -3,12 +3,15 @@ Views for dashboard.
 
 Home should be the only view for dashboard.
 """
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.generic import TemplateView
+
+from ..common.models import PlatformChange
 from ..common.utils import checks_if_2fa_is_enabled
 from ..cases.models import Case
 
@@ -54,6 +57,7 @@ class DashboardView(TemplateView):
             key=lambda case: (case.created),  # type: ignore
         )
         cases_by_status["unassigned_cases"] = unassigned_cases
+        twenty_four_hours_ago: datetime = timezone.now() - timedelta(hours=24)
 
         context.update(
             {
@@ -68,6 +72,7 @@ class DashboardView(TemplateView):
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
                 "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
+                "recent_platform_changes": PlatformChange.objects.filter(created__gte=twenty_four_hours_ago)
             }
         )
         return context
