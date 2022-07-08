@@ -6,7 +6,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import Event, IssueReport, Platform, Sector
+from .models import Event, IssueReport, Platform, PlatformChange, Sector
 
 
 class ExportCsvMixin:
@@ -18,7 +18,7 @@ class ExportCsvMixin:
         field_names = [field.name for field in meta.fields]
 
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = "attachment; filename={}.csv".format(meta)
+        response["Content-Disposition"] = f"attachment; filename={meta}.csv"
         writer = csv.writer(response)
 
         writer.writerow(field_names)
@@ -82,4 +82,5 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
+admin.site.register(PlatformChange)
 admin.site.register(Sector)

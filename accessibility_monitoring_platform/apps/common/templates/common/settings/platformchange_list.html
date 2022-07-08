@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Platform version history{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with current='Platform version history' %}
+    <main id="main-content" class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='common:platform-history' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">Platform version history</h1>
+                {% include "common/pagination_controls.html" %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                    {% for platform_change in platform_changes %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <h2 class="govuk-heading-m">{{ platform_change.name }}</h2>
+                                {{ platform_change.notes|markdown_to_html }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% include "common/pagination_controls.html" %}
+            </div>
+        </div>
+    </main>
+
+    </main>
+</div>
+{% endblock %}

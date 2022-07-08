@@ -75,6 +75,21 @@ class Platform(models.Model):
         return f"Active QA auditor is {self.active_qa_auditor}"
 
 
+class PlatformChange(models.Model):
+    """
+    Record of platform changes made and deployed.
+    """
+    name = models.CharField(max_length=200)
+    notes = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Event(models.Model):
     """
     Model to records events on platform

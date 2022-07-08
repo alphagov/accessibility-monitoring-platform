@@ -6,7 +6,7 @@ from typing import List
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
-from .views import ActiveQAAuditorUpdateView, ContactAdminView, IssueReportView
+from .views import ActiveQAAuditorUpdateView, ContactAdminView, IssueReportView, PlatformChangeListView
 
 app_name: str = "common"
 urlpatterns: List[URLPattern] = [
@@ -15,6 +15,9 @@ urlpatterns: List[URLPattern] = [
         "edit-active-qa-auditor/",
         login_required(ActiveQAAuditorUpdateView.as_view()),
         name="edit-active-qa-auditor",
+    ),
+    path(
+        "platform-versions/", login_required(PlatformChangeListView.as_view()), name="platform-history"
     ),
     path(
         "report-issue/", login_required(IssueReportView.as_view()), name="issue-report"
