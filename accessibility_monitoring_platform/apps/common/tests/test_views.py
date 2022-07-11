@@ -60,3 +60,11 @@ def test_active_qa_audit_page_renders(admin_client):
 
     assert response.status_code == 200
     assertContains(response, ">Active QA auditor</h1>")
+
+
+def test_platform_history_renders(admin_client):
+    """Test list of changes to platform is rendered"""
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(response, ">Platform version history</h1>")

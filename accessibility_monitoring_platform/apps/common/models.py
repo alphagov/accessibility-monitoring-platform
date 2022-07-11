@@ -80,6 +80,23 @@ class Platform(models.Model):
         return "Platform settings"
 
 
+class ChangeToPlatform(models.Model):
+    """
+    Record of platform changes made and deployed.
+    """
+
+    name = models.CharField(max_length=200)
+    notes = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name_plural: str = "changes to platform"
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Event(models.Model):
     """
     Model to records events on platform

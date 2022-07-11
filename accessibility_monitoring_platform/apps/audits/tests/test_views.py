@@ -406,7 +406,9 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
+    expected_path: str = reverse(
+        "audits:edit-audit-retest-statement-1", kwargs=audit_pk
+    )
     assert response.url == expected_path  # type: ignore
 
 
@@ -735,7 +737,9 @@ def test_retest_details_renders_when_no_psb_response(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Only 12-week accessibility statement comparison is available")
+    assertContains(
+        response, "Only 12-week accessibility statement comparison is available"
+    )
 
 
 def test_retest_page_checks_edit_page_loads(admin_client):

@@ -1,5 +1,6 @@
 """ Common utility functions """
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+
 import re
 import csv
 import json
@@ -23,9 +24,11 @@ from django.db.models import QuerySet
 from django.db.models.fields.reverse_related import ManyToOneRel
 from django.http import HttpResponse
 from django.http.request import QueryDict
+from django.utils import timezone
+
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE
+from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
@@ -153,6 +156,12 @@ def validate_url(url: str) -> None:
 def get_platform_settings() -> Platform:
     """Return the platform-wide settings"""
     return Platform.objects.get(pk=1)
+
+
+def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
+    """Find platform changes made in last 24 hours"""
+    twenty_four_hours_ago: datetime = timezone.now() - timedelta(hours=24)
+    return ChangeToPlatform.objects.filter(created__gte=twenty_four_hours_ago)
 
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:

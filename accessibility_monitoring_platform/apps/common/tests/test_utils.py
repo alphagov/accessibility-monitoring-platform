@@ -3,7 +3,7 @@ Test - common utility functions
 """
 import pytest
 import csv
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import io
 from typing import Any, Dict, List, Tuple
 from backports.zoneinfo import ZoneInfo
@@ -11,8 +11,11 @@ from backports.zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
+from django.utils import timezone
+
 from django_otp.plugins.otp_email.models import EmailDevice
 
 
@@ -21,6 +24,7 @@ from ..models import (
     Platform,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
+    ChangeToPlatform,
 )
 from ..utils import (
     build_filters,
@@ -33,6 +37,7 @@ from ..utils import (
     convert_date_to_datetime,
     validate_url,
     get_platform_settings,
+    get_recent_changes_to_platform,
     record_model_create_event,
     record_model_update_event,
     list_to_dictionary_of_lists,
@@ -226,6 +231,28 @@ def test_get_platform_settings():
     platform: Platform = get_platform_settings()
 
     assert platform.id == 1  # type: ignore
+
+
+@pytest.mark.django_db
+def test_get_recent_changes_to_platform():
+    """
+    Test get_recent_changes_to_platform returne platform changes made in last 24 hours
+    """
+    older_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(
+        name="Older"
+    )
+    older_change_to_platform.created = timezone.now() - timedelta(hours=25)
+    older_change_to_platform.save()
+    recent_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(
+        name="Recent"
+    )
+
+    recent_changes_to_platform: QuerySet[
+        ChangeToPlatform
+    ] = get_recent_changes_to_platform()
+
+    assert recent_changes_to_platform.count() == 1
+    assert recent_change_to_platform in recent_changes_to_platform
 
 
 @pytest.mark.django_db
