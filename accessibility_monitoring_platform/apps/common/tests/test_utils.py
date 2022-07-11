@@ -238,12 +238,18 @@ def test_get_recent_changes_to_platform():
     """
     Test get_recent_changes_to_platform returne platform changes made in last 24 hours
     """
-    older_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(name="Older")
+    older_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(
+        name="Older"
+    )
     older_change_to_platform.created = timezone.now() - timedelta(hours=25)
     older_change_to_platform.save()
-    recent_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(name="Recent")
+    recent_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(
+        name="Recent"
+    )
 
-    recent_changes_to_platform: QuerySet[ChangeToPlatform] = get_recent_changes_to_platform()
+    recent_changes_to_platform: QuerySet[
+        ChangeToPlatform
+    ] = get_recent_changes_to_platform()
 
     assert recent_changes_to_platform.count() == 1
     assert recent_change_to_platform in recent_changes_to_platform

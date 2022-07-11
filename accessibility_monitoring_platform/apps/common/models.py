@@ -79,6 +79,7 @@ class ChangeToPlatform(models.Model):
     """
     Record of platform changes made and deployed.
     """
+
     name = models.CharField(max_length=200)
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField(auto_now_add=True)

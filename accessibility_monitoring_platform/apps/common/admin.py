@@ -75,7 +75,9 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     actions = ["export_as_csv"]
 
-    def has_delete_permission(self, request, obj=None):  # pylint: disable=unused-argument
+    def has_delete_permission(
+        self, request, obj=None
+    ):  # pylint: disable=unused-argument
         return False
 
 
