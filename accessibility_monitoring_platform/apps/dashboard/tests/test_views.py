@@ -10,6 +10,8 @@ from pytest_django.asserts import assertContains
 from django.http import HttpResponse
 from django.urls import reverse
 
+from accessibility_monitoring_platform.apps.common.models import ChangeToPlatform
+
 from ...cases.models import (
     Case,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
@@ -127,5 +129,28 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
             <a href="/cases/?auditor={admin_user.id}&status=complete" class="govuk-link">
                 View all your cases with status "Complete"</a>
         </p>""",
+        html=True,
+    )
+
+
+def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
+    """Check dashboard contains link to find completed cases"""
+    ChangeToPlatform.objects.create(name="Recent change")
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                An update has been made to the platform. View the update in
+                <a href="{reverse("common:platform-history")}" class="govuk-link govuk-link--no-visited-state">
+                    Settings &gt; Platform version history</a>
+            </strong>
+        </div>""",
         html=True,
     )

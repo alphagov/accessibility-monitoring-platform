@@ -120,5 +120,5 @@ class ChangeToPlatformListView(ListView):
 
     model: Type[ChangeToPlatform] = ChangeToPlatform
     template_name: str = "common/settings/platform_history.html"
-    context_object_name: str = "platform_changes"
+    context_object_name: str = "changes_to_platform"
     paginate_by: int = 10

@@ -17,11 +17,11 @@
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
-                    {% for platform_change in platform_changes %}
+                    {% for change_to_platform in changes_to_platform %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">
-                                <h2 class="govuk-heading-m">{{ platform_change.name }}</h2>
-                                {{ platform_change.notes|markdown_to_html }}
+                                <h2 class="govuk-heading-m">{{ change_to_platform.name }}</h2>
+                                {{ change_to_platform.notes|markdown_to_html }}
                             </td>
                         </tr>
                     {% endfor %}

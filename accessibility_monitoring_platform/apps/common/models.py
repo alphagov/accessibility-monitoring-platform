@@ -86,7 +86,7 @@ class ChangeToPlatform(models.Model):
 
     class Meta:
         ordering = ["-id"]
-        verbose_name_plural: str = "ChangesToPlatform"
+        verbose_name_plural: str = "changes to platform"
 
     def __str__(self):
         return str(self.name)
