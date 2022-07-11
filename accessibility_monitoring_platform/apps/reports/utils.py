@@ -26,9 +26,11 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ 
 
 {{ wcag_definition.report_boilerplate|safe }}
 """
-CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}{% if check_result.page.page_type != 'pdf' %} page{% endif %}:
+CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.notes|safe }}"""
+PAGE_SECTION_TEMPLATE = """[{{ page.url }}]({{ page.url }})
 
-{{ check_result.notes|safe }}"""
+{% if page.failed_check_results %}{% else %}We found no major issues.{% endif %}
+"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
@@ -45,17 +47,20 @@ def generate_report_content(report: Report) -> None:
     base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.all()
     report.section_set.all().delete()  # type: ignore
     context: Context = Context({"audit": report.case.audit})
+    page_section_template: Template = Template(PAGE_SECTION_TEMPLATE)
     wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
     check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
+    section_position: int = 0
 
     for base_template in base_templates:
         template: Template = Template(base_template.content)
+        section_position += 1
         section: Section = Section.objects.create(
             report=report,
             name=base_template.name,
             template_type=base_template.template_type,
             content=template.render(context=context),
-            position=base_template.position,
+            position=section_position,
         )
         if report.case.audit:
             if section.template_type == TEMPLATE_TYPE_URLS:
@@ -69,25 +74,35 @@ def generate_report_content(report: Report) -> None:
                         row_number=row_number,
                     )
             elif section.template_type == TEMPLATE_TYPE_ISSUES:
-                for row_number, check_result in enumerate(
-                    report.case.audit.failed_check_results, start=1
-                ):
-                    wcag_boilerplate_context: Context = Context(
-                        {"wcag_definition": check_result.wcag_definition}
+                for page in report.case.audit.testable_pages:
+                    page_context: Context = Context({"page": page})
+                    section_position += 1
+                    page_section: Section = Section.objects.create(
+                        report=report,
+                        name=f"{page} page issues",
+                        template_type=base_template.template_type,
+                        content=page_section_template.render(context=page_context),
+                        position=section_position,
                     )
-                    check_result_context: Context = Context(
-                        {"check_result": check_result}
-                    )
-                    TableRow.objects.create(
-                        section=section,
-                        cell_content_1=wcag_boilerplate_template.render(
-                            context=wcag_boilerplate_context
-                        ),
-                        cell_content_2=check_result_notes_template.render(
-                            context=check_result_context
-                        ),
-                        row_number=row_number,
-                    )
+                    for row_number, check_result in enumerate(
+                        page.failed_check_results, start=1
+                    ):
+                        wcag_boilerplate_context: Context = Context(
+                            {"wcag_definition": check_result.wcag_definition}
+                        )
+                        check_result_context: Context = Context(
+                            {"check_result": check_result}
+                        )
+                        TableRow.objects.create(
+                            section=page_section,
+                            cell_content_1=wcag_boilerplate_template.render(
+                                context=wcag_boilerplate_context
+                            ),
+                            cell_content_2=check_result_notes_template.render(
+                                context=check_result_context
+                            ),
+                            row_number=row_number,
+                        )
 
 
 def delete_table_row(request: HttpRequest) -> Optional[int]:
