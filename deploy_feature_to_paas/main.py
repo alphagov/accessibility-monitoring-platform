@@ -1,12 +1,13 @@
+"""main - main function for deploy feature to paas"""
 import argparse
 from datetime import datetime
-from dotenv import load_dotenv
 import time
 
+from dotenv import load_dotenv
 from django.core.management.utils import get_random_secret_key
 
-from app.BuildEnv import BuildEnv
-from app.CopyDB import CopyDB
+from app.build_env import BuildEnv
+from app.copy_db import CopyDB
 from app.upload_db_to_s3 import upload_db_to_s3
 from app.parse_json import (
     parse_settings_json,

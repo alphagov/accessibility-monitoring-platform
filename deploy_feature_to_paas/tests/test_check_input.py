@@ -1,3 +1,4 @@
+"""test_check_input - contains tests for check_input.py"""
 import io
 from unittest import mock
 

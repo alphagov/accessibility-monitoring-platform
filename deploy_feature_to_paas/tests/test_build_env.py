@@ -1,16 +1,18 @@
+"""test_build_env - contains tests for build_env.py"""
 import io
-from unittest import mock
 import os
+from unittest import mock
+from typing import Any, TypedDict
 
 import boto3
 from moto import mock_s3
 import pytest
 
 from deploy_feature_to_paas.app.parse_json import SettingsType
-from deploy_feature_to_paas.app.BuildEnv import BuildEnv
+from deploy_feature_to_paas.app.build_env import BuildEnv
 
 
-data: SettingsType = {
+PAAS_SETTINGS: SettingsType = {
     "name": "name",
     "date": "010120202",
     "space_name": "space_name",
@@ -31,53 +33,46 @@ data: SettingsType = {
 
 REPORT_VIEWER_APP_NAME: str = "report_viewer_app_name"
 
-FILENAME = "./requirements.txt"
 
-AWS_CREDENTIALS: str = """
-{
-    "aws_access_key_id": "ACCESS_ID_12345",
-    "aws_region": "eu-west-2",
-    "aws_secret_access_key": "SECRET_KEY_12345",
-    "bucket_name": "BUCKET_NAME",
-    "deploy_env": ""
+class ValidBuildEnvDataType(TypedDict):
+    """Data type for build env settings"""
+
+    build_direction: str
+    space_name: str
+    app_name: str
+    report_viewer_app_name: str
+    db_name: str
+    template_object: Any
+    template_path: str
+    manifest_path: str
+    temp_db_copy_path: str
+    s3_report_store: str
+    db_ping_attempts: int
+    db_ping_interval: int
+
+
+DEFAULT_BUILD_ENV_SETTINGS: ValidBuildEnvDataType = {
+    "build_direction": "up",
+    "space_name": PAAS_SETTINGS["space_name"],
+    "app_name": PAAS_SETTINGS["app_name"],
+    "report_viewer_app_name": REPORT_VIEWER_APP_NAME,
+    "db_name": PAAS_SETTINGS["db_name"],
+    "template_object": {},
+    "template_path": PAAS_SETTINGS["template_path"],
+    "manifest_path": PAAS_SETTINGS["temp_manifest_path"],
+    "temp_db_copy_path": PAAS_SETTINGS["temp_db_copy_path"],
+    "s3_report_store": PAAS_SETTINGS["s3_report_store"],
+    "db_ping_attempts": PAAS_SETTINGS["db_ping_attempts"],
+    "db_ping_interval": PAAS_SETTINGS["db_ping_interval"],
 }
-"""
 
 
-def return_default_build_env_object():
-    return BuildEnv(
-        build_direction="up",
-        space_name=data["space_name"],
-        app_name=data["app_name"],
-        report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-        db_name=data["db_name"],
-        template_object=data["template_path"],
-        template_path=data["template_path"],
-        manifest_path=data["temp_manifest_path"],
-        temp_db_copy_path=data["temp_db_copy_path"],
-        s3_report_store=data["s3_report_store"],
-        db_ping_attempts=data["db_ping_attempts"],
-        db_ping_interval=data["db_ping_interval"],
-    )
-
-
-def test_BuildEnv_incorrect_build_direction_raises_exception():
+def test_build_env_incorrect_build_direction_raises_exception():
     """Tests if BuildEnv raises exception if build_correction isn't valid"""
+    build_env_settings: ValidBuildEnvDataType = DEFAULT_BUILD_ENV_SETTINGS.copy()
+    build_env_settings["build_direction"] = "WRONG VALUE"
     with pytest.raises(Exception) as exc_info:
-        BuildEnv(
-            build_direction="WRONG VALUE",
-            space_name=data["space_name"],
-            app_name=data["app_name"],
-            report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-            db_name=data["db_name"],
-            template_object=data["template_path"],
-            template_path=data["template_path"],
-            manifest_path=data["temp_manifest_path"],
-            temp_db_copy_path=data["temp_db_copy_path"],
-            s3_report_store=data["s3_report_store"],
-            db_ping_attempts=data["db_ping_attempts"],
-            db_ping_interval=data["db_ping_interval"],
-        )
+        BuildEnv(**build_env_settings)
 
     assert "build_direction needs to be up or down" in exc_info.value.args[0]
 
@@ -107,118 +102,92 @@ def test_BuildEnv_incorrect_build_direction_raises_exception():
         ),
     ],
 )
-def test_BuildEnv_init_raises_exception_if_using_protected_space_names(
+def test_build_env_init_raises_exception_if_using_protected_space_names(
     space_name, app_name, exception
 ):
-    """Tests if protected space names are protected"""
+    """Tests if protected space names are used"""
+    build_env_settings: ValidBuildEnvDataType = DEFAULT_BUILD_ENV_SETTINGS.copy()
+    build_env_settings["space_name"] = space_name
+    build_env_settings["app_name"] = app_name
     with pytest.raises(Exception) as exc_info:
-        BuildEnv(
-            build_direction="up",
-            space_name=space_name,
-            app_name=app_name,
-            report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-            db_name=data["db_name"],
-            template_object=data["template_path"],
-            template_path=data["template_path"],
-            manifest_path=data["temp_manifest_path"],
-            temp_db_copy_path=data["temp_db_copy_path"],
-            s3_report_store=data["s3_report_store"],
-            db_ping_attempts=data["db_ping_attempts"],
-            db_ping_interval=data["db_ping_interval"],
-        )
+        BuildEnv(**build_env_settings)
 
     assert exception in exc_info.value.args[0]
 
 
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.down")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.up")
-def test_BuildEnv_start_works_correctly_up(mock_buildenv_up, mock_buildenv_down):
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.down")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.up")
+def test_build_env_start_works_correctly_up(mock_buildenv_up, mock_buildenv_down):
     """Tests if build direction is correctly routed in start()"""
-    buildEnv = BuildEnv(
-        build_direction="up",
-        space_name=data["space_name"],
-        app_name=data["app_name"],
-        report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-        db_name=data["db_name"],
-        template_object=data["template_path"],
-        template_path=data["template_path"],
-        manifest_path=data["temp_manifest_path"],
-        temp_db_copy_path=data["temp_db_copy_path"],
-        s3_report_store=data["s3_report_store"],
-        db_ping_attempts=data["db_ping_attempts"],
-        db_ping_interval=data["db_ping_interval"],
-    )
-
-    buildEnv.start()
+    build_env: BuildEnv = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
+    build_env.start()
     assert mock_buildenv_up.called
     assert not mock_buildenv_down.called
 
 
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.down")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.up")
-def test_BuildEnv_start_works_correctly_down(mock_buildenv_up, mock_buildenv_down):
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.down")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.up")
+def test_build_env_start_works_correctly_down(mock_buildenv_up, mock_buildenv_down):
     """Tests if build direction is correctly routed in start()"""
-    buildEnv = BuildEnv(
-        build_direction="down",
-        space_name=data["space_name"],
-        app_name=data["app_name"],
-        report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-        db_name=data["db_name"],
-        template_object=data["template_path"],
-        template_path=data["template_path"],
-        manifest_path=data["temp_manifest_path"],
-        temp_db_copy_path=data["temp_db_copy_path"],
-        s3_report_store=data["s3_report_store"],
-        db_ping_attempts=data["db_ping_attempts"],
-        db_ping_interval=data["db_ping_interval"],
-    )
-
-    buildEnv.start()
+    build_env_settings: ValidBuildEnvDataType = DEFAULT_BUILD_ENV_SETTINGS.copy()
+    build_env_settings["build_direction"] = "down"
+    build_env: BuildEnv = BuildEnv(**build_env_settings)
+    build_env.start()
     assert not mock_buildenv_up.called
     assert mock_buildenv_down.called
 
 
 @mock.patch("sys.stdout", new_callable=io.StringIO)
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.bash_command")
-def test_BuildEnv_check_db_has_started_works_correctly(mock_bash_command, mock_stdout):
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.bash_command")
+def test_build_env_check_db_has_started_works_correctly(mock_bash_command, mock_stdout):
     """Tests if it correctly detects the database has started"""
-    buildEnv = return_default_build_env_object()
+    build_env: BuildEnv = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
     mock_bash_command.return_value = True
-    assert buildEnv.check_db_has_started()
+    assert build_env.check_db_has_started()
     assert ">>> pinging database" in mock_stdout.getvalue()
     assert ">>> sleeping for 0 seconds" in mock_stdout.getvalue()
-    assert f""">>> {data["db_name"]} started successfully""" in mock_stdout.getvalue()
+    assert (
+        f""">>> {PAAS_SETTINGS["db_name"]} started successfully"""
+        in mock_stdout.getvalue()
+    )
 
 
 @mock.patch("subprocess.Popen")
-def test_BuildEnv_check_db_has_started_raises_exception(mock_popen):
+def test_build_env_check_db_has_started_raises_exception(mock_popen):
     """Tests if check_db_has_started() raises exception when it cant connect to the database"""
-    buildEnv = return_default_build_env_object()
-    mock_popen.return_value.command.return_value = (b"", b"")
+    build_env: BuildEnv = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
+    # mock_popen mocks the result from a CF command that checks whether the database has started.
+    # It will raise an exception as the mocked command says the database did not start correctly
+    mock_popen.return_value.command.return_value = (
+        b"Service instance database-name not found",
+        b"",
+    )
     with pytest.raises(Exception) as exc_info:
-        buildEnv.check_db_has_started()
+        build_env.check_db_has_started()
 
     assert "Database did not build in time limit" in exc_info.value.args[0]
 
 
 @mock.patch("sys.stdout", new_callable=io.StringIO)
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.bash_command")
-def test_BuildEnv_check_db_has_stopped_works_correctly(mock_bash_command, mock_stdout):
-    buildEnv = return_default_build_env_object()
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.bash_command")
+def test_build_env_check_db_has_stopped_works_correctly(mock_bash_command, mock_stdout):
+    build_env: BuildEnv = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
     mock_bash_command.return_value = True
-    assert buildEnv.check_db_has_stopped()
+    assert build_env.check_db_has_stopped()
     assert ">>> pinging database" in mock_stdout.getvalue()
-    assert f""">>> {data["db_name"]} has been removed""" in mock_stdout.getvalue()
+    assert (
+        f""">>> {PAAS_SETTINGS["db_name"]} has been removed""" in mock_stdout.getvalue()
+    )
 
 
 @mock.patch("subprocess.Popen")
-def test_BuildEnv_check_db_has_stopped_raises_exception(mock_popen):
+def test_build_env_check_db_has_stopped_raises_exception(mock_popen):
     """Tests if check_db_has_stopped() raises Exception when database cant be removed"""
-    buildEnv = return_default_build_env_object()
+    build_env: BuildEnv = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
     mock_popen.return_value.command.return_value = (b"", b"")
 
     with pytest.raises(Exception) as exc_info:
-        buildEnv.check_db_has_stopped()
+        build_env.check_db_has_stopped()
 
     assert "Database could not be removed" in exc_info.value.args[0]
 
@@ -234,37 +203,26 @@ def test_create_manifest_completes_successfully(mock_stdout):
         - $report_viewer_app_name
         - $PORT
     """
-    with open(data["template_path"], "w", encoding="utf-8") as f:
+    with open(PAAS_SETTINGS["template_path"], "w", encoding="utf-8") as f:
         f.write(template_content)
 
     template_object = {
-        "app_name": data["app_name"],
-        "report_viewer_app_name": data["report_viewer_app_name"],
+        "app_name": PAAS_SETTINGS["app_name"],
+        "report_viewer_app_name": PAAS_SETTINGS["report_viewer_app_name"],
         "secret_key": "123456789",
-        "db": data["db_name"],
-        "s3_report_store": data["s3_report_store"],
+        "db": PAAS_SETTINGS["db_name"],
+        "s3_report_store": PAAS_SETTINGS["s3_report_store"],
         "PORT": "8080",
     }
 
-    buildEnv = BuildEnv(
-        build_direction="down",
-        space_name=data["space_name"],
-        app_name=data["app_name"],
-        report_viewer_app_name=REPORT_VIEWER_APP_NAME,
-        db_name=data["db_name"],
-        template_object=template_object,
-        template_path=data["template_path"],
-        manifest_path=data["temp_manifest_path"],
-        temp_db_copy_path=data["temp_db_copy_path"],
-        s3_report_store=data["s3_report_store"],
-        db_ping_attempts=data["db_ping_attempts"],
-        db_ping_interval=data["db_ping_interval"],
-    )
+    build_env_settings: ValidBuildEnvDataType = DEFAULT_BUILD_ENV_SETTINGS.copy()
+    build_env_settings["template_object"] = template_object
+    build_env = BuildEnv(**build_env_settings)
 
-    assert buildEnv.create_manifest()
+    assert build_env.create_manifest()
     assert ">>> creating manifest" in mock_stdout.getvalue()
 
-    with open(data["temp_manifest_path"], "r") as f:
+    with open(PAAS_SETTINGS["temp_manifest_path"], "r", encoding="utf-8") as f:
         res = f.read()
 
     assert template_object["app_name"] in res
@@ -274,41 +232,41 @@ def test_create_manifest_completes_successfully(mock_stdout):
     assert template_object["s3_report_store"] in res
     assert template_object["PORT"] in res
 
-    os.remove(data["template_path"])
-    os.remove(data["temp_manifest_path"])
+    os.remove(PAAS_SETTINGS["template_path"])
+    os.remove(PAAS_SETTINGS["temp_manifest_path"])
 
 
 @mock.patch("os.system")
 def test_create_requirements_completes_successfully(mock_os_system):
-    """Tests whether create_requirements() correctly pip requirements.txt"""
-    buildEnv = return_default_build_env_object()
-    with open(FILENAME, "w") as f:
+    """Tests whether create_requirements() correctly creates requirements.txt"""
+    requirements_file_path = "./requirements.txt"
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
+    with open(requirements_file_path, "w", encoding="utf-8") as f:
         f.write("Create a new text file!")
     mock_os_system.return_value(True)
 
-    assert buildEnv.create_requirements()
+    assert build_env.create_requirements()
     assert mock_os_system.called
 
-    os.remove(FILENAME)
+    os.remove(requirements_file_path)
 
 
 def test_clean_up_runs_successfully():
     """Tests if clean_up() correctly cleans up files"""
-    with open(data["temp_manifest_path"], "w") as f:
+    with open(PAAS_SETTINGS["temp_manifest_path"], "w", encoding="utf-8") as f:
         f.write("Create a new text file!")
 
-    buildEnv: BuildEnv = return_default_build_env_object()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
+    assert build_env.clean_up()
+    assert not os.path.exists(PAAS_SETTINGS["temp_manifest_path"])
 
-    assert buildEnv.clean_up()
-    assert not os.path.exists(data["temp_manifest_path"])
 
-
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.create_requirements")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.bash_command")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.check_db_has_started")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.install_conduit")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.create_requirements")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.bash_command")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.check_db_has_started")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.install_conduit")
 @mock.patch("os.system")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.create_manifest")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.create_manifest")
 @mock.patch("subprocess.run")
 @mock.patch("sys.stdout", new_callable=io.StringIO)
 def test_up_command_completes_successfully(
@@ -329,11 +287,11 @@ def test_up_command_completes_successfully(
     mock_os_system.return_value = True
     mock_create_manifest.return_value = True
     mock_subprocess_run.return_value = True
-    buildEnv: BuildEnv = return_default_build_env_object()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
 
-    assert buildEnv.up()
+    assert build_env.up()
     assert (
-        f""">>> website: {data["app_name"]}.london.cloudapps.digital"""
+        f""">>> website: {PAAS_SETTINGS["app_name"]}.london.cloudapps.digital"""
         in mock_stdout.getvalue()
     )
     assert (
@@ -344,8 +302,8 @@ def test_up_command_completes_successfully(
 
 @mock.patch("subprocess.Popen")
 @mock.patch("subprocess.check_output")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.bash_command")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.remove_s3_bucket")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.bash_command")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.remove_s3_bucket")
 @mock.patch("sys.stdout", new_callable=io.StringIO)
 def test_down_command_completes_successfully(
     mock_stdout,
@@ -354,7 +312,7 @@ def test_down_command_completes_successfully(
     mock_subprocess_check_output,
     mock_popen,
 ):
-    """Tests down() command completes su"""
+    """Tests down() command completes successfully"""
     mock_remove_s3_bucket.return_value = True
     mock_subprocess_check_output.return_value.decode.return_value = ""
     mock_bash_command.return_value = True
@@ -365,16 +323,18 @@ def test_down_command_completes_successfully(
         cf_space3
     """
     mock_popen.return_value.communicate.return_value = (bytes(cf_spaces, "utf-8"), b"")
-    buildEnv: BuildEnv = return_default_build_env_object()
-    assert buildEnv.down()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
+    assert build_env.down()
     assert mock_bash_command.called
-    assert f">>> {data['space_name']} has been deleted" in mock_stdout.getvalue()
+    assert (
+        f">>> {PAAS_SETTINGS['space_name']} has been deleted" in mock_stdout.getvalue()
+    )
 
 
 @mock.patch("subprocess.Popen")
 @mock.patch("subprocess.check_output")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.bash_command")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.remove_s3_bucket")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.bash_command")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.remove_s3_bucket")
 def test_down_command_raises_exception(
     mock_remove_s3_bucket,
     mock_bash_command,
@@ -389,15 +349,15 @@ def test_down_command_raises_exception(
 name
 cf_space1
 cf_space2
-{data["space_name"]}
+{PAAS_SETTINGS["space_name"]}
 """
     mock_popen.return_value.communicate.return_value = (bytes(cf_spaces, "utf-8"), b"")
-    buildEnv: BuildEnv = return_default_build_env_object()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
     with pytest.raises(Exception) as exc_info:
-        buildEnv.down()
+        build_env.down()
 
     assert (
-        f"""{data["space_name"]} did not break down correctly"""
+        f"""{PAAS_SETTINGS["space_name"]} did not break down correctly"""
         in exc_info.value.args[0]
     )
 
@@ -407,7 +367,7 @@ cf_space2
     """
     mock_popen.return_value.communicate.return_value = (bytes(cf_spaces, "utf-8"), b"")
     with pytest.raises(Exception) as exc_info:
-        buildEnv.down()
+        build_env.down()
 
     assert (
         "The prototype build detected it may be in the testing env"
@@ -420,7 +380,7 @@ cf_space2
     """
     mock_popen.return_value.communicate.return_value = (bytes(cf_spaces, "utf-8"), b"")
     with pytest.raises(Exception) as exc_info:
-        buildEnv.down()
+        build_env.down()
 
     assert (
         "The prototype build detected it may be in the production env"
@@ -430,7 +390,7 @@ cf_space2
 
 @mock.patch("os.system")
 @mock.patch("os.popen")
-@mock.patch("deploy_feature_to_paas.app.BuildEnv.BuildEnv.get_aws_credentials")
+@mock.patch("deploy_feature_to_paas.app.build_env.BuildEnv.get_aws_credentials")
 @mock_s3
 def test_remove_s3_bucket_runs_successfully(
     mock_get_aws_credentials,
@@ -438,7 +398,7 @@ def test_remove_s3_bucket_runs_successfully(
     mock_os_system,
 ):
     """Tests whether S3 bucket completes successfully"""
-    buildEnv: BuildEnv = return_default_build_env_object()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
     mock_os_system.return_value = True
     mock_os_popen.return_value.read.return_value = """
 name             service         plan      bound apps   last operation     broker
@@ -463,7 +423,7 @@ db_name          aws-s3-bucket   default                create succeeded   s3-br
     s3_contents = response.get("Contents", [])
     assert len(s3_contents)
 
-    assert buildEnv.remove_s3_bucket()
+    assert build_env.remove_s3_bucket()
     assert mock_os_popen.called
     assert mock_os_system.called
     response = client.list_objects_v2(Bucket=aws_credentials["bucket_name"])
@@ -471,34 +431,32 @@ db_name          aws-s3-bucket   default                create succeeded   s3-br
     assert len(s3_contents) == 0
 
     mock_os_popen.return_value.read.return_value = "no db"
-    assert buildEnv.remove_s3_bucket()
+    assert build_env.remove_s3_bucket()
 
 
 @mock.patch("os.popen")
 def test_get_aws_credential_runs_successfully(mock_os_popen):
     """Tests whether AWS credentials are parsed correctly from CF"""
-    buildEnv: BuildEnv = return_default_build_env_object()
+    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
 
     expected_result = {
         "aws_access_key_id": "ACCESS_ID_12345",
         "aws_region": "eu-west-2",
         "aws_secret_access_key": "SECRET_KEY_12345",
         "bucket_name": "BUCKET_NAME",
+        "deploy_env": "",
     }
 
-    mock_os_popen.return_value.read.return_value = AWS_CREDENTIALS
+    mock_os_popen.return_value.read.return_value = """
+Getting key temp_service_key for service instance s3-report-store-prototype as first.last@digital.cabinet-office.gov.uk...
 
-    assert buildEnv.get_aws_credentials() == expected_result
+{
+    "aws_access_key_id": "ACCESS_ID_12345",
+    "aws_region": "eu-west-2",
+    "aws_secret_access_key": "SECRET_KEY_12345",
+    "bucket_name": "BUCKET_NAME",
+    "deploy_env": ""
+}
+"""
 
-
-def test_parse_aws_credentials_runs_successfully():
-    """Tests whether parse_aws_credential() extracts the correct credential"""
-    buildEnv: BuildEnv = return_default_build_env_object()
-
-    assert (
-        buildEnv.parse_aws_credential(
-            AWS_CREDENTIALS.split(),
-            "aws_access_key_id",
-        )
-        == "ACCESS_ID_12345"
-    )
+    assert build_env.get_aws_credentials() == expected_result

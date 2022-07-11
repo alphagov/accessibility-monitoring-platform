@@ -1,6 +1,6 @@
 """ parse_json - parses settings json"""
-from typing import Any, TypedDict, List
 import json
+from typing import Any, List, TypedDict
 
 
 class SettingsType(TypedDict):
@@ -68,7 +68,10 @@ def validate_json_dict(data: Any, class_type: Any) -> bool:
     if invalid_fields:  # Detects if the types in JSON are incorrect
         type_guide: str = ""
         for field in invalid_fields:
-            type_guide += f"""\n    - {field} should be {class_type.__dict__["__annotations__"][field]} is currently {type(data[field])}"""
+            type_guide += (
+                f"""\n    - {field} should be """
+                f"""{class_type.__dict__["__annotations__"][field]} is currently {type(data[field])}"""
+            )
         raise Exception(f"""Types in json were invalid: {type_guide}""")
     return True
 
@@ -83,7 +86,7 @@ def parse_settings_json(settings_path: str) -> SettingsType:
     Returns:
         SettingsType: Settings data as dictionary
     """
-    with open(file=settings_path) as fp:
+    with open(file=settings_path, encoding="utf-8") as fp:
         contents: str = fp.read()
 
     settings: SettingsType = json.loads(contents)

@@ -1,6 +1,7 @@
-""" check_input - Check details with user before deploying to PaaS"""
+"""check_input - Check details with user before deploying to PaaS"""
 import sys
 from typing import Any
+
 from .parse_json import SettingsType
 
 
@@ -17,6 +18,7 @@ class BColours:
 
 
 def print_prototype_settings(config: SettingsType) -> bool:
+    """Formats and prints settings in config"""
     print(
         BColours.WARNING + "This script will create a new environment:" + BColours.ENDC
     )
@@ -55,6 +57,7 @@ def print_prototype_settings(config: SettingsType) -> bool:
 
 
 def check_input(args: Any, config: SettingsType):
+    """Checks for user confirmation before beginning deployment to PaaS"""
     if not args.force and args.build_direction == "up":
         print_prototype_settings(config)
         while True:

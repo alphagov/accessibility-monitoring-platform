@@ -1,3 +1,4 @@
+"""test_main.py - contains tests for main.py"""
 import io
 from unittest import mock
 

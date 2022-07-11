@@ -1,3 +1,4 @@
+"""utils - contains utility functions used in deploy_feature_to_paas app"""
 import os
 import subprocess
 from typing import Union

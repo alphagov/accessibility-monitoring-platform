@@ -1,10 +1,13 @@
-"""BuildEnv - Builds new environment in PaaS"""
+"""build_env - Builds new environment in PaaS"""
+import ast
+import os
+import re
+from string import Template
 import subprocess
 import sys
-from typing import Any, List
 import time
-import os
-from string import Template
+from typing import Any
+
 import boto3
 
 
@@ -103,10 +106,10 @@ class BuildEnv:
     def create_manifest(self) -> bool:
         """Creates cf manifest file from template and saves it to local dir"""
         print(">>> creating manifest")
-        with open(self.template_path, "r") as f:
+        with open(self.template_path, "r", encoding="utf-8") as f:
             src: Template = Template(f.read())
             result: str = src.substitute(self.template_object)
-            with open(self.manifest_path, "w") as the_file:
+            with open(self.manifest_path, "w", encoding="utf-8") as the_file:
                 the_file.write(result)
         return True
 
@@ -114,7 +117,7 @@ class BuildEnv:
         """Creates requirements.txt and ensures it has content"""
         while True:
             os.system("pipenv lock -r > requirements.txt")
-            with open("requirements.txt", "r") as file:
+            with open("requirements.txt", "r", encoding="utf-8") as file:
                 data: str = file.read().replace("\n", "")
                 if len(data) > 0:
                     return True
@@ -256,7 +259,10 @@ class BuildEnv:
         services: str = os.popen("cf services").read()
         if "aws-s3-bucket" in services:
             os.system(
-                f"""cf create-service-key {self.s3_report_store} temp_service_key -c '{{"allow_external_access": true}}'"""
+                (
+                    f"""cf create-service-key {self.s3_report_store}"""
+                    f""" temp_service_key -c '{{"allow_external_access": true}}'"""
+                )
             )
             aws_credentials = self.get_aws_credentials()
 
@@ -277,37 +283,9 @@ class BuildEnv:
         return True
 
     def get_aws_credentials(self):
-        """Gets AWS credentials from Cloud Foundry"""
+        """Gets AWS credentials from Cloud Foundry - returns credentials as dictionary"""
         res: str = os.popen(
             f"cf service-key {self.s3_report_store} temp_service_key"
         ).read()
-        res_split: List[str] = res.split()
-        aws_access_key_id: str = self.parse_aws_credential(
-            res_split,
-            "aws_access_key_id",
-        )
-        aws_region: str = self.parse_aws_credential(
-            res_split,
-            "aws_region",
-        )
-        aws_secret_access_key = self.parse_aws_credential(
-            res_split,
-            "aws_secret_access_key",
-        )
-        bucket_name = self.parse_aws_credential(
-            res_split,
-            "bucket_name",
-        )
-        return {
-            "aws_access_key_id": aws_access_key_id,
-            "aws_region": aws_region,
-            "aws_secret_access_key": aws_secret_access_key,
-            "bucket_name": bucket_name,
-        }
-
-    def parse_aws_credential(self, arr: List[str], key: str) -> str:
-        """Parses CF AWS credentials"""
-        index: int = [idx for idx, s in enumerate(arr) if key in s][0]
-        value: str = arr[index + 1]
-        value_clean: str = "".join(c for c in value if c not in '",')
-        return value_clean
+        clean_res = "{" + re.split("{|}", res)[1] + "}"
+        return ast.literal_eval(clean_res)

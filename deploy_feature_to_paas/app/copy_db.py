@@ -1,4 +1,4 @@
-"""CopyDB - Copies DB to local path"""
+"""copy_db - Copies DB to local path"""
 import os
 import subprocess
 

@@ -23,7 +23,6 @@ webdriver-manager = "*"
 django-axes = "~=5.33.0"
 django-two-factor-auth = "*"
 phonenumbers = "*"
-pyxdg = "*"
 
 [dev-packages]
 flake8 = "*"

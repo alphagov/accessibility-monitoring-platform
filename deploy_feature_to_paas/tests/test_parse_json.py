@@ -1,7 +1,8 @@
-import json
+"""test_parse_json.py - contains tests for parse_json.py"""
 import io
+import json
 import os
-from typing import TypedDict, List
+from typing import List, TypedDict
 from unittest import mock
 
 import pytest
@@ -63,13 +64,13 @@ def test_validate_json_dict_detects_incorrect_types():
     data = {
         "string": "string",
         "num": 1,
-        "listInt": [1, 2, 3],
+        "list_int": [1, 2, 3],
     }
 
     class DataType(TypedDict):
         string: int
         num: int
-        listInt: List[int]
+        list_int: List[int]
 
     with pytest.raises(Exception) as exc_info:
         validate_json_dict(data, DataType)
@@ -84,7 +85,7 @@ def test_validate_json_dict_detects_incorrect_types():
 @mock.patch("sys.stdout", new_callable=io.StringIO)
 def test_parse_settings_json(mock_stdout):
     """Tests if parse_settings_json returns a dictionary object"""
-    JSON_DATA = "data.json"
+    json_data = "data.json"
     data = {
         "name": "str",
         "date": "str",
@@ -104,11 +105,11 @@ def test_parse_settings_json(mock_stdout):
         "report_viewer_app_name": "str",
     }
 
-    with open(JSON_DATA, "w", encoding="utf-8") as f:
+    with open(json_data, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-    res = parse_settings_json(JSON_DATA)
-    os.remove(JSON_DATA)
+    res = parse_settings_json(json_data)
+    os.remove(json_data)
 
     assert res == data
 

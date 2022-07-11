@@ -1,3 +1,4 @@
+"""test_upload_db_to_s3 - contains tests for upload_db_to_s3.py"""
 import os
 
 import boto3
@@ -15,7 +16,7 @@ OBJECTNAME = "/objectname.txt"
 @mock_s3
 def test_upload_file_to_s3_successfully():
     """Tests if a file can be uploaded to S3 succesfully"""
-    with open(FILENAME, "w") as f:
+    with open(FILENAME, "w", encoding="utf-8") as f:
         f.write("Create a new text file!")
 
     client = boto3.client("s3", region_name="us-east-1")
@@ -37,7 +38,7 @@ def test_upload_file_to_s3_successfully():
 @mock_s3
 def test_upload_file_to_s3_defaults_object_name():
     """Tests if the object name defaults correctly"""
-    with open(FILENAME, "w") as f:
+    with open(FILENAME, "w", encoding="utf-8") as f:
         f.write("Create a new text file!")
 
     client = boto3.client("s3", region_name="us-east-1")
@@ -59,7 +60,7 @@ def test_upload_file_to_s3_defaults_object_name():
 @mock_s3
 def test_upload_file_to_s3_raises_exception():
     """Tests upload_file_to_s3() raises exception when a bucket does not exist"""
-    with open(FILENAME, "w") as f:
+    with open(FILENAME, "w", encoding="utf-8") as f:
         f.write("Create a new text file!")
 
     with pytest.raises(Exception) as exc_info:

@@ -1,10 +1,11 @@
+"""test_copy_db.py - contains tests for copy_db.py"""
 import io
 import os
 from unittest import mock
 
 import pytest
 
-from deploy_feature_to_paas.app.CopyDB import CopyDB
+from deploy_feature_to_paas.app.copy_db import CopyDB
 
 
 SPACE_NAME = "space_name"
@@ -12,9 +13,9 @@ DB_NAME = "db_name"
 PATH = "./file.sql"
 
 
-@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.copy_db")
-@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.install_conduit")
-@mock.patch("deploy_feature_to_paas.app.CopyDB.CopyDB.change_space")
+@mock.patch("deploy_feature_to_paas.app.copy_db.CopyDB.copy_db")
+@mock.patch("deploy_feature_to_paas.app.copy_db.CopyDB.install_conduit")
+@mock.patch("deploy_feature_to_paas.app.copy_db.CopyDB.change_space")
 def test_start_calls_correctly(change_space_mock, install_conduit_mock, copy_db_mock):
     """Test CopyDB.start calls correctly"""
     copy_db = CopyDB(
@@ -133,7 +134,7 @@ def test_copy_db_completes_successfully(mock_os):
 
 def test_clean_up_completes_successfully_with_file():
     """Test clean up completes with file"""
-    with open(PATH, "w") as f:
+    with open(PATH, "w", encoding="utf-8") as f:
         f.write("Create a new db file!")
 
     copy_db: CopyDB = CopyDB(
