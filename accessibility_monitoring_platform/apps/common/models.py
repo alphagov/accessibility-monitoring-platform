@@ -75,7 +75,7 @@ class Platform(models.Model):
         return f"Active QA auditor is {self.active_qa_auditor}"
 
 
-class PlatformChange(models.Model):
+class ChangeToPlatform(models.Model):
     """
     Record of platform changes made and deployed.
     """
@@ -85,6 +85,7 @@ class PlatformChange(models.Model):
 
     class Meta:
         ordering = ["-id"]
+        verbose_name_plural: str = "ChangesToPlatform"
 
     def __str__(self):
         return str(self.name)

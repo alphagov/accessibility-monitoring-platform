@@ -28,7 +28,7 @@ from django.utils import timezone
 
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, PlatformChange
+from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 
@@ -158,10 +158,10 @@ def get_platform_settings() -> Platform:
     return Platform.objects.get(pk=1)
 
 
-def get_recent_changes_to_platform() -> QuerySet[PlatformChange]:
+def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
     """Find platform changes made in last 24 hours"""
     twenty_four_hours_ago: datetime = timezone.now() - timedelta(hours=24)
-    return PlatformChange.objects.filter(created__gte=twenty_four_hours_ago)
+    return ChangeToPlatform.objects.filter(created__gte=twenty_four_hours_ago)
 
 
 def record_model_update_event(user: User, model_object: models.Model) -> None:

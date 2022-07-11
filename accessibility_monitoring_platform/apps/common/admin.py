@@ -6,7 +6,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import Event, IssueReport, Platform, PlatformChange, Sector
+from .models import Event, IssueReport, Platform, ChangeToPlatform, Sector
 
 
 class ExportCsvMixin:
@@ -75,12 +75,12 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     actions = ["export_as_csv"]
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj=None):  # pylint: disable=unused-argument
         return False
 
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
-admin.site.register(PlatformChange)
+admin.site.register(ChangeToPlatform)
 admin.site.register(Sector)

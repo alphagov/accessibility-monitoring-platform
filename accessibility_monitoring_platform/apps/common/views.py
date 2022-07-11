@@ -12,7 +12,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
-from .models import IssueReport, Platform, PlatformChange
+from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
 
 
@@ -113,12 +113,12 @@ class ActiveQAAuditorUpdateView(UpdateView):
         return self.request.path
 
 
-class PlatformChangeListView(ListView):
+class ChangeToPlatformListView(ListView):
     """
     View of list of platform changes
     """
 
-    model: Type[PlatformChange] = PlatformChange
-    template_name: str = "common/settings/platformchange_list.html"
+    model: Type[ChangeToPlatform] = ChangeToPlatform
+    template_name: str = "common/settings/platform_history.html"
     context_object_name: str = "platform_changes"
     paginate_by: int = 10

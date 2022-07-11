@@ -24,7 +24,7 @@ from ..models import (
     Platform,
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
-    PlatformChange,
+    ChangeToPlatform,
 )
 from ..utils import (
     build_filters,
@@ -238,15 +238,15 @@ def test_get_recent_changes_to_platform():
     """
     Test get_recent_changes_to_platform returne platform changes made in last 24 hours
     """
-    older_platform_change: PlatformChange = PlatformChange.objects.create(name="Older")
-    older_platform_change.created = timezone.now() - timedelta(hours=25)
-    older_platform_change.save()
-    recent_platform_change: PlatformChange = PlatformChange.objects.create(name="Recent")
+    older_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(name="Older")
+    older_change_to_platform.created = timezone.now() - timedelta(hours=25)
+    older_change_to_platform.save()
+    recent_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(name="Recent")
 
-    recent_changes_to_platform: QuerySet[PlatformChange] = get_recent_changes_to_platform()
+    recent_changes_to_platform: QuerySet[ChangeToPlatform] = get_recent_changes_to_platform()
 
     assert recent_changes_to_platform.count() == 1
-    assert recent_platform_change in recent_changes_to_platform
+    assert recent_change_to_platform in recent_changes_to_platform
 
 
 @pytest.mark.django_db
