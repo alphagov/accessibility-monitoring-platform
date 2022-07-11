@@ -70,9 +70,14 @@ class Platform(models.Model):
         blank=True,
         null=True,
     )
+    report_viewer_accessibility_statement = models.TextField(default="", blank=True)
+    report_viewer_privacy_notice = models.TextField(default="", blank=True)
+
+    class Meta:
+        verbose_name_plural = "Platform settings"
 
     def __str__(self):
-        return f"Active QA auditor is {self.active_qa_auditor}"
+        return "Platform settings"
 
 
 class ChangeToPlatform(models.Model):

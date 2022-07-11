@@ -23,7 +23,7 @@ def custom_page_not_found(request):
     return page_not_found(request, None)
 
 
-def healthcheck(request):
+def healthcheck(request):  # pylint: disable=unused-argument
     return JsonResponse({"healthcheck": "ok"})
 
 

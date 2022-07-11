@@ -14,10 +14,46 @@ from django.template import loader, Template
 from django.urls import reverse
 
 from accessibility_monitoring_platform.apps.cases.models import Case
+from accessibility_monitoring_platform.apps.common.models import Platform
+from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.reports.models import Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+
+
+@pytest.mark.django_db
+def test_view_accessibility_statement(client):
+    """Test accessibility statement renders"""
+    platform: Platform = get_platform_settings()
+    platform.report_viewer_accessibility_statement = "# Accessibility statement"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("viewer:accessibility-statement"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>Accessibility statement</h1>""",
+        html=True,
+    )
+
+
+@pytest.mark.django_db
+def test_view_privacy_notice(client):
+    """Test privacy notice renders"""
+    platform: Platform = get_platform_settings()
+    platform.report_viewer_privacy_notice = "# Privacy notice"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("viewer:privacy-notice"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>Privacy notice</h1>""",
+        html=True,
+    )
 
 
 @pytest.mark.django_db
@@ -114,7 +150,7 @@ def test_view_report_not_on_s3(client):
     Report.objects.create(case=case)
     Audit.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
-    HTML_ON_DB: str = "<p>Text on DB</p>"
+    html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
         case=case,
@@ -123,7 +159,7 @@ def test_view_report_not_on_s3(client):
     )
     s3_report: Optional[S3Report] = S3Report.objects.all().first()
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
-    s3_report.html = HTML_ON_DB  # type: ignore
+    s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
 
     report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
@@ -132,4 +168,4 @@ def test_view_report_not_on_s3(client):
     )
     assert response.status_code == 200
 
-    assertContains(response, HTML_ON_DB)
+    assertContains(response, html_on_db)
