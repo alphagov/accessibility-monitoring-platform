@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 from dotenv import load_dotenv
@@ -63,13 +64,13 @@ class SeleniumTest(unittest.TestCase):
             )
 
         self.driver.get(f"""{settings["testing_endpoint"]}account/login/?next=/""")
-        self.driver.find_element_by_name("auth-username").send_keys(
+        self.driver.find_element("name", "auth-username").send_keys(
             os.getenv("SMOKE_TESTS_USERNAME")
         )
-        self.driver.find_element_by_name("auth-password").send_keys(
+        self.driver.find_element("name", "auth-password").send_keys(
             os.getenv("SMOKE_TESTS_PASSWORD")
         )
-        self.driver.find_element_by_name("auth-password").send_keys(Keys.RETURN)
+        self.driver.find_element("name", "auth-password").send_keys(Keys.RETURN)
 
 
 class TestLogin(SeleniumTest):
@@ -105,7 +106,8 @@ class TestDashboard(SeleniumTest):
     def test_dashboard(self):
         """Tests whether user can login"""
         self.login()
-        self.driver.find_element_by_xpath(
+        self.driver.find_element(
+            By.XPATH,
             """//input[@value="View all cases"]"""
         ).click()
         self.assertEqual(
@@ -113,7 +115,8 @@ class TestDashboard(SeleniumTest):
             in self.driver.page_source,
             True,
         )
-        self.driver.find_element_by_xpath(
+        self.driver.find_element(
+            By.XPATH,
             """//input[@value="View your cases"]"""
         ).click()
         self.assertEqual(
@@ -136,19 +139,19 @@ class TestSearch(SeleniumTest):
     def test_search(self):
         """Tests whether user can login"""
         self.login()
-        # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
-        self.driver.find_element_by_link_text("Search").click()
+        # self.driver.find_element(By.XPATH, "//input[@value="View all cases"]").click()
+        self.driver.find_element("link text", "Search").click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
             True,
         )
-        self.driver.find_element_by_name("search").send_keys("1")
-        self.driver.find_element_by_xpath("""//input[@value="Search"]""").click()
+        self.driver.find_element("name", "search").send_keys("1")
+        self.driver.find_element(By.XPATH, """//input[@value="Search"]""").click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
             True,
         )
-        self.driver.find_element_by_link_text("Next").click()
+        self.driver.find_element("link text", "Next").click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Search</h1>""" in self.driver.page_source,
             True,
@@ -168,8 +171,8 @@ class TestAccountDetails(SeleniumTest):
     def test_search(self):
         """Tests whether user can login"""
         self.login()
-        # self.driver.find_element_by_xpath("//input[@value="View all cases"]").click()
-        self.driver.find_element_by_link_text("Settings").click()
+        # self.driver.find_element(By.XPATH, "//input[@value="View all cases"]").click()
+        self.driver.find_element("link text", "Settings").click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Account details</h1>"""
             in self.driver.page_source,
@@ -190,12 +193,12 @@ class TestCaseView(SeleniumTest):
     def test_case_view(self):
         """Tests whether user can view cases"""
         self.login()
-        self.driver.find_element_by_link_text("Search").click()
+        self.driver.find_element("link text", "Search").click()
 
-        self.driver.find_element_by_name("search").send_keys("Met Office")
+        self.driver.find_element("name", "search").send_keys("Met Office")
 
-        self.driver.find_element_by_name("search").send_keys(Keys.RETURN)
-        self.driver.find_element_by_link_text("Met Office").click()
+        self.driver.find_element("name", "search").send_keys(Keys.RETURN)
+        self.driver.find_element("link text", "Met Office").click()
         self.assertEqual("View case" in self.driver.page_source, True)
 
         pages_to_test = [
@@ -221,6 +224,6 @@ class TestCaseView(SeleniumTest):
         ]
 
         for page in pages_to_test:
-            self.driver.find_element_by_link_text(page[0]).click()
+            self.driver.find_element("link text", page[0]).click()
             self.assertEqual(page[1] in self.driver.page_source, True)
             self.driver.back()

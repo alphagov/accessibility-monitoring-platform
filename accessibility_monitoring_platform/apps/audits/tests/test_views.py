@@ -10,6 +10,8 @@ from pytest_django.asserts import assertContains, assertNotContains
 from django.http import HttpResponse
 from django.urls import reverse
 
+from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
+
 from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM
 from ..models import (
     PAGE_TYPE_PDF,
@@ -382,6 +384,34 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path  # type: ignore
 
 
+def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
+    """
+    Test save and continue button causes user to skip to statement 1 page
+    when no response was received from public sector body.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    case: Case = audit.case
+    case.no_psb_contact = BOOLEAN_TRUE
+    case.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-retest-metadata", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save_continue": "Button value",
+            "case-version": audit.case.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-audit-retest-statement-1", kwargs=audit_pk
+    )
+    assert response.url == expected_path  # type: ignore
+
+
 @pytest.mark.parametrize(
     "button_name, expected_redirect_path_name",
     [
@@ -687,6 +717,28 @@ def test_start_retest_redirects(admin_client):
 
     assert response.url == reverse(  # type: ignore
         "audits:edit-audit-retest-metadata", kwargs={"pk": audit_pk}
+    )
+
+
+def test_retest_details_renders_when_no_psb_response(admin_client):
+    """
+    Test save and continue button causes user to skip to statement 1 page
+    when no response was received from public sector body.
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    case: Case = audit.case
+    case.no_psb_contact = BOOLEAN_TRUE
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "Only 12-week accessibility statement comparison is available"
     )
 
 

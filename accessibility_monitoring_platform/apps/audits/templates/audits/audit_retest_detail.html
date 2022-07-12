@@ -39,6 +39,9 @@
         </div>
         <div style="position: relative; top: -15px;">
             {% include 'cases/helpers/case_title.html' with case=audit.case %}
+            {% if not audit.case.psb_response %}
+                {% include 'audits/helpers/no_psb_response_notification.html' %}
+            {% endif %}
             {% include "cases/helpers/messages.html" %}
         </div>
 

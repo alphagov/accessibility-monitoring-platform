@@ -9,9 +9,10 @@ from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.list import ListView
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
-from .models import IssueReport, Platform
+from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
 
 
@@ -110,3 +111,14 @@ class ActiveQAAuditorUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Remain on current page on save"""
         return self.request.path
+
+
+class ChangeToPlatformListView(ListView):
+    """
+    View of list of platform changes
+    """
+
+    model: Type[ChangeToPlatform] = ChangeToPlatform
+    template_name: str = "common/settings/platform_history.html"
+    context_object_name: str = "changes_to_platform"
+    paginate_by: int = 10

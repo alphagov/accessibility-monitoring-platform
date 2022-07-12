@@ -674,6 +674,9 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
+            if not audit.case.psb_response:
+                audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+                return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
             return get_next_retest_page_url(audit=audit)
         return super().get_success_url()
 

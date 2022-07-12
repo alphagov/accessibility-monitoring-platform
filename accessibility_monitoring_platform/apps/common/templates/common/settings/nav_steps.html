@@ -23,4 +23,12 @@
                 Report viewer editor</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:platform-history' %}
+            Platform version history
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:platform-history' %}">
+                Platform version history</a>
+        {% endif %}
+    </p>
 </nav>

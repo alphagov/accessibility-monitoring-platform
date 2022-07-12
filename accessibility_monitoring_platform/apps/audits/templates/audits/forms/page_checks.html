@@ -143,10 +143,10 @@
                                                     <b>{{ issue.page }}</b>
                                                     <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ issue.notes }}</textarea>
                                                     <span tabIndex="0"
-                                                        class="amp-control"
-                                                        onclick="copyTextToInput('{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
-                                                        onkeypress="keyboardCopyTextToInput(event, '{{ form.notes.auto_id }}', '{{ form.notes.auto_id }}-{{ forloop.counter }}')"
-                                                        >Click to populate error details</span>
+                                                        class="amp-control amp-copy-error"
+                                                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
+                                                        targetId="{{ form.notes.auto_id }}">
+                                                        Click to populate error details</span>
                                                     {{ issue.notes|markdown_to_html }}
                                                 </li>
                                             {% endfor %}
@@ -183,18 +183,6 @@
 
 {% block extrascript %}
 <script src="{% static 'js/audits_check_filter.js' %}"></script>
+<script src="{% static 'js/audits_copy_error.js' %}"></script>
 <script src="{% static 'js/markdown_preview.js' %}"></script>
-<script type="text/javascript">
-    function copyTextToInput(targetId, sourceId) {
-        sourceValue = document.getElementById(sourceId).value;
-        target = document.getElementById(targetId)
-        target.value = sourceValue
-    }
-    function keyboardCopyTextToInput(event, targetId, sourceId) {
-        if (event.code === "Enter" || event.code === "Space") {
-            event.preventDefault()
-            copyTextToInput(targetId, sourceId)
-        }
-    }
-</script>
 {% endblock %}
