@@ -12,7 +12,7 @@ from django.template import Context, Template
 from ...audits.models import Audit
 from ...cases.models import Case
 
-from ..models import Report, Section, TableRow, BaseTemplate
+from ..models import TEMPLATE_TYPE_ISSUES_TABLE, Report, Section, TableRow, BaseTemplate
 from ..utils import (
     check_for_buttons_by_name,
     delete_table_row,
@@ -27,7 +27,7 @@ from ..utils import (
     MOVE_ROW_DOWN_BUTTON_PREFIX,
 )
 
-NUMBER_OF_BASE_TEMPLATES: int = 9
+NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES: int = 9
 PREVIOUS_ROW_POSITION: int = 1
 ORIGINAL_ROW_POSITION: int = 2
 NEXT_ROW_POSITION: int = 3
@@ -49,7 +49,9 @@ def create_table_row() -> TableRow:
 @pytest.mark.django_db
 def test_generate_report_content():
     """Test new reports use BaseTemplates to create their sections"""
-    base_templates: List[BaseTemplate] = list(BaseTemplate.objects.all())
+    top_level_base_templates: List[BaseTemplate] = list(
+        BaseTemplate.objects.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
+    )
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     context: Context = Context({"audit": audit})
@@ -57,12 +59,12 @@ def test_generate_report_content():
 
     generate_report_content(report=report)
 
-    sections: List[Section] = list(report.section_set.all())  # type: ignore
+    top_level_sections: List[Section] = list(report.top_level_sections)  # type: ignore
 
-    assert len(base_templates) == NUMBER_OF_BASE_TEMPLATES
-    assert len(sections) == NUMBER_OF_BASE_TEMPLATES
+    assert len(top_level_base_templates) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
+    assert len(top_level_sections) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
 
-    for section, base_template in zip(sections, base_templates):
+    for section, base_template in zip(top_level_sections, top_level_base_templates):
         assert section.name == base_template.name
         assert section.template_type == base_template.template_type
         assert section.position == base_template.position
