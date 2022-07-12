@@ -12,6 +12,7 @@ from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
 )
+from ..audits.models import PAGE_TYPE_PDF
 
 from .models import (
     Report,
@@ -28,10 +29,6 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ 
 {{ wcag_definition.report_boilerplate|safe }}
 """
 CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.notes|safe }}"""
-PAGE_SECTION_TEMPLATE = """[{{ page.url }}]({{ page.url }})
-
-{% if page.failed_check_results %}{% else %}We found no major issues.{% endif %}
-"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
@@ -45,7 +42,7 @@ def generate_report_content(report: Report) -> None:
     Args:
         report (Report): Report for which content is generated.
     """
-    base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.exclude(
+    top_level_base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.exclude(
         template_type=TEMPLATE_TYPE_ISSUES_TABLE
     )
     issues_table_base_template: BaseTemplate = BaseTemplate.objects.get(
@@ -58,7 +55,7 @@ def generate_report_content(report: Report) -> None:
     check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
     section_position: int = 0
 
-    for base_template in base_templates:
+    for base_template in top_level_base_templates:
         template: Template = Template(base_template.content)
         section_position += 1
         section: Section = Section.objects.create(
@@ -83,9 +80,14 @@ def generate_report_content(report: Report) -> None:
                 for page in report.case.audit.testable_pages:
                     page_context: Context = Context({"page": page})
                     section_position += 1
+                    section_name: str = (
+                        f"{page} page issues"
+                        if page.page_type != PAGE_TYPE_PDF
+                        else f"{page} issues"
+                    )
                     page_section: Section = Section.objects.create(
                         report=report,
-                        name=f"{page} page issues",
+                        name=section_name,
                         template_type=TEMPLATE_TYPE_ISSUES_TABLE,
                         content=issues_table_template.render(context=page_context),
                         position=section_position,

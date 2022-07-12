@@ -8,7 +8,7 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 from ...cases.models import Case
 
-from ..models import Report, Section, TableRow
+from ..models import Report, Section, TableRow, TEMPLATE_TYPE_ISSUES_TABLE
 
 DOMAIN: str = "example.com"
 
@@ -97,3 +97,18 @@ def test_latest_s3_report_returned():
     second_s3_report: S3Report = S3Report.objects.create(case=case, version=1)
 
     assert report.latest_s3_report == second_s3_report
+
+
+@pytest.mark.django_db
+def test_top_level_sections():
+    """Test the report's top level sections does not include issues sections"""
+    case: Case = Case.objects.create()
+    report: Report = Report.objects.create(case=case)
+    markdown_section: Section = Section.objects.create(report=report, position=1)
+    issues_table_section: Section = Section.objects.create(
+        report=report, position=2, template_type=TEMPLATE_TYPE_ISSUES_TABLE
+    )
+
+    assert report.top_level_sections.count() == 1
+    assert markdown_section in report.top_level_sections
+    assert issues_table_section not in report.top_level_sections

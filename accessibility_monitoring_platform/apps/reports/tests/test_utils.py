@@ -6,10 +6,11 @@ from typing import List
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
 
-from ...audits.models import Audit
+from ...audits.models import PAGE_TYPE_HOME, PAGE_TYPE_PDF, Audit, Page
 from ...cases.models import Case
 
 from ..models import TEMPLATE_TYPE_ISSUES_TABLE, Report, Section, TableRow, BaseTemplate
@@ -31,6 +32,8 @@ NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES: int = 9
 PREVIOUS_ROW_POSITION: int = 1
 ORIGINAL_ROW_POSITION: int = 2
 NEXT_ROW_POSITION: int = 3
+HOME_PAGE_NAME: str = "Home name"
+PDF_PAGE_NAME: str = "PDF name"
 
 
 class MockRequest:
@@ -71,6 +74,37 @@ def test_generate_report_content():
 
         template: Template = Template(base_template.content)
         assert section.content == template.render(context=context)
+
+
+@pytest.mark.django_db
+def test_generate_report_content_issues_table_sections():
+    """Test report contains issues table sections for each page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url="https://example.com",
+    )
+    Page.objects.create(
+        audit=audit,
+        name=PDF_PAGE_NAME,
+        page_type=PAGE_TYPE_PDF,
+        url="https://example.com/pdf",
+    )
+    report: Report = Report.objects.create(case=case)
+
+    generate_report_content(report=report)
+
+    issues_table_sections: QuerySet[Section] = report.section_set.filter(  # type: ignore
+        template_type=TEMPLATE_TYPE_ISSUES_TABLE
+    )
+
+    assert issues_table_sections.count() == 2
+
+    assert issues_table_sections[0].name == f"{HOME_PAGE_NAME} page issues"
+    assert issues_table_sections[1].name == f"{PDF_PAGE_NAME} issues"
 
 
 @pytest.mark.parametrize(
