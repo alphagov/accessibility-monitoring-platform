@@ -101,7 +101,7 @@ def test_latest_s3_report_returned():
 
 @pytest.mark.django_db
 def test_top_level_sections():
-    """Test the report's top level sections does not include issues sections"""
+    """Test the report's top level sections does not include issues table sections"""
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
     markdown_section: Section = Section.objects.create(report=report, position=1)

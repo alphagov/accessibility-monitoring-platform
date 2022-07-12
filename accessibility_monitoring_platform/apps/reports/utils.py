@@ -12,7 +12,7 @@ from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
 )
-from ..audits.models import PAGE_TYPE_PDF
+from ..audits.models import Page, PAGE_TYPE_PDF
 
 from .models import (
     Report,
@@ -34,6 +34,9 @@ UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
 MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
 
+wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
+check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
+
 
 def generate_report_content(report: Report) -> None:
     """
@@ -51,8 +54,6 @@ def generate_report_content(report: Report) -> None:
     report.section_set.all().delete()  # type: ignore
     context: Context = Context({"audit": report.case.audit})
     issues_table_template: Template = Template(issues_table_base_template.content)
-    wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
-    check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
     section_position: int = 0
 
     for base_template in top_level_base_templates:
@@ -67,16 +68,9 @@ def generate_report_content(report: Report) -> None:
         )
         if report.case.audit:
             if section.template_type == TEMPLATE_TYPE_URLS:
-                for row_number, page in enumerate(
-                    report.case.audit.testable_pages, start=1
-                ):
-                    TableRow.objects.create(
-                        section=section,
-                        cell_content_1=str(page),
-                        cell_content_2=f"[{page.url}]({page.url})",
-                        row_number=row_number,
-                    )
+                create_url_table_rows(report=report, section=section)
             elif section.template_type == TEMPLATE_TYPE_ISSUES_INTRO:
+                # Create an issues table section for each testable page
                 for page in report.case.audit.testable_pages:
                     page_context: Context = Context({"page": page})
                     section_position += 1
@@ -92,25 +86,37 @@ def generate_report_content(report: Report) -> None:
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
                     )
-                    for row_number, check_result in enumerate(
-                        page.failed_check_results, start=1
-                    ):
-                        wcag_boilerplate_context: Context = Context(
-                            {"wcag_definition": check_result.wcag_definition}
-                        )
-                        check_result_context: Context = Context(
-                            {"check_result": check_result}
-                        )
-                        TableRow.objects.create(
-                            section=page_section,
-                            cell_content_1=wcag_boilerplate_template.render(
-                                context=wcag_boilerplate_context
-                            ),
-                            cell_content_2=check_result_notes_template.render(
-                                context=check_result_context
-                            ),
-                            row_number=row_number,
-                        )
+                    create_issue_table_rows(page=page, page_section=page_section)
+
+
+def create_url_table_rows(report: Report, section: Section) -> None:
+    """Create url table row data for each testable page in the report"""
+    for row_number, page in enumerate(report.case.audit.testable_pages, start=1):
+        TableRow.objects.create(
+            section=section,
+            cell_content_1=str(page),
+            cell_content_2=f"[{page.url}]({page.url})",
+            row_number=row_number,
+        )
+
+
+def create_issue_table_rows(page: Page, page_section: Section) -> None:
+    """Create issue table row data for each failed check for a page in the report"""
+    for row_number, check_result in enumerate(page.failed_check_results, start=1):
+        wcag_boilerplate_context: Context = Context(
+            {"wcag_definition": check_result.wcag_definition}
+        )
+        check_result_context: Context = Context({"check_result": check_result})
+        TableRow.objects.create(
+            section=page_section,
+            cell_content_1=wcag_boilerplate_template.render(
+                context=wcag_boilerplate_context
+            ),
+            cell_content_2=check_result_notes_template.render(
+                context=check_result_context
+            ),
+            row_number=row_number,
+        )
 
 
 def delete_table_row(request: HttpRequest) -> Optional[int]:

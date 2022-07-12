@@ -10,7 +10,16 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
 
-from ...audits.models import PAGE_TYPE_HOME, PAGE_TYPE_PDF, Audit, Page
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    CHECK_RESULT_ERROR,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_PDF,
+    TEST_TYPE_PDF,
+)
 from ...cases.models import Case
 
 from ..models import TEMPLATE_TYPE_ISSUES_TABLE, Report, Section, TableRow, BaseTemplate
@@ -20,6 +29,8 @@ from ..utils import (
     move_table_row_down,
     move_table_row_up,
     generate_report_content,
+    create_url_table_rows,
+    create_issue_table_rows,
     undelete_table_row,
     get_report_viewer_url_prefix,
     DELETE_ROW_BUTTON_PREFIX,
@@ -34,6 +45,8 @@ ORIGINAL_ROW_POSITION: int = 2
 NEXT_ROW_POSITION: int = 3
 HOME_PAGE_NAME: str = "Home name"
 PDF_PAGE_NAME: str = "PDF name"
+HOME_PAGE_URL: str = "https://example.com/home"
+CHECK_RESULT_NOTES: str = "Check results note"
 
 
 class MockRequest:
@@ -74,6 +87,64 @@ def test_generate_report_content():
 
         template: Template = Template(base_template.content)
         assert section.content == template.render(context=context)
+
+
+@pytest.mark.django_db
+def test_create_url_table_rows():
+    """Test url table row created for page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url=HOME_PAGE_URL,
+    )
+    report: Report = Report.objects.create(case=case)
+    section: Section = Section.objects.create(report=report, position=1)
+
+    create_url_table_rows(report=report, section=section)
+
+    table_rows: QuerySet[TableRow] = TableRow.objects.all()
+
+    assert table_rows.count() == 1
+
+    assert HOME_PAGE_NAME in table_rows[0].cell_content_1
+    assert HOME_PAGE_URL in table_rows[0].cell_content_2
+
+
+@pytest.mark.django_db
+def test_create_issue_table_rows():
+    """Test issue table row created for failed check"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url=HOME_PAGE_URL,
+    )
+    report: Report = Report.objects.create(case=case)
+    section: Section = Section.objects.create(report=report, position=1)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(  # type: ignore
+        type=TEST_TYPE_PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        notes=CHECK_RESULT_NOTES,
+    )
+
+    create_issue_table_rows(page=page, page_section=section)
+
+    table_rows: QuerySet[TableRow] = TableRow.objects.all()
+
+    assert table_rows.count() == 1
+
+    assert wcag_definition.name in table_rows[0].cell_content_1
+    assert CHECK_RESULT_NOTES in table_rows[0].cell_content_2
 
 
 @pytest.mark.django_db
