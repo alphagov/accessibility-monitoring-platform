@@ -889,6 +889,7 @@ class AuditRetestStatement1UpdateForm(VersionForm):
             "audit_retest_feedback_notes",
             "audit_retest_contact_information_state",
             "audit_retest_contact_information_notes",
+            "audit_retest_enforcement_procedure_state",
             "audit_retest_enforcement_procedure_notes",
             "audit_retest_declaration_state",
             "audit_retest_declaration_notes",
