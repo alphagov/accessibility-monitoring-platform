@@ -140,6 +140,17 @@
         }
     }
 
+    table#issues-table {
+        tr td:nth-child(1) {
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        td+td {
+            width: 50%;
+        }
+    }
+
     table#urls-table {
         th, td {
             width: 50%;
