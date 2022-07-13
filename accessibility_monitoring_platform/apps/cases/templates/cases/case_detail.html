@@ -77,10 +77,12 @@
                     <h3 class="govuk-notification-banner__heading">
                         This case was deactivated on {{ case.deactivate_date|amp_date }}.
                     </h3>
-                    <p class="govuk-body">Reason why:</p>
-                    <ul class="govuk-list govuk-list--bullet">
-                        <li>{{ case.deactivate_notes|markdown_to_html }}</li>
-                    </ul>
+                    {% if case.deactivate_notes %}
+                        <p class="govuk-body">Reason why:</p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>{{ case.deactivate_notes|markdown_to_html }}</li>
+                        </ul>
+                    {% endif %}
                     <p class="govuk-body">
                         Go to
                         <a class="govuk-notification-banner__link" href="{% url 'cases:reactivate-case' case.id %}">Case > Reactivate case</a>
