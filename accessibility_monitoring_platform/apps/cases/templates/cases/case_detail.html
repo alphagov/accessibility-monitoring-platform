@@ -37,25 +37,25 @@
                     >
                         Export to CSV
                     </a>
-                    {% if case.is_suspended %}
+                    {% if case.is_deactivated %}
                         <a
-                            href="{% url 'cases:unsuspend-case' case.id %}"
+                            href="{% url 'cases:reactivate-case' case.id %}"
                             role="button"
                             draggable="false"
-                            class="govuk-button govuk-button--secondary"
+                            class="govuk-link govuk-link--no-visited-state"
                             data-module="govuk-button"
                         >
-                            Unsuspend case
+                            Reactivate case
                         </a>
                     {% else %}
                         <a
-                            href="{% url 'cases:suspend-case' case.id %}"
+                            href="{% url 'cases:deactivate-case' case.id %}"
                             role="button"
                             draggable="false"
-                            class="govuk-button govuk-button--secondary"
+                            class="govuk-link govuk-link--no-visited-state"
                             data-module="govuk-button"
                         >
-                            Suspend case
+                            Deactivate case
                         </a>
                     {% endif %}
                 </div>
@@ -66,16 +66,27 @@
             {% include "cases/helpers/messages.html" %}
         </div>
         {% include 'cases/helpers/compliant_website_notification.html' %}
-        {% if case.is_suspended %}
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">Warning</span>
-                    This case has been suspended on {{ case.suspend_date }}. Unsuspend case to reactivate case.
-                </strong>
-            </div>
-            <div class="govuk-inset-text">
-                {{ case.suspend_notes }}
+        {% if case.is_deactivated %}
+            <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                  <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Important
+                  </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <h3 class="govuk-notification-banner__heading">
+                        This case was deactivated on {{ case.deactivate_date|amp_date }}.
+                    </h3>
+                    <p class="govuk-body">Reason why:</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>{{ case.deactivate_notes|markdown_to_html }}</li>
+                    </ul>
+                    <p class="govuk-body">
+                        Go to
+                        <a class="govuk-notification-banner__link" href="{% url 'cases:reactivate-case' case.id %}">Case > Reactivate case</a>
+                        to reactivate the case.
+                    </p>
+                </div>
             </div>
         {% endif %}
         {% if case.no_psb_contact == 'yes' %}

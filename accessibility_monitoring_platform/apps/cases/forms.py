@@ -668,16 +668,16 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         ]
 
 
-class CaseSuspendForm(VersionForm):
+class CaseDeactivateForm(VersionForm):
     """
-    Form for archiving a case
+    Form for deactivating a case
     """
 
-    suspend_notes = AMPTextField(label="More information?")
+    deactivate_notes = AMPTextField(label="Reason why")
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "suspend_notes",
+            "deactivate_notes",
         ]

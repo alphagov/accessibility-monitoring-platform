@@ -64,7 +64,7 @@ from .forms import (
     CaseCloseUpdateForm,
     PostCaseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
-    CaseSuspendForm,
+    CaseDeactivateForm,
 )
 from .utils import (
     get_sent_date,
@@ -790,36 +790,36 @@ class PostCaseUpdateView(CaseUpdateView):
         return super().get_success_url()
 
 
-class CaseSuspendUpdateView(CaseUpdateView):
+class CaseDeactivateUpdateView(CaseUpdateView):
     """
-    View to suspend case
+    View to deactivate case
     """
 
-    form_class: Type[CaseSuspendForm] = CaseSuspendForm
-    template_name: str = "cases/forms/suspend.html"
+    form_class: Type[CaseDeactivateForm] = CaseDeactivateForm
+    template_name: str = "cases/forms/deactivate.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
-        case.is_suspended = True
-        case.suspend_date = date.today()
+        case.is_deactivated = True
+        case.deactivate_date = date.today()
         record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())
 
 
-class CaseUnsuspendUpdateView(CaseUpdateView):
+class CaseReactivateUpdateView(CaseUpdateView):
     """
-    View to unsuspend case
+    View to reactivate case
     """
 
-    form_class: Type[CaseSuspendForm] = CaseSuspendForm
-    template_name: str = "cases/forms/unsuspend.html"
+    form_class: Type[CaseDeactivateForm] = CaseDeactivateForm
+    template_name: str = "cases/forms/reactivate.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
-        case.is_suspended = False
+        case.is_deactivated = False
         record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())

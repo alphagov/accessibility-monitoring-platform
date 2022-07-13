@@ -93,7 +93,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ),
     (
         "suspended",
-        "Suspended",
+        "Deactivated",
     ),
 ]
 
@@ -476,10 +476,10 @@ class Case(VersionModel):
     )
     delete_notes = models.TextField(default="", blank=True)
 
-    # Suspended case page
-    is_suspended = models.BooleanField(default=False)
-    suspend_date = models.DateField(null=True, blank=True)
-    suspend_notes = models.TextField(default="", blank=True)
+    # Deactivate case page
+    is_deactivated = models.BooleanField(default=False)
+    deactivate_date = models.DateField(null=True, blank=True)
+    deactivate_notes = models.TextField(default="", blank=True)
 
     # Dashboard page
     qa_status = models.CharField(
@@ -558,7 +558,7 @@ class Case(VersionModel):
     def set_status(self) -> str:  # noqa: C901
         if self.is_deleted:
             return "deleted"
-        elif self.is_suspended:
+        elif self.is_deactivated:
             return "suspended"
         elif (
             self.case_completed == "complete-no-send"
