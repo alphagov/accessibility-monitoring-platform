@@ -23,13 +23,13 @@ from ..models import (
 
 @pytest.mark.django_db
 def test_case_status_deactivated():
-    """Test case status returns suspended"""
+    """Test case status returns deactivated"""
     case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         is_deactivated=True,
     )
-    assert case.status == "suspended"
+    assert case.status == "deactivated"
 
 
 @pytest.mark.django_db

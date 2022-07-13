@@ -22,6 +22,7 @@ from ..common.models import (
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_DEFAULT: str = "unassigned-case"
+STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     (
         "unknown",
@@ -92,7 +93,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Deleted",
     ),
     (
-        "suspended",
+        STATUS_DEACTIVATED,
         "Deactivated",
     ),
 ]
@@ -559,7 +560,7 @@ class Case(VersionModel):
         if self.is_deleted:
             return "deleted"
         elif self.is_deactivated:
-            return "suspended"
+            return STATUS_DEACTIVATED
         elif (
             self.case_completed == "complete-no-send"
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
