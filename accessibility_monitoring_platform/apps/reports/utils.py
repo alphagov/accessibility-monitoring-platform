@@ -24,11 +24,11 @@ from .models import (
     TEMPLATE_TYPE_ISSUES_TABLE,
 )
 
-WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
+WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
 
 {{ wcag_definition.report_boilerplate|safe }}
 """
-CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.notes|safe }}"""
+CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
