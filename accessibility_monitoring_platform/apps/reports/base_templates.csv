@@ -14,7 +14,7 @@ You’ve been sent this report because [{{ audit.case.home_page_url }}]({{audit.
 * what you need to do next to fix the issues
 
 You can [read more about the web accessibility regulations](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).",1
-2,0,2022-03-28 08:22:14.168694+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard: [https://www.w3.org/TR/WCAG21/](https://www.w3.org/TR/WCAG21/).
+2,0,2022-03-28 08:22:14.168694+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the [Web Content Accessibility Guidelines (WCAG) 2.1 AA](https://www.w3.org/TR/WCAG21/) standard.
 
 {% if audit.case.is_website_compliant == 'not-compliant' %}
 Based on our testing, this site is not compliant with WCAG 2.1 AA. This means there are some things which would cause significant barriers to users with certain accessibility needs.
@@ -27,7 +27,7 @@ Based on our testing, this site is compliant with WCAG 2.1 AA. This means no ser
 
 Manual checks included using each page without a mouse, viewing the page at different zoom settings, and simulating viewing the page on a small screen.
 
-The automated tests were completed using the latest version of axe: [https://www.deque.com/axe/](https://www.deque.com/axe/).
+The automated tests were completed using the latest version of [axe](https://www.deque.com/axe/).
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
 4,0,2022-03-28 08:22:14.173470+00:00,Pages we checked,urls,,4
