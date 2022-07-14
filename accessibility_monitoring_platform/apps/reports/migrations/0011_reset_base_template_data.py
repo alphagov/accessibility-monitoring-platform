@@ -38,8 +38,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(reset_base_templates_data, reverse_code=reverse_code),
-        migrations.RunSQL(
-            "SELECT setval('reports_basetemplate_id_seq', 11, false);",
-            reverse_sql=migrations.RunSQL.noop,
-        )
     ]
