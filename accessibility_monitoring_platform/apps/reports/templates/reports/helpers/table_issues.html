@@ -9,7 +9,8 @@
     <tbody>
         {% for row in section.visible_table_rows.all %}
             <tr valign="top">
-                <td>{{ forloop.counter }}</td>
+                <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
+                <td headers="where-found">{{ row.cell_content_2|markdown_to_html }}</td>
                 <td headers="issue">{{ row.cell_content_1|markdown_to_html }}</td>
                 <td headers="where-found">{{ row.cell_content_2|markdown_to_html }}</td>
             </tr>
