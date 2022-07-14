@@ -42,9 +42,9 @@ Tests were completed using different settings in the Google Chrome browser on Ma
     {% endfor %}
 {% endif %}
 
-More information about accessibility statements can be found at: [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
+More information about accessibility statements can be found at [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
 
-A sample statement can be found at: [https://www.gov.uk/government/publications/sample-accessibility-statement](https://www.gov.uk/government/publications/sample-accessibility-statement).",6
+A sample statement can be found at [https://www.gov.uk/government/publications/sample-accessibility-statement](https://www.gov.uk/government/publications/sample-accessibility-statement).",6
 7,1,2022-03-28 08:22:14.180162+00:00,What to do next,markdown,"It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible.
 
 {% if audit.report_options_next == 'errors' %}
