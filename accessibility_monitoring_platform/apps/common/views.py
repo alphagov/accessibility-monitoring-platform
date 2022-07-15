@@ -8,9 +8,11 @@ from django.core.mail import EmailMessage
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from .utils import get_platform_settings
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -122,3 +124,19 @@ class ChangeToPlatformListView(ListView):
     template_name: str = "common/settings/platform_history.html"
     context_object_name: str = "changes_to_platform"
     paginate_by: int = 10
+
+
+class PlatformTemplateView(TemplateView):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["platform"] = get_platform_settings()
+        return context
+
+
+class AccessibilityStatementTemplateView(PlatformTemplateView):
+    template_name: str = "common/accessibility_statement.html"
+
+
+class PrivacyNoticeTemplateView(PlatformTemplateView):
+    template_name: str = "common/privacy_notice.html"

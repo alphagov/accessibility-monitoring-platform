@@ -14,7 +14,7 @@ You’ve been sent this report because [{{ audit.case.home_page_url }}]({{audit.
 * what you need to do next to fix the issues
 
 You can [read more about the web accessibility regulations](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).",1
-2,0,2022-03-28 08:22:14.168694+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the Web Content Accessibility Guidelines (WCAG) 2.1 AA standard: [https://www.w3.org/TR/WCAG21/](https://www.w3.org/TR/WCAG21/).
+2,0,2022-03-28 08:22:14.168694+00:00,How accessible the website is,markdown,"We checked [{{ audit.case.home_page_url }}]({{audit.case.home_page_url }}) on {{ audit.date_of_test|date:""d F Y"" }} against the [Web Content Accessibility Guidelines (WCAG) 2.1 AA](https://www.w3.org/TR/WCAG21/) standard.
 
 {% if audit.case.is_website_compliant == 'not-compliant' %}
 Based on our testing, this site is not compliant with WCAG 2.1 AA. This means there are some things which would cause significant barriers to users with certain accessibility needs.
@@ -27,7 +27,7 @@ Based on our testing, this site is compliant with WCAG 2.1 AA. This means no ser
 
 Manual checks included using each page without a mouse, viewing the page at different zoom settings, and simulating viewing the page on a small screen.
 
-The automated tests were completed using the latest version of axe: [https://www.deque.com/axe/](https://www.deque.com/axe/).
+The automated tests were completed using the latest version of [axe](https://www.deque.com/axe/).
 
 Tests were completed using different settings in the Google Chrome browser on Mac OSX with a {{ audit.get_screen_size_display }} screen.",3
 4,0,2022-03-28 08:22:14.173470+00:00,Pages we checked,urls,,4
@@ -42,9 +42,9 @@ Tests were completed using different settings in the Google Chrome browser on Ma
     {% endfor %}
 {% endif %}
 
-More information about accessibility statements can be found at: [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
+More information about accessibility statements can be found at [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
 
-A sample statement can be found at: [https://www.gov.uk/government/publications/sample-accessibility-statement](https://www.gov.uk/government/publications/sample-accessibility-statement).",6
+A sample statement can be found at [https://www.gov.uk/government/publications/sample-accessibility-statement](https://www.gov.uk/government/publications/sample-accessibility-statement).",6
 7,1,2022-03-28 08:22:14.180162+00:00,What to do next,markdown,"It is a requirement of The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 that public sector websites are accessible.
 
 {% if audit.report_options_next == 'errors' %}
@@ -83,6 +83,6 @@ As the monitoring body we cannot offer specific advice on approaches or general 
 
 Any questions about this report can be sent to [accessibility-monitoring@digital.cabinet-office.gov.uk](mailto:accessibility-monitoring@digital.cabinet-office.gov.uk).
 
-Further information on guidance and tools for digital accessibility can be found at: [https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility](https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility).
+Further information on guidance and tools for digital accessibility can be found at [https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility](https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility).
 
 Help with accessibility auditing and publishing an accessibility statement can be found at [https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement](https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement).",9

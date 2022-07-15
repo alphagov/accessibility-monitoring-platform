@@ -1,28 +1,36 @@
 """
 Models for common data used across project
 """
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-BOOLEAN_DEFAULT = "no"
-BOOLEAN_FALSE = BOOLEAN_DEFAULT
-BOOLEAN_TRUE = "yes"
+BOOLEAN_DEFAULT: str = "no"
+BOOLEAN_FALSE: str = BOOLEAN_DEFAULT
+BOOLEAN_TRUE: str = "yes"
 BOOLEAN_CHOICES: List[Tuple[str, str]] = [
     (BOOLEAN_TRUE, "Yes"),
     (BOOLEAN_FALSE, "No"),
 ]
 
-EVENT_TYPE_DEFAULT = "model_update"
-EVENT_TYPE_MODEL_UPDATE = EVENT_TYPE_DEFAULT
-EVENT_TYPE_MODEL_CREATE = "model_create"
-EVENT_TYPES = {
+EVENT_TYPE_DEFAULT: str = "model_update"
+EVENT_TYPE_MODEL_UPDATE: str = EVENT_TYPE_DEFAULT
+EVENT_TYPE_MODEL_CREATE: str = "model_create"
+EVENT_TYPES: Dict[str, str] = {
     EVENT_TYPE_DEFAULT: "Model update",
     EVENT_TYPE_MODEL_CREATE: "Model create",
 }
-EVENT_TYPE_CHOICES = [(key, value) for key, value in EVENT_TYPES.items()]
+EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (key, value) for key, value in EVENT_TYPES.items()
+]
+ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
+
+Placeholder for platform."""
+PRIVACY_NOTICE_DEFAULT: str = """# Privacy notice
+
+Placeholder for platform."""
 
 
 class Sector(models.Model):
@@ -69,6 +77,12 @@ class Platform(models.Model):
         related_name="platform_active_qa_auditor",
         blank=True,
         null=True,
+    )
+    platform_accessibility_statement = models.TextField(
+        default=ACCESSIBILITY_STATEMENT_DEFAULT, blank=True
+    )
+    platform_privacy_notice = models.TextField(
+        default=PRIVACY_NOTICE_DEFAULT, blank=True
     )
     report_viewer_accessibility_statement = models.TextField(default="", blank=True)
     report_viewer_privacy_notice = models.TextField(default="", blank=True)

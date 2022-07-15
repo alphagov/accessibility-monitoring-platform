@@ -3,18 +3,39 @@
     {% if user.is_authenticated %}
         <div class="govuk-footer__navigation">
             <div class="govuk-footer__section">
-                <h2 class="govuk-footer__heading govuk-heading-m">Support</h2>
-                <ul class="govuk-footer__list">
-                    <li class="govuk-footer__list-item">
-                        {% if prototype_name %}
-                            Contact Admin
-                        {% else %}
-                            <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>
-                        {% endif %}
-                    </li>
-                </ul>
+              <ul class="govuk-footer__inline-list">
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="{% url 'common:privacy-notice' %}">Privacy</a>
+                </li>
+                <li class="govuk-footer__inline-list-item">
+                  <a class="govuk-footer__link" href="{% url 'common:accessibility-statement' %}">Accessibility statement</a>
+                </li>
+              </ul>
+              <h2 class="govuk-footer__heading govuk-heading-m">Support</h2>
+              <ul class="govuk-footer__list">
+                <li class="govuk-footer__list-item">
+                  {% if prototype_name %}
+                    Contact Admin
+                  {% else %}
+                    <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>
+                  {% endif %}
+                </li>
+              </ul>
             </div>
         </div>
+      {% else %}
+        <div class="govuk-footer__navigation">
+          <div class="govuk-footer__section">
+            <ul class="govuk-footer__inline-list">
+              <li class="govuk-footer__inline-list-item">
+                <a class="govuk-footer__link" href="{% url 'common:privacy-notice' %}">Privacy</a>
+              </li>
+              <li class="govuk-footer__inline-list-item">
+                <a class="govuk-footer__link" href="{% url 'common:accessibility-statement' %}">Accessibility statement</a>
+              </li>
+            </ul>
+          </div>
+      </div>
     {% endif %}
     <div class="govuk-footer__meta">
       <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
