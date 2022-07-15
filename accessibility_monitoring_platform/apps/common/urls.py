@@ -11,6 +11,8 @@ from .views import (
     ContactAdminView,
     IssueReportView,
     ChangeToPlatformListView,
+    AccessibilityStatementTemplateView,
+    PrivacyNoticeTemplateView,
 )
 
 app_name: str = "common"
@@ -28,5 +30,15 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "report-issue/", login_required(IssueReportView.as_view()), name="issue-report"
+    ),
+    path(
+        "accessibility-statement",
+        AccessibilityStatementTemplateView.as_view(),
+        name="accessibility-statement",
+    ),
+    path(
+        "privacy-notice",
+        PrivacyNoticeTemplateView.as_view(),
+        name="privacy-notice",
     ),
 ]
