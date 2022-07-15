@@ -2090,7 +2090,7 @@ def test_platform_shows_notification_if_fully_compliant(
 )
 def test_case_details_shows_link_to_report(report_methodology, report_link_label, admin_client):
     """
-    Test link to correct type is report is shown on case detail page.##
+    Test link to correct type is report is shown on case detail page.
     """
     case: Case = Case.objects.create(report_methodology=report_methodology)
     Report.objects.create(case=case)
