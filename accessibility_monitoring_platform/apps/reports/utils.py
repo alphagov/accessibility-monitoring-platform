@@ -12,6 +12,7 @@ from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
 )
+from ..audits.models import Page, PAGE_TYPE_PDF
 
 from .models import (
     Report,
@@ -19,20 +20,22 @@ from .models import (
     Section,
     TableRow,
     TEMPLATE_TYPE_URLS,
-    TEMPLATE_TYPE_ISSUES,
+    TEMPLATE_TYPE_ISSUES_INTRO,
+    TEMPLATE_TYPE_ISSUES_TABLE,
 )
 
-WCAG_DEFINITION_BOILERPLATE_TEMPLATE = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
+WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
 
 {{ wcag_definition.report_boilerplate|safe }}
 """
-CHECK_RESULTS_NOTES_TEMPLATE = """{{ check_result.page }}{% if check_result.page.page_type != 'pdf' %} page{% endif %}:
-
-{{ check_result.notes|safe }}"""
+CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
 MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
+
+wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
+check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
 
 
 def generate_report_content(report: Report) -> None:
@@ -42,52 +45,78 @@ def generate_report_content(report: Report) -> None:
     Args:
         report (Report): Report for which content is generated.
     """
-    base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.all()
+    top_level_base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.exclude(
+        template_type=TEMPLATE_TYPE_ISSUES_TABLE
+    )
+    issues_table_base_template: BaseTemplate = BaseTemplate.objects.get(
+        template_type=TEMPLATE_TYPE_ISSUES_TABLE
+    )
     report.section_set.all().delete()  # type: ignore
     context: Context = Context({"audit": report.case.audit})
-    wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
-    check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
+    issues_table_template: Template = Template(issues_table_base_template.content)
+    section_position: int = 0
 
-    for base_template in base_templates:
+    for base_template in top_level_base_templates:
         template: Template = Template(base_template.content)
+        section_position += 1
         section: Section = Section.objects.create(
             report=report,
             name=base_template.name,
             template_type=base_template.template_type,
             content=template.render(context=context),
-            position=base_template.position,
+            position=section_position,
         )
         if report.case.audit:
             if section.template_type == TEMPLATE_TYPE_URLS:
-                for row_number, page in enumerate(
-                    report.case.audit.testable_pages, start=1
-                ):
-                    TableRow.objects.create(
-                        section=section,
-                        cell_content_1=str(page),
-                        cell_content_2=f"[{page.url}]({page.url})",
-                        row_number=row_number,
+                create_url_table_rows(report=report, section=section)
+            elif section.template_type == TEMPLATE_TYPE_ISSUES_INTRO:
+                # Create an issues table section for each testable page
+                for page in report.case.audit.testable_pages:
+                    page_context: Context = Context({"page": page})
+                    section_position += 1
+                    section_name: str = (
+                        f"{page} page issues"
+                        if page.page_type != PAGE_TYPE_PDF
+                        else f"{page} issues"
                     )
-            elif section.template_type == TEMPLATE_TYPE_ISSUES:
-                for row_number, check_result in enumerate(
-                    report.case.audit.failed_check_results, start=1
-                ):
-                    wcag_boilerplate_context: Context = Context(
-                        {"wcag_definition": check_result.wcag_definition}
+                    page_section: Section = Section.objects.create(
+                        report=report,
+                        name=section_name,
+                        template_type=TEMPLATE_TYPE_ISSUES_TABLE,
+                        content=issues_table_template.render(context=page_context),
+                        position=section_position,
                     )
-                    check_result_context: Context = Context(
-                        {"check_result": check_result}
-                    )
-                    TableRow.objects.create(
-                        section=section,
-                        cell_content_1=wcag_boilerplate_template.render(
-                            context=wcag_boilerplate_context
-                        ),
-                        cell_content_2=check_result_notes_template.render(
-                            context=check_result_context
-                        ),
-                        row_number=row_number,
-                    )
+                    create_issue_table_rows(page=page, page_section=page_section)
+
+
+def create_url_table_rows(report: Report, section: Section) -> None:
+    """Create url table row data for each testable page in the report"""
+    for row_number, page in enumerate(report.case.audit.testable_pages, start=1):
+        TableRow.objects.create(
+            section=section,
+            cell_content_1=str(page),
+            cell_content_2=f"[{page.url}]({page.url})",
+            row_number=row_number,
+        )
+
+
+def create_issue_table_rows(page: Page, page_section: Section) -> None:
+    """Create issue table row data for each failed check for a page in the report"""
+    for row_number, check_result in enumerate(page.failed_check_results, start=1):
+        wcag_boilerplate_context: Context = Context(
+            {"wcag_definition": check_result.wcag_definition}
+        )
+        check_result_context: Context = Context({"check_result": check_result})
+        TableRow.objects.create(
+            section=page_section,
+            cell_content_1=wcag_boilerplate_template.render(
+                context=wcag_boilerplate_context
+            ),
+            cell_content_2=check_result_notes_template.render(
+                context=check_result_context
+            ),
+            row_number=row_number,
+        )
 
 
 def delete_table_row(request: HttpRequest) -> Optional[int]:

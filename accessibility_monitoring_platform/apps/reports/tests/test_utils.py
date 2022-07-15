@@ -6,19 +6,31 @@ from typing import List
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
 
-from ...audits.models import Audit
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    CHECK_RESULT_ERROR,
+    PAGE_TYPE_HOME,
+    PAGE_TYPE_PDF,
+    TEST_TYPE_PDF,
+)
 from ...cases.models import Case
 
-from ..models import Report, Section, TableRow, BaseTemplate
+from ..models import TEMPLATE_TYPE_ISSUES_TABLE, Report, Section, TableRow, BaseTemplate
 from ..utils import (
     check_for_buttons_by_name,
     delete_table_row,
     move_table_row_down,
     move_table_row_up,
     generate_report_content,
+    create_url_table_rows,
+    create_issue_table_rows,
     undelete_table_row,
     get_report_viewer_url_prefix,
     DELETE_ROW_BUTTON_PREFIX,
@@ -27,10 +39,14 @@ from ..utils import (
     MOVE_ROW_DOWN_BUTTON_PREFIX,
 )
 
-NUMBER_OF_BASE_TEMPLATES: int = 9
+NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES: int = 9
 PREVIOUS_ROW_POSITION: int = 1
 ORIGINAL_ROW_POSITION: int = 2
 NEXT_ROW_POSITION: int = 3
+HOME_PAGE_NAME: str = "Home name"
+PDF_PAGE_NAME: str = "PDF name"
+HOME_PAGE_URL: str = "https://example.com/home"
+CHECK_RESULT_NOTES: str = "Check results note"
 
 
 class MockRequest:
@@ -49,7 +65,9 @@ def create_table_row() -> TableRow:
 @pytest.mark.django_db
 def test_generate_report_content():
     """Test new reports use BaseTemplates to create their sections"""
-    base_templates: List[BaseTemplate] = list(BaseTemplate.objects.all())
+    top_level_base_templates: List[BaseTemplate] = list(
+        BaseTemplate.objects.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
+    )
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     context: Context = Context({"audit": audit})
@@ -57,18 +75,107 @@ def test_generate_report_content():
 
     generate_report_content(report=report)
 
-    sections: List[Section] = list(report.section_set.all())  # type: ignore
+    top_level_sections: List[Section] = list(report.top_level_sections)  # type: ignore
 
-    assert len(base_templates) == NUMBER_OF_BASE_TEMPLATES
-    assert len(sections) == NUMBER_OF_BASE_TEMPLATES
+    assert len(top_level_base_templates) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
+    assert len(top_level_sections) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
 
-    for section, base_template in zip(sections, base_templates):
+    for section, base_template in zip(top_level_sections, top_level_base_templates):
         assert section.name == base_template.name
         assert section.template_type == base_template.template_type
         assert section.position == base_template.position
 
         template: Template = Template(base_template.content)
         assert section.content == template.render(context=context)
+
+
+@pytest.mark.django_db
+def test_create_url_table_rows():
+    """Test url table row created for page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url=HOME_PAGE_URL,
+    )
+    report: Report = Report.objects.create(case=case)
+    section: Section = Section.objects.create(report=report, position=1)
+
+    create_url_table_rows(report=report, section=section)
+
+    table_rows: QuerySet[TableRow] = TableRow.objects.all()
+
+    assert table_rows.count() == 1
+
+    assert HOME_PAGE_NAME in table_rows[0].cell_content_1
+    assert HOME_PAGE_URL in table_rows[0].cell_content_2
+
+
+@pytest.mark.django_db
+def test_create_issue_table_rows():
+    """Test issue table row created for failed check"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url=HOME_PAGE_URL,
+    )
+    report: Report = Report.objects.create(case=case)
+    section: Section = Section.objects.create(report=report, position=1)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(  # type: ignore
+        type=TEST_TYPE_PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        notes=CHECK_RESULT_NOTES,
+    )
+
+    create_issue_table_rows(page=page, page_section=section)
+
+    table_rows: QuerySet[TableRow] = TableRow.objects.all()
+
+    assert table_rows.count() == 1
+
+    assert wcag_definition.name in table_rows[0].cell_content_1
+    assert CHECK_RESULT_NOTES in table_rows[0].cell_content_2
+
+
+@pytest.mark.django_db
+def test_generate_report_content_issues_table_sections():
+    """Test report contains issues table sections for each page"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url="https://example.com",
+    )
+    Page.objects.create(
+        audit=audit,
+        name=PDF_PAGE_NAME,
+        page_type=PAGE_TYPE_PDF,
+        url="https://example.com/pdf",
+    )
+    report: Report = Report.objects.create(case=case)
+
+    generate_report_content(report=report)
+
+    issues_table_sections: QuerySet[Section] = report.section_set.filter(  # type: ignore
+        template_type=TEMPLATE_TYPE_ISSUES_TABLE
+    )
+
+    assert issues_table_sections.count() == 2
+
+    assert issues_table_sections[0].name == f"{HOME_PAGE_NAME} page issues"
+    assert issues_table_sections[1].name == f"{PDF_PAGE_NAME} issues"
 
 
 @pytest.mark.parametrize(

@@ -4,8 +4,13 @@
     <nav>
         <h2 id="contents">Contents</h2>
         <ul>
+<<<<<<< HEAD
             {% for section in report.section_set.all %}
                 <li id="contents-list">
+=======
+            {% for section in report.top_level_sections %}
+                <li style="list-style-type: none;">
+>>>>>>> dev
                     <a href="#{{ section.anchor }}">{{ section.name }}</a>
                 </li>
             {% endfor %}
