@@ -107,8 +107,7 @@ class TestDashboard(SeleniumTest):
         """Tests whether user can login"""
         self.login()
         self.driver.find_element(
-            By.XPATH,
-            """//input[@value="View all cases"]"""
+            By.XPATH, """//input[@value="View all cases"]"""
         ).click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">All cases</h1>"""
@@ -116,8 +115,7 @@ class TestDashboard(SeleniumTest):
             True,
         )
         self.driver.find_element(
-            By.XPATH,
-            """//input[@value="View your cases"]"""
+            By.XPATH, """//input[@value="View your cases"]"""
         ).click()
         self.assertEqual(
             """<h1 class="govuk-heading-xl">Your cases</h1>"""
