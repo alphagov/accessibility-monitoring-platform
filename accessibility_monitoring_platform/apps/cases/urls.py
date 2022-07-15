@@ -30,8 +30,8 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseCloseUpdateView,
     PostCaseUpdateView,
     CaseEnforcementBodyCorrespondenceUpdateView,
-    CaseSuspendUpdateView,
-    CaseUnsuspendUpdateView,
+    CaseDeactivateUpdateView,
+    CaseReactivateUpdateView,
 )
 
 app_name: str = "cases"
@@ -138,13 +138,13 @@ urlpatterns: List[URLPattern] = [
         name="edit-post-case",
     ),
     path(
-        "<int:pk>/suspend-case/",
-        login_required(CaseSuspendUpdateView.as_view()),
-        name="suspend-case",
+        "<int:pk>/deactivate-case/",
+        login_required(CaseDeactivateUpdateView.as_view()),
+        name="deactivate-case",
     ),
     path(
-        "<int:pk>/unsuspend-case/",
-        login_required(CaseUnsuspendUpdateView.as_view()),
-        name="unsuspend-case",
+        "<int:pk>/reactivate-case/",
+        login_required(CaseReactivateUpdateView.as_view()),
+        name="reactivate-case",
     ),
 ]

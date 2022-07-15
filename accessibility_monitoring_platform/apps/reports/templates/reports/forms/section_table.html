@@ -14,14 +14,14 @@
                         {% if section.template_type == 'urls' %}
                             Page Name
                         {% elif section.template_type == 'issues' %}
-                            Where the issue was found
+                            Issue and description
                         {% endif %}
                     </th>
                     <th scope="col" class="govuk-table__cell">
                         {% if section.template_type == 'urls' %}
                             URL
                         {% elif section.template_type == 'issues' %}
-                            Issue and description
+                            Where the issue was found
                         {% endif %}
                     </th>
                 </tr>
@@ -33,13 +33,13 @@
                         <td colspan="2" class="govuk-table__cell">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    {{ row_form.instance.cell_content_2|markdown_to_html}}
+                                    {{ row_form.instance.cell_content_1|markdown_to_html}}
                                     {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
                                     {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
-                                    {{ row_form.instance.cell_content_1|markdown_to_html}}
+                                    {{ row_form.instance.cell_content_2|markdown_to_html}}
                                     {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
                                 </div>
                             </div>
@@ -75,12 +75,12 @@
                                 <div class="govuk-grid-column-one-half">
                                     {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
-                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
-                                    {% include 'common/preview_markdown.html' with field_id=row_form.cell_content_2.auto_id %}
-                                </div>
-                                <div class="govuk-grid-column-one-half">
                                     {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
                                     {% include 'common/preview_markdown.html' with field_id=row_form.cell_content_1.auto_id %}
+                                </div>
+                                <div class="govuk-grid-column-one-half">
+                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                    {% include 'common/preview_markdown.html' with field_id=row_form.cell_content_2.auto_id %}
                                 </div>
                             </div>
                             {% if row_form.instance.id %}

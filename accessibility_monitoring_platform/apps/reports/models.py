@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import QuerySet
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
@@ -17,11 +18,13 @@ from ..common.utils import amp_format_datetime
 TEMPLATE_TYPE_DEFAULT = "markdown"
 TEMPLATE_TYPE_HTML = "html"
 TEMPLATE_TYPE_URLS = "urls"
-TEMPLATE_TYPE_ISSUES = "issues"
+TEMPLATE_TYPE_ISSUES_INTRO = "issues-intro"
+TEMPLATE_TYPE_ISSUES_TABLE = "issues"
 TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_DEFAULT, "Markdown"),
     (TEMPLATE_TYPE_URLS, "Contains URL table"),
-    (TEMPLATE_TYPE_ISSUES, "Contains Issues table"),
+    (TEMPLATE_TYPE_ISSUES_INTRO, "Markdown issues intro"),
+    (TEMPLATE_TYPE_ISSUES_TABLE, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
 REPORT_VERSION_DEFAULT: str = "v1_0_0__20220406"
@@ -118,6 +121,10 @@ class Report(VersionModel):
     def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
         return self.case.s3report_set.all().last()  # type: ignore
+
+    @property
+    def top_level_sections(self) -> QuerySet["BaseTemplate"]:
+        return self.section_set.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)  # type: ignore
 
 
 class BaseTemplate(VersionModel):
