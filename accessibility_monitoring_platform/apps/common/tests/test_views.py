@@ -9,6 +9,9 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
 
+from ..models import Platform
+from ..utils import get_platform_settings
+
 EMAIL_SUBJECT = "Email subject"
 EMAIL_MESSAGE = "Email message"
 
@@ -68,3 +71,37 @@ def test_platform_history_renders(admin_client):
 
     assert response.status_code == 200
     assertContains(response, ">Platform version history</h1>")
+
+
+@pytest.mark.django_db
+def test_view_accessibility_statement(client):
+    """Test accessibility statement renders. No login required"""
+    platform: Platform = get_platform_settings()
+    platform.platform_accessibility_statement = "# Accessibility statement header"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("common:accessibility-statement"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>Accessibility statement header</h1>""",
+        html=True,
+    )
+
+
+@pytest.mark.django_db
+def test_view_privacy_notice(client):
+    """Test privacy notice renders. No login required."""
+    platform: Platform = get_platform_settings()
+    platform.platform_privacy_notice = "# Privacy notice header"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("common:privacy-notice"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>Privacy notice header</h1>""",
+        html=True,
+    )

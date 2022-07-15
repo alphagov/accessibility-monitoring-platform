@@ -24,7 +24,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            data_cleanup, reverse_code=undo_cleanup
-        ),
+        migrations.RunPython(data_cleanup, reverse_code=undo_cleanup),
     ]
