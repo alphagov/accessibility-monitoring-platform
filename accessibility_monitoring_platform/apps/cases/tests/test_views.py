@@ -17,6 +17,7 @@ from django.urls import reverse
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ..models import (
+    REPORT_METHODOLOGY_DEFAULT,
     REPORT_METHODOLOGY_PLATFORM,
     Case,
     Contact,
@@ -2078,6 +2079,28 @@ def test_platform_shows_notification_if_fully_compliant(
         </h3>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "report_methodology, report_link_label",
+    [
+        (REPORT_METHODOLOGY_PLATFORM, "Link to report</th>"),
+        (REPORT_METHODOLOGY_DEFAULT, "Link to report draft"),
+    ],
+)
+def test_case_details_shows_link_to_report(report_methodology, report_link_label, admin_client):
+    """
+    Test link to correct type is report is shown on case detail page.
+    """
+    case: Case = Case.objects.create(report_methodology=report_methodology)
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, report_link_label)
 
 
 def test_platform_report_correspondence_shows_link_to_report_if_none_published(
