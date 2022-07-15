@@ -22,13 +22,16 @@ EVENT_TYPES: Dict[str, str] = {
     EVENT_TYPE_DEFAULT: "Model update",
     EVENT_TYPE_MODEL_CREATE: "Model create",
 }
-EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [(key, value) for key, value in EVENT_TYPES.items()]
-ACCESSIBILITY_STATEMENT_PLACEHOLDER: str = """# Accessibility statement
+EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (key, value) for key, value in EVENT_TYPES.items()
+]
+ACCESSIBILITY_STATEMENT_DEFAULT: str = """# Accessibility statement
 
 Placeholder for platform."""
-PRIVACY_NOTICE_PLACEHOLDER: str = """#Privacy notice
+PRIVACY_NOTICE_DEFAULT: str = """# Privacy notice
 
 Placeholder for platform."""
+
 
 class Sector(models.Model):
     """
@@ -75,8 +78,12 @@ class Platform(models.Model):
         blank=True,
         null=True,
     )
-    platform_accessibility_statement = models.TextField(default=ACCESSIBILITY_STATEMENT_PLACEHOLDER, blank=True)
-    platform_privacy_notice = models.TextField(default=PRIVACY_NOTICE_PLACEHOLDER, blank=True)
+    platform_accessibility_statement = models.TextField(
+        default=ACCESSIBILITY_STATEMENT_DEFAULT, blank=True
+    )
+    platform_privacy_notice = models.TextField(
+        default=PRIVACY_NOTICE_DEFAULT, blank=True
+    )
     report_viewer_accessibility_statement = models.TextField(default="", blank=True)
     report_viewer_privacy_notice = models.TextField(default="", blank=True)
 
