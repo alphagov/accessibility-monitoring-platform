@@ -2,7 +2,7 @@
 """
 Utilities for reports app
 """
-from typing import Optional
+from typing import Optional, Set
 
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -12,7 +12,7 @@ from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
 )
-from ..audits.models import Page, PAGE_TYPE_PDF
+from ..audits.models import Page, PAGE_TYPE_PDF, WcagDefinition
 
 from .models import (
     Report,
@@ -25,8 +25,10 @@ from .models import (
 )
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
+{% if first_use_of_wcag_definition %}
 
 {{ wcag_definition.report_boilerplate|safe }}
+{% endif %}
 """
 CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
@@ -36,6 +38,7 @@ MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
 
 wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
 check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
+used_wcag_definitions: Set[WcagDefinition] = set()
 
 
 def generate_report_content(report: Report) -> None:
@@ -55,6 +58,8 @@ def generate_report_content(report: Report) -> None:
     context: Context = Context({"audit": report.case.audit})
     issues_table_template: Template = Template(issues_table_base_template.content)
     section_position: int = 0
+    global used_wcag_definitions
+    used_wcag_definitions = set()
 
     for base_template in top_level_base_templates:
         template: Template = Template(base_template.content)
@@ -103,8 +108,14 @@ def create_url_table_rows(report: Report, section: Section) -> None:
 def create_issue_table_rows(page: Page, page_section: Section) -> None:
     """Create issue table row data for each failed check for a page in the report"""
     for row_number, check_result in enumerate(page.failed_check_results, start=1):
+        first_use_of_wcag_definition: bool = check_result.wcag_definition not in used_wcag_definitions
+        if first_use_of_wcag_definition:
+            used_wcag_definitions.add(check_result.wcag_definition)
         wcag_boilerplate_context: Context = Context(
-            {"wcag_definition": check_result.wcag_definition}
+            {
+                "wcag_definition": check_result.wcag_definition,
+                "first_use_of_wcag_definition": first_use_of_wcag_definition,
+            }
         )
         check_result_context: Context = Context({"check_result": check_result})
         TableRow.objects.create(
