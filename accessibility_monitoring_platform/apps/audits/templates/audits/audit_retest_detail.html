@@ -52,8 +52,10 @@
                 {% endif %}
                 {% include 'audits/helpers/retest_nav_contents.html' %}
                 {% include 'audits/details/retest_metadata.html' %}
-                {% include 'audits/details/retest_pages.html' %}
-                {% include 'audits/details/retest_website_decision.html' %}
+                {% if audit.case.psb_response %}
+                    {% include 'audits/details/retest_pages.html' %}
+                    {% include 'audits/details/retest_website_decision.html' %}
+                {% endif %}
                 {% include 'audits/details/retest_statement.html' %}
                 {% include 'audits/details/retest_statement_decision.html' %}
             </div>

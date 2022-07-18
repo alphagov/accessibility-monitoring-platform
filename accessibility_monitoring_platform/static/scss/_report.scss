@@ -69,14 +69,7 @@
     line-height: 1.31579;
 
     caption {
-        display: table-caption;
-        text-align: left;
-        -moz-osx-font-smoothing: grayscale;
-        font-size: 18px;
-        font-size: 1.5rem;
-        line-height: 1.25;
-        font-weight: 700;
-        margin-bottom: 15px;
+        font-size: 16px;
     }
 
     p {
@@ -140,7 +133,26 @@
         }
     }
 
+    li#contents-list {
+        list-style-type: none;
+    }
+
+    table#issues-table {
+        page-break-before: always;
+
+        tr td:nth-child(1) {
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        td+td {
+            width: 50%;
+        }
+    }
+
     table#urls-table {
+        page-break-before: always;
+
         th, td {
             width: 50%;
         }

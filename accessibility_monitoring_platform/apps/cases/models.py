@@ -22,6 +22,7 @@ from ..common.models import (
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_DEFAULT: str = "unassigned-case"
+STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     (
         "unknown",
@@ -92,8 +93,8 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Deleted",
     ),
     (
-        "suspended",
-        "Suspended",
+        STATUS_DEACTIVATED,
+        "Deactivated",
     ),
 ]
 
@@ -476,10 +477,10 @@ class Case(VersionModel):
     )
     delete_notes = models.TextField(default="", blank=True)
 
-    # Suspended case page
-    is_suspended = models.BooleanField(default=False)
-    suspend_date = models.DateField(null=True, blank=True)
-    suspend_notes = models.TextField(default="", blank=True)
+    # Deactivate case page
+    is_deactivated = models.BooleanField(default=False)
+    deactivate_date = models.DateField(null=True, blank=True)
+    deactivate_notes = models.TextField(default="", blank=True)
 
     # Dashboard page
     qa_status = models.CharField(
@@ -560,8 +561,8 @@ class Case(VersionModel):
     def set_status(self) -> str:  # noqa: C901
         if self.is_deleted:
             return "deleted"
-        elif self.is_suspended:
-            return "suspended"
+        elif self.is_deactivated:
+            return STATUS_DEACTIVATED
         elif (
             self.case_completed == "complete-no-send"
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED

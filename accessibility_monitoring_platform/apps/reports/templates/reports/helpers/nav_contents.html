@@ -5,7 +5,7 @@
     </ul>
     <h2 class="govuk-heading-m">Report</h2>
     <ul class="govuk-list">
-        {% for section in report.section_set.all %}
+        {% for section in report.top_level_sections %}
             {% include './nav_content.html' with anchor=section.anchor name=section.name %}
         {% endfor %}
     </ul>

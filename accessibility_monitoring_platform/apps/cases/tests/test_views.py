@@ -17,6 +17,7 @@ from django.urls import reverse
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ..models import (
+    REPORT_METHODOLOGY_DEFAULT,
     REPORT_METHODOLOGY_PLATFORM,
     Case,
     Contact,
@@ -59,8 +60,8 @@ FOUR_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
 TWELVE_WEEK_FOLLOWUP_DUE_DATE: date = REPORT_SENT_DATE + timedelta(
     days=TWELVE_WEEKS_IN_DAYS
 )
-SUSPEND_NOTES: str = """I am
-a suspend note,
+DEACTIVATE_NOTES: str = """I am
+a deactivate note,
 I am"""
 COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
@@ -323,16 +324,16 @@ def test_case_export_single_view(admin_client):
     assertContains(response, case_fields_to_export_str)
 
 
-def test_suspend_case_view(admin_client):
-    """Test that suspend case view suspends case"""
+def test_deactivate_case_view(admin_client):
+    """Test that deactivate case view deactivates the case"""
     case: Case = Case.objects.create()
     case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:suspend-case", kwargs=case_pk),
+        reverse("cases:deactivate-case", kwargs=case_pk),
         {
             "version": case.version,
-            "suspend_notes": SUSPEND_NOTES,
+            "deactivate_notes": DEACTIVATE_NOTES,
         },
     )
 
@@ -341,18 +342,18 @@ def test_suspend_case_view(admin_client):
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
-    assert case_from_db.is_suspended
-    assert case_from_db.suspend_date == TODAY
-    assert case_from_db.suspend_notes == SUSPEND_NOTES
+    assert case_from_db.is_deactivated
+    assert case_from_db.deactivate_date == TODAY
+    assert case_from_db.deactivate_notes == DEACTIVATE_NOTES
 
 
-def test_unsuspend_case_view(admin_client):
-    """Test that unsuspend case view unsuspends case"""
+def test_reactivate_case_view(admin_client):
+    """Test that reactivate case view reactivates the case"""
     case: Case = Case.objects.create()
     case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:unsuspend-case", kwargs=case_pk),
+        reverse("cases:reactivate-case", kwargs=case_pk),
         {
             "version": case.version,
         },
@@ -363,7 +364,7 @@ def test_unsuspend_case_view(admin_client):
 
     case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
 
-    assert not case_from_db.is_suspended
+    assert not case_from_db.is_deactivated
 
 
 @pytest.mark.parametrize(
@@ -2078,6 +2079,28 @@ def test_platform_shows_notification_if_fully_compliant(
         </h3>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "report_methodology, report_link_label",
+    [
+        (REPORT_METHODOLOGY_PLATFORM, "Link to report</th>"),
+        (REPORT_METHODOLOGY_DEFAULT, "Link to report draft"),
+    ],
+)
+def test_case_details_shows_link_to_report(report_methodology, report_link_label, admin_client):
+    """
+    Test link to correct type is report is shown on case detail page.
+    """
+    case: Case = Case.objects.create(report_methodology=report_methodology)
+    Report.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, report_link_label)
 
 
 def test_platform_report_correspondence_shows_link_to_report_if_none_published(
