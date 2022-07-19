@@ -11,11 +11,7 @@ const copyFolderRecursiveSync = require('./helpers/recursively_copy')
 const removeAllFilesInDir = require('./helpers/clean_up.js')
 
 const jsonSettingsPath = process.argv.find(element => element.includes('.json'))
-let watchFiles = true
-
-if (process.argv.find(a => a.includes('--nowatch'))) {
-  watchFiles = false
-}
+const watchFiles = (process.argv.find(a => a.includes('--nowatch')) === '--nowatch')
 
 const settings = require(jsonSettingsPath)
 const toWatch = []
