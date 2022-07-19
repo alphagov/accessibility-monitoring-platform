@@ -27,6 +27,9 @@ from .views import (
     AuditRetestStatement1UpdateView,
     AuditRetestStatement2UpdateView,
     AuditRetestStatementDecisionUpdateView,
+    WcagDefinitionListView,
+    WcagDefinitionCreateView,
+    WcagDefinitionUpdateView,
     create_audit,
     delete_audit,
     restore_audit,
@@ -166,5 +169,20 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-decision/",
         login_required(AuditRetestStatementDecisionUpdateView.as_view()),
         name="edit-audit-retest-statement-decision",
+    ),
+    path(
+        "wcag-definition-list",
+        login_required(WcagDefinitionListView.as_view()),
+        name="wcag-definition-list",
+    ),
+    path(
+        "wcag-definition-create/",
+        login_required(WcagDefinitionCreateView.as_view()),
+        name="wcag-definition-create",
+    ),
+    path(
+        "<int:pk>/edit-wcag-definition/",
+        login_required(WcagDefinitionUpdateView.as_view()),
+        name="edit-wcag-definition",
     ),
 ]

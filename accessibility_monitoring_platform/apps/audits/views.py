@@ -9,7 +9,7 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
@@ -909,3 +909,35 @@ def start_retest(
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
+
+
+class WcagDefinitionListView(ListView):
+    """
+    View of list of WCAG definitions
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    template_name: str = "audits/wcag_definition_list.html"
+    context_object_name: str = "wcag_definitions"
+    paginate_by: int = 10
+
+
+class WcagDefinitionCreateView(CreateView):
+    """
+    View to create a WCAG definition
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    # form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
+    template_name: str = "audits/forms/wcag_definition_create.html"
+    context_object_name: str = "wcag_definition"
+
+
+class WcagDefinitionUpdateView(UpdateView):
+    """
+    View to update a WCAG definition
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    template_name: str = "audits/forms/wcag_definition_update.html"
+    context_object_name: str = "wcag_definition"

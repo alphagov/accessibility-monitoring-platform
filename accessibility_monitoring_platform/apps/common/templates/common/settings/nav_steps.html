@@ -24,6 +24,14 @@
         {% endif %}
     </p>
     <p class="govuk-body-m">
+        {% if current == 'audits:wcag-definition-list' %}
+            WCAG definitions
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:wcag-definition-list' %}">
+                WCAG definitions</a>
+        {% endif %}
+    </p>
+    <p class="govuk-body-m">
         {% if current == 'common:platform-history' %}
             Platform version history
         {% else %}
