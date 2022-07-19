@@ -1,10 +1,12 @@
 {
     "static": {
         "toWatch": "node_modules/govuk-frontend/govuk/assets/",
+        "toDelete": "accessibility_monitoring_platform/static/compiled/assets/",
         "dest": "accessibility_monitoring_platform/static/compiled/"
     },
     "static_img": {
         "toWatch": "accessibility_monitoring_platform/static/img/",
+        "toDelete": "accessibility_monitoring_platform/static/compiled/img/",
         "dest": "accessibility_monitoring_platform/static/compiled/"
     },
     "css": {

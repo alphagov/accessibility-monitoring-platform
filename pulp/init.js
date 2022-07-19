@@ -48,14 +48,14 @@ function processStaticFiles (name) {
   // // // Processes gov uk static files
   if (name.includes(settings.static.toWatch)) {
     console.log('>>> Processing static files')
-    removeAllFilesInDir(settings.static.dest)
+    removeAllFilesInDir(settings.static.toDelete)
     copyFolderRecursiveSync(settings.static.toWatch, settings.static.dest)
   }
 
   // // Processes custom image files
   if (name.includes(settings.static_img.toWatch)) {
     console.log('>>> Processing custom image files')
-    removeAllFilesInDir(settings.static_img.dest)
+    removeAllFilesInDir(settings.static_img.toDelete)
     copyFolderRecursiveSync(settings.static_img.toWatch, settings.static_img.dest)
   }
   console.timeEnd('processStaticFiles')
