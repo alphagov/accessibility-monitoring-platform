@@ -108,7 +108,9 @@ def create_url_table_rows(report: Report, section: Section) -> None:
 def create_issue_table_rows(page: Page, page_section: Section) -> None:
     """Create issue table row data for each failed check for a page in the report"""
     for row_number, check_result in enumerate(page.failed_check_results, start=1):
-        first_use_of_wcag_definition: bool = check_result.wcag_definition not in used_wcag_definitions
+        first_use_of_wcag_definition: bool = (
+            check_result.wcag_definition not in used_wcag_definitions
+        )
         if first_use_of_wcag_definition:
             used_wcag_definitions.add(check_result.wcag_definition)
         wcag_boilerplate_context: Context = Context(
