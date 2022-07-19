@@ -10,7 +10,7 @@
     "css": {
         "toWatch": "accessibility_monitoring_platform/static/scss/",
         "access_point": "accessibility_monitoring_platform/static/scss/init.scss",
-        "dest": "accessibility_monitoring_platform/static/compiled/css/init.css"
+        "dest": "accessibility_monitoring_platform/static/compiled/css/"
     },
     "js": {
         "toWatch": "accessibility_monitoring_platform/static/js",

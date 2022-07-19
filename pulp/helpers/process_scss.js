@@ -3,17 +3,15 @@ const postcss = require('postcss')
 const cssnano = require('cssnano')
 const autoprefixer = require('autoprefixer')
 const fs = require('fs')
-const path = require('path')
 
-const processScss = async (scssFilePath, destFile) => {
-  const parentFile = path.dirname(destFile)
-  if (!fs.existsSync(parentFile)) {
-    fs.mkdirSync(parentFile, { recursive: true })
-  }
-
+const processScss = async (scssFilePath, destPath) => {
   const css = sass.renderSync({ file: scssFilePath })
   const output = await postcss([cssnano, autoprefixer]).process(css.css.toString())
   const finalCss = output.css.replaceAll('/assets/', '/static/assets/')
+  const destFile = `${destPath}init.css`
+  if (!fs.existsSync(destPath)) {
+    fs.mkdirSync(destPath, { recursive: true })
+  }
   fs.writeFile(destFile, finalCss, err => {
     if (err) console.error(err)
   })
