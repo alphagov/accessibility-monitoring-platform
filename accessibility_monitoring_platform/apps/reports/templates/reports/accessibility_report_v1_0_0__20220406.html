@@ -15,7 +15,7 @@
 
 {% for section in report.section_set.all %}
     <br />
-    <h2 id="{{ section.anchor }}">{{ section.name }}</h2>
+    <h2 id="{{ section.anchor }}" style="page-break-before: always;">{{ section.name }}</h2>
     {% if section.template_type == 'html' %}
         {{ section.content|safe }}
     {% else %}
