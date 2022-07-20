@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Update WCAG definition{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Settings
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:wcag-definition-list' %}">
+                    WCAG definitions</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Update WCAG definition
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl" style="margin-bottom:15px">Update WCAG definition</h1>
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:wcag-definition-update' wcag_definition.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:wcag-definition-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to WCAG definitions
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -14,9 +14,26 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">WCAG definitions</h1>
-                <p class="govuk-body-m">
-                    WCAG definitions change how the errors are displayed in the testing UI and the report.
-                </p>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-three-quarters">
+                        <p class="govuk-body-m">
+                            WCAG definitions control how the errors are displayed in the
+                            testing UI and the report.
+                        </p>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter">
+                        <a
+                            href="{% url 'audits:wcag-definition-create' %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button float-right"
+                            data-module="govuk-button"
+                            style="margin-left: 10px;"
+                        >
+                            Create
+                        </a>
+                    </div>
+                </div>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
@@ -33,7 +50,7 @@
                                                 Link to WCAG
                                             </a>
                                             <a
-                                                href="{% url 'audits:edit-wcag-definition' wcag_definition.id %}"
+                                                href="{% url 'audits:wcag-definition-update' wcag_definition.id %}"
                                                 class="govuk-link govuk-link--no-visited-state"
                                             >
                                                 Edit
@@ -55,7 +72,11 @@
                                 </p>
                                 <p class="govuk-body-m cases-sub-heading">Report boilerplate</p>
                                 <p class="govuk-body-m">
-                                    {{ wcag_definition.report_boilerplate|markdown_to_html }}
+                                    {% if wcag_definition.report_boilerplate %}
+                                        {{ wcag_definition.report_boilerplate|markdown_to_html }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
                                 </p>
                             </td>
                         </tr>

@@ -183,6 +183,6 @@ urlpatterns: List[URLPattern] = [
     path(
         "<int:pk>/edit-wcag-definition/",
         login_required(WcagDefinitionUpdateView.as_view()),
-        name="edit-wcag-definition",
+        name="wcag-definition-update",
     ),
 ]

@@ -54,6 +54,7 @@ from .forms import (
     AuditRetestStatement2UpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
+    WcagDefinitionCreateForm,
 )
 from .models import (
     Audit,
@@ -928,9 +929,13 @@ class WcagDefinitionCreateView(CreateView):
     """
 
     model: Type[WcagDefinition] = WcagDefinition
-    # form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
+    form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
     template_name: str = "audits/forms/wcag_definition_create.html"
     context_object_name: str = "wcag_definition"
+
+    def get_success_url(self) -> str:
+        """Return to list of WCAG definitions"""
+        return reverse("audits:wcag-definition-list")
 
 
 class WcagDefinitionUpdateView(UpdateView):
@@ -939,5 +944,10 @@ class WcagDefinitionUpdateView(UpdateView):
     """
 
     model: Type[WcagDefinition] = WcagDefinition
+    form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
     template_name: str = "audits/forms/wcag_definition_update.html"
     context_object_name: str = "wcag_definition"
+
+    def get_success_url(self) -> str:
+        """Return to list of WCAG definitions"""
+        return reverse("audits:wcag-definition-list")
