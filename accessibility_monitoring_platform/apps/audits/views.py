@@ -4,6 +4,7 @@ Views for audits app (called tests by users)
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+import urllib
 
 from django.forms.models import ModelForm
 from django.db.models.query import Q, QuerySet
@@ -927,7 +928,9 @@ class WcagDefinitionListView(ListView):
     def get(self, request, *args, **kwargs):
         """Populate filter form"""
         if self.request.GET:
-            self.wcag_definition_search_form: WcagDefinitionSearchForm = WcagDefinitionSearchForm(self.request.GET)
+            self.wcag_definition_search_form: WcagDefinitionSearchForm = (
+                WcagDefinitionSearchForm(self.request.GET)
+            )
             self.wcag_definition_search_form.is_valid()
         else:
             self.wcag_definition_search_form = WcagDefinitionSearchForm()
@@ -939,7 +942,11 @@ class WcagDefinitionListView(ListView):
             return WcagDefinition.objects.none()
 
         if hasattr(self.wcag_definition_search_form, "cleaned_data"):
-            search_str: Optional[str] = self.wcag_definition_search_form.cleaned_data.get("wcag_definition_search")
+            search_str: Optional[
+                str
+            ] = self.wcag_definition_search_form.cleaned_data.get(
+                "wcag_definition_search"
+            )
 
             if search_str:
                 return WcagDefinition.objects.filter(
@@ -956,6 +963,11 @@ class WcagDefinitionListView(ListView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["wcag_definition_search_form"] = self.wcag_definition_search_form
+
+        get_without_page: Dict[str, Union[str, List[object]]] = {
+            key: value for (key, value) in self.request.GET.items() if key != "page"
+        }
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
         return context
 
 
