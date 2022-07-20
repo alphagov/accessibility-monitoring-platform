@@ -3,9 +3,10 @@ Views for audits app (called tests by users)
 """
 from datetime import date
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from django.forms.models import ModelForm
+from django.db.models.query import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -54,7 +55,8 @@ from .forms import (
     AuditRetestStatement2UpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
-    WcagDefinitionCreateForm,
+    WcagDefinitionSearchForm,
+    WcagDefinitionCreateUpdateForm,
 )
 from .models import (
     Audit,
@@ -922,6 +924,40 @@ class WcagDefinitionListView(ListView):
     context_object_name: str = "wcag_definitions"
     paginate_by: int = 10
 
+    def get(self, request, *args, **kwargs):
+        """Populate filter form"""
+        if self.request.GET:
+            self.wcag_definition_search_form: WcagDefinitionSearchForm = WcagDefinitionSearchForm(self.request.GET)
+            self.wcag_definition_search_form.is_valid()
+        else:
+            self.wcag_definition_search_form = WcagDefinitionSearchForm()
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self) -> QuerySet[WcagDefinition]:
+        """Add filters to queryset"""
+        if self.wcag_definition_search_form.errors:
+            return WcagDefinition.objects.none()
+
+        if hasattr(self.wcag_definition_search_form, "cleaned_data"):
+            search_str: Optional[str] = self.wcag_definition_search_form.cleaned_data.get("wcag_definition_search")
+
+            if search_str:
+                return WcagDefinition.objects.filter(
+                    Q(name__icontains=search_str)
+                    | Q(type__icontains=search_str)
+                    | Q(description__icontains=search_str)
+                    | Q(url_on_w3__icontains=search_str)
+                    | Q(report_boilerplate__icontains=search_str)
+                )
+
+        return WcagDefinition.objects.all()
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["wcag_definition_search_form"] = self.wcag_definition_search_form
+        return context
+
 
 class WcagDefinitionCreateView(CreateView):
     """
@@ -929,7 +965,7 @@ class WcagDefinitionCreateView(CreateView):
     """
 
     model: Type[WcagDefinition] = WcagDefinition
-    form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
+    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
     template_name: str = "audits/forms/wcag_definition_create.html"
     context_object_name: str = "wcag_definition"
 
@@ -944,7 +980,7 @@ class WcagDefinitionUpdateView(UpdateView):
     """
 
     model: Type[WcagDefinition] = WcagDefinition
-    form_class: Type[WcagDefinitionCreateForm] = WcagDefinitionCreateForm
+    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
     template_name: str = "audits/forms/wcag_definition_update.html"
     context_object_name: str = "wcag_definition"
 

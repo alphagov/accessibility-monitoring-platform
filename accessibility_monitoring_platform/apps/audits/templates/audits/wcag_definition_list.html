@@ -34,6 +34,35 @@
                         </a>
                     </div>
                 </div>
+                <form method="get" action="{% url 'audits:wcag-definition-list' %}">
+                    <span class="govuk-visually-hidden">Search WCAG definitions:</span>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            {{ wcag_definition_search_form.wcag_definition_search }}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Search"
+                                name="search"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:wcag-definition-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <p class="govuk-body-m">
+                    Displaying {{ paginator.count }}
+                    WCAG definition{% if paginator.count != 1 %}s{% endif %}.
+                </p>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">

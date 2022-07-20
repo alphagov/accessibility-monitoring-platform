@@ -1000,7 +1000,22 @@ class CaseFinalStatementDecisionUpdateForm(VersionForm):
         ]
 
 
-class WcagDefinitionCreateForm(forms.ModelForm):
+class WcagDefinitionSearchForm(forms.Form):
+    """
+    Form for searching for WCAG definitions
+    """
+
+    wcag_definition_search = AMPCharFieldWide(
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input",
+                "placeholder": "Search term",
+            }
+        )
+    )
+
+
+class WcagDefinitionCreateUpdateForm(forms.ModelForm):
     """
     Form for creating WCAG definition
     """
