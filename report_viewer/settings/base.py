@@ -17,7 +17,6 @@ import os
 import json
 from dotenv import load_dotenv
 
-
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
 UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
@@ -80,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "report_viewer.apps.viewer.middleware.report_views_middleware.SimpleMiddleware",
 ]
 
 ROOT_URLCONF = "report_viewer.urls"

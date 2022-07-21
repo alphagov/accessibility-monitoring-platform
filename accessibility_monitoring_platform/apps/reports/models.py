@@ -203,3 +203,14 @@ class TableRow(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.section}: Table row {self.row_number}")
+
+
+class ReportVisitsMetrics():
+    created = models.DateTimeField(auto_now_add=True)
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.SET_NULL,
+    )
+    guid = models.TextField(default="", blank=True)
+    fingerprint_hash = models.IntegerField(default="", blank=True)
+    fingerprint_codename = models.TextField(default="", blank=True)
