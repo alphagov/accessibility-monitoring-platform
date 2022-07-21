@@ -70,7 +70,7 @@ For example
 ```
 docker-compose up -d
 make start
-make watch_accessibility_monitoring_platform
+make static_files_process_watch
 make sync_accessibility_monitoring_platform
 ```
 
@@ -86,7 +86,7 @@ For example
 ```
 docker-compose up -d
 make start_report_viewer
-make watch_report_viewer
+make static_files_process_watch
 make sync_report_viewer
 ```
 
