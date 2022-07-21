@@ -2088,7 +2088,11 @@ def test_platform_shows_notification_if_fully_compliant(
         (REPORT_METHODOLOGY_DEFAULT, "Link to report draft"),
     ],
 )
-def test_case_details_shows_link_to_report(report_methodology, report_link_label, admin_client):
+def test_case_details_shows_link_to_report(
+    report_methodology,
+    report_link_label,
+    admin_client,
+):
     """
     Test link to correct type is report is shown on case detail page.
     """

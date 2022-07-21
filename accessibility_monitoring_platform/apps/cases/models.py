@@ -272,7 +272,9 @@ class Case(VersionModel):
     # Case details page
     created = models.DateTimeField(blank=True)
     status = models.CharField(
-        max_length=200, choices=STATUS_CHOICES, default=STATUS_DEFAULT
+        max_length=200,
+        choices=STATUS_CHOICES,
+        default=STATUS_DEFAULT,
     )
     auditor = models.ForeignKey(
         User,
@@ -282,7 +284,9 @@ class Case(VersionModel):
         null=True,
     )
     test_type = models.CharField(
-        max_length=10, choices=TEST_TYPE_CHOICES, default=DEFAULT_TEST_TYPE
+        max_length=10,
+        choices=TEST_TYPE_CHOICES,
+        default=DEFAULT_TEST_TYPE,
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
@@ -292,7 +296,12 @@ class Case(VersionModel):
         choices=PSB_LOCATION_CHOICES,
         default=PSB_LOCATION_DEFAULT,
     )
-    sector = models.ForeignKey(Sector, on_delete=models.PROTECT, null=True, blank=True)
+    sector = models.ForeignKey(
+        Sector,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     enforcement_body = models.CharField(
         max_length=20,
         choices=ENFORCEMENT_BODY_CHOICES,

@@ -20,6 +20,7 @@ from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.reports.models import Report
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
 
 
 @pytest.mark.django_db
@@ -169,3 +170,44 @@ def test_view_report_not_on_s3(client):
     assert response.status_code == 200
 
     assertContains(response, html_on_db)
+
+
+@pytest.mark.django_db
+@mock_s3
+def test_post_report_feedback_form(admin_client):
+    """Tests post report feedback saves correctly"""
+    example_text: str = "text"
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(organisation_name="org_name")
+    report: Report = Report.objects.create(case=case)
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    s3_read_write_report.upload_string_to_s3_as_html(
+        html_content="<p>Text on S3</p>",
+        case=case,
+        user=user,
+        report_version="v1_202201401",
+    )
+    s3_report: S3Report = S3Report.objects.get(case=case)
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "viewer:viewreport",
+            kwargs={"guid": s3_report.guid},
+        ),
+        {
+            "what_were_you_trying_to_do": example_text,
+            "what_went_wrong": example_text,
+        },
+        follow=True,
+    )
+    report_feedback: ReportFeedback = ReportFeedback.objects.get(guid=s3_report.guid)
+    assert response.status_code == 200
+    assert report_feedback.guid == s3_report.guid
+    assert report_feedback.what_were_you_trying_to_do == example_text
+    assert report_feedback.what_went_wrong == example_text
+    assert report_feedback.case == case
+    assert report_feedback.report == report
+    assertContains(
+        response,
+        """Thank you for your feedback""",
+        html=True,
+    )

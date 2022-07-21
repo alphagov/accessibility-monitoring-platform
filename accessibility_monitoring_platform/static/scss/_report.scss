@@ -27,7 +27,7 @@
 }
 
 .related-content-wrapper {
-    border-top: 2px solid map-get($_govuk-colour-palette-modern, "blue");;
+    border-top: 2px solid map-get($_govuk-colour-palette-modern, "blue");
     margin-bottom: 20px;
     padding-top: 10px;
 }
@@ -36,6 +36,46 @@
     li {
         margin-bottom: 15px;
     }
+}
+
+.feedback-banner {
+    width: 100%;
+    background-color: map-get($_govuk-colour-palette-modern, "blue");
+    color: map-get($_govuk-colour-palette-modern, "white");
+    padding: 20px 0;
+    margin: auto;
+    margin-top: 20px;
+
+    .form-text {
+        color: map-get($_govuk-colour-palette-modern, "white");
+        margin: 10px 0 0 20px;
+        top: 50%;
+    }
+
+    .report-a-problem-button {
+        border: 1px solid #b1b4b6;
+        color: map-get($_govuk-colour-palette-modern, "white");
+        background-color: map-get($_govuk-colour-palette-modern, "blue");
+        cursor: pointer;
+        margin: 0 20px 0 10px;
+        padding: 10px 10px 10px 10px;
+        text-decoration: none;
+        float: right;
+    }
+}
+
+.form-container {
+    border-top: solid 10px map-get($_govuk-colour-palette-modern, "blue");
+    padding: 20px 0 20px 0;
+    margin-top: 20px;
+}
+
+.hide-form {
+    display: none;
+}
+
+.no-padding-on-main {
+    padding-bottom: 0px;
 }
 
 .print-button {

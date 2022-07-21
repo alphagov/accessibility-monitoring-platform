@@ -6,19 +6,18 @@ Each such element has a matching input (textarea) where the user enters the
 markdown to be previewed.
 */
 
-const showdown  = require('showdown')
+const showdown = require('showdown')
 const converter = new showdown.Converter()
 
-function previewMarkdown(sourceId, targetId) {
+function previewMarkdown (sourceId, targetId) {
     const markdown = document.getElementById(sourceId).value
     const targetElement = document.getElementById(targetId)
     targetElement.innerHTML = converter.makeHtml(markdown)
 }
 
-
 const previewElements = document.getElementsByClassName('amp-preview')
 
-Array.from(previewElements).forEach(function(previewElement) {
+Array.from(previewElements).forEach(function (previewElement) {
     const previewId = previewElement.id
     const inputId = previewId.replace('preview-', '')
     const inputElement = document.getElementById(inputId)
