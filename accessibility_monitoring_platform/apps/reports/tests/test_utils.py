@@ -329,11 +329,11 @@ def test_move_table_row_down(rf):
         ("http://localhost:8001", "http://localhost:8002"),
         (
             "https://accessibility-monitoring-platform-production.com",
-            "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital",
+            "https://reports.accessibility-monitoring.service.gov.uk",
         ),
         (
             "https://accessibility-monitoring-platform-test.com",
-            "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital",
+            "https://reports-test.accessibility-monitoring.service.gov.uk",
         ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
         ("", ""),
