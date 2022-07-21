@@ -2,22 +2,22 @@
 
 {% load l10n %}
 
-{% block title %}WCAG definitions{% endblock %}
+{% block title %}WCAG errors{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/settings/breadcrumbs.html' with current='WCAG definitions' %}
+    {% include 'common/settings/breadcrumbs.html' with current='WCAG errors' %}
     <main id="main-content" class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include 'common/settings/nav_steps.html' with current='audits:wcag-definition-list' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">WCAG definitions</h1>
+                <h1 class="govuk-heading-xl">WCAG errors</h1>
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-three-quarters">
                         <p class="govuk-body-m">
-                            WCAG definitions control how the errors are displayed in the
+                            WCAG errors control how the errors are displayed in the
                             testing UI and the report.
                         </p>
                     </div>
@@ -35,7 +35,7 @@
                     </div>
                 </div>
                 <form method="get" action="{% url 'audits:wcag-definition-list' %}">
-                    <span class="govuk-visually-hidden">Search WCAG definitions:</span>
+                    <span class="govuk-visually-hidden">Search WCAG errors:</span>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-form-group">
                             {{ wcag_definition_search_form.wcag_definition_search }}
@@ -61,7 +61,7 @@
                 </form>
                 <p class="govuk-body-m">
                     Displaying {{ paginator.count }}
-                    WCAG definition{% if paginator.count != 1 %}s{% endif %}.
+                    WCAG error{% if paginator.count != 1 %}s{% endif %}.
                 </p>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">

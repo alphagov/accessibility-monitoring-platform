@@ -562,7 +562,7 @@ def test_delete_extra_page(admin_client):
 
 
 def test_page_checks_edit_page_loads(admin_client):
-    """Test page checks edit view page loads and contains all wcag definitions"""
+    """Test page checks edit view page loads and contains all WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
@@ -1048,9 +1048,7 @@ def test_wcag_definition_list_view_shows_all(admin_client):
     assert response.status_code == 200
 
     assertContains(
-        response,
-        '<p class="govuk-body-m">Displaying 76 WCAG definitions.</p>',
-        html=True
+        response, '<p class="govuk-body-m">Displaying 76 WCAG errors.</p>', html=True
     )
 
 
@@ -1071,9 +1069,7 @@ def test_wcag_definition_list_view_filters(fieldname, admin_client):
     assert response.status_code == 200
 
     assertContains(
-        response,
-        '<p class="govuk-body-m">Displaying 1 WCAG definition.</p>',
-        html=True
+        response, '<p class="govuk-body-m">Displaying 1 WCAG error.</p>', html=True
     )
 
 
