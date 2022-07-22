@@ -29,7 +29,6 @@ jobs:
         export INTEGRATION_TEST=FALSE
         npm i
         make static_files_process
-        make collect_static
         make test
 
   int-test:
