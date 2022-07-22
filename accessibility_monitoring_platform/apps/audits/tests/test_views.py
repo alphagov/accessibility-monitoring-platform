@@ -3,7 +3,7 @@ Tests for audits views
 """
 import pytest
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -43,6 +43,9 @@ COMPLIANCE_DECISION_NOTES: str = "Website decision notes"
 ACCESSIBILITY_STATEMENT_STATE: str = "not-compliant"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility statement notes"
 FIXED_ERROR_NOTES: str = "Fixed error notes"
+WCAG_DEFINITION_TYPE: str = "axe"
+WCAG_DEFINITION_NAME: str = "WCAG definiton name"
+WCAG_DEFINITION_URL: str = "https://example.com"
 
 
 def create_audit() -> Audit:
@@ -559,7 +562,7 @@ def test_delete_extra_page(admin_client):
 
 
 def test_page_checks_edit_page_loads(admin_client):
-    """Test page checks edit view page loads and contains all wcag definitions"""
+    """Test page checks edit view page loads and contains all WCAG definitions"""
     audit: Audit = create_audit_and_wcag()
     page: Page = Page.objects.create(audit=audit)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
@@ -1036,3 +1039,90 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     assertContains(response, "Initial review notes")
     assertContains(response, "Initial method notes")
     assertContains(response, "Initial access requirements notes")
+
+
+def test_wcag_definition_list_view_shows_all(admin_client):
+    """Test WCAG definition list shows all rows"""
+    response: HttpResponse = admin_client.get(reverse("audits:wcag-definition-list"))
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<p class="govuk-body-m">Displaying 76 WCAG errors.</p>', html=True
+    )
+
+
+@pytest.mark.parametrize(
+    "fieldname",
+    ["type", "name", "description", "url_on_w3", "report_boilerplate"],
+)
+def test_wcag_definition_list_view_filters(fieldname, admin_client):
+    """Test WCAG definition list cab be filtered by each field"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    setattr(wcag_definition, fieldname, "helcaraxe")
+    wcag_definition.save()
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('audits:wcag-definition-list')}?wcag_definition_search=Helcaraxe"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<p class="govuk-body-m">Displaying 1 WCAG error.</p>', html=True
+    )
+
+
+def test_create_wcag_definition_works(admin_client):
+    """
+    Test that a successful WCAG definiton create creates the new
+    WCAG definition and redirects to list.
+    """
+    response: HttpResponse = admin_client.post(
+        reverse("audits:wcag-definition-create"),
+        {
+            "type": WCAG_DEFINITION_TYPE,
+            "name": WCAG_DEFINITION_NAME,
+            "url_on_w3": WCAG_DEFINITION_URL,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("audits:wcag-definition-list")  # type: ignore
+
+    wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.last()
+
+    assert wcag_definition_from_db is not None
+    assert wcag_definition_from_db.type == WCAG_DEFINITION_TYPE
+    assert wcag_definition_from_db.name == WCAG_DEFINITION_NAME
+    assert wcag_definition_from_db.url_on_w3 == WCAG_DEFINITION_URL
+
+
+def test_update_wcag_definition_works(admin_client):
+    """
+    Test that a successful WCAG definiton update updates the
+    WCAG definition and redirects to list.
+    """
+    wcag_definition: Optional[WcagDefinition] = WcagDefinition.objects.first()
+
+    wcag_definition_pk: int = wcag_definition.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": wcag_definition_pk}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:wcag-definition-update", kwargs=path_kwargs),
+        {
+            "type": WCAG_DEFINITION_TYPE,
+            "name": WCAG_DEFINITION_NAME,
+            "url_on_w3": WCAG_DEFINITION_URL,
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("audits:wcag-definition-list")  # type: ignore
+
+    wcag_definition_from_db: Optional[WcagDefinition] = WcagDefinition.objects.first()
+
+    assert wcag_definition_from_db is not None
+    assert wcag_definition_from_db.type == WCAG_DEFINITION_TYPE
+    assert wcag_definition_from_db.name == WCAG_DEFINITION_NAME
+    assert wcag_definition_from_db.url_on_w3 == WCAG_DEFINITION_URL

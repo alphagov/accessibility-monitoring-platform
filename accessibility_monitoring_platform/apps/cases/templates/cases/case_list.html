@@ -27,35 +27,35 @@
                 <h2 class="govuk-heading-m">{{ page_obj.paginator.count|localize }} cases found</h2>
             </div>
             <div class="govuk-grid-column-two-thirds">
-                    <a
-                        href="{% url 'cases:case-create' %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button float-right"
-                        data-module="govuk-button"
-                        style="margin-left: 10px;"
-                    >
-                        Create case
-                    </a>
-                    <a
-                        href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                        style="margin-left: 10px;"
-                    >
-                        Export to CSV
-                    </a>
-                    <a
-                        href="{% url 'cases:export-ehrc-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                    >
-                        Equality bodies CSV
-                    </a>
+                <a
+                    href="{% url 'cases:case-create' %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button float-right"
+                    data-module="govuk-button"
+                    style="margin-left: 10px;"
+                >
+                    Create case
+                </a>
+                <a
+                    href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button govuk-button--secondary float-right"
+                    data-module="govuk-button"
+                    style="margin-left: 10px;"
+                >
+                    Export to CSV
+                </a>
+                <a
+                    href="{% url 'cases:export-ehrc-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                    role="button"
+                    draggable="false"
+                    class="govuk-button govuk-button--secondary float-right"
+                    data-module="govuk-button"
+                >
+                    Equality bodies CSV
+                </a>
             </div>
         </div>
         <div class="govuk-grid-row">
