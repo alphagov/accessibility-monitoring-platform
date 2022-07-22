@@ -10,6 +10,7 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader, Template
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from django.urls import reverse, reverse_lazy
@@ -72,6 +73,7 @@ def rebuild_report(
     """
     report: Report = get_object_or_404(Report, id=pk)
     generate_report_content(report=report)
+    report.report_last_rebuilt_time = timezone.now()
     return redirect(reverse("reports:report-detail", kwargs={"pk": pk}))
 
 

@@ -228,6 +228,7 @@ class Audit(VersionModel):
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="audit_case")
     is_deleted = models.BooleanField(default=False)
+    report_data_updated_time = models.DateTimeField(null=True, blank=True)
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
@@ -720,3 +721,8 @@ class CheckResult(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.page} | {self.wcag_definition}")
+
+    def save(self, *args, **kwargs) -> None:
+        self.audit.report_data_updated_time = timezone.now()
+        self.audit.save()
+        super().save(*args, **kwargs)

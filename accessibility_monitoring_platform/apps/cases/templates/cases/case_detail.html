@@ -65,6 +65,7 @@
             {% include 'cases/helpers/case_title.html' %}
             {% include "cases/helpers/messages.html" %}
         </div>
+        {% include 'reports/helpers/pending_rebuild_notification.html' %}
         {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.is_deactivated %}
             <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
