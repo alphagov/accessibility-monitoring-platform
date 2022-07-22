@@ -15,7 +15,7 @@ jobs:
         python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '18'
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -75,7 +75,7 @@ jobs:
         python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '18'
     - name: Install python dependencies and create static files
       run: |
         python3 -m venv venv
