@@ -11,17 +11,15 @@
                     <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
                         Data in the case has changed since the report was published.
                     </h3>
-                    <h3 class="govuk-notification-banner__heading" style="max-width:100%;">
-                        To update the published report:
-                    </h3>
+                    <p class="govuk-body">To update the published report:</p>
                     <ul class="govuk-list govuk-list--bullet">
-                        <li>Refresh the report</li>
+                        <li>Reset the report</li>
                         <li>Review the report</li>
                         <li>Publish a new report</li>
                     </ul>
                     <p class="govuk-body">
                         <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-refresh' case.report.id %}">
-                            Go to Case > Report > Report refresh</a></p>
+                            Go to Case > Report > Report reset</a></p>
                     <p class="govuk-body">
                         <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' case.report.id %}">
                             Go to Case > Report > Publish HTML report</a></p>
