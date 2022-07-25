@@ -7,7 +7,6 @@ from typing import Optional
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
-from django.utils import timezone
 
 
 from ..common.utils import (
@@ -89,8 +88,6 @@ def generate_report_content(report: Report) -> None:
                         position=section_position,
                     )
                     create_issue_table_rows(page=page, page_section=page_section)
-    report.report_last_generated_time = timezone.now()
-    report.save()
 
 
 def create_url_table_rows(report: Report, section: Section) -> None:

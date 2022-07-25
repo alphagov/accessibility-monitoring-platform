@@ -73,7 +73,6 @@ def rebuild_report(
     """
     report: Report = get_object_or_404(Report, id=pk)
     generate_report_content(report=report)
-    report.report_last_rebuilt_time = timezone.now()
     return redirect(reverse("reports:report-detail", kwargs={"pk": pk}))
 
 
@@ -281,6 +280,8 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         user=request.user,  # type: ignore
         report_version=report.report_version,
     )
+    report.report_last_published_time = timezone.now()
+    report.save()
     messages.add_message(
         request,
         messages.INFO,

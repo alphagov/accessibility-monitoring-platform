@@ -1,4 +1,4 @@
-{% if case.report.report_last_generated_time and case.report.report_last_generated_time < case.audit.report_data_updated_time %}
+{% if case.report.report_last_published_time and case.report.report_last_published_time < case.audit.report_data_updated_time %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div class="govuk-notification-banner govuk-notification-banner--success" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
@@ -20,10 +20,10 @@
                         <li>Publish a new report</li>
                     </ul>
                     <p class="govuk-body">
-                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-refresh' report.id %}">
+                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-refresh' case.report.id %}">
                             Go to Case > Report > Report refresh</a></p>
                     <p class="govuk-body">
-                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' report.id %}">
+                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' case.report.id %}">
                             Go to Case > Report > Publish HTML report</a></p>
                     <p class="govuk-body">
                         <a class="govuk-notification-banner__link" href="{% url 'cases:edit-case-close' case.id %}">
