@@ -8,7 +8,6 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
 
-
 from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
