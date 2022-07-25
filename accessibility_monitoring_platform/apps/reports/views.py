@@ -10,7 +10,6 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader, Template
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from django.urls import reverse, reverse_lazy
@@ -280,8 +279,6 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         user=request.user,  # type: ignore
         report_version=report.report_version,
     )
-    report.report_last_published_time = timezone.now()
-    report.save()
     messages.add_message(
         request,
         messages.INFO,
