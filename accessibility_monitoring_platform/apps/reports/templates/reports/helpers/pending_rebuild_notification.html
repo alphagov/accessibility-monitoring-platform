@@ -24,7 +24,7 @@
                         <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' case.report.id %}">
                             Go to Case > Report > Publish HTML report</a></p>
                     <p class="govuk-body">
-                        <a class="govuk-notification-banner__link" href="{% url 'cases:edit-case-close' case.id %}">
+                        <a class="govuk-notification-banner__link" href="{% url 'audits:clear-outdated-report-warning' case.audit.id %}?redirect_destination={{ request.path }}">
                             Dismiss this banner</a></p>
                 </div>
             </div>
