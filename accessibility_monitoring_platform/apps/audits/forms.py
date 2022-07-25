@@ -52,6 +52,7 @@ from .models import (
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
+    TEST_TYPE_CHOICES,
 )
 
 
@@ -996,4 +997,41 @@ class CaseFinalStatementDecisionUpdateForm(VersionForm):
             "version",
             "accessibility_statement_state_final",
             "accessibility_statement_notes_final",
+        ]
+
+
+class WcagDefinitionSearchForm(forms.Form):
+    """
+    Form for searching for WCAG definitions
+    """
+
+    wcag_definition_search = AMPCharFieldWide(
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input",
+                "placeholder": "Search term",
+            }
+        )
+    )
+
+
+class WcagDefinitionCreateUpdateForm(forms.ModelForm):
+    """
+    Form for creating WCAG definition
+    """
+
+    name = AMPCharFieldWide(label="Name", required=True)
+    type = AMPChoiceRadioField(label="Type", choices=TEST_TYPE_CHOICES)
+    url_on_w3 = AMPURLField(label="Link to WCAG", required=True)
+    description = AMPCharFieldWide(label="Description")
+    report_boilerplate = AMPTextField(label="Report boilerplate")
+
+    class Meta:
+        model = WcagDefinition
+        fields: List[str] = [
+            "name",
+            "type",
+            "url_on_w3",
+            "description",
+            "report_boilerplate",
         ]

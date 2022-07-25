@@ -24,12 +24,11 @@ from .models import (
     TEMPLATE_TYPE_ISSUES_TABLE,
 )
 
-WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.type == 'axe' %} {{ wcag_definition.description|safe }}{% endif %}{% endif %}
+WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description %}: {% endif %}{% endif %}{% if wcag_definition.description %}{{ wcag_definition.description|safe }}.{% endif %}
+{% if wcag_definition.type == 'axe' and 'WCAG 1.4.3 ' not in wcag_definition.name %} Issue found using deque axe.{% endif %}
 {% if first_use_of_wcag_definition %}
-
 {{ wcag_definition.report_boilerplate|safe }}
-{% endif %}
-"""
+{% endif %}"""
 CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
@@ -259,9 +258,9 @@ def get_report_viewer_url_prefix(request: HttpRequest) -> str:
         elif "localhost:8001" in domain_name:
             return "http://localhost:8002"
         elif "accessibility-monitoring-platform-production" in domain_name:
-            return "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital"
+            return "https://reports.accessibility-monitoring.service.gov.uk"
         elif "accessibility-monitoring-platform-test" in domain_name:
-            return "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital"
+            return "https://reports-test.accessibility-monitoring.service.gov.uk"
         else:
             domain_name_split = domain_name.split(".")
             domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"

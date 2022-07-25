@@ -3,13 +3,15 @@ Views for audits app (called tests by users)
 """
 from datetime import date
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+import urllib
 
 from django.forms.models import ModelForm
+from django.db.models.query import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
@@ -54,6 +56,8 @@ from .forms import (
     AuditRetestStatement2UpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
+    WcagDefinitionSearchForm,
+    WcagDefinitionCreateUpdateForm,
 )
 from .models import (
     Audit,
@@ -909,3 +913,89 @@ def start_retest(
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
+
+
+class WcagDefinitionListView(ListView):
+    """
+    View of list of WCAG definitions
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    template_name: str = "audits/wcag_definition_list.html"
+    context_object_name: str = "wcag_definitions"
+    paginate_by: int = 10
+
+    def get(self, request, *args, **kwargs):
+        """Populate filter form"""
+        if self.request.GET:
+            self.wcag_definition_search_form: WcagDefinitionSearchForm = (
+                WcagDefinitionSearchForm(self.request.GET)
+            )
+            self.wcag_definition_search_form.is_valid()
+        else:
+            self.wcag_definition_search_form = WcagDefinitionSearchForm()
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self) -> QuerySet[WcagDefinition]:
+        """Add filters to queryset"""
+        if self.wcag_definition_search_form.errors:
+            return WcagDefinition.objects.none()
+
+        if hasattr(self.wcag_definition_search_form, "cleaned_data"):
+            search_str: Optional[
+                str
+            ] = self.wcag_definition_search_form.cleaned_data.get(
+                "wcag_definition_search"
+            )
+
+            if search_str:
+                return WcagDefinition.objects.filter(
+                    Q(name__icontains=search_str)
+                    | Q(type__icontains=search_str)
+                    | Q(description__icontains=search_str)
+                    | Q(url_on_w3__icontains=search_str)
+                    | Q(report_boilerplate__icontains=search_str)
+                )
+
+        return WcagDefinition.objects.all()
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["wcag_definition_search_form"] = self.wcag_definition_search_form
+
+        get_without_page: Dict[str, Union[str, List[object]]] = {
+            key: value for (key, value) in self.request.GET.items() if key != "page"
+        }
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
+        return context
+
+
+class WcagDefinitionCreateView(CreateView):
+    """
+    View to create a WCAG definition
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
+    template_name: str = "audits/forms/wcag_definition_create.html"
+    context_object_name: str = "wcag_definition"
+
+    def get_success_url(self) -> str:
+        """Return to list of WCAG definitions"""
+        return reverse("audits:wcag-definition-list")
+
+
+class WcagDefinitionUpdateView(UpdateView):
+    """
+    View to update a WCAG definition
+    """
+
+    model: Type[WcagDefinition] = WcagDefinition
+    form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
+    template_name: str = "audits/forms/wcag_definition_update.html"
+    context_object_name: str = "wcag_definition"
+
+    def get_success_url(self) -> str:
+        """Return to list of WCAG definitions"""
+        return reverse("audits:wcag-definition-list")

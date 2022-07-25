@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     name: Unit tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.x
@@ -15,7 +15,7 @@ jobs:
         python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '17'
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -31,13 +31,12 @@ jobs:
         export DEBUG=TRUE
         npm i
         make static_files_process
-        make collect_static
         make test
 
   int-test:
     needs: test
     name: Integration tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.x
@@ -67,7 +66,7 @@ jobs:
   deploy:
     needs: int-test
     name: Deploy to production
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.x
@@ -76,7 +75,7 @@ jobs:
         python-version: '3.9'
     - uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '17'
     - name: Install python dependencies and create static files
       run: |
         python3 -m venv venv
@@ -92,7 +91,6 @@ jobs:
         export DEBUG=FALSE
         npm i
         make static_files_process
-        make collect_static
 
     - name: Installing cloud foundry
       run: |
