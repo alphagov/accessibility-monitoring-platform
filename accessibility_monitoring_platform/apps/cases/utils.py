@@ -205,7 +205,9 @@ def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str
     return ""
 
 
-def format_model_field(model_instance: Union[Audit, Case], column: ColumnAndFieldNames) -> str:
+def format_model_field(
+    model_instance: Union[Audit, Case], column: ColumnAndFieldNames
+) -> str:
     """
     For a model field, return the value, suitably formatted.
     """
@@ -229,7 +231,12 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC])
+    writer.writerow(
+        [
+            column.column_name
+            for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC
+        ]
+    )
 
     output: List[List[str]] = []
     for case in cases:

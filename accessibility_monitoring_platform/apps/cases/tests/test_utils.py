@@ -116,7 +116,9 @@ def test_format_case_field(column, case_value, expected_formatted_value):
     """Test that case fields are formatted correctly"""
     case: Case = Case()
     setattr(case, column.field_name, case_value)
-    assert expected_formatted_value == format_model_field(model_instance=case, column=column)
+    assert expected_formatted_value == format_model_field(
+        model_instance=case, column=column
+    )
 
 
 @pytest.mark.parametrize(
