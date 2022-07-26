@@ -46,6 +46,7 @@ NEXT_ROW_POSITION: int = 3
 HOME_PAGE_NAME: str = "Home name"
 PDF_PAGE_NAME: str = "PDF name"
 HOME_PAGE_URL: str = "https://example.com/home"
+PDF_PAGE_URL: str = "https://example.com/pdf"
 CHECK_RESULT_NOTES: str = "Check results note"
 
 
@@ -145,6 +146,57 @@ def test_create_issue_table_rows():
 
     assert wcag_definition.name in table_rows[0].cell_content_1
     assert CHECK_RESULT_NOTES in table_rows[0].cell_content_2
+
+
+@pytest.mark.django_db
+def test_report_boilerplate_shown_only_once():
+    """
+    Test report contains WCAG definition's boilerplate text
+    only the first time that definition appears.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    first_page: Page = Page.objects.create(
+        audit=audit,
+        name=HOME_PAGE_NAME,
+        page_type=PAGE_TYPE_HOME,
+        url=HOME_PAGE_URL,
+    )
+    second_page: Page = Page.objects.create(
+        audit=audit,
+        name=PDF_PAGE_NAME,
+        page_type=PAGE_TYPE_PDF,
+        url=PDF_PAGE_URL,
+    )
+    report: Report = Report.objects.create(case=case)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(  # type: ignore
+        type=TEST_TYPE_PDF
+    ).first()
+    CheckResult.objects.create(
+        audit=audit,
+        page=first_page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=second_page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    generate_report_content(report=report)
+
+    table_rows: QuerySet[TableRow] = TableRow.objects.filter(
+        cell_content_1__contains=wcag_definition.name
+    )
+
+    assert table_rows.count() == 2
+
+    assert wcag_definition.name in table_rows[0].cell_content_1
+    assert wcag_definition.report_boilerplate in table_rows[0].cell_content_1
+    assert wcag_definition.name in table_rows[1].cell_content_1
+    assert wcag_definition.report_boilerplate not in table_rows[1].cell_content_1
 
 
 @pytest.mark.django_db
@@ -329,11 +381,11 @@ def test_move_table_row_down(rf):
         ("http://localhost:8001", "http://localhost:8002"),
         (
             "https://accessibility-monitoring-platform-production.com",
-            "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital",
+            "https://reports.accessibility-monitoring.service.gov.uk",
         ),
         (
             "https://accessibility-monitoring-platform-test.com",
-            "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital",
+            "https://reports-test.accessibility-monitoring.service.gov.uk",
         ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
         ("", ""),

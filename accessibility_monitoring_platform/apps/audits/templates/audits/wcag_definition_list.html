@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}WCAG errors editor{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with current='WCAG errors editor' %}
+    <main id="main-content" class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='audits:wcag-definition-list' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">WCAG errors editor</h1>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-three-quarters">
+                        <p class="govuk-body-m">
+                            WCAG errors control how the errors are displayed in the
+                            testing UI and the report.
+                        </p>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter">
+                        <a
+                            href="{% url 'audits:wcag-definition-create' %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button float-right"
+                            data-module="govuk-button"
+                            style="margin-left: 10px;"
+                        >
+                            Create
+                        </a>
+                    </div>
+                </div>
+                <form method="get" action="{% url 'audits:wcag-definition-list' %}">
+                    <span class="govuk-visually-hidden">Search WCAG errors:</span>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            {{ wcag_definition_search_form.wcag_definition_search }}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Search"
+                                name="search"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:wcag-definition-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <p class="govuk-body-m">
+                    Displaying {{ paginator.count }}
+                    WCAG error{% if paginator.count != 1 %}s{% endif %}.
+                </p>
+                {% include "common/pagination_controls.html" %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                    {% for wcag_definition in wcag_definitions %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-two-thirds">
+                                        <h2 class="govuk-heading-m">{{ wcag_definition.name }}</h2>
+                                    </div>
+                                    <div class="govuk-grid-column-one-third">
+                                        <div class="govuk-button-group" style="justify-content:flex-end;">
+                                            <a href="{{ wcag_definition.url_on_w3 }}" target="_blank" class="govuk-link">
+                                                Link to WCAG
+                                            </a>
+                                            <a
+                                                href="{% url 'audits:wcag-definition-update' wcag_definition.id %}"
+                                                class="govuk-link govuk-link--no-visited-state"
+                                            >
+                                                Edit
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="govuk-body-m cases-sub-heading">Type</p>
+                                <p class="govuk-body-m">
+                                    {{ wcag_definition.get_type_display }}
+                                </p>
+                                <p class="govuk-body-m cases-sub-heading">Description</p>
+                                <p class="govuk-body-m">
+                                    {% if wcag_definition.description %}
+                                        {{ wcag_definition.description }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
+                                <p class="govuk-body-m cases-sub-heading">Report boilerplate</p>
+                                <p class="govuk-body-m">
+                                    {% if wcag_definition.report_boilerplate %}
+                                        {{ wcag_definition.report_boilerplate|markdown_to_html }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% include "common/pagination_controls.html" %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
