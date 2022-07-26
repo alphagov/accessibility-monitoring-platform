@@ -11,7 +11,7 @@ from django import forms
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 
-
+from ..audits.models import Audit
 from ..common.utils import build_filters
 
 from .forms import CaseSearchForm, DEFAULT_SORT
@@ -104,6 +104,16 @@ COLUMNS_FOR_EHRC = [
         field_name="case_updated_date",
     ),
 ]
+EXTRA_AUDIT_COLUMNS_FOR_EHRC = [
+    ColumnAndFieldNames(
+        column_name="Disproportionate burden claimed? (Test UI)",
+        field_name="audit_retest_disproportionate_burden_state",
+    ),
+    ColumnAndFieldNames(
+        column_name="Disproportionate Notes (Test UI)",
+        field_name="audit_retest_disproportionate_burden_notes",
+    ),
+]
 
 CAPITALISE_FIELDS = [
     "test_type",
@@ -111,6 +121,7 @@ CAPITALISE_FIELDS = [
     "is_disproportionate_claimed",
     "accessibility_statement_state_final",
     "recommendation_for_enforcement",
+    "audit_retest_disproportionate_burden_state",
 ]
 
 
@@ -194,11 +205,11 @@ def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str
     return ""
 
 
-def format_case_field(case: Case, column: ColumnAndFieldNames) -> str:
+def format_model_field(model_instance: Union[Audit, Case], column: ColumnAndFieldNames) -> str:
     """
-    For a case field, return the value, suitably formatted.
+    For a model field, return the value, suitably formatted.
     """
-    value: Any = getattr(case, column.field_name, "")
+    value: Any = getattr(model_instance, column.field_name, "")
     if isinstance(value, date) or isinstance(value, datetime):
         return value.strftime("%d/%m/%Y")
     elif column.field_name == "enforcement_body":
@@ -218,7 +229,7 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC])
+    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC])
 
     output: List[List[str]] = []
     for case in cases:
@@ -228,7 +239,9 @@ def download_ehrc_cases(
             if column.field_name is None:
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
-                row.append(format_case_field(case=case, column=column))
+                row.append(format_model_field(model_instance=case, column=column))
+        for column in EXTRA_AUDIT_COLUMNS_FOR_EHRC:
+            row.append(format_model_field(model_instance=case.audit, column=column))
         output.append(row)
     writer.writerows(output)
 
