@@ -139,3 +139,7 @@ document.getElementById('clear_search_form').addEventListener('click', function 
 
 updateWcagList()
 updateUnfinishedManualTestCount()
+
+module.exports = {
+  updateUnfinishedManualTestCount,
+}

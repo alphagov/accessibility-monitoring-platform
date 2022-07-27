@@ -22,7 +22,7 @@ start:
 	python manage.py runserver 8081
 
 start_report_viewer:
-	python manage_report_viewer.py runserver 8082 
+	python manage_report_viewer.py runserver 8082
 
 static_files_process:
 	node pulp/init.js ./accessibility_monitoring_platform_settings.json --nowatch
@@ -70,6 +70,7 @@ test_report_viewer:
 test:
 	make test_accessibility_monitoring_platform
 	make test_report_viewer
+	npm test
 
 local_deploy:
 	pipenv lock -r > requirements.txt
