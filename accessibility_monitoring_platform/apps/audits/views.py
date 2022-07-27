@@ -999,3 +999,25 @@ class WcagDefinitionUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Return to list of WCAG definitions"""
         return reverse("audits:wcag-definition-list")
+
+
+def clear_report_data_updated_time(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Remove value from report_data_updated_time to hide notification
+
+    Args:
+        request (HttpRequest): Django HttpRequest
+        pk (int): Id of audit to update
+
+    Returns:
+        HttpResponse: Django HttpResponse
+    """
+    audit: Audit = get_object_or_404(Audit, id=pk)
+    audit.report_data_updated_time = None
+    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
+    audit.save()
+    redirect_destination: str = request.GET.get(
+        "redirect_destination",
+        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
+    )
+    return redirect(redirect_destination)  # type: ignore
