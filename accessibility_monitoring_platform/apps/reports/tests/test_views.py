@@ -27,7 +27,7 @@ from ...cases.models import (
 )
 from ...s3_read_write.models import S3Report
 
-from ..models import Report, TableRow, Section
+from ..models import Report, TableRow, Section, ReportVisitsMetrics
 from ..utils import (
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -478,3 +478,43 @@ def test_report_data_updated_notification_shown(admin_client):
         response,
         "Data in the case has changed since the report was published.",
     )
+
+
+def test_report_metrics_displays_in_report_logs(admin_client):
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    case: Case = report.case  # type: ignore
+    case.save()
+
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename="codename"
+    )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename="codename"
+    )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=5678, fingerprint_codename="codename2"
+    )
+    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=all"""
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "codename")
+    assertContains(response, "codename2")
+    assertContains(response, "Viewing 3 visits")
+    assertContains(response, "Report visit logs")
+    assertContains(response, "View unique visitors")
+
+    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors"""
+    response: HttpResponse = admin_client.get(url)
+    assert response.status_code == 200
+    assertContains(response, "Viewing 2 visits")
+    assertContains(response, "View all visits")
+
+    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?userhash=codename2"""
+    response: HttpResponse = admin_client.get(url)
+    assert response.status_code == 200
+    assertContains(response, "codename2")
+    assertContains(response, "Viewing 1 visits")
+    assertContains(response, "View all visits")

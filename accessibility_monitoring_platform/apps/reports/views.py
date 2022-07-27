@@ -25,10 +25,11 @@ from .forms import (
     TableRowFormsetOneExtra,
     ReportWrapperUpdateForm,
 )
-from .models import Report, Section, TableRow, ReportWrapper
+from .models import Report, Section, TableRow, ReportWrapper, ReportVisitsMetrics
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
+    get_report_visits_metrics,
 )
 from ..common.utils import (
     record_model_create_event,
@@ -82,6 +83,12 @@ class ReportDetailView(DetailView):
 
     model: Type[Report] = Report
     context_object_name: str = "report"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context.update(get_report_visits_metrics(self.object.case))
+        return context
 
 
 class ReportUpdateView(UpdateView):
@@ -322,3 +329,42 @@ class ReportWrapperUpdateView(UpdateView):
     def get_object(self, queryset=None):  # pylint: disable=unused-argument
         """Return report wrapper object"""
         return ReportWrapper.objects.all().first()
+
+
+class ReportVisitsMetricsView(ReportTemplateView):
+    """
+    View of list of published reports
+    """
+
+    template_name: str = "reports/report_visits_metrics.html"
+
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+        context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
+        context["showing"] = self.request.GET.get("showing")
+        context["userhash"] = self.request.GET.get("userhash")
+
+        if context["userhash"]:
+            context["visit_logs"] = ReportVisitsMetrics.objects.filter(
+                case=context["report"].case,
+                fingerprint_codename=context["userhash"],
+            )
+        elif context["showing"] == "unique-visitors":
+            visit_logs = []
+            disinct_values = (
+                ReportVisitsMetrics.objects.filter(case=context["report"].case)
+                .values("fingerprint_hash")
+                .distinct()
+            )
+            for query_set in disinct_values:
+                visit_logs.append(
+                    ReportVisitsMetrics.objects.filter(
+                        fingerprint_hash=query_set["fingerprint_hash"]
+                    ).first()
+                )
+            context["visit_logs"] = visit_logs
+        else:
+            context["visit_logs"] = ReportVisitsMetrics.objects.filter(
+                case=context["report"].case
+            )
+
+        return context

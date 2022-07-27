@@ -2,11 +2,12 @@
 """
 Utilities for reports app
 """
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
+from ..cases.models import Case
 
 from ..common.utils import (
     get_id_from_button_name,
@@ -267,3 +268,11 @@ def get_report_viewer_url_prefix(request: HttpRequest) -> str:
             return ".".join(domain_name_split)
     else:
         return ""
+
+
+def get_report_visits_metrics(case_model: Case) -> Dict[str, str]:
+    """Returns the visit metrics for reports"""
+    return {
+        "number_of_visits": case_model.reportvisitsmetrics_set.all().count(),  # type: ignore
+        "number_of_unique_visitors": case_model.reportvisitsmetrics_set.values_list("fingerprint_hash").distinct().count(),  # type: ignore
+    }

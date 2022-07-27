@@ -18,6 +18,7 @@ from .views import (
     publish_report,
     S3ReportListView,
     ReportWrapperUpdateView,
+    ReportVisitsMetricsView,
 )
 
 app_name: str = "reports"
@@ -76,5 +77,10 @@ urlpatterns: List[URLPattern] = [
         "edit-report-wrapper/",
         login_required(ReportWrapperUpdateView.as_view()),
         name="edit-report-wrapper",
+    ),
+    path(
+        "<int:pk>/report-metrics-view/",
+        login_required(ReportVisitsMetricsView.as_view()),
+        name="report-metrics-view",
     ),
 ]
