@@ -12,7 +12,7 @@ const {
     copyElementToClipboard,
 } = require("../accessibility_monitoring_platform/static/js/audits_copy_report");
 
- describe("test audits copy report functions are present", () => {
+describe("test audits copy report functions are present", () => {
     it.each([
         copyElementToClipboard,
     ])("%p is a function", (functionFromModule) => {
@@ -21,7 +21,7 @@ const {
 });
 
 describe("test copyElementToClipboard", () => {
-    test('copy text to clipboard happens (on click)', () => {
+    test("copy text to clipboard happens (on click)", () => {
         document.execCommand = jest.fn()
         copyElementToClipboard();
         expect(document.execCommand).toHaveBeenCalledWith("copy");

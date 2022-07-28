@@ -30,7 +30,7 @@ describe("test audits copy error functions are present", () => {
 });
 
 describe("test copyTextToInput", () => {
-    test('copy text happens (on click)', () => {
+    test("copy text happens (on click)", () => {
         document.getElementById(destinationId).value = "";
         copyTextToInput(destinationId, sourceId);
         expect(document.getElementById(destinationId).value).toEqual(errorText);
