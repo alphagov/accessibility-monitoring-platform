@@ -59,6 +59,7 @@ test_accessibility_monitoring_platform:
 		&& coverage combine \
 		&& coverage report --skip-covered \
 		&& coverage erase
+	npm test
 
 test_report_viewer:
 	python manage_report_viewer.py collectstatic --noinput \
@@ -70,7 +71,6 @@ test_report_viewer:
 test:
 	make test_accessibility_monitoring_platform
 	make test_report_viewer
-	npm test
 
 local_deploy:
 	pipenv lock -r > requirements.txt

@@ -87,10 +87,30 @@ document.body.innerHTML = `<input id="id_name">
     </div>
 </div>`;
 
-const { updateUnfinishedManualTestCount } = require("../accessibility_monitoring_platform/static/js/audits_check_filter");
+const {
+    updateUnfinishedManualTestCount,
+    bodyListener,
+    checkboxFilter,
+    errorFoundFilter,
+    noIssueFilter,
+    notTestedFilter,
+    textFilter,
+    updateWcagList,
+    updateValue,
+} = require("../accessibility_monitoring_platform/static/js/audits_check_filter");
 
-describe("test updateUnfinishedManualTestCount", () => {
-    test("updateUnfinishedManualTestCount is a function", () => {
-        expect(typeof updateUnfinishedManualTestCount).toBe("function");
+describe("test audits check filter functions are present", () => {
+    it.each([
+        updateUnfinishedManualTestCount,
+        bodyListener,
+        checkboxFilter,
+        errorFoundFilter,
+        noIssueFilter,
+        notTestedFilter,
+        textFilter,
+        updateWcagList,
+        updateValue,
+    ])("%p is a function", (functionFromModule) => {
+        expect(typeof functionFromModule).toBe("function");
     });
 });

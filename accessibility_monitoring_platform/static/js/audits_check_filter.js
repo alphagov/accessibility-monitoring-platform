@@ -142,4 +142,12 @@ updateUnfinishedManualTestCount()
 
 module.exports = {
   updateUnfinishedManualTestCount,
+  bodyListener,
+  checkboxFilter,
+  errorFoundFilter,
+  noIssueFilter,
+  notTestedFilter,
+  textFilter,
+  updateWcagList,
+  updateValue,
 }
