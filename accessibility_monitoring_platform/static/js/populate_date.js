@@ -11,8 +11,8 @@ function populateWithTodaysDate(dayId, monthId, yearId) {
 
 function keypressPopulateWithTodaysDate(event, dayId, monthId, yearId) {
     if (event.code === "Enter" || event.code === "Space") {
-      event.preventDefault()
-      populateWithTodaysDate(dayId, monthId, yearId)
+        event.preventDefault()
+        populateWithTodaysDate(dayId, monthId, yearId)
     }
 }
 

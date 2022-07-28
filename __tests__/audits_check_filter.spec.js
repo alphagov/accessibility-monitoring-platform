@@ -14,8 +14,7 @@ document.body.innerHTML = `<input id="id_name">
         class="govuk-checkboxes__input"
         type="checkbox"
         name="manual"
-        id="id_manual"
-    >
+        id="id_manual">
     <label class="govuk-label govuk-checkboxes__label" for="id_manual">
         Manual tests
     </label>
@@ -37,8 +36,7 @@ document.body.innerHTML = `<input id="id_name">
                             name="form-0-check_result_state"
                             value="error"
                             horizontal
-                            id="id_form-0-check_result_state_0"
-                        >
+                            id="id_form-0-check_result_state_0">
                         <label class="govuk-label govuk-radios__label" for="id_form-0-check_result_state_0">
                             Error found
                         </label>
@@ -50,8 +48,7 @@ document.body.innerHTML = `<input id="id_name">
                             name="form-0-check_result_state"
                             value="no-error"
                             horizontal
-                            id="id_form-0-check_result_state_1"
-                        >
+                            id="id_form-0-check_result_state_1">
                         <label class="govuk-label govuk-radios__label" for="id_form-0-check_result_state_1">
                             No issue
                         </label>
@@ -64,8 +61,7 @@ document.body.innerHTML = `<input id="id_name">
                             value="not-tested"
                             horizontal
                             id="id_form-0-check_result_state_2"
-                            checked
-                        >
+                            checked>
                         <label class="govuk-label govuk-radios__label" for="id_form-0-check_result_state_2">
                             Not tested
                         </label>

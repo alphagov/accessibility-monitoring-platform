@@ -17,8 +17,7 @@ document.body.innerHTML = `<input id="id_name">
         class="govuk-checkboxes__input"
         type="checkbox"
         name="manual"
-        id="id_manual"
-    >
+        id="id_manual">
     <label class="govuk-label govuk-checkboxes__label" for="id_manual">
         Manual tests
     </label>
@@ -41,8 +40,7 @@ document.body.innerHTML = `<input id="id_name">
                             value="fixed"
                             horizontal
                             id="id_form-0-retest_state_0"
-                            checked
-                        >
+                            checked>
                         <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_0">
                             Fixed
                         </label>
@@ -54,8 +52,7 @@ document.body.innerHTML = `<input id="id_name">
                         name="form-0-retest_state"
                         value="not-fixed"
                         horizontal
-                         id="id_form-0-retest_state_1"
-                    >
+                        id="id_form-0-retest_state_1">
                     <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_1">
                         Not fixed
                     </label>
@@ -67,8 +64,7 @@ document.body.innerHTML = `<input id="id_name">
                         name="form-0-retest_state"
                         value="not-retested"
                         horizontal
-                        id="id_form-0-retest_state_2"
-                    >
+                        id="id_form-0-retest_state_2">
                     <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_2">
                         Not retested
                     </label>
