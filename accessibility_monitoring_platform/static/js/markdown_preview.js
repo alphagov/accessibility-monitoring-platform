@@ -27,3 +27,7 @@ Array.from(previewElements).forEach(function(previewElement) {
     }
     previewMarkdown(inputId, previewId)
 })
+
+module.exports = {
+    previewMarkdown,
+}

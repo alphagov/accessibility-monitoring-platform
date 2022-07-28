@@ -13,3 +13,7 @@ function copyElementToClipboard () {
 
 const copyReportButton = document.getElementById('copy-report-to-clipboard')
 copyReportButton.addEventListener('click', copyElementToClipboard)
+
+module.exports = {
+  copyElementToClipboard,
+}

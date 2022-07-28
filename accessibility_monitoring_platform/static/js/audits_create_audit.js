@@ -29,3 +29,8 @@ function updateValue (e) {
 }
 
 hideFormSet()
+
+module.exports = {
+  hideFormSet,
+  updateValue,
+}

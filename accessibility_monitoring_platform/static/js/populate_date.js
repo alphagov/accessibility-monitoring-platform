@@ -29,3 +29,8 @@ Array.from(populateDateElements).forEach(function(populateDateElement) {
         keypressPopulateWithTodaysDate(event, dayFieldId, monthFieldId, yearFieldId)
     }
 })
+
+module.exports = {
+    populateWithTodaysDate,
+    keypressPopulateWithTodaysDate,
+}
