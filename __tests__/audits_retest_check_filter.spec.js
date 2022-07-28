@@ -12,67 +12,7 @@ document.body.innerHTML = `<input id="id_name">
 <input id="id_no_issue">
 <input id="id_not_tested">
 <input id="clear_search_form">
-<div class="govuk-checkboxes__item">
-    <input
-        class="govuk-checkboxes__input"
-        type="checkbox"
-        name="manual"
-        id="id_manual">
-    <label class="govuk-label govuk-checkboxes__label" for="id_manual">
-        Manual tests
-    </label>
-</div>
-<h2 class="govuk-heading-m" id="number_of_errors">Showing 77 errors</h2>
-<div class="govuk-grid-row" id="testlist pdf WCAG 1.4.3 Contrast (Minimum) ">
-    <div class="govuk-grid-column-full">
-        <input type="hidden" name="form-0-wcag_definition" value="1" id="id_form-0-wcag_definition">
-        <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                    <label id="id_form-0-retest_state-label" class="govuk-label"><b>Issue fixed?</b></label>
-                </legend>
-                <div class="govuk-radios" style="display:flex">
-                    <div class="govuk-radios__item">
-                        <input
-                            class="govuk-radios__input"
-                            type="radio"
-                            name="form-0-retest_state"
-                            value="fixed"
-                            horizontal
-                            id="id_form-0-retest_state_0"
-                            checked>
-                        <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_0">
-                            Fixed
-                        </label>
-                    </div>
-                <div class="govuk-radios__item">
-                    <input
-                        class="govuk-radios__input"
-                        type="radio"
-                        name="form-0-retest_state"
-                        value="not-fixed"
-                        horizontal
-                        id="id_form-0-retest_state_1">
-                    <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_1">
-                        Not fixed
-                    </label>
-                </div>
-                <div class="govuk-radios__item">
-                    <input
-                        class="govuk-radios__input"
-                        type="radio"
-                        name="form-0-retest_state"
-                        value="not-retested"
-                        horizontal
-                        id="id_form-0-retest_state_2">
-                    <label class="govuk-label govuk-radios__label" for="id_form-0-retest_state_2">
-                        Not retested
-                    </label>
-                </div>
-            </div>
-        </fieldset>
-    </div>
-</div>`;
+<h2 class="govuk-heading-m" id="number_of_errors">Showing 77 errors</h2>`;
 
 const {
     fixedFilter,
