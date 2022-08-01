@@ -3,7 +3,6 @@ Test report viewer
 """
 import pytest
 
-import os
 from typing import Dict, Optional
 from unittest import mock
 
@@ -13,7 +12,6 @@ from moto import mock_s3
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.template import loader, Template
-from django.test import RequestFactory
 from django.urls import reverse
 
 from accessibility_monitoring_platform.apps.cases.models import Case
@@ -176,39 +174,38 @@ def test_view_report_not_on_s3(client):
     assertContains(response, html_on_db)
 
 
-def test_report_metric_middleware_client_ip():
+def test_report_metric_middleware_client_ip(rf):
     get_response = mock.MagicMock()
-    factory = RequestFactory()
-    request = factory.get("/")
+    request = rf.get("/")
     rm = ReportMetrics(get_response)
     res = rm.client_ip(request)
     assert res == "127.0.0.1"
 
 
-def test_report_metric_middleware_string_to_hash():
+def test_report_metric_middleware_string_to_hash(rf):
     secret_key = "12345678"
     get_response = mock.MagicMock()
-    factory = RequestFactory()
-    request = factory.get("/", HTTP_USER_AGENT="Mozilla/5.0")
+    request = rf.get("/", HTTP_USER_AGENT="Mozilla/5.0")
     rm = ReportMetrics(get_response)
-    res = rm.string_to_hash(request, secret_key)
+    res = rm.user_fingerprint(request, secret_key)
     assert res == "Mozilla/5.0127.0.0.112345678"
 
 
 def test_report_metric_middleware_fingerprint_hash():
     get_response = mock.MagicMock()
     input_str: str = "no_hash_string"
-    rm = ReportMetrics(get_response)
-    res = rm.fingerprint_hash(input_str)
+    report_metrics = ReportMetrics(get_response)
+    res = report_metrics.four_digit_hash(input_str)
     assert res == 1664
 
 
 def test_report_metric_middleware_fingerprint_codename():
     get_response = mock.MagicMock()
     input_int: int = 1664
-    rm = ReportMetrics(get_response)
-    res = rm.fingerprint_codename(input_int)
+    report_metrics = ReportMetrics(get_response)
+    res = report_metrics.fingerprint_codename(input_int)
     assert res == "DogRhinoRhinoChicken"
+
 
 @pytest.mark.django_db
 @mock_s3

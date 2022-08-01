@@ -349,8 +349,8 @@ class ReportVisitsMetricsView(ReportTemplateView):
                 fingerprint_codename=context["userhash"],
             )
         elif context["showing"] == "unique-visitors":
-            visit_logs = []
-            disinct_values = (
+            visit_logs: List[Any] = []
+            disinct_values: QuerySet = (
                 ReportVisitsMetrics.objects.filter(case=context["report"].case)
                 .values("fingerprint_hash")
                 .distinct()
