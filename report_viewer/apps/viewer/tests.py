@@ -186,12 +186,12 @@ def test_report_metric_middleware_client_ip():
 
 
 def test_report_metric_middleware_string_to_hash():
-    os.environ["SECRET_KEY"] = "12345678"
+    secret_key = "12345678"
     get_response = mock.MagicMock()
     factory = RequestFactory()
     request = factory.get("/", HTTP_USER_AGENT="Mozilla/5.0")
     rm = ReportMetrics(get_response)
-    res = rm.string_to_hash(request)
+    res = rm.string_to_hash(request, secret_key)
     assert res == "Mozilla/5.0127.0.0.112345678"
 
 

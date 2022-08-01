@@ -31,11 +31,11 @@ class ReportMetrics:
             return x_forwarded_for.split(",")[0]
         return request.META.get("REMOTE_ADDR")
 
-    def string_to_hash(self, request) -> str:
+    def string_to_hash(self, request, secret_key: str) -> str:
         return (
             request.META.get("HTTP_USER_AGENT", "")
             + self.client_ip(request)
-            + SECRET_KEY
+            + secret_key
         )
 
     def fingerprint_hash(self, string_to_hash: str) -> int:
@@ -59,7 +59,7 @@ class ReportMetrics:
 
             guid: str = absolute_uri.split("/")[guid_index]
             if len(guid) == 36 and UUID(guid, version=4):
-                string_to_hash = self.string_to_hash(request)
+                string_to_hash = self.string_to_hash(request, SECRET_KEY)
                 fingerprint_hash = self.fingerprint_hash(string_to_hash)
                 fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
                 ReportVisitsMetrics(
