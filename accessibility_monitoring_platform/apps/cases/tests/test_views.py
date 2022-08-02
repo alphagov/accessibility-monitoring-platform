@@ -1021,6 +1021,89 @@ def test_preferred_contact_not_displayed(admin_client):
     assertNotContains(response, "Preferred contact")
 
 
+def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(admin_client):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(response, "A test does not exist for this case. Start the test in ")
+
+
+@pytest.mark.parametrize(
+    "audit_table_row",
+    [
+        ("Link to test"),
+        ("Test created"),
+        ("Screen size"),
+        ("Exemptions"),
+        ("Exemptions notes"),
+        ("Initial website compliance decision"),
+        ("Initial website compliance notes"),
+        ("Initial accessibility statement compliance decision"),
+        ("Initial accessibility statement compliance notes"),
+    ],
+)
+def test_audit_shows_table_when_audit_exists_and_audit_is_platform(admin_client, audit_table_row):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    Audit.objects.create(case=case)
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(response, audit_table_row)
+
+
+def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(admin_client):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_PLATFORM,
+        report_methodology=REPORT_METHODOLOGY_PLATFORM,
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(response, "A report does not exist for this case. Create a report in")
+
+
+@pytest.mark.parametrize(
+    "audit_table_row",
+    [
+        ("Link to report"),
+        ("Notes"),
+        ("View final HTML report"),
+        ("Report views"),
+        ("Unique visitors to report"),
+    ],
+)
+def test_report_shows_table_when_report_exists_and_report_is_platform(admin_client, audit_table_row):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_PLATFORM,
+        report_methodology=REPORT_METHODOLOGY_PLATFORM,
+    )
+    Audit.objects.create(case=case)
+    Report.objects.create(case=case)
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(response, audit_table_row)
+
+
 def test_preferred_contact_displayed(admin_client):
     """
     Test that the preferred contact is displayed when there is more than one contact
