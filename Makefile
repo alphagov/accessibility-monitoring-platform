@@ -5,6 +5,7 @@ init:
 		&& pipenv install -d \
 		&& npm i \
 		&& make static_files_process \
+		&& make collect_static \
 		&& psql postgres://admin:secret@localhost:5432/postgres -c "create database accessibility_monitoring_app;" \
 		&& python prepare_local_db.py \
 		&& ./manage.py migrate \
