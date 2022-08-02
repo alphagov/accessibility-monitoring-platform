@@ -41,7 +41,7 @@ sync_accessibility_monitoring_platform:
 		--files "./accessibility_monitoring_platform/static/compiled/*.scss" \
 		--files "./accessibility_monitoring_platform/static/compiled/**" \
 		--watchEvents change --watchEvents add \
-		--reload-delay 2000
+		--reload-delay 1000
 
 sync_report_viewer:
 	npx browser-sync start -p http://127.0.0.1:8082/ \
@@ -50,7 +50,7 @@ sync_report_viewer:
 		--files "./report_viewer/static/compiled/*.scss" \
 		--files "./report_viewer/static/compiled/**" \
 		--watchEvents change --watchEvents add \
-		--reload-delay 2000
+		--reload-delay 1000
 
 test_accessibility_monitoring_platform:
 	python manage.py collectstatic --noinput \
@@ -91,11 +91,3 @@ staging_env:
 	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_report_viewer_stage_env_settings.json
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
 
-docker_is_running = $(shell curl -s -w "%{http_code}\n" http://0.0.0.0:8001 -o /dev/null)
-
-int_test_developer_mode:
-    ifneq ($(docker_is_running), 302)
-		echo "Launching integration stack"
-		docker compose -f stack_tests/docker-compose.yml up -d
-    endif
-	python3 stack_tests/main.py -s ./stack_tests/integration_tests_developer_mode_settings.json
