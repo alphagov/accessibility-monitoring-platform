@@ -44,11 +44,19 @@ class DashboardView(TemplateView):
         cases_by_status.update(group_cases_by_qa_status(cases=all_cases))
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
-            cases=all_cases, user=user
+            cases=all_cases,
+            user=user,
         )
 
         incomplete_cases: List[Case] = [
-            case for case in all_cases if case.status != "complete"
+            case
+            for case in all_cases
+            if (
+                case.status != "complete"
+                and case.status != "case-closed-sent-to-equalities-body"
+                and case.status != "deleted"
+                and case.status != "deactivated"
+            )
         ]
         unassigned_cases: List[Case] = sorted(
             [case for case in all_cases if case.status == "unassigned-case"],

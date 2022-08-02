@@ -20,6 +20,7 @@ from ...cases.models import (
     REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
+    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
 
 
@@ -152,5 +153,107 @@ def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
                     Settings &gt; Platform version history</a>
             </strong>
         </div>""",
+        html=True,
+    )
+
+
+def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user):
+    """Check dashboard shows correct number of active cases"""
+    # Creates unassigned case
+    Case.objects.create()
+
+    # Creates test in progress case
+    Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+    )
+
+    # Creates deactivated case
+    Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        is_deactivated=True,
+    )
+
+    # Creates completed case
+    Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        case_completed=CASE_COMPLETED_SEND,
+        sent_to_enforcement_body_sent_date=datetime.now(),
+        enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    )
+
+    # Creates closed sent to equalities-body case
+    Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=admin_user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        report_sent_date=datetime.now(),
+        report_acknowledged_date=datetime.now(),
+        twelve_week_update_requested_date=datetime.now(),
+        twelve_week_correspondence_acknowledged_date=datetime.now(),
+        case_completed=CASE_COMPLETED_SEND,
+        sent_to_enforcement_body_sent_date=datetime.now(),
+    )
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+    assert Case.objects.all().count() == 5
+    assert response.status_code == 200
+    expected_number_of_active_cases: str = """
+    <div class="govuk-body-m"> Total active cases </div>
+    <div class="govuk-heading-xl no-bottom-margin"> 2 </div>
+    """
+    assertContains(
+        response,
+        expected_number_of_active_cases,
+        html=True,
+    )
+
+
+def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin_user):
+    """Check dashboard shows correct number of your active cases"""
+
+    # Creates unassigned case
+    Case.objects.create()
+    Case.objects.create()
+
+    # Case assigned to you
+    Case.objects.create(auditor=admin_user)
+
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+    assert Case.objects.all().count() == 3
+    assert response.status_code == 200
+    expected_number_of_your_active_cases: str = """
+    <div class="govuk-body-m"> Your active cases </div>
+    <div class="govuk-heading-xl no-bottom-margin"> 1 </div>
+    """
+    assertContains(
+        response,
+        expected_number_of_your_active_cases,
+        html=True,
+    )
+
+    expected_number_of_unnassigned_cases: str = """
+    <div class="govuk-body-m"> Unassigned cases </div>
+    <div class="govuk-heading-xl no-bottom-margin"> 2 </div>
+    """
+    assertContains(
+        response,
+        expected_number_of_unnassigned_cases,
         html=True,
     )
