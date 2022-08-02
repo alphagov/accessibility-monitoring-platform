@@ -5,7 +5,7 @@ import pytest
 
 from ...cases.models import Case
 
-from ..forms import SectionUpdateForm
+from ..forms import SectionUpdateForm, ReportFeedbackForm
 from ..models import Report, Section
 
 
@@ -57,5 +57,17 @@ def test_section_update_form_markdown_with_script_tag():
             "content": "Oh oh, a <script> tag",
         },
         instance=section,
+    )
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_report_feedback_is_valid():
+    """Tests report feeback form is valid"""
+    form: ReportFeedbackForm = ReportFeedbackForm(
+        data={
+            "what_were_you_trying_to_do": "text",
+            "what_went_wrong": "text",
+        }
     )
     assert form.is_valid()

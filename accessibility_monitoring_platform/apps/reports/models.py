@@ -9,6 +9,7 @@ from django.db.models import QuerySet
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 from ..cases.models import Case
 from ..common.models import VersionModel
@@ -203,3 +204,42 @@ class TableRow(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.section}: Table row {self.row_number}")
+
+
+class ReportFeedback(models.Model):
+    """
+    Model for report feedback
+    """
+
+    created = models.DateTimeField(auto_now_add=True)
+    guid = models.TextField(
+        default="",
+        blank=True,
+    )
+    what_were_you_trying_to_do = models.TextField(
+        default="",
+        blank=True,
+    )
+    what_went_wrong = models.TextField(
+        default="",
+        blank=True,
+    )
+    case = models.ForeignKey(
+        Case,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
+    def __str__(self) -> str:
+        return str(
+            f"""Created: {self.created}, """
+            f"""guid: {self.guid}, """
+            f"""case: {self.case.organisation_name}, """
+            f"""What were you trying to do: {self.what_were_you_trying_to_do}, """
+            f"""What went wrong: {self.what_went_wrong}"""
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        s3_report = get_object_or_404(S3Report, guid=self.guid)
+        self.case = s3_report.case
+        super().save(*args, **kwargs)

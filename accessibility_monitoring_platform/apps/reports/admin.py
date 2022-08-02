@@ -9,6 +9,7 @@ from .models import (
     Section,
     TableRow,
     ReportWrapper,
+    ReportFeedback,
 )
 
 from ..common.admin import ExportCsvMixin
@@ -79,8 +80,15 @@ class TableRowAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
+class ReportFeedbackAdmin(admin.ModelAdmin):
+    readonly_fields = ["created"]
+    search_fields = ["guid"]
+    list_display = ["created", "case", "what_were_you_trying_to_do", "what_went_wrong"]
+
+
 admin.site.register(Report, ReportAdmin)
 admin.site.register(BaseTemplate, BaseTemplateAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(TableRow, TableRowAdmin)
 admin.site.register(ReportWrapper)
+admin.site.register(ReportFeedback, ReportFeedbackAdmin)
