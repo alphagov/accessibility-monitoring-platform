@@ -9,6 +9,7 @@ from .models import (
     Section,
     TableRow,
     ReportWrapper,
+    ReportVisitsMetrics,
     ReportFeedback,
 )
 
@@ -80,6 +81,14 @@ class TableRowAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
+class ReportVisitsMetricsAdmin(admin.ModelAdmin):
+    """Django admin configuration for ReportVisitsMetrics model"""
+
+    readonly_fields = ["created"]
+    search_fields = ["case", "guid", "fingerprint_codename"]
+    list_display = ["created", "case", "fingerprint_codename"]
+
+
 class ReportFeedbackAdmin(admin.ModelAdmin):
     readonly_fields = ["created"]
     search_fields = ["guid"]
@@ -91,4 +100,5 @@ admin.site.register(BaseTemplate, BaseTemplateAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(TableRow, TableRowAdmin)
 admin.site.register(ReportWrapper)
+admin.site.register(ReportVisitsMetrics, ReportVisitsMetricsAdmin)
 admin.site.register(ReportFeedback, ReportFeedbackAdmin)

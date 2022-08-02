@@ -110,6 +110,7 @@ class ReportWrapperUpdateForm(forms.ModelForm):
             "related_content",
         ]
 
+
 class ReportFeedbackForm(forms.ModelForm):
     """
     Form for submitting feedback

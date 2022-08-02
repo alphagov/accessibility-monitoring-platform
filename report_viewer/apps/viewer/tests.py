@@ -4,6 +4,7 @@ Test report viewer
 import pytest
 
 from typing import Dict, Optional
+from unittest import mock
 
 from pytest_django.asserts import assertContains, assertNotContains
 from moto import mock_s3
@@ -17,10 +18,15 @@ from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 from accessibility_monitoring_platform.apps.audits.models import Audit
-from accessibility_monitoring_platform.apps.reports.models import Report
+from accessibility_monitoring_platform.apps.reports.models import (
+    Report,
+    ReportVisitsMetrics,
+)
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
+
+from .middleware.report_views_middleware import ReportMetrics
 
 
 @pytest.mark.django_db
@@ -170,6 +176,67 @@ def test_view_report_not_on_s3(client):
     assert response.status_code == 200
 
     assertContains(response, html_on_db)
+
+
+def test_report_metric_middleware_client_ip(rf):
+    get_response = mock.MagicMock()
+    request = rf.get("/")
+    rm = ReportMetrics(get_response)
+    res = rm.client_ip(request)
+    assert res == "127.0.0.1"
+
+
+def test_report_metric_middleware_string_to_hash(rf):
+    secret_key = "12345678"
+    get_response = mock.MagicMock()
+    request = rf.get("/", HTTP_USER_AGENT="Mozilla/5.0")
+    rm = ReportMetrics(get_response)
+    res = rm.user_fingerprint(request, secret_key)
+    assert res == "Mozilla/5.0127.0.0.112345678"
+
+
+def test_report_metric_middleware_fingerprint_hash():
+    get_response = mock.MagicMock()
+    input_str: str = "no_hash_string"
+    report_metrics = ReportMetrics(get_response)
+    res = report_metrics.four_digit_hash(input_str)
+    assert res == 1664
+
+
+def test_report_metric_middleware_fingerprint_codename():
+    get_response = mock.MagicMock()
+    input_int: int = 1664
+    report_metrics = ReportMetrics(get_response)
+    res = report_metrics.fingerprint_codename(input_int)
+    assert res == "DogRhinoRhinoChicken"
+
+
+@pytest.mark.django_db
+@mock_s3
+def test_report_metric_middleware_successful(client):
+    """Test view report shows report text from database when not on S3"""
+    case: Case = Case.objects.create()
+    user: User = User.objects.create()
+    Report.objects.create(case=case)
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    html_on_db: str = "<p>Text on DB</p>"
+    s3_read_write_report.upload_string_to_s3_as_html(
+        html_content="<p>Text on S3</p>",
+        case=case,
+        user=user,
+        report_version="v1_202201401",
+    )
+    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
+    s3_report.html = html_on_db  # type: ignore
+    s3_report.save()  # type: ignore
+
+    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    res: int = ReportVisitsMetrics.objects.all().count()
+    assert res == 3
 
 
 @pytest.mark.django_db

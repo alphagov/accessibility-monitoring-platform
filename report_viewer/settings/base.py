@@ -81,6 +81,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "report_viewer.apps.viewer.middleware.report_views_middleware.ReportMetrics",
 ]
 
 ROOT_URLCONF = "report_viewer.urls"
