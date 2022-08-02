@@ -111,15 +111,15 @@ def test_report_published_message_shown(admin_client):
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-publish", kwargs=report_pk_kwargs), follow=True
+        reverse("reports:report-publish", kwargs=report_pk_kwargs),
+        follow=True,
     )
 
     assert response.status_code == 200
 
     assertContains(
         response,
-        """<div class="govuk-inset-text">HTML report successfully created!</div>""",
-        html=True,
+        """HTML report successfully created!""",
     )
 
 

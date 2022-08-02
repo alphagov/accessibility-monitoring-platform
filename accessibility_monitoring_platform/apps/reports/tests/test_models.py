@@ -8,7 +8,13 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 from ...cases.models import Case
 
-from ..models import Report, Section, TableRow, TEMPLATE_TYPE_ISSUES_TABLE
+from ..models import (
+    Report,
+    ReportFeedback,
+    Section,
+    TableRow,
+    TEMPLATE_TYPE_ISSUES_TABLE,
+)
 
 DOMAIN: str = "example.com"
 
@@ -54,7 +60,8 @@ def test_deleted_table_rows_are_not_visible():
     section: Section = Section.objects.create(report=report, position=1)
     TableRow.objects.create(section=section, row_number=1, is_deleted=True)
     undeleted_table_row: TableRow = TableRow.objects.create(
-        section=section, row_number=2
+        section=section,
+        row_number=2,
     )
 
     assert section.visible_table_rows.count() == 1
@@ -106,9 +113,38 @@ def test_top_level_sections():
     report: Report = Report.objects.create(case=case)
     markdown_section: Section = Section.objects.create(report=report, position=1)
     issues_table_section: Section = Section.objects.create(
-        report=report, position=2, template_type=TEMPLATE_TYPE_ISSUES_TABLE
+        report=report,
+        position=2,
+        template_type=TEMPLATE_TYPE_ISSUES_TABLE,
     )
 
     assert report.top_level_sections.count() == 1
     assert markdown_section in report.top_level_sections
     assert issues_table_section not in report.top_level_sections
+
+
+@pytest.mark.django_db
+def test_report_feedback_returns_string():
+    """Test Report Feedback returns the correct string"""
+    sample_guid: str = "12345678"
+    case: Case = Case.objects.create(organisation_name="org_name")
+    Report.objects.create(case=case)
+    S3Report.objects.create(
+        guid=sample_guid,
+        version=1,
+        case=case,
+    )
+    report_feedback: ReportFeedback = ReportFeedback.objects.create(
+        guid=sample_guid,
+        what_were_you_trying_to_do="text",
+        what_went_wrong="text",
+        case=case,
+    )
+    expected_result: str = (
+        f"Created: {report_feedback.created}, "
+        "guid: 12345678, "
+        "case: org_name, "
+        "What were you trying to do: text, "
+        "What went wrong: text"
+    )
+    assert str(report_feedback) == expected_result

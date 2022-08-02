@@ -18,9 +18,13 @@ from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 from accessibility_monitoring_platform.apps.audits.models import Audit
-from accessibility_monitoring_platform.apps.reports.models import Report, ReportVisitsMetrics
+from accessibility_monitoring_platform.apps.reports.models import (
+    Report,
+    ReportVisitsMetrics,
+)
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
 
 from .middleware.report_views_middleware import ReportMetrics
 
@@ -233,3 +237,42 @@ def test_report_metric_middleware_successful(client):
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     res: int = ReportVisitsMetrics.objects.all().count()
     assert res == 3
+
+
+@pytest.mark.django_db
+@mock_s3
+def test_post_report_feedback_form(admin_client):
+    """Tests post report feedback saves correctly"""
+    example_text: str = "text"
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(organisation_name="org_name")
+    Report.objects.create(case=case)
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    s3_read_write_report.upload_string_to_s3_as_html(
+        html_content="<p>Text on S3</p>",
+        case=case,
+        user=user,
+        report_version="v1_202201401",
+    )
+    s3_report: S3Report = S3Report.objects.get(case=case)
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "viewer:viewreport",
+            kwargs={"guid": s3_report.guid},
+        ),
+        {
+            "what_were_you_trying_to_do": example_text,
+            "what_went_wrong": example_text,
+        },
+        follow=True,
+    )
+    report_feedback: ReportFeedback = ReportFeedback.objects.get(guid=s3_report.guid)
+    assert response.status_code == 200
+    assert report_feedback.guid == s3_report.guid
+    assert report_feedback.what_were_you_trying_to_do == example_text
+    assert report_feedback.what_went_wrong == example_text
+    assert report_feedback.case == case
+    assertContains(
+        response,
+        """Thank you for your feedback""",
+    )
