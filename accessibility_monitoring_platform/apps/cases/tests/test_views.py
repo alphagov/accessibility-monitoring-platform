@@ -1021,7 +1021,9 @@ def test_preferred_contact_not_displayed(admin_client):
     assertNotContains(response, "Preferred contact")
 
 
-def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(admin_client):
+def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
+    admin_client,
+):
     """
     Test that audit details shows link to create when no audit exists
     """
@@ -1048,7 +1050,9 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         ("Initial accessibility statement compliance notes"),
     ],
 )
-def test_audit_shows_table_when_audit_exists_and_audit_is_platform(admin_client, audit_table_row):
+def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
+    admin_client, audit_table_row
+):
     """
     Test that audit details shows link to create when no audit exists
     """
@@ -1061,7 +1065,9 @@ def test_audit_shows_table_when_audit_exists_and_audit_is_platform(admin_client,
     assertContains(response, audit_table_row)
 
 
-def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(admin_client):
+def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(
+    admin_client,
+):
     """
     Test that audit details shows link to create when no audit exists
     """
@@ -1074,7 +1080,9 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
     )
     assert response.status_code == 200
-    assertContains(response, "A report does not exist for this case. Create a report in")
+    assertContains(
+        response, "A report does not exist for this case. Create a report in"
+    )
 
 
 @pytest.mark.parametrize(
@@ -1087,7 +1095,9 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
         ("Unique visitors to report"),
     ],
 )
-def test_report_shows_table_when_report_exists_and_report_is_platform(admin_client, audit_table_row):
+def test_report_shows_table_when_report_exists_and_report_is_platform(
+    admin_client, audit_table_row
+):
     """
     Test that audit details shows link to create when no audit exists
     """

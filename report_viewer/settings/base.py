@@ -81,6 +81,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
+    "csp.middleware.CSPMiddleware",
     "report_viewer.apps.viewer.middleware.report_views_middleware.ReportMetrics",
 ]
 
@@ -195,3 +197,27 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DATE_FORMAT = "d/m/Y"
 
 MARKDOWN_EXTENSIONS = []
+
+PERMISSIONS_POLICY = {
+    "accelerometer": [],
+    "ambient-light-sensor": [],
+    "autoplay": [],
+    "camera": [],
+    "display-capture": [],
+    "document-domain": [],
+    "encrypted-media": [],
+    "fullscreen": [],
+    "geolocation": [],
+    "gyroscope": [],
+    "interest-cohort": [],
+    "magnetometer": [],
+    "microphone": [],
+    "midi": [],
+    "payment": [],
+    "usb": [],
+}
+
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_SCRIPT_SRC = ["'self'"]
+CSP_STYLE_SRC = ["'self'"]
+CSP_IMG_SRC = ["'self'"]

@@ -95,6 +95,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_otp.middleware.OTPMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
+    "csp.middleware.CSPMiddleware",
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
     "axes.middleware.AxesMiddleware",
 ]
@@ -211,3 +213,27 @@ if UNDER_TEST:
 
 
 TWO_FACTOR_REMEMBER_COOKIE_AGE = 60 * 60 * 24 * 6  # 2FA expires after 6 days
+
+PERMISSIONS_POLICY = {
+    "accelerometer": [],
+    "ambient-light-sensor": [],
+    "autoplay": [],
+    "camera": [],
+    "display-capture": [],
+    "document-domain": [],
+    "encrypted-media": [],
+    "fullscreen": [],
+    "geolocation": [],
+    "gyroscope": [],
+    "interest-cohort": [],
+    "magnetometer": [],
+    "microphone": [],
+    "midi": [],
+    "payment": [],
+    "usb": [],
+}
+
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_SCRIPT_SRC = ["'self'"]
+CSP_STYLE_SRC = ["'self'"]
+CSP_IMG_SRC = ["'self'"]
