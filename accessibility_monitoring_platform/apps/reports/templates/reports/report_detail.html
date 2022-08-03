@@ -23,12 +23,12 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">Edit report</h1>
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl custom-heading-xl">Edit report</h1>
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
+                <div class="govuk-button-group custom-button-group-right">
                     <a
                         href="{% url 'reports:report-confirm-refresh' report.id %}"
                         role="button"
@@ -47,11 +47,10 @@
                 </div>
             </div>
         </div>
-        <div style="position: relative; top: -15px;">
+        <div class="custom-subtitle-container">
             {% include 'cases/helpers/case_title.html' with case=report.case %}
             {% include "cases/helpers/messages.html" %}
         </div>
-
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full report-contents-{{report.report_version}}">
                 {% include 'reports/helpers/nav_contents.html' %}
@@ -63,7 +62,7 @@
                             <h2 id="{{ section.anchor }}" class="govuk-heading-l">{{ section.name }}</h2>
                         </div>
                         <div class="govuk-grid-column-one-thirds">
-                            <div class="govuk-button-group" style="flex-direction:row-reverse">
+                            <div class="govuk-button-group flex-row-reverse">
                                 <a href="{% url 'reports:edit-report-section' section.id %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                     rel="noreferrer noopener">
@@ -72,7 +71,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="govuk-grid-row" style="margin-bottom:30px;">
+                    <div class="govuk-grid-row section-margin-bottom-30">
                         <div class="govuk-grid-column-full">
                             {% if section.template_type == 'html' %}
                                 {{ section.content|safe }}

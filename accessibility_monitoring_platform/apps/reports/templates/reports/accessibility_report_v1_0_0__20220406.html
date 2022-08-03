@@ -5,7 +5,7 @@
         <h2 id="contents">Contents</h2>
         <ul>
             {% for section in report.top_level_sections %}
-                <li style="list-style-type: none;">
+                <li>
                     <a href="#{{ section.anchor }}">{{ section.name }}</a>
                 </li>
             {% endfor %}
@@ -15,7 +15,7 @@
 
 {% for section in report.section_set.all %}
     <br />
-    <h2 id="{{ section.anchor }}" style="page-break-before: always;">{{ section.name }}</h2>
+    <h2 id="{{ section.anchor }}">{{ section.name }}</h2>
     {% if section.template_type == 'html' %}
         {{ section.content|safe }}
     {% else %}
@@ -28,4 +28,3 @@
         {% include 'reports/helpers/table_issues.html' %}
     {% endif %}
 {% endfor %}
-

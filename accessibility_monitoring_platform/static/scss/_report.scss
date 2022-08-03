@@ -111,6 +111,10 @@
     font-size: 1.1875rem;
     line-height: 1.31579;
 
+    h2:not(#contents) {
+        page-break-before: always;
+    }
+
     caption {
         font-size: 16px;
     }
@@ -123,6 +127,7 @@
     li {
         margin-top: 5px;
         margin-bottom: 5px;
+        list-style-type: none;
     }
 
     a {
@@ -180,7 +185,7 @@
         list-style-type: none;
     }
 
-    table#issues-table {
+    table[id^='issues-table-'] {
         page-break-before: always;
 
         tr td:nth-child(1) {
@@ -194,7 +199,7 @@
     }
 
     table#urls-table {
-        page-break-before: always;
+        page-break-before: avoid;
 
         th, td {
             width: 50%;
@@ -219,4 +224,55 @@
         margin-bottom: 5px;
         list-style-type: none; /* Remove bullets */
     }
+}
+
+.gds-co-image {
+    padding-bottom: 20px;
+}
+
+.float-right {
+    float: right;
+}
+
+.custom-heading-xl {
+    margin-bottom:15px;
+    padding-right: 20px;
+}
+
+.custom-subtitle-container {
+    position: relative;
+    top: -15px;
+}
+
+.flex-row-reverse {
+    flex-direction: row-reverse
+}
+
+.custom-button-group-right {
+    justify-content:flex-end;
+    margin-top: 4px;
+}
+
+.section-margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
+.section-margin-bottom-large-50 {
+    margin-bottom: 50px;
+}
+
+.margin-left-15 {
+    margin-left: 15px;
+}
+
+.margin-right-0 {
+    margin-right: 0px !important;
+}
+
+.full-max-width {
+    max-width: 100%;
+}
+
+.table-edit-header {
+    width:52%;
 }
