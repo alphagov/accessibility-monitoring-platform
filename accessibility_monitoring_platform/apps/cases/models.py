@@ -742,20 +742,14 @@ class Case(VersionModel):
             return [
                 {
                     # pylint: disable-next=line-too-long
-                    "text": "Equality body pursuing this case should be yes to move to 'In correspondence with equalities body'",
-                    "url": "cases:edit-enforcement-body-correspondence",
-                },
-                {
-                    # pylint: disable-next=line-too-long
-                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "text": "Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 },
             ]
         elif self.status == "in-correspondence-with-equalities-body":
             return [
                 {
-                    # pylint: disable-next=line-too-long
-                    "text": "Equalities body correspondence completed should be No further action to move to 'Complete'",
+                    "text": "Equality body pursuing this case? should be 'Yes, completed'",
                     "url": "cases:edit-enforcement-body-correspondence",
                 }
             ]
