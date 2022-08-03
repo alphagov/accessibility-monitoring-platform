@@ -4,7 +4,7 @@ Project URL Configuration
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from two_factor.urls import urlpatterns as tf_urls
 
 
@@ -29,4 +29,6 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path(r"admin/", admin.site.urls),
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
+    path("security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
+    path(".well-known/security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
 ]
