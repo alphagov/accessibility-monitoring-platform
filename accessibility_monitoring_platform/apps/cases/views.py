@@ -19,6 +19,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..notifications.utils import add_notification, read_notification
+from ..reports.utils import get_report_visits_metrics
 
 from ..common.utils import (
     download_as_csv,
@@ -164,6 +165,9 @@ class CaseDetailView(DetailView):
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()  # type: ignore
         )
+
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:  # type: ignore
+            context.update(get_report_visits_metrics(self.object))  # type: ignore
 
         context["case_details_rows"] = case_details_prefix + get_rows(
             form=CaseDetailUpdateForm()  # type: ignore
@@ -370,6 +374,8 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         read_notification(self.request)
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            context.update(get_report_visits_metrics(self.object))
         return context
 
     def get_form(self):
@@ -513,6 +519,12 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         CaseReportCorrespondenceUpdateForm
     ] = CaseReportCorrespondenceUpdateForm
     template_name: str = "cases/forms/report_correspondence.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            context.update(get_report_visits_metrics(self.object))
+        return context
 
     def get_form(self):
         """Populate help text with dates"""

@@ -18,6 +18,20 @@
     </td>
 </tr>
 <tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">
+        {{ number_of_visits  }} 
+        (<a href="{% url 'reports:report-metrics-view' report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+    </td>
+</tr>
+<tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">Unique visitors to report</th>
+    <td class="govuk-table__cell amp-width-one-half amp-notes">
+        {{ number_of_unique_visitors  }}
+        (<a href="{% url 'reports:report-metrics-view' report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+    </td>
+</tr>
+<tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ report.notes|markdown_to_html }}</td>
 </tr>

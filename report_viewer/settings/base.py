@@ -48,6 +48,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+CSRF_TRUSTED_ORIGINS.append("http://localhost:3000")  # BrowserSync needs this to work
 
 
 INSTALLED_APPS = [
@@ -80,6 +81,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "report_viewer.apps.viewer.middleware.report_views_middleware.ReportMetrics",
 ]
 
 ROOT_URLCONF = "report_viewer.urls"
@@ -193,3 +197,27 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DATE_FORMAT = "d/m/Y"
 
 MARKDOWN_EXTENSIONS = []
+
+PERMISSIONS_POLICY = {
+    "accelerometer": [],
+    "ambient-light-sensor": [],
+    "autoplay": [],
+    "camera": [],
+    "display-capture": [],
+    "document-domain": [],
+    "encrypted-media": [],
+    "fullscreen": [],
+    "geolocation": [],
+    "gyroscope": [],
+    "interest-cohort": [],
+    "magnetometer": [],
+    "microphone": [],
+    "midi": [],
+    "payment": [],
+    "usb": [],
+}
+
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_SCRIPT_SRC = ["'self'"]
+CSP_STYLE_SRC = ["'self'"]
+CSP_IMG_SRC = ["'self'"]

@@ -70,6 +70,32 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field_two_column.html' with field=form.report_sent_date %}
                             <hr style="width:100%;">
+                            {% if case.report and case.report_methodology == "platform" %}
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <label class="govuk-label"><b>Report visits</b></label>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <span class="govuk-hint">
+                                            {{ number_of_visits }}
+                                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                                        </span>
+                                    </div>
+                                </div>
+                                <hr style="width:100%;">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <label class="govuk-label"><b>Unique report visits</b></label>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <span class="govuk-hint">
+                                            {{ number_of_unique_visitors }}
+                                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                                        </span>
+                                    </div>
+                                </div>
+                                <hr style="width:100%;">
+                            {% endif %}
                             {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_1_sent_date %}
                             <hr style="width:100%;">
                             {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_4_sent_date %}

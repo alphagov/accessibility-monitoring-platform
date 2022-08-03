@@ -13,7 +13,7 @@
         }
     ],
     "testing_endpoint": "http://0.0.0.0:8001/",
-    "connect_attempts": 30,
+    "connect_attempts": 60,
     "test_dir": "./stack_tests/integration_tests/",
     "path_for_xml_results": "./result.xml",
     "headless": true,

@@ -15,37 +15,64 @@
 <table class="govuk-table">
     <tbody class="govuk-table__body">
         {% if case.report_methodology == 'platform' %}
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header amp-width-one-half">Link to report</th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    {% if case.report %}
-                        <a
-                            href="{% url 'reports:report-publisher' case.report.id %}"
-                            class="govuk-link govuk-link--no-visited-state"
-                        >
-                            View report
-                        </a>
-                    {% else %}
-                        None
-                    {% endif %}
-                </td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
-                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header amp-width-one-half">View final HTML report</th>
-                <td class="govuk-table__cell amp-width-one-half amp-notes">
-                    {% if case.report.latest_s3_report %}
-                        <a id="latest_s3_report" href="{{ report_viewer_url_prefix }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {{ case.report.latest_s3_report }}
-                        </a>
-                    {% else %}
-                        None
-                    {% endif %}
-                </td>
-            </tr>
+            {% if case.report %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-half">Link to report</th>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {% if case.report %}
+                            <a
+                                href="{% url 'reports:report-publisher' case.report.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                View report
+                            </a>
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-half">View final HTML report</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        {% if case.report.latest_s3_report %}
+                            <a id="latest_s3_report" href="{{ report_viewer_url_prefix }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                {{ case.report.latest_s3_report }}
+                            </a>
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if case.report and case.testing_methodology == "platform" %}
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            {{ number_of_visits  }} 
+                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header amp-width-one-half">Unique visitors to report</th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            {{ number_of_unique_visitors  }}
+                            (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                        </td>
+                    </tr>
+                {% endif %}
+            {% else %}
+                <p class="govuk-body">
+                    A report does not exist for this case. Create a report in
+                    <a href="{% url 'cases:edit-report-details' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                        report details.
+                    </a>
+                </p>
+            {% endif %}
         {% else %}
             {% for row in report_details_rows %}
                 {% include 'cases/helpers/detail_row.html' with row=row %}

@@ -14,22 +14,33 @@
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% if case.audit %}
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    <a
-                        href="{% url 'audits:audit-detail' case.audit.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                    >
-                        View test
+        {% if case.testing_methodology == "platform" %}
+            {% if case.audit %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        <a
+                            href="{% url 'audits:audit-detail' case.audit.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View test
+                        </a>
+                    </td>
+                </tr>
+                {% include 'cases/helpers/platform_testing_details.html' with row=row %}
+            {% else %}
+                <p class="govuk-body">A test does not exist for this case. Start the test in 
+                    <a href="{% url 'cases:edit-test-results' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                        testing details.
                     </a>
-                </td>
-            </tr>
-            {% include 'cases/helpers/platform_testing_details.html' with row=row %}
+                </p>
+            {% endif %}
+        {% else %}
+            {% for row in testing_details_rows %}
+                {% include 'cases/helpers/detail_row.html' with row=row %}
+            {% endfor %}
         {% endif %}
-        {% for row in testing_details_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
     </tbody>
 </table>

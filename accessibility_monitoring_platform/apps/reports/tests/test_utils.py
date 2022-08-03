@@ -22,7 +22,14 @@ from ...audits.models import (
 )
 from ...cases.models import Case
 
-from ..models import TEMPLATE_TYPE_ISSUES_TABLE, Report, Section, TableRow, BaseTemplate
+from ..models import (
+    TEMPLATE_TYPE_ISSUES_TABLE,
+    Report,
+    Section,
+    TableRow,
+    BaseTemplate,
+    ReportVisitsMetrics,
+)
 from ..utils import (
     check_for_buttons_by_name,
     delete_table_row,
@@ -33,6 +40,7 @@ from ..utils import (
     create_issue_table_rows,
     undelete_table_row,
     get_report_viewer_url_prefix,
+    get_report_visits_metrics,
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
     MOVE_ROW_UP_BUTTON_PREFIX,
@@ -394,3 +402,16 @@ def test_move_table_row_down(rf):
 def test_report_viewer_url(http_host, res):
     mock_request: MockRequest = MockRequest(http_host=http_host)
     return res == get_report_viewer_url_prefix(request=mock_request)  # type: ignore
+
+
+@pytest.mark.django_db
+def test_report_visits_metrics():
+    case: Case = Case.objects.create()
+    res = get_report_visits_metrics(case)
+    assert res["number_of_visits"] == 0
+    assert res["number_of_unique_visitors"] == 0
+    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
+    ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
+    res_2 = get_report_visits_metrics(case)
+    assert res_2["number_of_visits"] == 2
+    assert res_2["number_of_unique_visitors"] == 1
