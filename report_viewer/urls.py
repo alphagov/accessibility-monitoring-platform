@@ -17,6 +17,7 @@ from django.conf.urls import include
 from django.http import JsonResponse
 from django.urls import path
 from django.views.defaults import page_not_found
+from django.views.generic import TemplateView
 
 
 def custom_page_not_found(request):
@@ -32,4 +33,6 @@ urlpatterns = [
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
     path("healthcheck/", healthcheck),
+    path("security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
+    path(".well-known/security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
 ]
