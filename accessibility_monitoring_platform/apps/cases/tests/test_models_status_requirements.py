@@ -30,11 +30,11 @@ def test_case_status_deactivated():
     )
     assert case.status == "deactivated"
     assert case.status_requirements == [
-    {
-        "text": "Something has gone wrong :(",
-        "url": "None",
-    },
-]
+        {
+            "text": "Something has gone wrong :(",
+            "url": "None",
+        },
+    ]
 
 
 @pytest.mark.django_db
@@ -71,7 +71,7 @@ def test_case_status_test_in_progress():
         {
             "text": "Initial accessibility statement decision is not filled in",
             "url": "cases:edit-test-results",
-        }
+        },
     ]
     case.is_website_compliant = "compliant"
     case.save()
@@ -354,7 +354,6 @@ def test_case_status_in_correspondence_with_equalities_body():
             "url": "cases:edit-enforcement-body-correspondence",
         }
     ]
-
 
 
 @pytest.mark.django_db
