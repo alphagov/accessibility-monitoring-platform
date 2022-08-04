@@ -198,6 +198,8 @@ DATE_FORMAT = "d/m/Y"
 
 MARKDOWN_EXTENSIONS = []
 
+SECURE_SSL_REDIRECT = True
+
 PERMISSIONS_POLICY = {
     "accelerometer": [],
     # "ambient-light-sensor": [],

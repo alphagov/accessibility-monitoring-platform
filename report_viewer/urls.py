@@ -19,7 +19,6 @@ from django.conf.urls import include
 from django.http import JsonResponse, StreamingHttpResponse
 from django.urls import path
 from django.views.defaults import page_not_found
-from django.views.generic import TemplateView
 
 
 def custom_page_not_found(request):
