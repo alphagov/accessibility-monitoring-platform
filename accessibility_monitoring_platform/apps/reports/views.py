@@ -275,7 +275,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     """
     report: Report = get_object_or_404(Report, id=pk)
     template: Template = loader.get_template(
-        f"""reports/accessibility_report_{report.report_version}.html"""
+        f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
     context = {"report": report}
     html: str = template.render(context, request)  # type: ignore

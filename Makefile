@@ -72,10 +72,6 @@ test:
 	make test_accessibility_monitoring_platform
 	make test_report_viewer
 
-local_deploy:
-	pipenv lock -r > requirements.txt
-	cf push -f manifest-test.yml
-
 int_test:
 	pipenv lock -r > requirements.txt
 	python3 stack_tests/main.py

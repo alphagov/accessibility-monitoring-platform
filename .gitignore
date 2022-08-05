@@ -22,6 +22,7 @@ filehash.txt
 cases.csv
 temp_manifest.yml
 backup.sql
+common/static/compiled/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
