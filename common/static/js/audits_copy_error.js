@@ -27,3 +27,8 @@ Array.from(copyErrorElements).forEach(function(copyErrorElement) {
         keyboardCopyTextToInput(event, targetId, sourceId)
     }
 })
+
+module.exports = {
+    copyTextToInput,
+    keyboardCopyTextToInput,
+}

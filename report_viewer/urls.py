@@ -13,11 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import requests
+
 from django.conf.urls import include
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.urls import path
 from django.views.defaults import page_not_found
-from django.views.generic import TemplateView
 
 
 def custom_page_not_found(request):
@@ -28,11 +29,22 @@ def healthcheck(request):  # pylint: disable=unused-argument
     return JsonResponse({"healthcheck": "ok"})
 
 
+def get_security_txt(request):
+    url = "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt"
+    response = requests.get(url, stream=True)
+    return StreamingHttpResponse(
+        response.raw,
+        content_type=response.headers.get("content-type"),
+        status=response.status_code,
+        reason=response.reason,
+    )
+
+
 app_name = "apps"
 urlpatterns = [
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
     path("healthcheck/", healthcheck),
-    path("security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
-    path(".well-known/security.txt", TemplateView.as_view(template_name="security.txt", content_type="text/plain")),
+    path("security.txt", get_security_txt),
+    path(".well-known/security.txt", get_security_txt),
 ]
