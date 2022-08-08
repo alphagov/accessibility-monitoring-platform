@@ -23,7 +23,7 @@ start:
 	python manage.py runserver 8081
 
 start_report_viewer:
-	python manage_report_viewer.py runserver 8082 
+	python manage_report_viewer.py runserver 8082
 
 static_files_process:
 	node pulp/init.js ./accessibility_monitoring_platform_settings.json --nowatch
@@ -60,6 +60,7 @@ test_accessibility_monitoring_platform:
 		&& coverage combine \
 		&& coverage report --skip-covered \
 		&& coverage erase
+	npm test
 
 test_report_viewer:
 	python manage_report_viewer.py collectstatic --noinput \

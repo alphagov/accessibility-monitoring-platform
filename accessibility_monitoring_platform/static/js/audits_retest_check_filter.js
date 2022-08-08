@@ -91,3 +91,12 @@ document.getElementById('clear_search_form').addEventListener('click', function 
 })
 
 updateWcagList()
+
+module.exports = {
+  fixedFilter,
+  brokenFilter,
+  notRetestedFilter,
+  textFilter,
+  updateWcagList,
+  updateValue,
+}

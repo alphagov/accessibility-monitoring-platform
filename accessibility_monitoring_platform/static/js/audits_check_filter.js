@@ -139,3 +139,15 @@ document.getElementById('clear_search_form').addEventListener('click', function 
 
 updateWcagList()
 updateUnfinishedManualTestCount()
+
+module.exports = {
+  updateUnfinishedManualTestCount,
+  bodyListener,
+  checkboxFilter,
+  errorFoundFilter,
+  noIssueFilter,
+  notTestedFilter,
+  textFilter,
+  updateWcagList,
+  updateValue,
+}
