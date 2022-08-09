@@ -37,7 +37,6 @@ ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_n
 COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
     ColumnAndFieldNames(column_name="Case No.", field_name="id"),
-    ColumnAndFieldNames(column_name="Date", field_name="created"),
     ColumnAndFieldNames(column_name="Website", field_name="organisation_name"),
     ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
     ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
