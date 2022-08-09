@@ -18,7 +18,7 @@ const { default: JSDOMEnvironment } = require("jest-environment-jsdom");
 const {
    copyTextToInput,
    keyboardCopyTextToInput,
-} = require("../accessibility_monitoring_platform/static/js/audits_copy_error");
+} = require("../common/static/js/audits_copy_error");
 
 describe("test audits copy error functions are present", () => {
     it.each([

@@ -11,7 +11,7 @@ document.body.innerHTML = `<textarea id="${sourceId}">${sourceMarkdown}</textare
 
 const {
    previewMarkdown,
-} = require("../accessibility_monitoring_platform/static/js/markdown_preview");
+} = require("../common/static/js/markdown_preview");
 
  describe("test markdown preview functions are present", () => {
     it.each([
