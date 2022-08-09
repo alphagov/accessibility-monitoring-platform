@@ -90,7 +90,10 @@ def test_report_template_path_is_correct():
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
 
-    assert report.template_path == "reports_common/accessibility_report_v1_0_0__20220406.html"
+    assert (
+        report.template_path
+        == "reports_common/accessibility_report_v1_0_0__20220406.html"
+    )
 
 
 @pytest.mark.django_db

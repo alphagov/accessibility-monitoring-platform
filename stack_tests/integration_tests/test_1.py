@@ -907,6 +907,10 @@ class TestCaseUpdatesNoPSBContact(TestCase):
         self.driver.find_element("name", "save_continue").click()
 
         self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
+        self.assertTrue(
+            "The public sector body has been as unresponsive to this case."
+            in self.driver.page_source
+        )
 
 
 class TestCaseStartTest(TestCase):
