@@ -320,22 +320,11 @@ class TestCaseUpdates(TestCase):
         Tests whether close case can be updated
     test_update_case_edit_enforcement_body_summary()
         Tests whether enforcement body summary can be updated
-    test_update_case_edit_psb_is_unresponsive()
-        Tests whether unresponsive public sector bodies can be moved directly to enforcement body
     """
 
     def setUp(self):
         """Create case to update"""
         super().setUp()
-        # self.driver.find_element("link text", "Create case").click()
-        # self.driver.find_element("name", "organisation_name").send_keys(
-        #     ORGANISATION_NAME
-        # )
-        # self.driver.find_element("name", "home_page_url").send_keys(HOME_PAGE_URL)
-        # self.driver.find_element("css selector",
-        #     f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
-        # ).click()
-        # self.driver.find_element("name", "save_exit").click()
         self.driver.find_element("link text", ORGANISATION_NAME).click()
 
     def test_update_case_edit_case_details(self):
@@ -881,6 +870,24 @@ class TestCaseUpdates(TestCase):
         self.assertTrue("Due 13 July 2021" in self.driver.page_source)
         self.assertTrue("Due 20 July 2021" in self.driver.page_source)
 
+
+class TestCaseUpdatesNoPSBContact(TestCase):
+    """
+    Test case for integration tests of case with no PSB response
+
+    Methods
+    -------
+    setUp()
+        Create case to update
+    test_update_case_edit_psb_is_unresponsive()
+        Tests whether unresponsive public sector bodies can be moved directly to enforcement body
+    """
+
+    def setUp(self):
+        """Create case to update"""
+        super().setUp()
+        self.driver.find_element("link text", ORGANISATION_NAME).click()
+
     def test_update_case_edit_psb_is_unresponsive(self):
         """
         Tests whether unresponsive public sector bodies can be moved directly to enforcement body
@@ -899,7 +906,7 @@ class TestCaseUpdates(TestCase):
 
         self.driver.find_element("name", "save_continue").click()
 
-        self.assertTrue(">Closing the case</h1>" in self.driver.page_source)
+        self.assertTrue(">12-week correspondence</h1>" in self.driver.page_source)
 
 
 class TestCaseStartTest(TestCase):

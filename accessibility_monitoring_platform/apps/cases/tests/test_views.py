@@ -571,8 +571,8 @@ def test_create_case_can_create_duplicate_cases(
         ),
         (
             "cases:edit-no-psb-response",
-            "save",
-            "cases:edit-case-close",
+            "save_continue",
+            "cases:edit-twelve-week-correspondence",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
