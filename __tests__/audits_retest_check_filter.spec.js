@@ -16,7 +16,7 @@ const {
     textFilter,
     updateWcagList,
     updateValue,
- } = require("../accessibility_monitoring_platform/static/js/audits_retest_check_filter");
+ } = require("../common/static/js/audits_retest_check_filter");
 
 describe("test audits retest check filter functions are present", () => {
     it.each([

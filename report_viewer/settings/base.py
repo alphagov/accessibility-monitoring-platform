@@ -35,7 +35,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -91,7 +91,10 @@ ROOT_URLCONF = "report_viewer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "report_viewer/templates")],
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR.parent, "common/templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -182,12 +185,11 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_DIRS = [BASE_DIR / "accessibility_monitoring_platform/static/compiled/"]
-
+STATICFILES_DIRS = [f"{Path(BASE_DIR).parent}/common/static/compiled"]
 STATIC_URL = os.path.join(BASE_DIR, "/static/")
-STATIC_ROOT = os.path.join(BASE_DIR, "accessibility_monitoring_platform/static/dist")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CONTACT_ADMIN_EMAIL = (
     "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
 )
