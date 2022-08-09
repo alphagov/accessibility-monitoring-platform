@@ -21,7 +21,7 @@ document.body.innerHTML = `
 const {
     populateWithTodaysDate,
     keypressPopulateWithTodaysDate,
-} = require("../accessibility_monitoring_platform/static/js/populate_date");
+} = require("../common/static/js/populate_date");
 
 beforeEach(() => {
     document.getElementById(dayId).value = "";

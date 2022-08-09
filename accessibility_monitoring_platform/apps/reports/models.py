@@ -98,7 +98,7 @@ class Report(VersionModel):
 
     @property
     def template_path(self) -> str:
-        return f"reports/accessibility_report_{self.report_version}.html"
+        return f"reports_common/accessibility_report_{self.report_version}.html"
 
     @property
     def wrapper(self) -> Dict[str, str]:

@@ -9,7 +9,7 @@ const bodyHtml = fs.readFileSync(file, {encoding:"utf8", flag:"r"});
 
 document.body.innerHTML = bodyHtml;
 
-const audits_check_filter = require("../accessibility_monitoring_platform/static/js/audits_check_filter");
+const audits_check_filter = require("../common/static/js/audits_check_filter");
 const {
     updateUnfinishedManualTestCount,
     bodyListener,
@@ -20,7 +20,7 @@ const {
     textFilter,
     updateWcagList,
     updateValue,
-} = require("../accessibility_monitoring_platform/static/js/audits_check_filter");
+} = require("../common/static/js/audits_check_filter");
 
 describe("test audits check filter functions are present", () => {
     it.each([

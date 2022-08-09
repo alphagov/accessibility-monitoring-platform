@@ -15,6 +15,7 @@ COPY requirements.txt /code/
 COPY pulp/ /code/pulp/
 COPY manage_report_viewer.py /code/
 COPY manage.py /code/
+COPY common/ /code/common/
 COPY package.json /code/
 COPY Makefile /code/
 COPY Pipfile /code/

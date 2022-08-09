@@ -80,7 +80,6 @@ class BuildEnv:
                 return True
             except Exception:
                 pass
-            print(">>> going around")
             attempts += 1
             time.sleep(self.db_ping_interval)
         raise Exception("Database did not build in time limit")
