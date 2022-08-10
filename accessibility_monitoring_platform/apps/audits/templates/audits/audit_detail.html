@@ -20,17 +20,17 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View test</h1>
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl amp-margin-bottom-0 amp-padding-right-20">View test</h1>
                     {% if audit.is_deleted %}
-                        <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
+                        <strong class="govuk-tag govuk-tag--red">
                             deleted
                         </strong>
                     {% endif %}
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
+                <div class="govuk-button-group amp-flex-reverse">
                     <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
@@ -66,10 +66,8 @@
                 </div>
             </div>
         </div>
-        <div style="position: relative; top: -15px;">
-            {% include 'cases/helpers/case_title.html' with case=audit.case %}
-            {% include "cases/helpers/messages.html" %}
-        </div>
+        {% include 'cases/helpers/case_title.html' with case=audit.case %}
+        {% include "cases/helpers/messages.html" %}
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
