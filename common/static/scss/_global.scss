@@ -148,3 +148,74 @@ div#report-text {
 img {
     max-width: 100%;
 }
+
+.amp-width-100 {
+    width: 100%;
+}
+
+.amp-margin-bottom-0 {
+    margin-bottom: 0 !important;
+}
+
+.amp-margin-bottom-15 {
+    margin-bottom: 15px;
+}
+
+.amp-margin-top-minus-20 {
+    margin-top: -20px;
+}
+
+.amp-margin-left-10 {
+    margin-left: 10px;
+}
+
+.amp-padding-left-10 {
+    padding-left: 10px;
+}
+
+.amp-hidden {
+    display: none;
+}
+
+.amp-watermark-left {
+    position: fixed;
+    left: 5px;
+    top: 95%;
+    transform-origin: top left;
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    opacity: 0.3;
+    font-size: 6vmax;
+    z-index: 1;
+    font-family: sans-serif;
+}
+
+.amp-watermark-right {
+    position: fixed;
+    right: 5px;
+    top: 95%;
+    transform-origin: top right;
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    opacity: 0.3;
+    font-size: 6vmax;
+    z-index: 1;
+    font-family: sans-serif;
+}
+
+.amp-flex-reverse {
+    flex-direction: row-reverse;
+}
+
+table#all-issues {
+    border: 1px solid black;
+    border-collapse: collapse;
+
+    th {
+        text-align: left;
+    }
+
+    tr {
+        border: 1px solid black;
+    }
+}

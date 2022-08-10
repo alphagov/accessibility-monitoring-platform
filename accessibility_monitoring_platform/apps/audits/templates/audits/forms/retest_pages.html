@@ -59,11 +59,11 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group bottom-margin-5">
                             {% if page.failed_check_results %}
-                                <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" style="margin-bottom:0" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0">
                                     Edit retest
                                 </a>
                             {% endif %}
-                            <a href="{{ page.url }}" style="margin-bottom:0" class="govuk-link" target="_blank">
+                            <a href="{{ page.url }}" class="govuk-link amp-margin-bottom-0" target="_blank">
                                 Link to {% if page.page_type == 'pdf' %}{{ page }}{% else %}{{ page|lower }}{% endif %}
                             </a>
                         </div>

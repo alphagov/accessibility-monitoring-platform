@@ -31,8 +31,8 @@
                 <ul class="govuk-list nav-menu-list">
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
-                    <li style="padding-left: 10px"> | </li>
-                    <li style="padding-left: 10px"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
+                    <li class="amp-padding-left-10"> | </li>
+                    <li class="amp-padding-left-10"> {{ user.first_name|title }} {{ user.last_name|title }} </li>
                 </ul>
                 <ul class="govuk-list nav-menu-list">
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Home</a></li>
