@@ -54,6 +54,11 @@ pre {
     }
 }
 
+.amp-label {
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
 .amp-alert-icon {
     font-family: "GDS Transport",arial,sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -153,12 +158,24 @@ img {
     width: 100%;
 }
 
+.amp-max-width-100 {
+    max-width: 100%;
+}
+
 .amp-margin-bottom-0 {
     margin-bottom: 0 !important;
 }
 
 .amp-margin-bottom-15 {
     margin-bottom: 15px;
+}
+
+.amp-margin-bottom-40 {
+    margin-bottom: 40px;
+}
+
+.amp-margin-top-10 {
+    margin-top: 10px;
 }
 
 .amp-margin-top-minus-20 {
@@ -207,8 +224,16 @@ img {
     font-family: sans-serif;
 }
 
+.amp-display-flex {
+    display: flex;
+}
+
 .amp-flex-reverse {
     flex-direction: row-reverse;
+}
+
+.amp-flex-end {
+    justify-content: flex-end;
 }
 
 .amp-text-align-right {

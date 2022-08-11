@@ -28,7 +28,6 @@
                             draggable="false"
                             class="govuk-button float-right"
                             data-module="govuk-button"
-                            style="margin-left: 10px;"
                         >
                             Create
                         </a>
@@ -74,7 +73,7 @@
                                         <h2 class="govuk-heading-m">{{ wcag_definition.name }}</h2>
                                     </div>
                                     <div class="govuk-grid-column-one-third">
-                                        <div class="govuk-button-group" style="justify-content:flex-end;">
+                                        <div class="govuk-button-group amp-flex-end">
                                             <a href="{{ wcag_definition.url_on_w3 }}" target="_blank" class="govuk-link">
                                                 Link to WCAG
                                             </a>
@@ -87,11 +86,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <p class="govuk-body-m cases-sub-heading">Type</p>
+                                <p class="govuk-body-m amp-label">Type</p>
                                 <p class="govuk-body-m">
                                     {{ wcag_definition.get_type_display }}
                                 </p>
-                                <p class="govuk-body-m cases-sub-heading">Description</p>
+                                <p class="govuk-body-m amp-label">Description</p>
                                 <p class="govuk-body-m">
                                     {% if wcag_definition.description %}
                                         {{ wcag_definition.description }}
@@ -99,7 +98,7 @@
                                         None
                                     {% endif %}
                                 </p>
-                                <p class="govuk-body-m cases-sub-heading">Report boilerplate</p>
+                                <p class="govuk-body-m amp-label">Report boilerplate</p>
                                 <p class="govuk-body-m">
                                     {% if wcag_definition.report_boilerplate %}
                                         {{ wcag_definition.report_boilerplate|markdown_to_html }}

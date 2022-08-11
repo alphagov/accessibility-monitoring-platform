@@ -17,17 +17,17 @@
     <main id="main-content" class="govuk-main-wrapper no-padding-top">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>
                     {% if case.enforcement_body_pursuing == 'yes-completed' %}
-                        <strong class="govuk-tag" style="position: relative; top: -5px;">
+                        <strong class="govuk-tag">
                             completed
                         </strong>
                     {% endif %}
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
+                <div class="govuk-button-group amp-flex-end">
                     <a
                         href="{% url 'cases:case-export-single' case.id %}"
                         role="button"
@@ -61,10 +61,8 @@
                 </div>
             </div>
         </div>
-        <div style="position: relative; top: -15px;">
-            {% include 'cases/helpers/case_title.html' %}
-            {% include "cases/helpers/messages.html" %}
-        </div>
+        {% include 'cases/helpers/case_title.html' %}
+        {% include 'cases/helpers/messages.html' %}
         {% include 'reports/helpers/pending_rebuild_notification.html' %}
         {% include 'cases/helpers/compliant_website_notification.html' %}
         {% if case.is_deactivated %}
