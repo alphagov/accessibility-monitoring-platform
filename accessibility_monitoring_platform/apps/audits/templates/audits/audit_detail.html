@@ -30,18 +30,7 @@
                 </div>
             </div>
             <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group amp-flex-reverse">
-                    <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                        View case
-                    </a>
-                    <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    >
-                        Edit test
-                    </a>
+                <div class="govuk-button-group amp-flex-end">
                     {% if audit.is_deleted %}
                         <a
                             href="{% url 'audits:restore-audit' audit.id %}"
@@ -63,6 +52,17 @@
                             Delete test
                         </a>
                     {% endif %}
+                    <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    >
+                        Edit test
+                    </a>
+                    <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        View case
+                    </a>
                 </div>
             </div>
         </div>
