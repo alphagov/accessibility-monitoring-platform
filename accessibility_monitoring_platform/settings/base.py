@@ -106,7 +106,10 @@ ROOT_URLCONF = "accessibility_monitoring_platform.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR.parent, "common/templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -181,8 +184,7 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-STATICFILES_DIRS = [BASE_DIR / "static/compiled/"]
-
+STATICFILES_DIRS = [f"{Path(BASE_DIR).parent}/common/static/compiled"]
 STATIC_URL = os.path.join(BASE_DIR, "/static/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/dist")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -235,6 +237,6 @@ PERMISSIONS_POLICY = {
 
 CSP_DEFAULT_SRC = ("'none'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_SCRIPT_SRC = ("'self'", )
+CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'")
 CSP_IMG_SRC = ("'self'", "data:")

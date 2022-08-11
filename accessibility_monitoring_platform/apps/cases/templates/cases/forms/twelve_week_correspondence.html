@@ -27,44 +27,65 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <p class="govuk-body-m">
-                    <a
-                        href="{% url 'cases:edit-twelve-week-correspondence-due-dates' case.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                    >
-                        Edit 12-week correspondence due dates
-                    </a>
-                </p>
+                {% if case.no_psb_contact == 'yes' %}
+                    <p class="govuk-body-m">
+                        The public sector body has been as unresponsive to this case.
+                        Progress to
+                        <a
+                            href="{% url 'cases:edit-twelve-week-retest' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">Case > 12-week retest</a>.
+                    </p>
+                    <p class="govuk-body-m">
+                        If the PSB has since responded, untick Mark the PSB as unresponsive
+                        to this case in
+                        <a
+                            href="{% url 'cases:edit-no-psb-response' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state">Case > Report correspondence > Public sector body is unresponsive</a>.
+                    </p>
+                {% else %}
+                    <p class="govuk-body-m">
+                        <a
+                            href="{% url 'cases:edit-twelve-week-correspondence-due-dates' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            Edit 12-week correspondence due dates
+                        </a>
+                    </p>
+                {% endif %}
                 <form method="post" action="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-one-half">
-                                    <label class="govuk-label"><b>12-week deadline</b></label>
-                                </div>
-                                <div class="govuk-grid-column-one-half">
-                                    <span class="govuk-hint">
-                                        {% if case.report_followup_week_12_due_date %}
-                                            Due {{ case.report_followup_week_12_due_date|amp_date }}
-                                        {% else %}
-                                            None
-                                        {% endif %}
-                                    </span>
+                        {% if case.no_psb_contact == 'no' %}
+                            <div class="govuk-grid-column-full">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-one-half">
+                                        <label class="govuk-label"><b>12-week deadline</b></label>
+                                    </div>
+                                    <div class="govuk-grid-column-one-half">
+                                        <span class="govuk-hint">
+                                            {% if case.report_followup_week_12_due_date %}
+                                                Due {{ case.report_followup_week_12_due_date|amp_date }}
+                                            {% else %}
+                                                None
+                                            {% endif %}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <div class="govuk-grid-column-full">
+                                <hr style="width:100%;">
+                                {% include 'common/amp_field_two_column.html' with field=form.twelve_week_update_requested_date %}
+                                <hr style="width:100%;">
+                                {% include 'common/amp_field_two_column.html' with field=form.twelve_week_1_week_chaser_sent_date %}
+                                <hr style="width:100%;">
+                                {% include 'common/amp_field_two_column.html' with field=form.twelve_week_correspondence_acknowledged_date %}
+                                <hr style="width:100%;">
+                                {% include 'common/amp_field.html' with field=form.twelve_week_correspondence_notes %}
+                                {% include 'common/amp_field.html' with field=form.twelve_week_response_state %}
+                            </div>
+                        {% endif %}
                         <div class="govuk-grid-column-full">
-                            <hr style="width:100%;">
-                            {% include 'common/amp_field_two_column.html' with field=form.twelve_week_update_requested_date %}
-                            <hr style="width:100%;">
-                            {% include 'common/amp_field_two_column.html' with field=form.twelve_week_1_week_chaser_sent_date %}
-                            <hr style="width:100%;">
-                            {% include 'common/amp_field_two_column.html' with field=form.twelve_week_correspondence_acknowledged_date %}
-                            <hr style="width:100%;">
-                            {% include 'common/amp_field.html' with field=form.twelve_week_correspondence_notes %}
-                            {% include 'common/amp_field.html' with field=form.twelve_week_response_state %}
                             {% include 'common/amp_field.html' with field=form.twelve_week_correspondence_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">

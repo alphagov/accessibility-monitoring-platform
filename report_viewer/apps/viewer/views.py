@@ -31,13 +31,12 @@ class ViewReport(FormView):
     View of report on S3
     """
 
-    template_name: str = "reports/accessibility_report_base.html"
+    template_name: str = "reports_common/accessibility_report_base.html"
     form_class: Type[ReportFeedbackForm] = ReportFeedbackForm
 
     def get_context_data(
         self, *args, **kwargs  # pylint: disable=unused-argument
     ) -> Dict[str, Any]:
-        """Add table rows to context for each section of page"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         s3_report = get_object_or_404(S3Report, guid=self.kwargs["guid"])
         s3_rw = S3ReadWriteReport()

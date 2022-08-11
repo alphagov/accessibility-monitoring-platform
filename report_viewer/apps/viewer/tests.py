@@ -102,7 +102,7 @@ def test_view_older_report(client):
     report: Report = Report.objects.create(case=case)
 
     template: Template = loader.get_template(
-        f"""reports/accessibility_report_{report.report_version}.html"""
+        f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
     context: Dict[str, Report] = {"report": report}
     html: str = template.render(context)
