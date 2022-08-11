@@ -1,6 +1,6 @@
 <nav role="navigation" class="amp-margin-bottom-40">
     <h2 class="govuk-heading-m">Contents</h2>
-    <ul class="govuk-list bottom-margin-5">
+    <ul class="govuk-list amp-margin-bottom-5">
         <li>
             <a href="#case-reminder" class="govuk-link govuk-link--no-visited-state">Reminder</a>
             |
@@ -27,7 +27,7 @@
         {% endif %}
         {% include './nav_content.html' with id='case-close' edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
     </ul>
-    <h3 class="govuk-heading-s bottom-margin-5">Post case</h3>
+    <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>
     <ul class="govuk-list">
         {% include './nav_content.html' with id='enforcement-body-correspondence' edit_name='cases:edit-enforcement-body-correspondence' name='Equality body summary' complete=case.enforcement_correspondence_complete_date %}
         {% include './nav_content.html' with id='post-case' edit_name='cases:edit-post-case' name='Post case summary' complete=case.post_case_complete_date %}

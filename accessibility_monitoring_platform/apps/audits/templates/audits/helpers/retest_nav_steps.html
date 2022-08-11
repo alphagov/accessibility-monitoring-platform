@@ -1,11 +1,11 @@
 <nav role="navigation">
-    <h2 class="govuk-heading-m bottom-margin-5">Test steps</h2>
+    <h2 class="govuk-heading-m amp-margin-bottom-5">Test steps</h2>
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
         {% if audit.case.psb_response %}
             {% if audit.testable_pages %}
-                <p class="govuk-body no-bottom-margin">Pages:</p>
-                <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                <p class="govuk-body amp-margin-bottom-0">Pages:</p>
+                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                     {% for page in audit.testable_pages %}
                         {% if page.failed_check_results %}
                             {% include './nav_step.html' with edit_name='audits:edit-audit-retest-page-checks' complete=page.retest_complete_date %}
@@ -20,7 +20,7 @@
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
     </ul>
-    <h2 class="govuk-heading-m bottom-margin-5">Frequently used links</h2>
+    <h2 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h2>
     <ul class="govuk-list">
         <li>
             <a href="{{ audit.case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

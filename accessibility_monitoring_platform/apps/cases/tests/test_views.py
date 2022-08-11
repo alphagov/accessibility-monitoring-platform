@@ -1787,7 +1787,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assertContains(
         response,
-        """<h2 class="govuk-heading-m bottom-margin-5">Case status</h2>
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
             <p class="govuk-body-m">Unassigned case</p>""",
         html=True,
     )
