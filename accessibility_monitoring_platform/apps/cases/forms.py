@@ -412,11 +412,11 @@ class CaseNoPSBContactUpdateForm(VersionForm):
     """
 
     no_psb_contact = AMPChoiceCheckboxField(
-        label="Do you want to move this case to the equality bodies correspondence stage?",
+        label="Do you want to mark the PSB as unresponsive to this case?",
         choices=BOOLEAN_CHOICES,
         help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Move this case onto equality bodies correspondence stage?"}
+            attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),
     )
 

@@ -38,6 +38,7 @@ from ..views import (
 )
 from ...audits.models import Audit
 from ...common.models import (
+    BOOLEAN_TRUE,
     Event,
     Sector,
     EVENT_TYPE_MODEL_CREATE,
@@ -571,8 +572,8 @@ def test_create_case_can_create_duplicate_cases(
         ),
         (
             "cases:edit-no-psb-response",
-            "save",
-            "cases:edit-case-close",
+            "save_continue",
+            "cases:edit-twelve-week-correspondence",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
@@ -2461,4 +2462,56 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
             </a>
         </p>""",
         html=True,
+    )
+
+
+def test_twelve_week_correspondence_psb_contact(admin_client):
+    """
+    Test that the twelve week correspondence page shows full page when
+    contact has been made with the public sector body
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        "The public sector body has been as unresponsive to this case.",
+    )
+    assertContains(
+        response,
+        "Edit 12-week correspondence due dates",
+    )
+    assertContains(
+        response,
+        "12-week deadline",
+    )
+
+
+def test_twelve_week_correspondence_no_psb_contact(admin_client):
+    """
+    Test that the twelve week correspondence page shows small page when no
+    contact has been made with the public sector body
+    """
+    case: Case = Case.objects.create(no_psb_contact=BOOLEAN_TRUE)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "The public sector body has been as unresponsive to this case.",
+    )
+    assertNotContains(
+        response,
+        "Edit 12-week correspondence due dates",
+    )
+    assertNotContains(
+        response,
+        "12-week deadline",
     )
