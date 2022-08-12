@@ -131,10 +131,6 @@ table#all-issues {
     }
 }
 
-img {
-    max-width: 100%;
-}
-
 .amp-watermark-left {
     position: fixed;
     left: 5px;
@@ -166,18 +162,18 @@ img {
 }
 
 .amp-width-one-half {
-    width:50%;
+    width: 50%;
 }
 
 .amp-width-one-quarter {
-    width:25%;
+    width: 25%;
 }
 
 .amp-width-100 {
     width: 100%;
 }
 
-.amp-max-width-100 {
+img, .amp-max-width-100 {
     max-width: 100%;
 }
 
