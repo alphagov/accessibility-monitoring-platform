@@ -5,13 +5,13 @@
 {% block content %}
 <div class="govuk-width-container">
     {% include 'common/settings/breadcrumbs.html' with current='Active QA auditor' %}
-    <main id="main-content" class="govuk-main-wrapper">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include 'common/settings/nav_steps.html' with current='common:edit-active-qa-auditor' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl">Active QA auditor</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Active QA auditor</h1>
                 {% include 'common/error_summary.html' %}
                 <form method="post">
                     {% csrf_token %}
