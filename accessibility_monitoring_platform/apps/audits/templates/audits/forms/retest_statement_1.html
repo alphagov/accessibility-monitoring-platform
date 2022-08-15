@@ -2,6 +2,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block title %}{{ audit.case.organisation_name }} | 12-week accessibility statement Pt. 1{% endblock %}
 
 {% block content %}
@@ -82,4 +84,8 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}

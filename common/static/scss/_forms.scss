@@ -43,3 +43,16 @@
     margin-top: 40px;
   }
 }
+
+.amp-open-link-control-enabled {
+  margin-left: 10px;
+}
+
+.amp-open-link-control-disabled {
+  margin-left: 10px;
+  pointer-events: none;
+  text-decoration: none !important;
+  cursor: default;
+  color: black !important;
+  display: block;
+}

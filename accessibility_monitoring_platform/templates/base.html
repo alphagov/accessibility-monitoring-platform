@@ -36,9 +36,7 @@
         </div>
     {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
-      <script>
-        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
-      </script>
+      <script src="{% static 'js/js-enabled.js' %}"></script>
       <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
       <header class="govuk-header " data-module="govuk-header">
