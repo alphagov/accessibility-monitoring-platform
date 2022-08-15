@@ -28,6 +28,6 @@ Array.from(openLinkControlElements).forEach(function(openLinkControlElement) {
     )
 })
 
-// module.exports = {
-//     updateOpenLinkControl,
-// }
+module.exports = {
+    updateOpenLinkControl,
+}
