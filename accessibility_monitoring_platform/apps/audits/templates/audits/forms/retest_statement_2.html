@@ -22,7 +22,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='12-week accessibility statement Pt. 2' case=audit.case %}
@@ -40,7 +40,7 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
                             {% if audit.audit_retest_accessibility_statement_backup_url_date %}
-                                <p class="govuk-body" style="margin-top: -20px;"> Added {{audit.audit_retest_accessibility_statement_backup_url_date}} </p>
+                                <p class="govuk-body amp-margin-top-minus-20"> Added {{audit.audit_retest_accessibility_statement_backup_url_date}} </p>
                             {% endif %}
                             {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - disproportionate burden' example='audits/statement_examples/disproportionate_burden_state.html' decision=audit.get_disproportionate_burden_state_display notes=audit.disproportionate_burden_notes %}
                             {% include 'common/amp_field.html' with field=form.audit_retest_disproportionate_burden_state %}

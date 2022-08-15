@@ -1,38 +1,35 @@
-<div style="display: block; padding: 20px 0px 0px 0px; border-top: 2px solid lightgrey;">
-    <div style="vertical-align: middle;">
-        <p class="govuk-body" id="comments{{counter}}">
-            <b class="govuk-body-l govuk-!-font-weight-bold">{{ item.user.first_name }} {{ item.user.last_name }} </b>
-            on {{ item.created_date|amp_datetime }}
+<hr class="amp-width-100">
+<p class="govuk-body" id="comments{{counter}}">
+    <b class="govuk-body-l govuk-!-font-weight-bold">{{ item.user.first_name }} {{ item.user.last_name }} </b>
+    on {{ item.created_date|amp_datetime }}
+</p>
+<p class="govuk-body">
+    {{ item.body }}
+</p>
+{% if request.user == item.user  %}
+    <form method="post" action="{% url 'comments:remove-comment' item.id %}">
+        {% csrf_token %}
+        <div class="govuk-button-group">
+            <input
+                type="submit"
+                value="Remove comment"
+                name="remove_comment"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+            />
+            <a
+                href="{% url 'comments:edit-comment' item.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Edit comment
+            </a>
+        </div>
+    </form>
+{% endif %}
+<div>
+    {% if item.updated_date  %}
+        <p class="govuk-body-s">
+            Last edited {{ item.updated_date|amp_datetime }}
         </p>
-    </div>
-    <p class="govuk-body">
-        {{ item.body }}
-    </p>
-    {% if request.user == item.user  %}
-        <form style="padding: 10px 0px 0px 0px;" method="post" action="{% url 'comments:remove-comment' item.id %}">
-            {% csrf_token %}
-            <div class="govuk-button-group">
-                <input
-                    type="submit"
-                    value="Remove comment"
-                    name="remove_comment"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                />
-                <a
-                    href="{% url 'comments:edit-comment' item.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Edit comment
-                </a>
-            </div>
-        </form>
     {% endif %}
-    <div>
-        {% if item.updated_date  %}
-            <p class="govuk-body-s">
-                Last edited {{ item.updated_date|amp_datetime }}
-            </p>
-        {% endif %}
-    </div>
 </div>

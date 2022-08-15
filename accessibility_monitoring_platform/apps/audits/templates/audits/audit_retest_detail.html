@@ -17,33 +17,31 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="display: flex;">
-                    <h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View 12-week test</h1>
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-button-group">
+                    <h1 class="govuk-heading-xl amp-margin-bottom-0 amp-padding-right-20">View 12-week test</h1>
                     {% if audit.is_deleted %}
-                        <strong class="govuk-tag govuk-tag--red" style="position: relative; top: -5px;">
+                        <strong class="govuk-tag govuk-tag--red">
                             deleted
                         </strong>
                     {% endif %}
                 </div>
             </div>
-            <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group" style="justify-content:flex-end; margin-top: 4px;">
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-button-group amp-flex-end">
                     <a href="{% url 'audits:audit-detail' audit.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View test
                     </a>
                 </div>
             </div>
         </div>
-        <div style="position: relative; top: -15px;">
-            {% include 'cases/helpers/case_title.html' with case=audit.case %}
-            {% if not audit.case.psb_response %}
-                {% include 'audits/helpers/no_psb_response_notification.html' %}
-            {% endif %}
-            {% include "cases/helpers/messages.html" %}
-        </div>
+        {% include 'cases/helpers/case_title.html' with case=audit.case %}
+        {% if not audit.case.psb_response %}
+            {% include 'audits/helpers/no_psb_response_notification.html' %}
+        {% endif %}
+        {% include "cases/helpers/messages.html" %}
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

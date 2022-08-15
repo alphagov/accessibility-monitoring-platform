@@ -55,7 +55,7 @@ def test_active_qa_auditor_present(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<div class="govuk-heading-xl no-bottom-margin">{USER_FIRST_NAME}</div>""",
+        f"""<div class="govuk-heading-xl amp-margin-bottom-0">{USER_FIRST_NAME}</div>""",
         html=True,
     )
 
@@ -75,8 +75,8 @@ def test_platform_page_template_context():
     platform_page_context: Dict[
         str, Union[AMPTopMenuForm, str, Platform, int]
     ] = platform_page(
-        mock_request
-    )  # type: ignore
+        mock_request  # type: ignore
+    )
 
     assert platform_page_context["prototype_name"] == "prototype-name"
     assert platform_page_context["platform"] is not None

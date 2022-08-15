@@ -24,10 +24,10 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl" style="margin-bottom:15px">Testing {{ page }}</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Testing {{ page }}</h1>
                 {% include "cases/helpers/case_title.html" with case=page.audit.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>
@@ -80,7 +80,7 @@
                         </div>
                     </div>
                 </div>
-                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}" style="display: unset;">
+                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-one-half">
@@ -115,7 +115,11 @@
                     </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
                             <h2 class="govuk-heading-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</h2>
                         </div>
                     </div>
@@ -137,7 +141,7 @@
                                             </span>
                                         </summary>
                                         <div class="govuk-details__text">
-                                            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+                                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                                             {% for issue in matching_issues %}
                                                 <li>
                                                     <b>{{ issue.page }}</b>
@@ -160,8 +164,12 @@
                         </div>
                     {% endfor %}
                     <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <hr class="amp-width-100">
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <hr style="width:100%;">
                             <input
                                 type="submit"
                                 value="Save"

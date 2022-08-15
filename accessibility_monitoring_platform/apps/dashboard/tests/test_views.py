@@ -216,7 +216,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
     assert response.status_code == 200
     expected_number_of_active_cases: str = """
     <div class="govuk-body-m"> Total active cases </div>
-    <div class="govuk-heading-xl no-bottom-margin"> 2 </div>
+    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
     """
     assertContains(
         response,
@@ -240,7 +240,7 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
     assert response.status_code == 200
     expected_number_of_your_active_cases: str = """
     <div class="govuk-body-m"> Your active cases </div>
-    <div class="govuk-heading-xl no-bottom-margin"> 1 </div>
+    <div class="govuk-heading-xl amp-margin-bottom-0"> 1 </div>
     """
     assertContains(
         response,
@@ -250,7 +250,7 @@ def test_dashboard_shows_correct_number_of_your_active_cases(admin_client, admin
 
     expected_number_of_unnassigned_cases: str = """
     <div class="govuk-body-m"> Unassigned cases </div>
-    <div class="govuk-heading-xl no-bottom-margin"> 2 </div>
+    <div class="govuk-heading-xl amp-margin-bottom-0"> 2 </div>
     """
     assertContains(
         response,

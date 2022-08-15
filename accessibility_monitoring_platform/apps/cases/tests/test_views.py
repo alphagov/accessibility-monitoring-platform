@@ -388,7 +388,7 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     [
         (
             "cases:case-detail",
-            '<h1 class="govuk-heading-xl" style="margin-bottom:15px; padding-right: 20px;">View case</h1>',
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">View case</h1>',
         ),
         ("cases:edit-case-details", "<li>Case details</li>"),
         ("cases:edit-test-results", "<li>Testing details</li>"),
@@ -1034,7 +1034,7 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
     )
     assert response.status_code == 200
-    assertContains(response, "A test does not exist for this case. Start the test in ")
+    assertContains(response, "A test does not exist for this case.")
 
 
 @pytest.mark.parametrize(
@@ -1788,7 +1788,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assertContains(
         response,
-        """<h2 class="govuk-heading-m bottom-margin-5">Case status</h2>
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
             <p class="govuk-body-m">Unassigned case</p>""",
         html=True,
     )
@@ -2168,7 +2168,7 @@ def test_platform_shows_notification_if_fully_compliant(
 
     assertContains(
         response,
-        """<h3 class="govuk-notification-banner__heading" style="max-width:100%;">
+        """<h3 class="govuk-notification-banner__heading amp-max-width-100">
             The case has a compliant website and a compliant accessibility statement.
         </h3>""",
         html=True,
