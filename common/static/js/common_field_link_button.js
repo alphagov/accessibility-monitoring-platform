@@ -6,11 +6,9 @@ function updateOpenLinkControl(openLinkControlId, value) {
     const openLinkControlElement = document.getElementById(openLinkControlId)
     if (value.includes("https://") == false) {
         openLinkControlElement.classList.add("amp-open-link-control-disabled")
-        openLinkControlElement.classList.remove("amp-open-link-control-enabled")
         openLinkControlElement.setAttribute("href", "javascript:;")
         openLinkControlElement.setAttribute("target", "")
     } else {
-        openLinkControlElement.classList.add("amp-open-link-control-enabled")
         openLinkControlElement.classList.remove("amp-open-link-control-disabled")
         openLinkControlElement.setAttribute("href", value)
         openLinkControlElement.setAttribute("target", "_blank")
