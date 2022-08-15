@@ -23,7 +23,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 RUN pipenv install -d
 RUN pipenv install
-RUN pipenv lock -r > requirements.txt
+RUN pipenv requirements > requirements.txt
 RUN pip3 install -r requirements.txt
 RUN npm i
 COPY report_viewer/ /code/report_viewer/
