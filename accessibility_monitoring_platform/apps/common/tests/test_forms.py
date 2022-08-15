@@ -36,6 +36,13 @@ EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
         <label class="govuk-label govuk-radios__label">Label1</label>
     </div>
 </div>"""
+"""
+<div class="govuk-radios">
+    <div class="govuk-radios__item">
+        <input class="govuk-radios__input" type="radio" name="name" value="val1">
+        <label class="govuk-label govuk-radios__label">Label1!</label>
+    </div>
+</div>"""
 
 EXPECTED_CHECKBOX_WIDGET_HTML: str = """
 <div class="govuk-checkboxes__item">
@@ -82,7 +89,7 @@ EXPECTED_DATE_WIDGET_HTML: str = """
             </div>
         </div>
 </div>
-<p class="govuk-body-m" style="margin-top:10px;margin-bottom:0;">
+<p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
     <span class="amp-control amp-populate-date" tabIndex="0"
         dayFieldId=""
         monthFieldId=""

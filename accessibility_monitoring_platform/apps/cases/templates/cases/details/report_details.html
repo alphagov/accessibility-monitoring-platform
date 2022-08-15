@@ -3,7 +3,7 @@
         <h2 id="report-details" class="govuk-heading-l">Report details</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group" style="flex-direction:row-reverse">
+        <div class="govuk-button-group amp-flex-end">
             <a href="{% url 'cases:edit-report-details' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
@@ -51,7 +51,7 @@
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
                         <td class="govuk-table__cell amp-width-one-half amp-notes">
-                            {{ number_of_visits  }} 
+                            {{ number_of_visits  }}
                             (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
                         </td>
                     </tr>

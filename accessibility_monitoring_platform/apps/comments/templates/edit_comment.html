@@ -16,7 +16,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper dashboard">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-body">
             <h1 class="govuk-heading-xl">Edit comment</h1>
         </div>
@@ -30,20 +30,22 @@
             {% for field in form.visible_fields %}
                 {% include 'common/amp_field.html' %}
             {% endfor %}
-            <div style="padding-left: 0px;" class="govuk-grid-column-full govuk-button-group">
-                <input
-                    type="submit"
-                    value="Save comment"
-                    name="save_comment"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button"
-                />
-                <a
-                    href="{{request.session.comment_path}}#comments"
-                    class="govuk-link govuk-link--no-visited-state"
-                >
-                    Cancel
-                </a>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full govuk-button-group">
+                    <input
+                        type="submit"
+                        value="Save comment"
+                        name="save_comment"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    />
+                    <a
+                        href="{% url 'cases:edit-qa-process' comment.case.id %}#comments"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        Cancel
+                    </a>
+                </div>
             </div>
         </form>
     </main>

@@ -127,7 +127,7 @@ def test_comment_create(client):
     assert create_comment_response.status_code == 200
     assertContains(
         create_comment_response,
-        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
     )
     assertContains(create_comment_response, "1 comment")
     assertContains(create_comment_response, COMMENT_TEXT)
@@ -178,7 +178,7 @@ def test_delete_comment(client):
     assert delete_comment_response.status_code == 200
     assertContains(
         delete_comment_response,
-        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
     )
     assertContains(delete_comment_response, "0 comments")
 
@@ -225,7 +225,7 @@ def test_edit_comment(client):
     )
     assertContains(
         edit_comment_response,
-        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
     )
     assertContains(edit_comment_response, "1 comment")
     assertContains(edit_comment_response, UPDATED_COMMENT_TEXT)
@@ -278,7 +278,7 @@ def test_comment_associated_for_correct_case(client):
     assert create_comment_response.status_code == 200
     assertContains(
         create_comment_response,
-        """<h1 class="govuk-heading-xl" style="margin-bottom:15px">QA process</h1>""",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
     )
     assertContains(create_comment_response, "1 comment")
     assertContains(create_comment_response, COMMENT_TEXT)

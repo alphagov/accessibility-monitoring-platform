@@ -3,7 +3,7 @@
         <h2 id="test-results" class="govuk-heading-l">Testing details</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group" style="flex-direction:row-reverse">
+        <div class="govuk-button-group amp-flex-end">
             <a href="{% url 'cases:edit-test-results' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
@@ -29,7 +29,7 @@
                 </tr>
                 {% include 'cases/helpers/platform_testing_details.html' with row=row %}
             {% else %}
-                <p class="govuk-body">A test does not exist for this case. Start the test in 
+                <p class="govuk-body">A test does not exist for this case. Start the test in
                     <a href="{% url 'cases:edit-test-results' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">

@@ -1,5 +1,5 @@
 {% with id=widget.attrs.id %}
-    <div class="govuk-radios"{% if widget.attrs.horizontal %} style="display:flex"{% endif %}>
+    <div class="govuk-radios{% if widget.attrs.horizontal %} amp-display-flex{% endif %}">
         {% for group, options, index in widget.optgroups %}
             {% for option in options %}
                 <div class="govuk-radios__item">

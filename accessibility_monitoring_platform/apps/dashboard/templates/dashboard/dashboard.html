@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <main id="main-content" class="govuk-main-wrapper dashboard">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-body">
             <strong class="govuk-tag govuk-!-margin-top-4 govuk-!-margin-bottom-4">
                 Experimental
@@ -53,9 +53,8 @@
                     href="{% url 'cases:case-create' %}"
                     role="button"
                     draggable="false"
-                    class="govuk-button float-right"
+                    class="govuk-button float-right amp-margin-left-10"
                     data-module="govuk-button"
-                    style="margin-left: 10px;"
                 >
                     Create case
                 </a>
@@ -63,9 +62,8 @@
                     href="{% url 'cases:case-list' %}?status=unassigned-case"
                     role="button"
                     draggable="false"
-                    class="govuk-button govuk-button--secondary float-right"
+                    class="govuk-button govuk-button--secondary float-right amp-margin-left-10"
                     data-module="govuk-button"
-                    style="margin-left: 10px;"
                 >
                     View unassigned cases
                 </a>
@@ -97,7 +95,7 @@
                 <div class="govuk-body-m">
                     Total active cases
                 </div>
-                <div class="govuk-heading-xl no-bottom-margin">
+                <div class="govuk-heading-xl amp-margin-bottom-0">
                     {{total_incomplete_cases}}
                 </div>
             </div>
@@ -105,7 +103,7 @@
                 <div class="govuk-body-m">
                     Your active cases
                 </div>
-                <div class="govuk-heading-xl no-bottom-margin">
+                <div class="govuk-heading-xl amp-margin-bottom-0">
                     {{total_your_active_cases}}
                 </div>
             </div>
@@ -113,7 +111,7 @@
                 <div class="govuk-body-m">
                     Unassigned cases
                 </div>
-                <div class="govuk-heading-xl no-bottom-margin">
+                <div class="govuk-heading-xl amp-margin-bottom-0">
                     {{total_unassigned_cases}}
                 </div>
             </div>
@@ -125,7 +123,7 @@
                         On call
                     {% endif%}
                 </div>
-                <div class="govuk-heading-xl no-bottom-margin">
+                <div class="govuk-heading-xl amp-margin-bottom-0">
                     {% if show_all_cases %}
                         {{total_ready_to_qa_cases}}
                     {% elif platform.active_qa_auditor %}

@@ -172,7 +172,7 @@ class TestAccountDetails(SeleniumTest):
         # self.driver.find_element(By.XPATH, "//input[@value="View all cases"]").click()
         self.driver.find_element("link text", "Settings").click()
         self.assertEqual(
-            """<h1 class="govuk-heading-xl">Account details</h1>"""
+            """<h1 class="govuk-heading-xl amp-margin-bottom-15">Account details</h1>"""
             in self.driver.page_source,
             True,
         )

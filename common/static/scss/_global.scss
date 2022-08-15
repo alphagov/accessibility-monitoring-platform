@@ -13,38 +13,6 @@ pre {
     border: 2px solid #d4351c;
 }
 
-.bottom-margin-5 {
-    margin-bottom: 5px;
-}
-
-.bottom-margin-10 {
-    margin-bottom: 10px;
-}
-
-.no-bottom-margin {
-    margin-bottom: 0;
-}
-
-.no-padding-top {
-    padding-top: 0;
-}
-
-.no-padding-left {
-    padding-left: 0;
-}
-
-.hidden-form {
-    display: none;
-}
-
-.amp-width-one-half {
-    width:50%;
-}
-
-.amp-width-one-quarter {
-    width:25%;
-}
-
 .amp-notes {
     p:first-child {
         margin-top: 0;
@@ -52,6 +20,11 @@ pre {
     p:last-child {
         margin-bottom: 0;
     }
+}
+
+.amp-label {
+    margin-bottom: 0;
+    font-weight: bold;
 }
 
 .amp-alert-icon {
@@ -123,6 +96,19 @@ div#report-text {
     }
 }
 
+table#all-issues {
+    border: 1px solid black;
+    border-collapse: collapse;
+
+    th {
+        text-align: left;
+    }
+
+    tr {
+        border: 1px solid black;
+    }
+}
+
 .amp-button-as-link {
     background: none!important;
     border: none;
@@ -145,6 +131,108 @@ div#report-text {
     }
 }
 
-img {
+.amp-watermark-left {
+    position: fixed;
+    left: 5px;
+    top: 95%;
+    transform-origin: top left;
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    opacity: 0.3;
+    font-size: 6vmax;
+    z-index: 1;
+    font-family: sans-serif;
+}
+
+.amp-watermark-right {
+    position: fixed;
+    right: 5px;
+    top: 95%;
+    transform-origin: top right;
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    opacity: 0.3;
+    font-size: 6vmax;
+    z-index: 1;
+    font-family: sans-serif;
+}
+
+.amp-display-none {
+    display: none;
+}
+
+.amp-width-one-half {
+    width: 50%;
+}
+
+.amp-width-one-quarter {
+    width: 25%;
+}
+
+.amp-width-100 {
+    width: 100%;
+}
+
+img, .amp-max-width-100 {
     max-width: 100%;
+}
+
+.amp-margin-bottom-0 {
+    margin-bottom: 0 !important;
+}
+
+.amp-margin-bottom-5 {
+    margin-bottom: 5px;
+}
+
+.amp-margin-bottom-10 {
+    margin-bottom: 10px;
+}
+
+.amp-margin-bottom-15 {
+    margin-bottom: 15px;
+}
+
+.amp-margin-bottom-40 {
+    margin-bottom: 40px;
+}
+
+.amp-margin-left-10 {
+    margin-left: 10px;
+}
+
+.amp-margin-top-10 {
+    margin-top: 10px;
+}
+
+.amp-margin-top-minus-20 {
+    margin-top: -20px;
+}
+
+.amp-padding-top-0 {
+    padding-top: 0;
+}
+
+.amp-padding-left-0 {
+    padding-left: 0;
+}
+
+.amp-padding-left-10 {
+    padding-left: 10px;
+}
+
+.amp-padding-right-20 {
+    padding-right: 20px;
+}
+
+.amp-display-flex {
+    display: flex;
+}
+
+.amp-flex-end {
+    justify-content: flex-end;
+}
+
+.amp-text-align-right {
+    text-align: right !important;
 }

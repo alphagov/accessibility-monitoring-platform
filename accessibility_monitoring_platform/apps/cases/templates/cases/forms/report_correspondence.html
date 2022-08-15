@@ -17,7 +17,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='Report correspondence' %}
@@ -69,7 +69,7 @@
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field_two_column.html' with field=form.report_sent_date %}
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
                             {% if case.report and case.report_methodology == "platform" %}
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-one-half">
@@ -82,7 +82,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <hr style="width:100%;">
+                                <hr class="amp-width-100">
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-one-half">
                                         <label class="govuk-label"><b>Unique report visits</b></label>
@@ -94,12 +94,12 @@
                                         </span>
                                     </div>
                                 </div>
-                                <hr style="width:100%;">
+                                <hr class="amp-width-100">
                             {% endif %}
                             {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_1_sent_date %}
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
                             {% include 'common/amp_field_two_column.html' with field=form.report_followup_week_4_sent_date %}
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
                                     <label class="govuk-label"><b>12-week deadline</b></label>
@@ -114,9 +114,9 @@
                                     </span>
                                 </div>
                             </div>
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
                             {% include 'common/amp_field_two_column.html' with field=form.report_acknowledged_date %}
-                            <hr style="width:100%;">
+                            <hr class="amp-width-100">
                             {% include 'common/amp_field.html' with field=form.zendesk_url %}
                             {% include 'common/amp_field.html' with field=form.correspondence_notes %}
                             {% include 'common/amp_field.html' with field=form.report_correspondence_complete_date %}
