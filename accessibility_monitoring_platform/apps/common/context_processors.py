@@ -17,6 +17,7 @@ NON_PROTOTYPE_DOMAINS: List[str] = [
     "accessibility-monitoring-platform-production.london.cloudapps.digital",
     "accessibility-monitoring-platform-test.london.cloudapps.digital",
     "platform.accessibility-monitoring.service.gov.uk",
+    "platform-test.accessibility-monitoring.service.gov.uk",
 ]
 
 

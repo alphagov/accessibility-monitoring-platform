@@ -90,6 +90,7 @@ def test_platform_page_template_context():
         "accessibility-monitoring-platform-production.london.cloudapps.digital",
         "accessibility-monitoring-platform-test.london.cloudapps.digital",
         "platform.accessibility-monitoring.service.gov.uk",
+        "platform-test.accessibility-monitoring.service.gov.uk",
     ],
 )
 @pytest.mark.django_db
