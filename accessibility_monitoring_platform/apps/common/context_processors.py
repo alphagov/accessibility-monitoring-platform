@@ -1,7 +1,7 @@
 """
 Context processors
 """
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from django.http import HttpRequest
 
@@ -12,6 +12,13 @@ from ..reports.utils import get_report_viewer_url_prefix
 from ..overdue.utils import get_overdue_cases
 from .forms import AMPTopMenuForm
 
+NON_PROTOTYPE_DOMAINS: List[str] = [
+    "localhost",
+    "accessibility-monitoring-platform-production.london.cloudapps.digital",
+    "accessibility-monitoring-platform-test.london.cloudapps.digital",
+    "platform.accessibility-monitoring.service.gov.uk",
+]
+
 
 def platform_page(
     request: HttpRequest,
@@ -21,13 +28,7 @@ def platform_page(
     name of prototype, platform settings and number of reminders.
     """
     absolute_uri: str = request.build_absolute_uri()
-    if (
-        "localhost" in absolute_uri
-        or "accessibility-monitoring-platform-production.london.cloudapps.digital"
-        in absolute_uri
-        or "accessibility-monitoring-platform-test.london.cloudapps.digital"
-        in absolute_uri
-    ):
+    if any([non_prototype_domain in absolute_uri for non_prototype_domain in NON_PROTOTYPE_DOMAINS]):
         prototype_name: str = ""
     else:
         prototype_name: str = (
