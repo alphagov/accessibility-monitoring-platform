@@ -8,29 +8,12 @@
     >
         {{ field }}
         <a
-            class="govuk-link govuk-link--no-visited-state"
-            id="my_link"
+            class="govuk-link govuk-link--no-visited-state amp-open-link-control"
+            id="{{ field.auto_id }}-open-link-control"
+            fieldId="{{ field.auto_id }}"
             target="_blank"
-            style="margin-left: 10px; display: none;"
         >
             Open link
         </a>
     </div>
-    <script>
-        inputLink = document.getElementById('open_link_input_div').querySelectorAll('input[type=text]')[0]
-        inputLink.addEventListener('input', (e) => link_logic(e.target.value))
-        a = document.getElementById('my_link')
-        function link_logic(value) {
-            if (value == '' || value.includes('https://') == false) {
-                a.setAttribute('style', "pointer-events: none; text-decoration: none; cursor: default; color: black; display: block; margin-left: 10px;")
-                a.setAttribute('href', "javascript:;")
-                a.setAttribute('target', "")
-            } else {
-                a.setAttribute('style', "margin-left: 10px;")
-                a.setAttribute('href', value)
-                a.setAttribute('target', "_blank")
-            }
-        }
-        link_logic(inputLink.value)
-    </script>
 </div>
