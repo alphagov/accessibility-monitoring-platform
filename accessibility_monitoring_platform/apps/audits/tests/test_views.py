@@ -69,50 +69,6 @@ def create_audit_and_wcag() -> Audit:
     return audit
 
 
-def test_delete_audit_view(admin_client):
-    """Test that delete audit view deletes audit"""
-    audit: Audit = create_audit()
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:delete-audit", kwargs=audit_pk),
-        {
-            "version": audit.version,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse(  # type: ignore
-        "cases:edit-test-results", kwargs={"pk": audit.case.id}
-    )
-
-    audit_from_db: Audit = Audit.objects.get(**audit_pk)
-
-    assert audit_from_db.is_deleted
-
-
-def test_restore_audit_view(admin_client):
-    """Test that restore audit view restores audit"""
-    audit: Audit = create_audit()
-    audit.is_deleted = True
-    audit.save()
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:restore-audit", kwargs=audit_pk),
-        {
-            "version": audit.version,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("audits:audit-detail", kwargs=audit_pk)  # type: ignore
-
-    audit_from_db: Audit = Audit.objects.get(**audit_pk)
-
-    assert audit_from_db.is_deleted is False
-
-
 def test_delete_page_view(admin_client):
     """Test that delete page view deletes page"""
     audit: Audit = create_audit()

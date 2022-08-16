@@ -31,8 +31,6 @@ from .views import (
     WcagDefinitionCreateView,
     WcagDefinitionUpdateView,
     create_audit,
-    delete_audit,
-    restore_audit,
     delete_page,
     restore_page,
     start_retest,
@@ -55,16 +53,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/detail/",
         login_required(AuditDetailView.as_view()),
         name="audit-detail",
-    ),
-    path(
-        "<int:pk>/delete-audit/",
-        login_required(delete_audit),
-        name="delete-audit",
-    ),
-    path(
-        "<int:pk>/restore-audit/",
-        login_required(restore_audit),
-        name="restore-audit",
     ),
     path(
         "<int:pk>/edit-audit-metadata/",
