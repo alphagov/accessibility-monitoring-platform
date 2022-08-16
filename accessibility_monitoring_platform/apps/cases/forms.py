@@ -197,14 +197,14 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         if requests.head(previous_case_url).status_code >= 400:
             raise ValidationError("Previous case URL does not exist")
         try:
-            case_id: str = re.search(
-                ".*/cases/(.+?)/view/?", previous_case_url
-            ).group(1)  # type: ignore
+            case_id: str = re.search(".*/cases/(.+?)/view/?", previous_case_url).group(  # type: ignore
+                1
+            )
         except AttributeError:
             raise ValidationError(  # pylint: disable=raise-missing-from
                 "Previous case URL did not contain case id"
             )
-        if Case.objects.filter(id=case_id).exists():
+        if case_id.isdigit() and Case.objects.filter(id=case_id).exists():
             return previous_case_url
         else:
             raise ValidationError("Previous case not found in platform")

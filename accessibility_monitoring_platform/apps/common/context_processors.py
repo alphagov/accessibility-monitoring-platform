@@ -28,7 +28,12 @@ def platform_page(
     name of prototype, platform settings and number of reminders.
     """
     absolute_uri: str = request.build_absolute_uri()
-    if any([non_prototype_domain in absolute_uri for non_prototype_domain in NON_PROTOTYPE_DOMAINS]):
+    if any(
+        [
+            non_prototype_domain in absolute_uri
+            for non_prototype_domain in NON_PROTOTYPE_DOMAINS
+        ]
+    ):
         prototype_name: str = ""
     else:
         prototype_name: str = (
