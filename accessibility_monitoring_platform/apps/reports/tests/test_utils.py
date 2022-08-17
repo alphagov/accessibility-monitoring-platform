@@ -392,7 +392,15 @@ def test_move_table_row_down(rf):
             "https://reports.accessibility-monitoring.service.gov.uk",
         ),
         (
+            "https://platform.accessibility-monitoring.gov.uk",
+            "https://reports.accessibility-monitoring.service.gov.uk",
+        ),
+        (
             "https://accessibility-monitoring-platform-test.com",
+            "https://reports-test.accessibility-monitoring.service.gov.uk",
+        ),
+        (
+            "https://platform-test.accessibility-monitoring.gov.uk",
             "https://reports-test.accessibility-monitoring.service.gov.uk",
         ),
         ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
