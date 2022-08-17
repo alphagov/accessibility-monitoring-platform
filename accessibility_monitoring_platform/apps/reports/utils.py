@@ -260,7 +260,11 @@ def get_report_viewer_url_prefix(request: HttpRequest) -> str:
             return "http://localhost:8002"
         elif "accessibility-monitoring-platform-production" in domain_name:
             return "https://reports.accessibility-monitoring.service.gov.uk"
+        elif "platform.accessibility-monitoring" in domain_name:
+            return "https://reports.accessibility-monitoring.service.gov.uk"
         elif "accessibility-monitoring-platform-test" in domain_name:
+            return "https://reports-test.accessibility-monitoring.service.gov.uk"
+        elif "platform-test.accessibility-monitoring" in domain_name:
             return "https://reports-test.accessibility-monitoring.service.gov.uk"
         else:
             domain_name_split = domain_name.split(".")
