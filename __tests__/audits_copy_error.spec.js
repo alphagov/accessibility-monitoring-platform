@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 const errorText = 'Error text to copy'
 const sourceId = 'notes-0'
 const destinationId = 'notes'

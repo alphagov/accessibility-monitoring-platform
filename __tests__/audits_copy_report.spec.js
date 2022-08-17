@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 const textToCopy = 'Report text to copy'
 
 document.body.innerHTML = `<div id="report-text">${textToCopy}</div>

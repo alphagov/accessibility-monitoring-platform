@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 const sourceId = 'id_form-0-notes'
 const targetId = 'preview-id_form-0-notes'
 const sourceMarkdown = '# Header 1'

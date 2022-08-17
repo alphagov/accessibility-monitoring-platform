@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 const url = 'https://example.com/'
 const linkFieldId = 'link-field-id'
 const openLinkControlId = `${linkFieldId}-open-link-control`

@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+
 const dayId = 'id_report_sent_date_0'
 const monthId = 'id_report_sent_date_1'
 const yearId = 'id_report_sent_date_2'
