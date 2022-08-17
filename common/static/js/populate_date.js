@@ -26,6 +26,7 @@ Array.from(populateDateElements).forEach(function (populateDateElement) {
     populateWithTodaysDate(dayFieldId, monthFieldId, yearFieldId)
   }
   populateDateElement.onkeypress = function () {
+    // eslint-disable-next-line no-undef
     keypressPopulateWithTodaysDate(event, dayFieldId, monthFieldId, yearFieldId)
   }
 })
