@@ -37,8 +37,8 @@ describe('test updateOpenLinkControl', () => {
     updateOpenLinkControl(openLinkControlId, url)
     expect(document.getElementById(openLinkControlId).href).toEqual(url)
   })
-  test('open link control href not populated with invalid URL', () => {
-    updateOpenLinkControl(openLinkControlId, 'xyz')
+  test('open link control href not populated with URL without https://', () => {
+    updateOpenLinkControl(openLinkControlId, 'example.com')
     expect(document.getElementById(openLinkControlId).href).toEqual('javascript:;')
   })
 })
