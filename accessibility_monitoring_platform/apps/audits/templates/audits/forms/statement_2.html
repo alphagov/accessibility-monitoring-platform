@@ -2,6 +2,8 @@
 
 {% load l10n %}
 
+{% load static %}
+
 {% block title %}{{ audit.case.organisation_name }} | Accessibility statement Pt. 2{% endblock %}
 
 {% block content %}
@@ -22,7 +24,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='Accessibility statement Pt. 2' case=audit.case %}
@@ -40,7 +42,7 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
                             {% if audit.accessibility_statement_backup_url_date %}
-                                <p class="govuk-body" style="margin-top: -20px;"> Added {{audit.accessibility_statement_backup_url_date}} </p>
+                                <p class="govuk-body amp-margin-top-minus-20"> Added {{audit.accessibility_statement_backup_url_date}} </p>
                             {% endif %}
                             {% include 'audits/helpers/test_statement_field_info.html' with field=form.disproportionate_burden_state help_details='audits/statement_examples/disproportionate_burden_state.html' %}
                             {% include 'common/amp_field.html' with field=form.disproportionate_burden_notes %}
@@ -68,4 +70,8 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}

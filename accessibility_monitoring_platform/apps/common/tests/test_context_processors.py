@@ -55,7 +55,7 @@ def test_active_qa_auditor_present(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<div class="govuk-heading-xl no-bottom-margin">{USER_FIRST_NAME}</div>""",
+        f"""<div class="govuk-heading-xl amp-margin-bottom-0">{USER_FIRST_NAME}</div>""",
         html=True,
     )
 
@@ -75,9 +75,39 @@ def test_platform_page_template_context():
     platform_page_context: Dict[
         str, Union[AMPTopMenuForm, str, Platform, int]
     ] = platform_page(
-        mock_request
-    )  # type: ignore
+        mock_request  # type: ignore
+    )
 
     assert platform_page_context["prototype_name"] == "prototype-name"
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0
+
+
+@pytest.mark.parametrize(
+    "non_prototype_domain",
+    [
+        "localhost",
+        "accessibility-monitoring-platform-production.london.cloudapps.digital",
+        "accessibility-monitoring-platform-test.london.cloudapps.digital",
+        "platform.accessibility-monitoring.service.gov.uk",
+        "platform-test.accessibility-monitoring.service.gov.uk",
+    ],
+)
+@pytest.mark.django_db
+def test_non_prototype_platform_page_template_context(non_prototype_domain):
+    """
+    Check prototype name not set for non-prototype domains.
+    """
+    user: User = User.objects.create(first_name=USER_FIRST_NAME)
+    mock_request = MockRequest(
+        path="/",
+        absolute_uri=f"https://{non_prototype_domain}/",
+        user=user,
+    )
+    platform_page_context: Dict[
+        str, Union[AMPTopMenuForm, str, Platform, int]
+    ] = platform_page(
+        mock_request  # type: ignore
+    )
+
+    assert platform_page_context["prototype_name"] == ""

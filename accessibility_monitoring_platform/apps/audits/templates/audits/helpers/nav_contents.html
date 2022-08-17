@@ -1,10 +1,10 @@
-<nav role="navigation" style="margin-bottom:40px">
+<nav role="navigation" class="amp-margin-bottom-40">
     <h2 class="govuk-heading-m">Contents</h2>
     <ul class="govuk-list">
         {% include './nav_content.html' with anchor='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_content.html' with anchor='audit-pages' edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
         {% if audit.testable_pages %}
-            <ul class="govuk-list govuk-list--bullet bottom-margin-10">
+            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                 {% for page in audit.testable_pages %}
                     {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
                 {% endfor %}

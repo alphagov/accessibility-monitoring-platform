@@ -98,5 +98,5 @@ module.exports = {
   notRetestedFilter,
   textFilter,
   updateWcagList,
-  updateValue,
+  updateValue
 }

@@ -22,7 +22,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='Pages' case=audit.case %}
@@ -107,7 +107,7 @@
                     />
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 id="deleted-pages"class="govuk-heading-l bottom-margin-5">Removed pages</h2>
+                            <h2 id="deleted-pages"class="govuk-heading-l amp-margin-bottom-5">Removed pages</h2>
                             {% if audit.deleted_pages %}
                                 <table class="govuk-table">
                                     <tbody class="govuk-table__body">

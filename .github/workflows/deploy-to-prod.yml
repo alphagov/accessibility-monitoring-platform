@@ -56,7 +56,7 @@ jobs:
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
-        pipenv lock -r > requirements.txt
+        pipenv requirements > requirements.txt
         make int_test
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}

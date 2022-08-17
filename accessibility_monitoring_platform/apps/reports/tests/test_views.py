@@ -128,7 +128,6 @@ def test_report_published_message_shown(admin_client):
     [
         ("reports:report-detail", ">Edit report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
-        ("reports:s3-report-list", ">Report versions</h1>"),
         ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
             "reports:report-confirm-refresh",

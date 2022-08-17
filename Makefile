@@ -74,7 +74,7 @@ test:
 	npm test
 
 int_test:
-	pipenv lock -r > requirements.txt
+	pipenv requirements > requirements.txt
 	python3 stack_tests/main.py
 
 deploy_prototype:

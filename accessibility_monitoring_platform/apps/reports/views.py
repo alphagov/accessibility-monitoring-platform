@@ -16,7 +16,6 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
 
 from .forms import (
     ReportMetadataUpdateForm,
@@ -37,7 +36,6 @@ from ..common.utils import (
 )
 from ..cases.models import Case
 from ..s3_read_write.utils import S3ReadWriteReport
-from ..s3_read_write.models import S3Report
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -87,7 +85,7 @@ class ReportDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object.case))
+        context.update(get_report_visits_metrics(self.object.case))  # type: ignore
         return context
 
 
@@ -294,27 +292,6 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(
         reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
     )
-
-
-class S3ReportListView(ListView):
-    """
-    View of list of published reports
-    """
-
-    model: Type[S3Report] = S3Report
-    template_name: str = "reports/s3report_list.html"
-    context_object_name: str = "s3_reports"
-
-    def get_queryset(self) -> QuerySet[S3Report]:
-        """Find S3 reports for case"""
-        report: Report = Report.objects.get(id=self.kwargs.get("pk"))
-        return S3Report.objects.filter(case=report.case).order_by("-id")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        report: Report = Report.objects.get(id=self.kwargs.get("pk"))
-        context["report"] = report
-        return context
 
 
 class ReportWrapperUpdateView(UpdateView):

@@ -24,7 +24,7 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/edit_header.html" with page_heading='Report text' case=audit.case %}
@@ -198,10 +198,11 @@
                                         <p>
                                             {% if check_result.wcag_definition.url_on_w3 %}
                                                 <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
-                                                    {{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}{% endif %}
+                                                    {{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}.{% endif %}
                                             {% else %}
-                                                {{ check_result.wcag_definition.name }}
+                                                {{ check_result.wcag_definition.name }}.
                                             {% endif %}
+                                            {% if check_result.wcag_definition.type == 'axe' and 'WCAG 1.4.3 ' not in check_result.wcag_definition.name %} Issue found using Deque Axe.{% endif %}
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>

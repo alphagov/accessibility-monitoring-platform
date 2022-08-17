@@ -24,21 +24,19 @@
   <body class="govuk-template__body js-enabled">
     {% if 'localhost' in request.build_absolute_uri or 'accessibility-monitoring-platform-production.london.cloudapps.digital' in request.build_absolute_uri %}
     {% else %}
-        <div style="position:fixed;left:5px;top:95%;transform-origin:top left;-webkit-transform:rotate(-90deg);opacity:0.3;font-size:6vmax;z-index:1;font-family:sans-serif;">
+        <div class="amp-watermark-left">
             {% if 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
                 TEST
             {% else %}
                 PROTOTYPE
             {% endif %}
         </div>
-        <div style="position:fixed;right:5px;top:95%;transform-origin:top right;-webkit-transform:rotate(90deg);opacity:0.3;font-size:6vmax;z-index:1;font-family:sans-serif;">
+        <div class="amp-watermark-right">
             {% if prototype_name %}{{ prototype_name }}{% else %}PLATFORM{% endif %}
         </div>
     {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
-      <script>
-        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
-      </script>
+      <script src="{% static 'js/js-enabled.js' %}"></script>
       <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
       <header class="govuk-header " data-module="govuk-header">

@@ -16,21 +16,21 @@
             </li>
         </ol>
     </div>
-    <main id="main-content" class="govuk-main-wrapper no-padding-top">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">All issues</h1>
 
-                <table class="govuk-table" style="border:1px solid black;border-collapse:collapse;">
+                <table id="all-issues" class="govuk-table">
                     <thead>
                         <tr>
-                            <th style="text-align:left;">Issue and description</th>
+                            <th>Issue and description</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for wcag_definition in wcag_definitions %}
-                            <tr style="border:1px solid black;">
-                                <td style="border:1px solid black;">
+                            <tr>
+                                <td>
                                     <p>
                                         {% if wcag_definition.url_on_w3 %}
                                             <a href="{{ wcag_definition.url_on_w3 }}" target="_blank">
