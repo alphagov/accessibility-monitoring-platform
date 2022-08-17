@@ -31,27 +31,6 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group amp-flex-end">
-                    {% if audit.is_deleted %}
-                        <a
-                            href="{% url 'audits:restore-audit' audit.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--warning"
-                            data-module="govuk-button"
-                        >
-                            Restore test
-                        </a>
-                    {% else %}
-                        <a
-                            href="{% url 'audits:delete-audit' audit.id %}"
-                            role="button"
-                            draggable="false"
-                            class="govuk-button govuk-button--secondary"
-                            data-module="govuk-button"
-                        >
-                            Delete test
-                        </a>
-                    {% endif %}
                     <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
                         role="button"
                         draggable="false"

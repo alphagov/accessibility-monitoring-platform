@@ -116,42 +116,6 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
 
 
-def delete_audit(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    Delete audit
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk (int): Id of audit to delete
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    audit: Audit = get_object_or_404(Audit, id=pk)
-    audit.is_deleted = True
-    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
-    audit.save()
-    return redirect(reverse("cases:edit-test-results", kwargs={"pk": audit.case.id}))  # type: ignore
-
-
-def restore_audit(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    Restore deleted audit
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk (int): Id of audit to restore
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    audit: Audit = get_object_or_404(Audit, id=pk)
-    audit.is_deleted = False
-    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
-    audit.save()
-    return redirect(reverse("audits:audit-detail", kwargs={"pk": audit.id}))  # type: ignore
-
-
 def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
     """
     Delete page
