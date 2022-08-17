@@ -192,10 +192,16 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     def clean_previous_case_url(self):
         """Check url contains case number"""
         previous_case_url = self.cleaned_data.get("previous_case_url")
+
+        # Check if URL was entered
         if not previous_case_url:
             return previous_case_url
+
+        # Check if URL exists
         if requests.head(previous_case_url).status_code >= 400:
             raise ValidationError("Previous case URL does not exist")
+
+        # Extract case id from view case URL
         try:
             case_id: str = re.search(".*/cases/(.+?)/view/?", previous_case_url).group(  # type: ignore
                 1
@@ -204,6 +210,8 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             raise ValidationError(  # pylint: disable=raise-missing-from
                 "Previous case URL did not contain case id"
             )
+
+        # Check if Case exists matching id from URL
         if case_id.isdigit() and Case.objects.filter(id=case_id).exists():
             return previous_case_url
         else:
