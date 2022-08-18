@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_email",  # <- if you want email capability.
     "two_factor",
     "two_factor.plugins.email",  # <- if you want email capability.
+    "rest_framework",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -240,3 +241,9 @@ CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
+    ]
+}

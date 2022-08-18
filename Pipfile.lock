@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "53dd4635776981bcf401acee88b6c99f027268764dcb5e62d8b8ec820f232be9"
+            "sha256": "138cda6279f46f836c97caa99b576c921c9ee5295175e87d30a759c448099847"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -64,26 +64,27 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:8cb7b14c9600762e899e41ae2fa3d9fd90100325a8b370f8829959c0e3e06376"
+                "sha256:70bf68f291ce40329ca95a1a9e33020027703bb30248da214b46642c5df0b444",
+                "sha256:732bbe266773125d233c77171978195bfd2fd03204ee1eec257a640c3e3dbd94"
             ],
             "index": "pypi",
-            "version": "==1.24.53"
+            "version": "==1.24.54"
         },
         "botocore": {
             "hashes": [
-                "sha256:4f667d671f9379a8bacc99c8e8861d4c7b275550df5ba09bbaa9a5dceaf93515",
-                "sha256:a3455cdb7fea2d8dfef466b8c1f8b9b0fff7dfeccc24b08ce443e17c2fa1b7d1"
+                "sha256:2d7631187d8f9f3e3a6dfd79fd10def4d26136a79fcc6a354b99352ea1ddfaec",
+                "sha256:811113dd97072b7f157a25a94d58ca2e6dd4577b8a6bdfe7e1fa6635adf64467"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.27.53"
+            "version": "==1.27.54"
         },
         "certifi": {
             "hashes": [
-                "sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d",
-                "sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412"
+                "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872",
+                "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==2022.6.15"
+            "version": "==2021.10.8"
         },
         "cffi": {
             "hashes": [
@@ -261,6 +262,14 @@
             "index": "pypi",
             "version": "==1.14.0"
         },
+        "djangorestframework": {
+            "hashes": [
+                "sha256:0c33407ce23acc68eca2a6e46424b008c9c02eceb8cf18581921d0092bc1f2ee",
+                "sha256:24c4bf58ed7e85d1fe4ba250ab2da926d263cd57d64b03e8dcef0ac683f8b1aa"
+            ],
+            "index": "pypi",
+            "version": "==3.13.1"
+        },
         "docopt": {
             "hashes": [
                 "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"
@@ -363,11 +372,11 @@
         },
         "moto": {
             "hashes": [
-                "sha256:add6fbc7c97c742d734c73b47b381d44796bd9b28438c6a91d79d1303f09215e",
-                "sha256:f66543b99c558df99a244977f9f905a0142addfb292523714c7c918567f74397"
+                "sha256:928584760caa2309d8b92fcd4a30d2647af61627ab62174eb709471963d41a33",
+                "sha256:a01f4cea1ef7c1b41ef019eb36adc06565c8fd8f7f14aaa206a02249cc853ba6"
             ],
             "index": "pypi",
-            "version": "==4.0.0.dev4"
+            "version": "==4.0.0.dev7"
         },
         "notifications-python-client": {
             "hashes": [
@@ -423,13 +432,6 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==2.4.0"
-        },
-        "pyopenssl": {
-            "hashes": [
-                "sha256:660b1b1425aac4a1bea1d94168a85d99f0b3144c869dd4390d27629d0087f1bf",
-                "sha256:ea252b38c87425b64116f808355e8da644ef9b07e429398bfece610f893ee2e0"
-            ],
-            "version": "==22.0.0"
         },
         "pysocks": {
             "hashes": [
@@ -495,10 +497,10 @@
         },
         "selenium": {
             "hashes": [
-                "sha256:61c8b02788b66f08f2e61d5295afc956991e394815e33573072e68402ed4e8d5"
+                "sha256:8f009783e94c338c251a86567d1767614fdf2e2c3015dd3ba635b2b571573560"
             ],
             "index": "pypi",
-            "version": "==4.4.0"
+            "version": "==4.4.2"
         },
         "setuptools": {
             "hashes": [
@@ -565,7 +567,6 @@
         },
         "urllib3": {
             "extras": [
-                "secure",
                 "socks"
             ],
             "hashes": [
