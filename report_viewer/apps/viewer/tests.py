@@ -14,6 +14,8 @@ from django.http import HttpResponse
 from django.template import loader, Template
 from django.urls import reverse
 
+from rest_framework.authtoken.models import Token
+
 from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
@@ -69,6 +71,7 @@ def test_view_report(client):
     """Test view report shows report text from S3"""
     case: Case = Case.objects.create()
     user: User = User.objects.create()
+    Token.objects.create(user=user)
     Report.objects.create(case=case)
     Audit.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
@@ -98,6 +101,7 @@ def test_view_older_report(client):
     """
     case: Case = Case.objects.create()
     user: User = User.objects.create()
+    Token.objects.create(user=user)
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
 
@@ -154,6 +158,7 @@ def test_view_report_not_on_s3(client):
     """Test view report shows report text from database when not on S3"""
     case: Case = Case.objects.create()
     user: User = User.objects.create()
+    Token.objects.create(user=user)
     Report.objects.create(case=case)
     Audit.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
@@ -217,6 +222,7 @@ def test_report_metric_middleware_successful(client):
     """Test view report shows report text from database when not on S3"""
     case: Case = Case.objects.create()
     user: User = User.objects.create()
+    Token.objects.create(user=user)
     Report.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
@@ -245,6 +251,7 @@ def test_post_report_feedback_form(admin_client):
     """Tests post report feedback saves correctly"""
     example_text: str = "text"
     user: User = User.objects.create()
+    Token.objects.create(user=user)
     case: Case = Case.objects.create(organisation_name="org_name")
     Report.objects.create(case=case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
