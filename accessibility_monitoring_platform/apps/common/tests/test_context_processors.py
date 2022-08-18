@@ -94,7 +94,9 @@ def test_platform_page_template_context():
     ],
 )
 @pytest.mark.django_db
-def test_non_prototype_platform_page_template_context(non_prototype_domain, expected_prototype_name):
+def test_non_prototype_platform_page_template_context(
+    non_prototype_domain, expected_prototype_name
+):
     """
     Check prototype name not set for non-prototype domains except for test.
     """
