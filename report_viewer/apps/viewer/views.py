@@ -1,9 +1,13 @@
 """Views for report viewer"""
 from typing import Any, Dict, Type
 
-from django.shortcuts import get_object_or_404
-from django.views.generic import FormView
+import requests
+
 from django.contrib import messages
+from django.http import Http404
+from django.views.generic import FormView
+
+from rest_framework.authtoken.models import Token
 
 from accessibility_monitoring_platform.apps.common.views import PlatformTemplateView
 from accessibility_monitoring_platform.apps.reports.models import Report, ReportFeedback
@@ -13,7 +17,8 @@ from accessibility_monitoring_platform.apps.s3_read_write.utils import (
     S3ReadWriteReport,
     NO_REPORT_HTML,
 )
-from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
+
+from .utils import get_platform_domain
 
 FORM_SUBMITTED_SUCCESSFULLY: str = "Form submitted successfully"
 
@@ -38,12 +43,21 @@ class ViewReport(FormView):
         self, *args, **kwargs  # pylint: disable=unused-argument
     ) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        s3_report = get_object_or_404(S3Report, guid=self.kwargs["guid"])
+        token: Token = Token.objects.all()[0]
+        headers = {"Authorization": f"Token {token.key}"}
+        guid: str = self.kwargs.get("guid", "")
+        s3_report_response: requests.models.Response = requests.get(
+            f"http://{get_platform_domain(self.request)}/api/v1/s3-reports/{guid}",
+            headers=headers,
+        )
+        if s3_report_response.status_code >= 400:
+            raise Http404
+        s3_report: Dict[str, str] = s3_report_response.json()
         s3_rw = S3ReadWriteReport()
-        raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=self.kwargs["guid"])
-        if raw_html == NO_REPORT_HTML and s3_report.html:
-            raw_html = s3_report.html
-        report = Report.objects.get(case=s3_report.case)
+        raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
+        if raw_html == NO_REPORT_HTML and s3_report.get("html"):
+            raw_html = s3_report["html"]
+        report = Report.objects.get(case_id=s3_report.get("case_id"))
 
         all_error_messages_content = [
             msg.message for msg in list(messages.get_messages(self.request))
