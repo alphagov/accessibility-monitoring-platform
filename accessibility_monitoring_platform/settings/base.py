@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "two_factor",
     "two_factor.plugins.email",  # <- if you want email capability.
     "rest_framework",
+    "rest_framework.authtoken",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -245,5 +246,8 @@ CSP_IMG_SRC = ("'self'", "data:")
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated"
-    ]
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }

@@ -11,6 +11,7 @@ from .serializers import S3ReportSerializer
 
 class S3ReportViewSet(viewsets.ModelViewSet):
     """ViewSet for S3Report"""
+
     queryset = S3Report.objects.all()
     lookup_field = "guid"
     serializer_class = S3ReportSerializer
