@@ -78,25 +78,27 @@ def test_platform_page_template_context():
         mock_request  # type: ignore
     )
 
-    assert platform_page_context["prototype_name"] == "prototype-name"
+    assert platform_page_context["prototype_name"] == "PROTOTYPE-NAME"
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0
 
 
 @pytest.mark.parametrize(
-    "non_prototype_domain",
+    "non_prototype_domain, expected_prototype_name",
     [
-        "localhost",
-        "accessibility-monitoring-platform-production.london.cloudapps.digital",
-        "accessibility-monitoring-platform-test.london.cloudapps.digital",
-        "platform.accessibility-monitoring.service.gov.uk",
-        "platform-test.accessibility-monitoring.service.gov.uk",
+        ("localhost", ""),
+        ("accessibility-monitoring-platform-production.london.cloudapps.digital", ""),
+        ("accessibility-monitoring-platform-test.london.cloudapps.digital", "TEST"),
+        ("platform.accessibility-monitoring.service.gov.uk", ""),
+        ("platform-test.accessibility-monitoring.service.gov.uk", "TEST"),
     ],
 )
 @pytest.mark.django_db
-def test_non_prototype_platform_page_template_context(non_prototype_domain):
+def test_non_prototype_platform_page_template_context(
+    non_prototype_domain, expected_prototype_name
+):
     """
-    Check prototype name not set for non-prototype domains.
+    Check prototype name not set for non-prototype domains except for test.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     mock_request = MockRequest(
@@ -110,4 +112,4 @@ def test_non_prototype_platform_page_template_context(non_prototype_domain):
         mock_request  # type: ignore
     )
 
-    assert platform_page_context["prototype_name"] == ""
+    assert platform_page_context["prototype_name"] == expected_prototype_name

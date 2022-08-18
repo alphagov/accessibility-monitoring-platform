@@ -35,7 +35,7 @@ def platform_page(
             for non_prototype_domain in NON_PROTOTYPE_DOMAINS
         ]
     ):
-        prototype_name: str = ""
+        prototype_name: str = "TEST" if "platform-test" in absolute_uri else ""
     else:
         prototype_name: str = (
             absolute_uri.split(".")[0].replace("https://", "").replace("http://", "")
@@ -45,7 +45,7 @@ def platform_page(
 
     return {
         "top_menu_form": AMPTopMenuForm(),
-        "prototype_name": prototype_name,
+        "prototype_name": prototype_name.upper(),
         "platform": platform,
         "number_of_reminders": get_number_of_reminders_for_user(user=request.user),  # type: ignore
         "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),  # type: ignore

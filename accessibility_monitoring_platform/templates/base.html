@@ -21,18 +21,13 @@
     <meta property="og:image" content="/static/assets/images/govuk-opengraph-image.png">
     <meta name="description" content="Accessibility Monitoring Platform">
   </head>
-  <body class="govuk-template__body js-enabled">
-    {% if 'localhost' in request.build_absolute_uri or 'accessibility-monitoring-platform-production.london.cloudapps.digital' in request.build_absolute_uri %}
-    {% else %}
+  <body class="govuk-template__body">
+    {% if prototype_name %}
         <div class="amp-watermark-left">
-            {% if 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
-                TEST
-            {% else %}
-                PROTOTYPE
-            {% endif %}
+            {{ prototype_name }}
         </div>
         <div class="amp-watermark-right">
-            {% if prototype_name %}{{ prototype_name }}{% else %}PLATFORM{% endif %}
+            {% if prototype_name == 'TEST' %}PLATFORM{% else %}PROTOTYPE{% endif %}
         </div>
     {% endif %}
     <div class="app-pane app-pane--enabled custom-page-container flex-wrapper" id="top">
@@ -64,7 +59,7 @@
                 Accessibility monitoring platform
                 {% if 'localhost' in request.build_absolute_uri %}
                     - local
-                {% elif 'accessibility-monitoring-platform-test.london.cloudapps.digital' in request.build_absolute_uri %}
+                {% elif prototype_name == 'TEST' %}
                     - test
                 {% endif %}
               </span>
