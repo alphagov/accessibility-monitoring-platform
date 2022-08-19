@@ -387,7 +387,8 @@ def test_move_table_row_down(rf):
 
 @pytest.mark.parametrize(
     "http_host, report_viewer_domain",
-    PLATFORM_VIEWER_DOMAINS + [
+    PLATFORM_VIEWER_DOMAINS
+    + [
         ("512-local-branch.com", "512-local-branch-report-viewer.com"),
         ("", ""),
     ],

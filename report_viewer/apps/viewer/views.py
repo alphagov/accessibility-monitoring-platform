@@ -38,12 +38,16 @@ class ViewReport(FormView):
         self, *args, **kwargs  # pylint: disable=unused-argument
     ) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+
         guid: str = self.kwargs.get("guid", "")
         s3_report_dict: Dict[str, str] = get_s3_report(guid=guid, request=self.request)
+
         s3_rw = S3ReadWriteReport()
         raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
+
         if raw_html == NO_REPORT_HTML and s3_report_dict.get("html"):
             raw_html = s3_report_dict["html"]
+
         report = Report.objects.get(case_id=s3_report_dict.get("case_id"))
 
         all_error_messages_content = [

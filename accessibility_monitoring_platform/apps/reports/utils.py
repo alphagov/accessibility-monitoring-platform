@@ -270,7 +270,9 @@ def get_report_viewer_url_prefix(request: HttpRequest) -> str:
     """Build report viewer URL prefix (protocol and domain) from request"""
     report_viewer_domain: str = get_report_viewer_domain(request=request)
     protocol: str = "http://" if "localhost" in report_viewer_domain else "https://"
-    report_viewer_url_prefix: str = f"{protocol}{report_viewer_domain}" if report_viewer_domain else ""
+    report_viewer_url_prefix: str = (
+        f"{protocol}{report_viewer_domain}" if report_viewer_domain else ""
+    )
     return report_viewer_url_prefix
 
 

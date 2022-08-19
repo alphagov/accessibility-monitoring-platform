@@ -17,6 +17,8 @@ from django.urls import reverse
 
 from rest_framework.authtoken.models import Token
 
+from common.constants import PLATFORM_VIEWER_DOMAINS
+
 from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import Platform
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
@@ -25,11 +27,13 @@ from accessibility_monitoring_platform.apps.reports.models import (
     Report,
     ReportVisitsMetrics,
 )
+from accessibility_monitoring_platform.apps.reports.tests.test_utils import MockRequest
 from accessibility_monitoring_platform.apps.s3_read_write.utils import S3ReadWriteReport
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
 
 from .middleware.report_views_middleware import ReportMetrics
+from .utils import get_platform_domain, get_s3_report
 
 
 def create_report_and_user() -> Tuple[Report, User]:
@@ -310,3 +314,39 @@ def test_post_report_feedback_form(mock_requests, admin_client):
         response,
         """Thank you for your feedback""",
     )
+
+
+@pytest.mark.parametrize(
+    "platform_domain, http_host",
+    PLATFORM_VIEWER_DOMAINS
+    + [
+        (
+            "880-api.london.cloudapps.digital",
+            "880-api-report-viewer.london.cloudapps.digital",
+        ),
+        ("", ""),
+    ],
+)
+def test_platform_domain(platform_domain, http_host):
+    """Test that report viewer domain is derived from platform domain"""
+    mock_request: MockRequest = MockRequest(http_host=http_host)
+    assert get_platform_domain(request=mock_request) == platform_domain  # type: ignore
+
+
+@patch("report_viewer.apps.viewer.utils.requests")
+def test_get_s3_report(mock_requests, admin_client):
+    """Test S3Report data from API returned"""
+    user: User = User.objects.create()
+    Token.objects.create(user=user)
+    mock_request: MockRequest = MockRequest(http_host="anything")
+
+    mock_requests_response: MagicMock = create_mock_requests_response(s3_report=None)
+    expected_s3_report: Dict[str, str] = {
+        "guid": "guid",  # type: ignore
+        "html": "html",  # type: ignore
+        "case_id": "case.id",  # type: ignore
+    }
+    mock_requests_response.json.return_value = expected_s3_report
+    mock_requests.get.return_value = mock_requests_response
+
+    assert get_s3_report("guid", mock_request) == expected_s3_report  # type: ignore
