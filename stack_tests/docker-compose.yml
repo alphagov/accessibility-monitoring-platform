@@ -22,6 +22,7 @@ services:
             python3 manage.py collectstatic --noinput;
             python3 manage.py migrate;
             echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\'admin@email.com\', \'admin@email.com\', \'secret\')\" | python3 manage.py shell;
+            python3 manage.py drf_create_token admin@email.com
             python3 manage.py recache_statuses;
             waitress-serve --port=8001 accessibility_monitoring_platform.wsgi:application;
             "
