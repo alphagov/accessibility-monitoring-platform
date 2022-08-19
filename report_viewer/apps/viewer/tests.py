@@ -145,9 +145,13 @@ def test_view_older_report(mock_requests, client):
         report_version=report.report_version,
     )
 
-    older_s3_report: Optional[S3Report] = S3Report.objects.filter(case=report.case).first()
+    older_s3_report: Optional[S3Report] = S3Report.objects.filter(
+        case=report.case
+    ).first()
     report_guid_kwargs: Dict[str, int] = {"guid": older_s3_report.guid}  # type: ignore
-    mock_requests.get.return_value = create_mock_requests_response(s3_report=older_s3_report)
+    mock_requests.get.return_value = create_mock_requests_response(
+        s3_report=older_s3_report
+    )
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
@@ -158,9 +162,13 @@ def test_view_older_report(mock_requests, client):
     assertContains(response, "A newer version of this report is available.")
     assertNotContains(response, '<h2 id="contents">Contents</h2>')
 
-    newest_s3_report: Optional[S3Report] = S3Report.objects.filter(case=report.case).last()
+    newest_s3_report: Optional[S3Report] = S3Report.objects.filter(
+        case=report.case
+    ).last()
     report_guid_kwargs: Dict[str, int] = {"guid": newest_s3_report.guid}  # type: ignore
-    mock_requests.get.return_value = create_mock_requests_response(s3_report=newest_s3_report)
+    mock_requests.get.return_value = create_mock_requests_response(
+        s3_report=newest_s3_report
+    )
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)

@@ -49,7 +49,7 @@ class ViewReport(FormView):
         platform_domain: str = get_platform_domain(self.request)
         protocol: str = "http://" if "localhost" in platform_domain else "https://"
         s3_report_response: requests.models.Response = requests.get(
-            f"{protocol}{platform_domain}/api/v1/s3-reports/{guid}",
+            f"{protocol}{platform_domain}/api/v1/s3-reports/{guid}/",
             headers=headers,
         )
         if s3_report_response.status_code >= 400:

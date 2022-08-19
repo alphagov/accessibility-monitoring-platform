@@ -4,7 +4,7 @@ Test context processor of common app
 import pytest
 from pytest_django.asserts import assertContains
 
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from django.contrib.auth.models import User
 from django.http.response import HttpResponse
@@ -19,11 +19,17 @@ USER_FIRST_NAME: str = "Userone"
 
 
 class MockRequest:
-    def __init__(self, path: str, absolute_uri: str, user: User):
+    """Class used to build mock Request objects for testing"""
+
+    def __init__(
+        self, path: str, absolute_uri: str, user: User, http_host: Optional[str] = None
+    ):
         self.path = path
         self.absolute_uri = absolute_uri
         self.user = user
         self.META = {}  # pylint: disable=invalid-name
+        if http_host is not None:
+            self.META["HTTP_HOST"] = http_host  # pylint: disable=invalid-name
 
     def build_absolute_uri(self):
         return self.absolute_uri
@@ -84,17 +90,31 @@ def test_platform_page_template_context():
 
 
 @pytest.mark.parametrize(
-    "non_prototype_domain",
+    "non_prototype_domain, expected_report_viewer_url_prefix",
     [
-        "localhost",
-        "accessibility-monitoring-platform-production.london.cloudapps.digital",
-        "accessibility-monitoring-platform-test.london.cloudapps.digital",
-        "platform.accessibility-monitoring.service.gov.uk",
-        "platform-test.accessibility-monitoring.service.gov.uk",
+        ["localhost", "http://localhost-report-viewer"],
+        [
+            "accessibility-monitoring-platform-production.london.cloudapps.digital",
+            "https://accessibility-monitoring-report-viewer-production.london.cloudapps.digital",
+        ],
+        [
+            "accessibility-monitoring-platform-test.london.cloudapps.digital",
+            "https://accessibility-monitoring-report-viewer-test.london.cloudapps.digital",
+        ],
+        [
+            "platform.accessibility-monitoring.service.gov.uk",
+            "https://reports.accessibility-monitoring.service.gov.uk",
+        ],
+        [
+            "platform-test.accessibility-monitoring.service.gov.uk",
+            "https://reports-test.accessibility-monitoring.service.gov.uk",
+        ],
     ],
 )
 @pytest.mark.django_db
-def test_non_prototype_platform_page_template_context(non_prototype_domain):
+def test_non_prototype_platform_page_template_context(
+    non_prototype_domain, expected_report_viewer_url_prefix
+):
     """
     Check prototype name not set for non-prototype domains.
     """
@@ -103,6 +123,7 @@ def test_non_prototype_platform_page_template_context(non_prototype_domain):
         path="/",
         absolute_uri=f"https://{non_prototype_domain}/",
         user=user,
+        http_host=non_prototype_domain,
     )
     platform_page_context: Dict[
         str, Union[AMPTopMenuForm, str, Platform, int]
@@ -111,3 +132,7 @@ def test_non_prototype_platform_page_template_context(non_prototype_domain):
     )
 
     assert platform_page_context["prototype_name"] == ""
+    assert (
+        platform_page_context["report_viewer_url_prefix"]
+        == expected_report_viewer_url_prefix
+    )

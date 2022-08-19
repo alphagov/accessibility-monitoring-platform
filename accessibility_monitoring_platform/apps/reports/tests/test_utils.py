@@ -2,13 +2,15 @@
 Test utility functions of reports app
 """
 import pytest
-from typing import List
+from typing import Dict, List
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
+
+from common.constants import PLATFORM_VIEWER_DOMAINS
 
 from ...audits.models import (
     Audit,
@@ -39,6 +41,7 @@ from ..utils import (
     create_url_table_rows,
     create_issue_table_rows,
     undelete_table_row,
+    get_report_viewer_domain,
     get_report_viewer_url_prefix,
     get_report_visits_metrics,
     DELETE_ROW_BUTTON_PREFIX,
@@ -383,43 +386,51 @@ def test_move_table_row_down(rf):
 
 
 @pytest.mark.parametrize(
-    "http_host, res",
-    [
-        ("http://localhost:8081", "http://localhost:8082"),
-        ("http://localhost:8001", "http://localhost:8002"),
-        (
-            "https://accessibility-monitoring-platform-production.com",
-            "https://reports.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://platform.accessibility-monitoring.gov.uk",
-            "https://reports.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://accessibility-monitoring-platform-test.com",
-            "https://reports-test.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://platform-test.accessibility-monitoring.gov.uk",
-            "https://reports-test.accessibility-monitoring.service.gov.uk",
-        ),
-        ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
+    "http_host, report_viewer_domain",
+    PLATFORM_VIEWER_DOMAINS + [
+        ("512-local-branch.com", "512-local-branch-report-viewer.com"),
         ("", ""),
     ],
 )
-def test_report_viewer_url(http_host, res):
+def test_report_viewer_domain(http_host, report_viewer_domain):
+    """Test that report viewer domain is derived from platform domain"""
     mock_request: MockRequest = MockRequest(http_host=http_host)
-    return res == get_report_viewer_url_prefix(request=mock_request)  # type: ignore
+    assert report_viewer_domain == get_report_viewer_domain(request=mock_request)  # type: ignore
+
+
+@pytest.mark.parametrize(
+    "http_host, report_viewer_url_prefix",
+    [
+        ("localhost:8081", "http://localhost:8082"),
+        ("localhost:8001", "http://localhost:8002"),
+        (
+            "platform.accessibility-monitoring.service.gov.uk",
+            "https://reports.accessibility-monitoring.service.gov.uk",
+        ),
+        ("512-local-branch.com", "https://512-local-branch-report-viewer.com"),
+        ("", ""),
+    ],
+)
+def test_get_report_viewer_url_prefix(http_host, report_viewer_url_prefix):
+    """Test report view URL prefix is built correctly"""
+    mock_request: MockRequest = MockRequest(http_host=http_host)
+    assert report_viewer_url_prefix == get_report_viewer_url_prefix(request=mock_request)  # type: ignore
 
 
 @pytest.mark.django_db
 def test_report_visits_metrics():
+    """Test report visits metrics are reported correctly"""
     case: Case = Case.objects.create()
-    res = get_report_visits_metrics(case)
-    assert res["number_of_visits"] == 0
-    assert res["number_of_unique_visitors"] == 0
+
+    report_visits_metrics: Dict[str, int] = get_report_visits_metrics(case)
+
+    assert report_visits_metrics["number_of_visits"] == 0
+    assert report_visits_metrics["number_of_unique_visitors"] == 0
+
     ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
     ReportVisitsMetrics.objects.create(case=case, fingerprint_hash=1234)
-    res_2 = get_report_visits_metrics(case)
-    assert res_2["number_of_visits"] == 2
-    assert res_2["number_of_unique_visitors"] == 1
+
+    report_visits_metrics: Dict[str, int] = get_report_visits_metrics(case)
+
+    assert report_visits_metrics["number_of_visits"] == 2
+    assert report_visits_metrics["number_of_unique_visitors"] == 1

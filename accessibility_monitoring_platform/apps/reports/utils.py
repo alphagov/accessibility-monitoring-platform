@@ -7,8 +7,10 @@ from typing import Dict, Optional, Set
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
-from ..cases.models import Case
 
+from common.constants import PLATFORM_VIEWER_DOMAINS
+
+from ..cases.models import Case
 from ..common.utils import (
     get_id_from_button_name,
     record_model_update_event,
@@ -250,31 +252,29 @@ def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optiona
     return updated_table_row_id
 
 
-def get_report_viewer_url_prefix(request: HttpRequest) -> str:
-    """Derive report viewer app's domain name from that of the platform in a request"""
+def get_report_viewer_domain(request: HttpRequest) -> str:
+    """Derive report viewer's domain name from that of the platform in a request"""
     domain_name: str = request.META["HTTP_HOST"] if "HTTP_HOST" in request.META else ""
     if domain_name:
-        if "localhost:8081" in domain_name:
-            return "http://localhost:8082"
-        elif "localhost:8001" in domain_name:
-            return "http://localhost:8002"
-        elif "accessibility-monitoring-platform-production" in domain_name:
-            return "https://reports.accessibility-monitoring.service.gov.uk"
-        elif "platform.accessibility-monitoring" in domain_name:
-            return "https://reports.accessibility-monitoring.service.gov.uk"
-        elif "accessibility-monitoring-platform-test" in domain_name:
-            return "https://reports-test.accessibility-monitoring.service.gov.uk"
-        elif "platform-test.accessibility-monitoring" in domain_name:
-            return "https://reports-test.accessibility-monitoring.service.gov.uk"
-        else:
-            domain_name_split = domain_name.split(".")
-            domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"
-            return ".".join(domain_name_split)
+        for platform_domain, viewer_domain in PLATFORM_VIEWER_DOMAINS:
+            if platform_domain in domain_name:
+                return viewer_domain
+        domain_name_split = domain_name.split(".")
+        domain_name_split[0] = f"{domain_name_split[0]}-report-viewer"
+        return ".".join(domain_name_split)
     else:
         return ""
 
 
-def get_report_visits_metrics(case: Case) -> Dict[str, str]:
+def get_report_viewer_url_prefix(request: HttpRequest) -> str:
+    """Build report viewer URL prefix (protocol and domain) from request"""
+    report_viewer_domain: str = get_report_viewer_domain(request=request)
+    protocol: str = "http://" if "localhost" in report_viewer_domain else "https://"
+    report_viewer_url_prefix: str = f"{protocol}{report_viewer_domain}" if report_viewer_domain else ""
+    return report_viewer_url_prefix
+
+
+def get_report_visits_metrics(case: Case) -> Dict[str, int]:
     """Returns the visit metrics for reports"""
     return {
         "number_of_visits": case.reportvisitsmetrics_set.all().count(),  # type: ignore
