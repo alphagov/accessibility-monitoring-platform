@@ -333,8 +333,9 @@ def test_platform_domain(platform_domain, http_host):
     assert get_platform_domain(request=mock_request) == platform_domain  # type: ignore
 
 
+@pytest.mark.django_db
 @patch("report_viewer.apps.viewer.utils.requests")
-def test_get_s3_report(mock_requests, admin_client):
+def test_get_s3_report(mock_requests):
     """Test S3Report data from API returned"""
     user: User = User.objects.create()
     Token.objects.create(user=user)
