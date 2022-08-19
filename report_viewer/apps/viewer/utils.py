@@ -11,7 +11,7 @@ PLATFORM_VIEWER_DOMAINS: List[Tuple[str, str]] = [
     ("localhost:8001", "localhost:8002"),  # Used for automated testing
     (
         "accessibility-monitoring-platform-test.london.cloudapps.digital",
-        "reports-test.accessibility-monitoring.service.gov.uk",
+        "accessibility-monitoring-report-viewer-test.london.cloudapps.digital",
     ),
     (
         "accessibility-monitoring-platform-production.london.cloudapps.digital",

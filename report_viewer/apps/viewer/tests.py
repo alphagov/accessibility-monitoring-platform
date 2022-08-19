@@ -1,10 +1,11 @@
 """
 Test report viewer
 """
-import pytest
 
-from typing import Dict, Optional
+import pytest
+from typing import Dict, Optional, Tuple
 from unittest import mock
+from unittest.mock import MagicMock, patch
 
 from pytest_django.asserts import assertContains, assertNotContains
 from moto import mock_s3
@@ -29,6 +30,29 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
 
 from .middleware.report_views_middleware import ReportMetrics
+
+
+def create_report_and_user() -> Tuple[Report, User]:
+    """Create report for testing"""
+    case: Case = Case.objects.create()
+    user: User = User.objects.create()
+    Token.objects.create(user=user)
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    return report, user
+
+
+def create_mock_requests_response(s3_report: Optional[S3Report]) -> MagicMock:
+    """Create mock requests response based on an S3Report"""
+    mock_requests_response: MagicMock = MagicMock()
+    mock_requests_response.status_code = 200
+    if s3_report is not None:
+        mock_requests_response.json.return_value = {
+            "guid": s3_report.guid,  # type: ignore
+            "html": s3_report.html,  # type: ignore
+            "case_id": s3_report.case.id,  # type: ignore
+        }
+    return mock_requests_response
 
 
 @pytest.mark.django_db
@@ -67,24 +91,22 @@ def test_view_privacy_notice(client):
 
 @pytest.mark.django_db
 @mock_s3
-def test_view_report(client):
+@patch("report_viewer.apps.viewer.views.requests")
+def test_view_report(mock_requests, client):
     """Test view report shows report text from S3"""
-    case: Case = Case.objects.create()
-    user: User = User.objects.create()
-    Token.objects.create(user=user)
-    Report.objects.create(case=case)
-    Audit.objects.create(case=case)
+    report, user = create_report_and_user()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html: str = "<p>  This is example text </ p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        case=report.case,
         user=user,
         report_version="v1_202201401",
     )
-    s3report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=s3_report)
 
-    report_guid_kwargs: Dict[str, int] = {"guid": s3report.guid}  # type: ignore
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
     )
@@ -95,16 +117,12 @@ def test_view_report(client):
 
 @pytest.mark.django_db
 @mock_s3
-def test_view_older_report(client):
+@patch("report_viewer.apps.viewer.views.requests")
+def test_view_older_report(mock_requests, client):
     """
     Older reports' text is suppressed and a warning shown instead
     """
-    case: Case = Case.objects.create()
-    user: User = User.objects.create()
-    Token.objects.create(user=user)
-    Audit.objects.create(case=case)
-    report: Report = Report.objects.create(case=case)
-
+    report, user = create_report_and_user()
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
@@ -114,7 +132,7 @@ def test_view_older_report(client):
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        case=report.case,
         user=user,
         report_version=report.report_version,
     )
@@ -122,13 +140,14 @@ def test_view_older_report(client):
     html: str = template.render(context)
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
-        case=case,
+        case=report.case,
         user=user,
         report_version=report.report_version,
     )
 
-    older_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).first()
-    report_guid_kwargs: Dict[str, int] = {"guid": older_s3report.guid}  # type: ignore
+    older_s3_report: Optional[S3Report] = S3Report.objects.filter(case=report.case).first()
+    report_guid_kwargs: Dict[str, int] = {"guid": older_s3_report.guid}  # type: ignore
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=older_s3_report)
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
@@ -139,8 +158,9 @@ def test_view_older_report(client):
     assertContains(response, "A newer version of this report is available.")
     assertNotContains(response, '<h2 id="contents">Contents</h2>')
 
-    newest_s3report: Optional[S3Report] = S3Report.objects.filter(case=case).last()
-    report_guid_kwargs: Dict[str, int] = {"guid": newest_s3report.guid}  # type: ignore
+    newest_s3_report: Optional[S3Report] = S3Report.objects.filter(case=report.case).last()
+    report_guid_kwargs: Dict[str, int] = {"guid": newest_s3_report.guid}  # type: ignore
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=newest_s3_report)
 
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
@@ -154,18 +174,15 @@ def test_view_older_report(client):
 
 @pytest.mark.django_db
 @mock_s3
-def test_view_report_not_on_s3(client):
+@patch("report_viewer.apps.viewer.views.requests")
+def test_view_report_not_on_s3(mock_requests, client):
     """Test view report shows report text from database when not on S3"""
-    case: Case = Case.objects.create()
-    user: User = User.objects.create()
-    Token.objects.create(user=user)
-    Report.objects.create(case=case)
-    Audit.objects.create(case=case)
+    report, user = create_report_and_user()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        case=report.case,
         user=user,
         report_version="v1_202201401",
     )
@@ -175,6 +192,8 @@ def test_view_report_not_on_s3(client):
     s3_report.save()  # type: ignore
 
     report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=s3_report)
+
     response: HttpResponse = client.get(
         reverse("viewer:viewreport", kwargs=report_guid_kwargs)
     )
@@ -218,17 +237,15 @@ def test_report_metric_middleware_fingerprint_codename():
 
 @pytest.mark.django_db
 @mock_s3
-def test_report_metric_middleware_successful(client):
+@patch("report_viewer.apps.viewer.views.requests")
+def test_report_metric_middleware_successful(mock_requests, client):
     """Test view report shows report text from database when not on S3"""
-    case: Case = Case.objects.create()
-    user: User = User.objects.create()
-    Token.objects.create(user=user)
-    Report.objects.create(case=case)
+    report, user = create_report_and_user()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        case=report.case,
         user=user,
         report_version="v1_202201401",
     )
@@ -238,6 +255,8 @@ def test_report_metric_middleware_successful(client):
     s3_report.save()  # type: ignore
 
     report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=s3_report)
+
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
@@ -247,21 +266,21 @@ def test_report_metric_middleware_successful(client):
 
 @pytest.mark.django_db
 @mock_s3
-def test_post_report_feedback_form(admin_client):
+@patch("report_viewer.apps.viewer.views.requests")
+def test_post_report_feedback_form(mock_requests, admin_client):
     """Tests post report feedback saves correctly"""
     example_text: str = "text"
-    user: User = User.objects.create()
-    Token.objects.create(user=user)
-    case: Case = Case.objects.create(organisation_name="org_name")
-    Report.objects.create(case=case)
+    report, user = create_report_and_user()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content="<p>Text on S3</p>",
-        case=case,
+        case=report.case,
         user=user,
         report_version="v1_202201401",
     )
-    s3_report: S3Report = S3Report.objects.get(case=case)
+    s3_report: S3Report = S3Report.objects.get(case=report.case)
+    mock_requests.get.return_value = create_mock_requests_response(s3_report=s3_report)
+
     response: HttpResponse = admin_client.post(
         reverse(
             "viewer:viewreport",
@@ -278,7 +297,7 @@ def test_post_report_feedback_form(admin_client):
     assert report_feedback.guid == s3_report.guid
     assert report_feedback.what_were_you_trying_to_do == example_text
     assert report_feedback.what_went_wrong == example_text
-    assert report_feedback.case == case
+    assert report_feedback.case == report.case
     assertContains(
         response,
         """Thank you for your feedback""",
