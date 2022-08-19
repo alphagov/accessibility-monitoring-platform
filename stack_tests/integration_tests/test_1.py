@@ -1618,31 +1618,31 @@ class TestCasePublishReport(TestCase):
         self.assertTrue("HTML report successfully created!" in self.driver.page_source)
 
 
-# class TestCaseViewPublishedReport(TestCase):
-#     """
-#     Test case for integration tests of viewing published (S3) report
+class TestCaseViewPublishedReport(TestCase):
+    """
+    Test case for integration tests of viewing published (S3) report
 
-#     Methods
-#     -------
-#     setUp()
-#         Navigate to published report
-#     test_view_report()
-#         Tests whether published (S3) report can be viewed
-#     """
+    Methods
+    -------
+    setUp()
+        Navigate to published report
+    test_view_report()
+        Tests whether published (S3) report can be viewed
+    """
 
-#     def setUp(self):
-#         """Navigate to published (S3) report"""
-#         super().setUp()
-#         self.driver.find_element("link text", PUBLISH_REPORT_ORGANISATION_NAME).click()
+    def setUp(self):
+        """Navigate to published (S3) report"""
+        super().setUp()
+        self.driver.find_element("link text", PUBLISH_REPORT_ORGANISATION_NAME).click()
 
-#     def test_view_report(self):
-#         """Tests whether published (S3) report can be viewed"""
-#         self.driver.find_element("id", "latest_s3_report").click()
+    def test_view_report(self):
+        """Tests whether published (S3) report can be viewed"""
+        self.driver.find_element("id", "latest_s3_report").click()
 
-#         new_window_handle: str = self.driver.window_handles[-1]
-#         self.driver.switch_to.window(new_window_handle)
+        new_window_handle: str = self.driver.window_handles[-1]
+        self.driver.switch_to.window(new_window_handle)
 
-#         self.assertTrue(
-#             "Accessibility report for example-report-publish.com"
-#             in self.driver.page_source
-#         )
+        self.assertTrue(
+            "Accessibility report for example-report-publish.com"
+            in self.driver.page_source
+        )
