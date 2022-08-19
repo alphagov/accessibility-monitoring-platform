@@ -91,7 +91,7 @@ def test_view_privacy_notice(client):
 
 @pytest.mark.django_db
 @mock_s3
-@patch("report_viewer.apps.viewer.views.requests")
+@patch("report_viewer.apps.viewer.utils.requests")
 def test_view_report(mock_requests, client):
     """Test view report shows report text from S3"""
     report, user = create_report_and_user()
@@ -117,7 +117,7 @@ def test_view_report(mock_requests, client):
 
 @pytest.mark.django_db
 @mock_s3
-@patch("report_viewer.apps.viewer.views.requests")
+@patch("report_viewer.apps.viewer.utils.requests")
 def test_view_older_report(mock_requests, client):
     """
     Older reports' text is suppressed and a warning shown instead
@@ -182,7 +182,7 @@ def test_view_older_report(mock_requests, client):
 
 @pytest.mark.django_db
 @mock_s3
-@patch("report_viewer.apps.viewer.views.requests")
+@patch("report_viewer.apps.viewer.utils.requests")
 def test_view_report_not_on_s3(mock_requests, client):
     """Test view report shows report text from database when not on S3"""
     report, user = create_report_and_user()
@@ -245,7 +245,7 @@ def test_report_metric_middleware_fingerprint_codename():
 
 @pytest.mark.django_db
 @mock_s3
-@patch("report_viewer.apps.viewer.views.requests")
+@patch("report_viewer.apps.viewer.utils.requests")
 def test_report_metric_middleware_successful(mock_requests, client):
     """Test view report shows report text from database when not on S3"""
     report, user = create_report_and_user()
@@ -274,7 +274,7 @@ def test_report_metric_middleware_successful(mock_requests, client):
 
 @pytest.mark.django_db
 @mock_s3
-@patch("report_viewer.apps.viewer.views.requests")
+@patch("report_viewer.apps.viewer.utils.requests")
 def test_post_report_feedback_form(mock_requests, admin_client):
     """Tests post report feedback saves correctly"""
     example_text: str = "text"

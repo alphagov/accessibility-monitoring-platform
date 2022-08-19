@@ -2,7 +2,13 @@
 Utilities for report viewer app
 """
 
-from django.http import HttpRequest
+from typing import Dict
+
+import requests
+
+from django.http import Http404, HttpRequest
+
+from rest_framework.authtoken.models import Token
 
 from common.constants import PLATFORM_VIEWER_DOMAINS
 
@@ -17,3 +23,18 @@ def get_platform_domain(request: HttpRequest) -> str:
         return domain_name.replace("-report-viewer.", ".")
     else:
         return ""
+
+
+def get_s3_report(guid: str, request: HttpRequest) -> Dict[str, str]:
+    """Get S3Report data from platform api"""
+    token: Token = Token.objects.all()[0]
+    headers = {"Authorization": f"Token {token.key}"}
+    platform_domain: str = get_platform_domain(request)
+    protocol: str = "http://" if "localhost" in platform_domain else "https://"
+    s3_report_response: requests.models.Response = requests.get(
+        f"{protocol}{platform_domain}/api/v1/s3-reports/{guid}/",
+        headers=headers,
+    )
+    if s3_report_response.status_code >= 400:
+        raise Http404
+    return s3_report_response.json()
