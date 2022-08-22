@@ -31,10 +31,12 @@ def get_s3_report(guid: str, request: HttpRequest) -> Dict[str, str]:
     headers = {"Authorization": f"Token {token.key}"}
     platform_domain: str = get_platform_domain(request)
     protocol: str = "http://" if "localhost" in platform_domain else "https://"
+    host_name: str = "web:8001" if platform_domain == "localhost:8001" else platform_domain
     s3_report_response: requests.models.Response = requests.get(
-        f"{protocol}{platform_domain}/api/v1/s3-reports/{guid}/",
+        f"{protocol}{host_name}/api/v1/s3-reports/{guid}/",
         headers=headers,
     )
-    if s3_report_response.status_code >= 400:
-        raise Http404
+    s3_report_response.raise_for_status()
+    # if s3_report_response.status_code >= 400:
+    #     raise Http404
     return s3_report_response.json()
