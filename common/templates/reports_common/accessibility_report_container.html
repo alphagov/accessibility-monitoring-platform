@@ -47,9 +47,7 @@
                             <dd>{{ s3_report.created|amp_date }}</dd>
                         {% endif %}
                     </dl>
-                    <div class="iff-javascript-enabled">
-                        <button id="print-button" class="govuk-link print-button no-print">Print this page</button>
-                    </div>
+                    <button id="print-button" class="govuk-link print-button no-print">Print this page</button>
                 </div>
             </div>
             <div class="govuk-grid-row">
@@ -101,7 +99,7 @@
                             </form>
                         </div>
                         <div class="govuk-grid-column-one-third">
-                            <button 
+                            <button
                                 class="govuk-button govuk-button--secondary float-right"
                                 id="hide_feedback_form"
                             >
@@ -114,6 +112,9 @@
         {% endif %}
         </div>
     </main>
-    <script src="{% static 'js/print-button.js' %}"> </script>
-    <script src="{% static 'js/report_form.js' %}"/> </script>
+    <script src="{% static 'js/print-button.js' %}"></script>
+    {% if report_viewer %}
+        <script src="{% static 'js/report_form.js' %}"></script>
+    {% endif %}
+    <script src="{% static 'js/js-enabled.js' %}"></script>
 </div>
