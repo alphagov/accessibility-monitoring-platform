@@ -26,7 +26,6 @@ from .models import (
 )
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
-{% if wcag_definition.type == 'axe' and 'WCAG 1.4.3 ' not in wcag_definition.name %} Issue found using Deque Axe.{% endif %}
 {% if first_use_of_wcag_definition %}
 {{ wcag_definition.report_boilerplate|safe }}
 {% endif %}"""
