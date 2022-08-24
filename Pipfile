@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+setuptools = "65.1.1"
+wheel = "*"
 "backports.zoneinfo" = "0.2.1"
 django = ">=4.1"
 python-dotenv = "*"
