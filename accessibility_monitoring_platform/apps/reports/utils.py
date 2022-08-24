@@ -38,7 +38,6 @@ MOVE_ROW_DOWN_BUTTON_PREFIX: str = "move_table_row_down_"
 
 wcag_boilerplate_template: Template = Template(WCAG_DEFINITION_BOILERPLATE_TEMPLATE)
 check_result_notes_template: Template = Template(CHECK_RESULTS_NOTES_TEMPLATE)
-used_wcag_definitions: Set[WcagDefinition] = set()
 
 
 def generate_report_content(report: Report) -> None:
@@ -58,8 +57,7 @@ def generate_report_content(report: Report) -> None:
     context: Context = Context({"audit": report.case.audit})
     issues_table_template: Template = Template(issues_table_base_template.content)
     section_position: int = 0
-    global used_wcag_definitions
-    used_wcag_definitions = set()
+    used_wcag_definitions: Set[WcagDefinition] = set()
 
     for base_template in top_level_base_templates:
         template: Template = Template(base_template.content)
@@ -91,7 +89,11 @@ def generate_report_content(report: Report) -> None:
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
                     )
-                    create_issue_table_rows(page=page, page_section=page_section)
+                    used_wcag_definitions: Set[WcagDefinition] = create_issue_table_rows(
+                        page=page,
+                        page_section=page_section,
+                        used_wcag_definitions=used_wcag_definitions,
+                    )
 
 
 def create_url_table_rows(report: Report, section: Section) -> None:
@@ -105,7 +107,9 @@ def create_url_table_rows(report: Report, section: Section) -> None:
         )
 
 
-def create_issue_table_rows(page: Page, page_section: Section) -> None:
+def create_issue_table_rows(
+    page: Page, page_section: Section, used_wcag_definitions: Set[WcagDefinition]
+) -> Set[WcagDefinition]:
     """Create issue table row data for each failed check for a page in the report"""
     for row_number, check_result in enumerate(page.failed_check_results, start=1):
         first_use_of_wcag_definition: bool = (
@@ -130,6 +134,7 @@ def create_issue_table_rows(page: Page, page_section: Section) -> None:
             ),
             row_number=row_number,
         )
+    return used_wcag_definitions
 
 
 def delete_table_row(request: HttpRequest) -> Optional[int]:
