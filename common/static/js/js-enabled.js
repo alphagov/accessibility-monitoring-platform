@@ -1,2 +1,6 @@
+document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled')
+
 const printButton = document.getElementById('print-button')
-printButton.classList.add('amp-display-block')
+if (printButton) {
+  printButton.classList.add('amp-display-block')
+}
