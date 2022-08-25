@@ -54,6 +54,7 @@ def main() -> bool:
     config_processed: SettingsType = reconfigure_config_file(config)
     template_object = {
         "app_name": config_processed["app_name"],
+        "buildpack": "https://github.com/cloudfoundry/python-buildpack#v1.7.58",
         "report_viewer_app_name": config_processed["report_viewer_app_name"],
         "secret_key": get_random_secret_key(),
         "db": config_processed["db_name"],
