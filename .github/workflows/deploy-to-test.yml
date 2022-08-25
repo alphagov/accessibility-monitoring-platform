@@ -107,7 +107,7 @@ jobs:
     - name: Push to cf
       run: |
         cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-test
-        cf push -f cf_manifest/manifest-test.yml
+        cf push -f cf_manifest/manifest-test.yml -b https://github.com/cloudfoundry/python-buildpack#v1.7.58
 
     - name: Smoke tests
       run: |
