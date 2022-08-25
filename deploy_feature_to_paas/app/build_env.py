@@ -199,7 +199,7 @@ class BuildEnv:
         self.create_manifest()  # Creates manifest before deloying Django app
         print(">>> pushing app to PaaS")
         subprocess.run(
-            f"cf push -f {self.manifest_path} -b https://github.com/cloudfoundry/python-buildpack#v1.7.58".split(),
+            f"cf push -f {self.manifest_path}".split(),
             stderr=sys.stderr,
             stdout=sys.stdout,
             check=True,
