@@ -134,7 +134,7 @@
                     </p>
 
                     <p>
-                        The automated tests were completed using the latest version of axe:
+                        The automated tests were completed using the latest version of Axe:
                         <a href="https://www.deque.com/axe/" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
                             https://www.deque.com/axe/</a>.
                     </p>
@@ -202,7 +202,6 @@
                                             {% else %}
                                                 {{ check_result.wcag_definition.name }}.
                                             {% endif %}
-                                            {% if check_result.wcag_definition.type == 'axe' and 'WCAG 1.4.3 ' not in check_result.wcag_definition.name %} Issue found using Deque Axe.{% endif %}
                                         </p>
                                         {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
                                     </td>
