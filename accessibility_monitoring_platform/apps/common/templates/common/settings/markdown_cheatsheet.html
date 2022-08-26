@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Markdown cheatsheet{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with current='Markdown cheatsheet' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='common:markdown-cheatsheet' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Markdown cheatsheet</h1>
+                {{ platform.markdown_cheatsheet|markdown_to_html }}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

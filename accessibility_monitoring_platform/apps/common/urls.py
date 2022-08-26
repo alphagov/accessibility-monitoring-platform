@@ -13,6 +13,7 @@ from .views import (
     ChangeToPlatformListView,
     AccessibilityStatementTemplateView,
     PrivacyNoticeTemplateView,
+    MarkdownCheatsheetTemplateView,
 )
 
 app_name: str = "common"
@@ -40,5 +41,10 @@ urlpatterns: List[URLPattern] = [
         "privacy-notice",
         PrivacyNoticeTemplateView.as_view(),
         name="privacy-notice",
+    ),
+    path(
+        "markdown-cheatsheet",
+        login_required(MarkdownCheatsheetTemplateView.as_view()),
+        name="markdown-cheatsheet",
     ),
 ]
