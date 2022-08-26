@@ -140,3 +140,7 @@ class AccessibilityStatementTemplateView(PlatformTemplateView):
 
 class PrivacyNoticeTemplateView(PlatformTemplateView):
     template_name: str = "common/privacy_notice.html"
+
+
+class MarkdownCheatsheetTemplateView(PlatformTemplateView):
+    template_name: str = "common/settings/markdown_cheatsheet.html"

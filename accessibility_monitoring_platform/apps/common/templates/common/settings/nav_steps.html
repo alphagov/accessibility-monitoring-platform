@@ -39,4 +39,12 @@
                 Platform version history</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:markdown-cheatsheet' %}
+            Markdown cheatsheet
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:markdown-cheatsheet' %}">
+                Markdown cheatsheet</a>
+        {% endif %}
+    </p>
 </nav>

@@ -88,7 +88,9 @@ def generate_report_content(report: Report) -> None:
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
                     )
-                    used_wcag_definitions: Set[WcagDefinition] = create_issue_table_rows(
+                    used_wcag_definitions: Set[
+                        WcagDefinition
+                    ] = create_issue_table_rows(
                         page=page,
                         page_section=page_section,
                         used_wcag_definitions=used_wcag_definitions,

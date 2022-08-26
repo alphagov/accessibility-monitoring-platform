@@ -86,6 +86,7 @@ class Platform(models.Model):
     )
     report_viewer_accessibility_statement = models.TextField(default="", blank=True)
     report_viewer_privacy_notice = models.TextField(default="", blank=True)
+    markdown_cheatsheet = models.TextField(default="", blank=True)
 
     class Meta:
         verbose_name_plural = "Platform settings"

@@ -147,7 +147,9 @@ def test_create_issue_table_rows():
     )
     used_wcag_definitions: Set[WcagDefinition] = set()
 
-    create_issue_table_rows(page=page, page_section=section, used_wcag_definitions=used_wcag_definitions)
+    create_issue_table_rows(
+        page=page, page_section=section, used_wcag_definitions=used_wcag_definitions
+    )
 
     table_rows: QuerySet[TableRow] = TableRow.objects.all()
 
