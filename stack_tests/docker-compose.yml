@@ -65,21 +65,21 @@ services:
         image: localstack/localstack
         hostname: localstack
         ports:
-        - "4567:4566"
-        - "4572:4571"
+            - "4567:4566"
+            - "4572:4571"
         environment:
-        - SERVICES=s3
-        - AWS_DEFAULT_REGION=us-east-1
-        - HOSTNAME_EXTERNAL=localstack
+            - SERVICES=s3
+            - AWS_DEFAULT_REGION=us-east-1
+            - HOSTNAME_EXTERNAL=localstack
         volumes:
-        - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/var/run/docker.sock:/var/run/docker.sock"
 
     cypress:
         image: "cypress/included:10.6.0"
         depends_on:
-        - web
+            - web
         environment:
-        - CYPRESS_baseUrl=http://web:8001
+            - CYPRESS_baseUrl=http://web:8001
         working_dir: /e2e
         volumes:
-        - ./cypress/e2e:/e2e
+            - ./cypress/e2e:/e2e

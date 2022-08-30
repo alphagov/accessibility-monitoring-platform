@@ -19,7 +19,8 @@
       "jest"
     ],
     "plugins": [
-      "html"
+      "html",
+      "cypress"
     ],
     "parser": "babel-eslint",
     "ignore": [
@@ -38,6 +39,7 @@
     "browserify": "^17.0.0",
     "cssnano": "^5.1.12",
     "dotenv": "^16.0.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-html": "^6.1.2",
     "gulp": "^4.0.2",
     "gulp-rename": "^2.0.0",

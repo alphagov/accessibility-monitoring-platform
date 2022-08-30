@@ -1,8 +1,8 @@
-/// <reference types="cypress" />
+/* global cy */
 
-context('Platform dashboard', () => {
+describe('Platform dashboard', () => {
   beforeEach(() => {
-    cy.visit('http://web:8001/')
+    cy.visit('/')
   })
 
   it('cy.window() - get the global window object', () => {
