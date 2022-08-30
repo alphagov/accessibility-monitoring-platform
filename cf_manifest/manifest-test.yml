@@ -3,7 +3,7 @@ applications:
 - name: accessibility-monitoring-platform-test
   instances: 1
   buildpacks:
-    - https://github.com/cloudfoundry/python-buildpack#v1.7.58
+    - python_buildpack
   services:
     - monitoring-platform-default-db
     - s3-report-store
@@ -19,7 +19,7 @@ applications:
 - name: accessibility-monitoring-report-viewer-test
   instances: 1
   buildpacks:
-    - https://github.com/cloudfoundry/python-buildpack#v1.7.58
+    - python_buildpack
   services:
     - monitoring-platform-default-db
     - s3-report-store
