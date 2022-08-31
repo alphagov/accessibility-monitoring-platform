@@ -11,6 +11,9 @@ applications:
     DEBUG: FALSE
     ALLOWED_HOSTS: 'platform.accessibility-monitoring.service.gov.uk accessibility-monitoring-platform-production.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
+    AMP_PROTOCOL: 'https://'
+    AMP_PLATFORM_DOMAIN: platform.accessibility-monitoring.service.gov.uk
+    AMP_VIEWER_DOMAIN: reports.accessibility-monitoring.service.gov.uk
   processes:
   - type: web
     memory: 256M
@@ -27,6 +30,9 @@ applications:
     DEBUG: FALSE
     ALLOWED_HOSTS: 'reports.accessibility-monitoring.service.gov.uk accessibility-monitoring-report-viewer-production.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
+    AMP_PROTOCOL: 'https://'
+    AMP_PLATFORM_DOMAIN: platform.accessibility-monitoring.service.gov.uk
+    AMP_VIEWER_DOMAIN: reports.accessibility-monitoring.service.gov.uk
   processes:
   - type: web
     memory: 128M
