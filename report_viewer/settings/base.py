@@ -224,7 +224,3 @@ CSP_STYLE_SRC = "'self'"
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'", "data:")
-
-AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
-AMP_PLATFORM_DOMAIN = os.getenv("AMP_PLATFORM_DOMAIN", "localhost:8001")
-AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
