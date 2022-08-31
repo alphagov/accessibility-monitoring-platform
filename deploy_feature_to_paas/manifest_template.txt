@@ -13,7 +13,6 @@ applications:
     DISABLE_COLLECTSTATIC: 1
     SECRET_KEY: '$secret_key'
     AMP_PROTOCOL: 'https://'
-    AMP_PLATFORM_DOMAIN: '$app_name.london.cloudapps.digital'
     AMP_VIEWER_DOMAIN: '$report_viewer_app_name.london.cloudapps.digital'
     AMP_PROTOTYPE_NAME: '$app_name'
   processes:
@@ -33,10 +32,6 @@ applications:
     ALLOWED_HOSTS: '$report_viewer_app_name.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
     SECRET_KEY: '$secret_key'
-    AMP_PROTOCOL: 'https://'
-    AMP_PLATFORM_DOMAIN: '$app_name.london.cloudapps.digital'
-    AMP_VIEWER_DOMAIN: '$report_viewer_app_name.london.cloudapps.digital'
-    AMP_PROTOTYPE_NAME: '$app_name'
   processes:
   - type: web
     memory: 128M
