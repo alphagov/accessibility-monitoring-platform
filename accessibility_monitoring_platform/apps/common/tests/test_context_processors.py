@@ -6,7 +6,6 @@ from pytest_django.asserts import assertContains
 
 from typing import Dict, Union
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponse
 
@@ -64,13 +63,13 @@ def test_active_qa_auditor_present(admin_client):
 @pytest.mark.django_db
 def test_platform_page_template_context():
     """
-    Check number of reminders for user and
+    Check number of reminders for user, prototype name and
     platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
     mock_request = MockRequest(
         path="/",
-        absolute_uri=f"{settings.AMP_PROTOCOL}{settings.AMP_PLATFORM_DOMAIN}/",
+        absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
     platform_page_context: Dict[
@@ -81,23 +80,3 @@ def test_platform_page_template_context():
 
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0
-
-
-@pytest.mark.django_db
-def test_non_prototype_platform_page_template_context():
-    """
-    Check prototype name not set for non-prototype domains except for test.
-    """
-    user: User = User.objects.create(first_name=USER_FIRST_NAME)
-    mock_request = MockRequest(
-        path="/",
-        absolute_uri=f"{settings.AMP_PROTOCOL}{settings.AMP_PLATFORM_DOMAIN}/",
-        user=user,
-    )
-    platform_page_context: Dict[
-        str, Union[AMPTopMenuForm, str, Platform, int]
-    ] = platform_page(
-        mock_request  # type: ignore
-    )
-
-    assert platform_page_context["prototype_name"] == settings.AMP_PROTOTYPE_NAME
