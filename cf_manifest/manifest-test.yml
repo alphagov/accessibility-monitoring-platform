@@ -11,6 +11,9 @@ applications:
     DEBUG: FALSE
     ALLOWED_HOSTS: 'platform-test.accessibility-monitoring.service.gov.uk accessibility-monitoring-platform-test.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
+    AMP_PROTOCOL: 'https://'
+    AMP_VIEWER_DOMAIN: reports-test.accessibility-monitoring.service.gov.uk
+    AMP_PROTOTYPE_NAME: TEST
   processes:
   - type: web
     memory: 128M

@@ -39,7 +39,6 @@ from ..utils import (
     create_url_table_rows,
     create_issue_table_rows,
     undelete_table_row,
-    get_report_viewer_url_prefix,
     get_report_visits_metrics,
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -383,36 +382,6 @@ def test_move_table_row_down(rf):
 
     assert updated_table_row.row_number == NEXT_ROW_POSITION
     assert updated_next_row.row_number == ORIGINAL_ROW_POSITION
-
-
-@pytest.mark.parametrize(
-    "http_host, res",
-    [
-        ("http://localhost:8081", "http://localhost:8082"),
-        ("http://localhost:8001", "http://localhost:8002"),
-        (
-            "https://accessibility-monitoring-platform-production.com",
-            "https://reports.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://platform.accessibility-monitoring.gov.uk",
-            "https://reports.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://accessibility-monitoring-platform-test.com",
-            "https://reports-test.accessibility-monitoring.service.gov.uk",
-        ),
-        (
-            "https://platform-test.accessibility-monitoring.gov.uk",
-            "https://reports-test.accessibility-monitoring.service.gov.uk",
-        ),
-        ("https://512-local-branch.com", "http://512-local-branch-report-viewer.com"),
-        ("", ""),
-    ],
-)
-def test_report_viewer_url(http_host, res):
-    mock_request: MockRequest = MockRequest(http_host=http_host)
-    return res == get_report_viewer_url_prefix(request=mock_request)  # type: ignore
 
 
 @pytest.mark.django_db

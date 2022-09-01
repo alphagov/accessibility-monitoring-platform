@@ -12,7 +12,7 @@
     <h2 class="govuk-heading-m amp-margin-bottom-5">Published report</h2>
     <p class="govuk-body-m">
         {% if case.report.latest_s3_report %}
-            <a href="{{ report_viewer_url_prefix }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            <a href="{{ django_settings.AMP_PROTOCOL }}{{ django_settings.AMP_VIEWER_DOMAIN }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 View final HTML report
             </a>
         {% else %}
