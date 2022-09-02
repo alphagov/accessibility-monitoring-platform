@@ -45,7 +45,7 @@ def get_security_txt(request):
 
 app_name = "apps"
 urlpatterns = [
-    path("/", RedirectView.as_view(url=ROOT_REDIRECT_DESTINATION)),
+    path("", RedirectView.as_view(url=ROOT_REDIRECT_DESTINATION)),
     path("reports/", include("report_viewer.apps.viewer.urls")),
     path("404/", custom_page_not_found),
     path("healthcheck/", healthcheck),

@@ -1,15 +1,17 @@
-"""Test healthcheck endpoint"""
-from django.test import TestCase
+"""Test root redirect and healthcheck endpoints"""
 
 
-class HealthcheckViewTest(TestCase):
-    """
-    Test that the healthcheck endpoint is working
-    """
+def test_root_redirect(client):
+    """Test that the root redirect works"""
+    response = client.get("/")
 
-    def test_healthcheck_url_works(self):
-        """Test athat the healthcheck endpoint responds correctly"""
-        response = self.client.get("/healthcheck/")
+    assert response.status_code == 302
+    assert response.url == "https://www.accessibility-monitoring.service.gov.uk/"
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"healthcheck": "ok"})
+
+def test_healthcheck_url_works(client):
+    """Test that the healthcheck endpoint responds correctly"""
+    response = client.get("/healthcheck/")
+
+    assert response.status_code == 200
+    assert response.json() == {"healthcheck": "ok"}
