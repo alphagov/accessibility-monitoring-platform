@@ -197,8 +197,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
 
-APPEND_SLASH = True
-
 MARKDOWN_EXTENSIONS = []
 
 PERMISSIONS_POLICY = {
