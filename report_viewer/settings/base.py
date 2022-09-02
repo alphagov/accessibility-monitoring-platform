@@ -72,7 +72,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "report_viewer.middleware.RootRedirectMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
