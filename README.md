@@ -4,7 +4,7 @@ The accessibility monitoring platform is to support the accessibility auditing p
 
 It uses Django, PostgreSQL, and the Gov UK frontend design system.
 
-There are two Django applications included in this repo. The accessibility monitoring platform is a case management system that records testing data and publishes reports. 
+There are two Django applications included in this repo. The accessibility monitoring platform is a case management system that records testing data and publishes reports.
 
 The report viewer is a public-facing application used for public service bodies to view published reports.
 
@@ -110,7 +110,7 @@ Integration can be started with
 make int_test
 ```
 
-The make command will emulate the production stack with docker-compose and will then simulate the actions of a user. 
+The make command will emulate the production stack with docker-compose and will then simulate the actions of a user.
 
 When writing tests, `int_test_developer_mode` can be used to skip starting the docker containers. This is useful when writing integration tests as it's much faster than the normal integration testing process.
 The settings for this mode can be found in `stack_tests/integration_tests_developer_mode_settings.json`, and the target path for tests can be changed under `test_dir`.
@@ -167,8 +167,9 @@ make breakdown_prototype
 - `manifest-test.yml` : Cloud Foundry deployment settings for test environment
 - `package-lock.json` : Locked dependencies for NPM
 - `package.json` : Tracks developer and production dependencies for Javascript
-- `Pipfile` : Tracks developer dependencies and production dependencies for Python
-- `Pipfile.lock` : Locked dependencies for Pipenv. Can be used with pipenv sync
+- `requirements.in` : Tracks production dependencies for Python
+- `requirements.txt` : Derived from requirements.in by pip-compile.
+- `requirements_for_test.txt` : Tracks developer dependencies for Python
 - `Procfile` : Boot command for Cloud Foundry instance
 - `README.md` : Documentation for the repo
 - `runtime.txt` : Used for setting up environment for Cloud Foundry deployment

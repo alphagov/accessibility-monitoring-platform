@@ -115,7 +115,6 @@ class BuildEnv:
     def create_requirements(self) -> bool:
         """Creates requirements.txt and ensures it has content"""
         while True:
-            os.system("pipenv requirements > requirements.txt")
             with open("requirements.txt", "r", encoding="utf-8") as file:
                 data: str = file.read().replace("\n", "")
                 if len(data) > 0:

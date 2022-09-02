@@ -18,13 +18,8 @@ COPY manage.py /code/
 COPY common/ /code/common/
 COPY package.json /code/
 COPY Makefile /code/
-COPY Pipfile /code/
 RUN pip3 install --upgrade pip
-RUN pip3 install pipenv
-RUN pipenv install -d
-RUN pipenv install
-RUN pipenv requirements > requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r /code/requirements.txt
 RUN npm i
 COPY report_viewer/ /code/report_viewer/
 COPY accessibility_monitoring_platform/ /code/accessibility_monitoring_platform/

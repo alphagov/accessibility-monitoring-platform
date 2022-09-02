@@ -236,21 +236,6 @@ def test_create_manifest_completes_successfully(mock_stdout):
     os.remove(PAAS_SETTINGS["temp_manifest_path"])
 
 
-@mock.patch("os.system")
-def test_create_requirements_completes_successfully(mock_os_system):
-    """Tests whether create_requirements() correctly creates requirements.txt"""
-    requirements_file_path = "./requirements.txt"
-    build_env = BuildEnv(**DEFAULT_BUILD_ENV_SETTINGS)
-    with open(requirements_file_path, "w", encoding="utf-8") as f:
-        f.write("Create a new text file!")
-    mock_os_system.return_value(True)
-
-    assert build_env.create_requirements()
-    assert mock_os_system.called
-
-    os.remove(requirements_file_path)
-
-
 def test_clean_up_runs_successfully():
     """Tests if clean_up() correctly cleans up files"""
     with open(PAAS_SETTINGS["temp_manifest_path"], "w", encoding="utf-8") as f:
