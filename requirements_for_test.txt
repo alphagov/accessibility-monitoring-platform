@@ -2,5 +2,4 @@
 flake8
 pylint
 coverage
-pytest-django
 black
