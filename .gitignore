@@ -10,7 +10,6 @@ db.sqlite3
 data/s3_files/*
 deploy_feature_to_paas/manifest.yml
 *.pyc
-requirements.txt
 ./docker/data/
 chromedriver**
 .vscode/settings.json

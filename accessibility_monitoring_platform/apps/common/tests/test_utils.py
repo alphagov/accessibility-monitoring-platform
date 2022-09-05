@@ -6,7 +6,7 @@ import csv
 from datetime import date, datetime, timedelta
 import io
 from typing import Any, Dict, List, Tuple
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType

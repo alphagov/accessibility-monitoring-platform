@@ -1,0 +1,17 @@
+django>=4.1
+python-dotenv
+psycopg2
+notifications-python-client
+whitenoise
+dj-database-url
+waitress
+boto3
+selenium
+xmltodict
+Markdown
+moto
+webdriver-manager
+django-axes>=5.33.0
+django-two-factor-auth
+phonenumbers
+django-csp
