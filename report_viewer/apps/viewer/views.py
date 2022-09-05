@@ -48,8 +48,7 @@ class ViewReport(FormView):
         raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
         if raw_html == NO_REPORT_HTML and s3_report.html:
             raw_html = s3_report.html
-        else:
-            logger.warning(f"Report {guid} not found on S3")
+            logger.warning("Report %s not found on S3", guid)
         report = Report.objects.get(case=s3_report.case)
 
         all_error_messages_content = [
