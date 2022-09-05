@@ -14,8 +14,6 @@ attrs==22.1.0
     # via
     #   outcome
     #   trio
-backports-zoneinfo==0.2.1
-    # via -r requirements.in
 boto3==1.24.65
     # via
     #   -r requirements.in

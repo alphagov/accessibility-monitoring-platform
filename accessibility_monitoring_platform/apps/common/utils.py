@@ -14,7 +14,7 @@ from typing import (
     Type,
     Union,
 )
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core import serializers
