@@ -45,7 +45,7 @@
         "username": "qa_auditor@email.com",
         "first_name": "QA Auditor",
         "last_name": "",
-        "email": "auditor@email.com",
+        "email": "qa_auditor@email.com",
         "is_staff": true,
         "is_active": true,
         "date_joined": "2022-09-02T14:34:38.768Z",

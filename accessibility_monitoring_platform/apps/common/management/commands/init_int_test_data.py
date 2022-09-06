@@ -50,22 +50,15 @@ class Command(BaseCommand):
     """Django command to reset the database"""
 
     def handle(self, *args, **options):
-        # Reset audits data
+        """Reset database for integration tests"""
+
         delete_from_models([CheckResult, Page, Audit, WcagDefinition])
         load_fixture("wcag_definition")
-
-        # Delete Axes (access) data
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
-        )
-
-        # Delete comments data
+        )  # Delete Axes (access) data
         delete_from_models([CommentHistory, Comment])
-
-        # Delete notifications data
         delete_from_models([Notification, NotificationSetting])
-
-        # Delete one-time token data
         delete_from_tables(
             [
                 "otp_email_emaildevice",
@@ -73,19 +66,8 @@ class Command(BaseCommand):
                 "otp_static_statictoken",
                 "otp_totp_totpdevice",
             ]
-        )
-
-        # Delete s3_read_write data
+        )  # Delete one-time token data
         delete_from_models([S3Report])
-
-        # Delete cases data
-        delete_from_models([Contact, Case])
-
-        # Reset common data
-        delete_from_models([ChangeToPlatform, Event, IssueReport, Platform, Sector])
-        load_fixture("sector")
-
-        # Reset common data
         delete_from_models(
             [
                 BaseTemplate,
@@ -97,17 +79,21 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        load_fixture("base_template")
-        load_fixture("report_wrapper")
-
-        # Delete reminders data
         delete_from_models([Reminder])
-
-        # Reset user data
+        delete_from_models([Contact, Case])
+        delete_from_models(
+            [ChangeToPlatform, Event, IssueReport, Platform, Sector]
+        )  # Common
         delete_from_models([Group, User])
+
+        load_fixture("base_template")  # Report
+        load_fixture("report_wrapper")  # Report viewer UI
+        load_fixture("sector")
         load_fixture("group")
         load_fixture("user")
         load_fixture("platform_settings")
-
-        # Reset case data
         load_fixture("case")
+        load_fixture("contact")
+        load_fixture("audits")  # Test results
+        load_fixture("reports")  # Reports
+        load_fixture("s3_report")  # Published report
