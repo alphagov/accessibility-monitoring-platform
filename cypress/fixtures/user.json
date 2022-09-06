@@ -1,21 +1,5 @@
 [
 {
-    "model": "auth.group",
-    "pk": 1,
-    "fields": {
-        "name": "Auditor",
-        "permissions": []
-    }
-},
-{
-    "model": "auth.group",
-    "pk": 2,
-    "fields": {
-        "name": "QA auditor",
-        "permissions": []
-    }
-},
-{
     "model": "auth.user",
     "pk": 1,
     "fields": {
@@ -50,6 +34,7 @@
         "is_active": true,
         "date_joined": "2022-09-02T14:34:38.768Z",
         "groups": [
+            1,
             2
         ],
         "user_permissions": []
