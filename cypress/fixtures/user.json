@@ -1,0 +1,58 @@
+[
+{
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Auditor",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+        "name": "QA auditor",
+        "permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$rKSuiMy88djn5ctHbK0WfF$MmiJ2rWvdapCSkI1Ihez/jjnE3VS1xNddgmQ+myLqbI=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "auditor@email.com",
+        "first_name": "Auditor",
+        "last_name": "",
+        "email": "auditor@email.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2022-09-02T14:34:38.768Z",
+        "groups": [
+            1
+        ],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$rKSuiMy88djn5ctHbK0WfF$MmiJ2rWvdapCSkI1Ihez/jjnE3VS1xNddgmQ+myLqbI=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "qa_auditor@email.com",
+        "first_name": "QA Auditor",
+        "last_name": "",
+        "email": "auditor@email.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2022-09-02T14:34:38.768Z",
+        "groups": [
+            2
+        ],
+        "user_permissions": []
+    }
+}
+]
