@@ -1,10 +1,10 @@
-"""Reset test data in the database"""
-from typing import List
+"""Reset integration test data in the database"""
+from typing import List, Type
 
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from django.db import connection
+from django.db import connection, models
 
 from ....audits.models import Audit, CheckResult, Page, WcagDefinition
 from ....cases.models import Case, Contact
@@ -32,7 +32,7 @@ def load_fixture(fixture: str) -> None:
     call_command("loaddata", fixture_path)
 
 
-def delete_from_models(model_classes) -> None:
+def delete_from_models(model_classes: List[Type[models.Model]]) -> None:
     """Delete all data from models"""
     for model_class in model_classes:
         model_class.objects.all().delete()
@@ -49,14 +49,14 @@ def delete_from_tables(table_names: List[str]) -> None:
 class Command(BaseCommand):
     """Django command to reset the database"""
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
         delete_from_models([CheckResult, Page, Audit, WcagDefinition])
         load_fixture("wcag_definition")
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
-        )  # Delete Axes (access) data
+        )  # Axes (access)
         delete_from_models([CommentHistory, Comment])
         delete_from_models([Notification, NotificationSetting])
         delete_from_tables(
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 "otp_static_statictoken",
                 "otp_totp_totpdevice",
             ]
-        )  # Delete one-time token data
+        )  # One-time token
         delete_from_models([S3Report])
         delete_from_models(
             [
@@ -87,7 +87,7 @@ class Command(BaseCommand):
         delete_from_models([Group, User])
 
         load_fixture("base_template")  # Report
-        load_fixture("report_wrapper")  # Report viewer UI
+        load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")
         load_fixture("group")
         load_fixture("user")
