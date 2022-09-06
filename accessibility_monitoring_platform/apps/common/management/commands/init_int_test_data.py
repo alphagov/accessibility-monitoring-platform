@@ -21,6 +21,7 @@ from ....reports.models import (
     TableRow,
 )
 from ....s3_read_write.models import S3Report
+from ....users.models import AllowedEmail
 
 from ...models import ChangeToPlatform, Event, IssueReport, Platform, Sector
 
@@ -85,10 +86,12 @@ class Command(BaseCommand):
             [ChangeToPlatform, Event, IssueReport, Platform, Sector]
         )  # Common
         delete_from_models([Group, User])
+        delete_from_models([AllowedEmail])
 
         load_fixture("base_template")  # Report
         load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")
+        load_fixture("allowed_email")
         load_fixture("group")
         load_fixture("user")
         load_fixture("platform_settings")

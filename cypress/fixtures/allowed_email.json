@@ -1,0 +1,16 @@
+[
+{
+    "model": "users.allowedemail",
+    "pk": 1,
+    "fields": {
+        "inclusion_email": "auditor@email.com"
+    }
+},
+{
+    "model": "users.allowedemail",
+    "pk": 2,
+    "fields": {
+        "inclusion_email": "qa_auditor@email.com"
+    }
+}
+]
