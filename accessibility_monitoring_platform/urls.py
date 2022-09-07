@@ -6,12 +6,12 @@ import requests
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from django.http import StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.views.generic import RedirectView
 from two_factor.urls import urlpatterns as tf_urls
 
 
-def get_security_txt(request):
+def get_security_txt(request):  # pylint: disable=unused-argument
     url = "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt"
     response = requests.get(url, stream=True)
     return StreamingHttpResponse(
@@ -20,6 +20,10 @@ def get_security_txt(request):
         status=response.status_code,
         reason=response.reason,
     )
+
+
+def healthcheck(request):  # pylint: disable=unused-argument
+    return JsonResponse({"healthcheck": "ok"})
 
 
 urlpatterns = [
@@ -45,4 +49,5 @@ urlpatterns = [
     path(r"favicon.ico", RedirectView.as_view(url="/static/images/favicon.ico")),
     path("security.txt", get_security_txt),
     path(".well-known/security.txt", get_security_txt),
+    path("healthcheck/", healthcheck),
 ]
