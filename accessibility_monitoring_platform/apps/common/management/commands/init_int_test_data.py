@@ -1,6 +1,8 @@
 """Reset integration test data in the database"""
 from typing import List, Type
 
+import logging
+
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -29,13 +31,15 @@ from ...models import ChangeToPlatform, Event, IssueReport, Platform, Sector
 def load_fixture(fixture: str) -> None:
     """Load data from fixture into database"""
     fixture_path: str = f"cypress/fixtures/{fixture}.json"
-    print(f"Loading fixture from {fixture_path}:")
+    print(f"Loading {fixture_path}")
+    logging.info("Loading fixture from %s:", fixture_path)
     call_command("loaddata", fixture_path)
 
 
 def delete_from_models(model_classes: List[Type[models.Model]]) -> None:
     """Delete all data from models"""
     for model_class in model_classes:
+        logging.info("Deleting data from model %s", model_class)
         model_class.objects.all().delete()
 
 
@@ -43,7 +47,7 @@ def delete_from_tables(table_names: List[str]) -> None:
     """Delete data from tables"""
     with connection.cursor() as cursor:
         for table_name in table_names:
-            print(f"Deleting data from table {table_name}")
+            logging.info("Deleting data from table %s", table_name)
             cursor.execute(f"DELETE FROM {table_name}")
 
 
@@ -54,7 +58,6 @@ class Command(BaseCommand):
         """Reset database for integration tests"""
 
         delete_from_models([CheckResult, Page, Audit, WcagDefinition])
-        load_fixture("wcag_definition")
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
         )  # Axes (access)
@@ -88,6 +91,7 @@ class Command(BaseCommand):
         delete_from_models([Group, User])
         delete_from_models([AllowedEmail])
 
+        load_fixture("wcag_definition")
         load_fixture("base_template")  # Report
         load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")

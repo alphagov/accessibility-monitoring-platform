@@ -13,6 +13,7 @@ RUN apt-get -y install nodejs
 WORKDIR /code
 COPY requirements.txt /code/
 COPY pulp/ /code/pulp/
+COPY cypress/ /code/cypress/
 COPY manage_report_viewer.py /code/
 COPY manage.py /code/
 COPY common/ /code/common/

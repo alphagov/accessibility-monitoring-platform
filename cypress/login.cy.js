@@ -1,6 +1,6 @@
 /* global cy */
 
-const username = 'auditor@example.com'
+const username = 'auditor@email.com'
 const password = 'secret'
 
 describe('Login', () => {
@@ -12,3 +12,29 @@ describe('Login', () => {
     cy.getCookie('sessionid').should('exist')
   })
 })
+
+// describe('Login', () => {
+//   it('Can login through the UI', function () {
+//     cy.visit('/account/login/')
+
+//     cy.get('[name=csrfmiddlewaretoken]')
+//       .should('exist')
+//       .should('have.attr', 'value')
+//       .as('csrfToken')
+
+//     cy.get('@csrfToken').then((token) => {
+//       cy.request({
+//         method: 'POST',
+//         url: '/account/login/',
+//         form: true,
+//         body: {
+//           username: username,
+//           password: password,
+//           csrfmiddlewaretoken: token
+//         }
+//       })
+//     })
+
+//     cy.getCookie('sessionid').should('exist')
+//   })
+// })

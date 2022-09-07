@@ -40,6 +40,8 @@ services:
             - INTEGRATION_TEST=TRUE
         healthcheck:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
+        stdin_open: true
+        tty: true
 
     report_viewer:
         image: "django_report_viewer:latest"
@@ -78,14 +80,12 @@ services:
 
     e2e:
         image: "cypress/included:10.6.0"
-        command: "--browser chrome"
         container_name: cypress
         depends_on:
             web:
                 condition: service_healthy
         environment:
             - CYPRESS_baseUrl=http://web:8001
-        command: npx cypress run
         volumes:
             - .:/cypress
             - ./cypress.config.js:/cypress.config.js
