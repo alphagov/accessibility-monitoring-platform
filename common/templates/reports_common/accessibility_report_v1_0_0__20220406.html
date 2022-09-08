@@ -25,6 +25,6 @@
         {% include 'reports_common/helpers/table_urls.html' %}
     {% endif %}
     {% if section.template_type == 'issues' and section.visible_table_rows.all %}
-        {% include 'reports_common/helpers/table_issues.html' %}
+        {% include 'reports_common/helpers/table_issues.html' with table_number=forloop.counter %}
     {% endif %}
 {% endfor %}

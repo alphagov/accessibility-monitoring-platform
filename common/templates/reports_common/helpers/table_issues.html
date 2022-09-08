@@ -1,18 +1,18 @@
-<table id="issues-table-{{ forloop.counter }}">
+<table id="issues-table-{{ table_number }}">
     <caption class="govuk-visually-hidden">Names and URLs of pages we checked</caption>
     <thead>
         <tr>
             <th>#</th>
-            <th id="issue-{{ forloop.counter }}">Issue and description</th>
-            <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
+            <th id="issue-{{ table_number }}">Issue and description</th>
+            <th id="where-found-{{ table_number }}">Where the issue was found</th>
         </tr>
     </thead>
     <tbody>
         {% for row in section.visible_table_rows.all %}
             <tr valign="top">
                 <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
-                <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
-                <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                <td headers="issue-{{ table_number }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                <td headers="where-found-{{ table_number }}">{{ row.cell_content_2|markdown_to_html }}</td>
             </tr>
         {% endfor %}
     </tbody>
