@@ -23,7 +23,7 @@ services:
             python3 manage.py migrate;
             python3 manage.py init_int_test_data;
             python3 manage.py recache_statuses;
-            waitress-serve --port=8001 accessibility_monitoring_platform.wsgi:application;
+            python manage.py runserver 0.0.0.0:8001;
             "
         ports:
             - "8001:8001"
@@ -79,7 +79,7 @@ services:
             - "/var/run/docker.sock:/var/run/docker.sock"
 
     e2e:
-        image: "cypress/included:10.6.0"
+        image: "cypress/included:10.7.0"
         container_name: cypress
         depends_on:
             web:
