@@ -1,8 +1,7 @@
 init:
 	docker-compose up -d \
 		&& pip install --upgrade pip \
-		&& pip install pipenv \
-		&& pipenv install -d \
+		&& pip install -r requirements_for_test.txt \
 		&& npm i \
 		&& make static_files_process \
 		&& make collect_static \
@@ -11,6 +10,10 @@ init:
 		&& ./manage.py migrate \
 		&& echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin@email.com', 'admin@email.com', 'secret')" | python manage.py shell \
 		&& echo "email: admin@email.com & password: secret"
+
+freeze_requirements: # Pin all requirements including sub dependencies into requirements.txt
+	pip install --upgrade pip-tools
+	pip-compile requirements.in
 
 clean_local:
 	docker-compose down
@@ -74,7 +77,6 @@ test:
 	npm test
 
 int_test:
-	pipenv requirements > requirements.txt
 	python3 stack_tests/main.py
 
 deploy_prototype:

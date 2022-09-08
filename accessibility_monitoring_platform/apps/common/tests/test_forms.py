@@ -5,7 +5,7 @@ import pytest
 
 from datetime import date, datetime
 from typing import List, Tuple
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertHTMLEqual
 

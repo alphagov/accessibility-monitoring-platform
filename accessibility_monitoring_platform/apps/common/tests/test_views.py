@@ -16,12 +16,22 @@ EMAIL_SUBJECT = "Email subject"
 EMAIL_MESSAGE = "Email message"
 
 
-def test_contact_admin_page_renders(admin_client):
-    """Test contact admin page is rendered"""
-    response: HttpResponse = admin_client.get(reverse("common:contact-admin"))
+@pytest.mark.parametrize(
+    "url_name,expected_header",
+    [
+        ("common:contact-admin", "Contact admin"),
+        ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
+        ("common:platform-history", ">Platform version history</h1>"),
+        ("common:issue-report", ">Report an issue</h1>"),
+        ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
+    ],
+)
+def test_page_renders(url_name, expected_header, admin_client):
+    """Test common page is rendered"""
+    response: HttpResponse = admin_client.get(reverse(url_name))
 
     assert response.status_code == 200
-    assertContains(response, "Contact admin")
+    assertContains(response, expected_header)
 
 
 @pytest.mark.parametrize(
@@ -55,22 +65,6 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
         assert email.to == [settings.CONTACT_ADMIN_EMAIL]
     else:
         assert len(mailoutbox) == 0
-
-
-def test_active_qa_audit_page_renders(admin_client):
-    """Test active qa audit page is rendered"""
-    response: HttpResponse = admin_client.get(reverse("common:edit-active-qa-auditor"))
-
-    assert response.status_code == 200
-    assertContains(response, ">Active QA auditor</h1>")
-
-
-def test_platform_history_renders(admin_client):
-    """Test list of changes to platform is rendered"""
-    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
-
-    assert response.status_code == 200
-    assertContains(response, ">Platform version history</h1>")
 
 
 @pytest.mark.django_db

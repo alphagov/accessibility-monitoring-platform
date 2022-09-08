@@ -3,7 +3,7 @@ applications:
 - name: $app_name
   instances: 1
   buildpacks:
-    - https://github.com/cloudfoundry/python-buildpack#v1.7.58
+    - python_buildpack
   services:
     - $db
     - $s3_report_store
@@ -12,6 +12,9 @@ applications:
     ALLOWED_HOSTS: '$app_name.london.cloudapps.digital'
     DISABLE_COLLECTSTATIC: 1
     SECRET_KEY: '$secret_key'
+    AMP_PROTOCOL: 'https://'
+    AMP_VIEWER_DOMAIN: '$report_viewer_app_name.london.cloudapps.digital'
+    AMP_PROTOTYPE_NAME: '$app_name'
   processes:
   - type: web
     memory: 128M
@@ -20,7 +23,7 @@ applications:
 - name: $report_viewer_app_name
   instances: 1
   buildpacks:
-    - https://github.com/cloudfoundry/python-buildpack#v1.7.58
+    - python_buildpack
   services:
     - $db
     - $s3_report_store

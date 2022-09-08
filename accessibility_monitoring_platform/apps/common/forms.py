@@ -3,7 +3,7 @@ Common widgets and form fields
 """
 from datetime import date, datetime
 from typing import Any, Dict, Iterable, List, Mapping, Union
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django import forms

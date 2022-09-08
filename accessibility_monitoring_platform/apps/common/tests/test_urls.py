@@ -1,13 +1,24 @@
 """
 Test urls of common app
 """
+import pytest
 
 from django.http.response import HttpResponse
 from django.urls import reverse
 
 
-def test_login_required(client):
-    url = reverse("common:contact-admin")
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "common:contact-admin",
+        "common:edit-active-qa-auditor",
+        "common:platform-history",
+        "common:issue-report",
+        "common:markdown-cheatsheet",
+    ],
+)
+def test_login_required(url_name, client):
+    url = reverse(url_name)
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 302

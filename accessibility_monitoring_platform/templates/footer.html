@@ -14,7 +14,7 @@
               <h2 class="govuk-footer__heading govuk-heading-m">Support</h2>
               <ul class="govuk-footer__list">
                 <li class="govuk-footer__list-item">
-                  {% if prototype_name %}
+                  {% if django_settings.AMP_PROTOTYPE_NAME %}
                     Contact Admin
                   {% else %}
                     <a class="govuk-footer__link" href="{% url 'common:contact-admin' %}">Contact admin</a>

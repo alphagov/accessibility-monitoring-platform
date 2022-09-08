@@ -88,7 +88,9 @@ def generate_report_content(report: Report) -> None:
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
                     )
-                    used_wcag_definitions: Set[WcagDefinition] = create_issue_table_rows(
+                    used_wcag_definitions: Set[
+                        WcagDefinition
+                    ] = create_issue_table_rows(
                         page=page,
                         page_section=page_section,
                         used_wcag_definitions=used_wcag_definitions,
@@ -252,30 +254,6 @@ def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optiona
     if updated_table_row_id is None:
         updated_table_row_id = move_table_row_down(request=request, section=section)
     return updated_table_row_id
-
-
-def get_report_viewer_url_prefix(request: HttpRequest) -> str:
-    """Derive report viewer app's domain name from that of the platform in a request"""
-    domain_name: str = request.META["HTTP_HOST"] if "HTTP_HOST" in request.META else ""
-    if domain_name:
-        if "localhost:8081" in domain_name:
-            return "http://localhost:8082"
-        elif "localhost:8001" in domain_name:
-            return "http://localhost:8002"
-        elif "accessibility-monitoring-platform-production" in domain_name:
-            return "https://reports.accessibility-monitoring.service.gov.uk"
-        elif "platform.accessibility-monitoring" in domain_name:
-            return "https://reports.accessibility-monitoring.service.gov.uk"
-        elif "accessibility-monitoring-platform-test" in domain_name:
-            return "https://reports-test.accessibility-monitoring.service.gov.uk"
-        elif "platform-test.accessibility-monitoring" in domain_name:
-            return "https://reports-test.accessibility-monitoring.service.gov.uk"
-        else:
-            domain_name_split = domain_name.split(".")
-            domain_name_split[0] = f"https://{domain_name_split[0]}-report-viewer"
-            return ".".join(domain_name_split)
-    else:
-        return ""
 
 
 def get_report_visits_metrics(case: Case) -> Dict[str, str]:

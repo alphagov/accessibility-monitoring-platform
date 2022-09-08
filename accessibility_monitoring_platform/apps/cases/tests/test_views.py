@@ -4,10 +4,11 @@ Tests for cases views
 from datetime import date, datetime, timedelta
 import pytest
 from typing import Dict, List, Optional
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
@@ -2385,7 +2386,9 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
     Report.objects.create(case=case)
     s3_report: S3Report = S3Report.objects.create(case=case, guid="guid", version=0)
-    s3_report_url: str = f"/reports/{s3_report.guid}"
+    s3_report_url: str = (
+        f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{s3_report.guid}"
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
