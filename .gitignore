@@ -239,3 +239,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# cypress
+cypress/cypress/downloads
+cypress/cypress/screenshots
+cypress/cypress/videos

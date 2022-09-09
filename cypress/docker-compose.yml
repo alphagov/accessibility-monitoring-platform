@@ -87,5 +87,5 @@ services:
         environment:
             - CYPRESS_baseUrl=http://web:8001
         volumes:
-            - .:/cypress
+            - ./cypress:/cypress
             - ./cypress.config.js:/cypress.config.js
