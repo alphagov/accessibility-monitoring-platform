@@ -31,6 +31,9 @@ Placeholder for platform."""
 PRIVACY_NOTICE_DEFAULT: str = """# Privacy notice
 
 Placeholder for platform."""
+MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
+
+More information about monitoring placeholder"""
 
 
 class Sector(models.Model):
@@ -87,6 +90,9 @@ class Platform(models.Model):
     report_viewer_accessibility_statement = models.TextField(default="", blank=True)
     report_viewer_privacy_notice = models.TextField(default="", blank=True)
     markdown_cheatsheet = models.TextField(default="", blank=True)
+    more_information_about_monitoring = models.TextField(
+        default=MORE_INFORMATION_ABOUT_MONITORING_DEFAULT, blank=True
+    )
 
     class Meta:
         verbose_name_plural = "Platform settings"
