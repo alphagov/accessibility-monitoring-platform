@@ -26,6 +26,10 @@ class AccessibilityStatementTemplateView(PlatformTemplateView):
     template_name: str = "viewer/accessibility_statement.html"
 
 
+class MoreInformationTemplateView(PlatformTemplateView):
+    template_name: str = "viewer/more_information.html"
+
+
 class PrivacyNoticeTemplateView(PlatformTemplateView):
     template_name: str = "viewer/privacy_notice.html"
 
