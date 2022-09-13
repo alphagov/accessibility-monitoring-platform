@@ -48,6 +48,22 @@ def test_view_accessibility_statement(client):
 
 
 @pytest.mark.django_db
+def test_more_information(client):
+    """Test more information about monitoring renders"""
+    platform: Platform = get_platform_settings()
+    platform.more_information_about_monitoring = "# More information"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("viewer:more-information"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>More information</h1>""",
+        html=True,
+    )
+
+@pytest.mark.django_db
 def test_view_privacy_notice(client):
     """Test privacy notice renders"""
     platform: Platform = get_platform_settings()
