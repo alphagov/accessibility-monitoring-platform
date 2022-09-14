@@ -51,7 +51,9 @@ services:
         tty: true
 
     report_viewer:
-        image: "django_report_viewer:latest"
+        image: "platform:latest"
+        volumes:
+            - ../:/code
         command: >
             bash -c "
             make static_files_process;
