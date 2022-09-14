@@ -55,7 +55,7 @@
         {% if report.case.report_approved_status == 'yes' and not report.case.s3report_set.all %}
             {% include 'reports/helpers/publish_notification.html' %}
         {% endif %}
-        {% if report.case.s3report_set.all %}
+        {% if report.latest_s3_report %}
             {% include 'reports/helpers/s3_report_notification.html' %}
         {% endif %}
     </main>

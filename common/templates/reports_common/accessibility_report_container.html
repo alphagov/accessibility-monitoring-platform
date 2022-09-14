@@ -45,7 +45,10 @@
                         {% if s3_report %}
                             <dt class="metadata-term">Published</dt>
                             <dd>{{ s3_report.created|amp_date }}</dd>
-                        {% endif %}
+                        {% else %}
+                        <dt class="metadata-term">Report last updated:</dt>
+                        <dd>{{ report.report_rebuilt|amp_datetime }}</dd>
+                    {% endif %}
                     </dl>
                     <button id="print-button" class="govuk-link print-button no-print">Print this page</button>
                 </div>
