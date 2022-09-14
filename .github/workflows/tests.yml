@@ -48,7 +48,7 @@ jobs:
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
-        export INTEGRATION_TEST=FALSE
+        export INTEGRATION_TEST=TRUE
         cd cypress
         docker-compose up
       env:
