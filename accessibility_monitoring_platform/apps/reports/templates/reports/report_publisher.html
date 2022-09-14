@@ -52,7 +52,7 @@
         {% elif report.case.report_approved_status != 'yes' %}
             {% include 'reports/helpers/awaiting_approval_notification.html' %}
         {% endif %}
-        {% if report.case.report_approved_status == 'yes' and not report.case.s3report_set.all %}
+        {% if report.case.report_approved_status == 'yes' and not report.latest_s3_report %}
             {% include 'reports/helpers/publish_notification.html' %}
         {% endif %}
         {% if report.latest_s3_report %}
