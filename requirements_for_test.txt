@@ -3,3 +3,4 @@ flake8
 pylint
 coverage
 black
+python-dotenv

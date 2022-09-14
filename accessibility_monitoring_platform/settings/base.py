@@ -131,8 +131,12 @@ DATABASES = {}
 
 if UNDER_TEST:
     DATABASES["default"] = {
-        "NAME": "accessibility_monitoring_app",
-        "ENGINE": "django.db.backends.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_NAME"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": "db",
+        "PORT": 5432,
     }
     DATABASES["aws-s3-bucket"] = {
         "aws_access_key_id": "key",

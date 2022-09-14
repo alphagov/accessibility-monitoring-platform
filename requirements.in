@@ -1,4 +1,4 @@
-django>=4.1
+django
 python-dotenv
 psycopg2
 notifications-python-client
@@ -10,8 +10,7 @@ selenium
 xmltodict
 Markdown
 moto
-webdriver-manager
-django-axes>=5.33.0
+django-axes
 django-two-factor-auth
 phonenumbers
 django-csp

@@ -117,9 +117,7 @@ python-dateutil==2.8.2
     #   botocore
     #   moto
 python-dotenv==0.20.0
-    # via
-    #   -r requirements.in
-    #   webdriver-manager
+    # via -r requirements.in
 pytz==2022.2.1
     # via moto
 qrcode==7.3.1
@@ -129,7 +127,6 @@ requests==2.28.1
     #   moto
     #   notifications-python-client
     #   responses
-    #   webdriver-manager
 responses==0.21.0
     # via moto
 s3transfer==0.6.0
@@ -146,8 +143,6 @@ sqlparse==0.4.2
     # via django
 tomli==2.0.1
     # via pytest
-tqdm==4.64.0
-    # via webdriver-manager
 trio==0.21.0
     # via
     #   selenium
@@ -161,8 +156,6 @@ urllib3[socks]==1.26.12
     #   responses
     #   selenium
 waitress==2.1.2
-    # via -r requirements.in
-webdriver-manager==3.8.3
     # via -r requirements.in
 werkzeug==2.1.2
     # via moto

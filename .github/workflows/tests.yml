@@ -49,7 +49,8 @@ jobs:
         export SECRET_KEY=1234
         export DEBUG=TRUE
         export INTEGRATION_TEST=FALSE
-        make int_test
+        cd cypress
+        docker-compose up
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
         AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}

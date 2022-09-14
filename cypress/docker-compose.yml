@@ -13,11 +13,15 @@ services:
         command: -p 5433
 
     web:
-        image: "django_amp:latest"
+        image: "platform:latest"
+        build:
+            context: ..
+            dockerfile: ./cypress/platform.Dockerfile
+        volumes:
+            - ../:/code
         command: >
             bash -c "
             sleep 10;
-            psql postgres://admin:secret@db:5433/postgres -c \"create database accessibility_monitoring_app;\";
             make static_files_process;
             python3 manage.py collectstatic --noinput;
             python3 manage.py migrate;
@@ -38,6 +42,9 @@ services:
             - DEBUG=TRUE
             - PORT='8001'
             - INTEGRATION_TEST=TRUE
+            - POSTGRES_NAME=postgres
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=secret
         healthcheck:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
         stdin_open: true
