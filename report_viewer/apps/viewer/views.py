@@ -1,6 +1,8 @@
 """Views for report viewer"""
 from typing import Any, Dict, Type
 
+import logging
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView
 from django.contrib import messages
@@ -17,9 +19,15 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
 FORM_SUBMITTED_SUCCESSFULLY: str = "Form submitted successfully"
 
+logger = logging.getLogger(__name__)
+
 
 class AccessibilityStatementTemplateView(PlatformTemplateView):
     template_name: str = "viewer/accessibility_statement.html"
+
+
+class MoreInformationTemplateView(PlatformTemplateView):
+    template_name: str = "viewer/more_information.html"
 
 
 class PrivacyNoticeTemplateView(PlatformTemplateView):
@@ -38,11 +46,13 @@ class ViewReport(FormView):
         self, *args, **kwargs  # pylint: disable=unused-argument
     ) -> Dict[str, Any]:
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        s3_report = get_object_or_404(S3Report, guid=self.kwargs["guid"])
+        guid: str = self.kwargs["guid"]
+        s3_report = get_object_or_404(S3Report, guid=guid)
         s3_rw = S3ReadWriteReport()
-        raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=self.kwargs["guid"])
+        raw_html = s3_rw.retrieve_raw_html_from_s3_by_guid(guid=guid)
         if raw_html == NO_REPORT_HTML and s3_report.html:
             raw_html = s3_report.html
+            logger.warning("Report %s not found on S3", guid)
         report = Report.objects.get(case=s3_report.case)
 
         all_error_messages_content = [

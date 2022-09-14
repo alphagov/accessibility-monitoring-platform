@@ -5,6 +5,7 @@ import pytest
 
 from typing import Dict, Optional
 from unittest import mock
+import logging
 
 from pytest_django.asserts import assertContains, assertNotContains
 from moto import mock_s3
@@ -45,6 +46,22 @@ def test_view_accessibility_statement(client):
         html=True,
     )
 
+
+@pytest.mark.django_db
+def test_more_information(client):
+    """Test more information about monitoring renders"""
+    platform: Platform = get_platform_settings()
+    platform.more_information_about_monitoring = "# More information"
+    platform.save()
+
+    response: HttpResponse = client.get(reverse("viewer:more-information"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h1>More information</h1>""",
+        html=True,
+    )
 
 @pytest.mark.django_db
 def test_view_privacy_notice(client):
@@ -168,14 +185,19 @@ def test_view_report_not_on_s3(client):
     s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
     s3_report.html = html_on_db  # type: ignore
     s3_report.save()  # type: ignore
+    guid: str = s3_report.guid  # type: ignore
 
-    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
-    response: HttpResponse = client.get(
-        reverse("viewer:viewreport", kwargs=report_guid_kwargs)
-    )
-    assert response.status_code == 200
+    report_guid_kwargs: Dict[str, str] = {"guid": guid}
 
-    assertContains(response, html_on_db)
+    logger = logging.getLogger("report_viewer.apps.viewer.views")
+    with mock.patch.object(logger, "warning") as mock_warning:
+        response: HttpResponse = client.get(
+            reverse("viewer:viewreport", kwargs=report_guid_kwargs)
+        )
+        assert response.status_code == 200
+
+        assertContains(response, html_on_db)
+        mock_warning.assert_called_once_with("Report %s not found on S3", guid)
 
 
 def test_report_metric_middleware_client_ip(rf):
