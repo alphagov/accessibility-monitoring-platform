@@ -764,7 +764,7 @@ class Case(VersionModel):
     @property
     def in_report_correspondence_progress(self) -> str:
         now = date.today()
-        five_days_ago = now - timedelta(days=5)
+        seven_days_ago = now - timedelta(days=7)
         if (
             self.report_followup_week_1_due_date
             and self.report_followup_week_1_due_date > now
@@ -791,16 +791,16 @@ class Case(VersionModel):
             and self.report_followup_week_4_sent_date is None
         ):
             return "4-week followup due"
-        elif self.report_followup_week_4_sent_date > five_days_ago:
+        elif self.report_followup_week_4_sent_date > seven_days_ago:
             return "4-week followup sent, waiting five days for response"
-        elif self.report_followup_week_4_sent_date <= five_days_ago:
+        elif self.report_followup_week_4_sent_date <= seven_days_ago:
             return "4-week followup sent, case needs to progress"
         return "Unknown"
 
     @property
     def twelve_week_correspondence_progress(self) -> str:
         now = date.today()
-        five_days_ago = now - timedelta(days=5)
+        seven_days_ago = now - timedelta(days=5)
         if (
             self.twelve_week_1_week_chaser_due_date
             and self.twelve_week_1_week_chaser_due_date > now
@@ -813,9 +813,9 @@ class Case(VersionModel):
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1-week followup due"
-        elif self.twelve_week_1_week_chaser_sent_date > five_days_ago:
+        elif self.twelve_week_1_week_chaser_sent_date > seven_days_ago:
             return "1-week followup sent, waiting five days for response"
-        elif self.twelve_week_1_week_chaser_sent_date <= five_days_ago:
+        elif self.twelve_week_1_week_chaser_sent_date <= seven_days_ago:
             return "1-week followup sent, case needs to progress"
         return "Unknown"
 
