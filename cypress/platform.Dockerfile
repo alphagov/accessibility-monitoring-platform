@@ -7,4 +7,3 @@ RUN apt-get install -y nodejs
 WORKDIR /code
 COPY . /code/
 RUN pip install -r requirements_for_test.txt
-RUN npm i
