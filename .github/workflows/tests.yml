@@ -40,10 +40,6 @@ jobs:
         python-version: '3.9'
     - name: Integration tests
       run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install -r requirements_for_test.txt
         cd cypress
         docker-compose up --abort-on-container-exit
       env:
