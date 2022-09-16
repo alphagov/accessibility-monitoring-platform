@@ -26,7 +26,7 @@
             </tr>
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell amp-width-one-half">{{ case.reminder.due_date|amp_date }}</td>
-                <td class="govuk-table__cell amp-width-one-half"><p class="govuk-body-m cases-notes">{{ case.reminder.description }}</p></td>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.reminder.description|markdown_to_html }}</td>
             </tr>
         </tbody>
     </table>
