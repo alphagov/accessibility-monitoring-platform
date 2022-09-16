@@ -45,6 +45,8 @@ services:
             - POSTGRES_NAME=postgres
             - POSTGRES_USER=admin
             - POSTGRES_PASSWORD=secret
+            - POSTGRES_HOST=db
+            - POSTGRES_PORT=5433
         healthcheck:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
         stdin_open: true
