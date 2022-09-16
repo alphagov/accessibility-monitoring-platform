@@ -45,7 +45,7 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements_for_test.txt
         cd cypress
-        docker-compose up
+        docker-compose up --abort-on-container-exit
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
         AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
