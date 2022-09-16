@@ -3,7 +3,7 @@ Tests for common views
 """
 import pytest
 
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -12,8 +12,11 @@ from django.urls import reverse
 from ..models import Platform
 from ..utils import get_platform_settings
 
-EMAIL_SUBJECT = "Email subject"
-EMAIL_MESSAGE = "Email message"
+EMAIL_SUBJECT: str = "Email subject"
+EMAIL_MESSAGE: str = "Email message"
+ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
+target="_blank"
+class="govuk-link govuk-link--no-visited-state">report</a>"""
 
 
 @pytest.mark.parametrize(
@@ -99,3 +102,26 @@ def test_view_privacy_notice(client):
         """<h1>Privacy notice header</h1>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "prototype_name,issue_report_link_expected",
+    [
+        ("", True),
+        ("TEST", True),
+        ("anything-else", False),
+    ],
+)
+def test_issue_report_link(prototype_name, issue_report_link_expected, admin_client):
+    """
+    Test issue report link is rendered on live and test platforms
+    but not on prototypes.
+    """
+    settings.AMP_PROTOTYPE_NAME = prototype_name
+    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
+
+    assert response.status_code == 200
+    if issue_report_link_expected:
+        assertContains(response, ISSUE_REPORT_LINK, html=True)
+    else:
+        assertNotContains(response, ISSUE_REPORT_LINK, html=True)

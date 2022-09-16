@@ -3,7 +3,7 @@
         <strong class="govuk-tag govuk-phase-banner__content__tag">alpha</strong>
         <span class="govuk-phase-banner__text">
             This is a new service – Please
-            {% if django_settings.AMP_PROTOTYPE_NAME %}
+            {% if django_settings.AMP_PROTOTYPE_NAME and django_settings.AMP_PROTOTYPE_NAME != 'TEST' %}
                 report
             {% else %}
                 <a href="{% url 'common:issue-report' %}?page_url={{ request.path }}"
