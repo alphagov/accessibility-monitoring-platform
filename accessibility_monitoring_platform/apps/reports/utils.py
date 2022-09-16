@@ -7,6 +7,8 @@ from typing import Dict, Optional, Set
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import Context, Template
+from django.utils import timezone
+
 from ..cases.models import Case
 
 from ..common.utils import (
@@ -95,6 +97,8 @@ def generate_report_content(report: Report) -> None:
                         page_section=page_section,
                         used_wcag_definitions=used_wcag_definitions,
                     )
+    report.report_rebuilt = timezone.now()
+    report.save()
 
 
 def create_url_table_rows(report: Report, section: Section) -> None:
