@@ -17,12 +17,9 @@ services:
             context: ..
             dockerfile: ./cypress/platform.Dockerfile
         image: "platform_image"
-        volumes:
-            - ../:/code
         command: >
             bash -c "
             sleep 10;
-            npm install
             make static_files_process;
             python manage.py collectstatic --noinput;
             python manage.py migrate;
@@ -55,11 +52,8 @@ services:
 
     report_viewer:
         image: "platform_image"
-        volumes:
-            - ../:/code
         command: >
             bash -c "
-            npm install
             make static_files_process;
             python manage_report_viewer.py collectstatic --noinput;
             waitress-serve --port=8002 report_viewer.wsgi:application;
