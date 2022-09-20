@@ -156,7 +156,7 @@ def create_or_update_check_results_for_page(
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
                 record_model_update_event(user=user, model_object=check_result)
-                report_data_updated(check_result.audit)
+                report_data_updated(audit=check_result.audit)
                 check_result.save()
         elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
             check_result: CheckResult = CheckResult.objects.create(

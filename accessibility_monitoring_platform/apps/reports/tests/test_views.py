@@ -428,6 +428,52 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     )
 
 
+@pytest.mark.parametrize(
+    "path_name",
+    [
+        "cases:case-detail",
+        "cases:edit-case-details",
+        "cases:edit-test-results",
+        "cases:edit-report-details",
+        "cases:edit-qa-process",
+    ],
+)
+def test_unpublished_report_data_updated_notification_shown(path_name, admin_client):
+    """
+    Test notification shown when report data (test result) more recent
+    than latest report rebuild.
+    """
+    report: Report = create_report()
+    report.report_rebuilt = timezone.now()
+    report.save()
+    audit: Audit = report.case.audit
+    case_pk_kwargs: Dict[str, int] = {"pk": report.case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=case_pk_kwargs), follow=True
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        "Data in the case has changed and information in the report is out of date.",
+    )
+
+    audit.unpublished_report_data_updated_time = timezone.now() + timedelta(hours=1)
+    audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=case_pk_kwargs), follow=True
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "Data in the case has changed and information in the report is out of date.",
+    )
+
+
 @mock_s3
 def test_published_report_data_updated_notification_shown(admin_client):
     """
