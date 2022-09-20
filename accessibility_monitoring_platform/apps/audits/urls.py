@@ -34,7 +34,7 @@ from .views import (
     delete_page,
     restore_page,
     start_retest,
-    clear_report_data_updated_time,
+    clear_published_report_data_updated_time,
 )
 
 app_name: str = "audits"
@@ -175,8 +175,8 @@ urlpatterns: List[URLPattern] = [
         name="wcag-definition-update",
     ),
     path(
-        "<int:pk>/clear-outdated-report-warning/",
-        login_required(clear_report_data_updated_time),
-        name="clear-outdated-report-warning",
+        "<int:pk>/clear-outdated-published-report-warning/",
+        login_required(clear_published_report_data_updated_time),
+        name="clear-outdated-published-report-warning",
     ),
 ]

@@ -1085,15 +1085,17 @@ def test_update_wcag_definition_works(admin_client):
     assert wcag_definition_from_db.url_on_w3 == WCAG_DEFINITION_URL
 
 
-def test_clear_report_data_updated_time_view(admin_client):
+def test_clear_published_report_data_updated_time_view(admin_client):
     """Test that clear report data updated time view empties that field"""
     audit: Audit = create_audit()
-    audit.report_data_updated_time = timezone.now()
+    audit.published_report_data_updated_time = timezone.now()
     audit.save()
     audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
 
-    admin_client.get(reverse("audits:clear-outdated-report-warning", kwargs=audit_pk))
+    admin_client.get(
+        reverse("audits:clear-outdated-published-report-warning", kwargs=audit_pk)
+    )
 
     audit_from_db: Audit = Audit.objects.get(**audit_pk)
 
-    assert audit_from_db.report_data_updated_time is None
+    assert audit_from_db.published_report_data_updated_time is None

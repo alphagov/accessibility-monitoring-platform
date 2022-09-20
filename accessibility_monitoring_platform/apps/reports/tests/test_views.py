@@ -3,6 +3,7 @@ Tests for reports views
 """
 import pytest
 from typing import Dict
+from datetime import timedelta
 
 from moto import mock_s3
 
@@ -10,15 +11,10 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils import timezone
 
 from ...audits.models import (
     Audit,
-    CheckResult,
-    Page,
-    WcagDefinition,
-    CHECK_RESULT_ERROR,
-    PAGE_TYPE_HOME,
-    TEST_TYPE_AXE,
 )
 from ...cases.models import (
     Case,
@@ -433,15 +429,13 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 
 
 @mock_s3
-def test_report_data_updated_notification_shown(admin_client):
+def test_published_report_data_updated_notification_shown(admin_client):
     """
     Test notification shown when report data (test result) more recent
     than latest report publish.
     """
     report: Report = create_report()
     audit: Audit = report.case.audit
-    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_HOME)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
@@ -460,13 +454,8 @@ def test_report_data_updated_notification_shown(admin_client):
         "Data in the case has changed since the report was published.",
     )
 
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CHECK_RESULT_ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
+    audit.published_report_data_updated_time = timezone.now() + timedelta(hours=1)
+    audit.save()
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publisher", kwargs=report_pk_kwargs), follow=True

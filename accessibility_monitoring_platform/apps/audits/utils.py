@@ -3,9 +3,11 @@ Utilities for audits app
 """
 
 from typing import Dict, List, Union
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
@@ -154,6 +156,7 @@ def create_or_update_check_results_for_page(
                 check_result.check_result_state = check_result_state
                 check_result.notes = notes
                 record_model_update_event(user=user, model_object=check_result)
+                report_data_updated(check_result.audit)
                 check_result.save()
         elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
             check_result: CheckResult = CheckResult.objects.create(
@@ -288,3 +291,11 @@ def other_page_failed_check_results(
                 check_result
             ]
     return failed_check_results_by_wcag_definition
+
+
+def report_data_updated(audit: Audit) -> None:
+    """Record when an update changing report content as occurred."""
+    now: datetime = timezone.now()
+    audit.unpublished_report_data_updated_time = now
+    audit.published_report_data_updated_time = now
+    audit.save()
