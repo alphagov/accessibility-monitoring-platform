@@ -17,6 +17,18 @@ from django.urls import reverse
 
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
+from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT
+from ...common.models import (
+    BOOLEAN_TRUE,
+    Event,
+    Sector,
+    EVENT_TYPE_MODEL_CREATE,
+    EVENT_TYPE_MODEL_UPDATE,
+)
+from ...common.utils import get_field_names_for_export
+from ...common.utils import amp_format_date
+from ...reports.models import Report
+
 from ..models import (
     REPORT_METHODOLOGY_DEFAULT,
     REPORT_METHODOLOGY_PLATFORM,
@@ -37,17 +49,6 @@ from ..views import (
     format_due_date_help_text,
     CaseQAProcessUpdateView,
 )
-from ...audits.models import Audit
-from ...common.models import (
-    BOOLEAN_TRUE,
-    Event,
-    Sector,
-    EVENT_TYPE_MODEL_CREATE,
-    EVENT_TYPE_MODEL_UPDATE,
-)
-from ...common.utils import get_field_names_for_export
-from ...common.utils import amp_format_date
-from ...reports.models import Report
 
 CONTACT_EMAIL: str = "test@email.com"
 DOMAIN: str = "domain.com"
@@ -70,6 +71,7 @@ ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
+ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -802,6 +804,44 @@ def test_preferred_contact_displayed_on_form(admin_client):
     )
     assert response.status_code == 200
     assertContains(response, "Preferred contact?")
+
+
+def test_link_to_accessibility_statement_displayed(admin_client):
+    """
+    Test that the link to the accessibility statement is displayed.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<a href="{ACCESSIBILITY_STATEMENT_URL}"
+            rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to accessibility statement
+        </a>""",
+        html=True,
+    )
+
+
+def test_link_to_accessibility_statement_not_displayed(admin_client):
+    """
+    Test that the link to the accessibility statement is not displayed
+    if none has been entered
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+    assertContains(response, "No accessibility statement")
 
 
 def test_updating_report_sent_date(admin_client):

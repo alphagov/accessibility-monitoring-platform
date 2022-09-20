@@ -77,6 +77,7 @@ class Report(VersionModel):
     )
     is_deleted = models.BooleanField(default=False)
     report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
+    report_rebuilt = models.DateTimeField(blank=True, null=True)
 
     # Metadata
     notes = models.TextField(default="", blank=True)

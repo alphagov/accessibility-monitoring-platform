@@ -68,7 +68,7 @@
                                             {% for failure in failures %}
                                                 <tr class="govuk-table__row ">
                                                     <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.wcag_definition.name }}</th>
-                                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes }}</td>
+                                                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

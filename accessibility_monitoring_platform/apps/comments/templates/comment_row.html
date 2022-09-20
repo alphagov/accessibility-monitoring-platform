@@ -3,9 +3,9 @@
     <b class="govuk-body-l govuk-!-font-weight-bold">{{ item.user.first_name }} {{ item.user.last_name }} </b>
     on {{ item.created_date|amp_datetime }}
 </p>
-<p class="govuk-body">
-    {{ item.body }}
-</p>
+<div class="govuk-body">
+    {{ item.body|markdown_to_html }}
+</div>
 {% if request.user == item.user  %}
     <form method="post" action="{% url 'comments:remove-comment' item.id %}">
         {% csrf_token %}
