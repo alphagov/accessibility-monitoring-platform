@@ -52,9 +52,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">Correspondence notes</th>
-            <td class="govuk-table__cell">
-                {% if case.correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.correspondence_notes }}</p>{% endif %}
-            </td>
+            <td class="govuk-table__cell amp-notes">{{ case.correspondence_notes|markdown_to_html }}</td>
 
         </tr>
     </tbody>

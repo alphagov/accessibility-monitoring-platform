@@ -147,10 +147,14 @@ def create_or_update_check_results_for_page(
             check_result: CheckResult = page.check_results_by_wcag_definition[
                 wcag_definition
             ]
-            check_result.check_result_state = check_result_state
-            check_result.notes = notes
-            record_model_update_event(user=user, model_object=check_result)
-            check_result.save()
+            if (
+                check_result.check_result_state != check_result_state
+                or check_result.notes != notes
+            ):
+                check_result.check_result_state = check_result_state
+                check_result.notes = notes
+                record_model_update_event(user=user, model_object=check_result)
+                check_result.save()
         elif notes != "" or check_result_state != CHECK_RESULT_NOT_TESTED:
             check_result: CheckResult = CheckResult.objects.create(
                 audit=page.audit,

@@ -188,7 +188,10 @@ def test_in_probation_period_overdue():
 
 @pytest.mark.django_db
 def test_in_12_week_correspondence_1_week_followup_overdue():
-    """Creates two cases; one that is not overdue and another that needs a one-week follow-up after the 12-week waiting period."""
+    """
+    Creates two cases; one that is not overdue and another that needs
+    a one-week follow-up after the 12-week waiting period.
+    """
     user: User = User.objects.create()
     create_case(user)
 
@@ -209,7 +212,10 @@ def test_in_12_week_correspondence_1_week_followup_overdue():
 
 @pytest.mark.django_db
 def test_in_12_week_correspondence_psb_overdue_after_one_week_reminder():
-    """Creates two cases; one that is not overdue and another that needs to move to final decision after the 12-week waiting period."""
+    """
+    Creates two cases; one that is not overdue and another that needs
+    to move to final decision after the 12-week waiting period.
+    """
     user: User = User.objects.create()
     create_case(user)
 

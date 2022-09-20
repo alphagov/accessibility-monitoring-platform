@@ -63,6 +63,7 @@ def test_more_information(client):
         html=True,
     )
 
+
 @pytest.mark.django_db
 def test_view_privacy_notice(client):
     """Test privacy notice renders"""

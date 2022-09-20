@@ -40,9 +40,7 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header">12-week correspondence notes</th>
-            <td class="govuk-table__cell">
-                {% if case.twelve_week_correspondence_notes %}<p class="govuk-body-m cases-notes">{{ case.twelve_week_correspondence_notes }}</p>{% endif %}
-            </td>
+            <td class="govuk-table__cell amp-notes">{{ case.twelve_week_correspondence_notes|markdown_to_html }}</td>
         </tr>
     </tbody>
 </table>

@@ -1,4 +1,4 @@
-from typing import Union
+"""Utilities for overdue"""
 from datetime import datetime, timedelta, date
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -14,12 +14,12 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         user_cases: QuerySet[Case] = Case.objects.filter(auditor=user)
         start_date: datetime = datetime(2020, 1, 1)
         end_date: datetime = datetime.now() - timedelta(days=1)
-        five_days_ago = date.today() - timedelta(days=5)
+        seven_days_ago = date.today() - timedelta(days=7)
 
         in_report_correspondence: QuerySet[Case] = user_cases.filter(
             Q(status="in-report-correspondence"),
             Q(
-                Q(
+                Q(  # pylint: disable=unsupported-binary-operation
                     report_followup_week_1_due_date__range=[start_date, end_date],
                     report_followup_week_1_sent_date=None,
                 )
@@ -27,7 +27,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
                     report_followup_week_4_due_date__range=[start_date, end_date],
                     report_followup_week_4_sent_date=None,
                 )
-                | Q(report_followup_week_4_sent_date__range=[start_date, five_days_ago])
+                | Q(report_followup_week_4_sent_date__range=[start_date, seven_days_ago])
             ),
         )
 
@@ -46,7 +46,7 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
                 | Q(
                     twelve_week_1_week_chaser_sent_date__range=[
                         start_date,
-                        five_days_ago,
+                        seven_days_ago,
                     ],
                 )
             ),
@@ -56,7 +56,9 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
             in_report_correspondence | in_probation_period | in_12_week_correspondence
         )
 
-        in_correspondence: QuerySet[Case] = sorted(in_correspondence, key=lambda t: t.next_action_due_date)  # type: ignore
+        in_correspondence: QuerySet[Case] = sorted(
+            in_correspondence, key=lambda t: t.next_action_due_date
+        )  # type: ignore
         return in_correspondence
     else:
         return Case.objects.none()
