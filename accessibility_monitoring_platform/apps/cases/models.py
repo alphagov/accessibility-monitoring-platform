@@ -112,20 +112,20 @@ ENFORCEMENT_BODY_CHOICES: List[Tuple[str, str]] = [
 ]
 
 TESTING_METHODOLOGY_PLATFORM: str = "platform"
-TESTING_METHODOLOGY_DEFAULT: str = "spreadsheet"
+TESTING_METHODOLOGY_SPREADSHEET: str = "spreadsheet"
 TESTING_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
     (TESTING_METHODOLOGY_PLATFORM, "Platform"),
-    (TESTING_METHODOLOGY_DEFAULT, "Testing spreadsheet"),
+    (TESTING_METHODOLOGY_SPREADSHEET, "Testing spreadsheet"),
 ]
 
 REPORT_METHODOLOGY_PLATFORM: str = "platform"
-REPORT_METHODOLOGY_DEFAULT: str = "odt"
+REPORT_METHODOLOGY_ODT: str = "odt"
 REPORT_METHODOLOGY_CHOICES: List[Tuple[str, str]] = [
     (
         REPORT_METHODOLOGY_PLATFORM,
         "Platform (requires Platform in testing methodology)",
     ),
-    (REPORT_METHODOLOGY_DEFAULT, "ODT templates"),
+    (REPORT_METHODOLOGY_ODT, "ODT templates"),
 ]
 
 TEST_STATUS_DEFAULT: str = "not-started"
@@ -301,12 +301,12 @@ class Case(VersionModel):
     testing_methodology = models.CharField(
         max_length=20,
         choices=TESTING_METHODOLOGY_CHOICES,
-        default=TESTING_METHODOLOGY_DEFAULT,
+        default=TESTING_METHODOLOGY_PLATFORM,
     )
     report_methodology = models.CharField(
         max_length=20,
         choices=REPORT_METHODOLOGY_CHOICES,
-        default=REPORT_METHODOLOGY_DEFAULT,
+        default=REPORT_METHODOLOGY_PLATFORM,
     )
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT

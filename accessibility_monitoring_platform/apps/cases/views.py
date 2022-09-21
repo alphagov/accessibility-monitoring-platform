@@ -40,7 +40,7 @@ from .models import (
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
-    TESTING_METHODOLOGY_DEFAULT,
+    TESTING_METHODOLOGY_SPREADSHEET,
     REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
@@ -159,7 +159,7 @@ class CaseDetailView(DetailView):
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
-        if self.object.testing_methodology == TESTING_METHODOLOGY_DEFAULT:  # type: ignore
+        if self.object.testing_methodology == TESTING_METHODOLOGY_SPREADSHEET:  # type: ignore
             context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())  # type: ignore
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
