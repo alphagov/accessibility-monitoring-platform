@@ -683,7 +683,9 @@ def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
     Test that a successful case update redirects based on the button pressed
     when the case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_SPREADSHEET)
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
@@ -1253,7 +1255,9 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
     Test that the section complete tick is displayed in contents
     when case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_SPREADSHEET)
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
@@ -1370,7 +1374,9 @@ def test_section_complete_check_displayed_in_steps_spreadsheet_methodology(
     Test that the section complete tick is displayed in list of steps
     when case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_SPREADSHEET)
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -1500,7 +1506,9 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     """
     Test that the case review changes view contains no link to the test results if none is on case
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_SPREADSHEET)
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore

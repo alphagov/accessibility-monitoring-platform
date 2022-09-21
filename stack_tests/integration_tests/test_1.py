@@ -336,10 +336,12 @@ class TestCaseUpdates(TestCase):
             "css selector", f"input[type='radio'][value='{ENFORCEMENT_BODY_VALUE}']"
         ).click()
         self.driver.find_element(
-            "css selector", "input[type='radio'][name='testing_methodology'][value='spreadsheet']"
+            "css selector",
+            "input[type='radio'][name='testing_methodology'][value='spreadsheet']",
         ).click()
         self.driver.find_element(
-            "css selector", "input[type='radio'][name='report_methodology'][value='odt']"
+            "css selector",
+            "input[type='radio'][name='report_methodology'][value='odt']",
         ).click()
         self.driver.find_element(
             "css selector", "input[type='radio'][value='england']"
