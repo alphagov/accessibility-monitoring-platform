@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
-from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM
+from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM, REPORT_METHODOLOGY_ODT
 from ..models import (
     PAGE_TYPE_PDF,
     Audit,
@@ -918,6 +918,9 @@ def test_report_text_shown_when_not_platform_report(admin_client):
     Test that report text is shown when case is not using report methodology of platform
     """
     audit: Audit = create_audit_and_wcag()
+    case: Case = audit.case
+    case.report_methodology = REPORT_METHODOLOGY_ODT
+    case.save()
 
     audit_pk: int = audit.id  # type: ignore
     path_kwargs: Dict[str, int] = {"pk": audit_pk}

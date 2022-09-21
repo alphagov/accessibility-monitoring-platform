@@ -30,11 +30,11 @@ from ...common.utils import amp_format_date
 from ...reports.models import Report
 
 from ..models import (
-    REPORT_METHODOLOGY_DEFAULT,
+    REPORT_METHODOLOGY_ODT,
     REPORT_METHODOLOGY_PLATFORM,
+    TESTING_METHODOLOGY_SPREADSHEET,
     Case,
     Contact,
-    TESTING_METHODOLOGY_PLATFORM,
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
@@ -624,7 +624,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     Test that a successful case update redirects based on the button pressed
     when the case testing methodology is platform
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
@@ -683,7 +683,9 @@ def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
     Test that a successful case update redirects based on the button pressed
     when the case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
@@ -1069,7 +1071,7 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
     """
     Test that audit details shows link to create when no audit exists
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
@@ -1098,7 +1100,7 @@ def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
     """
     Test that audit details shows link to create when no audit exists
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
@@ -1113,10 +1115,7 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
     """
     Test that audit details shows link to create when no audit exists
     """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_PLATFORM,
-        report_methodology=REPORT_METHODOLOGY_PLATFORM,
-    )
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
@@ -1143,10 +1142,7 @@ def test_report_shows_table_when_report_exists_and_report_is_platform(
     """
     Test that audit details shows link to create when no audit exists
     """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_PLATFORM,
-        report_methodology=REPORT_METHODOLOGY_PLATFORM,
-    )
+    case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     Report.objects.create(case=case)
     response: HttpResponse = admin_client.get(
@@ -1211,7 +1207,7 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
     Test that the section complete tick is displayed in contents
     when case testing methodology is platform
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
@@ -1259,7 +1255,9 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
     Test that the section complete tick is displayed in contents
     when case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
     setattr(case, flag_name, TODAY)
     case.save()
     edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
@@ -1337,7 +1335,7 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     Test that the section complete tick is displayed in list of steps
     when case testing methodology is platform
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -1376,7 +1374,9 @@ def test_section_complete_check_displayed_in_steps_spreadsheet_methodology(
     Test that the section complete tick is displayed in list of steps
     when case testing methodology is spreadsheet
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -1483,7 +1483,10 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
 def test_case_review_changes_view_contains_link_to_test_results_url(admin_client):
     """Test that the case review changes view contains the link to the test results"""
     test_results_url: str = "https://test-results-url"
-    case: Case = Case.objects.create(test_results_url=test_results_url)
+    case: Case = Case.objects.create(
+        test_results_url=test_results_url,
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
@@ -1503,7 +1506,9 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     """
     Test that the case review changes view contains no link to the test results if none is on case
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
@@ -1525,7 +1530,7 @@ def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform
     Test that the case review changes view contains no mention of the lack of a link
     to the test results if none is on case and the methodology is platform.
     """
-    case: Case = Case.objects.create(testing_methodology=TESTING_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
@@ -2220,7 +2225,7 @@ def test_platform_shows_notification_if_fully_compliant(
     "report_methodology, report_link_label",
     [
         (REPORT_METHODOLOGY_PLATFORM, "Link to report</th>"),
-        (REPORT_METHODOLOGY_DEFAULT, "Link to report draft"),
+        (REPORT_METHODOLOGY_ODT, "Link to report draft"),
     ],
 )
 def test_case_details_shows_link_to_report(
@@ -2249,7 +2254,7 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     Test cases using platform-based reports show a link to report details if no
     report has been published.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
     report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
 
@@ -2297,7 +2302,10 @@ def test_non_platform_qa_process_shows_link_to_draft_report(admin_client):
     Test that the QA process page shows the link to report draft
     when the report methodology is not platform.
     """
-    case: Case = Case.objects.create(report_draft_url=DRAFT_REPORT_URL)
+    case: Case = Case.objects.create(
+        report_draft_url=DRAFT_REPORT_URL,
+        report_methodology=REPORT_METHODOLOGY_ODT,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
@@ -2323,7 +2331,7 @@ def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client
     Test cases using platform-based reports show no link to report details if no
     report has been published.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
@@ -2341,7 +2349,7 @@ def test_platform_qa_process_shows_no_link_to_preview_report(admin_client):
     Test that the QA process page shows that the link to report draft is none
     when no report exists and the report methodology is platform.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
@@ -2363,7 +2371,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
     Test that the QA process page shows the link to preview draft
     when the report methodology is platform.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
     report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
@@ -2392,7 +2400,7 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
     Test that the QA process page shows the link to publish the report
     when the report methodology is platform and report has not been published.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
     report_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
@@ -2423,7 +2431,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     Test that the QA process page shows the link to report on S3
     when the report methodology is platform and report has been published.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     Report.objects.create(case=case)
     s3_report: S3Report = S3Report.objects.create(case=case, guid="guid", version=0)
     s3_report_url: str = (
@@ -2456,7 +2464,7 @@ def test_non_platform_qa_process_shows_final_report_fields(admin_client):
     Test that the QA process page shows the final report fields
     when the report methodology is not platform.
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
@@ -2472,7 +2480,7 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     Test that the QA process page does not show the final report fields
     when the report methodology is platform.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
@@ -2488,7 +2496,7 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
     Test that the report correspondence page shows link to create report
     if one does not exist.
     """
-    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_PLATFORM)
+    case: Case = Case.objects.create()
     report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
