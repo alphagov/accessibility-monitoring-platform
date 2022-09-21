@@ -42,6 +42,7 @@ from ..utils import (
     get_next_page_url,
     get_next_retest_page_url,
     other_page_failed_check_results,
+    report_data_updated,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -717,3 +718,18 @@ def test_other_page_failed_check_results():
         failed_check_results[wcag_definition_manual][0]
         == home_page.failed_check_results[0]
     )
+
+
+@pytest.mark.django_db
+def test_report_data_updated():
+    """Test report data updated fields are populated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.unpublished_report_data_updated_time is None
+    assert audit.published_report_data_updated_time is None
+
+    report_data_updated(audit=audit)
+
+    assert audit.unpublished_report_data_updated_time is not None
+    assert audit.published_report_data_updated_time is not None

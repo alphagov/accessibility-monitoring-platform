@@ -43,10 +43,20 @@
                     >
                         Edit report
                     </a>
+                    <a
+                        href="{% url 'reports:report-confirm-refresh' report.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--warning"
+                        data-module="govuk-button"
+                    >
+                        Reset report
+                    </a>
                 </div>
             </div>
         </div>
-        {% include 'reports/helpers/pending_rebuild_notification.html' with case=report.case %}
+        {% include 'reports/helpers/pending_published_rebuild_notification.html' with case=report.case %}
+        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=report.case %}
         {% if report.case.report_review_status == 'not-started' %}
             {% include 'reports/helpers/qa_process_notification.html' %}
         {% elif report.case.report_approved_status != 'yes' %}

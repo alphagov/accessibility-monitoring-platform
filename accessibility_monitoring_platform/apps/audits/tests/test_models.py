@@ -2,8 +2,7 @@
 Tests for cases models
 """
 import pytest
-from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from django.db.models.query import QuerySet
 
@@ -209,34 +208,3 @@ def test_check_result_returns_id_and_fields_for_retest():
         "retest_state": RETEST_CHECK_RESULT_DEFAULT,
         "retest_notes": "",
     }
-
-
-@pytest.mark.django_db
-def test_report_data_updated_time():
-    """
-    Test that saving a CheckResult updates its Audit's report
-    data updated time.
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Optional[Page] = audit.page_audit.all().first()  # type: ignore
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
-    )
-
-    assert audit.report_data_updated_time is None
-
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CHECK_RESULT_ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
-
-    assert audit.report_data_updated_time is not None
-
-    first_report_data_updated_time: Optional[datetime] = audit.report_data_updated_time
-
-    check_result.save()
-
-    assert audit.report_data_updated_time > first_report_data_updated_time
