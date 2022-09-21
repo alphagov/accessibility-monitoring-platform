@@ -241,6 +241,6 @@ dist
 .pnp.*
 
 # cypress
-cypress/cypress/downloads
-cypress/cypress/screenshots
-cypress/cypress/videos
+stack_tests/integration_tests/cypress/downloads
+stack_tests/integration_tests/cypress/screenshots
+stack_tests/integration_tests/cypress/videos

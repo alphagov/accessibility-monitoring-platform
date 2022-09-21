@@ -30,7 +30,7 @@ from ...models import ChangeToPlatform, Event, IssueReport, Platform, Sector
 
 def load_fixture(fixture: str) -> None:
     """Load data from fixture into database"""
-    fixture_path: str = f"cypress/fixtures/{fixture}.json"
+    fixture_path: str = f"stack_tests/integration_tests/fixtures/{fixture}.json"
     print(f"Loading {fixture_path}")
     logging.info("Loading fixture from %s:", fixture_path)
     call_command("loaddata", fixture_path)

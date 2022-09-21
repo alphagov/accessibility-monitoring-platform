@@ -14,8 +14,8 @@ services:
 
     web:
         build:
-            context: ..
-            dockerfile: ./cypress/platform.Dockerfile
+            context: ../..
+            dockerfile: ./stack_tests/integration_tests/platform.Dockerfile
         image: "platform_image"
         command: >
             bash -c "
@@ -86,9 +86,8 @@ services:
         volumes:
             - "/var/run/docker.sock:/var/run/docker.sock"
 
-    e2e:
+    cypress:
         image: "cypress/included:10.7.0"
-        container_name: cypress
         depends_on:
             web:
                 condition: service_healthy

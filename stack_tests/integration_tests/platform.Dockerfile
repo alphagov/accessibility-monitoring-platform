@@ -6,7 +6,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash
 RUN apt-get install -y nodejs
 WORKDIR /code
 COPY pulp/ /code/pulp/
-COPY cypress/ /code/cypress/
+COPY stack_tests/ /code/stack_tests/
 COPY manage_report_viewer.py /code/
 COPY manage.py /code/
 COPY common/ /code/common/

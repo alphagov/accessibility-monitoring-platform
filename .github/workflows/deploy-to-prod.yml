@@ -42,7 +42,7 @@ jobs:
         python-version: '3.9'
     - name: Integration tests
       run: |
-        cd cypress
+        cd stack_tests/integration_tests
         docker-compose up --abort-on-container-exit
       env:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
