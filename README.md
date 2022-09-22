@@ -110,7 +110,13 @@ Integration can be started with
 make int_test
 ```
 
-The make command will emulate the production stack with docker-compose and will then simulate the actions of a user.
+The make command will emulate the production stack with docker-compose and will then simulate the actions of a user using cypress.
+
+To run these tests interactively in the local sandbox:
+
+1. `python manage.py init_int_test_data`
+1. `cd stack_tests/integration_tests`
+1. `npx cypress open`
 
 Ensure your tests work with `make int_test` before creating a pull request.
 
