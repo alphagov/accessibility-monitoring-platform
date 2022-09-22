@@ -23,7 +23,7 @@ from ...cases.models import (
 )
 from ...s3_read_write.models import S3Report
 
-from ..models import Report, TableRow, Section, ReportVisitsMetrics
+from ..models import Report, TableRow, Section, ReportVisitsMetrics, TEMPLATE_TYPE_ISSUES_TABLE
 from ..utils import (
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -552,3 +552,34 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     assertContains(response, "codename2")
     assertContains(response, "Viewing 1 visits")
     assertContains(response, "View all visits")
+
+
+def test_issues_section_edit_page_contains_warning(admin_client):
+    """
+    Test that the edit section page for issues contains a warning to
+    make changes in testing UI.
+    """
+    report: Report = create_report()
+    audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}
+    test_details_url: str = reverse('audits:audit-detail', kwargs=audit_pk_kwargs)
+    section: Section = create_section(report)
+    section.template_type = TEMPLATE_TYPE_ISSUES_TABLE
+    section.save()
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">Warning</span>
+            Edit test data in the
+            <a href="{test_details_url}" class="govuk-link govuk-link--no-visited-state">
+                testing application</a>
+        </strong>""",
+        html=True,
+    )
