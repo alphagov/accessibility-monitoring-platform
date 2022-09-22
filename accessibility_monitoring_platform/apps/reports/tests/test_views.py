@@ -78,7 +78,7 @@ def test_rebuild_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @mock_s3
