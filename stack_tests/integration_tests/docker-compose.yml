@@ -17,8 +17,6 @@ services:
             context: ../..
             dockerfile: ./stack_tests/integration_tests/platform.Dockerfile
         image: "platform_image"
-        volumes:
-            - "../..:/code"
         command: >
             bash -c "
             sleep 10;
