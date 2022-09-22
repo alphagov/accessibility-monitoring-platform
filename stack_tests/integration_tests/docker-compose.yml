@@ -21,7 +21,6 @@ services:
             - "../../accessibility_monitoring_platform/:/code/accessibility_monitoring_platform/"
         command: >
             bash -c "
-            sleep 10;
             make static_files_process;
             python manage.py collectstatic --noinput;
             python manage.py migrate;
