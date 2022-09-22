@@ -112,18 +112,13 @@ make int_test
 
 The make command will emulate the production stack with docker-compose and will then simulate the actions of a user.
 
-When writing tests, `int_test_developer_mode` can be used to skip starting the docker containers. This is useful when writing integration tests as it's much faster than the normal integration testing process.
-The settings for this mode can be found in `stack_tests/integration_tests_developer_mode_settings.json`, and the target path for tests can be changed under `test_dir`.
-
 Ensure your tests work with `make int_test` before creating a pull request.
 
 ---
 
 ## Pulp
 
-Pulp is our proprietary Python replacement for Gulp and handles the deployment of JS, SCSS, and static files.
-
-Gulp and Node were causing dependency issues, so we removed as much from the Node environment as we could. It still uses Node to process the JS code, but Python manages the rest.
+Pulp handles the deployment of JS, SCSS, and static files.
 
 It currently
 - Transpiles SCSS to CSS
@@ -145,7 +140,10 @@ make deploy_prototype
 
 This will deploy your local branch to a brand new space in PaaS with data copied over from the testing environment. Users can then log in using their testing environment login details.
 
+Running `make deploy_prototype` repeatedly updates a running prototype application.
+
 Once you are finished with the prototype, it can be broken down with,
+
 ```
 make breakdown_prototype
 ```

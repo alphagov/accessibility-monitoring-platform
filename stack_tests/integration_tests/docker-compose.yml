@@ -9,14 +9,16 @@ services:
             POSTGRES_PASSWORD: secret
             PGDATA: /var/lib/postgresql/data
         ports:
-            - "5433:5433"
-        command: -p 5433
+            - "5435:5435"
+        command: -p 5435
 
     web:
         build:
             context: ../..
             dockerfile: ./stack_tests/integration_tests/platform.Dockerfile
         image: "platform_image"
+        volumes:
+            - "../../accessibility_monitoring_platform/:/code/accessibility_monitoring_platform/"
         command: >
             bash -c "
             sleep 10;
@@ -33,18 +35,16 @@ services:
             - db
             - localstack
         environment:
-            - PGPASSWORD=secret
-            - VCAP_SERVICES={'aws-s3-bucket':[{'binding_guid':'00000000-0000-0000-0000-000000000000','credentials':{'aws_access_key_id':'key','aws_region':'us-east-1','aws_secret_access_key':'secret','bucket_name':'bucketname','deploy_env':''},'instance_guid':'00000000-0000-0000-0000-000000000000','instance_name':'instance_name','label':'aws-s3-bucket','name':'instance_name','plan':'default','tags':['s3'],'volume_mounts':[]}],'postgres':[{'credentials':{'uri':'postgres://admin:secret@db:5433/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'}]}
             - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001'
             - SECRET_KEY='123456789'
             - DEBUG=TRUE
-            - PORT='8001'
             - INTEGRATION_TEST=TRUE
+            - PORT='8001'
             - POSTGRES_NAME=postgres
             - POSTGRES_USER=admin
             - POSTGRES_PASSWORD=secret
             - POSTGRES_HOST=db
-            - POSTGRES_PORT=5433
+            - POSTGRES_PORT=5435
         healthcheck:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
         stdin_open: true
@@ -52,6 +52,8 @@ services:
 
     report_viewer:
         image: "platform_image"
+        volumes:
+            - "../../report_viewer/:/code/report_viewer/"
         command: >
             bash -c "
             make static_files_process;
@@ -65,13 +67,16 @@ services:
             - localstack
             - web
         environment:
-            - PGPASSWORD=secret
-            - VCAP_SERVICES={'aws-s3-bucket':[{'binding_guid':'00000000-0000-0000-0000-000000000000','credentials':{'aws_access_key_id':'key','aws_region':'us-east-1','aws_secret_access_key':'secret','bucket_name':'bucketname','deploy_env':''},'instance_guid':'00000000-0000-0000-0000-000000000000','instance_name':'instance_name','label':'aws-s3-bucket','name':'instance_name','plan':'default','tags':['s3'],'volume_mounts':[]}],'postgres':[{'credentials':{'uri':'postgres://admin:secret@db:5433/accessibility_monitoring_app'},'name':'monitoring-platform-default-db'}]}
             - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8002'
             - SECRET_KEY='123456789'
             - DEBUG=TRUE
-            - PORT='8002'
             - INTEGRATION_TEST=TRUE
+            - PORT='8002'
+            - POSTGRES_NAME=postgres
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_HOST=db
+            - POSTGRES_PORT=5435
 
     localstack:
         image: localstack/localstack

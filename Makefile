@@ -77,7 +77,7 @@ test:
 	npm test
 
 int_test:
-	python3 stack_tests/main.py
+	docker-compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
 deploy_prototype:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json

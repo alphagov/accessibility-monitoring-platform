@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
 UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
+INTEGRATION_TEST = os.getenv("INTEGRATION_TEST") == "TRUE"
 
 S3_MOCK_ENDPOINT = None
 if os.getenv("INTEGRATION_TEST") == "TRUE":
@@ -117,11 +118,21 @@ WSGI_APPLICATION = "report_viewer.wsgi.application"
 
 DATABASES = {}
 
-if UNDER_TEST:
-    DATABASES["default"] = {
-        "NAME": "accessibility_monitoring_app",
-        "ENGINE": "django.db.backends.sqlite3",
-    }
+if UNDER_TEST or INTEGRATION_TEST:
+    if INTEGRATION_TEST:
+        DATABASES["default"] = {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_NAME"),
+            "USER": os.environ.get("POSTGRES_USER"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+            "HOST": os.environ.get("POSTGRES_HOST"),
+            "PORT": os.environ.get("POSTGRES_PORT"),
+        }
+    else:
+        DATABASES["default"] = {
+            "NAME": "accessibility_monitoring_app",
+            "ENGINE": "django.db.backends.sqlite3",
+        }
     DATABASES["aws-s3-bucket"] = {
         "aws_access_key_id": "key",
         "aws_region": "us-east-1",
