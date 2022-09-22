@@ -77,6 +77,7 @@ from .utils import (
     get_next_page_url,
     get_next_retest_page_url,
     other_page_failed_check_results,
+    report_data_updated,
 )
 
 STANDARD_PAGE_HEADERS: List[str] = [
@@ -529,6 +530,17 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     form_class: Type[AuditReportOptionsUpdateForm] = AuditReportOptionsUpdateForm
     template_name: str = "audits/forms/report_options.html"
 
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        changed_report_data: List[str] = [
+            field_name
+            for field_name in form.changed_data
+            if field_name != "audit_report_options_complete_date"
+        ]
+        if changed_report_data:
+            report_data_updated(audit=self.object)
+        return super().form_valid(form)
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -914,7 +926,9 @@ class WcagDefinitionListView(ListView):
 
             if search_str:
                 return WcagDefinition.objects.filter(
-                    Q(name__icontains=search_str)
+                    Q(
+                        name__icontains=search_str
+                    )  # pylint: disable=unsupported-binary-operation
                     | Q(type__icontains=search_str)
                     | Q(description__icontains=search_str)
                     | Q(url_on_w3__icontains=search_str)
@@ -965,9 +979,11 @@ class WcagDefinitionUpdateView(UpdateView):
         return reverse("audits:wcag-definition-list")
 
 
-def clear_report_data_updated_time(request: HttpRequest, pk: int) -> HttpResponse:
+def clear_published_report_data_updated_time(
+    request: HttpRequest, pk: int
+) -> HttpResponse:
     """
-    Remove value from report_data_updated_time to hide notification
+    Remove value from published_report_data_updated_time to hide notification
 
     Args:
         request (HttpRequest): Django HttpRequest
@@ -977,7 +993,7 @@ def clear_report_data_updated_time(request: HttpRequest, pk: int) -> HttpRespons
         HttpResponse: Django HttpResponse
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
-    audit.report_data_updated_time = None
+    audit.published_report_data_updated_time = None
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
     redirect_destination: str = request.GET.get(

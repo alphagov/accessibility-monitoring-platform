@@ -27,7 +27,9 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
                     report_followup_week_4_due_date__range=[start_date, end_date],
                     report_followup_week_4_sent_date=None,
                 )
-                | Q(report_followup_week_4_sent_date__range=[start_date, seven_days_ago])
+                | Q(
+                    report_followup_week_4_sent_date__range=[start_date, seven_days_ago]
+                )
             ),
         )
 
