@@ -614,6 +614,9 @@ class Page(models.Model):
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    is_form = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     retest_complete_date = models.DateField(null=True, blank=True)
     retest_page_missing_date = models.DateField(null=True, blank=True)
 
