@@ -5,6 +5,7 @@ import pytest
 
 from typing import Dict, List, TypedDict, Union
 
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -284,6 +285,7 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
     assert not user.is_authenticated
 
     assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == settings.OTP_EMAIL_SUBJECT
     assert len(mailoutbox[0].body) == 7
 
     token_data: Dict[str, Union[str, int]] = {
