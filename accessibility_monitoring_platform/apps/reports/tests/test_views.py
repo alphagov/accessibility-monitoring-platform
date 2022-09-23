@@ -67,18 +67,26 @@ def test_create_report_redirects(admin_client):
     assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})  # type: ignore
 
 
-def test_rebuild_report_redirects(admin_client):
-    """Test that report rebuild redirects to report details"""
+@pytest.mark.parametrize(
+    "return_to, expected_redirect",
+    [
+        ("report-detail", "reports:report-detail"),
+        ("report-publisher", "reports:report-publisher"),
+        ("", "reports:report-publisher"),
+    ],
+)
+def test_rebuild_report_redirects(return_to, expected_redirect, admin_client):
+    """Test that report rebuild redirects correctly"""
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-rebuild", kwargs=report_pk_kwargs),
+        f"{reverse('reports:report-rebuild', kwargs=report_pk_kwargs)}?return_to={return_to}",
     )
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse(expected_redirect, kwargs=report_pk_kwargs)  # type: ignore
 
 
 @mock_s3
