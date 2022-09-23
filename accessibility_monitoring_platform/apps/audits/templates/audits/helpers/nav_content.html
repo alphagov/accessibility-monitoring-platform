@@ -7,9 +7,9 @@
                 {% endif %}
                 |
                 {% if page %}
-                <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="content-page-link">
                 {% else %}
-                <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
                 {% endif %}
                         Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if complete %}&check;{% endif %}
