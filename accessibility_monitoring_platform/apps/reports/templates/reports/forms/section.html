@@ -30,6 +30,21 @@
                 {% include "cases/helpers/edit_header.html" with page_heading=section.name case=section.report.case %}
             </div>
         </div>
+        {% if section.template_type == 'issues' %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
+                                Edit test data in the
+                                <a href="{% url 'audits:audit-detail' section.report.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    testing application</a>
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
