@@ -71,7 +71,10 @@ def rebuild_report(
     """
     report: Report = get_object_or_404(Report, id=pk)
     generate_report_content(report=report)
-    return redirect(reverse("reports:report-detail", kwargs={"pk": pk}))
+    return_to: str = request.GET.get("return_to", "report-publisher")
+    if return_to != "report-detail" and return_to != "report-publisher":
+        return_to = "report-publisher"
+    return redirect(reverse(f"reports:{return_to}", kwargs={"pk": pk}))
 
 
 class ReportDetailView(DetailView):
