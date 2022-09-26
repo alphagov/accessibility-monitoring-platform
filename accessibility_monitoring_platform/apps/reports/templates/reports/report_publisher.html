@@ -44,7 +44,7 @@
                         Edit report
                     </a>
                     <a
-                        href="{% url 'reports:report-confirm-refresh' report.id %}"
+                        href="{% url 'reports:report-confirm-refresh' report.id %}?return_to=report-publisher"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--warning"
