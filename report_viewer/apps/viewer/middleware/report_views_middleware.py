@@ -5,9 +5,9 @@ from uuid import UUID
 
 from django.http import HttpRequest
 
-from report_viewer.settings.base import SECRET_KEY
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportVisitsMetrics
+from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
 
 
 class ReportMetrics:
@@ -30,7 +30,7 @@ class ReportMetrics:
             return x_forwarded_for.split(",")[0]
         return request.META.get("REMOTE_ADDR", "")
 
-    def user_fingerprint(self, request: HttpRequest, secret_key: str) -> str:
+    def user_fingerprint(self, request: HttpRequest) -> str:
         """
         Creates fingerprint to uniquely identify user.
 
@@ -46,11 +46,7 @@ class ReportMetrics:
         Returns:
             str: An amalgamated string of the user agent, client ip, and secret key
         """
-        return (
-            request.META.get("HTTP_USER_AGENT", "")
-            + self.client_ip(request)
-            + secret_key
-        )
+        return request.META.get("HTTP_USER_AGENT", "") + self.client_ip(request)
 
     def four_digit_hash(self, string_to_hash: str) -> int:
         """
@@ -98,22 +94,25 @@ class ReportMetrics:
 
     def __call__(self, request):
         try:
-            absolute_uri: str = request.build_absolute_uri()
-            guid_index = -1
-            if absolute_uri[-1] == "/":
-                guid_index = -2
+            string_to_hash: str = self.user_fingerprint(request)
+            fingerprint_hash: int = self.four_digit_hash(string_to_hash)
+            if not UserCacheUniqueHash.objects.filter(
+                fingerprint_hash=fingerprint_hash
+            ).exists():
+                absolute_uri: str = request.build_absolute_uri()
+                guid_index = -1
+                if absolute_uri[-1] == "/":
+                    guid_index = -2
 
-            guid: str = absolute_uri.split("/")[guid_index]
-            if len(guid) == 36 and UUID(guid, version=4):
-                string_to_hash = self.user_fingerprint(request, SECRET_KEY)
-                fingerprint_hash = self.four_digit_hash(string_to_hash)
-                fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
-                ReportVisitsMetrics(
-                    case=S3Report.objects.get(guid=guid).case,
-                    guid=guid,
-                    fingerprint_hash=fingerprint_hash,
-                    fingerprint_codename=fingerprint_codename,
-                ).save()
+                guid: str = absolute_uri.split("/")[guid_index]
+                if len(guid) == 36 and UUID(guid, version=4):
+                    fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
+                    ReportVisitsMetrics(
+                        case=S3Report.objects.get(guid=guid).case,
+                        guid=guid,
+                        fingerprint_hash=fingerprint_hash,
+                        fingerprint_codename=fingerprint_codename,
+                    ).save()
         except Exception as e:
             print(e)
 

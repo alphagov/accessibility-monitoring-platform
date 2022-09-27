@@ -158,3 +158,12 @@ class VersionModel(models.Model):
     def save(self, *args, **kwargs):
         self.version += 1
         super().save(*args, **kwargs)
+
+
+class UserCacheUniqueHash(models.Model):
+    """
+    Model subclassed to add versioning
+    """
+
+    user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
+    fingerprint_hash = models.IntegerField(default=0, blank=True)

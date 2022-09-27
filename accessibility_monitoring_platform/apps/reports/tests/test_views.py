@@ -23,7 +23,13 @@ from ...cases.models import (
 )
 from ...s3_read_write.models import S3Report
 
-from ..models import Report, TableRow, Section, ReportVisitsMetrics, TEMPLATE_TYPE_ISSUES_TABLE
+from ..models import (
+    Report,
+    TableRow,
+    Section,
+    ReportVisitsMetrics,
+    TEMPLATE_TYPE_ISSUES_TABLE,
+)
 from ..utils import (
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -561,7 +567,7 @@ def test_issues_section_edit_page_contains_warning(admin_client):
     """
     report: Report = create_report()
     audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}
-    test_details_url: str = reverse('audits:audit-detail', kwargs=audit_pk_kwargs)
+    test_details_url: str = reverse("audits:audit-detail", kwargs=audit_pk_kwargs)
     section: Section = create_section(report)
     section.template_type = TEMPLATE_TYPE_ISSUES_TABLE
     section.save()
