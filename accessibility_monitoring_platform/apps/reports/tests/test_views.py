@@ -23,7 +23,13 @@ from ...cases.models import (
 )
 from ...s3_read_write.models import S3Report
 
-from ..models import Report, TableRow, Section, ReportVisitsMetrics, TEMPLATE_TYPE_ISSUES_TABLE
+from ..models import (
+    Report,
+    TableRow,
+    Section,
+    ReportVisitsMetrics,
+    TEMPLATE_TYPE_ISSUES_TABLE,
+)
 from ..utils import (
     DELETE_ROW_BUTTON_PREFIX,
     UNDELETE_ROW_BUTTON_PREFIX,
@@ -70,7 +76,7 @@ def test_create_report_redirects(admin_client):
 @pytest.mark.parametrize(
     "return_to, expected_redirect",
     [
-        ("report-detail", "reports:report-detail"),
+        ("edit-report", "reports:edit-report"),
         ("report-publisher", "reports:report-publisher"),
         ("", "reports:report-publisher"),
     ],
@@ -130,7 +136,7 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:report-detail", ">Edit report</h1>"),
+        ("reports:edit-report", ">Edit report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
         ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
@@ -231,7 +237,7 @@ def test_report_edit_metadata_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @pytest.mark.django_db
@@ -282,7 +288,7 @@ def test_report_edit_section_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:report-detail", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -569,7 +575,7 @@ def test_issues_section_edit_page_contains_warning(admin_client):
     """
     report: Report = create_report()
     audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}
-    test_details_url: str = reverse('audits:audit-detail', kwargs=audit_pk_kwargs)
+    test_details_url: str = reverse("audits:audit-detail", kwargs=audit_pk_kwargs)
     section: Section = create_section(report)
     section.template_type = TEMPLATE_TYPE_ISSUES_TABLE
     section.save()

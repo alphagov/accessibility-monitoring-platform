@@ -43,9 +43,9 @@ urlpatterns: List[URLPattern] = [
         name="report-publisher",
     ),
     path(
-        "<int:pk>/detail/",
+        "<int:pk>/edit-report/",
         login_required(ReportDetailView.as_view()),
-        name="report-detail",
+        name="edit-report",
     ),
     path(
         "<int:pk>/edit-report-metadata/",
