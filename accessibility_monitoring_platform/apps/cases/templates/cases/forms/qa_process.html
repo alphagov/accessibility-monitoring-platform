@@ -73,12 +73,8 @@
                                             </a>
                                         {% else %}
                                             HTML report has not been published. Publish report in
-                                            <a
-                                                href="{% url 'reports:edit-report' case.report.id %}"
-                                                class="govuk-link govuk-link--no-visited-state"
-                                            >
-                                                case > report
-                                            </a>
+                                            <a href="{% url 'reports:report-confirm-publish' case.report.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                Case > Report publisher > Publish HTML report</a>
                                         {% endif %}
                                     </div>
                                 </div>

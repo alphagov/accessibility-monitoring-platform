@@ -2256,7 +2256,7 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     """
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
-    report_detail_url: str = reverse("reports:edit-report", kwargs={"pk": report.id})  # type: ignore
+    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
@@ -2267,7 +2267,7 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
         response,
         f"""<p class="govuk-body-m">
             A published report does not exist for this case. Create a report in
-            <a href="{report_detail_url}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{report_publisher_url}" class="govuk-link govuk-link--no-visited-state">
                 case > report
             </a>
         </p>""",
@@ -2403,23 +2403,24 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
     case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
-    report_url: str = reverse("reports:edit-report", kwargs={"pk": report.id})  # type: ignore
+    report_confirm_publish_url: str = reverse(
+        "reports:report-confirm-publish", kwargs={"pk": report.id}  # type: ignore
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
     )
 
     assert response.status_code == 200
+
     assertContains(
         response,
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Published report</b></label>
             <div class="govuk-hint">
-                HTML report has not been published.
-                Publish report in
-                <a href="{report_url}" class="govuk-link govuk-link--no-visited-state">
-                    case > report
-                </a>
+                HTML report has not been published. Publish report in
+                <a href="{report_confirm_publish_url}" class="govuk-link govuk-link--no-visited-state">
+                    Case > Report publisher > Publish HTML report</a>
             </div>
         </div>""",
         html=True,

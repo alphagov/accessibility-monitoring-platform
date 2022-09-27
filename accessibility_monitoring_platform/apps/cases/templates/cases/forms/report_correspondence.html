@@ -48,18 +48,18 @@
                         A published report does not exist for this case. Create a report in
                         {% if case.report %}
                             <a
-                                href="{% url 'reports:edit-report' case.report.id %}"
+                                href="{% url 'reports:report-publisher' case.report.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 case > report
                             </a>
                         {% else %}
-                        <a
-                            href="{% url 'cases:edit-report-details' case.id %}"
-                            class="govuk-link govuk-link--no-visited-state"
-                        >
-                            case > report details
-                        </a>
+                            <a
+                                href="{% url 'cases:edit-report-details' case.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                case > report details
+                            </a>
                     {% endif %}
                     </p>
                 {% endif %}
