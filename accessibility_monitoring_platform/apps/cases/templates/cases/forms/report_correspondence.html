@@ -48,7 +48,7 @@
                         A published report does not exist for this case. Create a report in
                         {% if case.report %}
                             <a
-                                href="{% url 'reports:report-detail' case.report.id %}"
+                                href="{% url 'reports:edit-report' case.report.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 case > report

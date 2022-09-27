@@ -2256,7 +2256,7 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     """
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
-    report_detail_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+    report_detail_url: str = reverse("reports:edit-report", kwargs={"pk": report.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
@@ -2403,7 +2403,7 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
     case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
-    report_url: str = reverse("reports:report-detail", kwargs={"pk": report.id})  # type: ignore
+    report_url: str = reverse("reports:edit-report", kwargs={"pk": report.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
