@@ -5,12 +5,6 @@
 {% block content %}
 <div class="govuk-width-container">
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-body">
-            <strong class="govuk-tag govuk-!-margin-top-4 govuk-!-margin-bottom-4">
-                Experimental
-            </strong>
-            &nbsp Status is programatically assigned and may label cases incorrectly
-        </div>
         {% if recent_changes_to_platform %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
@@ -28,6 +22,7 @@
         {% endif %}
         <div class="govuk-grid-row">
             {% if mfa_disabled %}
+            <div class="govuk-grid-column-full">
                 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                     <div class="govuk-notification-banner__header">
                       <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
@@ -43,6 +38,7 @@
                         </p>
                     </div>
                 </div>
+            </div>
             {% endif %}
 
             <div class="govuk-grid-column-one-third">
