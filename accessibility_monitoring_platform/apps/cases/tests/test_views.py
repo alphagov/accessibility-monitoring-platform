@@ -2420,7 +2420,7 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
             <div class="govuk-hint">
                 HTML report has not been published. Publish report in
                 <a href="{report_confirm_publish_url}" class="govuk-link govuk-link--no-visited-state">
-                    Case > Report > Publish HTML report</a>
+                    Case > Report publisher > Publish HTML report</a>
             </div>
         </div>""",
         html=True,
