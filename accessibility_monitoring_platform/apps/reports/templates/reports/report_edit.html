@@ -13,7 +13,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report publisher</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 Edit report
@@ -30,7 +30,7 @@
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group custom-button-group-right">
                     <a
-                        href="{% url 'reports:report-confirm-refresh' report.id %}"
+                        href="{% url 'reports:report-confirm-refresh' report.id %}?return_to=edit-report"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--warning"

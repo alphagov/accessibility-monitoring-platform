@@ -6,8 +6,8 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 import urllib
 
-from django.forms.models import ModelForm
 from django.db.models.query import Q, QuerySet
+from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -16,6 +16,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..cases.models import Case
+from ..common.forms import AMPChoiceCheckboxWidget
 from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
@@ -64,6 +65,7 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
+    PAGE_TYPE_CONTACT,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -246,6 +248,10 @@ class AuditPagesUpdateView(AuditUpdateView):
                 extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
                     queryset=self.object.extra_pages, prefix="extra"
                 )
+        for form in standard_pages_formset:
+            if form.instance.page_type == PAGE_TYPE_CONTACT:  # type: ignore
+                form.fields["is_form"].label = "Contact page is a form"
+                form.fields["is_form"].widget = AMPChoiceCheckboxWidget()
         context["standard_pages_formset"] = standard_pages_formset
         context["extra_pages_formset"] = extra_pages_formset
         context["standard_page_headers"] = STANDARD_PAGE_HEADERS

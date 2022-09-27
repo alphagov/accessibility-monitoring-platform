@@ -412,7 +412,8 @@ def test_pages_redirects_based_on_button_pressed(
 
 def test_standard_pages_appear_on_pages_page(admin_client):
     """
-    Test that all the standard pages appear on the pages page
+    Test that all the standard pages appear on the pages page.
+    Also that the 'Contact page is a form' field appears.
     """
     audit: Audit = create_audit_and_pages()
 
@@ -422,6 +423,7 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     assert response.status_code == 200
     assertContains(response, """<h2 class="govuk-heading-m">Home</h2>""", html=True)
     assertContains(response, """<h2 class="govuk-heading-m">Contact</h2>""", html=True)
+    assertContains(response, "Contact page is a form")
     assertContains(
         response,
         """<h2 class="govuk-heading-m">Accessibility Statement</h2>""",

@@ -116,6 +116,11 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
         choices=BOOLEAN_CHOICES,
         widget=AMPChoiceCheckboxWidget(),
     )
+    is_form = AMPChoiceCheckboxField(
+        label="Page is a form",
+        choices=BOOLEAN_CHOICES,
+        widget=forms.HiddenInput(),
+    )
 
     class Meta:
         model = Page
@@ -123,6 +128,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
             "name",
             "url",
             "not_found",
+            "is_form",
         ]
 
 

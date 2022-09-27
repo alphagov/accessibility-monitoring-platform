@@ -63,9 +63,30 @@
                                             </h2>
                                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
-                                            {% for field in page_form.visible_fields %}
-                                                {% include 'common/amp_field.html' %}
-                                            {% endfor %}
+                                            {% if page_form.instance.page_type == 'contact' %}
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-full">
+                                                        {% include 'common/amp_field.html' with field=page_form.name %}
+                                                    </div>
+                                                </div>
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-full">
+                                                        {% include 'common/amp_field.html' with field=page_form.url %}
+                                                    </div>
+                                                </div>
+                                                <div class="govuk-grid-row">
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {% include 'common/amp_field.html' with field=page_form.not_found %}
+                                                    </div>
+                                                    <div class="govuk-grid-column-one-half">
+                                                        {% include 'common/amp_field.html' with field=page_form.is_form %}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                {% for field in page_form.visible_fields %}
+                                                    {% include 'common/amp_field.html' %}
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </td>
