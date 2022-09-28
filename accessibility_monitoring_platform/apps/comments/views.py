@@ -51,7 +51,11 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     )
 
     # If commentor is not auditor, then it add auditor to list of ids
-    if comment.case is not None and comment.case.auditor is not None and request.user != comment.case.auditor:
+    if (
+        comment.case is not None
+        and comment.case.auditor is not None
+        and request.user != comment.case.auditor
+    ):
         user_ids.add(comment.case.auditor.id)  # type: ignore
 
     # If page is edit-qa-process, then it find the QA and add them to the set of ids
@@ -71,8 +75,12 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     body: str = (
         f"{first_name} {last_name} left a message in discussion:\n\n{comment.body}"
     )
-    organisation_name: str = comment.case.organisation_name if comment.case is not None else ""
-    list_description: str = f"{organisation_name} | {comment.page.replace('_', ' ').capitalize() }"
+    organisation_name: str = (
+        comment.case.organisation_name if comment.case is not None else ""
+    )
+    list_description: str = (
+        f"{organisation_name} | {comment.page.replace('_', ' ').capitalize() }"
+    )
 
     for target_user_id in user_ids:
         target_user = User.objects.get(id=target_user_id)

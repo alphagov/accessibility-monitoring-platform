@@ -244,7 +244,9 @@ class ReportFeedback(models.Model):
     )
 
     def __str__(self) -> str:
-        organisation_name: str = self.case.organisation_name if self.case is not None else ""
+        organisation_name: str = (
+            self.case.organisation_name if self.case is not None else ""
+        )
         return str(
             f"""Created: {self.created}, """
             f"""guid: {self.guid}, """
