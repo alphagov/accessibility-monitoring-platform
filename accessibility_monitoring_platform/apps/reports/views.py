@@ -71,7 +71,10 @@ def rebuild_report(
     """
     report: Report = get_object_or_404(Report, id=pk)
     generate_report_content(report=report)
-    return redirect(reverse("reports:report-publisher", kwargs={"pk": pk}))
+    return_to: str = request.GET.get("return_to", "report-publisher")
+    if return_to != "edit-report" and return_to != "report-publisher":
+        return_to = "report-publisher"
+    return redirect(reverse(f"reports:{return_to}", kwargs={"pk": pk}))
 
 
 class ReportDetailView(DetailView):
@@ -81,9 +84,10 @@ class ReportDetailView(DetailView):
 
     model: Type[Report] = Report
     context_object_name: str = "report"
+    template_name: str = "reports/report_edit.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add undeleted contacts to context"""
+        """Add report visits metrics context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context.update(get_report_visits_metrics(self.object.case))  # type: ignore
         return context
@@ -123,7 +127,7 @@ class ReportMetadataUpdateView(ReportUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("reports:report-detail", kwargs=report_pk)
+            return reverse("reports:edit-report", kwargs=report_pk)
         return super().get_success_url()
 
 
@@ -208,7 +212,7 @@ class SectionUpdateView(ReportUpdateView):
                 return f"{self.request.path}#row-{updated_table_row_id}"
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
-            return reverse("reports:report-detail", kwargs=report_pk)
+            return reverse("reports:edit-report", kwargs=report_pk)
         if "add_row" in self.request.POST:
             section_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             url: str = reverse("reports:edit-report-section", kwargs=section_pk)

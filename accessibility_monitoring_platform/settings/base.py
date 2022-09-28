@@ -97,6 +97,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_otp.middleware.OTPMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
+    "accessibility_monitoring_platform.apps.common.middleware.cache_user_id_middleware.CacheUserUniqueID",
     "csp.middleware.CSPMiddleware",
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
     "axes.middleware.AxesMiddleware",
@@ -255,3 +256,5 @@ CSP_IMG_SRC = ("'self'", "data:")
 AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
 AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
 AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
+
+OTP_EMAIL_SUBJECT = "Platform token"

@@ -158,3 +158,12 @@ class VersionModel(models.Model):
     def save(self, *args, **kwargs):
         self.version += 1
         super().save(*args, **kwargs)
+
+
+class UserCacheUniqueHash(models.Model):
+    """
+    Caches user ID. Used for excluding users from report logs.
+    """
+
+    user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
+    fingerprint_hash = models.IntegerField(default=0, blank=True)

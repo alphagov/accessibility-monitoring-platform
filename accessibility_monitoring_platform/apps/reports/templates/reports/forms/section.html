@@ -17,7 +17,10 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' section.report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-detail' section.report.id %}">Report</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' section.report.id %}">Report publisher</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:edit-report' section.report.id %}">Edit report</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 {{ section.name }}
@@ -30,6 +33,21 @@
                 {% include "cases/helpers/edit_header.html" with page_heading=section.name case=section.report.case %}
             </div>
         </div>
+        {% if section.template_type == 'issues' %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-warning-text__assistive">Warning</span>
+                                Edit test data in the
+                                <a href="{% url 'audits:audit-detail' section.report.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    testing application</a>
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
@@ -71,10 +89,10 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'reports:report-detail' section.report.id %}"
+                                href="{% url 'reports:edit-report' section.report.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to report view
+                                Cancel and return to edit report
                             </a>
                         </div>
                     </div>
