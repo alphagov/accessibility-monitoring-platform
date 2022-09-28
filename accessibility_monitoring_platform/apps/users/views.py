@@ -68,14 +68,14 @@ class UserUpdateView(UpdateView):
     def get_form_kwargs(self):
         """Pass user to form"""
         kwargs = super().get_form_kwargs()
-        user: User = self.object
+        user: User = self.object  # type: ignore
         kwargs.update({"user": user})
         return kwargs
 
     def get_form(self):
         """Populate enable_2fs and email_notifications fields"""
         form = super().get_form()
-        user: User = self.object
+        user: User = self.object  # type: ignore
         if checks_if_2fa_is_enabled(user=user):
             form.fields["enable_2fa"].initial = BOOLEAN_TRUE
         else:
@@ -89,7 +89,7 @@ class UserUpdateView(UpdateView):
     def form_valid(self, form: UserUpdateForm):
         """Process contents of valid form"""
         user: User = User.objects.get(
-            id=self.object.id
+            id=self.object.id  # type: ignore
         )  # Ignore password field in form
 
         user.first_name = form.cleaned_data["first_name"]

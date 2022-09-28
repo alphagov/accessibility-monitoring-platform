@@ -31,7 +31,7 @@ class Reminder(models.Model):
         return str(f"#{self.id} | {self.description}")  # type: ignore
 
     def get_absolute_url(self):
-        return reverse("cases:case-detail", kwargs={"pk": self.case.id})
+        return reverse("cases:case-detail", kwargs={"pk": self.case.id})  # type: ignore
 
     @property
     def tense(self):

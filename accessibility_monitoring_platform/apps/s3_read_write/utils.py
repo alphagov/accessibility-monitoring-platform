@@ -1,15 +1,24 @@
-import boto3
+"""
+S3 readwrite utilities
+"""
 import uuid
 import re
-from ...settings.base import DEBUG, DATABASES, UNDER_TEST, S3_MOCK_ENDPOINT
+
+import boto3
+
 from django.contrib.auth.models import User
+
+from ...settings.base import DEBUG, DATABASES, UNDER_TEST, S3_MOCK_ENDPOINT
+
 from ..cases.models import Case
+
 from .models import S3Report
 
 NO_REPORT_HTML: str = "<p>Does not exist</p>"
 
 
 class S3ReadWriteReport:
+    """S3 readwrite utilities"""
     def __init__(self) -> None:
         self.s3_resource = boto3.resource(
             service_name="s3",

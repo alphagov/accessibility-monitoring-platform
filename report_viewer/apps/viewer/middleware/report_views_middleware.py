@@ -114,7 +114,7 @@ class ReportMetrics:
                     fingerprint_hash=fingerprint_hash,
                     fingerprint_codename=fingerprint_codename,
                 ).save()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             print(e)
 
         response = self.get_response(request)

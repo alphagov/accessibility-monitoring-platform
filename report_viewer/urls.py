@@ -32,7 +32,7 @@ def healthcheck(request):  # pylint: disable=unused-argument
     return JsonResponse({"healthcheck": "ok"})
 
 
-def get_security_txt(request):
+def get_security_txt(request):  # pylint: disable=unused-argument
     url = "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt"
     response = requests.get(url, stream=True)
     return StreamingHttpResponse(
