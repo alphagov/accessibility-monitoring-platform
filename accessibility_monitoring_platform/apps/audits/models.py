@@ -5,6 +5,7 @@ from datetime import date
 from typing import Dict, List, Tuple
 
 from django.db import models
+from django.db.models import Case as DjangoCase, Count, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -557,7 +558,9 @@ class Audit(VersionModel):
 
     @property
     def every_page(self):
-        return self.page_audit.filter(is_deleted=False)  # type: ignore
+        return self.page_audit.filter(is_deleted=False).annotate(
+            position_pdfs_last=Count(DjangoCase(When(page_type=PAGE_TYPE_PDF, then=999)))
+        ).order_by("position_pdfs_last")
 
     @property
     def testable_pages(self):
