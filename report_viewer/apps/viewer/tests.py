@@ -3,7 +3,7 @@ Test report viewer
 """
 import pytest
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 from unittest import mock
 import logging
 
@@ -14,7 +14,6 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.template import loader, Template
 from django.urls import reverse
-from django.test.client import RequestFactory
 
 from accessibility_monitoring_platform.apps.cases.models import Case
 from accessibility_monitoring_platform.apps.common.models import (
@@ -237,6 +236,28 @@ def test_report_metric_middleware_fingerprint_codename():
     assert res == "DogRhinoRhinoChicken"
 
 
+def test_extract_guid_from_url_returns_guid():
+    get_response = mock.MagicMock()
+    guid: str = "5ef13c2e-cead-47b0-853a-3fbad79d6385"
+    input_address: str = f"https://website.com/{guid}"
+    report_metrics = ReportMetrics(get_response)
+    res: Union[str, None] = report_metrics.extract_guid_from_url(input_address)
+    assert res == guid
+
+
+def test_extract_guid_from_url_returns_none():
+    get_response = mock.MagicMock()
+    report_metrics = ReportMetrics(get_response)
+
+    res: Union[str, None] = report_metrics.extract_guid_from_url("https://website.com/")
+    assert res is None
+
+    res: Union[str, None] = report_metrics.extract_guid_from_url(
+        "https://website.com/5ef13c2e-cead-47b0-853a-3fbad79d638"
+    )
+    assert res is None
+
+
 @pytest.mark.django_db
 @mock_s3
 def test_report_metric_middleware_successful(client):
@@ -267,7 +288,7 @@ def test_report_metric_middleware_successful(client):
 
 @pytest.mark.django_db
 @mock_s3
-def test_report_metric_middleware_ignore_user(client):
+def test_report_metric_middleware_ignore_user(client, rf):
     """Test report view logs ignores user"""
     case: Case = Case.objects.create()
     user: User = User.objects.create()
@@ -288,8 +309,7 @@ def test_report_metric_middleware_ignore_user(client):
     get_response = mock.MagicMock()
     report_metrics = ReportMetrics(get_response)
 
-    factory = RequestFactory()
-    request = factory.get("/")
+    request = rf.get("/")
     string_to_hash: str = report_metrics.user_fingerprint(request)
     fingerprint_hash: int = report_metrics.four_digit_hash(string_to_hash)
     UserCacheUniqueHash.objects.create(

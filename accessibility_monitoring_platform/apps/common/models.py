@@ -162,7 +162,7 @@ class VersionModel(models.Model):
 
 class UserCacheUniqueHash(models.Model):
     """
-    Model subclassed to add versioning
+    Caches user ID. Used for excluding users from report logs.
     """
 
     user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)

@@ -1,6 +1,8 @@
 """report_views_middleware - logs views of the reports to the database"""
 import hashlib
-from typing import List
+import logging
+import re
+from typing import List, Union
 from uuid import UUID
 
 from django.http import HttpRequest
@@ -8,6 +10,8 @@ from django.http import HttpRequest
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportVisitsMetrics
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
+
+logger = logging.getLogger(__name__)
 
 
 class ReportMetrics:
@@ -34,17 +38,11 @@ class ReportMetrics:
         """
         Creates fingerprint to uniquely identify user.
 
-        The secret key is used as a salt for the hash.
-
-        The salt makes it almost impossible to reverse engineer the hash and
-        will also anonymise the hash after changing the secret key.
-
         Args:
             request (HttpRequest): The Django request
-            secret_key (str): The instance's secret key
 
         Returns:
-            str: An amalgamated string of the user agent, client ip, and secret key
+            str: An amalgamated string of the user agent and client ip
         """
         return request.META.get("HTTP_USER_AGENT", "") + self.client_ip(request)
 
@@ -92,6 +90,14 @@ class ReportMetrics:
             fingerprint_codename += digit_to_animal_hash[int(num)]
         return fingerprint_codename
 
+    def extract_guid_from_url(self, url: str) -> Union[str, None]:
+        res = re.findall(
+            "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", url
+        )
+        if len(res) == 1 and UUID(res[0], version=4):
+            return res[0]
+        return None
+
     def __call__(self, request):
         try:
             string_to_hash: str = self.user_fingerprint(request)
@@ -100,12 +106,8 @@ class ReportMetrics:
                 fingerprint_hash=fingerprint_hash
             ).exists():
                 absolute_uri: str = request.build_absolute_uri()
-                guid_index = -1
-                if absolute_uri[-1] == "/":
-                    guid_index = -2
-
-                guid: str = absolute_uri.split("/")[guid_index]
-                if len(guid) == 36 and UUID(guid, version=4):
+                guid: Union[str, None] = self.extract_guid_from_url(absolute_uri)
+                if guid:
                     fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
                     ReportVisitsMetrics(
                         case=S3Report.objects.get(guid=guid).case,
@@ -114,7 +116,7 @@ class ReportMetrics:
                         fingerprint_codename=fingerprint_codename,
                     ).save()
         except Exception as e:
-            print(e)
+            logger.warning("Error in ReportMetrics Middleware: %s", e)
 
         response = self.get_response(request)
         return response
