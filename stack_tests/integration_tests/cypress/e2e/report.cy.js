@@ -37,7 +37,7 @@ describe('Report publisher', () => {
       cy.contains('a', 'Reset report').click()
       cy.title().should('eq', 'ExampleCorp | Reset report')
       cy.contains('a', 'Reset report').click()
-      cy.title().should('eq', 'ExampleCorp | Report publisher')
+      cy.title().should('eq', 'ExampleCorp | Edit report')
     })
 
     it('can edit report metadata', () => {
