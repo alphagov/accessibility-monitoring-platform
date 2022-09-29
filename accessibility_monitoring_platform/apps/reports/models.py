@@ -141,6 +141,7 @@ class BaseTemplate(VersionModel):
     )
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
+    new_page = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["position", "-id"]
@@ -165,6 +166,7 @@ class Section(VersionModel):
     )
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
+    new_page = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["report", "position"]
