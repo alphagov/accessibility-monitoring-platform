@@ -3,7 +3,7 @@ Test report viewer
 """
 import pytest
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 from unittest import mock
 import logging
 
@@ -16,7 +16,10 @@ from django.template import loader, Template
 from django.urls import reverse
 
 from accessibility_monitoring_platform.apps.cases.models import Case
-from accessibility_monitoring_platform.apps.common.models import Platform
+from accessibility_monitoring_platform.apps.common.models import (
+    Platform,
+    UserCacheUniqueHash,
+)
 from accessibility_monitoring_platform.apps.common.utils import get_platform_settings
 from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.reports.models import (
@@ -210,12 +213,11 @@ def test_report_metric_middleware_client_ip(rf):
 
 
 def test_report_metric_middleware_string_to_hash(rf):
-    secret_key = "12345678"
     get_response = mock.MagicMock()
     request = rf.get("/", HTTP_USER_AGENT="Mozilla/5.0")
     rm = ReportMetrics(get_response)
-    res = rm.user_fingerprint(request, secret_key)
-    assert res == "Mozilla/5.0127.0.0.112345678"
+    res = rm.user_fingerprint(request)
+    assert res == "Mozilla/5.0127.0.0.1"
 
 
 def test_report_metric_middleware_fingerprint_hash():
@@ -234,10 +236,32 @@ def test_report_metric_middleware_fingerprint_codename():
     assert res == "DogRhinoRhinoChicken"
 
 
+def test_extract_guid_from_url_returns_guid():
+    get_response = mock.MagicMock()
+    guid: str = "5ef13c2e-cead-47b0-853a-3fbad79d6385"
+    input_address: str = f"https://website.com/{guid}"
+    report_metrics = ReportMetrics(get_response)
+    res: Union[str, None] = report_metrics.extract_guid_from_url(input_address)
+    assert res == guid
+
+
+def test_extract_guid_from_url_returns_none():
+    get_response = mock.MagicMock()
+    report_metrics = ReportMetrics(get_response)
+
+    res: Union[str, None] = report_metrics.extract_guid_from_url("https://website.com/")
+    assert res is None
+
+    res: Union[str, None] = report_metrics.extract_guid_from_url(
+        "https://website.com/5ef13c2e-cead-47b0-853a-3fbad79d638"
+    )
+    assert res is None
+
+
 @pytest.mark.django_db
 @mock_s3
 def test_report_metric_middleware_successful(client):
-    """Test view report shows report text from database when not on S3"""
+    """Test logs report views to database"""
     case: Case = Case.objects.create()
     user: User = User.objects.create()
     Report.objects.create(case=case)
@@ -260,6 +284,46 @@ def test_report_metric_middleware_successful(client):
     client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
     res: int = ReportVisitsMetrics.objects.all().count()
     assert res == 3
+
+
+@pytest.mark.django_db
+@mock_s3
+def test_report_metric_middleware_ignore_user(client, rf):
+    """Test report view logs ignores user"""
+    case: Case = Case.objects.create()
+    user: User = User.objects.create()
+    Report.objects.create(case=case)
+    s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
+    html_on_db: str = "<p>Text on DB</p>"
+    s3_read_write_report.upload_string_to_s3_as_html(
+        html_content="<p>Text on S3</p>",
+        case=case,
+        user=user,
+        report_version="v1_202201401",
+    )
+    s3_report: Optional[S3Report] = S3Report.objects.all().first()
+    s3_report.s3_directory = "not-a-valid-dir"  # type: ignore
+    s3_report.html = html_on_db  # type: ignore
+    s3_report.save()  # type: ignore
+
+    get_response = mock.MagicMock()
+    report_metrics = ReportMetrics(get_response)
+
+    request = rf.get("/")
+    string_to_hash: str = report_metrics.user_fingerprint(request)
+    fingerprint_hash: int = report_metrics.four_digit_hash(string_to_hash)
+    UserCacheUniqueHash.objects.create(
+        user=user,
+        fingerprint_hash=fingerprint_hash,
+    )
+    assert UserCacheUniqueHash.objects.all().count() == 1
+
+    report_guid_kwargs: Dict[str, int] = {"guid": s3_report.guid}  # type: ignore
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    client.get(reverse("viewer:viewreport", kwargs=report_guid_kwargs))
+    res: int = ReportVisitsMetrics.objects.all().count()
+    assert res == 0
 
 
 @pytest.mark.django_db

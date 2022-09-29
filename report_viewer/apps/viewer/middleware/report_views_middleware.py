@@ -1,13 +1,17 @@
 """report_views_middleware - logs views of the reports to the database"""
 import hashlib
-from typing import List
+import logging
+import re
+from typing import List, Union
 from uuid import UUID
 
 from django.http import HttpRequest
 
-from report_viewer.settings.base import SECRET_KEY
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportVisitsMetrics
+from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
+
+logger = logging.getLogger(__name__)
 
 
 class ReportMetrics:
@@ -30,27 +34,17 @@ class ReportMetrics:
             return x_forwarded_for.split(",")[0]
         return request.META.get("REMOTE_ADDR", "")
 
-    def user_fingerprint(self, request: HttpRequest, secret_key: str) -> str:
+    def user_fingerprint(self, request: HttpRequest) -> str:
         """
         Creates fingerprint to uniquely identify user.
 
-        The secret key is used as a salt for the hash.
-
-        The salt makes it almost impossible to reverse engineer the hash and
-        will also anonymise the hash after changing the secret key.
-
         Args:
             request (HttpRequest): The Django request
-            secret_key (str): The instance's secret key
 
         Returns:
-            str: An amalgamated string of the user agent, client ip, and secret key
+            str: An amalgamated string of the user agent and client ip
         """
-        return (
-            request.META.get("HTTP_USER_AGENT", "")
-            + self.client_ip(request)
-            + secret_key
-        )
+        return request.META.get("HTTP_USER_AGENT", "") + self.client_ip(request)
 
     def four_digit_hash(self, string_to_hash: str) -> int:
         """
@@ -96,26 +90,33 @@ class ReportMetrics:
             fingerprint_codename += digit_to_animal_hash[int(num)]
         return fingerprint_codename
 
+    def extract_guid_from_url(self, url: str) -> Union[str, None]:
+        res = re.findall(
+            "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", url
+        )
+        if len(res) == 1 and UUID(res[0], version=4):
+            return res[0]
+        return None
+
     def __call__(self, request):
         try:
-            absolute_uri: str = request.build_absolute_uri()
-            guid_index = -1
-            if absolute_uri[-1] == "/":
-                guid_index = -2
-
-            guid: str = absolute_uri.split("/")[guid_index]
-            if len(guid) == 36 and UUID(guid, version=4):
-                string_to_hash = self.user_fingerprint(request, SECRET_KEY)
-                fingerprint_hash = self.four_digit_hash(string_to_hash)
-                fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
-                ReportVisitsMetrics(
-                    case=S3Report.objects.get(guid=guid).case,
-                    guid=guid,
-                    fingerprint_hash=fingerprint_hash,
-                    fingerprint_codename=fingerprint_codename,
-                ).save()
-        except Exception as e:  # pylint: disable=broad-except
-            print(e)
+            string_to_hash: str = self.user_fingerprint(request)
+            fingerprint_hash: int = self.four_digit_hash(string_to_hash)
+            if not UserCacheUniqueHash.objects.filter(
+                fingerprint_hash=fingerprint_hash
+            ).exists():
+                absolute_uri: str = request.build_absolute_uri()
+                guid: Union[str, None] = self.extract_guid_from_url(absolute_uri)
+                if guid:
+                    fingerprint_codename = self.fingerprint_codename(fingerprint_hash)
+                    ReportVisitsMetrics(
+                        case=S3Report.objects.get(guid=guid).case,
+                        guid=guid,
+                        fingerprint_hash=fingerprint_hash,
+                        fingerprint_codename=fingerprint_codename,
+                    ).save()
+        except Exception as e:
+            logger.warning("Error in ReportMetrics Middleware: %s", e)
 
         response = self.get_response(request)
         return response
