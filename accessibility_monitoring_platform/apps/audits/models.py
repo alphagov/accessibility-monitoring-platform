@@ -560,7 +560,7 @@ class Audit(VersionModel):
     def every_page(self):
         """Sort page of type PDF to be last"""
         return (
-            self.page_audit.filter(is_deleted=False)
+            self.page_audit.filter(is_deleted=False)  # type: ignore
             .annotate(
                 position_pdfs_last=DjangoCase(
                     When(page_type=PAGE_TYPE_PDF, then=1), default=0
