@@ -105,7 +105,7 @@ class ReportUpdateView(UpdateView):
         """Add event on change of report"""
         if form.changed_data:
             self.object: Report = form.save(commit=False)
-            self.object.created_by = self.request.user
+            self.object.created_by = self.request.user  # type: ignore
             record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -334,7 +334,7 @@ class ReportVisitsMetricsView(ReportTemplateView):
             disinct_values: QuerySet = (
                 ReportVisitsMetrics.objects.filter(case=context["report"].case)
                 .values("fingerprint_hash")
-                .distinct()
+                .distinct()  # type: ignore
             )
             for query_set in disinct_values:
                 visit_logs.append(

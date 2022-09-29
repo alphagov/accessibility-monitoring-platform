@@ -1004,6 +1004,6 @@ def clear_published_report_data_updated_time(
     audit.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
-        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
+        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),  # type: ignore
     )
     return redirect(redirect_destination)  # type: ignore

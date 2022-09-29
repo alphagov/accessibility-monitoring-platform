@@ -215,7 +215,7 @@ class ReportVisitsMetrics(models.Model):
         null=True,
     )
     guid = models.TextField(default="", blank=True)
-    fingerprint_hash = models.IntegerField(default="", blank=True)
+    fingerprint_hash = models.IntegerField(default=0, blank=True)
     fingerprint_codename = models.TextField(default="", blank=True)
 
 
@@ -244,10 +244,13 @@ class ReportFeedback(models.Model):
     )
 
     def __str__(self) -> str:
+        organisation_name: str = (
+            self.case.organisation_name if self.case is not None else ""
+        )
         return str(
             f"""Created: {self.created}, """
             f"""guid: {self.guid}, """
-            f"""case: {self.case.organisation_name}, """
+            f"""case: {organisation_name}, """
             f"""What were you trying to do: {self.what_were_you_trying_to_do}, """
             f"""What went wrong: {self.what_went_wrong}"""
         )

@@ -129,7 +129,7 @@ def calculate_twelve_week_chaser_dates(
     return case
 
 
-def format_due_date_help_text(due_date: date) -> str:
+def format_due_date_help_text(due_date: Optional[date]) -> str:
     """Format date and prefix with 'Due' if present"""
     if due_date is None:
         return "None"
@@ -240,7 +240,7 @@ class CaseCreateView(CreateView):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
             case: Case = form.save(commit=False)
-            case.created_by = self.request.user
+            case.created_by = self.request.user  # type: ignore
             return super().form_valid(form)
 
         context: Dict[str, Any] = self.get_context_data()
@@ -255,7 +255,7 @@ class CaseCreateView(CreateView):
             return self.render_to_response(context)
 
         case: Case = form.save(commit=False)
-        case.created_by = self.request.user
+        case.created_by = self.request.user  # type: ignore
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -293,7 +293,7 @@ class CaseUpdateView(UpdateView):
                 and self.object.report_approved_status
                 == REPORT_APPROVED_STATUS_APPROVED
             ):
-                self.object.reviewer = self.request.user
+                self.object.reviewer = self.request.user  # type: ignore
 
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)

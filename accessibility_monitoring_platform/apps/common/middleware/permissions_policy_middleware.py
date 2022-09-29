@@ -87,15 +87,17 @@ _FEATURE_NAMES: set[str] = {
 
 
 class PermissionsPolicyMiddleware:
+    """Middleware for permissions policy"""
+
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
-        self.header_value  # Access at setup so ImproperlyConfigured can be raised
+        self.header_value  # Access at setup so ImproperlyConfigured can be raised # pylint: disable=pointless-statement
         receiver(setting_changed)(self.clear_header_value)
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         response = self.get_response(request)
         value = self.header_value
-        if value:
+        if value:  # pylint: disable=using-constant-test
             response["Permissions-Policy"] = value
         return response
 
@@ -122,7 +124,9 @@ class PermissionsPolicyMiddleware:
             pieces.append(feature + "=(" + " ".join(item) + ")")
         return ", ".join(pieces)
 
-    def clear_header_value(self, setting: str, **kwargs: object) -> None:
+    def clear_header_value(
+        self, setting: str, **kwargs: object
+    ) -> None:  # pylint: disable=unused-argument
         if setting == "PERMISSIONS_POLICY":
             try:
                 del self.header_value

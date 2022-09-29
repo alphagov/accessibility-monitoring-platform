@@ -59,8 +59,8 @@ def get_overdue_cases(user_request: User) -> QuerySet[Case]:
         )
 
         in_correspondence: QuerySet[Case] = sorted(
-            in_correspondence, key=lambda t: t.next_action_due_date
-        )  # type: ignore
+            in_correspondence, key=lambda t: t.next_action_due_date  # type: ignore
+        )
         return in_correspondence
     else:
         return Case.objects.none()

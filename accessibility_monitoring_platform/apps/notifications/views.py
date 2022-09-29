@@ -46,7 +46,7 @@ class NotificationMarkAsReadView(ListView):
         """Hides a notification"""
         notification: Notification = Notification.objects.get(pk=pk)
         if (
-            notification.user.id == request.user.id
+            notification.user.id == request.user.id  # type: ignore
         ):  # Checks whether the comment was posted by user
             notification.read = True
             notification.save()
@@ -71,7 +71,7 @@ class NotificationMarkAsUnreadView(ListView):
         """Marks a notification as unread"""
         notification: Notification = Notification.objects.get(pk=pk)
         if (
-            notification.user.id == request.user.id
+            notification.user.id == request.user.id  # type: ignore
         ):  # Checks whether the comment was posted by user
             notification.read = False
             notification.save()

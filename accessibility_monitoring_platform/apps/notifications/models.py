@@ -17,8 +17,8 @@ class Notification(models.Model):
     body = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
-    path = models.TextField(default=False)
-    list_description = models.TextField(default=False)
+    path = models.TextField(default="")
+    list_description = models.TextField(default="")
 
     class Meta:
         ordering: List[str] = ["-created_date"]

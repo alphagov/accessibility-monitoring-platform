@@ -36,7 +36,7 @@ class ReminderCreateView(CreateView):
         reminder: Reminder = form.save(commit=False)
         case: Case = Case.objects.get(pk=self.kwargs["case_id"])
         reminder.case = case
-        reminder.user = case.auditor
+        reminder.user = case.auditor  # type: ignore
         if "delete" in self.request.POST:
             reminder.is_deleted = True
         return super().form_valid(form)
@@ -75,7 +75,7 @@ class ReminderUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         return add_reminder_context_data(
             context=super().get_context_data(**kwargs),
-            case_id=self.object.case.id,
+            case_id=self.object.case.id,  # type: ignore
         )
 
 

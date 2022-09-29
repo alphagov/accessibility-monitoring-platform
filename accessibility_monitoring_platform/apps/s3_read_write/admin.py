@@ -1,3 +1,6 @@
+"""
+Admin for S3 read write
+"""
 from django.contrib import admin
 
 from .models import S3Report
