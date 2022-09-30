@@ -77,7 +77,7 @@ class IssueReportView(FormView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         issue_report: IssueReport = form.save(commit=False)
-        issue_report.created_by = self.request.user
+        issue_report.created_by = self.request.user  # type: ignore
         issue_report.save()
         self.send_mail(issue_report)
         return redirect(issue_report.page_url)

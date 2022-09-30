@@ -5,6 +5,7 @@ from datetime import date
 from typing import Dict, List, Tuple
 
 from django.db import models
+from django.db.models import Case as DjangoCase, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -557,7 +558,16 @@ class Audit(VersionModel):
 
     @property
     def every_page(self):
-        return self.page_audit.filter(is_deleted=False)  # type: ignore
+        """Sort page of type PDF to be last"""
+        return (
+            self.page_audit.filter(is_deleted=False)  # type: ignore
+            .annotate(
+                position_pdfs_last=DjangoCase(
+                    When(page_type=PAGE_TYPE_PDF, then=1), default=0
+                )
+            )
+            .order_by("position_pdfs_last", "id")
+        )
 
     @property
     def testable_pages(self):
@@ -588,7 +598,12 @@ class Audit(VersionModel):
                 page__is_deleted=False,
                 page__not_found=BOOLEAN_FALSE,
             )
-            .order_by("page__id", "wcag_definition__id")
+            .annotate(
+                position_pdf_page_last=DjangoCase(
+                    When(page__page_type=PAGE_TYPE_PDF, then=1), default=0
+                )
+            )
+            .order_by("position_pdf_page_last", "page__id", "wcag_definition__id")
             .select_related("page", "wcag_definition")
             .all()
         )

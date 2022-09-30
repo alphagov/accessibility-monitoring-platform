@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
     help = "Email today's reminders to their user."
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # pylint: disable=unused-argument
         """
         Find reminders due today, group them by user, and email them to their user.
         """

@@ -102,6 +102,14 @@ def test_audit_every_pages_returns_all_pages():
 
 
 @pytest.mark.django_db
+def test_audit_every_pages_returns_pdf_last():
+    """PDF page returned last."""
+    audit: Audit = create_audit_and_pages()
+
+    assert audit.every_page.last().page_type == PAGE_TYPE_PDF
+
+
+@pytest.mark.django_db
 def test_audit_testable_pages_returns_expected_page():
     """
     Deleted, not found and pages without URLs excluded.
@@ -192,6 +200,17 @@ def test_page_all_check_results_returns_check_results():
     assert len(home_page.all_check_results) == 2
     assert home_page.all_check_results[0].type == TEST_TYPE_AXE
     assert home_page.all_check_results[1].type == TEST_TYPE_MANUAL
+
+
+@pytest.mark.django_db
+def test_page_all_check_results_returns_pdf_check_results_last():
+    """
+    Test all_check_results attribute of page returns PDF-page check results last.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+    assert audit.failed_check_results.last().page.page_type == PAGE_TYPE_PDF
 
 
 @pytest.mark.django_db

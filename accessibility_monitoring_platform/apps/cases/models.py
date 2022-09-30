@@ -522,7 +522,7 @@ class Case(VersionModel):
         return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
 
     @property
-    def next_action_due_date(self) -> date:
+    def next_action_due_date(self) -> Optional[date]:
         if self.status == "in-report-correspondence":
             if self.report_followup_week_1_sent_date is None:
                 return self.report_followup_week_1_due_date
@@ -793,9 +793,15 @@ class Case(VersionModel):
             and self.report_followup_week_4_sent_date is None
         ):
             return "4-week followup due"
-        elif self.report_followup_week_4_sent_date > seven_days_ago:
+        elif (
+            self.report_followup_week_4_sent_date is not None
+            and self.report_followup_week_4_sent_date > seven_days_ago
+        ):
             return "4-week followup sent, waiting five days for response"
-        elif self.report_followup_week_4_sent_date <= seven_days_ago:
+        elif (
+            self.report_followup_week_4_sent_date is not None
+            and self.report_followup_week_4_sent_date <= seven_days_ago
+        ):
             return "4-week followup sent, case needs to progress"
         return "Unknown"
 
@@ -815,9 +821,15 @@ class Case(VersionModel):
             and self.twelve_week_1_week_chaser_sent_date is None
         ):
             return "1-week followup due"
-        elif self.twelve_week_1_week_chaser_sent_date > seven_days_ago:
+        elif (
+            self.twelve_week_1_week_chaser_sent_date is not None
+            and self.twelve_week_1_week_chaser_sent_date > seven_days_ago
+        ):
             return "1-week followup sent, waiting five days for response"
-        elif self.twelve_week_1_week_chaser_sent_date <= seven_days_ago:
+        elif (
+            self.twelve_week_1_week_chaser_sent_date is not None
+            and self.twelve_week_1_week_chaser_sent_date <= seven_days_ago
+        ):
             return "1-week followup sent, case needs to progress"
         return "Unknown"
 
@@ -826,7 +838,7 @@ class Case(VersionModel):
         return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
 
     @property
-    def psb_appeal_deadline(self) -> Optional[timedelta]:
+    def psb_appeal_deadline(self) -> Optional[date]:
         if self.compliance_email_sent_date is None:
             return None
         return self.compliance_email_sent_date + timedelta(

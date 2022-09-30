@@ -92,7 +92,7 @@ def test_response_headers_contains_filename():
     """Tests that the response headers contains the requested file name"""
     response: HttpResponse = get_csv_response()
     assert (
-        response.headers["Content-Disposition"]
+        response.headers["Content-Disposition"]  # type: ignore
         == f"attachment; filename={CSV_FILENAME}"
     )
 
