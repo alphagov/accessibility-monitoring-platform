@@ -4,11 +4,13 @@
         {% include './nav_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
         {% if audit.testable_pages %}
-            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                {% for page in audit.testable_pages %}
-                    {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' complete=page.complete_date %}
-                {% endfor %}
-            </ul>
+            <li>
+                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                    {% for page in audit.testable_pages %}
+                        {% include './nav_step.html' with edit_name='audits:edit-audit-page-checks' complete=page.complete_date %}
+                    {% endfor %}
+                </ul>
+            </li>
         {% endif %}
         {% include './nav_step.html' with edit_name='audits:edit-website-decision' name='Website compliance decision' complete=audit.audit_website_decision_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
