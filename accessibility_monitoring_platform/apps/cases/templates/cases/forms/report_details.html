@@ -34,7 +34,6 @@
                             {% if case.audit %}
                                 {% if case.report %}
                                     <div class="govuk-button-group">
-                                        Go to
                                         <a
                                             href="{% url 'reports:report-publisher' case.report.id %}"
                                             role="button"
@@ -42,7 +41,7 @@
                                             class="govuk-button govuk-button--secondary"
                                             data-module="govuk-button"
                                         >
-                                            Case > Report publisher
+                                            Go to Case > Report publisher
                                         </a>
                                     </div>
                                     <table class="govuk-table">
