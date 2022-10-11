@@ -34,22 +34,17 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                {% if audit.case.report_methodology == 'platform' %}
-                    {% include 'audits/helpers/methodology_platform_notification.html' %}
-                {% else %}
-                    <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-warning-text__assistive">Warning</span>
-                                This is the end of the testing process. Return to
-                                <a href="{% url 'cases:edit-test-results' audit.case.id %}" class="govuk-link govuk-link--no-visited-state">
-                                    Case > Testing details</a>
-                        </strong>
-                    </div>
-                {% endif %}
-                {% if audit.case.report_methodology != 'platform' %}
-                    <h1 class="govuk-heading-l">Report text</h1>
-                    <div id="report-text">
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                            This is the end of the testing process. Return to
+                            <a href="{% url 'cases:edit-test-results' audit.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Case > Testing details</a>
+                    </strong>
+                </div>
+                <h1 class="govuk-heading-l">Report text</h1>
+                <div id="report-text">
                     <p>Date: {{ audit.date_of_test|amp_date }}</p>
                     <p>
                         Website:
@@ -341,7 +336,6 @@
                             https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement</a>.
                     </p>
                 </div>
-                {% endif %}
 
                 <form method="post" action="{% url 'audits:edit-audit-report-text' audit.id %}">
                     {% csrf_token %}
@@ -375,14 +369,12 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% if audit.case.report_methodology != 'platform' %}
-                    <button
-                        id="copy-report-to-clipboard"
-                        class="govuk-button govuk-button--secondary"
-                    >
-                        Copy report to clipboard
-                    </button>
-                {% endif %}
+                <button
+                    id="copy-report-to-clipboard"
+                    class="govuk-button govuk-button--secondary"
+                >
+                    Copy report to clipboard
+                </button>
                 {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-audit-report-text' %}
             </div>
         </div>
