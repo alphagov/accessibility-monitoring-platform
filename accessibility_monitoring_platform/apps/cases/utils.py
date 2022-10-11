@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from django import forms
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
+from django.http.request import QueryDict
 
 from ..audits.models import Audit
 from ..common.utils import build_filters
@@ -207,12 +208,7 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(
-        [
-            column.column_name
-            for column in COLUMNS_FOR_EHRC
-        ]
-    )
+    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC])
 
     output: List[List[str]] = []
     for case in cases:
@@ -227,3 +223,11 @@ def download_ehrc_cases(
     writer.writerows(output)
 
     return response
+
+
+def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str]:
+    """Convert QueryDict to dictionary and replace key 'search' with 'case_search'."""
+    search_args: Dict[str, str] = {key: value for key, value in request_get.items()}
+    if "search" in search_args:
+        search_args["case_search"] = search_args.pop("search")
+    return search_args

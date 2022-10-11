@@ -198,7 +198,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             return previous_case_url
 
         # Check if URL exists
-        if requests.head(previous_case_url).status_code >= 400:
+        if requests.head(previous_case_url, timeout=10).status_code >= 400:
             raise ValidationError("Previous case URL does not exist")
 
         # Extract case id from view case URL
