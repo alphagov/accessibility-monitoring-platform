@@ -35,25 +35,26 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
 COLUMNS_FOR_EHRC = [
+    ColumnAndFieldNames(
+        column_name="Equality body",
+        field_name="enforcement_body",
+    ),
     ColumnAndFieldNames(column_name="Test type", field_name="test_type"),
     ColumnAndFieldNames(column_name="Case No.", field_name="id"),
-    ColumnAndFieldNames(column_name="Website", field_name="organisation_name"),
-    ColumnAndFieldNames(column_name="Home page URL", field_name="home_page_url"),
-    ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
-    ColumnAndFieldNames(column_name=CONTACT_NOTES_COLUMN_NUMBER, field_name=None),
+    ColumnAndFieldNames(column_name="Case completed date", field_name="completed_date"),
+    ColumnAndFieldNames(column_name="Organisation", field_name="organisation_name"),
+    ColumnAndFieldNames(column_name="Website URL", field_name="home_page_url"),
     ColumnAndFieldNames(column_name="Is it a complaint?", field_name="is_complaint"),
     ColumnAndFieldNames(
         column_name="Link to report", field_name="report_final_pdf_url"
     ),
-    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
-        column_name="Report acknowledged", field_name="report_acknowledged_date"
+        column_name="Enforcement recommendation",
+        field_name="recommendation_for_enforcement",
     ),
     ColumnAndFieldNames(
-        column_name="Followup date - 12-week deadline",
-        field_name="report_followup_week_12_due_date",
+        column_name="Enforcement recommendation notes",
+        field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(
         column_name="Summary of progress made / response from PSB",
@@ -74,44 +75,18 @@ COLUMNS_FOR_EHRC = [
         column_name="Notes on accessibility statement",
         field_name="accessibility_statement_notes_final",
     ),
+    ColumnAndFieldNames(column_name=CONTACT_DETAIL_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name=CONTACT_NAME_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name=JOB_TITLE_COLUMN_NAME, field_name=None),
+    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
-        column_name="Link to new saved screen shot of accessibility statement if not compliant",
-        field_name="accessibility_statement_screenshot_url",
+        column_name="Report acknowledged", field_name="report_acknowledged_date"
     ),
     ColumnAndFieldNames(
-        column_name="Enforcement recommendation",
-        field_name="recommendation_for_enforcement",
-    ),
-    ColumnAndFieldNames(
-        column_name="Enforcement recommendation notes",
-        field_name="recommendation_notes",
+        column_name="Followup date - 12-week deadline",
+        field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
-    ColumnAndFieldNames(
-        column_name="Decision email sent?", field_name="compliance_email_sent_date"
-    ),
-    ColumnAndFieldNames(
-        column_name="Equality body",
-        field_name="enforcement_body",
-    ),
-    ColumnAndFieldNames(
-        column_name="Date sent to equality body",
-        field_name="sent_to_enforcement_body_sent_date",
-    ),
-    ColumnAndFieldNames(
-        column_name="Date case updated",
-        field_name="case_updated_date",
-    ),
-]
-EXTRA_AUDIT_COLUMNS_FOR_EHRC = [
-    ColumnAndFieldNames(
-        column_name="Disproportionate burden claimed? (Test UI)",
-        field_name="audit_retest_disproportionate_burden_state",
-    ),
-    ColumnAndFieldNames(
-        column_name="Disproportionate Notes (Test UI)",
-        field_name="audit_retest_disproportionate_burden_notes",
-    ),
 ]
 
 CAPITALISE_FIELDS = [
@@ -162,7 +137,9 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
                 search_query = Q(id=search)
             else:
                 search_query = (
-                    Q(organisation_name__icontains=search)
+                    Q(  # pylint: disable=unsupported-binary-operation
+                        organisation_name__icontains=search
+                    )
                     | Q(home_page_url__icontains=search)
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
@@ -233,7 +210,7 @@ def download_ehrc_cases(
     writer.writerow(
         [
             column.column_name
-            for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC
+            for column in COLUMNS_FOR_EHRC
         ]
     )
 
@@ -246,8 +223,6 @@ def download_ehrc_cases(
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
-        for column in EXTRA_AUDIT_COLUMNS_FOR_EHRC:
-            row.append(format_model_field(model_instance=case.audit, column=column))
         output.append(row)
     writer.writerows(output)
 
