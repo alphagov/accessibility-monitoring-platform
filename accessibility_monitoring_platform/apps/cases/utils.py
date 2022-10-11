@@ -129,8 +129,8 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by: str = DEFAULT_SORT
-        if form.cleaned_data["search"]:
-            search: str = form.cleaned_data["search"]
+        if form.cleaned_data["case_search"]:
+            search: str = form.cleaned_data["case_search"]
             if (
                 search.isdigit()
             ):  # if its just a number, it presumes its an ID and returns that case

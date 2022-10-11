@@ -166,8 +166,8 @@ def test_case_list_view_filters_by_sector_name(admin_client):
 @pytest.mark.parametrize(
     "field_name,value,url_parameter_name",
     [
-        ("home_page_url", "included.com", "search"),
-        ("organisation_name", "IncludedOrg", "search"),
+        ("home_page_url", "included.com", "case_search"),
+        ("organisation_name", "IncludedOrg", "case_search"),
     ],
 )
 def test_case_list_view_string_filters(

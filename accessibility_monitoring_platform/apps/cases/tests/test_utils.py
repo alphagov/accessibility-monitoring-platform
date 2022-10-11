@@ -71,7 +71,7 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
 def test_case_filtered_by_search_string():
     """Test that searching for cases is reflected in the queryset"""
     Case.objects.create(organisation_name=ORGANISATION_NAME)
-    form: MockForm = MockForm(cleaned_data={"search": ORGANISATION_NAME})
+    form: MockForm = MockForm(cleaned_data={"case_search": ORGANISATION_NAME})
 
     filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
 

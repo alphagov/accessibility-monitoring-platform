@@ -197,7 +197,10 @@ class CaseListView(ListView):
     def get(self, request, *args, **kwargs):
         """Populate filter form"""
         if self.request.GET:
-            self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
+            if "search" in self.request.GET:
+                self.form: CaseSearchForm = CaseSearchForm({"case_search": self.request.GET["search"]})
+            else:
+                self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
             self.form.is_valid()
         else:
             self.form = CaseSearchForm()
