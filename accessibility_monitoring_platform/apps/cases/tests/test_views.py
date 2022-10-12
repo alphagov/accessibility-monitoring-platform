@@ -166,8 +166,8 @@ def test_case_list_view_filters_by_sector_name(admin_client):
 @pytest.mark.parametrize(
     "field_name,value,url_parameter_name",
     [
-        ("home_page_url", "included.com", "search"),
-        ("organisation_name", "IncludedOrg", "search"),
+        ("home_page_url", "included.com", "case_search"),
+        ("organisation_name", "IncludedOrg", "case_search"),
     ],
 )
 def test_case_list_view_string_filters(
@@ -2266,9 +2266,9 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     assertContains(
         response,
         f"""<p class="govuk-body-m">
-            A published report does not exist for this case. Create a report in
+            A published report does not exist for this case. Publish report in
             <a href="{report_publisher_url}" class="govuk-link govuk-link--no-visited-state">
-                case > report
+                Case > Report publisher
             </a>
         </p>""",
         html=True,
@@ -2510,7 +2510,7 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
         f"""<p class="govuk-body-m">
             A published report does not exist for this case. Create a report in
             <a href="{report_details_url}" class="govuk-link govuk-link--no-visited-state">
-                case > report details
+                Case > Report details
             </a>
         </p>""",
         html=True,

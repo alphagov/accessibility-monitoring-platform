@@ -16,7 +16,7 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' report.case.id %}">Case</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report publisher</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
                 Publish report
@@ -54,7 +54,7 @@
                             <a
                                 href="{% url 'cases:edit-qa-process' report.case.id %}"
                                 class="govuk-link govuk-link--no-visited-state">
-                                case > QA process
+                                Case > QA process
                             </a>
                             {% if report.case.report_review_status == 'ready-to-review' %}&check;{% endif %}
                         </li>

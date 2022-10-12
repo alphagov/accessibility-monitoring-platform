@@ -69,6 +69,7 @@ def generate_report_content(report: Report) -> None:
             template_type=base_template.template_type,
             content=template.render(context=context),
             position=section_position,
+            new_page=base_template.new_page,
         )
         if report.case.audit:
             if section.template_type == TEMPLATE_TYPE_URLS:
@@ -89,6 +90,7 @@ def generate_report_content(report: Report) -> None:
                         template_type=TEMPLATE_TYPE_ISSUES_TABLE,
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
+                        new_page=issues_table_base_template.new_page,
                     )
                     used_wcag_definitions: Set[
                         WcagDefinition

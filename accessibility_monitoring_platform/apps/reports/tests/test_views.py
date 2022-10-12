@@ -73,6 +73,21 @@ def test_create_report_redirects(admin_client):
     assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})  # type: ignore
 
 
+def test_create_report_does_not_create_duplicate(admin_client):
+    """Test that report create does not create a duplicate report"""
+    report: Report = create_report()
+    path_kwargs: Dict[str, int] = {"case_id": report.case.id}  # type: ignore
+
+    assert Report.objects.filter(case=report.case).count() == 1
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+    assert Report.objects.filter(case=report.case).count() == 1
+
+
 @pytest.mark.parametrize(
     "return_to, expected_redirect",
     [

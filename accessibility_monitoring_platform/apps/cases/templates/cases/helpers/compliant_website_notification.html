@@ -20,8 +20,10 @@
                         <h3 class="govuk-notification-banner__heading amp-max-width-100">
                             Select ‘Case should not be sent to the equality body’ in Closing the case and save.
                         </h3>
-                        <p class="govuk-body"><a class="govuk-notification-banner__link" href="{% url 'cases:edit-case-close' case.id %}">
-                            Go to Case > Closing the case</a></p>
+                        <p class="govuk-body">
+                            Go to
+                            <a class="govuk-notification-banner__link" href="{% url 'cases:edit-case-close' case.id %}">
+                            Case > Closing the case</a></p>
                     {% endif %}
                 </div>
             </div>

@@ -1511,7 +1511,7 @@ class TestCaseReportsUI(TestCase):
     def test_update_report(self):
         """Tests whether report can be updated"""
         self.driver.find_element("link text", "Edit report details").click()
-        self.driver.find_element("link text", "Go to report publisher").click()
+        self.driver.find_element("link text", "Go to Case > Report publisher").click()
         self.driver.find_element("link text", "Edit report").click()
 
         self.driver.find_elements("link text", "Edit")[1].click()
@@ -1609,7 +1609,7 @@ class TestCasePublishReport(TestCase):
     def test_publish_report(self):
         """Tests whether report can be published"""
         self.driver.find_element("link text", "Edit report details").click()
-        self.driver.find_element("link text", "Go to report publisher").click()
+        self.driver.find_element("link text", "Go to Case > Report publisher").click()
 
         self.driver.find_element("link text", "Publish HTML report").click()
         self.assertTrue(

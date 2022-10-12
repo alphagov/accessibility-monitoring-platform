@@ -86,8 +86,8 @@ STANDARD_PAGE_HEADERS: List[str] = [
     "Home",
     "Contact",
     "Accessibility Statement",
-    "PDF",
     "A Form",
+    "PDF",
 ]
 
 
@@ -103,7 +103,7 @@ class AuditAllIssuesListView(ListView):
 
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     """
-    Create audit
+    Create audit. If one already exists use that instead.
 
     Args:
         request (HttpRequest): Django HttpRequest
@@ -113,6 +113,10 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     case: Case = get_object_or_404(Case, id=case_id)
+    if case.audit:
+        return redirect(
+            reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
+        )
     audit: Audit = Audit.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=audit)  # type: ignore
     create_mandatory_pages_for_new_audit(audit=audit)
@@ -592,6 +596,9 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        if "save_exit" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            return reverse("audits:audit-detail", kwargs=audit_pk)
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("audits:edit-audit-report-text", kwargs=audit_pk)
@@ -932,9 +939,9 @@ class WcagDefinitionListView(ListView):
 
             if search_str:
                 return WcagDefinition.objects.filter(
-                    Q(
+                    Q(  # pylint: disable=unsupported-binary-operation
                         name__icontains=search_str
-                    )  # pylint: disable=unsupported-binary-operation
+                    )
                     | Q(type__icontains=search_str)
                     | Q(description__icontains=search_str)
                     | Q(url_on_w3__icontains=search_str)
@@ -1004,6 +1011,6 @@ def clear_published_report_data_updated_time(
     audit.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
-        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
+        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),  # type: ignore
     )
     return redirect(redirect_destination)  # type: ignore

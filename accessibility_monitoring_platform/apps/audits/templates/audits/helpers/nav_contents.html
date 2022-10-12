@@ -4,11 +4,13 @@
         {% include './nav_content.html' with anchor='audit-metadata' edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
         {% include './nav_content.html' with anchor='audit-pages' edit_name='audits:edit-audit-pages' name='Pages' complete=audit.audit_pages_complete_date %}
         {% if audit.testable_pages %}
-            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                {% for page in audit.testable_pages %}
-                    {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
-                {% endfor %}
-            </ul>
+            <li>
+                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                    {% for page in audit.testable_pages %}
+                        {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
+                    {% endfor %}
+                </ul>
+            </li>
         {% endif %}
         {% include './nav_content.html' with anchor="website-decision" edit_name='audits:edit-website-decision' name='Website compliance decision' complete=audit.audit_website_decision_complete_date %}
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-1' name='Accessibility statement 1' complete=audit.audit_statement_1_complete_date %}
@@ -16,6 +18,8 @@
         {% include './nav_content.html' with anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
         {% include './nav_content.html' with anchor="audit-report-options" edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
         {% include './nav_content.html' with anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
-        {% include './nav_content.html' with anchor="audit-report-text" edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
+        {% if audit.case.report_methodology == 'odt' %}
+            {% include './nav_content.html' with anchor="audit-report-text" edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
+        {% endif %}
     </ul>
 </nav>

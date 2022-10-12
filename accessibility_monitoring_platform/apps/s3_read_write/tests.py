@@ -1,12 +1,20 @@
+"""
+Testing s3 read write
+"""
 import pytest
+
+from datetime import datetime
+
 import boto3
 from moto import mock_s3
-from datetime import datetime
+
 from django.contrib.auth.models import User
+
+from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 from ..cases.models import Case
+
 from .utils import S3ReadWriteReport, NO_REPORT_HTML
 from .models import S3Report
-from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 
 
 @pytest.mark.django_db
@@ -19,10 +27,11 @@ def test_upload_string_to_s3():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
+    case_id: int = case.id  # type: ignore
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
-            <p class="govuk-body-l">Case id {case.id}.</p>
+            <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
@@ -53,10 +62,11 @@ def test_retrieve_raw_html():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
+    case_id: int = case.id  # type: ignore
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
-            <p class="govuk-body-l">Case id {case.id}.</p>
+            <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
@@ -97,10 +107,11 @@ def test_s3_no_such_key():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
+    case_id: int = case.id  # type: ignore
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
-            <p class="govuk-body-l">Case id {case.id}.</p>
+            <p class="govuk-body-l">Case id {case_id}.</p>
             <p class="govuk-body-l">datetime: {datetime.now()}.</p>
         </div>
     """
