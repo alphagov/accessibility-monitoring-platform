@@ -51,7 +51,9 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     """
     case: Case = get_object_or_404(Case, id=case_id)
     if case.report:
-        return redirect(reverse("reports:report-publisher", kwargs={"pk": case.report.id}))
+        return redirect(
+            reverse("reports:report-publisher", kwargs={"pk": case.report.id})
+        )
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
     generate_report_content(report=report)

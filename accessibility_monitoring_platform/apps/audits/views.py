@@ -114,7 +114,9 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     """
     case: Case = get_object_or_404(Case, id=case_id)
     if case.audit:
-        return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id}))
+        return redirect(
+            reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
+        )
     audit: Audit = Audit.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=audit)  # type: ignore
     create_mandatory_pages_for_new_audit(audit=audit)

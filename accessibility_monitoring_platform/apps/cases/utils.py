@@ -207,12 +207,7 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow(
-        [
-            column.column_name
-            for column in COLUMNS_FOR_EHRC
-        ]
-    )
+    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC])
 
     output: List[List[str]] = []
     for case in cases:
