@@ -167,6 +167,24 @@ def test_create_audit_redirects(admin_client):
     assert response.url == reverse("audits:edit-audit-metadata", kwargs={"pk": 1})  # type: ignore
 
 
+def test_create_audit_does_not_create_a_duplicate(admin_client):
+    """Test that audit create does not create a duplicate audit"""
+    audit: Audit = create_audit()
+    path_kwargs: Dict[str, int] = {"case_id": audit.case.id}  # type: ignore
+
+    assert Audit.objects.filter(case=audit.case).count() == 1
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:audit-create", kwargs=path_kwargs),
+        {
+            "save_continue": "Create test",
+        },
+    )
+
+    assert response.status_code == 302
+    assert Audit.objects.filter(case=audit.case).count() == 1
+
+
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
@@ -637,7 +655,7 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
@@ -661,7 +679,7 @@ def test_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_STATE
     assert updated_case.accessibility_statement_notes == ACCESSIBILITY_STATEMENT_NOTES
@@ -894,7 +912,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.website_state_final == IS_WEBSITE_COMPLIANT
     assert updated_case.website_state_notes_final == COMPLIANCE_DECISION_NOTES
@@ -918,7 +936,7 @@ def test_retest_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert (
         updated_case.accessibility_statement_state_final
