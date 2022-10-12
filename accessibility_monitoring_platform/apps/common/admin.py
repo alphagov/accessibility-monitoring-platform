@@ -6,7 +6,14 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from .models import Event, IssueReport, Platform, ChangeToPlatform, Sector
+from .models import (
+    Event,
+    IssueReport,
+    Platform,
+    ChangeToPlatform,
+    Sector,
+    UserCacheUniqueHash,
+)
 
 
 class ExportCsvMixin:
@@ -81,8 +88,18 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
         return False
 
 
+class UserCacheUniqueHashAdmin(admin.ModelAdmin):
+    """Django admin configuration for IssueReport model"""
+
+    readonly_fields = ["user", "fingerprint_hash"]
+    search_fields = ["user"]
+    list_display = ["user", "fingerprint_hash"]
+    list_filter = ["user", "fingerprint_hash"]
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
 admin.site.register(ChangeToPlatform)
 admin.site.register(Sector)
+admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
