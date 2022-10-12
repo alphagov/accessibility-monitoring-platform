@@ -167,6 +167,24 @@ def test_create_audit_redirects(admin_client):
     assert response.url == reverse("audits:edit-audit-metadata", kwargs={"pk": 1})  # type: ignore
 
 
+def test_create_audit_does_not_create_a_duplicate(admin_client):
+    """Test that audit create does not create a duplicate audit"""
+    audit: Audit = create_audit()
+    path_kwargs: Dict[str, int] = {"case_id": audit.case.id}  # type: ignore
+
+    assert Audit.objects.filter(case=audit.case).count() == 1
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:audit-create", kwargs=path_kwargs),
+        {
+            "save_continue": "Create test",
+        },
+    )
+
+    assert response.status_code == 302
+    assert Audit.objects.filter(case=audit.case).count() == 1
+
+
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
