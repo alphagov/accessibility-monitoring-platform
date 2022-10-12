@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
-from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM, REPORT_METHODOLOGY_ODT
+from ...cases.models import Case, REPORT_METHODOLOGY_ODT
 from ..models import (
     PAGE_TYPE_PDF,
     Audit,
