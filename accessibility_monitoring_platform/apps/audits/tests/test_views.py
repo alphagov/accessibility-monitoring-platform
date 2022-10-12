@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
-from ...cases.models import Case, REPORT_METHODOLOGY_PLATFORM, REPORT_METHODOLOGY_ODT
+from ...cases.models import Case, REPORT_METHODOLOGY_ODT
 from ..models import (
     PAGE_TYPE_PDF,
     Audit,
@@ -261,6 +261,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
             "save_continue",
             "audits:edit-audit-report-text",
         ),
+        ("audits:edit-audit-summary", "save_exit", "audits:audit-detail"),
         ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
         ("audits:edit-audit-report-text", "save_exit", "audits:audit-detail"),
         (
@@ -637,7 +638,7 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
@@ -661,7 +662,7 @@ def test_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.accessibility_statement_state == ACCESSIBILITY_STATEMENT_STATE
     assert updated_case.accessibility_statement_notes == ACCESSIBILITY_STATEMENT_NOTES
@@ -894,7 +895,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert updated_case.website_state_final == IS_WEBSITE_COMPLIANT
     assert updated_case.website_state_notes_final == COMPLIANCE_DECISION_NOTES
@@ -918,7 +919,7 @@ def test_retest_statement_decision_saved_on_case(admin_client):
 
     assert response.status_code == 302
 
-    updated_case: Case = Case.objects.get(id=audit.case.id)
+    updated_case: Case = Case.objects.get(id=audit.case.id)  # type: ignore
 
     assert (
         updated_case.accessibility_statement_state_final
@@ -927,34 +928,6 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.accessibility_statement_notes_final
         == ACCESSIBILITY_STATEMENT_NOTES
-    )
-
-
-def test_report_text_not_shown_when_platform_report(admin_client):
-    """
-    Test that report text is not shown when case is using report methodology of platform
-    """
-    audit: Audit = create_audit_and_wcag()
-    case: Case = audit.case
-    case.report_methodology = REPORT_METHODOLOGY_PLATFORM
-    case.save()
-
-    audit_pk: int = audit.id  # type: ignore
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-report-text", kwargs=path_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, "Copy report to clipboard")
-    assertNotContains(
-        response, """<h1 class="govuk-heading-l">Report text</h1>""", html=True
-    )
-    assertNotContains(response, "This is the end of the testing process.")
-    assertContains(
-        response,
-        "Report text should not be used when the report methodology is set to Platform.",
     )
 
 
