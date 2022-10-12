@@ -71,6 +71,7 @@ from .utils import (
     get_sent_date,
     download_ehrc_cases,
     filter_cases,
+    replace_search_key_with_case_search,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -197,7 +198,9 @@ class CaseListView(ListView):
     def get(self, request, *args, **kwargs):
         """Populate filter form"""
         if self.request.GET:
-            self.form: CaseSearchForm = CaseSearchForm(self.request.GET)
+            self.form: CaseSearchForm = CaseSearchForm(
+                replace_search_key_with_case_search(self.request.GET)
+            )
             self.form.is_valid()
         else:
             self.form = CaseSearchForm()
