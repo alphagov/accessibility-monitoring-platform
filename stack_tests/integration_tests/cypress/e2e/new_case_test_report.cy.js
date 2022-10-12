@@ -73,9 +73,6 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report text`)
     cy.contains('Save and exit').click()
 
     cy.title().should('eq', `${newOrganisationName} | View test`)
@@ -90,7 +87,7 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
     cy.contains('The report needs to be approved by a QA auditor before it can be published.')
-    cy.contains('Go to QA process').click()
+    cy.contains('Case > QA process').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA process`)
     cy.get('[name="report_review_status"]').check('ready-to-review')
@@ -99,7 +96,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Save').click()
 
     cy.contains('Report details').click()
-    cy.contains('Go to report publisher').click()
+    cy.contains('Go to Case > Report publisher').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
     cy.contains('The report has been approved and is ready to publish.')

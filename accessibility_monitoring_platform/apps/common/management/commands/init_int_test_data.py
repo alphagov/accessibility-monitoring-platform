@@ -8,6 +8,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import connection, models
 
+from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
 from ....audits.models import Audit, CheckResult, Page, WcagDefinition
 from ....cases.models import Case, Contact
 from ....comments.models import Comment, CommentHistory
@@ -57,7 +58,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
-        delete_from_models([CheckResult, Page, Audit, WcagDefinition])
+        delete_from_models([CheckResult, Page, Audit, WcagDefinition, UserCacheUniqueHash])
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
         )  # Axes (access)
