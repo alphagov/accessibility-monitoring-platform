@@ -27,6 +27,7 @@ class="govuk-link govuk-link--no-visited-state">report</a>"""
         ("common:platform-history", ">Platform version history</h1>"),
         ("common:issue-report", ">Report an issue</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
+        ("common:metrics-overview", ">Overview</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
