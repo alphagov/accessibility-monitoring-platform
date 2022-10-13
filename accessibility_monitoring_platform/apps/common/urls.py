@@ -14,23 +14,24 @@ from .views import (
     AccessibilityStatementTemplateView,
     PrivacyNoticeTemplateView,
     MarkdownCheatsheetTemplateView,
+    MetricsOverviewTemplateView,
 )
 
 app_name: str = "common"
 urlpatterns: List[URLPattern] = [
     path("contact/", login_required(ContactAdminView.as_view()), name="contact-admin"),
     path(
-        "edit-active-qa-auditor/",
+        "edit-active-qa-auditor",
         login_required(ActiveQAAuditorUpdateView.as_view()),
         name="edit-active-qa-auditor",
     ),
     path(
-        "platform-versions/",
+        "platform-versions",
         login_required(ChangeToPlatformListView.as_view()),
         name="platform-history",
     ),
     path(
-        "report-issue/", login_required(IssueReportView.as_view()), name="issue-report"
+        "report-issue", login_required(IssueReportView.as_view()), name="issue-report"
     ),
     path(
         "accessibility-statement",
@@ -46,5 +47,10 @@ urlpatterns: List[URLPattern] = [
         "markdown-cheatsheet",
         login_required(MarkdownCheatsheetTemplateView.as_view()),
         name="markdown-cheatsheet",
+    ),
+    path(
+        "metrics-overview",
+        login_required(MetricsOverviewTemplateView.as_view()),
+        name="metrics-overview",
     ),
 ]

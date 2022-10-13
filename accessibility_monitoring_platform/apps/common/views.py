@@ -12,6 +12,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ..cases.models import Case
+
 from .utils import get_platform_settings
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
@@ -144,3 +146,13 @@ class PrivacyNoticeTemplateView(PlatformTemplateView):
 
 class MarkdownCheatsheetTemplateView(PlatformTemplateView):
     template_name: str = "common/settings/markdown_cheatsheet.html"
+
+
+class MetricsOverviewTemplateView(TemplateView):
+    template_name: str = "common/metrics/overview.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add number of cases to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["number_of_cases"] = Case.objects.count()
+        return context
