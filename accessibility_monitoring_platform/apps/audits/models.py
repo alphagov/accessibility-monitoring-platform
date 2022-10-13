@@ -227,7 +227,9 @@ class Audit(VersionModel):
     Model for test
     """
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="audit_case")
+    case = models.OneToOneField(
+        Case, on_delete=models.PROTECT, related_name="audit_case"
+    )
     is_deleted = models.BooleanField(default=False)
     unpublished_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
