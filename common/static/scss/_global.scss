@@ -138,8 +138,8 @@ table#all-issues {
     transform-origin: top left;
     transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
-    opacity: 0.3;
-    font-size: 6vmax;
+    color: DimGray;
+    font-size: 5vmax;
     z-index: 1;
     font-family: sans-serif;
 }
@@ -151,8 +151,8 @@ table#all-issues {
     transform-origin: top right;
     transform: rotate(90deg);
     -webkit-transform: rotate(90deg);
-    opacity: 0.3;
-    font-size: 6vmax;
+    color: DimGray;
+    font-size: 5vmax;
     z-index: 1;
     font-family: sans-serif;
 }
