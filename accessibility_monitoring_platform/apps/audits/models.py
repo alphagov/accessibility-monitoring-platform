@@ -230,7 +230,6 @@ class Audit(VersionModel):
     case = models.OneToOneField(
         Case, on_delete=models.PROTECT, related_name="audit_case"
     )
-    is_deleted = models.BooleanField(default=False)
     unpublished_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
 
