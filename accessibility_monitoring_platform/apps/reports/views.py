@@ -40,7 +40,7 @@ from ..s3_read_write.utils import S3ReadWriteReport
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     """
-    Create report
+    Create report If one already exists use that instead.
 
     Args:
         request (HttpRequest): Django HttpRequest
@@ -50,6 +50,10 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     case: Case = get_object_or_404(Case, id=case_id)
+    if case.report:
+        return redirect(
+            reverse("reports:report-publisher", kwargs={"pk": case.report.id})
+        )
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
     generate_report_content(report=report)

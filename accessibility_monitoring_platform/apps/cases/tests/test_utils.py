@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List
 
+from django.http.request import QueryDict
 
 from ..models import Case, Contact
 from ..utils import (
@@ -15,11 +16,12 @@ from ..utils import (
     ColumnAndFieldNames,
     format_model_field,
     format_contacts,
+    replace_search_key_with_case_search,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
 
-CONTACTS = [
+CONTACTS: List[Contact] = [
     Contact(
         name="Name 1",
         job_title="Job title 1",
@@ -71,7 +73,7 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
 def test_case_filtered_by_search_string():
     """Test that searching for cases is reflected in the queryset"""
     Case.objects.create(organisation_name=ORGANISATION_NAME)
-    form: MockForm = MockForm(cleaned_data={"search": ORGANISATION_NAME})
+    form: MockForm = MockForm(cleaned_data={"case_search": ORGANISATION_NAME})
 
     filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
 
@@ -145,3 +147,21 @@ def test_format_case_field(column, case_value, expected_formatted_value):
 def test_format_contacts(column, expected_formatted_value):
     """Test that contacts fields values are contatenated"""
     assert expected_formatted_value == format_contacts(contacts=CONTACTS, column=column)
+
+
+@pytest.mark.parametrize(
+    "query_dict, expected_dict",
+    [
+        (QueryDict(), {}),
+        (QueryDict(query_string="query=apple"), {"query": "apple"}),
+        (QueryDict(query_string="search=banana"), {"case_search": "banana"}),
+    ],
+)
+def test_replace_search_key_with_case_search(
+    query_dict: QueryDict, expected_dict: Dict[str, str]
+):
+    """
+    Replace key search, if present, with case_search
+    while converting QueryDict to dict.
+    """
+    assert replace_search_key_with_case_search(query_dict) == expected_dict

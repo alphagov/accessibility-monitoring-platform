@@ -18,7 +18,9 @@
         {% include './nav_step.html' with edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
-        {% include './nav_step.html' with edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
+        {% if audit.case.report_methodology == 'odt' %}
+            {% include './nav_step.html' with edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
+        {% endif %}
     </ul>
     <h2 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h2>
     <ul class="govuk-list">
