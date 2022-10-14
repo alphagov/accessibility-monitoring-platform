@@ -29,7 +29,7 @@ def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
     assert response.status_code == 200
-    assertContains(response, "Dashboard")
+    assertContains(response, "Home |")
 
 
 def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
