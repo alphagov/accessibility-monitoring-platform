@@ -201,7 +201,8 @@ REPORT_ACCESSIBILITY_ISSUE_TEXT: Dict[str, str] = {
     "accessibility_statement_deadline_not_sufficient": "it includes a deadline of XXX for fixing XXX issues and"
     " this is not sufficient",
     "accessibility_statement_out_of_date": "it is out of date and needs to be reviewed",
-    "accessibility_statement_eass_link": "it must link directly to the Equality Advisory and Support Service (EASS) website",
+    "accessibility_statement_eass_link": "it must link directly to the Equality Advisory and"
+    " Support Service (EASS) website",
     "accessibility_statement_template_update": "it is a requirement that accessibility statements are accessible."
     " Some users may experience difficulties using PDF documents. It may be beneficial for users if there was a HTML"
     " version of your full accessibility statement.",
@@ -227,8 +228,9 @@ class Audit(VersionModel):
     Model for test
     """
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="audit_case")
-    is_deleted = models.BooleanField(default=False)
+    case = models.OneToOneField(
+        Case, on_delete=models.PROTECT, related_name="audit_case"
+    )
     unpublished_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
 

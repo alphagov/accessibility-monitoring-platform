@@ -67,7 +67,9 @@ class Report(VersionModel):
     Model for report
     """
 
-    case = models.ForeignKey(Case, on_delete=models.PROTECT, related_name="report_case")
+    case = models.OneToOneField(
+        Case, on_delete=models.PROTECT, related_name="report_case"
+    )
     created = models.DateTimeField()
     created_by = models.ForeignKey(
         User,
@@ -75,7 +77,6 @@ class Report(VersionModel):
         blank=True,
         null=True,
     )
-    is_deleted = models.BooleanField(default=False)
     report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
     report_rebuilt = models.DateTimeField(blank=True, null=True)
 
