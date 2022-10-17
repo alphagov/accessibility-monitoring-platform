@@ -75,8 +75,8 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
     cy.contains('Save and exit').click()
 
-    cy.title().should('eq', `${newOrganisationName} | View test`)
-    cy.contains('View case').click()
+    cy.title().should('eq', `${newOrganisationName} | Testing details`)
+    cy.contains('Case').click()
 
     cy.title().should('eq', `${newOrganisationName} | View case`)
     cy.contains('Edit report details').click()

@@ -11,7 +11,7 @@ describe('Dashboard page', () => {
   })
 
   it('can see page', () => {
-    cy.title().should('eq', 'Dashboard | Your cases')
+    cy.title().should('eq', 'Home | Your cases')
   })
 
   it('can open accordion', () => {
