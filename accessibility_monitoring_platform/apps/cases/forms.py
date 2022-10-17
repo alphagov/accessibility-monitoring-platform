@@ -67,8 +67,8 @@ SORT_CHOICES: List[Tuple[str, str]] = [
 IS_COMPLAINT_DEFAULT: str = ""
 IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
     (IS_COMPLAINT_DEFAULT, "All"),
-    ("yes", "Yes"),
-    ("no", "No"),
+    ("no", "No complaints"),
+    ("yes", "Only complaints"),
 ]
 
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
