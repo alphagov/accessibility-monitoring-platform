@@ -6,6 +6,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -851,11 +852,17 @@ class Case(VersionModel):
 
     @property
     def audit(self):
-        return self.audit_case.filter(is_deleted=False).first()  # type: ignore
+        try:
+            return self.audit_case  # type: ignore
+        except ObjectDoesNotExist:
+            return None
 
     @property
     def report(self):
-        return self.report_case.filter(is_deleted=False).first()  # type: ignore
+        try:
+            return self.report_case  # type: ignore
+        except ObjectDoesNotExist:
+            return None
 
 
 class Contact(models.Model):
