@@ -475,7 +475,7 @@ def test_unpublished_report_data_updated_notification_shown(path_name, admin_cli
     report: Report = create_report()
     report.report_rebuilt = timezone.now()
     report.save()
-    audit: Audit = report.case.audit
+    audit: Audit = report.case.audit  # type: ignore
     case_pk_kwargs: Dict[str, int] = {"pk": report.case.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
@@ -510,7 +510,7 @@ def test_published_report_data_updated_notification_shown(admin_client):
     than latest report publish.
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit
+    audit: Audit = report.case.audit  # type: ignore
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
 
     response: HttpResponse = admin_client.get(
@@ -589,7 +589,7 @@ def test_issues_section_edit_page_contains_warning(admin_client):
     make changes in testing UI.
     """
     report: Report = create_report()
-    audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}
+    audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}  # type: ignore
     test_details_url: str = reverse("audits:audit-detail", kwargs=audit_pk_kwargs)
     section: Section = create_section(report)
     section.template_type = TEMPLATE_TYPE_ISSUES_TABLE

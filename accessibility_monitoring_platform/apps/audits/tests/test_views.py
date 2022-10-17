@@ -279,9 +279,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
             "save_continue",
             "audits:edit-audit-report-text",
         ),
-        ("audits:edit-audit-summary", "save_exit", "audits:audit-detail"),
         ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
-        ("audits:edit-audit-report-text", "save_exit", "audits:audit-detail"),
         (
             "audits:edit-audit-retest-metadata",
             "save",
@@ -362,6 +360,34 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path  # type: ignore
+
+
+@pytest.mark.parametrize(
+    "path_name",
+    ["audits:edit-audit-summary", "audits:edit-audit-report-text"],
+)
+def test_audit_edit_redirects_to_case(
+    path_name,
+    admin_client,
+):
+    """Test that a successful audit save and exit redirects to the case"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    case_pk: Dict[str, int] = {"pk": audit.case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save_exit": "Button value",
+            "case-version": audit.case.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("cases:edit-test-results", kwargs=case_pk)
     assert response.url == expected_path  # type: ignore
 
 

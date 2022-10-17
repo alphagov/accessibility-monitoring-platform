@@ -597,8 +597,9 @@ class AuditSummaryUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:audit-detail", kwargs=audit_pk)
+            audit: Audit = self.object
+            case_pk: Dict[str, int] = {"pk": audit.case.id}  # type: ignore
+            return reverse("cases:edit-test-results", kwargs=case_pk)
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("audits:edit-audit-report-text", kwargs=audit_pk)
@@ -622,8 +623,9 @@ class AuditReportTextUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("audits:audit-detail", kwargs=audit_pk)
+            audit: Audit = self.object
+            case_pk: Dict[str, int] = {"pk": audit.case.id}  # type: ignore
+            return reverse("cases:edit-test-results", kwargs=case_pk)
         return super().get_success_url()
 
 
