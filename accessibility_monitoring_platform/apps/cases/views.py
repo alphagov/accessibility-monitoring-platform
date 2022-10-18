@@ -85,6 +85,7 @@ ADVANCED_SEARCH_FIELDS: List[str] = [
     "date_end_1",
     "date_end_2",
     "sector",
+    "is_complaint",
 ]
 
 

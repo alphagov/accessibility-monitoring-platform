@@ -10,6 +10,7 @@
                         <span class="govuk-visually-hidden">Search:</span>
                         {{ top_menu_form.search }}
                         <button class="govuk-input__suffix amp-search-button">
+                            <span class="govuk-visually-hidden">Search accessibility monitoring platform</span>
                             <svg
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -30,6 +31,7 @@
         </div>
         <div class="govuk-grid-column-three-quarters">
                 <ul class="govuk-list nav-menu-list">
+                    <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-overview' %}">Platform metrics</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">Settings</a></li>
                     <li> <a class="govuk-link govuk-link--no-visited-state" href="{% url 'logout' %}">Sign out</a></li>
                     <li class="amp-padding-left-10"> | </li>
