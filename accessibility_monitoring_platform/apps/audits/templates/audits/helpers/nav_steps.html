@@ -1,4 +1,5 @@
 <nav role="navigation">
+    {% include "cases/helpers/status_requirements.html" with case=audit.case %}
     <h2 class="govuk-heading-m amp-margin-bottom-5">Test steps</h2>
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='audits:edit-audit-metadata' name='Test metadata' complete=audit.audit_metadata_complete_date %}
