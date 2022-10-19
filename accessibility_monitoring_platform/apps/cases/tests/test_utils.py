@@ -91,7 +91,9 @@ def test_case_filtered_by_search_string():
     ],
 )
 @pytest.mark.django_db
-def test_case_filtered_by_is_complaint(is_complaint_filter, expected_number, expected_name):
+def test_case_filtered_by_is_complaint(
+    is_complaint_filter, expected_number, expected_name
+):
     """Test that searching for cases is reflected in the queryset"""
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     Case.objects.create(
