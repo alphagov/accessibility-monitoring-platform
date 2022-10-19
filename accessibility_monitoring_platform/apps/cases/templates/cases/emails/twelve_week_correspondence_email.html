@@ -31,96 +31,134 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <button
-                    id="copy-email-to-clipboard"
-                    class="govuk-button govuk-button--secondary"
-                    >
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
                 </button>
-                <div id="report-text">
+                <a
+                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to  12-week correspondence
+                </a>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div id="email-text" class="amp-report-wrapper">
                     <p>Dear (named contact),</p>
                     <p>
-                        We emailed you an accessibility report on {{report_sent_date}}
-                        with a deadline of {{12_week_deadline}} to review the accessibility of
-                        {{case_homepage}} and fix any issues.
+                        We emailed you an accessibility report on {{ case.report_sent_date|amp_date }}
+                        with a deadline of {{ case.report_followup_week_12_due_date|amp_date }}
+                        to review the accessibility of {{ case.formatted_home_page_url }}
+                        and fix any issues.
+                    </p>
+
+                    <p>You must now provide an update on the progress you have made.</p>
+
+                    <p class="amp-margin-bottom-0"><b>What you need to do</b></p>
+
+                    <p class="amp-margin-top-0">Please provide an update on each issue raised in the accessibility report including:</p>
+
+                    <ul>
+                        <li>Issues you have fixed</li>
+                        <li>Issues you have been unable to fix</li>
+                        <li>A timeline for fixing unresolved issues</li>
+                        <li>Any other comments about the accessibility of your website</li>
+                    </ul>
+
+                    <p>
+                        The issues found in the report have been listed below.
+                        You do not need to provide information from your own audit.
                     </p>
 
                     <p>
-                        You must now provide an update on the progress you have made.
+                        Please provide these by filling in the last column of the below tables
+                        and provide an update on the Accessibility statement.
                     </p>
 
-                    <h1>The issues we found</h1>
-
-                    <p>
-                        Only serious accessibility issues on the sample of pages we tested
-                        are listed in this report – these will cause problems for users with
-                        access needs when using your website. There are likely to be smaller
-                        errors which will make things more difficult for some users.
-                        You must carry out your own audit to find and fix issues on other pages.
-                    </p>
-
-                    <h2>Issues</h2>
-
-                    <p>
-                        {% if audit.failed_check_results %}
-                            The following errors were found.
-                        {% else %}
-                            We found no major issues.
+                    {% for section in case.report.section_set.all %}
+                        {% if section.template_type == 'issues' and section.visible_table_rows.all %}
+                            <br />
+                            <h2>{{ section.name }}</h2>
+                            {% if section.template_type == 'html' %}
+                                {{ section.content|safe }}
+                            {% else %}
+                                {{ section.content|markdown_to_html }}
+                            {% endif %}
+                            <table id="email-issues-table-{{ forloop.counter }}">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th id="issue-{{ forloop.counter }}">Issue and description</th>
+                                        <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
+                                        <th id="12-week-update-{{ forloop.counter }}">12-week update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in section.visible_table_rows.all %}
+                                        <tr valign="top">
+                                            <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
+                                            <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                                            <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                                            <td headers="12-week-update-{{ forloop.counter }}"></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         {% endif %}
-                    </p>
-
-                    <table id="issues-to-copy" caption="Issues we found">
-                        <thead>
-                            <tr>
-                                <th id="issue" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Issue and description</th>
-                                <th id="location" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Where the issue was found</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for check_result in case.audit.failed_check_results %}
-                                <tr valign="top" >
-                                    <td headers="issue" style="font-family:arial,sans-serif;">
-                                        <p>
-                                            {% if check_result.wcag_definition.url_on_w3 %}
-                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
-                                                    {{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}.{% endif %}
-                                            {% else %}
-                                                {{ check_result.wcag_definition.name }}.
-                                            {% endif %}
-                                        </p>
-                                        {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
-                                    </td>
-                                    <td headers="location"style="font-family:arial,sans-serif;">
-                                        <p>{{ check_result.page }}</p>
-                                        <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                        </tbody>
-                    </table>
+                    {% endfor %}
 
                     <p>Accessibility statement comments:</p>
 
-                    <p>{{ case.audit.get_accessibility_statement_state_display }}</p>
+                    {{ case.audit.get_accessibility_statement_state_display }}
 
                     {% if case.audit.accessibility_statement_state == 'found-but' %}
                         <ul>
-                            {% for issue in audit.report_accessibility_issues %}
+                            {% for issue in case.audit.report_accessibility_issues %}
                                 <li>{{ issue }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
+
+                    <p>Please provide the update within 7 days.</p>
+
+                    <p>
+                        We will retest parts of your website to check that they meet the
+                        accessibility regulations.
+                    </p>
+
+                    <p>
+                        Any remaining accessibility issues will be passed to the
+                        {% if case.enforcement_body == 'ehrc' %}
+                            Equality and Human Rights Commission (EHRC)
+                        {% else %}
+                            Equality Commission for Northern Ireland (ECNI)
+                        {% endif %}
+                        for further action and a list of websites without correct
+                        accessibility statements will be published by the Cabinet Office.
+                    </p>
+
+                    <p>Many thanks,</p>
+
+                    <p>{{case.auditor}}</p>
                 </div>
-                <button
-                    id="copy-email-to-clipboard"
-                    class="govuk-button govuk-button--secondary"
-                    >
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-top-10">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
                 </button>
+                <a
+                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to  12-week correspondence
+                </a>
             </div>
         </div>
     </main>
-    <script src="{% static 'js/audits_copy_report.js' %}"></script>
+    <script src="{% static 'js/cases_copy_email.js' %}"></script>
 </div>
 {% endblock %}
