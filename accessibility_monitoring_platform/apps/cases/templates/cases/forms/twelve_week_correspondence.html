@@ -51,6 +51,14 @@
                             Edit 12-week correspondence due dates
                         </a>
                     </p>
+                    <p class="govuk-body-m">
+                        <a
+                            href="{% url 'cases:twelve-week-correspondence-email' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View email template
+                        </a>
+                    </p>
                 {% endif %}
                 <form method="post" action="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
                     {% csrf_token %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ audit.case.organisation_name }} | 12-week email template{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-twelve-week-correspondence' case.id %}">12-week correspondence</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Email template
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Email template' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <button
+                    id="copy-email-to-clipboard"
+                    class="govuk-button govuk-button--secondary"
+                    >
+                    Copy email template
+                </button>
+                <div id="report-text">
+                    <p>Dear (named contact),</p>
+                    <p>
+                        We emailed you an accessibility report on {{report_sent_date}}
+                        with a deadline of {{12_week_deadline}} to review the accessibility of
+                        {{case_homepage}} and fix any issues.
+                    </p>
+
+                    <p>
+                        You must now provide an update on the progress you have made.
+                    </p>
+
+                    <h1>The issues we found</h1>
+
+                    <p>
+                        Only serious accessibility issues on the sample of pages we tested
+                        are listed in this report – these will cause problems for users with
+                        access needs when using your website. There are likely to be smaller
+                        errors which will make things more difficult for some users.
+                        You must carry out your own audit to find and fix issues on other pages.
+                    </p>
+
+                    <h2>Issues</h2>
+
+                    <p>
+                        {% if audit.failed_check_results %}
+                            The following errors were found.
+                        {% else %}
+                            We found no major issues.
+                        {% endif %}
+                    </p>
+
+                    <table id="issues-to-copy" caption="Issues we found">
+                        <thead>
+                            <tr>
+                                <th id="issue" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Issue and description</th>
+                                <th id="location" style="width:50%;font-family:arial,sans-serif;color:#ffffff;background-color:#1A5293;">Where the issue was found</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for check_result in case.audit.failed_check_results %}
+                                <tr valign="top" >
+                                    <td headers="issue" style="font-family:arial,sans-serif;">
+                                        <p>
+                                            {% if check_result.wcag_definition.url_on_w3 %}
+                                                <a href="{{ check_result.wcag_definition.url_on_w3 }}" style="font-family:arial,sans-serif;color:#00f;text-decoration:underline;" rel="noopener noreferrer" target="_blank">
+                                                    {{ check_result.wcag_definition.name }}</a>{% if check_result.wcag_definition.type == 'axe' %}: {{ check_result.wcag_definition.description }}.{% endif %}
+                                            {% else %}
+                                                {{ check_result.wcag_definition.name }}.
+                                            {% endif %}
+                                        </p>
+                                        {{ check_result.wcag_definition.report_boilerplate|markdown_to_html }}
+                                    </td>
+                                    <td headers="location"style="font-family:arial,sans-serif;">
+                                        <p>{{ check_result.page }}</p>
+                                        <ul><li>{{ check_result.notes|markdown_to_html }}</li></ul>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <p>Accessibility statement comments:</p>
+
+                    <p>{{ case.audit.get_accessibility_statement_state_display }}</p>
+
+                    {% if case.audit.accessibility_statement_state == 'found-but' %}
+                        <ul>
+                            {% for issue in audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <button
+                    id="copy-email-to-clipboard"
+                    class="govuk-button govuk-button--secondary"
+                    >
+                    Copy email template
+                </button>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/audits_copy_report.js' %}"></script>
+</div>
+{% endblock %}
