@@ -31,6 +31,17 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                        Ensure the information is correct before sending
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
             <div class="govuk-grid-column-full govuk-button-group">
                 <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
                     Copy email template
@@ -46,7 +57,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    <p>Dear (named contact),</p>
+                    <p>Dear <span class="amp-orange">(named contact),</span></p>
                     <p>
                         We emailed you an accessibility report on {{ case.report_sent_date|amp_date }}
                         with a deadline of {{ case.report_followup_week_12_due_date|amp_date }}
@@ -141,7 +152,7 @@
 
                     <p>Many thanks,</p>
 
-                    <p>{{case.auditor}}</p>
+                    <p>{{ case.auditor.get_full_name }}</p>
                 </div>
             </div>
         </div>
