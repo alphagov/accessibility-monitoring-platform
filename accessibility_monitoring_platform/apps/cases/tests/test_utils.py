@@ -20,6 +20,7 @@ from ..utils import (
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
+ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
 
 CONTACTS: List[Contact] = [
     Contact(
@@ -79,6 +80,29 @@ def test_case_filtered_by_search_string():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.parametrize(
+    "is_complaint_filter, expected_number, expected_name",
+    [
+        ("", 2, ORGANISATION_NAME_COMPLAINT),
+        ("no", 1, ORGANISATION_NAME),
+        ("yes", 1, ORGANISATION_NAME_COMPLAINT),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_is_complaint(is_complaint_filter, expected_number, expected_name):
+    """Test that searching for cases is reflected in the queryset"""
+    Case.objects.create(organisation_name=ORGANISATION_NAME)
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_COMPLAINT, is_complaint="yes"
+    )
+    form: MockForm = MockForm(cleaned_data={"is_complaint": is_complaint_filter})
+
+    filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
 
 
 @pytest.mark.parametrize(

@@ -1,36 +1,5 @@
 <nav role="navigation">
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Auditor</h2>
-    <p class="govuk-body-m">
-        {% if case.auditor %}
-            {{ case.auditor.get_full_name }}
-        {% else %}
-            None
-        {% endif %}
-    </p>
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
-    <p class="govuk-body-m">{{ case.get_status_display }}</p>
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Published report</h2>
-    <p class="govuk-body-m">
-        {% if case.report.latest_s3_report %}
-            <a href="{{ django_settings.AMP_PROTOCOL }}{{ django_settings.AMP_VIEWER_DOMAIN }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View final HTML report
-            </a>
-        {% else %}
-            None
-        {% endif %}
-    </p>
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Status requirements</h2>
-    <ul class="govuk-list">
-        {% for requirement in case.status_requirements %}
-            <li>
-                {% if requirement.url == "None" %}
-                    {{ requirement.text }}
-                {% else %}
-                    <a href="{% url requirement.url case.id %}" class="govuk-link govuk-link--no-visited-state">{{ requirement.text }}</a>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+    {% include "cases/helpers/status_requirements.html" %}
     {% if current_page != 'reminders' %}
         <h2 class="govuk-heading-m amp-margin-bottom-5">Reminder</h2>
         <p class="govuk-body-m">

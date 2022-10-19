@@ -14,6 +14,7 @@ from .views import (
     AccessibilityStatementTemplateView,
     PrivacyNoticeTemplateView,
     MarkdownCheatsheetTemplateView,
+    MetricsOverviewTemplateView,
 )
 
 app_name: str = "common"
@@ -33,18 +34,23 @@ urlpatterns: List[URLPattern] = [
         "report-issue/", login_required(IssueReportView.as_view()), name="issue-report"
     ),
     path(
-        "accessibility-statement",
+        "accessibility-statement/",
         AccessibilityStatementTemplateView.as_view(),
         name="accessibility-statement",
     ),
     path(
-        "privacy-notice",
+        "privacy-notice/",
         PrivacyNoticeTemplateView.as_view(),
         name="privacy-notice",
     ),
     path(
-        "markdown-cheatsheet",
+        "markdown-cheatsheet/",
         login_required(MarkdownCheatsheetTemplateView.as_view()),
         name="markdown-cheatsheet",
+    ),
+    path(
+        "metrics-overview/",
+        login_required(MetricsOverviewTemplateView.as_view()),
+        name="metrics-overview",
     ),
 ]

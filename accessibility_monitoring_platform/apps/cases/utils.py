@@ -15,7 +15,7 @@ from django.http.request import QueryDict
 from ..audits.models import Audit
 from ..common.utils import build_filters
 
-from .forms import CaseSearchForm, DEFAULT_SORT
+from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
 
 from .models import Case, Contact, STATUS_READY_TO_QA
 
@@ -116,11 +116,12 @@ def get_sent_date(
     return date_on_db if date_on_db else date_on_form
 
 
-def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
+def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: Dict = {}  # type: ignore
     search_query = Q()
     sort_by: str = DEFAULT_SORT
+    is_complaint: str = IS_COMPLAINT_DEFAULT
 
     if hasattr(form, "cleaned_data"):
         filters: Dict[str, Any] = build_filters(
@@ -130,7 +131,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if not sort_by:
             sort_by: str = DEFAULT_SORT
-        if form.cleaned_data["case_search"]:
+        if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
             if (
                 search.isdigit()
@@ -145,6 +146,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
                 )
+        is_complaint: str = form.cleaned_data.get("is_complaint", IS_COMPLAINT_DEFAULT)
 
     if filters.get("status", "") != "deleted":
         filters["is_deleted"] = False
@@ -157,6 +159,9 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
+
+    if is_complaint != IS_COMPLAINT_DEFAULT:
+        filters["is_complaint"] = is_complaint
 
     return (
         Case.objects.filter(search_query, **filters)
