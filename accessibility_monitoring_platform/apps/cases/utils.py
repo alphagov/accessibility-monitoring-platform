@@ -90,12 +90,32 @@ COLUMNS_FOR_EHRC = [
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
 ]
 
+EXTRA_AUDIT_COLUMNS_FOR_EHRC = [
+    ColumnAndFieldNames(
+        column_name="Initial disproportionate burden claimed?",
+        field_name="disproportionate_burden_state",
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial disproportionate notes",
+        field_name="disproportionate_burden_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Final disproportionate burden claimed?",
+        field_name="audit_retest_disproportionate_burden_state",
+    ),
+    ColumnAndFieldNames(
+        column_name="Final disproportionate notes",
+        field_name="audit_retest_disproportionate_burden_notes",
+    ),
+]
+
 CAPITALISE_FIELDS = [
     "test_type",
     "is_complaint",
     "is_disproportionate_claimed",
     "accessibility_statement_state_final",
     "recommendation_for_enforcement",
+    "disproportionate_burden_state",
     "audit_retest_disproportionate_burden_state",
 ]
 
@@ -213,7 +233,12 @@ def download_ehrc_cases(
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
-    writer.writerow([column.column_name for column in COLUMNS_FOR_EHRC])
+    writer.writerow(
+        [
+            column.column_name
+            for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC
+        ]
+    )
 
     output: List[List[str]] = []
     for case in cases:
@@ -224,6 +249,8 @@ def download_ehrc_cases(
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
+        for column in EXTRA_AUDIT_COLUMNS_FOR_EHRC:
+            row.append(format_model_field(model_instance=case.audit, column=column))  # type: ignore
         output.append(row)
     writer.writerows(output)
 

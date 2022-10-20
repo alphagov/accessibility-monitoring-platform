@@ -10,9 +10,9 @@ selenium
 xmltodict
 Markdown
 moto
-webdriver-manager
 django-axes
 django-two-factor-auth
 phonenumbers
 django-csp
 pytest-django
+webdriver-manager

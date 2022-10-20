@@ -1,0 +1,14 @@
+[
+{
+    "model": "common.platform",
+    "pk": 1,
+    "fields": {
+        "active_qa_auditor": 2,
+        "platform_accessibility_statement": "# Accessibility statement\n\nPlaceholder for platform.",
+        "platform_privacy_notice": "# Privacy notice\n\nPlaceholder for platform.",
+        "report_viewer_accessibility_statement": "# Accessibility statement\r\n\r\nPlaceholder",
+        "report_viewer_privacy_notice": "# Privacy notice\r\n\r\nPlaceholder",
+        "markdown_cheatsheet": ""
+    }
+}
+]

@@ -201,6 +201,10 @@ img, .amp-max-width-100 {
     margin-left: 10px;
 }
 
+.amp-margin-top-0 {
+    margin-top: 0;
+}
+
 .amp-margin-top-10 {
     margin-top: 10px;
 }
@@ -660,6 +664,17 @@ img, .amp-max-width-100 {
         }
     }
 
+    table[id^='email-issues-table-'] {
+        tr td:nth-child(1) {
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        td {
+            width: 33%;
+        }
+    }
+
     table#urls-table {
         page-break-before: avoid;
 
@@ -732,4 +747,8 @@ img, .amp-max-width-100 {
 
 .table-edit-header {
     width:52%;
+}
+
+.amp-orange {
+    color: Orange;
 }

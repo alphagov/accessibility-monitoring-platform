@@ -114,7 +114,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
     not_found = AMPChoiceCheckboxField(
         label="Not found?",
         choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(),
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Mark page as not found"}),
     )
     is_form = AMPChoiceCheckboxField(
         label="Page is a form",

@@ -58,7 +58,9 @@
                 {% include 'audits/details/statement.html' %}
                 {% include 'audits/details/statement_decision.html' %}
                 {% include 'audits/details/report_options.html' %}
-                {% include 'audits/details/report_text.html' %}
+                {% if audit.case.report_methodology == 'odt' %}
+                    {% include 'audits/details/report_text.html' %}
+                {% endif %}
             </div>
         </div>
     </main>

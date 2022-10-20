@@ -1,0 +1,17 @@
+[
+{
+    "model": "cases.contact",
+    "pk": 1,
+    "fields": {
+        "case": 1,
+        "name": "Example Contact",
+        "job_title": "",
+        "email": "example@example.com",
+        "preferred": "unknown",
+        "notes": "",
+        "created": "2022-09-06T12:43:37.798Z",
+        "created_by": "",
+        "is_deleted": false
+    }
+}
+]

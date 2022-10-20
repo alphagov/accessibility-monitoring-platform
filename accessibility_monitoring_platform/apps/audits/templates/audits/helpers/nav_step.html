@@ -4,7 +4,7 @@
                         {{ page }}
                         {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                     {% else %}
-                        <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="nav-step">
                             {{ page }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% endif %}
                     {% if complete %}&check;{% endif %}
@@ -13,7 +13,7 @@
                         {{ name }}
                         {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
                     {% else %}
-                        <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state"  data-cy="nav-step">
                             {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                     {% endif %}
                     {% if complete %}&check;{% endif %}

@@ -103,7 +103,9 @@ class CaseSearchForm(AMPDateRangeForm):
     date_start = AMPDateField(label="Date start")
     date_end = AMPDateField(label="Date end")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    is_complaint = AMPChoiceField(label="Filter complaints", choices=IS_COMPLAINT_CHOICES)
+    is_complaint = AMPChoiceField(
+        label="Filter complaints", choices=IS_COMPLAINT_CHOICES
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

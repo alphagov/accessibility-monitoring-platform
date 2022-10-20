@@ -77,17 +77,10 @@ test:
 	npm test
 
 int_test:
-	python3 stack_tests/main.py
+	docker-compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
 deploy_prototype:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json
 
 breakdown_prototype:
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_feature_settings.json
-
-staging_env:
-	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
-	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_stage_env_settings.json
-	python3 stack_tests/main.py -s ./stack_tests/smoke_tests_report_viewer_stage_env_settings.json
-	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
-

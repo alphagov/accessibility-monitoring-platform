@@ -22,6 +22,7 @@ cases.csv
 temp_manifest.yml
 backup.sql
 common/static/compiled/*
+*.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -239,3 +240,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# cypress
+stack_tests/integration_tests/cypress/downloads
+stack_tests/integration_tests/cypress/screenshots
+stack_tests/integration_tests/cypress/videos

@@ -1,0 +1,79 @@
+[
+{
+    "model": "common.sector",
+    "pk": 1,
+    "fields": {
+        "name": "Central Government"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 2,
+    "fields": {
+        "name": "Local Government"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 3,
+    "fields": {
+        "name": "Health"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 4,
+    "fields": {
+        "name": "Education"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 5,
+    "fields": {
+        "name": "Law and public safety"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 6,
+    "fields": {
+        "name": "Agencies and other public bodies"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 7,
+    "fields": {
+        "name": "Voluntary and charity sector"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 8,
+    "fields": {
+        "name": "Private Sector Business"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 9,
+    "fields": {
+        "name": "Devolved administration"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 10,
+    "fields": {
+        "name": "Employment organisation"
+    }
+},
+{
+    "model": "common.sector",
+    "pk": 11,
+    "fields": {
+        "name": "Defence"
+    }
+}
+]

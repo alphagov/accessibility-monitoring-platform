@@ -985,8 +985,6 @@ class TestCaseTestingUI(TestCase):
         Tests whether case test report options page can be updated
     test_update_test_test_summary()
         Tests whether case test summary page can be updated
-    test_update_test_report_text()
-        Tests whether case test report text page can be updated
     """
 
     def setUp(self):
@@ -1173,19 +1171,6 @@ class TestCaseTestingUI(TestCase):
 
         self.driver.find_element(
             "css selector", "#id_audit_summary_complete_date"
-        ).click()
-
-        self.driver.find_element("name", "save").click()
-        self.driver.find_element("link text", "Test").click()
-
-        self.assertTrue(">View test</h1>" in self.driver.page_source)
-
-    def test_update_test_report_text(self):
-        """Tests whether case test report text page can be updated"""
-        self.driver.find_element("link text", "Edit Report text").click()
-
-        self.driver.find_element(
-            "css selector", "#id_audit_report_text_complete_date"
         ).click()
 
         self.driver.find_element("name", "save").click()
