@@ -22,6 +22,7 @@ cases.csv
 temp_manifest.yml
 backup.sql
 common/static/compiled/*
+*.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
