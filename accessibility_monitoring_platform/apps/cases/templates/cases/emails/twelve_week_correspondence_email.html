@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | 12-week email template{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-twelve-week-correspondence' case.id %}">12-week correspondence</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Email template
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Email template' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                        Ensure the information is correct before sending
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                    Copy email template
+                </button>
+                <a
+                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to  12-week correspondence
+                </a>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div id="email-text" class="amp-report-wrapper">
+                    <p>Dear <span class="amp-orange">(named contact),</span></p>
+                    <p>
+                        We emailed you an accessibility report on {{ case.report_sent_date|amp_date }}
+                        with a deadline of {{ case.report_followup_week_12_due_date|amp_date }}
+                        to review the accessibility of {{ case.home_page_url }}
+                        and fix any issues.
+                    </p>
+
+                    <p>You must now provide an update on the progress you have made.</p>
+
+                    <p class="amp-margin-bottom-0"><b>What you need to do</b></p>
+
+                    <p class="amp-margin-top-0">Please provide an update on each issue raised in the accessibility report including:</p>
+
+                    <ul>
+                        <li>Issues you have fixed</li>
+                        <li>Issues you have been unable to fix</li>
+                        <li>A timeline for fixing unresolved issues</li>
+                        <li>Any other comments about the accessibility of your website</li>
+                    </ul>
+
+                    <p>
+                        The issues found in the report have been listed below.
+                        You do not need to provide information from your own audit.
+                    </p>
+
+                    <p>
+                        Please provide these by filling in the last column of the below tables
+                        and provide an update on the Accessibility statement.
+                    </p>
+
+                    {% for section in case.report.section_set.all %}
+                        {% if section.template_type == 'issues' and section.visible_table_rows.all %}
+                            <br />
+                            <h2>{{ section.name }}</h2>
+                            {% if section.template_type == 'html' %}
+                                {{ section.content|safe }}
+                            {% else %}
+                                {{ section.content|markdown_to_html }}
+                            {% endif %}
+                            <table id="email-issues-table-{{ forloop.counter }}">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th id="issue-{{ forloop.counter }}">Issue and description</th>
+                                        <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
+                                        <th id="12-week-update-{{ forloop.counter }}">12-week update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in section.visible_table_rows.all %}
+                                        <tr valign="top">
+                                            <td>{{ forloop.counter }}</td>
+                                            <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                                            <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                                            <td headers="12-week-update-{{ forloop.counter }}"></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    {% endfor %}
+
+                    <p>Accessibility statement comments:</p>
+
+                    {{ case.audit.get_accessibility_statement_state_display }}
+
+                    {% if case.audit.accessibility_statement_state == 'found-but' %}
+                        <ul>
+                            {% for issue in case.audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    <p>Please provide the update within 7 days.</p>
+
+                    <p>
+                        We will retest parts of your website to check that they meet the
+                        accessibility regulations.
+                    </p>
+
+                    <p>
+                        Any remaining accessibility issues will be passed to the
+                        {% if case.enforcement_body == 'ehrc' %}
+                            Equality and Human Rights Commission (EHRC)
+                        {% else %}
+                            Equality Commission for Northern Ireland (ECNI)
+                        {% endif %}
+                        for further action and a list of websites without correct
+                        accessibility statements will be published by the Cabinet Office.
+                    </p>
+
+                    <p>Many thanks,</p>
+
+                    <p>{{ case.auditor.get_full_name }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-top-10">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                    Copy email template
+                </button>
+                <a
+                    href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to  12-week correspondence
+                </a>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/cases_copy_email.js' %}"></script>
+</div>
+{% endblock %}

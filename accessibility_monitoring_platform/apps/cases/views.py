@@ -12,8 +12,10 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -661,6 +663,15 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
+
+class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/twelve_week_correspondence_email.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["case"] = get_object_or_404(Case, id=kwargs.get("pk"))
+        return context
 
 class CaseNoPSBResponseUpdateView(CaseUpdateView):
     """

@@ -160,7 +160,7 @@ urlpatterns: List[URLPattern] = [
         name="edit-audit-retest-statement-decision",
     ),
     path(
-        "wcag-definition-list",
+        "wcag-definition-list/",
         login_required(WcagDefinitionListView.as_view()),
         name="wcag-definition-list",
     ),
