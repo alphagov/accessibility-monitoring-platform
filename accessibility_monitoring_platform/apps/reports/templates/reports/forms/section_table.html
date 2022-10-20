@@ -11,18 +11,10 @@
             <thead>
                 <tr>
                     <th scope="col" class="govuk-table__cell table-edit-header">
-                        {% if section.template_type == 'urls' %}
-                            Page Name
-                        {% elif section.template_type == 'issues' %}
-                            Issue and description
-                        {% endif %}
+                        {{ table_header_column_1 }}
                     </th>
                     <th scope="col" class="govuk-table__cell">
-                        {% if section.template_type == 'urls' %}
-                            URL
-                        {% elif section.template_type == 'issues' %}
-                            Where the issue was found
-                        {% endif %}
+                        {{ table_header_column_2 }}
                     </th>
                 </tr>
             </thead>

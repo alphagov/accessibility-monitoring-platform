@@ -43,7 +43,8 @@ class SectionUpdateForm(VersionForm):
 
     template_type = forms.CharField(widget=forms.HiddenInput())
     content = AMPTextField(
-        label="", widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "20"})
+        label="Edit report content",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "20"}),
     )
 
     def clean(self):

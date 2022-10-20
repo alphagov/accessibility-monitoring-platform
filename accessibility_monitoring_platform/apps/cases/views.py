@@ -673,6 +673,7 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
         context["case"] = get_object_or_404(Case, id=kwargs.get("pk"))
         return context
 
+
 class CaseNoPSBResponseUpdateView(CaseUpdateView):
     """
     View to set no psb contact flag
