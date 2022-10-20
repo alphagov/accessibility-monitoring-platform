@@ -19,6 +19,8 @@ services:
         image: "platform_image"
         volumes:
             - "../../accessibility_monitoring_platform/:/code/accessibility_monitoring_platform/"
+            - "./cypress/:/code/stack_tests/integration_tests/cypress/"
+            - "./fixtures/:/code/stack_tests/integration_tests/fixtures/"
         command: >
             bash -c "
             make static_files_process;
