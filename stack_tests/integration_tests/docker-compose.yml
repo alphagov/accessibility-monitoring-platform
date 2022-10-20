@@ -1,0 +1,104 @@
+version: "3.7"
+services:
+    db:
+        image: postgres:11.12
+        restart: always
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: secret
+            PGDATA: /var/lib/postgresql/data
+        ports:
+            - "5435:5435"
+        command: -p 5435
+
+    web:
+        build:
+            context: ../..
+            dockerfile: ./stack_tests/integration_tests/platform.Dockerfile
+        image: "platform_image"
+        volumes:
+            - "../../accessibility_monitoring_platform/:/code/accessibility_monitoring_platform/"
+            - "./cypress/:/code/stack_tests/integration_tests/cypress/"
+            - "./fixtures/:/code/stack_tests/integration_tests/fixtures/"
+        command: >
+            bash -c "
+            make static_files_process;
+            python manage.py collectstatic --noinput;
+            python manage.py migrate;
+            python manage.py init_int_test_data;
+            python manage.py recache_statuses;
+            python manage.py runserver 0.0.0.0:8001;
+            "
+        ports:
+            - "8001:8001"
+        depends_on:
+            - db
+            - localstack
+        environment:
+            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001'
+            - SECRET_KEY='123456789'
+            - DEBUG=TRUE
+            - INTEGRATION_TEST=TRUE
+            - PORT='8001'
+            - POSTGRES_NAME=postgres
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_HOST=db
+            - POSTGRES_PORT=5435
+        healthcheck:
+            test: curl --fail http://localhost:8001/healthcheck || exit 1
+        stdin_open: true
+        tty: true
+
+    report_viewer:
+        image: "platform_image"
+        volumes:
+            - "../../report_viewer/:/code/report_viewer/"
+        command: >
+            bash -c "
+            make static_files_process;
+            python manage_report_viewer.py collectstatic --noinput;
+            waitress-serve --port=8002 report_viewer.wsgi:application;
+            "
+        ports:
+            - "8002:8002"
+        depends_on:
+            - db
+            - localstack
+            - web
+        environment:
+            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8002'
+            - SECRET_KEY='123456789'
+            - DEBUG=TRUE
+            - INTEGRATION_TEST=TRUE
+            - PORT='8002'
+            - POSTGRES_NAME=postgres
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_HOST=db
+            - POSTGRES_PORT=5435
+
+    localstack:
+        image: localstack/localstack
+        hostname: localstack
+        ports:
+            - "4567:4566"
+            - "4572:4571"
+        environment:
+            - SERVICES=s3
+            - AWS_DEFAULT_REGION=us-east-1
+            - HOSTNAME_EXTERNAL=localstack
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+
+    cypress:
+        image: "cypress/included:10.7.0"
+        depends_on:
+            web:
+                condition: service_healthy
+        environment:
+            - CYPRESS_baseUrl=http://web:8001
+        volumes:
+            - ./cypress:/cypress
+            - ./cypress.config.js:/cypress.config.js
