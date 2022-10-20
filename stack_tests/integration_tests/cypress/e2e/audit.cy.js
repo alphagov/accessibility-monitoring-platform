@@ -100,10 +100,4 @@ describe('View test', () => {
     cy.get('[name="audit_summary_complete_date"]').click()
     cy.contains('Save').click()
   })
-
-  it('can edit report text', () => {
-    cy.contains('a', 'Edit report text').click()
-    cy.get('[name="audit_report_text_complete_date"]').click()
-    cy.contains('Save').click()
-  })
 })
