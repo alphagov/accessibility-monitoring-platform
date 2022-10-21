@@ -57,40 +57,54 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    <p>Dear <span class="amp-orange">(named contact),</span></p>
-                    <p>
-                        We emailed you an accessibility report on {{ case.report_sent_date|amp_date }}
-                        with a deadline of {{ case.report_followup_week_12_due_date|amp_date }}
-                        to review the accessibility of {{ case.home_page_url }}
-                        and fix any issues.
-                    </p>
-
-                    <p>You must now provide an update on the progress you have made.</p>
-
-                    <p class="amp-margin-bottom-0"><b>What you need to do</b></p>
-
-                    <p class="amp-margin-top-0">Please provide an update on each issue raised in the accessibility report including:</p>
-
+                    Dear <b>(named contact),</b>
+                    <br>
+                    <br>
+                    We emailed you an accessibility report on
+                    {% if case.report_sent_date %}
+                        {{ case.report_sent_date|amp_date }}
+                    {% else %}
+                        <b>(date)</b>
+                    {% endif %}
+                    with a deadline of
+                    {% if case.report_followup_week_12_due_date %}
+                        {{ case.report_followup_week_12_due_date|amp_date }}
+                    {% else %}
+                        <b>(date)</b>
+                    {% endif %}
+                    to review the accessibility of
+                    {% if case.home_page_url %}
+                        <a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>
+                    {% else %}
+                        <b>(home page url)</b>
+                    {% endif %}
+                    and fix any issues.
+                    <br>
+                    <br>
+                    You must now provide an update on the progress you have made.
+                    <br>
+                    <br>
+                    <h2 class="amp-margin-bottom-0">What you need to do</h2>
+                    Please provide an update on each issue raised in the accessibility report including:
+                    <br>
+                    <br>
                     <ul>
                         <li>Issues you have fixed</li>
                         <li>Issues you have been unable to fix</li>
                         <li>A timeline for fixing unresolved issues</li>
                         <li>Any other comments about the accessibility of your website</li>
                     </ul>
-
-                    <p>
-                        The issues found in the report have been listed below.
-                        You do not need to provide information from your own audit.
-                    </p>
-
-                    <p>
-                        Please provide these by filling in the last column of the below tables
-                        and provide an update on the Accessibility statement.
-                    </p>
-
+                    <br>
+                    The issues found in the report have been listed below.
+                    You do not need to provide information from your own audit.
+                    <br>
+                    <br>
+                    Please provide these by filling in the last column of the below tables
+                    and provide an update on the Accessibility statement.
+                    <br>
+                    <br>
                     {% for section in case.report.section_set.all %}
                         {% if section.template_type == 'issues' and section.visible_table_rows.all %}
-                            <br />
                             <h2>{{ section.name }}</h2>
                             {% if section.template_type == 'html' %}
                                 {{ section.content|safe }}
@@ -100,30 +114,29 @@
                             <table id="email-issues-table-{{ forloop.counter }}">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th id="issue-{{ forloop.counter }}">Issue and description</th>
-                                        <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
-                                        <th id="12-week-update-{{ forloop.counter }}">12-week update</th>
+                                        <th width=1%>#</th>
+                                        <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
+                                        <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
+                                        <th id="12-week-update-{{ forloop.counter }}" width=33%>12-week update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for row in section.visible_table_rows.all %}
                                         <tr valign="top">
-                                            <td>{{ forloop.counter }}</td>
-                                            <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
-                                            <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
-                                            <td headers="12-week-update-{{ forloop.counter }}"></td>
+                                            <td width=1%>{{ forloop.counter }}</td>
+                                            <td headers="issue-{{ forloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
+                                            <td headers="where-found-{{ forloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+                                            <td headers="12-week-update-{{ forloop.counter }}" width=33%></td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         {% endif %}
                     {% endfor %}
-
-                    <p>Accessibility statement comments:</p>
-
+                    <h2>Accessibility statement comments</h2>
                     {{ case.audit.get_accessibility_statement_state_display }}
-
+                    <br>
+                    <br>
                     {% if case.audit.accessibility_statement_state == 'found-but' %}
                         <ul>
                             {% for issue in case.audit.report_accessibility_issues %}
@@ -131,28 +144,28 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-
-                    <p>Please provide the update within 7 days.</p>
-
-                    <p>
-                        We will retest parts of your website to check that they meet the
-                        accessibility regulations.
-                    </p>
-
-                    <p>
-                        Any remaining accessibility issues will be passed to the
-                        {% if case.enforcement_body == 'ehrc' %}
-                            Equality and Human Rights Commission (EHRC)
-                        {% else %}
-                            Equality Commission for Northern Ireland (ECNI)
-                        {% endif %}
-                        for further action and a list of websites without correct
-                        accessibility statements will be published by the Cabinet Office.
-                    </p>
-
-                    <p>Many thanks,</p>
-
-                    <p>{{ case.auditor.get_full_name }}</p>
+                    Please provide the update within 7 days.
+                    <br>
+                    <br>
+                    We will retest parts of your website to check that they meet the
+                    accessibility regulations.
+                    <br>
+                    <br>
+                    Any remaining accessibility issues will be passed to the
+                    {% if case.enforcement_body == 'ehrc' %}
+                        Equality and Human Rights Commission (EHRC)
+                    {% else %}
+                        Equality Commission for Northern Ireland (ECNI)
+                    {% endif %}
+                    for further action and a list of websites without correct
+                    accessibility statements will be published by the Cabinet Office.
+                    <br>
+                    <br>
+                    Many thanks,
+                    <br>
+                    <br>
+                    {{ case.auditor.get_full_name }}
+                    <br>
                 </div>
             </div>
         </div>
