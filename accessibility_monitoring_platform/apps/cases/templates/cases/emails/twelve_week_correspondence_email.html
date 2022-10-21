@@ -57,26 +57,26 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div id="email-text" class="amp-report-wrapper">
-                    Dear <b>(named contact),</b>
+                    Dear <b>[NAMED CONTACT]</b>,
                     <br>
                     <br>
                     We emailed you an accessibility report on
                     {% if case.report_sent_date %}
                         {{ case.report_sent_date|amp_date }}
                     {% else %}
-                        <b>(date)</b>
+                        <b>[DATE]</b>
                     {% endif %}
                     with a deadline of
                     {% if case.report_followup_week_12_due_date %}
                         {{ case.report_followup_week_12_due_date|amp_date }}
                     {% else %}
-                        <b>(date)</b>
+                        <b>[DATE]</b>
                     {% endif %}
                     to review the accessibility of
                     {% if case.home_page_url %}
                         <a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>
                     {% else %}
-                        <b>(home page url)</b>
+                        <b>[HOME PAGE URL]</b>
                     {% endif %}
                     and fix any issues.
                     <br>
