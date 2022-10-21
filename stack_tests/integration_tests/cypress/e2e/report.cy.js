@@ -75,7 +75,7 @@ describe('Report publisher', () => {
     it('can edit pages we checked', () => {
       cy.get('a[data-cy="edit-report-link"]').eq(4).click()
       cy.title().should('eq', 'ExampleCorp | Pages we checked')
-      cy.get('[name="content"]').clear().type(reportPagesWeChecked)
+      cy.get('[name="form-0-cell_content_1"]').clear().type(reportPagesWeChecked)
       cy.contains('Move row up').click()
       cy.contains('Save and return to report view').click()
       cy.contains(reportPagesWeChecked)
