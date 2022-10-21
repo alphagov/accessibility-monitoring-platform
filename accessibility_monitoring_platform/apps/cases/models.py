@@ -5,6 +5,7 @@ from datetime import date, timedelta
 import re
 from typing import Dict, List, Optional, Tuple
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -861,6 +862,13 @@ class Case(VersionModel):
             return self.report_case  # type: ignore
         except ObjectDoesNotExist:
             return None
+
+    @property
+    def published_report_url(self):
+        if self.report and self.report.latest_s3_report:
+            return f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{self.report.latest_s3_report.guid}"
+        else:
+            return ""
 
 
 class Contact(models.Model):
