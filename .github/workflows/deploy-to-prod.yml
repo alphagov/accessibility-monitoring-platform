@@ -48,6 +48,13 @@ jobs:
         AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
         AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
         AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
+    - name: Smoke tests
+      run: |
+        cd stack_tests/smoke_tests
+        docker-compose up --abort-on-container-exit
+      env:
+        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
 
   deploy:
     needs: int-test
@@ -89,11 +96,3 @@ jobs:
       run: |
         cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
         cf push -f cf_manifest/manifest-prod.yml
-
-    - name: Smoke tests
-      run: |
-        cd stack_tests/smoke_tests
-        docker-compose up --abort-on-container-exit
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
