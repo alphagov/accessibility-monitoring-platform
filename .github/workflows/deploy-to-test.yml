@@ -30,13 +30,6 @@ jobs:
         npm i
         make static_files_process
         make test
-    - name: Smoke tests
-      run: |
-        cd stack_tests/smoke_tests
-        docker-compose up --abort-on-container-exit
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
 
   int-test:
     needs: test
@@ -48,14 +41,14 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
-    - name: Integration tests
+    - name: Smoke tests
       run: |
-        cd stack_tests/integration_tests
+        cd stack_tests/smoke_tests
         docker-compose up --abort-on-container-exit
       env:
-        AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
-        AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
-        AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
+        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+
 
   deploy:
     needs: int-test
