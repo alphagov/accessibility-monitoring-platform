@@ -35,7 +35,7 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
-COLUMNS_FOR_EHRC = [
+COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Equality body",
         field_name="enforcement_body",
@@ -88,9 +88,10 @@ COLUMNS_FOR_EHRC = [
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
+    ColumnAndFieldNames(column_name="Published report", field_name="published_report_url"),
 ]
 
-EXTRA_AUDIT_COLUMNS_FOR_EHRC = [
+EXTRA_AUDIT_COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Initial disproportionate burden claimed?",
         field_name="disproportionate_burden_state",
