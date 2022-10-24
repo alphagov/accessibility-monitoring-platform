@@ -178,7 +178,7 @@ class CheckResultFilterForm(forms.Form):
     Form for filtering check results
     """
 
-    name = AMPCharFieldWide(label="")
+    name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
     manual = AMPChoiceCheckboxField(
         label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests"})
     )
@@ -757,7 +757,7 @@ class RetestCheckResultFilterForm(forms.Form):
     Form for filtering check results on retest
     """
 
-    name = AMPCharFieldWide(label="")
+    name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
     fixed = AMPChoiceCheckboxField(
         label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Fixed"})
     )
