@@ -58,7 +58,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
-        delete_from_models([CheckResult, Page, Audit, WcagDefinition, UserCacheUniqueHash])
+        delete_from_models(
+            [CheckResult, Page, Audit, WcagDefinition, UserCacheUniqueHash]
+        )
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
         )  # Axes (access)

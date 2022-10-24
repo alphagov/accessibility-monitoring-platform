@@ -11,7 +11,7 @@
         </h3>
         <h3 class="govuk-notification-banner__heading full-max-width">
             Go to the
-            <a href="{{ django_settings.AMP_PROTOCOL }}{{ django_settings.AMP_VIEWER_DOMAIN }}{{ report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            <a href="{{ report.case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 latest published HTML report</a>
             for {{ report.case.organisation_name }}.
         </h3>

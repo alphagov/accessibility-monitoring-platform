@@ -68,7 +68,7 @@
                                     <label class="govuk-label"><b>Published report</b></label>
                                     <div class="govuk-hint">
                                         {% if case.report.latest_s3_report %}
-                                            <a href="{{ django_settings.AMP_PROTOCOL }}{{ django_settings.AMP_VIEWER_DOMAIN }}{{ case.report.latest_s3_report.get_absolute_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                            <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                                                 View final HTML report
                                             </a>
                                         {% else %}

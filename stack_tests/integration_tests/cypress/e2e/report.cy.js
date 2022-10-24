@@ -4,7 +4,7 @@ const metadataNote = 'Report metadata note content'
 const reportIntroduction = 'Alternate report introduction content'
 const reportHowAccessible = 'Alternate how accessible the website is content'
 const reportHowWeChecked = 'Alternate how we checked content'
-const reportPagesWeChecked = 'Alternate pages we checked content'
+const reportPagesWeChecked = 'Alternate page name'
 const reportIssuesWeFound = 'Alternate the issues we found content'
 const reportHomePage = 'Alternate home page content'
 const newIssueDescription = 'New issue description'
@@ -75,7 +75,7 @@ describe('Report publisher', () => {
     it('can edit pages we checked', () => {
       cy.get('a[data-cy="edit-report-link"]').eq(4).click()
       cy.title().should('eq', 'ExampleCorp | Pages we checked')
-      cy.get('[name="content"]').clear().type(reportPagesWeChecked)
+      cy.get('[name="form-0-cell_content_1"]').clear().type(reportPagesWeChecked)
       cy.contains('Move row up').click()
       cy.contains('Save and return to report view').click()
       cy.contains(reportPagesWeChecked)

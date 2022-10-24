@@ -665,6 +665,8 @@ img, .amp-max-width-100 {
     }
 
     table[id^='email-issues-table-'] {
+        table-layout:fixed;
+
         tr td:nth-child(1) {
             width: 1%;
             white-space: nowrap;

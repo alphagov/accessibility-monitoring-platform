@@ -255,7 +255,9 @@ class AuditPagesUpdateView(AuditUpdateView):
         for form in standard_pages_formset:
             if form.instance.page_type == PAGE_TYPE_CONTACT:  # type: ignore
                 form.fields["is_form"].label = "Contact page is a form"
-                form.fields["is_form"].widget = AMPChoiceCheckboxWidget(attrs={"label": "Mark page as a form"})
+                form.fields["is_form"].widget = AMPChoiceCheckboxWidget(
+                    attrs={"label": "Mark page as a form"}
+                )
         context["standard_pages_formset"] = standard_pages_formset
         context["extra_pages_formset"] = extra_pages_formset
         context["standard_page_headers"] = STANDARD_PAGE_HEADERS

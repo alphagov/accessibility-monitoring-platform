@@ -11,18 +11,10 @@
             <thead>
                 <tr>
                     <th scope="col" class="govuk-table__cell table-edit-header">
-                        {% if section.template_type == 'urls' %}
-                            Page Name
-                        {% elif section.template_type == 'issues' %}
-                            Issue and description
-                        {% endif %}
+                        {{ table_header_column_1 }}
                     </th>
                     <th scope="col" class="govuk-table__cell">
-                        {% if section.template_type == 'urls' %}
-                            URL
-                        {% elif section.template_type == 'issues' %}
-                            Where the issue was found
-                        {% endif %}
+                        {{ table_header_column_2 }}
                     </th>
                 </tr>
             </thead>
@@ -76,11 +68,11 @@
                                 <div class="govuk-grid-column-one-half">
                                     {% include 'common/form_errors.html' with errors=row_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=row_form.hidden_fields %}
-                                    {% include 'common/amp_field.html' with field=row_form.cell_content_1 %}
+                                    {% include 'common/amp_field_report_table_cell.html' with field=row_form.cell_content_1 field_label=table_header_column_1 %}
                                     {% include 'common/preview_markdown.html' with field_id=row_form.cell_content_1.auto_id %}
                                 </div>
                                 <div class="govuk-grid-column-one-half">
-                                    {% include 'common/amp_field.html' with field=row_form.cell_content_2 %}
+                                    {% include 'common/amp_field_report_table_cell.html' with field=row_form.cell_content_2 field_label=table_header_column_2 %}
                                     {% include 'common/preview_markdown.html' with field_id=row_form.cell_content_2.auto_id %}
                                 </div>
                             </div>

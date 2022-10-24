@@ -28,6 +28,7 @@ from ..models import (
     TableRow,
     Section,
     ReportVisitsMetrics,
+    TEMPLATE_TYPE_URLS,
     TEMPLATE_TYPE_ISSUES_TABLE,
 )
 from ..utils import (
@@ -610,5 +611,77 @@ def test_issues_section_edit_page_contains_warning(admin_client):
             <a href="{test_details_url}" class="govuk-link govuk-link--no-visited-state">
                 testing application</a>
         </strong>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "section_type,table_header_1,table_header_2",
+    [
+        (TEMPLATE_TYPE_URLS, "Page Name", "URL"),
+        (
+            TEMPLATE_TYPE_ISSUES_TABLE,
+            "Issue and description",
+            "Where the issue was found",
+        ),
+    ],
+)
+def test_section_edit_page_tables_use_hidden_labels(
+    section_type, table_header_1, table_header_2, admin_client
+):
+    """
+    Test that the edit section page for report pages with tables
+    contain visually hidden labels in their tables.
+    """
+    report: Report = create_report()
+    section: Section = create_section(report)
+    section.template_type = section_type
+    section.save()
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    TableRow.objects.create(section=section, row_number=1)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label
+                id="id_form-0-cell_content_1-label"
+                class="govuk-visually-hidden"
+                for="id_form-0-cell_content_1">
+                {table_header_1} 1
+            </label>
+            <textarea
+                name="form-0-cell_content_1"
+                cols="40"
+                rows="4"
+                class="govuk-textarea"
+                id="id_form-0-cell_content_1">
+            </textarea>
+        </div>""",
+        html=True,
+    )
+
+    assertContains(
+        response,
+        f"""<div class="govuk-form-group">
+            <label
+                id="id_form-0-cell_content_2-label"
+                class="govuk-visually-hidden"
+                for="id_form-0-cell_content_2">
+                {table_header_2} 1
+            </label>
+            <textarea
+                name="form-0-cell_content_2"
+                cols="40"
+                rows="4"
+                class="govuk-textarea"
+                id="id_form-0-cell_content_2">
+            </textarea>
+        </div>""",
         html=True,
     )
