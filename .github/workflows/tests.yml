@@ -13,14 +13,20 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
-    - name: Smoke tests
+    - name: Unit tests
       run: |
-        cd stack_tests/smoke_tests
-        docker-compose up --abort-on-container-exit
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
-
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements_for_test.txt
+        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=TRUE
+        export INTEGRATION_TEST=FALSE
+        npm i
+        make static_files_process
+        make test
 
   int-test:
     needs: test
