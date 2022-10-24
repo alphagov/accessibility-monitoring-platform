@@ -66,7 +66,9 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
-                            {% include 'common/preview_markdown.html' with field_id=form.content.auto_id %}
+                            {% if section.template_type != 'urls' %}
+                                {% include 'common/preview_markdown.html' with field_id=form.content.auto_id %}
+                            {% endif %}
                         </div>
                     </div>
                     {% if section.has_table %}

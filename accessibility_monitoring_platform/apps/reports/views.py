@@ -24,7 +24,14 @@ from .forms import (
     TableRowFormsetOneExtra,
     ReportWrapperUpdateForm,
 )
-from .models import Report, Section, TableRow, ReportWrapper, ReportVisitsMetrics
+from .models import (
+    Report,
+    Section,
+    TableRow,
+    ReportWrapper,
+    ReportVisitsMetrics,
+    TEMPLATE_TYPE_URLS,
+)
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
@@ -151,6 +158,12 @@ class SectionUpdateView(ReportUpdateView):
         section: Section = self.object  # type: ignore
 
         if section.has_table:
+            if section.template_type == TEMPLATE_TYPE_URLS:
+                context["table_header_column_1"] = "Page Name"
+                context["table_header_column_2"] = "URL"
+            else:
+                context["table_header_column_1"] = "Issue and description"
+                context["table_header_column_2"] = "Where the issue was found"
             if self.request.POST:
                 table_rows_formset: TableRowFormset = TableRowFormset(self.request.POST)
             else:
@@ -177,7 +190,9 @@ class SectionUpdateView(ReportUpdateView):
         """Populate help text with dates"""
         form = super().get_form()
         section: Section = self.object  # type: ignore
-        if section.has_table:
+        if section.template_type == TEMPLATE_TYPE_URLS:
+            form.fields["content"].widget = forms.HiddenInput()
+        elif section.has_table:
             form.fields["content"].widget = forms.Textarea(
                 attrs={"class": "govuk-textarea", "rows": "7"}
             )
