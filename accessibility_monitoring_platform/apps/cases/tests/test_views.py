@@ -2019,7 +2019,9 @@ def test_links_to_contact_and_accessibility_pages_shown(admin_client):
     Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
     )
-    Page.objects.create(audit=audit, page_type=PAGE_TYPE_CONTACT, url=CONTACT_STATEMENT_URL)
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_CONTACT, url=CONTACT_STATEMENT_URL
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
