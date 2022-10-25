@@ -88,7 +88,9 @@ COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
         field_name="report_followup_week_12_due_date",
     ),
     ColumnAndFieldNames(column_name="Retest date", field_name="retested_website_date"),
-    ColumnAndFieldNames(column_name="Published report", field_name="published_report_url"),
+    ColumnAndFieldNames(
+        column_name="Published report", field_name="published_report_url"
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [

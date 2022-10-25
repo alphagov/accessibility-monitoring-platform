@@ -584,6 +584,10 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
+    def contact_page(self):
+        return self.every_page.filter(page_type=PAGE_TYPE_CONTACT).first()
+
+    @property
     def standard_pages(self):
         return self.every_page.exclude(page_type=PAGE_TYPE_EXTRA)
 
