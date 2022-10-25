@@ -17,7 +17,7 @@ from django.urls import reverse
 
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
-from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT
+from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
 from ...common.models import (
     BOOLEAN_TRUE,
     Event,
@@ -72,6 +72,7 @@ TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
+CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -2006,6 +2007,46 @@ def test_delete_contact_adds_update_event(admin_client):
     event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)  # type: ignore
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
+
+
+def test_links_to_contact_and_accessibility_pages_shown(admin_client):
+    """
+    Test that links to the contact and accessibility statement pages on the
+    organisation website are shown on the contact details page.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    )
+    Page.objects.create(audit=audit, page_type=PAGE_TYPE_CONTACT, url=CONTACT_STATEMENT_URL)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, ACCESSIBILITY_STATEMENT_URL)
+    assertContains(response, CONTACT_STATEMENT_URL)
+
+
+def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
+    """
+    Test that links to the contact and accessibility statement pages on the
+    organisation website are not shown on the contact details page if none have
+    been recorded.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "No contact page.")
+    assertContains(response, "No accessibility statement page.")
 
 
 def test_update_case_checks_version(admin_client):
