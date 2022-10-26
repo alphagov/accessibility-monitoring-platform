@@ -65,7 +65,7 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
-    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_FORM,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -253,10 +253,10 @@ class AuditPagesUpdateView(AuditUpdateView):
                     queryset=self.object.extra_pages, prefix="extra"
                 )
         for form in standard_pages_formset:
-            if form.instance.page_type == PAGE_TYPE_CONTACT:  # type: ignore
-                form.fields["is_form"].label = "Contact page is a form"
-                form.fields["is_form"].widget = AMPChoiceCheckboxWidget(
-                    attrs={"label": "Mark page as a form"}
+            if form.instance.page_type == PAGE_TYPE_FORM:  # type: ignore
+                form.fields["is_contact_page"].label = "Form is on contact page"
+                form.fields["is_contact_page"].widget = AMPChoiceCheckboxWidget(
+                    attrs={"label": "Mark as on contact page"}
                 )
         context["standard_pages_formset"] = standard_pages_formset
         context["extra_pages_formset"] = extra_pages_formset
