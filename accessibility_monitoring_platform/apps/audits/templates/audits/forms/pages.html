@@ -63,7 +63,7 @@
                                             </h2>
                                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
-                                            {% if page_form.instance.page_type == 'contact' %}
+                                            {% if page_form.instance.page_type == 'form' %}
                                                 <div class="govuk-grid-row">
                                                     <div class="govuk-grid-column-full">
                                                         {% include 'common/amp_field.html' with field=page_form.name %}
@@ -79,7 +79,7 @@
                                                         {% include 'common/amp_field.html' with field=page_form.not_found %}
                                                     </div>
                                                     <div class="govuk-grid-column-one-half">
-                                                        {% include 'common/amp_field.html' with field=page_form.is_form %}
+                                                        {% include 'common/amp_field.html' with field=page_form.is_contact_page %}
                                                     </div>
                                                 </div>
                                             {% else %}

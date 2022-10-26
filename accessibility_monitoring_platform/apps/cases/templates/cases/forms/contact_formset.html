@@ -27,6 +27,24 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
+                <p class="govuk-body-m">
+                    {% if case.audit.contact_page.url and case.audit.contact_page.not_found == 'no' %}
+                        <a href="{{ case.audit.contact_page.url }}" target="_blank" class="govuk-link">
+                            Open contact page
+                        </a>
+                    {% else %}
+                        No contact page.
+                    {% endif %}
+                </p>
+                <p class="govuk-body-m">
+                    {% if case.audit.accessibility_statement_page.url and case.audit.accessibility_statement_page.not_found == 'no' %}
+                        <a href="{{ case.audit.accessibility_statement_page.url }}" target="_blank" class="govuk-link">
+                            Open accessibility statement page
+                        </a>
+                    {% else %}
+                        No accessibility statement page.
+                    {% endif %}
+                </p>
                 <form method="post" action="{% url 'cases:edit-contact-details' case.id %}">
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}

@@ -35,6 +35,15 @@
                         Publish HTML report
                     </a>
                     <a
+                        href="{% url 'audits:audit-detail' report.case.audit.id %}"
+                        role="button"
+                        draggable="false"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button"
+                    >
+                        Edit test
+                    </a>
+                    <a
                         href="{% url 'reports:edit-report' report.id %}"
                         role="button"
                         draggable="false"

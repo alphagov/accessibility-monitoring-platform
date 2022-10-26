@@ -245,3 +245,6 @@ dist
 stack_tests/integration_tests/cypress/downloads
 stack_tests/integration_tests/cypress/screenshots
 stack_tests/integration_tests/cypress/videos
+stack_tests/smoke_tests/cypress/downloads
+stack_tests/smoke_tests/cypress/screenshots
+stack_tests/smoke_tests/cypress/videos

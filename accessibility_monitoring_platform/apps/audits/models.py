@@ -584,6 +584,10 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
+    def contact_page(self):
+        return self.every_page.filter(page_type=PAGE_TYPE_CONTACT).first()
+
+    @property
     def standard_pages(self):
         return self.every_page.exclude(page_type=PAGE_TYPE_EXTRA)
 
@@ -631,7 +635,7 @@ class Page(models.Model):
     not_found = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    is_form = models.CharField(
+    is_contact_page = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
     retest_complete_date = models.DateField(null=True, blank=True)
