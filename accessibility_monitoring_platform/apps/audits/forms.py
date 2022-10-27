@@ -743,6 +743,7 @@ class AuditRetestPageChecksForm(forms.Form):
         label="",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
+    retest_notes = AMPTextField(label="Additional issues found on page")
 
     class Meta:
         model = Audit
