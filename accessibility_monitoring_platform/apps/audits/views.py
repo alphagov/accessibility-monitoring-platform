@@ -716,9 +716,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         form.fields[
             "retest_page_missing_date"
         ].initial = self.page.retest_page_missing_date
-        form.fields[
-            "retest_notes"
-        ].initial = self.page.retest_notes
+        form.fields["retest_notes"].initial = self.page.retest_notes
         return form
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:

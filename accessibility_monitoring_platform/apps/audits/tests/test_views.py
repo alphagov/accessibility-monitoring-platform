@@ -49,6 +49,7 @@ FIXED_ERROR_NOTES: str = "Fixed error notes"
 WCAG_DEFINITION_TYPE: str = "axe"
 WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
+RETEST_PAGE_NOTES: str = "Retest notes"
 
 
 def create_audit() -> Audit:
@@ -860,6 +861,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
             "form-1-retest_notes": CHECK_RESULT_NOTES,
             "retest_complete_date": "on",
             "retest_page_missing_date": "on",
+            "retest_notes": RETEST_PAGE_NOTES,
         },
         follow=True,
     )
@@ -882,6 +884,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
 
     assert updated_page.retest_complete_date
     assert updated_page.retest_page_missing_date
+    assert updated_page.retest_notes == RETEST_PAGE_NOTES
 
 
 def test_retest_page_shows_and_hides_fixed_errors(admin_client):
