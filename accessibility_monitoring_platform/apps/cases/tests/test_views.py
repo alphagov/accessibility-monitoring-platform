@@ -2631,9 +2631,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
         f"""<li>
             <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
-                Assign an auditor
-            </a>
-        </li>""",
+                Assign an auditor</a></li>""",
         html=True,
     )
 
@@ -2651,10 +2649,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
         f"""<li>
             <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
                 class="govuk-link govuk-link--no-visited-state">
-                Assign an auditor
-            </a>
-            &check;
-        </li>""",
+                Assign an auditor</a>&check;</li>""",
         html=True,
     )
 

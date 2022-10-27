@@ -594,10 +594,13 @@ class Case(VersionModel):
             return "report-in-progress"
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
-            and self.report_approved_status != "yes"
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return "qa-in-progress"
-        elif self.report_approved_status == "yes" and self.report_sent_date is None:
+        elif (
+            self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and self.report_sent_date is None
+        ):
             return "report-ready-to-send"
         elif self.report_sent_date and self.report_acknowledged_date is None:
             return "in-report-correspondence"
@@ -627,17 +630,17 @@ class Case(VersionModel):
         if (
             self.reviewer is None
             and self.report_review_status == REPORT_READY_TO_REVIEW
-            and self.report_approved_status != "yes"
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return STATUS_READY_TO_QA
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
-            and self.report_approved_status != "yes"
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return "in-qa"
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
-            and self.report_approved_status == "yes"
+            and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
             return "qa-approved"
         return "unknown"
