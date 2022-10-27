@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case
+from ..cases.models import Case, Contact
 from ..common.forms import AMPChoiceCheckboxWidget
 from ..common.utils import (
     record_model_update_event,
@@ -460,6 +460,19 @@ class AuditStatement1UpdateView(AuditUpdateView):
 
     form_class: Type[AuditStatement1UpdateForm] = AuditStatement1UpdateForm
     template_name: str = "audits/forms/statement_1.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        if (
+            "add_contact_email" in form.changed_data
+            or "add_contact_notes" in form.changed_data
+        ):
+            Contact.objects.create(
+                case=self.object.case,
+                email=form.cleaned_data.get("add_contact_email", ""),
+                notes=form.cleaned_data.get("add_contact_notes", ""),
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

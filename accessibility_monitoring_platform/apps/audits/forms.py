@@ -320,6 +320,11 @@ class AuditStatement1UpdateForm(VersionForm):
     non_regulation_notes = AMPTextField(label="Notes")
     audit_statement_1_complete_date = AMPDatePageCompleteField()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["add_contact_email"] = AMPCharFieldWide(label="Email")
+        self.fields["add_contact_notes"] = AMPTextField(label="Notes")
+
     class Meta:
         model = Audit
         fields: List[str] = [
