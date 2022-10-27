@@ -33,6 +33,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseEnforcementBodyCorrespondenceUpdateView,
     CaseDeactivateUpdateView,
     CaseReactivateUpdateView,
+    CaseStatusWorkflowDetailView,
 )
 
 app_name: str = "cases"
@@ -152,5 +153,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/reactivate-case/",
         login_required(CaseReactivateUpdateView.as_view()),
         name="reactivate-case",
+    ),
+    path(
+        "<int:pk>/status-workflow/",
+        login_required(CaseStatusWorkflowDetailView.as_view()),
+        name="status-workflow",
     ),
 ]

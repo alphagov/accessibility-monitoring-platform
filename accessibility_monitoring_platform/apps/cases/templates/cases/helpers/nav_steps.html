@@ -8,7 +8,7 @@
                 Reminder due {{ case.reminder.due_date|amp_date }}
             </a>
         {% else %}
-            <a href="{% url "reminders:reminder-create" case.id %}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{% url 'reminders:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Create reminder
             </a>
         {% endif %}
