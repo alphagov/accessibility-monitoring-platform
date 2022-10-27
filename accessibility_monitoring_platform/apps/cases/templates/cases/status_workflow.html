@@ -40,7 +40,7 @@
                 <ul class="govuk-list">
                     <li>
                         <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                            Initial compliance decision decision is not filled in
+                            Initial website compliance decision is not filled in
                         </a>
                         {% if case.is_website_compliant != 'unknown' %}&check;{% endif %}
                     </li>
@@ -99,21 +99,21 @@
                     </li>
                 </ul>
 
-                <h2 class="govuk-heading-s amp-margin-bottom-0">Report acknowledged waiting for 12 week deadline</h2>
+                <h2 class="govuk-heading-s amp-margin-bottom-0">Report acknowledged waiting for 12-week deadline</h2>
                 <ul class="govuk-list">
                     <li>
                         <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                            12 week update requested requires a date
+                            12-week update requested requires a date
                         </a>
                         {% if case.twelve_week_update_requested_date %}&check;{% endif %}
                     </li>
                 </ul>
 
-                <h2 class="govuk-heading-s amp-margin-bottom-0">After 12 week correspondence</h2>
+                <h2 class="govuk-heading-s amp-margin-bottom-0">After 12-week correspondence</h2>
                 <ul class="govuk-list">
                     <li>
                         <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                            12 week update received requires a date or mark the case as having no response
+                            12-week update received requires a date or mark the case as having no response
                         </a>
                         {% if case.twelve_week_correspondence_acknowledged_date or case.no_psb_contact == 'yes' %}&check;{% endif %}
                     </li>

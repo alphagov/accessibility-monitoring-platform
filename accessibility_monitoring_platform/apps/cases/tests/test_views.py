@@ -38,6 +38,10 @@ from ..models import (
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    REPORT_READY_TO_REVIEW,
+    CASE_COMPLETED_SEND,
+    ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
+    ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -73,6 +77,7 @@ DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
+TODAY: date = date.today()
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -1833,12 +1838,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
 
     assert response.status_code == 200
 
-    assertContains(
-        response,
-        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
-            <p class="govuk-body-m">Unassigned case</p>""",
-        html=True,
-    )
+    assertContains(response, "<li>Unassigned case</li>")
 
     assertContains(
         response,
@@ -2609,4 +2609,188 @@ def test_twelve_week_correspondence_no_psb_contact(admin_client):
     assertNotContains(
         response,
         "12-week deadline",
+    )
+
+
+def test_status_workflow_assign_an_auditor(admin_client, admin_user):
+    """
+    Test that the status workflow page ticks 'Assign an auditor' only
+    when an auditor is assigned.
+    """
+    case: Case = Case.objects.create()
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
+                class="govuk-link govuk-link--no-visited-state">
+                Assign an auditor
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    case.auditor = admin_user
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{reverse('cases:edit-case-details', kwargs=case_pk_kwargs)}"
+                class="govuk-link govuk-link--no-visited-state">
+                Assign an auditor
+            </a>
+            &check;
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "path_name,label,field_name,field_value",
+    [
+        (
+            "cases:edit-test-results",
+            "Initial website compliance decision is not filled in",
+            "is_website_compliant",
+            IS_WEBSITE_COMPLIANT_COMPLIANT,
+        ),
+        (
+            "cases:edit-test-results",
+            "Initial accessibility statement decision is not filled in",
+            "accessibility_statement_state",
+            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        ),
+        (
+            "cases:edit-qa-process",
+            "Report ready to be reviewed needs to be Yes",
+            "report_review_status",
+            REPORT_READY_TO_REVIEW,
+        ),
+        (
+            "cases:edit-qa-process",
+            "Report approved needs to be Yes",
+            "report_approved_status",
+            REPORT_APPROVED_STATUS_APPROVED,
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "Report sent on requires a date",
+            "report_sent_date",
+            TODAY,
+        ),
+        (
+            "cases:edit-report-correspondence",
+            "Report acknowledged requires a date",
+            "report_acknowledged_date",
+            TODAY,
+        ),
+        (
+            "cases:edit-no-psb-response",
+            "No response from PSB",
+            "no_psb_contact",
+            BOOLEAN_TRUE,
+        ),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "12-week update requested requires a date",
+            "twelve_week_update_requested_date",
+            TODAY,
+        ),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "12-week update received requires a date or mark the case as having no response",
+            "twelve_week_correspondence_acknowledged_date",
+            TODAY,
+        ),
+        (
+            "cases:edit-twelve-week-correspondence",
+            "12-week update received requires a date or mark the case as having no response",
+            "no_psb_contact",
+            BOOLEAN_TRUE,
+        ),
+        (
+            "cases:edit-review-changes",
+            "Is this case ready for final decision? needs to be Yes",
+            "is_ready_for_final_decision",
+            BOOLEAN_TRUE,
+        ),
+        (
+            "cases:edit-case-close",
+            "Case completed requires a decision",
+            "case_completed",
+            CASE_COMPLETED_SEND,
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "Date sent to equality body requires a date",
+            "sent_to_enforcement_body_sent_date",
+            TODAY,
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'",
+            "enforcement_body_pursuing",
+            ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body pursuing this case? should be 'Yes, completed'",
+            "enforcement_body_pursuing",
+            ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+        ),
+    ],
+)
+def test_status_workflow_page(path_name, label, field_name, field_value, admin_client):
+    """
+    Test that the status workflow page ticks its action links
+    only when the linked action's value has been set.
+    """
+    case: Case = Case.objects.create()
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}  # type: ignore
+    link_url: str = reverse(path_name, kwargs=case_pk_kwargs)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{link_url}" class="govuk-link govuk-link--no-visited-state">
+                {label}</a></li>""",
+        html=True,
+    )
+
+    setattr(case, field_name, field_value)
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{link_url}"
+                class="govuk-link govuk-link--no-visited-state">
+                {label}</a>&check;</li>""",
+        html=True,
     )
