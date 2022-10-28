@@ -7,13 +7,14 @@ from typing import Dict, List, Optional
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
-from ...cases.models import Case, REPORT_METHODOLOGY_ODT
+from ...cases.models import Case, Contact, REPORT_METHODOLOGY_ODT
 from ..models import (
     PAGE_TYPE_PDF,
     Audit,
@@ -686,6 +687,45 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
+
+
+@pytest.mark.parametrize(
+    "email, notes, new_contact_expected",
+    [
+        ("", "", False),
+        ("email", "", True),
+        ("", "notes", True),
+        ("email", "notes", True),
+    ],
+)
+def test_statement_update_one_adds_contact(
+    email, notes, new_contact_expected, admin_client
+):
+    """Test that a contact can be added from the statement update one view"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "add_contact_email": email,
+            "add_contact_notes": notes,
+            "save": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    contacts: QuerySet[Contact] = Contact.objects.filter(case=audit.case)  # type: ignore
+
+    if new_contact_expected:
+        assert len(contacts) == 1
+        contact: Contact = contacts[0]
+        assert contact.email == email
+        assert contact.notes == notes
+    else:
+        assert len(contacts) == 0
 
 
 def test_statement_decision_saved_on_case(admin_client):
