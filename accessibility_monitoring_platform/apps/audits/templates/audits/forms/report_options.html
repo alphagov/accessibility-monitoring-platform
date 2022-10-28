@@ -44,6 +44,14 @@
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_not_specific_enough %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_accessibility_issues %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_missing_mandatory_wording_notes.value %}open{% endif %}>
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">Add additional text for mandatory wording</span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_missing_mandatory_wording_notes %}
+                                </div>
+                            </details>
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_disproportionate %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_accessibility %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete %}
