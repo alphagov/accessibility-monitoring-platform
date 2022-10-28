@@ -357,6 +357,9 @@ class Audit(VersionModel):
     accessibility_statement_missing_mandatory_wording = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    accessibility_statement_missing_mandatory_wording_notes = models.TextField(
+        default="", blank=True
+    )
     accessibility_statement_needs_more_re_disproportionate = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
