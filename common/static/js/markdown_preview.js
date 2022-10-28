@@ -7,6 +7,7 @@ markdown to be previewed.
 */
 
 const showdown = require('showdown')
+showdown.setFlavor('original')
 const converter = new showdown.Converter()
 
 function previewMarkdown (sourceId, targetId) {

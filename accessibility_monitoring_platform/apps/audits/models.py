@@ -643,6 +643,7 @@ class Page(models.Model):
     )
     retest_complete_date = models.DateField(null=True, blank=True)
     retest_page_missing_date = models.DateField(null=True, blank=True)
+    retest_notes = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["id"]

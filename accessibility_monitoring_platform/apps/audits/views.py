@@ -723,12 +723,13 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
     page: Page
 
     def get_form(self):
-        """Populate next page select field"""
+        """Populate next page fields"""
         form = super().get_form()
         form.fields["retest_complete_date"].initial = self.page.retest_complete_date
         form.fields[
             "retest_page_missing_date"
         ].initial = self.page.retest_page_missing_date
+        form.fields["retest_notes"].initial = self.page.retest_notes
         return form
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
@@ -768,6 +769,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         page: Page = self.page
         page.retest_complete_date = form.cleaned_data["retest_complete_date"]
         page.retest_page_missing_date = form.cleaned_data["retest_page_missing_date"]
+        page.retest_notes = form.cleaned_data["retest_notes"]
         page.save()
 
         check_results_formset: CheckResultFormset = context["check_results_formset"]

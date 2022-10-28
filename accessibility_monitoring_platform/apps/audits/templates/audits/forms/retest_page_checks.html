@@ -78,6 +78,18 @@
                         </div>
                     </div>
                     <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <details class="govuk-details" data-module="govuk-details" {% if form.retest_notes.value %}open{% endif %}>
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">Additional issues found on page</span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    {% include 'common/amp_field.html' with field=form.retest_notes %}
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"

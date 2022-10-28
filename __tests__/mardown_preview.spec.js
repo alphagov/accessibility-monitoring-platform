@@ -5,7 +5,7 @@
 const sourceId = 'id_form-0-notes'
 const targetId = 'preview-id_form-0-notes'
 const sourceMarkdown = '# Header 1'
-const expectedHtml = '<h1 id="header1">Header 1</h1>'
+const expectedHtml = '<h1>Header 1</h1>'
 
 document.body.innerHTML = `<textarea id="${sourceId}">${sourceMarkdown}</textarea>
 <div id="${targetId}"></div>`

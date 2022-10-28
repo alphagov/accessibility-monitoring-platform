@@ -213,7 +213,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DATE_FORMAT = "d/m/Y"
 
-MARKDOWN_EXTENSIONS = ["fenced_code"]
+MARKDOWN_EXTENSIONS = ["fenced_code", "sane_lists"]
 
 # django-axes
 AXES_ONLY_USER_FAILURES = True  # Block only on username
