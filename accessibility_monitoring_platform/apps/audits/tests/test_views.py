@@ -718,6 +718,18 @@ def test_statement_update_one_shows_statement_link(admin_client):
     assertNotContains(response, "No accessibility statement found. Add page in")
     assertContains(response, ACCESSIBILITY_STATEMENT_URL)
 
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "No accessibility statement found. Add page in")
+    assertNotContains(response, ACCESSIBILITY_STATEMENT_URL)
+
 
 @pytest.mark.parametrize(
     "email, notes, new_contact_expected",
