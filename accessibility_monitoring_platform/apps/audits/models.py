@@ -699,8 +699,8 @@ class WcagDefinition(models.Model):
 
     def __str__(self) -> str:
         if self.description:
-            return str(f"{self.name}: {self.description}")
-        return self.name
+            return str(f"{self.name}: {self.description} ({self.get_type_display()})")  # type: ignore
+        return f"{self.name} ({self.get_type_display()})"  # type: ignore
 
 
 class CheckResult(models.Model):
