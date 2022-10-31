@@ -320,6 +320,11 @@ class AuditStatement1UpdateForm(VersionForm):
     non_regulation_notes = AMPTextField(label="Notes")
     audit_statement_1_complete_date = AMPDatePageCompleteField()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["add_contact_email"] = AMPCharFieldWide(label="Email")
+        self.fields["add_contact_notes"] = AMPTextField(label="Notes")
+
     class Meta:
         model = Audit
         fields: List[str] = [
@@ -510,6 +515,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_missing_mandatory_wording_notes = AMPTextField(
+        label="Additional text for mandatory wording"
+    )
     accessibility_statement_needs_more_re_disproportionate = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
@@ -662,6 +670,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_not_specific_enough",
             "accessibility_statement_missing_accessibility_issues",
             "accessibility_statement_missing_mandatory_wording",
+            "accessibility_statement_missing_mandatory_wording_notes",
             "accessibility_statement_needs_more_re_disproportionate",
             "accessibility_statement_needs_more_re_accessibility",
             "accessibility_statement_deadline_not_complete",
@@ -743,6 +752,7 @@ class AuditRetestPageChecksForm(forms.Form):
         label="",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
+    retest_notes = AMPTextField(label="Additional issues found on page")
 
     class Meta:
         model = Audit

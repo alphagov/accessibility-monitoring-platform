@@ -44,6 +44,8 @@ EXCLUDED_FIELDS = [
     "review_changes_complete_date",
     "twelve_week_correspondence_complete_date",
     "twelve_week_retest_complete_date",
+    "add_contact_email",
+    "add_contact_notes",
 ]
 EXTRA_LABELS = {
     "test_results_url": "Monitor document",

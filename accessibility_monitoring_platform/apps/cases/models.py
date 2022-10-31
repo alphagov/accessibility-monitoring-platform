@@ -3,7 +3,7 @@ Models - cases
 """
 from datetime import date, timedelta
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -60,11 +60,11 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
     ),
     (
         "in-probation-period",
-        "Report acknowledged waiting for 12 week deadline",
+        "Report acknowledged waiting for 12-week deadline",
     ),
     (
         "in-12-week-correspondence",
-        "After 12 week correspondence",
+        "After 12-week correspondence",
     ),
     (
         "reviewing-changes",
@@ -591,15 +591,18 @@ class Case(VersionModel):
             self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
             and self.accessibility_statement_state
             != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
-            and self.report_review_status != "ready-to-review"
+            and self.report_review_status != REPORT_READY_TO_REVIEW
         ):
             return "report-in-progress"
         elif (
-            self.report_review_status == "ready-to-review"
-            and self.report_approved_status != "yes"
+            self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return "qa-in-progress"
-        elif self.report_approved_status == "yes" and self.report_sent_date is None:
+        elif (
+            self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
+            and self.report_sent_date is None
+        ):
             return "report-ready-to-send"
         elif self.report_sent_date and self.report_acknowledged_date is None:
             return "in-report-correspondence"
@@ -628,142 +631,21 @@ class Case(VersionModel):
     def set_qa_status(self) -> str:
         if (
             self.reviewer is None
-            and self.report_review_status == "ready-to-review"
-            and self.report_approved_status != "yes"
+            and self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return STATUS_READY_TO_QA
         elif (
-            self.report_review_status == "ready-to-review"
-            and self.report_approved_status != "yes"
+            self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return "in-qa"
         elif (
-            self.report_review_status == "ready-to-review"
-            and self.report_approved_status == "yes"
+            self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
             return "qa-approved"
         return "unknown"
-
-    @property
-    def status_requirements(self) -> List[Dict[str, str]]:  # noqa: C901
-        if self.status == "complete":
-            return [
-                {
-                    "text": "No additional requirements",
-                    "url": "None",
-                },
-            ]
-        elif self.status == "unassigned-case":
-            return [
-                {
-                    "text": "Assign an auditor",
-                    "url": "cases:edit-case-details",
-                },
-            ]
-        elif self.status == "test-in-progress":
-            test_in_progress_requirements = []
-            if self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT:
-                test_in_progress_requirements.append(
-                    {
-                        "text": "Initial compliance decision decision is not filled in",
-                        "url": "cases:edit-test-results",
-                    }
-                )
-            if (
-                self.accessibility_statement_state
-                == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
-            ):
-                test_in_progress_requirements.append(
-                    {
-                        "text": "Initial accessibility statement decision is not filled in",
-                        "url": "cases:edit-test-results",
-                    }
-                )
-            return test_in_progress_requirements
-        elif self.status == "report-in-progress":
-            return [
-                {
-                    "text": "Report ready to be reviewed needs to be Yes",
-                    "url": "cases:edit-qa-process",
-                },
-            ]
-        elif self.status == "qa-in-progress":
-            return [
-                {
-                    "text": "Report approved needs to be Yes",
-                    "url": "cases:edit-qa-process",
-                },
-            ]
-        elif self.status == "report-ready-to-send":
-            return [
-                {
-                    "text": "Report sent on requires a date",
-                    "url": "cases:edit-report-correspondence",
-                },
-            ]
-        elif self.status == "in-report-correspondence":
-            return [
-                {
-                    "text": "Report acknowledged requires a date",
-                    "url": "cases:edit-report-correspondence",
-                },
-            ]
-        elif self.status == "in-probation-period":
-            return [
-                {
-                    "text": "12 week update requested requires a date",
-                    "url": "cases:edit-twelve-week-correspondence",
-                },
-            ]
-        elif self.status == "in-12-week-correspondence":
-            return [
-                {
-                    "text": "12 week update received requires a date or mark the case as having no response",
-                    "url": "cases:edit-twelve-week-correspondence",
-                },
-            ]
-        elif self.status == "reviewing-changes":
-            return [
-                {
-                    "text": "Is this case ready for final decision? needs to be Yes",
-                    "url": "cases:edit-review-changes",
-                },
-            ]
-        elif self.status == "final-decision-due":
-            return [
-                {
-                    "text": "Case completed requires a decision",
-                    "url": "cases:edit-case-close",
-                },
-            ]
-        elif self.status == "case-closed-waiting-to-be-sent":
-            return [
-                {
-                    "text": "Date sent to equality body requires a date",
-                    "url": "cases:edit-enforcement-body-correspondence",
-                },
-            ]
-        elif self.status == "case-closed-sent-to-equalities-body":
-            return [
-                {
-                    # pylint: disable-next=line-too-long
-                    "text": "Equality body pursuing this case? should either be 'Yes, completed' or 'Yes, in progress'",
-                    "url": "cases:edit-enforcement-body-correspondence",
-                },
-            ]
-        elif self.status == "in-correspondence-with-equalities-body":
-            return [
-                {
-                    "text": "Equality body pursuing this case? should be 'Yes, completed'",
-                    "url": "cases:edit-enforcement-body-correspondence",
-                }
-            ]
-        return [
-            {
-                "text": "Something has gone wrong :(",
-                "url": "None",
-            },
-        ]
 
     @property
     def in_report_correspondence_progress(self) -> str:
