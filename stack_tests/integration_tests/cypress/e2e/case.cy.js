@@ -147,4 +147,10 @@ describe('View case', () => {
     cy.contains(postCaseNote)
     cy.contains(psbAppealNote)
   })
+
+  it('can see status workflow page', () => {
+    cy.contains('a', 'Edit post case summary').click()
+    cy.contains('View status workflow').click()
+    cy.title().should('eq', `${organisationName} | Status workflow`)
+  })
 })

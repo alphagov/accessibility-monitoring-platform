@@ -51,6 +51,7 @@ WCAG_DEFINITION_TYPE: str = "axe"
 WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
 PAGE_RETEST_NOTES: str = "Retest notes"
+ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 
 
 def create_audit() -> Audit:
@@ -688,6 +689,46 @@ def test_website_decision_saved_on_case(admin_client):
 
     assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
+
+
+def test_statement_update_one_shows_statement_link(admin_client):
+    """Test that a accessibility statement links shown if present"""
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "No accessibility statement found. Add page in")
+    assertNotContains(response, ACCESSIBILITY_STATEMENT_URL)
+
+    page: Page = audit.accessibility_statement_page
+    page.url = ACCESSIBILITY_STATEMENT_URL
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "No accessibility statement found. Add page in")
+    assertContains(response, ACCESSIBILITY_STATEMENT_URL)
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-statement-1", kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "No accessibility statement found. Add page in")
+    assertNotContains(response, ACCESSIBILITY_STATEMENT_URL)
 
 
 @pytest.mark.parametrize(
