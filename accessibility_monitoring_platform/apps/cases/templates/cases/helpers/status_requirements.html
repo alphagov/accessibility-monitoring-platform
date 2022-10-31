@@ -7,7 +7,14 @@
     {% endif %}
 </p>
 <h2 class="govuk-heading-m amp-margin-bottom-5">Case status</h2>
-<p class="govuk-body-m">{{ case.get_status_display }}</p>
+<ul class="govuk-list">
+    <li>{{ case.get_status_display }}</li>
+    <li>
+        <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            View status workflow
+        </a>
+    </li>
+</ul>
 <h2 class="govuk-heading-m amp-margin-bottom-5">Published report</h2>
 <p class="govuk-body-m">
     {% if case.report.latest_s3_report %}
@@ -18,15 +25,3 @@
         None
     {% endif %}
 </p>
-<h2 class="govuk-heading-m amp-margin-bottom-5">Status requirements</h2>
-<ul class="govuk-list">
-    {% for requirement in case.status_requirements %}
-        <li>
-            {% if requirement.url == "None" %}
-                {{ requirement.text }}
-            {% else %}
-                <a href="{% url requirement.url case.id %}" class="govuk-link govuk-link--no-visited-state">{{ requirement.text }}</a>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
