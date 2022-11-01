@@ -102,4 +102,6 @@ services:
         volumes:
             - ./cypress:/cypress
             - ./cypress.config.js:/cypress.config.js
-        entrypoint: /cypress/entrypoint.sh
+            - ./entrypoint.sh:/entrypoint.sh
+        working_dir: /cypress
+        entrypoint: "/entrypoint.sh"
