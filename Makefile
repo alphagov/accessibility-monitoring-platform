@@ -79,6 +79,12 @@ test:
 int_test:
 	docker-compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
+staging_env:
+    python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
+	docker-compose --file stack_tests/smoke_tests/staging-platform.docker-compose.yml up --abort-on-container-exit
+    # python3 stack_tests/main.py -s ./stack_tests/smoke_tests_report_viewer_stage_env_settings.json
+    python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
+
 deploy_prototype:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_feature_settings.json
 
