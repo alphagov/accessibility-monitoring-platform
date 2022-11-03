@@ -13,6 +13,15 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
+    - name: Smoke tests
+      run: |
+        cd stack_tests/smoke_tests
+        docker-compose up --abort-on-container-exit
+        cd ../smoke_tests_viewer
+        docker-compose up --abort-on-container-exit
+      env:
+        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
     - name: Unit tests
       run: |
         python3 -m venv venv
