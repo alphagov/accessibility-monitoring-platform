@@ -110,6 +110,8 @@ jobs:
       run: |
         cd stack_tests/smoke_tests
         docker-compose up --abort-on-container-exit
+        cd ../smoke_tests_viewer
+        docker-compose up --abort-on-container-exit
       env:
         SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
         SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}

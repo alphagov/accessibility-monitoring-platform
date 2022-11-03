@@ -82,6 +82,7 @@ int_test:
 staging_env:
 	python deploy_feature_to_paas/main.py -b up -s deploy_feature_to_paas/deploy_staging_settings.json -f true
 	docker-compose --file stack_tests/smoke_tests/staging-platform.docker-compose.yml up --abort-on-container-exit
+	docker-compose --file stack_tests/smoke_tests_viewer/staging-viewer.docker-compose.yml up --abort-on-container-exit
 	python deploy_feature_to_paas/main.py -b down -s deploy_feature_to_paas/deploy_staging_settings.json
 
 deploy_prototype:
