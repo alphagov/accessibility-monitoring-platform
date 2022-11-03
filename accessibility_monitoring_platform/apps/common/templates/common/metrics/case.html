@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+{% load humanize %}
+
+{% block title %}Case metrics{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/metrics/breadcrumbs.html' with current='Case metrics' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/metrics/nav_steps.html' with current='common:metrics-case' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
+                <p class="govuk-body-m">Cases created in {% now "F" %}</p>
+                <p class="govuk-body-m">
+                    <span class="govuk-body-l"><b>{{ cases_this_month }}</b></span>
+                    Projected {{ projected_percentage_change }}%
+                    {% if projected_percentage_change < 0 %}under{% else %}over{% endif %}
+                    {{ first_of_last_month|date:"F" }} ({{ cases_last_month }} cases)</p>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

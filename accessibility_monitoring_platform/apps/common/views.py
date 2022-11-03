@@ -2,12 +2,15 @@
 Common views
 """
 from typing import Any, Dict, Type
+import calendar
+from datetime import date, datetime
 
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
@@ -148,11 +151,31 @@ class MarkdownCheatsheetTemplateView(PlatformTemplateView):
     template_name: str = "common/settings/markdown_cheatsheet.html"
 
 
-class MetricsOverviewTemplateView(TemplateView):
-    template_name: str = "common/metrics/overview.html"
+class MetricsCaseTemplateView(TemplateView):
+    template_name: str = "common/metrics/case.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["number_of_cases"] = Case.objects.count()
+        now: datetime = timezone.now()
+        first_of_this_month: date = date(now.year, now.month, 1)
+        if now.month > 1:
+            first_of_last_month: date = date(now.year, now.month - 1, 1)
+        else:
+            first_of_last_month: date = date(now.year - 1, 12, 1)
+        context["first_of_last_month"] = first_of_last_month
+        cases_this_month: int = Case.objects.filter(
+            created__gte=first_of_this_month
+        ).count()
+        context["cases_this_month"] = cases_this_month
+        cases_last_month: int = (
+            Case.objects.filter(created__gte=first_of_last_month)
+            .filter(created__lt=first_of_this_month)
+            .count()
+        )
+        context["cases_last_month"] = cases_last_month
+        days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
+        projected_percentage: int = int(((cases_this_month / (now.day / days_in_current_month)) / cases_last_month) * 100)
+        projected_percentage_change: int = projected_percentage - 100
+        context["projected_percentage_change"] = projected_percentage_change
         return context

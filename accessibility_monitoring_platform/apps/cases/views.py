@@ -665,7 +665,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/emails/twelve_week_correspondence_email.html"
+    template_name: str = "cases/twelve_week_correspondence_email.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""

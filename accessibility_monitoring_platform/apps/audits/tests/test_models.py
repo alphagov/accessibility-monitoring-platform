@@ -242,4 +242,7 @@ def test_wcag_definition_strings():
     wcag_definition_with_description: WcagDefinition = WcagDefinition(
         type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME, description=WCAG_DESCRIPTION
     )
-    assert str(wcag_definition_with_description) == f"{WCAG_TYPE_PDF_NAME}: {WCAG_DESCRIPTION} (PDF)"
+    assert (
+        str(wcag_definition_with_description)
+        == f"{WCAG_TYPE_PDF_NAME}: {WCAG_DESCRIPTION} (PDF)"
+    )
