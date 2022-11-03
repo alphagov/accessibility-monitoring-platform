@@ -13,15 +13,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
-    - name: Smoke tests
-      run: |
-        cd stack_tests/smoke_tests
-        docker-compose up --abort-on-container-exit
-        cd ../smoke_tests_viewer
-        docker-compose up --abort-on-container-exit
-      env:
-        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+
     - name: Unit tests
       run: |
         python3 -m venv venv
@@ -36,6 +28,32 @@ jobs:
         npm i
         make static_files_process
         make test
+
+    - name: Installing cloud foundry
+      run: |
+        sudo apt-get update
+        sudo apt install wget -y
+        sudo apt-get install gnupg2 -y
+        wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+        echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+        sudo apt-get update
+        sudo apt-get install cf7-cli
+
+    - name: Staging
+      run: |
+        source venv/bin/activate
+        cf login -a ${{ secrets.CF_ENDPOINT }} -u ${{ secrets.CF_USER }} -p '${{ secrets.CF_PASSWORD }}' -o ${{ secrets.CF_ORGANISATION }} -s monitoring-platform-production
+        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
+        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
+        export SECRET_KEY=1234
+        export DEBUG=FALSE
+        make staging_env
+      env:
+        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+        AWS_ACCESS_KEY_ID_S3_STORE: ${{ secrets.AWS_ACCESS_KEY_ID_S3_STORE }}
+        AWS_SECRET_ACCESS_KEY_S3_STORE: ${{ secrets.AWS_SECRET_ACCESS_KEY_S3_STORE }}
+        AWS_DEFAULT_REGION_S3_STORE: ${{ secrets.AWS_DEFAULT_REGION_S3_STORE }}
 
   int-test:
     needs: test
