@@ -27,6 +27,15 @@ jobs:
         npm i
         make static_files_process
         make test
+    - name: Installing cloud foundry
+      run: |
+        sudo apt-get update
+        sudo apt install wget -y
+        sudo apt-get install gnupg2 -y
+        wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+        echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+        sudo apt-get update
+        sudo apt-get install cf7-cli
     - name: Staging
       run: |
         source venv/bin/activate
