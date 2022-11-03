@@ -18,9 +18,12 @@
                 <p class="govuk-body-m">Cases created in {% now "F" %}</p>
                 <p class="govuk-body-m">
                     <span class="govuk-body-l"><b>{{ cases_this_month }}</b></span>
-                    Projected {{ projected_percentage_change }}%
-                    {% if projected_percentage_change < 0 %}under{% else %}over{% endif %}
-                    {{ first_of_last_month|date:"F" }} ({{ cases_last_month }} cases)</p>
+                    {% if projected_percentage_change %}
+                        Projected {{ projected_percentage_change }}%
+                        {% if projected_percentage_change < 0 %}under{% else %}over{% endif %}
+                    {% endif %}
+                    {{ first_of_last_month|date:"F" }} ({{ cases_last_month }} cases)
+                </p>
             </div>
         </div>
     </main>

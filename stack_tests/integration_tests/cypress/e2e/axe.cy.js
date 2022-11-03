@@ -49,7 +49,7 @@ const loggedInUrls = [
   '/common/contact/',
   '/common/edit-active-qa-auditor/',
   '/common/markdown-cheatsheet/',
-  '/common/metrics-overview/',
+  '/common/metrics-case/',
   '/common/platform-versions/',
   '/common/report-issue/',
   '/notifications/notifications-list/',

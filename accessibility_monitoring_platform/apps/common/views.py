@@ -174,8 +174,9 @@ class MetricsCaseTemplateView(TemplateView):
             .count()
         )
         context["cases_last_month"] = cases_last_month
-        days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
-        projected_percentage: int = int(((cases_this_month / (now.day / days_in_current_month)) / cases_last_month) * 100)
-        projected_percentage_change: int = projected_percentage - 100
-        context["projected_percentage_change"] = projected_percentage_change
+        if cases_last_month > 0:
+            days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
+            projected_percentage: int = int(((cases_this_month / (now.day / days_in_current_month)) / cases_last_month) * 100)
+            projected_percentage_change: int = projected_percentage - 100
+            context["projected_percentage_change"] = projected_percentage_change
         return context

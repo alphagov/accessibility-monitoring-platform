@@ -29,7 +29,7 @@ class="govuk-link govuk-link--no-visited-state">report</a>"""
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
-        ("common:metrics-overview", ">Overview</h1>"),
+        ("common:metrics-case", ">Case metrics</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
