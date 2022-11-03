@@ -124,9 +124,9 @@
                                     {% for row in section.visible_table_rows.all %}
                                         <tr valign="top">
                                             <td width=1%>{{ forloop.counter }}</td>
-                                            <td headers="issue-{{ forloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
-                                            <td headers="where-found-{{ forloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
-                                            <td headers="12-week-update-{{ forloop.counter }}" width=33%></td>
+                                            <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
+                                            <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+                                            <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
