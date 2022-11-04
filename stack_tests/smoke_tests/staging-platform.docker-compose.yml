@@ -7,4 +7,4 @@ services:
             - CYPRESS_SMOKE_TESTS_PASSWORD=${SMOKE_TESTS_PASSWORD}
         volumes:
             - ./cypress:/cypress
-            - ./cypress.config.js:/cypress.config.js
+            - ./staging-platform.cypress.config.js:/cypress.config.js

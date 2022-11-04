@@ -30,6 +30,7 @@ PAGE_NAME = "Page name"
 WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
+WCAG_DESCRIPTION: str = "WCAG definition description"
 
 
 def create_audit_and_pages() -> Audit:
@@ -227,3 +228,18 @@ def test_check_result_returns_id_and_fields_for_retest():
         "retest_state": RETEST_CHECK_RESULT_DEFAULT,
         "retest_notes": "",
     }
+
+
+def test_wcag_definition_strings():
+    """
+    Test WCAg definitions return expected string values.
+    """
+    wcag_definition: WcagDefinition = WcagDefinition(
+        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
+    )
+    assert str(wcag_definition) == f"{WCAG_TYPE_PDF_NAME} (PDF)"
+
+    wcag_definition_with_description: WcagDefinition = WcagDefinition(
+        type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME, description=WCAG_DESCRIPTION
+    )
+    assert str(wcag_definition_with_description) == f"{WCAG_TYPE_PDF_NAME}: {WCAG_DESCRIPTION} (PDF)"
