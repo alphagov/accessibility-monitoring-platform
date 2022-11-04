@@ -15,11 +15,30 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
-                <p class="govuk-body-m">Today is {{ today|amp_date }}</p>
+                <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
                 {% for metric in metrics %}
                     <p class="govuk-body-m">{{ metric.label }} in {% now "F" %}</p>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
+                        <svg
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 40 40"
+                            width="40"
+                            height="40"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            fill="none"
+                        >
+                            <line x1="20" y1="5" x2="20" y2="35"/>
+                            {% if metric.expected_progress_difference_label == 'under' %}
+                                <line x1="20" y1="35" x2="30" y2="30"/>
+                                <line x1="20" y1="35" x2="10" y2="30"/>
+                            {% else %}
+                                <line x1="20" y1="5" x2="30" y2="10"/>
+                                <line x1="20" y1="5" x2="10" y2="10"/>
+                            {% endif %}
+                        </svg>
                         {% if metric.expected_progress_difference_label %}
                             Projected {{ metric.expected_progress_difference }}%
                             {{ metric.expected_progress_difference_label }}
