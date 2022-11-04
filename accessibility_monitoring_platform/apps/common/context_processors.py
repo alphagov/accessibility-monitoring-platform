@@ -5,6 +5,7 @@ from typing import Dict, Union
 
 from django.conf import settings
 from django.http import HttpRequest
+from django.utils import timezone
 
 from ..common.models import Platform
 from ..common.utils import get_platform_settings
@@ -23,6 +24,7 @@ def platform_page(
     platform: Platform = get_platform_settings()
 
     return {
+        "today": timezone.now(),
         "top_menu_form": AMPTopMenuForm(),
         "platform": platform,
         "number_of_reminders": get_number_of_reminders_for_user(user=request.user),  # type: ignore

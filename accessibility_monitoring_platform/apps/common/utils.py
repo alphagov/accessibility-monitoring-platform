@@ -2,6 +2,7 @@
 from datetime import date, datetime, timedelta
 
 import re
+import calendar
 import csv
 import json
 from typing import (
@@ -237,3 +238,40 @@ def checks_if_2fa_is_enabled(user: User) -> bool:
 def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
     """Check list of keys in dictionary for at least one truthy value"""
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
+
+
+def calculate_current_month_progress(
+    label: str, number_done_this_month: int, number_done_last_month: int
+) -> Dict[str, Union[str, int]]:
+    """
+    Given the current day of the month compare a number of things done
+    to date in the current month to the total done in the previous month
+    and express as a percentage above or below.
+    """
+    now: datetime = timezone.now()
+    days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
+    if number_done_last_month == 0:
+        return {
+            "label": label,
+            "number_done_this_month": number_done_this_month,
+            "number_done_last_month": number_done_last_month,
+        }
+
+    percentage_progress: int = int(
+        (
+            (number_done_this_month / (now.day / days_in_current_month))
+            / number_done_last_month
+        )
+        * 100
+    )
+    expected_progress_difference: int = percentage_progress - 100
+    expected_progress_difference_label: str = (
+        "under" if expected_progress_difference < 0 else "over"
+    )
+    return {
+        "label": label,
+        "number_done_this_month": number_done_this_month,
+        "number_done_last_month": number_done_last_month,
+        "expected_progress_difference": abs(expected_progress_difference),
+        "expected_progress_difference_label": expected_progress_difference_label,
+    }

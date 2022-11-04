@@ -15,15 +15,18 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
-                <p class="govuk-body-m">Cases created in {% now "F" %}</p>
-                <p class="govuk-body-m">
-                    <span class="govuk-body-l"><b>{{ cases_this_month }}</b></span>
-                    {% if projected_percentage_change %}
-                        Projected {{ projected_percentage_change }}%
-                        {% if projected_percentage_change < 0 %}under{% else %}over{% endif %}
-                    {% endif %}
-                    {{ first_of_last_month|date:"F" }} ({{ cases_last_month }} cases)
-                </p>
+                <p class="govuk-body-m">Today is {{ today|amp_date }}</p>
+                {% for metric in metrics %}
+                    <p class="govuk-body-m">{{ metric.label }} in {% now "F" %}</p>
+                    <p class="govuk-body-m">
+                        <span class="govuk-body-l"><b>{{ metric.number_done_this_month }}</b></span>
+                        {% if metric.expected_progress_difference_label %}
+                            Projected {{ metric.expected_progress_difference }}%
+                            {{ metric.expected_progress_difference_label }}
+                        {% endif %}
+                        {{ first_of_last_month|date:"F" }} ({{ metric.number_done_last_month }} {{ metric.label|lower }})
+                    </p>
+                {% endfor %}
             </div>
         </div>
     </main>

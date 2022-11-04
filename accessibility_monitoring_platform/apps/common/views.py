@@ -1,8 +1,7 @@
 """
 Common views
 """
-from typing import Any, Dict, Type
-import calendar
+from typing import Any, Dict, List, Type, Union
 from datetime import date, datetime
 
 from django.conf import settings
@@ -17,7 +16,7 @@ from django.views.generic.list import ListView
 
 from ..cases.models import Case
 
-from .utils import get_platform_settings
+from .utils import get_platform_settings, calculate_current_month_progress
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -132,6 +131,10 @@ class ChangeToPlatformListView(ListView):
 
 
 class PlatformTemplateView(TemplateView):
+    """
+    View of platform-level settings
+    """
+
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
@@ -159,24 +162,61 @@ class MetricsCaseTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         now: datetime = timezone.now()
         first_of_this_month: date = date(now.year, now.month, 1)
-        if now.month > 1:
-            first_of_last_month: date = date(now.year, now.month - 1, 1)
-        else:
-            first_of_last_month: date = date(now.year - 1, 12, 1)
-        context["first_of_last_month"] = first_of_last_month
-        cases_this_month: int = Case.objects.filter(
-            created__gte=first_of_this_month
-        ).count()
-        context["cases_this_month"] = cases_this_month
-        cases_last_month: int = (
-            Case.objects.filter(created__gte=first_of_last_month)
-            .filter(created__lt=first_of_this_month)
-            .count()
+        first_of_last_month: date = (
+            date(now.year, now.month - 1, 1)
+            if now.month > 1
+            else date(now.year - 1, 12, 1)
         )
-        context["cases_last_month"] = cases_last_month
-        if cases_last_month > 0:
-            days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
-            projected_percentage: int = int(((cases_this_month / (now.day / days_in_current_month)) / cases_last_month) * 100)
-            projected_percentage_change: int = projected_percentage - 100
-            context["projected_percentage_change"] = projected_percentage_change
-        return context
+
+        metrics: List[Dict[str, Union[str, int]]] = [
+            calculate_current_month_progress(
+                label="Cases created",
+                number_done_this_month=Case.objects.filter(
+                    created__gte=first_of_this_month
+                ).count(),
+                number_done_last_month=Case.objects.filter(
+                    created__gte=first_of_last_month
+                )
+                .filter(created__lt=first_of_this_month)
+                .count(),
+            ),
+            calculate_current_month_progress(
+                label="Tests completed",
+                number_done_this_month=Case.objects.filter(
+                    testing_details_complete_date__gte=first_of_this_month
+                ).count(),
+                number_done_last_month=Case.objects.filter(
+                    testing_details_complete_date__gte=first_of_last_month
+                )
+                .filter(testing_details_complete_date__lt=first_of_this_month)
+                .count(),
+            ),
+            calculate_current_month_progress(
+                label="Reports sent",
+                number_done_this_month=Case.objects.filter(
+                    report_sent_date__gte=first_of_this_month
+                ).count(),
+                number_done_last_month=Case.objects.filter(
+                    report_sent_date__gte=first_of_last_month
+                )
+                .filter(report_sent_date__lt=first_of_this_month)
+                .count(),
+            ),
+            calculate_current_month_progress(
+                label="Cases closed",
+                number_done_this_month=Case.objects.filter(
+                    completed_date__gte=first_of_this_month
+                ).count(),
+                number_done_last_month=Case.objects.filter(
+                    completed_date__gte=first_of_last_month
+                )
+                .filter(completed_date__lt=first_of_this_month)
+                .count(),
+            ),
+        ]
+
+        extra_context: Dict[str, Any] = {
+            "first_of_last_month": first_of_last_month,
+            "metrics": metrics,
+        }
+        return {**extra_context, **context}
