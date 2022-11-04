@@ -1,6 +1,7 @@
 """
 Test - common utility functions
 """
+from unittest.mock import patch
 import pytest
 import csv
 from datetime import date, datetime, timedelta
@@ -44,6 +45,7 @@ from ..utils import (
     undo_double_escapes,
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
+    calculate_current_month_progress,
 )
 
 
@@ -61,6 +63,7 @@ MOCK_QUERYSET: List[MockModel] = [
     MockModel(integer_field=2, char_field="char2"),
 ]
 CSV_FILENAME: str = "filename.csv"
+METRIC_LABEL: str = "Metric label"
 
 
 def get_csv_response() -> HttpResponse:
@@ -379,3 +382,64 @@ def test_check_dict_for_truthy_values(dictionary, keys_to_check, expected_result
     Test dictionary contains at least one truthy values for list of keys to check.
     """
     assert check_dict_for_truthy_values(dictionary, keys_to_check) == expected_result
+
+
+@pytest.mark.parametrize(
+    "day_of_month, number_done_this_month, number_done_last_month, expected_metric",
+    [
+        (
+            31,
+            15,
+            30,
+            {
+                "expected_progress_difference": 50,
+                "expected_progress_difference_label": "under",
+            },
+        ),
+        (
+            31,
+            45,
+            30,
+            {
+                "expected_progress_difference": 50,
+                "expected_progress_difference_label": "over",
+            },
+        ),
+        (
+            1,
+            5,
+            30,
+            {
+                "expected_progress_difference": 416,
+                "expected_progress_difference_label": "over",
+            },
+        ),
+        (
+            31,
+            45,
+            0,
+            {},
+        ),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_calculate_current_month_progress(
+    mock_timezone,
+    day_of_month,
+    number_done_this_month,
+    number_done_last_month,
+    expected_metric,
+):
+    """
+    Test calculation of progress through current month
+    """
+    mock_timezone.now.return_value = datetime(2022, 12, day_of_month)
+    expected_metric["label"] = METRIC_LABEL
+    expected_metric["number_done_this_month"] = number_done_this_month
+    expected_metric["number_done_last_month"] = number_done_last_month
+
+    assert expected_metric == calculate_current_month_progress(
+        label=METRIC_LABEL,
+        number_done_this_month=number_done_this_month,
+        number_done_last_month=number_done_last_month,
+    )
