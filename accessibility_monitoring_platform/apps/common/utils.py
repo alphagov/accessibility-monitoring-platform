@@ -250,12 +250,13 @@ def calculate_current_month_progress(
     """
     now: datetime = timezone.now()
     days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
+    metric: Dict[str, Union[str, int]] = {
+        "label": label,
+        "number_done_this_month": number_done_this_month,
+        "number_done_last_month": number_done_last_month,
+    }
     if number_done_last_month == 0:
-        return {
-            "label": label,
-            "number_done_this_month": number_done_this_month,
-            "number_done_last_month": number_done_last_month,
-        }
+        return metric
 
     percentage_progress: int = int(
         (
@@ -268,10 +269,6 @@ def calculate_current_month_progress(
     expected_progress_difference_label: str = (
         "under" if expected_progress_difference < 0 else "over"
     )
-    return {
-        "label": label,
-        "number_done_this_month": number_done_this_month,
-        "number_done_last_month": number_done_last_month,
-        "expected_progress_difference": abs(expected_progress_difference),
-        "expected_progress_difference_label": expected_progress_difference_label,
-    }
+    metric["expected_progress_difference"] = abs(expected_progress_difference)
+    metric["expected_progress_difference_label"] = expected_progress_difference_label
+    return metric
