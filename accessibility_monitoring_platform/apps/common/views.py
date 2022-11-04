@@ -6,6 +6,7 @@ from datetime import date, datetime
 
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.db import connection
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -168,7 +169,7 @@ class MetricsCaseTemplateView(TemplateView):
             else date(now.year - 1, 12, 1)
         )
 
-        metrics: List[Dict[str, Union[str, int]]] = [
+        monthly_metrics: List[Dict[str, Union[str, int]]] = [
             calculate_current_month_progress(
                 label="Cases created",
                 number_done_this_month=Case.objects.filter(
@@ -214,9 +215,36 @@ class MetricsCaseTemplateView(TemplateView):
                 .count(),
             ),
         ]
+        yearly_metrics: List[
+            Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]]]]
+        ] = []
+        start_date: str = f"{now.year - 1}-{now.month}-01"
+        with connection.cursor() as cursor:
+            for label, date_column in [
+                ("Cases created over the last year", "created"),
+                ("Tests completed over the last year", "testing_details_complete_date"),
+                ("Reports sent over the last year", "report_sent_date"),
+                ("Cases completed over the last year", "completed_date"),
+            ]:
+                cursor.execute(
+                    f"""SELECT DATE_TRUNC('month', {date_column}), count(*)
+                                    FROM cases_case
+                                WHERE {date_column} >= '{start_date}'
+                                GROUP BY 1 ORDER BY 1;"""
+                )
+                table_rows: List[Dict[str, Union[datetime, int]]] = [
+                    {"month": month, "count": count} for month, count in cursor.fetchall()
+                ]
+                chart_height: int = max([table_row["count"] for table_row in table_rows])  # type: ignore
+                for table_row in table_rows:
+                    table_row["y"] = chart_height - table_row["count"]  # type: ignore
+                yearly_metrics.append(
+                    {"label": label, "table_rows": table_rows, "chart_height": chart_height}
+                )
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
-            "metrics": metrics,
+            "monthly_metrics": monthly_metrics,
+            "yearly_metrics": yearly_metrics,
         }
         return {**extra_context, **context}

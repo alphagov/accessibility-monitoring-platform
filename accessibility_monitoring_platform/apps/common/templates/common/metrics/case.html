@@ -16,8 +16,8 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in metrics %}
-                    <p class="govuk-body-m">{{ metric.label }} in {% now "F" %}</p>
+                {% for metric in monthly_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
                         <svg
@@ -45,6 +45,58 @@
                         {% endif %}
                         {{ first_of_last_month|date:"F" }} ({{ metric.number_done_last_month }} {{ metric.label|lower }})
                     </p>
+                {% endfor %}
+                {% for metric in yearly_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
+                    <svg
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 600 {{ metric.chart_height }}"
+                        width="600"
+                        height="{{ metric.chart_height }}"
+                        stroke-width="3"
+                        fill="none"
+                    >
+                    <polyline
+                        fill="none"
+                        stroke="blue"
+                        stroke-width="3"
+                        points="
+                        0,{{ metric.table_rows.0.y }}
+                        50,{{ metric.table_rows.1.y }}
+                        100,{{ metric.table_rows.2.y }}
+                        150,{{ metric.table_rows.3.y }}
+                        200,{{ metric.table_rows.4.y }}
+                        250,{{ metric.table_rows.5.y }}
+                        300,{{ metric.table_rows.6.y }}
+                        350,{{ metric.table_rows.7.y }}
+                        400,{{ metric.table_rows.8.y }}
+                        450,{{ metric.table_rows.9.y }}
+                        500,{{ metric.table_rows.10.y }}
+                        550,{{ metric.table_rows.11.y }}
+                        600,{{ metric.table_rows.12.y }}"/>
+                    </svg>
+                    <table class="govuk-table">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
+                                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            {% for table_row in metric.table_rows %}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">
+                                        {{ table_row.month|date:"F" }}
+                                        {{ table_row.year }}
+                                    </td>
+                                    <td class="govuk-table__cell">
+                                            {{ table_row.count }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 {% endfor %}
             </div>
         </div>
