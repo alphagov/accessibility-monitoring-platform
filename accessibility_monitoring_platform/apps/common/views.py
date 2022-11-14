@@ -235,12 +235,13 @@ class MetricsCaseTemplateView(TemplateView):
                 table_rows: List[Dict[str, Union[datetime, int]]] = [
                     {"month": month, "count": count} for month, count in cursor.fetchall()
                 ]
-                chart_height: int = max([table_row["count"] for table_row in table_rows])  # type: ignore
-                for table_row in table_rows:
-                    table_row["y"] = chart_height - table_row["count"]  # type: ignore
-                yearly_metrics.append(
-                    {"label": label, "table_rows": table_rows, "chart_height": chart_height}
-                )
+                if table_rows:
+                    chart_height: int = max([table_row["count"] for table_row in table_rows])  # type: ignore
+                    for table_row in table_rows:
+                        table_row["y"] = chart_height - table_row["count"]  # type: ignore
+                    yearly_metrics.append(
+                        {"label": label, "table_rows": table_rows, "chart_height": chart_height}
+                    )
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
