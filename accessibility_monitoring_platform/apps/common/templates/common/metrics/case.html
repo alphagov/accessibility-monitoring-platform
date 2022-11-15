@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+{% load humanize %}
+
+{% block title %}Case metrics{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/metrics/breadcrumbs.html' with current='Case metrics' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/metrics/nav_steps.html' with current='common:metrics-case' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
+                <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
+                {% for metric in monthly_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
+                    <p class="govuk-body-m">
+                        <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
+                        <svg
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 40 40"
+                            width="40"
+                            height="40"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            fill="none"
+                        >
+                            <line x1="20" y1="5" x2="20" y2="35"/>
+                            {% if metric.expected_progress_difference_label == 'under' %}
+                                <line x1="20" y1="35" x2="30" y2="30"/>
+                                <line x1="20" y1="35" x2="10" y2="30"/>
+                            {% else %}
+                                <line x1="20" y1="5" x2="30" y2="10"/>
+                                <line x1="20" y1="5" x2="10" y2="10"/>
+                            {% endif %}
+                        </svg>
+                        {% if metric.expected_progress_difference_label %}
+                            Projected {{ metric.expected_progress_difference }}%
+                            {{ metric.expected_progress_difference_label }}
+                        {% endif %}
+                        {{ first_of_last_month|date:"F" }} ({{ metric.number_done_last_month }} {{ metric.label|lower }})
+                    </p>
+                {% endfor %}
+                {% for metric in yearly_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
+                    <svg
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 {{ metric.chart_width }} {{ metric.chart_height }}"
+                        width="100%"
+                        height="{{ metric.chart_height }}"
+                        stroke-width="3"
+                        fill="none"
+                    >
+                        <g stroke="#1d70b8" transform="translate(50)">
+                            <g stroke="currentColor">
+                                <line x1="0" x2="{{ metric.last_x_position }}" y1="{{ metric.graph_height }}" y2="{{ metric.graph_height }}"></line>
+                                {% for row in metric.all_table_rows %}
+                                    <line x1="{{ row.x }}" x2="{{ row.x }}" y1="{{ metric.graph_height }}" y2="{{ metric.x_axis_tick_y2 }}"></line>
+                                {% endfor %}
+                                <line x1="0" x2="0" y1="0" y2="{{ metric.graph_height }}"></line>
+                                {% for y_axis_label in metric.y_axis_labels %}
+                                    <line x1="-10" x2="0" y1="{{ y_axis_label.y }}" y2="{{ y_axis_label.y }}"></line>
+                                {% endfor %}
+                                <g stroke-width="1" fill="currentColor">
+                                    {% for row in metric.all_table_rows %}
+                                        <text text-anchor="middle" x="{{ row.x }}" y="{{ metric.x_axis_label_1_y }}">{{ row.month_date|date:"M" }}</text>
+                                        {% if row.month_date.month == 1 %}
+                                            <text text-anchor="middle" x="{{ row.x }}" y="{{ metric.x_axis_label_2_y }}">{{ row.month_date.year }}</text>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for y_axis_label in metric.y_axis_labels %}
+                                        <text alignment-baseline="middle" text-anchor="end" x="-12" y="{{ y_axis_label.y }}">{{ y_axis_label.label }}</text>
+                                    {% endfor %}
+                                </g>
+                            </g>
+                            <polyline
+                                points="
+                                {% for row in metric.previous_month_rows %}
+                                    {{ row.x }},{{ row.y }}
+                                {% endfor %}
+                                "/>
+                            <polyline
+                                stroke-dasharray="5"
+                                points="
+                                {% for row in metric.current_month_rows %}
+                                    {{ row.x }},{{ row.y }}
+                                {% endfor %}
+                                "/>
+                        </g>
+
+                    </svg>
+                    <details class="govuk-details" data-module="govuk-details">
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                Table view
+                            </span>
+                        </summary>
+                        <div id="table-view-{{ forloop.counter }}" class="amp-preview govuk-details__text">
+                            <table class="govuk-table">
+                                <thead class="govuk-table__head">
+                                    <tr class="govuk-table__row">
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="govuk-table__body">
+                                    {% for table_row in metric.all_table_rows %}
+                                        <tr class="govuk-table__row">
+                                            <td class="govuk-table__cell">
+                                                {{ table_row.month_date|date:"F" }}
+                                                {{ table_row.month_date.year }}
+                                            </td>
+                                            <td class="govuk-table__cell">{{ table_row.count|intcomma }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -2,10 +2,12 @@
 Test - common utility functions
 """
 import pytest
+from unittest.mock import patch
+
+from typing import Any, Dict, List, Tuple, Union
 import csv
 from datetime import date, datetime, timedelta
 import io
-from typing import Any, Dict, List, Tuple
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -44,6 +46,9 @@ from ..utils import (
     undo_double_escapes,
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
+    calculate_current_month_progress,
+    build_yearly_metric_chart,
+    Y_AXIS_LABELS_100,
 )
 
 
@@ -61,6 +66,7 @@ MOCK_QUERYSET: List[MockModel] = [
     MockModel(integer_field=2, char_field="char2"),
 ]
 CSV_FILENAME: str = "filename.csv"
+METRIC_LABEL: str = "Metric label"
 
 
 def get_csv_response() -> HttpResponse:
@@ -379,3 +385,100 @@ def test_check_dict_for_truthy_values(dictionary, keys_to_check, expected_result
     Test dictionary contains at least one truthy values for list of keys to check.
     """
     assert check_dict_for_truthy_values(dictionary, keys_to_check) == expected_result
+
+
+@pytest.mark.parametrize(
+    "day_of_month, number_done_this_month, number_done_last_month, expected_metric",
+    [
+        (
+            31,
+            15,
+            30,
+            {
+                "expected_progress_difference": 50,
+                "expected_progress_difference_label": "under",
+            },
+        ),
+        (
+            31,
+            45,
+            30,
+            {
+                "expected_progress_difference": 50,
+                "expected_progress_difference_label": "over",
+            },
+        ),
+        (
+            1,
+            5,
+            30,
+            {
+                "expected_progress_difference": 416,
+                "expected_progress_difference_label": "over",
+            },
+        ),
+        (
+            31,
+            45,
+            0,
+            {},
+        ),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_calculate_current_month_progress(
+    mock_timezone,
+    day_of_month,
+    number_done_this_month,
+    number_done_last_month,
+    expected_metric,
+):
+    """
+    Test calculation of progress through current month
+    """
+    mock_timezone.now.return_value = datetime(2022, 12, day_of_month)
+    expected_metric["label"] = METRIC_LABEL
+    expected_metric["number_done_this_month"] = number_done_this_month
+    expected_metric["number_done_last_month"] = number_done_last_month
+
+    assert expected_metric == calculate_current_month_progress(
+        label=METRIC_LABEL,
+        number_done_this_month=number_done_this_month,
+        number_done_last_month=number_done_last_month,
+    )
+
+
+def test_build_yearly_metric_chart():
+    """
+    Test building of yearly metric data for line chart
+    """
+    label: str = "Label"
+    all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+        {"month_date": datetime(2021, 11, 1), "count": 42},
+        {"month_date": datetime(2021, 12, 1), "count": 54},
+        {"month_date": datetime(2022, 1, 1), "count": 45},
+        {"month_date": datetime(2022, 2, 1), "count": 20},
+        {"month_date": datetime(2022, 3, 1), "count": 64},
+        {"month_date": datetime(2022, 4, 1), "count": 22},
+        {"month_date": datetime(2022, 5, 1), "count": 44},
+        {"month_date": datetime(2022, 6, 1), "count": 42},
+        {"month_date": datetime(2022, 7, 1), "count": 45},
+        {"month_date": datetime(2022, 8, 1), "count": 49},
+        {"month_date": datetime(2022, 9, 1), "count": 52},
+        {"month_date": datetime(2022, 10, 1), "count": 54},
+        {"month_date": datetime(2022, 11, 1), "count": 8},
+    ]
+    assert build_yearly_metric_chart(label=label, all_table_rows=all_table_rows) == {
+        "label": label,
+        "all_table_rows": all_table_rows,
+        "previous_month_rows": all_table_rows[:-1],
+        "current_month_rows": all_table_rows[-2:],
+        "graph_height": 250,
+        "chart_height": 300,
+        "chart_width": 750,
+        "last_x_position": 600,
+        "x_axis_tick_y2": 260,
+        "x_axis_label_1_y": 275,
+        "x_axis_label_2_y": 295,
+        "y_axis_labels": Y_AXIS_LABELS_100,
+    }
