@@ -48,6 +48,7 @@ from ..utils import (
     check_dict_for_truthy_values,
     calculate_current_month_progress,
     build_yearly_metric_chart,
+    Y_AXIS_LABELS_100,
 )
 
 
@@ -472,11 +473,12 @@ def test_build_yearly_metric_chart():
         "all_table_rows": all_table_rows,
         "previous_month_rows": all_table_rows[:-1],
         "current_month_rows": all_table_rows[-2:],
-        "chart_height": 114,
+        "graph_height": 250,
+        "chart_height": 300,
         "chart_width": 750,
         "last_x_position": 600,
-        "max_value": 64,
-        "x_axis_tick_y2": 74,
-        "x_axis_label_1_y": 89,
-        "x_axis_label_2_y": 109,
+        "x_axis_tick_y2": 260,
+        "x_axis_label_1_y": 275,
+        "x_axis_label_2_y": 295,
+        "y_axis_labels": Y_AXIS_LABELS_100,
     }

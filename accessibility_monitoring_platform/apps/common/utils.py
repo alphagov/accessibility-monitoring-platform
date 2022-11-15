@@ -32,12 +32,27 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
+GRAPH_HEIGHT: int = 250
 CHART_HEIGHT_EXTRA: int = 50
 CHART_WIDTH_EXTRA: int = 150
 X_AXIS_STEP: int = 50
 X_AXIS_TICK_HEIGHT: int = 10
 X_AXIS_LABEL_1_Y_OFFSET: int = 25
 X_AXIS_LABEL_2_Y_OFFSET: int = 45
+Y_AXIS_LABELS_250: List[Dict[str, Union[str, int]]] = [
+    {"label": "250", "y": 0},
+    {"label": "200", "y": 50},
+    {"label": "150", "y": 100},
+    {"label": "100", "y": 150},
+    {"label": "50", "y": 200},
+    {"label": "0", "y": 250},
+]
+Y_AXIS_LABELS_100: List[Dict[str, Union[str, int]]] = [
+    {"label": "100", "y": 0},
+    {"label": "50", "y": 125},
+    {"label": "0", "y": 250},
+]
+MULTIPLIER_100_TO_250: float = 250 / 100
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
@@ -282,7 +297,7 @@ def calculate_current_month_progress(
 
 def build_yearly_metric_chart(
     label: str, all_table_rows: List[Dict[str, Union[datetime, int]]]
-) -> Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]]]]:
+) -> Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]], List[Dict[str, Union[str, int]]]]]:
     """
     Given numbers of things done each month, derive the values needed to draw
     a line chart.
@@ -290,20 +305,25 @@ def build_yearly_metric_chart(
     x_position: int = 0
     max_value: int = max([table_row["count"] for table_row in all_table_rows])  # type: ignore
     for table_row in all_table_rows:
-        table_row["y"] = max_value - table_row["count"]  # type: ignore
+        if max_value > 100:
+            table_row["y"] = GRAPH_HEIGHT - table_row["count"]  # type: ignore
+        else:
+            table_row["y"] = GRAPH_HEIGHT - (table_row["count"] * MULTIPLIER_100_TO_250)  # type: ignore
         table_row["x"] = x_position
         x_position = x_position + X_AXIS_STEP
     last_x_position: int = all_table_rows[-1]["x"]  # type: ignore
+    y_axis_labels: List[Dict[str, Union[str, int]]] = Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
     return {
         "label": label,
         "all_table_rows": all_table_rows,
         "previous_month_rows": all_table_rows[:-1],
         "current_month_rows": all_table_rows[-2:],
-        "chart_height": max_value + CHART_HEIGHT_EXTRA,
+        "graph_height": GRAPH_HEIGHT,
+        "chart_height": GRAPH_HEIGHT + CHART_HEIGHT_EXTRA,
         "chart_width": last_x_position + CHART_WIDTH_EXTRA,
         "last_x_position": last_x_position,
-        "max_value": max_value,
-        "x_axis_tick_y2": max_value + X_AXIS_TICK_HEIGHT,
-        "x_axis_label_1_y": max_value + X_AXIS_LABEL_1_Y_OFFSET,
-        "x_axis_label_2_y": max_value + X_AXIS_LABEL_2_Y_OFFSET,
+        "x_axis_tick_y2": GRAPH_HEIGHT + X_AXIS_TICK_HEIGHT,
+        "x_axis_label_1_y": GRAPH_HEIGHT + X_AXIS_LABEL_1_Y_OFFSET,
+        "x_axis_label_2_y": GRAPH_HEIGHT + X_AXIS_LABEL_2_Y_OFFSET,
+        "y_axis_labels": y_axis_labels,
     }

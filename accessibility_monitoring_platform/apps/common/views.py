@@ -225,7 +225,7 @@ class MetricsCaseTemplateView(TemplateView):
         ]
 
         yearly_metrics: List[
-            Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]]]]
+            Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]], List[Dict[str, Union[str, int]]]]]
         ] = []
         start_date: str = f"{now.year - 1}-{now.month}-01"
         with connection.cursor() as cursor:
