@@ -477,6 +477,6 @@ def test_build_yearly_metric_chart():
         "last_x_position": 600,
         "max_value": 64,
         "x_axis_tick_y2": 74,
-        "x_axis_label_1_y": 94,
-        "x_axis_label_2_y": 114,
+        "x_axis_label_1_y": 89,
+        "x_axis_label_2_y": 109,
     }
