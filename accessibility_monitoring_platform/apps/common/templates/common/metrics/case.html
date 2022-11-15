@@ -51,66 +51,43 @@
                     <svg
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 750 {{ metric.chart_height }}"
+                        viewBox="0 0 {{ metric.chart_width }} {{ metric.chart_height }}"
                         width="100%"
                         height="{{ metric.chart_height }}"
                         stroke-width="3"
                         fill="none"
                     >
                         <g fill="none" stroke="#1d70b8" transform="translate(50)">
-                            <g stroke="#0b0c0c">
-                                <line x1="0" x2="600" y1="{{ metric.max_value }}" y2="{{ metric.max_value }}"></line>
-                                <line x1="0" x2="0" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="50" x2="50" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="100" x2="100" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="150" x2="150" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="200" x2="200" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="250" x2="250" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="300" x2="300" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="350" x2="350" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="400" x2="400" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="450" x2="450" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="500" x2="500" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="550" x2="550" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
-                                <line x1="600" x2="600" y1="{{ metric.max_value }}" y2="{{ metric.x_label_tick_y }}"></line>
+                            <g stroke="currentColor">
+                                <line x1="0" x2="{{ metric.last_x_position }}" y1="{{ metric.max_value }}" y2="{{ metric.max_value }}"></line>
+                                {% for row in metric.all_table_rows %}
+                                    <line x1="{{ row.x }}" x2="{{ row.x }}" y1="{{ metric.max_value }}" y2="{{ metric.x_axis_tick_y2 }}"></line>
+                                {% endfor %}
                                 <line x1="0" x2="0" y1="{{ metric.max_value }}" y2="0"></line>
                                 <line x1="-10" x2="0" y1="0" y2="0"></line>
-                                <g stroke-width="1" fill="#0b0c0c">
-                                    <text x="0" y="{{ metric.x_label_y }}">{{ metric.table_rows.0.month|date:"M" }}</text>
-                                    <text x="50" y="{{ metric.x_label_y }}">{{ metric.table_rows.1.month|date:"M" }}</text>
-                                    <text x="100" y="{{ metric.x_label_y }}">{{ metric.table_rows.2.month|date:"M" }}</text>
-                                    <text x="150" y="{{ metric.x_label_y }}">{{ metric.table_rows.3.month|date:"M" }}</text>
-                                    <text x="200" y="{{ metric.x_label_y }}">{{ metric.table_rows.4.month|date:"M" }}</text>
-                                    <text x="250" y="{{ metric.x_label_y }}">{{ metric.table_rows.5.month|date:"M" }}</text>
-                                    <text x="300" y="{{ metric.x_label_y }}">{{ metric.table_rows.6.month|date:"M" }}</text>
-                                    <text x="350" y="{{ metric.x_label_y }}">{{ metric.table_rows.7.month|date:"M" }}</text>
-                                    <text x="400" y="{{ metric.x_label_y }}">{{ metric.table_rows.8.month|date:"M" }}</text>
-                                    <text x="450" y="{{ metric.x_label_y }}">{{ metric.table_rows.9.month|date:"M" }}</text>
-                                    <text x="500" y="{{ metric.x_label_y }}">{{ metric.table_rows.10.month|date:"M" }}</text>
-                                    <text x="550" y="{{ metric.x_label_y }}">{{ metric.table_rows.11.month|date:"M" }}</text>
-                                    <text x="600" y="{{ metric.x_label_y }}">{{ metric.table_rows.12.month|date:"M" }}</text>
+                                <g stroke-width="1" fill="currentColor">
+                                    {% for row in metric.all_table_rows %}
+                                        <text x="{{ row.x }}" y="{{ metric.x_axis_label_1_y }}">{{ row.month_date|date:"M" }}</text>
+                                        {% if row.month_date.month == 1 %}
+                                            <text x="{{ row.x }}" y="{{ metric.x_axis_label_2_y }}">{{ row.month_date.year }}</text>
+                                        {% endif %}
+                                    {% endfor %}
                                     <text x="{% if metric.max_value > 100 %}-45{% else %}-35{% endif %}" y="10">{{ metric.max_value }}</text>
                                 </g>
                             </g>
                             <polyline
                                 points="
-                                0,{{ metric.table_rows.0.y }}
-                                50,{{ metric.table_rows.1.y }}
-                                100,{{ metric.table_rows.2.y }}
-                                150,{{ metric.table_rows.3.y }}
-                                200,{{ metric.table_rows.4.y }}
-                                250,{{ metric.table_rows.5.y }}
-                                300,{{ metric.table_rows.6.y }}
-                                350,{{ metric.table_rows.7.y }}
-                                400,{{ metric.table_rows.8.y }}
-                                450,{{ metric.table_rows.9.y }}
-                                500,{{ metric.table_rows.10.y }}
-                                550,{{ metric.table_rows.11.y }}"/>
+                                {% for row in metric.previous_month_rows %}
+                                    {{ row.x }},{{ row.y }}
+                                {% endfor %}
+                                "/>
                             <polyline
                                 stroke-dasharray="5"
                                 points="
-                                550,{{ metric.table_rows.11.y }}
-                                600,{{ metric.table_rows.12.y }}"/>
+                                {% for row in metric.current_month_rows %}
+                                    {{ row.x }},{{ row.y }}
+                                {% endfor %}
+                                "/>
                         </g>
 
                     </svg>
@@ -129,10 +106,10 @@
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for table_row in metric.table_rows %}
+                                    {% for table_row in metric.all_table_rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
-                                                {{ table_row.month|date:"F" }}
+                                                {{ table_row.month_date|date:"F" }}
                                                 {{ table_row.year }}
                                             </td>
                                             <td class="govuk-table__cell">

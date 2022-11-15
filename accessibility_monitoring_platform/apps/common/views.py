@@ -17,7 +17,11 @@ from django.views.generic.list import ListView
 
 from ..cases.models import Case
 
-from .utils import get_platform_settings, calculate_current_month_progress
+from .utils import (
+    get_platform_settings,
+    calculate_current_month_progress,
+    build_yearly_metric_chart,
+)
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -156,6 +160,10 @@ class MarkdownCheatsheetTemplateView(PlatformTemplateView):
 
 
 class MetricsCaseTemplateView(TemplateView):
+    """
+    View of case metrics
+    """
+
     template_name: str = "common/metrics/case.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -215,6 +223,7 @@ class MetricsCaseTemplateView(TemplateView):
                 .count(),
             ),
         ]
+
         yearly_metrics: List[
             Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]]]]
         ] = []
@@ -228,26 +237,17 @@ class MetricsCaseTemplateView(TemplateView):
             ]:
                 cursor.execute(
                     f"""SELECT DATE_TRUNC('month', {date_column}), count(*)
-                                    FROM cases_case
-                                WHERE {date_column} >= '{start_date}'
-                                GROUP BY 1 ORDER BY 1;"""
+                          FROM cases_case
+                         WHERE {date_column} >= '{start_date}'
+                         GROUP BY 1 ORDER BY 1;"""
                 )
-                table_rows: List[Dict[str, Union[datetime, int]]] = [
-                    {"month": month, "count": count} for month, count in cursor.fetchall()
+                all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+                    {"month_date": month_date, "count": count}
+                    for month_date, count in cursor.fetchall()
                 ]
-                if table_rows:
-                    max_value: int = max([table_row["count"] for table_row in table_rows])  # type: ignore
-                    for table_row in table_rows:
-                        table_row["y"] = max_value - table_row["count"]  # type: ignore
+                if all_table_rows:
                     yearly_metrics.append(
-                        {
-                            "label": label,
-                            "table_rows": table_rows,
-                            "chart_height": max_value + 50,
-                            "max_value": max_value,
-                            "x_label_tick_y": max_value + 10,
-                            "x_label_y": max_value + 30,
-                        }
+                        build_yearly_metric_chart(label=label, all_table_rows=all_table_rows)
                     )
 
         extra_context: Dict[str, Any] = {

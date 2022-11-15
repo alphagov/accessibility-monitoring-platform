@@ -32,6 +32,12 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
+CHART_HEIGHT_EXTRA: int = 50
+CHART_WIDTH_EXTRA: int = 150
+X_AXIS_STEP: int = 50
+X_AXIS_TICK_HEIGHT: int = 10
+X_AXIS_LABEL_1_Y_OFFSET: int = 30
+X_AXIS_LABEL_2_Y_OFFSET: int = 50
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
@@ -272,3 +278,32 @@ def calculate_current_month_progress(
     metric["expected_progress_difference"] = abs(expected_progress_difference)
     metric["expected_progress_difference_label"] = expected_progress_difference_label
     return metric
+
+
+def build_yearly_metric_chart(
+    label: str, all_table_rows: List[Dict[str, Union[datetime, int]]]
+) -> Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]]]]:
+    """
+    Given numbers of things done each month, derive the values needed to draw
+    a line chart.
+    """
+    x_position: int = 0
+    max_value: int = max([table_row["count"] for table_row in all_table_rows])  # type: ignore
+    for table_row in all_table_rows:
+        table_row["y"] = max_value - table_row["count"]  # type: ignore
+        table_row["x"] = x_position
+        x_position = x_position + X_AXIS_STEP
+    last_x_position: int = all_table_rows[-1]["x"]  # type: ignore
+    return {
+        "label": label,
+        "all_table_rows": all_table_rows,
+        "previous_month_rows": all_table_rows[:-1],
+        "current_month_rows": all_table_rows[-2:],
+        "chart_height": max_value + CHART_HEIGHT_EXTRA,
+        "chart_width": last_x_position + CHART_WIDTH_EXTRA,
+        "last_x_position": last_x_position,
+        "max_value": max_value,
+        "x_axis_tick_y2": max_value + X_AXIS_TICK_HEIGHT,
+        "x_axis_label_1_y": max_value + X_AXIS_LABEL_1_Y_OFFSET,
+        "x_axis_label_2_y": max_value + X_AXIS_LABEL_2_Y_OFFSET,
+    }

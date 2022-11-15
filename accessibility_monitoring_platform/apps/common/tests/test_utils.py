@@ -1,12 +1,13 @@
 """
 Test - common utility functions
 """
-from unittest.mock import patch
 import pytest
+from unittest.mock import patch
+
+from typing import Any, Dict, List, Tuple, Union
 import csv
 from datetime import date, datetime, timedelta
 import io
-from typing import Any, Dict, List, Tuple
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -46,6 +47,7 @@ from ..utils import (
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
     calculate_current_month_progress,
+    build_yearly_metric_chart,
 )
 
 
@@ -443,3 +445,38 @@ def test_calculate_current_month_progress(
         number_done_this_month=number_done_this_month,
         number_done_last_month=number_done_last_month,
     )
+
+
+def test_build_yearly_metric_chart():
+    """
+    Test building of yearly metric data for line chart
+    """
+    label: str = "Label"
+    all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+        {"month_date": datetime(2021, 11, 1), "count": 42},
+        {"month_date": datetime(2021, 12, 1), "count": 54},
+        {"month_date": datetime(2022, 1, 1), "count": 45},
+        {"month_date": datetime(2022, 2, 1), "count": 20},
+        {"month_date": datetime(2022, 3, 1), "count": 64},
+        {"month_date": datetime(2022, 4, 1), "count": 22},
+        {"month_date": datetime(2022, 5, 1), "count": 44},
+        {"month_date": datetime(2022, 6, 1), "count": 42},
+        {"month_date": datetime(2022, 7, 1), "count": 45},
+        {"month_date": datetime(2022, 8, 1), "count": 49},
+        {"month_date": datetime(2022, 9, 1), "count": 52},
+        {"month_date": datetime(2022, 10, 1), "count": 54},
+        {"month_date": datetime(2022, 11, 1), "count": 8},
+    ]
+    assert build_yearly_metric_chart(label=label, all_table_rows=all_table_rows) == {
+        "label": label,
+        "all_table_rows": all_table_rows,
+        "previous_month_rows": all_table_rows[:-1],
+        "current_month_rows": all_table_rows[-2:],
+        "chart_height": 114,
+        "chart_width": 750,
+        "last_x_position": 600,
+        "max_value": 64,
+        "x_axis_tick_y2": 74,
+        "x_axis_label_1_y": 94,
+        "x_axis_label_2_y": 114,
+    }
