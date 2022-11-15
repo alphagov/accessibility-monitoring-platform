@@ -36,8 +36,8 @@ CHART_HEIGHT_EXTRA: int = 50
 CHART_WIDTH_EXTRA: int = 150
 X_AXIS_STEP: int = 50
 X_AXIS_TICK_HEIGHT: int = 10
-X_AXIS_LABEL_1_Y_OFFSET: int = 30
-X_AXIS_LABEL_2_Y_OFFSET: int = 50
+X_AXIS_LABEL_1_Y_OFFSET: int = 25
+X_AXIS_LABEL_2_Y_OFFSET: int = 45
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:

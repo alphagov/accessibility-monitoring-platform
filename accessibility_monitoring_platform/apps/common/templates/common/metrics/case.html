@@ -57,22 +57,24 @@
                         stroke-width="3"
                         fill="none"
                     >
-                        <g fill="none" stroke="#1d70b8" transform="translate(50)">
+                        <g stroke="#1d70b8" transform="translate(50)">
                             <g stroke="currentColor">
                                 <line x1="0" x2="{{ metric.last_x_position }}" y1="{{ metric.max_value }}" y2="{{ metric.max_value }}"></line>
                                 {% for row in metric.all_table_rows %}
                                     <line x1="{{ row.x }}" x2="{{ row.x }}" y1="{{ metric.max_value }}" y2="{{ metric.x_axis_tick_y2 }}"></line>
                                 {% endfor %}
-                                <line x1="0" x2="0" y1="{{ metric.max_value }}" y2="0"></line>
+                                <line x1="0" x2="0" y1="0" y2="{{ metric.max_value }}"></line>
                                 <line x1="-10" x2="0" y1="0" y2="0"></line>
+                                <line x1="-10" x2="0" y1="{{ metric.max_value }}" y2="{{ metric.max_value }}"></line>
                                 <g stroke-width="1" fill="currentColor">
                                     {% for row in metric.all_table_rows %}
-                                        <text x="{{ row.x }}" y="{{ metric.x_axis_label_1_y }}">{{ row.month_date|date:"M" }}</text>
+                                        <text text-anchor="middle" x="{{ row.x }}" y="{{ metric.x_axis_label_1_y }}">{{ row.month_date|date:"M" }}</text>
                                         {% if row.month_date.month == 1 %}
-                                            <text x="{{ row.x }}" y="{{ metric.x_axis_label_2_y }}">{{ row.month_date.year }}</text>
+                                            <text text-anchor="middle" x="{{ row.x }}" y="{{ metric.x_axis_label_2_y }}">{{ row.month_date.year }}</text>
                                         {% endif %}
                                     {% endfor %}
-                                    <text x="{% if metric.max_value > 100 %}-45{% else %}-35{% endif %}" y="10">{{ metric.max_value }}</text>
+                                    <text alignment-baseline="middle" text-anchor="end" x="-12" y="0">{{ metric.max_value }}</text>
+                                    <text alignment-baseline="middle" text-anchor="end" x="-12" y="{{ metric.max_value }}">0</text>
                                 </g>
                             </g>
                             <polyline
@@ -110,11 +112,9 @@
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
                                                 {{ table_row.month_date|date:"F" }}
-                                                {{ table_row.year }}
+                                                {{ table_row.month_date.year }}
                                             </td>
-                                            <td class="govuk-table__cell">
-                                                    {{ table_row.count }}
-                                            </td>
+                                            <td class="govuk-table__cell">{{ table_row.count|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
