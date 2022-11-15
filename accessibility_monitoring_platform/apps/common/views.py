@@ -2,7 +2,7 @@
 Common views
 """
 from typing import Any, Dict, List, Type, Union
-from datetime import date, datetime
+from datetime import datetime
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -170,11 +170,11 @@ class MetricsCaseTemplateView(TemplateView):
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         now: datetime = timezone.now()
-        first_of_this_month: date = date(now.year, now.month, 1)
-        first_of_last_month: date = (
-            date(now.year, now.month - 1, 1)
+        first_of_this_month: datetime = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+        first_of_last_month: datetime = (
+            datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
             if now.month > 1
-            else date(now.year - 1, 12, 1)
+            else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
         )
 
         monthly_metrics: List[Dict[str, Union[str, int]]] = [
