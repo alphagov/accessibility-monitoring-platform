@@ -297,7 +297,15 @@ def calculate_current_month_progress(
 
 def build_yearly_metric_chart(
     label: str, all_table_rows: List[Dict[str, Union[datetime, int]]]
-) -> Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]], List[Dict[str, Union[str, int]]]]]:
+) -> Dict[
+    str,
+    Union[
+        str,
+        int,
+        List[Dict[str, Union[datetime, int]]],
+        List[Dict[str, Union[str, int]]],
+    ],
+]:
     """
     Given numbers of things done each month, derive the values needed to draw
     a line chart.
@@ -312,7 +320,9 @@ def build_yearly_metric_chart(
         table_row["x"] = x_position
         x_position = x_position + X_AXIS_STEP
     last_x_position: int = all_table_rows[-1]["x"]  # type: ignore
-    y_axis_labels: List[Dict[str, Union[str, int]]] = Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
+    y_axis_labels: List[Dict[str, Union[str, int]]] = (
+        Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
+    )
     return {
         "label": label,
         "all_table_rows": all_table_rows,

@@ -170,7 +170,9 @@ class MetricsCaseTemplateView(TemplateView):
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         now: datetime = timezone.now()
-        first_of_this_month: datetime = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+        first_of_this_month: datetime = datetime(
+            now.year, now.month, 1, tzinfo=timezone.utc
+        )
         first_of_last_month: datetime = (
             datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
             if now.month > 1
@@ -225,7 +227,15 @@ class MetricsCaseTemplateView(TemplateView):
         ]
 
         yearly_metrics: List[
-            Dict[str, Union[str, int, List[Dict[str, Union[datetime, int]]], List[Dict[str, Union[str, int]]]]]
+            Dict[
+                str,
+                Union[
+                    str,
+                    int,
+                    List[Dict[str, Union[datetime, int]]],
+                    List[Dict[str, Union[str, int]]],
+                ],
+            ]
         ] = []
         start_date: str = f"{now.year - 1}-{now.month}-01"
         with connection.cursor() as cursor:
@@ -247,7 +257,9 @@ class MetricsCaseTemplateView(TemplateView):
                 ]
                 if all_table_rows:
                     yearly_metrics.append(
-                        build_yearly_metric_chart(label=label, all_table_rows=all_table_rows)
+                        build_yearly_metric_chart(
+                            label=label, all_table_rows=all_table_rows
+                        )
                     )
 
         extra_context: Dict[str, Any] = {
