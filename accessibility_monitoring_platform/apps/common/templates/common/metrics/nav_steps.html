@@ -1,10 +1,10 @@
 <nav role="navigation">
     <p class="govuk-body-m">
-        {% if current == 'common:metrics-overview' %}
-            Overview
+        {% if current == 'common:metrics-case' %}
+            Case metrics
         {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-overview' %}">
-                Overview</a>
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-case' %}">
+                Case metrics</a>
         {% endif %}
     </p>
 </nav>
