@@ -49,7 +49,10 @@ from ..utils import (
     calculate_current_month_progress,
     build_yearly_metric_chart,
     build_x_axis_labels,
+    build_cases_y_axis_labels,
+    calculate_x_axis_position_from_month,
     Y_AXIS_LABELS_100,
+    Y_AXIS_LABELS_250,
 )
 
 
@@ -527,5 +530,40 @@ def test_build_yearly_metric_chart():
 )
 @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
 def test_build_x_axis_labels(mock_timezone, month, expected_result):
+    """
+    Test building of x-axis labels for charts
+    """
     mock_timezone.now.return_value = datetime(2022, month, 1)
     assert build_x_axis_labels() == expected_result
+
+
+@pytest.mark.parametrize(
+    "max_value,expected_result",
+    [
+        (99, Y_AXIS_LABELS_100),
+        (101, Y_AXIS_LABELS_250),
+    ],
+)
+def test_build_cases_y_axis_labels(max_value, expected_result):
+    """
+    Test building of y-axis labels for cases charts
+    """
+    assert build_cases_y_axis_labels(max_value=max_value) == expected_result
+
+
+@pytest.mark.parametrize(
+    "now,metric_date,expected_result",
+    [
+        (datetime(2022, 11, 15), datetime(2022, 11, 1), 600),
+        (datetime(2022, 1, 15), datetime(2021, 11, 1), 500),
+        (datetime(2022, 1, 15), datetime(2021, 1, 1), 0),
+    ],
+)
+def test_calculate_x_axis_position_from_month(now, metric_date, expected_result):
+    """
+    Test metric's position on the x-axis of a chart is calculated correctly.
+    """
+    assert (
+        calculate_x_axis_position_from_month(now=now, metric_date=metric_date)
+        == expected_result
+    )
