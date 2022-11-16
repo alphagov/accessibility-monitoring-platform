@@ -16,16 +16,11 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
+                {% for metric in annual_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
                     <p class="govuk-body-m">
-                        <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
-                        {% if metric.expected_progress_difference_label %}
-                            Projected {{ metric.expected_progress_difference }}%
-                            {{ metric.expected_progress_difference_label }}
-                        {% endif %}
-                        {{ first_of_last_month|date:"F" }}
-                        ({{ metric.number_done_last_month }} {{ metric.label|lower }})
+                        <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ metric.percentage }}%</b></span>
+                        {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }} cases
                     </p>
                 {% endfor %}
                 {% for metric in metrics %}

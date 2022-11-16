@@ -380,3 +380,16 @@ def calculate_x_axis_position_from_month(now: datetime, metric_date: datetime) -
     """Calculate position of metric on x-axis from current and metric months."""
     row_offset: int = (now.year - metric_date.year) * 12 + now.month - metric_date.month
     return X_AXIS_STEP * abs(12 - row_offset)
+
+
+def calculate_current_year_progress(
+    label: str, partial_count: int, total_count: int
+) -> Dict[str, Any]:
+    """Given a number done and a total return a percentage metric"""
+    percentage: int = int(100 * partial_count / total_count) if total_count > 0 else 0
+    return {
+        "label": label,
+        "partial_count": partial_count,
+        "total_count": total_count,
+        "percentage": percentage,
+    }

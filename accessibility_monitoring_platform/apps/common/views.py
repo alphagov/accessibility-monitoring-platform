@@ -6,7 +6,8 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.mail import EmailMessage
-from django.db import connection
+from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -15,13 +16,19 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case
+from ..audits.models import CheckResult
+from ..cases.models import (
+    Case,
+    RECOMMENDATION_NO_ACTION,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+)
 
 from .utils import (
     get_platform_settings,
     calculate_current_month_progress,
     build_yearly_metric_chart,
     build_x_axis_labels,
+    calculate_current_year_progress,
 )
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
@@ -238,30 +245,32 @@ class MetricsCaseTemplateView(TemplateView):
                 ],
             ]
         ] = []
-        start_date: str = f"{now.year - 1}-{now.month}-01"
-        with connection.cursor() as cursor:
-            for label, date_column in [
-                ("Cases created over the last year", "created"),
-                ("Tests completed over the last year", "testing_details_complete_date"),
-                ("Reports sent over the last year", "report_sent_date"),
-                ("Cases completed over the last year", "completed_date"),
-            ]:
-                cursor.execute(
-                    f"""SELECT DATE_TRUNC('month', {date_column}), count(*)
-                          FROM cases_case
-                         WHERE {date_column} >= '{start_date}'
-                         GROUP BY 1 ORDER BY 1;"""
-                )
-                all_table_rows: List[Dict[str, Union[datetime, int]]] = [
-                    {"month_date": month_date, "count": count}
-                    for month_date, count in cursor.fetchall()
-                ]
-                if all_table_rows:
-                    yearly_metrics.append(
-                        build_yearly_metric_chart(
-                            label=label, all_table_rows=all_table_rows
-                        )
+        start_date: datetime = datetime(now.year - 1, now.month, 1)
+        for label, date_column in [
+            ("Cases created over the last year", "created"),
+            ("Tests completed over the last year", "testing_details_complete_date"),
+            ("Reports sent over the last year", "report_sent_date"),
+            ("Cases completed over the last year", "completed_date"),
+        ]:
+            cases: QuerySet[Case] = Case.objects.filter(**{f"{date_column}__gte": start_date})
+            month_dates: QuerySet = cases.dates(  # type: ignore
+                date_column, kind="month"
+            )
+            all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+                {
+                    "month_date": month_date,
+                    "count": cases.filter(
+                        **{f"{date_column}__month": month_date.month}
+                    ).count(),
+                }
+                for month_date in month_dates
+            ]
+            if all_table_rows:
+                yearly_metrics.append(
+                    build_yearly_metric_chart(
+                        label=label, all_table_rows=all_table_rows
                     )
+                )
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
@@ -278,3 +287,56 @@ class MetricsPolicyTemplateView(TemplateView):
     """
 
     template_name: str = "common/metrics/policy.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add number of cases to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        now: datetime = timezone.now()
+        first_of_this_year: datetime = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+        cases_of_this_year: QuerySet[Case] = Case.objects.filter(
+            created__gte=first_of_this_year
+        )
+        fixed_cases_count: int = cases_of_this_year.filter(
+            recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        ).count()
+        closed_cases_count: int = cases_of_this_year.filter(
+            Q(status="case-closed-sent-to-equalities-body")
+            | Q(status="complete")
+            | Q(status="case-closed-waiting-to-be-sent")
+            | Q(status="in-correspondence-with-equalities-body")
+        ).count()
+        compliant_cases_count: int = cases_of_this_year.filter(
+            accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        ).count()
+        check_results_of_this_year: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit__case__created__gte=first_of_this_year
+        )
+        fixed_check_results_count: int = (
+            check_results_of_this_year.filter(check_result_state="error")
+            .filter(retest_state="fixed")
+            .count()
+        )
+        total_check_results_count: int = (
+            check_results_of_this_year.filter(check_result_state="error")
+            .exclude(retest_state="not-retested")
+            .count()
+        )
+
+        context["annual_metrics"] = [
+            calculate_current_year_progress(
+                label=f"Websites compliant after audit in {now.year}",
+                partial_count=fixed_cases_count,
+                total_count=closed_cases_count,
+            ),
+            calculate_current_year_progress(
+                label=f"Statements compliant after audit in {now.year}",
+                partial_count=compliant_cases_count,
+                total_count=closed_cases_count,
+            ),
+            calculate_current_year_progress(
+                label=f"Website accessibility issues fixed in {now.year}",
+                partial_count=fixed_check_results_count,
+                total_count=total_check_results_count,
+            ),
+        ]
+        return context
