@@ -21,6 +21,7 @@ from .utils import (
     get_platform_settings,
     calculate_current_month_progress,
     build_yearly_metric_chart,
+    build_x_axis_labels,
 )
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
@@ -264,7 +265,16 @@ class MetricsCaseTemplateView(TemplateView):
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
+            "x_axis_labels": build_x_axis_labels(),
             "monthly_metrics": monthly_metrics,
             "yearly_metrics": yearly_metrics,
         }
         return {**extra_context, **context}
+
+
+class MetricsPolicyTemplateView(TemplateView):
+    """
+    View of policy metrics
+    """
+
+    template_name: str = "common/metrics/policy.html"

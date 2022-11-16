@@ -48,6 +48,7 @@ from ..utils import (
     check_dict_for_truthy_values,
     calculate_current_month_progress,
     build_yearly_metric_chart,
+    build_x_axis_labels,
     Y_AXIS_LABELS_100,
 )
 
@@ -474,11 +475,57 @@ def test_build_yearly_metric_chart():
         "previous_month_rows": all_table_rows[:-1],
         "current_month_rows": all_table_rows[-2:],
         "graph_height": 250,
+        "graph_width": 600,
         "chart_height": 300,
         "chart_width": 750,
-        "last_x_position": 600,
         "x_axis_tick_y2": 260,
-        "x_axis_label_1_y": 275,
-        "x_axis_label_2_y": 295,
+        "x_axis_label_y": 275,
         "y_axis_labels": Y_AXIS_LABELS_100,
     }
+
+
+@pytest.mark.parametrize(
+    "month,expected_result",
+    [
+        (
+            11,
+            [
+                {"label": "Nov", "x": 0},
+                {"label": "Dec", "x": 50},
+                {"label": "Jan", "x": 100, "label_line_2": 2022},
+                {"label": "Feb", "x": 150},
+                {"label": "Mar", "x": 200},
+                {"label": "Apr", "x": 250},
+                {"label": "May", "x": 300},
+                {"label": "Jun", "x": 350},
+                {"label": "Jul", "x": 400},
+                {"label": "Aug", "x": 450},
+                {"label": "Sep", "x": 500},
+                {"label": "Oct", "x": 550},
+                {"label": "Nov", "x": 600},
+            ],
+        ),
+        (
+            1,
+            [
+                {"label": "Jan", "x": 0, "label_line_2": 2021},
+                {"label": "Feb", "x": 50},
+                {"label": "Mar", "x": 100},
+                {"label": "Apr", "x": 150},
+                {"label": "May", "x": 200},
+                {"label": "Jun", "x": 250},
+                {"label": "Jul", "x": 300},
+                {"label": "Aug", "x": 350},
+                {"label": "Sep", "x": 400},
+                {"label": "Oct", "x": 450},
+                {"label": "Nov", "x": 500},
+                {"label": "Dec", "x": 550},
+                {"label": "Jan", "x": 600, "label_line_2": 2022},
+            ],
+        ),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_build_x_axis_labels(mock_timezone, month, expected_result):
+    mock_timezone.now.return_value = datetime(2022, month, 1)
+    assert build_x_axis_labels() == expected_result

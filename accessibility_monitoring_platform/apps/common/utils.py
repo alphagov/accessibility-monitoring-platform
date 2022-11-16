@@ -33,12 +33,26 @@ from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
 GRAPH_HEIGHT: int = 250
+GRAPH_WIDTH: int = 600
 CHART_HEIGHT_EXTRA: int = 50
 CHART_WIDTH_EXTRA: int = 150
 X_AXIS_STEP: int = 50
 X_AXIS_TICK_HEIGHT: int = 10
-X_AXIS_LABEL_1_Y_OFFSET: int = 25
-X_AXIS_LABEL_2_Y_OFFSET: int = 45
+X_AXIS_LABEL_Y_OFFSET: int = 25
+X_AXIS_LABELS: List[str] = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
 Y_AXIS_LABELS_250: List[Dict[str, Union[str, int]]] = [
     {"label": "250", "y": 0},
     {"label": "200", "y": 50},
@@ -319,7 +333,6 @@ def build_yearly_metric_chart(
             table_row["y"] = GRAPH_HEIGHT - (table_row["count"] * MULTIPLIER_100_TO_250)  # type: ignore
         table_row["x"] = x_position
         x_position = x_position + X_AXIS_STEP
-    last_x_position: int = all_table_rows[-1]["x"]  # type: ignore
     y_axis_labels: List[Dict[str, Union[str, int]]] = (
         Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
     )
@@ -329,11 +342,28 @@ def build_yearly_metric_chart(
         "previous_month_rows": all_table_rows[:-1],
         "current_month_rows": all_table_rows[-2:],
         "graph_height": GRAPH_HEIGHT,
+        "graph_width": GRAPH_WIDTH,
         "chart_height": GRAPH_HEIGHT + CHART_HEIGHT_EXTRA,
-        "chart_width": last_x_position + CHART_WIDTH_EXTRA,
-        "last_x_position": last_x_position,
+        "chart_width": GRAPH_WIDTH + CHART_WIDTH_EXTRA,
         "x_axis_tick_y2": GRAPH_HEIGHT + X_AXIS_TICK_HEIGHT,
-        "x_axis_label_1_y": GRAPH_HEIGHT + X_AXIS_LABEL_1_Y_OFFSET,
-        "x_axis_label_2_y": GRAPH_HEIGHT + X_AXIS_LABEL_2_Y_OFFSET,
+        "x_axis_label_y": GRAPH_HEIGHT + X_AXIS_LABEL_Y_OFFSET,
         "y_axis_labels": y_axis_labels,
     }
+
+
+def build_x_axis_labels() -> List[Dict[str, Union[str, int]]]:
+    """Build x-axis labels for chart based on the current month"""
+    now: datetime = timezone.now()
+    current_month: int = now.month
+    x_axis_labels: List[Dict[str, Union[str, int]]] = []
+    for count, x_position in enumerate(range(0, 650, 50)):
+        x_axis_label: Dict[str, Union[str, int]] = {
+            "label": X_AXIS_LABELS[(count + current_month - 1) % 12],
+            "x": x_position,
+        }
+        if x_axis_label["label"] == "Jan":
+            x_axis_label["label_line_2"] = now.year
+        x_axis_labels.append(x_axis_label)
+    if current_month == 1:
+        x_axis_labels[0]["label_line_2"] = now.year - 1
+    return x_axis_labels

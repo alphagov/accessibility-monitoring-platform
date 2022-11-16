@@ -3,24 +3,23 @@
 {% load l10n %}
 {% load humanize %}
 
-{% block title %}Case metrics{% endblock %}
+{% block title %}Policy metrics{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/metrics/breadcrumbs.html' with current='Case metrics' %}
+    {% include 'common/metrics/breadcrumbs.html' with current='Policy metrics' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'common/metrics/nav_steps.html' with current='common:metrics-case' %}
+                {% include 'common/metrics/nav_steps.html' with current='common:metrics-policy' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in monthly_metrics %}
+                {% for metric in metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
-                        {% include 'common/metrics/arrow_icon.svg' %}
                         {% if metric.expected_progress_difference_label %}
                             Projected {{ metric.expected_progress_difference }}%
                             {{ metric.expected_progress_difference_label }}
@@ -29,9 +28,7 @@
                         ({{ metric.number_done_last_month }} {{ metric.label|lower }})
                     </p>
                 {% endfor %}
-                {% for metric in yearly_metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
-                    {% include 'common/metrics/chart.svg' %}
+                {% for metric in metrics %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
