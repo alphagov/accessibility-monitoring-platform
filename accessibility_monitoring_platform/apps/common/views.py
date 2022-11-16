@@ -292,24 +292,27 @@ class MetricsPolicyTemplateView(TemplateView):
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         now: datetime = timezone.now()
-        first_of_this_year: datetime = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+        start_date: datetime = datetime(2022, 1, 1, tzinfo=timezone.utc)
         cases_of_this_year: QuerySet[Case] = Case.objects.filter(
-            created__gte=first_of_this_year
+            created__gte=start_date
         )
-        fixed_cases_count: int = cases_of_this_year.filter(
+        fixed_cases: QuerySet[Case] = cases_of_this_year.filter(
             recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
-        ).count()
-        closed_cases_count: int = cases_of_this_year.filter(
+        )
+        fixed_cases_count: int = fixed_cases.count()
+        closed_cases: QuerySet[Case] = cases_of_this_year.filter(
             Q(status="case-closed-sent-to-equalities-body")
             | Q(status="complete")
             | Q(status="case-closed-waiting-to-be-sent")
             | Q(status="in-correspondence-with-equalities-body")
-        ).count()
-        compliant_cases_count: int = cases_of_this_year.filter(
+        )
+        closed_cases_count: int = closed_cases.count()
+        compliant_cases: QuerySet[Case] = cases_of_this_year.filter(
             accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-        ).count()
+        )
+        compliant_cases_count: int = compliant_cases.count()
         check_results_of_this_year: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit__case__created__gte=first_of_this_year
+            audit__case__created__gte=start_date
         )
         fixed_check_results_count: int = (
             check_results_of_this_year.filter(check_result_state="error")
@@ -339,4 +342,62 @@ class MetricsPolicyTemplateView(TemplateView):
                 total_count=total_check_results_count,
             ),
         ]
+
+        monthly_metrics: List[
+            Dict[
+                str,
+                Union[
+                    str,
+                    int,
+                    List[Dict[str, Union[datetime, int]]],
+                    List[Dict[str, Union[str, int]]],
+                ],
+            ]
+        ] = []
+        month_dates: QuerySet = closed_cases.dates(  # type: ignore
+            "created", kind="month"
+        )
+        all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+            {
+                "month_date": month_date,
+                "partial_count": fixed_cases.filter(
+                    **{"created__month": month_date.month}
+                ).count(),
+                "total_count": closed_cases.filter(
+                    **{"created__month": month_date.month}
+                ).count(),
+            }
+            for month_date in month_dates
+        ]
+        if all_table_rows:
+            monthly_metrics.append(
+                {
+                    "label": "State of websites after audit in 2022",
+                    "all_table_rows": all_table_rows,
+                }
+            )
+        month_dates: QuerySet = closed_cases.dates(  # type: ignore
+            "created", kind="month"
+        )
+        all_table_rows: List[Dict[str, Union[datetime, int]]] = [
+            {
+                "month_date": month_date,
+                "partial_count": compliant_cases.filter(
+                    **{"created__month": month_date.month}
+                ).count(),
+                "total_count": closed_cases.filter(
+                    **{"created__month": month_date.month}
+                ).count(),
+            }
+            for month_date in month_dates
+        ]
+        if all_table_rows:
+            monthly_metrics.append(
+                {
+                    "label": "State of accessibility statements after audit in 2022",
+                    "all_table_rows": all_table_rows,
+                }
+            )
+
+        context["monthly_metrics"] = monthly_metrics
         return context

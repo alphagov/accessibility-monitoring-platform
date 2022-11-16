@@ -23,7 +23,8 @@
                         {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }} cases
                     </p>
                 {% endfor %}
-                {% for metric in metrics %}
+                {% for metric in monthly_metrics %}
+                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -35,7 +36,8 @@
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
                                         <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Fixed</th>
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Case closed</th>
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
@@ -45,7 +47,8 @@
                                                 {{ table_row.month_date|date:"F" }}
                                                 {{ table_row.month_date.year }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ table_row.count|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.partial_count|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.total_count|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
