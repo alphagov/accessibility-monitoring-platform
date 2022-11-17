@@ -246,13 +246,16 @@ class MetricsCaseTemplateView(TemplateView):
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1)
+        x_axis_labels = build_x_axis_labels()
         for label, date_column in [
             ("Cases created over the last year", "created"),
             ("Tests completed over the last year", "testing_details_complete_date"),
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            cases: QuerySet[Case] = Case.objects.filter(**{f"{date_column}__gte": start_date})
+            cases: QuerySet[Case] = Case.objects.filter(
+                **{f"{date_column}__gte": start_date}
+            )
             month_dates: QuerySet = cases.dates(  # type: ignore
                 date_column, kind="month"
             )
@@ -260,7 +263,10 @@ class MetricsCaseTemplateView(TemplateView):
                 {
                     "month_date": month_date,
                     "count": cases.filter(
-                        **{f"{date_column}__month": month_date.month}
+                        **{
+                            f"{date_column}__year": month_date.year,
+                            f"{date_column}__month": month_date.month,
+                        }
                     ).count(),
                 }
                 for month_date in month_dates
@@ -274,7 +280,7 @@ class MetricsCaseTemplateView(TemplateView):
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
-            "x_axis_labels": build_x_axis_labels(),
+            "x_axis_labels": x_axis_labels,
             "monthly_metrics": monthly_metrics,
             "yearly_metrics": yearly_metrics,
         }
@@ -301,7 +307,7 @@ class MetricsPolicyTemplateView(TemplateView):
         )
         fixed_cases_count: int = fixed_cases.count()
         closed_cases: QuerySet[Case] = cases_of_this_year.filter(
-            Q(status="case-closed-sent-to-equalities-body")
+            Q(status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
             | Q(status="complete")
             | Q(status="case-closed-waiting-to-be-sent")
             | Q(status="in-correspondence-with-equalities-body")
