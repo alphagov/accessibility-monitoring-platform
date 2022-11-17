@@ -10,7 +10,7 @@ from datetime import datetime
 from ..metrics import (
     calculate_current_month_progress,
     build_yearly_metric_chart,
-    build_x_axis_labels,
+    build_13_month_x_axis_labels,
     build_cases_y_axis_labels,
     calculate_x_axis_position_from_month,
     Y_AXIS_LABELS_100,
@@ -158,12 +158,12 @@ def test_build_yearly_metric_chart():
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
-def test_build_x_axis_labels(mock_timezone, month, expected_result):
+def test_build_13_month_x_axis_labels(mock_timezone, month, expected_result):
     """
     Test building of x-axis labels for charts
     """
     mock_timezone.now.return_value = datetime(2022, month, 1)
-    assert build_x_axis_labels() == expected_result
+    assert build_13_month_x_axis_labels() == expected_result
 
 
 @pytest.mark.parametrize(

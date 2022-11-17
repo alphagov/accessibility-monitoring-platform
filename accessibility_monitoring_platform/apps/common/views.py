@@ -2,7 +2,7 @@
 Common views
 """
 from typing import Any, Dict, List, Type, Union
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -16,7 +16,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ..audits.models import CheckResult
+from ..audits.models import Audit, CheckResult
 from ..cases.models import (
     Case,
     RECOMMENDATION_NO_ACTION,
@@ -27,8 +27,9 @@ from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdat
 from .metrics import (
     calculate_current_month_progress,
     build_yearly_metric_chart,
-    build_x_axis_labels,
-    calculate_current_year_progress,
+    build_13_month_x_axis_labels,
+    calculate_metric_progress,
+    count_statement_issues,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -246,7 +247,7 @@ class MetricsCaseTemplateView(TemplateView):
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1)
-        x_axis_labels = build_x_axis_labels()
+        x_axis_labels = build_13_month_x_axis_labels()
         for label, date_column in [
             ("Cases created over the last year", "created"),
             ("Tests completed over the last year", "testing_details_complete_date"),
@@ -298,54 +299,66 @@ class MetricsPolicyTemplateView(TemplateView):
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         now: datetime = timezone.now()
-        start_date: datetime = datetime(2022, 1, 1, tzinfo=timezone.utc)
-        cases_of_this_year: QuerySet[Case] = Case.objects.filter(
-            created__gte=start_date
+        start_date: datetime = now - timedelta(days=90)
+        retested_audits: QuerySet[Audit] = Audit.objects.filter(
+            retest_date__gte=start_date
         )
-        fixed_cases: QuerySet[Case] = cases_of_this_year.filter(
-            recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        fixed_audits: QuerySet[Audit] = retested_audits.filter(
+            case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
-        fixed_cases_count: int = fixed_cases.count()
-        closed_cases: QuerySet[Case] = cases_of_this_year.filter(
-            Q(status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
-            | Q(status="complete")
-            | Q(status="case-closed-waiting-to-be-sent")
-            | Q(status="in-correspondence-with-equalities-body")
+        fixed_audits_count: int = fixed_audits.count()
+        closed_audits: QuerySet[Audit] = retested_audits.filter(
+            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+            | Q(case__status="complete")
+            | Q(case__status="case-closed-waiting-to-be-sent")
+            | Q(case__status="in-correspondence-with-equalities-body")
         )
-        closed_cases_count: int = closed_cases.count()
-        compliant_cases: QuerySet[Case] = cases_of_this_year.filter(
-            accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        closed_audits_count: int = closed_audits.count()
+        compliant_audits: QuerySet[Audit] = retested_audits.filter(
+            case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
-        compliant_cases_count: int = compliant_cases.count()
-        check_results_of_this_year: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit__case__created__gte=start_date
+        compliant_audits_count: int = compliant_audits.count()
+        check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
+            audit__retest_date__gte=start_date
         )
         fixed_check_results_count: int = (
-            check_results_of_this_year.filter(check_result_state="error")
+            check_results_of_last_90_days.filter(check_result_state="error")
             .filter(retest_state="fixed")
             .count()
         )
         total_check_results_count: int = (
-            check_results_of_this_year.filter(check_result_state="error")
+            check_results_of_last_90_days.filter(check_result_state="error")
             .exclude(retest_state="not-retested")
             .count()
         )
 
+        fixed_statement_issues_count, statement_issues_count = count_statement_issues(retested_audits)
+
         context["annual_metrics"] = [
-            calculate_current_year_progress(
-                label=f"Websites compliant after audit in {now.year}",
-                partial_count=fixed_cases_count,
-                total_count=closed_cases_count,
+            calculate_metric_progress(
+                label="Websites compliant after audit in the last 90 days",
+                partial_count=fixed_audits_count,
+                total_count=closed_audits_count,
             ),
-            calculate_current_year_progress(
-                label=f"Statements compliant after audit in {now.year}",
-                partial_count=compliant_cases_count,
-                total_count=closed_cases_count,
+            calculate_metric_progress(
+                label="Statements compliant after audit in the last 90 days",
+                partial_count=compliant_audits_count,
+                total_count=closed_audits_count,
             ),
-            calculate_current_year_progress(
-                label=f"Website accessibility issues fixed in {now.year}",
+            calculate_metric_progress(
+                label="Website accessibility issues fixed in the last 90 days",
                 partial_count=fixed_check_results_count,
                 total_count=total_check_results_count,
+            ),
+            calculate_metric_progress(
+                label="Statement issues fixed in the last 90 days",
+                partial_count=fixed_statement_issues_count,
+                total_count=statement_issues_count,
+            ),
+            calculate_metric_progress(
+                label="Cases completed with equalities bodies in 2022",
+                partial_count=5,
+                total_count=10,
             ),
         ]
 
@@ -360,17 +373,17 @@ class MetricsPolicyTemplateView(TemplateView):
                 ],
             ]
         ] = []
-        month_dates: QuerySet = closed_cases.dates(  # type: ignore
-            "created", kind="month"
+        month_dates: QuerySet = closed_audits.dates(  # type: ignore
+            "retest_date", kind="month"
         )
         all_table_rows: List[Dict[str, Union[datetime, int]]] = [
             {
                 "month_date": month_date,
-                "partial_count": fixed_cases.filter(
-                    **{"created__month": month_date.month}
+                "partial_count": fixed_audits.filter(
+                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
-                "total_count": closed_cases.filter(
-                    **{"created__month": month_date.month}
+                "total_count": closed_audits.filter(
+                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
             }
             for month_date in month_dates
@@ -382,17 +395,17 @@ class MetricsPolicyTemplateView(TemplateView):
                     "all_table_rows": all_table_rows,
                 }
             )
-        month_dates: QuerySet = closed_cases.dates(  # type: ignore
-            "created", kind="month"
+        month_dates: QuerySet = closed_audits.dates(  # type: ignore
+            "retest_date", kind="month"
         )
         all_table_rows: List[Dict[str, Union[datetime, int]]] = [
             {
                 "month_date": month_date,
-                "partial_count": compliant_cases.filter(
-                    **{"created__month": month_date.month}
+                "partial_count": compliant_audits.filter(
+                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
-                "total_count": closed_cases.filter(
-                    **{"created__month": month_date.month}
+                "total_count": closed_audits.filter(
+                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
             }
             for month_date in month_dates

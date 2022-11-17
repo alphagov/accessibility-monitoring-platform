@@ -1,14 +1,19 @@
 """ Utility functions for calculating metrics and charts """
-from datetime import datetime
 
 import calendar
+from datetime import datetime
 from typing import (
     Any,
     Dict,
     List,
+    Tuple,
     Union,
 )
+
+from django.db.models.query import QuerySet
 from django.utils import timezone
+
+from ..audits.models import Audit
 
 GRAPH_HEIGHT: int = 250
 GRAPH_WIDTH: int = 600
@@ -50,6 +55,19 @@ Y_AXIS_LABELS_100: List[Dict[str, Union[str, int]]] = [
     {"label": "0", "y": 250},
 ]
 MULTIPLIER_100_TO_250: float = 250 / 100
+ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
+    "declaration_state": "present",
+    "scope_state": "present",
+    "compliance_state": "present",
+    "non_regulation_state": "present",
+    "preparation_date_state": "present",
+    "method_state": "present",
+    "review_state": "present",
+    "feedback_state": "present",
+    "contact_information_state": "present",
+    "enforcement_procedure_state": "present",
+    "access_requirements_state": "req-met",
+}
 
 
 def calculate_current_month_progress(
@@ -126,7 +144,7 @@ def build_yearly_metric_chart(
     }
 
 
-def build_x_axis_labels() -> List[Dict[str, Union[str, int]]]:
+def build_13_month_x_axis_labels() -> List[Dict[str, Union[str, int]]]:
     """Build x-axis labels for chart based on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
@@ -154,7 +172,7 @@ def calculate_x_axis_position_from_month(now: datetime, metric_date: datetime) -
     return X_AXIS_STEP * abs(12 - row_offset)
 
 
-def calculate_current_year_progress(
+def calculate_metric_progress(
     label: str, partial_count: int, total_count: int
 ) -> Dict[str, Any]:
     """Given a number done and a total return a percentage metric"""
@@ -165,3 +183,16 @@ def calculate_current_year_progress(
         "total_count": total_count,
         "percentage": percentage,
     }
+
+
+def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
+    """Count numbers of statement errors and how many were fixed"""
+    statement_issues_count: int = 0
+    fixed_statement_issues_count: int = 0
+    for audit in audits:
+        for fieldname, good_value in ACCESSIBILITY_STATEMENT_TESTS.items():
+            statement_issues_count += 1
+            if getattr(audit, fieldname) != good_value:
+                if getattr(audit, f"audit_retest_{fieldname}") == good_value:
+                    fixed_statement_issues_count += 1
+    return (fixed_statement_issues_count, statement_issues_count)

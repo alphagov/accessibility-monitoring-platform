@@ -20,7 +20,7 @@
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ metric.percentage }}%</b></span>
-                        {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }} cases
+                        {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }}
                     </p>
                 {% endfor %}
                 {% for metric in monthly_metrics %}
