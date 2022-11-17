@@ -23,16 +23,16 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 
-from .utils import (
-    get_platform_settings,
+from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
+from .metrics import (
     calculate_current_month_progress,
     build_yearly_metric_chart,
     build_x_axis_labels,
     calculate_current_year_progress,
 )
-from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
+from .utils import get_platform_settings
 
 
 class ContactAdminView(FormView):
