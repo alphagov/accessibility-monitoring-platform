@@ -334,6 +334,17 @@ class MetricsPolicyTemplateView(TemplateView):
 
         fixed_statement_issues_count, statement_issues_count = count_statement_issues(retested_audits)
 
+        thirteen_month_start_date: datetime = datetime(
+            now.year - 1, now.month, 1, tzinfo=timezone.utc
+        )
+        last_year_cases: QuerySet[Case] = Case.objects.filter(
+            created__gte=thirteen_month_start_date
+        )
+        equality_body_cases_completed_count: int = last_year_cases.filter(
+            enforcement_body_pursuing="yes-completed").count()
+        equality_body_cases_in_progress_count: int = last_year_cases.filter(
+            enforcement_body_pursuing="yes-in-progress").count()
+
         context["annual_metrics"] = [
             calculate_metric_progress(
                 label="Websites compliant after audit in the last 90 days",
@@ -356,9 +367,9 @@ class MetricsPolicyTemplateView(TemplateView):
                 total_count=statement_issues_count,
             ),
             calculate_metric_progress(
-                label="Cases completed with equalities bodies in 2022",
-                partial_count=5,
-                total_count=10,
+                label="Cases completed with equalities bodies in last year",
+                partial_count=equality_body_cases_completed_count,
+                total_count=equality_body_cases_in_progress_count,
             ),
         ]
 
@@ -373,16 +384,30 @@ class MetricsPolicyTemplateView(TemplateView):
                 ],
             ]
         ] = []
-        month_dates: QuerySet = closed_audits.dates(  # type: ignore
+
+        thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
+            retest_date__gte=thirteen_month_start_date
+        )
+        thirteen_month_fixed_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
+            case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        )
+        thirteen_month_closed_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
+            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+            | Q(case__status="complete")
+            | Q(case__status="case-closed-waiting-to-be-sent")
+            | Q(case__status="in-correspondence-with-equalities-body")
+        )
+
+        month_dates: QuerySet = thirteen_month_retested_audits.dates(  # type: ignore
             "retest_date", kind="month"
         )
         all_table_rows: List[Dict[str, Union[datetime, int]]] = [
             {
                 "month_date": month_date,
-                "partial_count": fixed_audits.filter(
+                "partial_count": thirteen_month_fixed_audits.filter(
                     **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
-                "total_count": closed_audits.filter(
+                "total_count": thirteen_month_closed_audits.filter(
                     **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
             }
@@ -391,20 +416,20 @@ class MetricsPolicyTemplateView(TemplateView):
         if all_table_rows:
             monthly_metrics.append(
                 {
-                    "label": "State of websites after audit in 2022",
+                    "label": "State of websites after audit in last year",
                     "all_table_rows": all_table_rows,
                 }
             )
-        month_dates: QuerySet = closed_audits.dates(  # type: ignore
-            "retest_date", kind="month"
+        thirteen_month_compliant_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
+            case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
         all_table_rows: List[Dict[str, Union[datetime, int]]] = [
             {
                 "month_date": month_date,
-                "partial_count": compliant_audits.filter(
+                "partial_count": thirteen_month_compliant_audits.filter(
                     **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
-                "total_count": closed_audits.filter(
+                "total_count": thirteen_month_closed_audits.filter(
                     **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
                 ).count(),
             }
@@ -413,7 +438,7 @@ class MetricsPolicyTemplateView(TemplateView):
         if all_table_rows:
             monthly_metrics.append(
                 {
-                    "label": "State of accessibility statements after audit in 2022",
+                    "label": "State of accessibility statements after audit in last year",
                     "all_table_rows": all_table_rows,
                 }
             )
