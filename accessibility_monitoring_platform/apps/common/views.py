@@ -25,9 +25,10 @@ from ..cases.models import (
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
+    ChartAxisTick,
     calculate_current_month_progress,
     build_yearly_metric_chart,
-    build_13_month_x_axis_labels,
+    build_13_month_x_axis,
     calculate_metric_progress,
     count_statement_issues,
 )
@@ -242,12 +243,12 @@ class MetricsCaseTemplateView(TemplateView):
                     str,
                     int,
                     List[Dict[str, Union[datetime, int]]],
-                    List[Dict[str, Union[str, int]]],
+                    List[ChartAxisTick],
                 ],
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1)
-        x_axis_labels = build_13_month_x_axis_labels()
+        x_axis = build_13_month_x_axis()
         for label, date_column in [
             ("Cases created over the last year", "created"),
             ("Tests completed over the last year", "testing_details_complete_date"),
@@ -281,7 +282,7 @@ class MetricsCaseTemplateView(TemplateView):
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
-            "x_axis_labels": x_axis_labels,
+            "x_axis": x_axis,
             "monthly_metrics": monthly_metrics,
             "yearly_metrics": yearly_metrics,
         }
@@ -308,7 +309,9 @@ class MetricsPolicyTemplateView(TemplateView):
         )
         fixed_audits_count: int = fixed_audits.count()
         closed_audits: QuerySet[Audit] = retested_audits.filter(
-            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+            Q(
+                case__status="case-closed-sent-to-equalities-body"
+            )  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
@@ -318,9 +321,9 @@ class MetricsPolicyTemplateView(TemplateView):
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
         compliant_audits_count: int = compliant_audits.count()
-        check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
-            audit__retest_date__gte=start_date
-        )
+        check_results_of_last_90_days: QuerySet[
+            CheckResult
+        ] = CheckResult.objects.filter(audit__retest_date__gte=start_date)
         fixed_check_results_count: int = (
             check_results_of_last_90_days.filter(check_result_state="error")
             .filter(retest_state="fixed")
@@ -332,7 +335,9 @@ class MetricsPolicyTemplateView(TemplateView):
             .count()
         )
 
-        fixed_statement_issues_count, statement_issues_count = count_statement_issues(retested_audits)
+        fixed_statement_issues_count, statement_issues_count = count_statement_issues(
+            retested_audits
+        )
 
         thirteen_month_start_date: datetime = datetime(
             now.year - 1, now.month, 1, tzinfo=timezone.utc
@@ -341,9 +346,11 @@ class MetricsPolicyTemplateView(TemplateView):
             created__gte=thirteen_month_start_date
         )
         equality_body_cases_completed_count: int = last_year_cases.filter(
-            enforcement_body_pursuing="yes-completed").count()
+            enforcement_body_pursuing="yes-completed"
+        ).count()
         equality_body_cases_in_progress_count: int = last_year_cases.filter(
-            enforcement_body_pursuing="yes-in-progress").count()
+            enforcement_body_pursuing="yes-in-progress"
+        ).count()
 
         context["annual_metrics"] = [
             calculate_metric_progress(
@@ -388,11 +395,17 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
-        thirteen_month_fixed_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
+        thirteen_month_fixed_audits: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
             case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
-        thirteen_month_closed_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
-            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+        thirteen_month_closed_audits: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
+            Q(
+                case__status="case-closed-sent-to-equalities-body"
+            )  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
@@ -405,10 +418,16 @@ class MetricsPolicyTemplateView(TemplateView):
             {
                 "month_date": month_date,
                 "partial_count": thirteen_month_fixed_audits.filter(
-                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
+                    **{
+                        "retest_date__month": month_date.month,
+                        "retest_date__year": month_date.year,
+                    }
                 ).count(),
                 "total_count": thirteen_month_closed_audits.filter(
-                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
+                    **{
+                        "retest_date__month": month_date.month,
+                        "retest_date__year": month_date.year,
+                    }
                 ).count(),
             }
             for month_date in month_dates
@@ -420,17 +439,25 @@ class MetricsPolicyTemplateView(TemplateView):
                     "all_table_rows": all_table_rows,
                 }
             )
-        thirteen_month_compliant_audits: QuerySet[Audit] = thirteen_month_retested_audits.filter(
+        thirteen_month_compliant_audits: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
         all_table_rows: List[Dict[str, Union[datetime, int]]] = [
             {
                 "month_date": month_date,
                 "partial_count": thirteen_month_compliant_audits.filter(
-                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
+                    **{
+                        "retest_date__month": month_date.month,
+                        "retest_date__year": month_date.year,
+                    }
                 ).count(),
                 "total_count": thirteen_month_closed_audits.filter(
-                    **{"retest_date__month": month_date.month, "retest_date__year": month_date.year}
+                    **{
+                        "retest_date__month": month_date.month,
+                        "retest_date__year": month_date.year,
+                    }
                 ).count(),
             }
             for month_date in month_dates

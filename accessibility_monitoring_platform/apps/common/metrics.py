@@ -1,6 +1,7 @@
 """ Utility functions for calculating metrics and charts """
 
 import calendar
+from dataclasses import dataclass
 from datetime import datetime
 from typing import (
     Any,
@@ -38,23 +39,6 @@ X_AXIS_LABELS: List[str] = [
     "Nov",
     "Dec",
 ]
-Y_AXIS_LABELS_250: List[Dict[str, Union[str, int]]] = [
-    {"label": "250", "y": 0},
-    {"label": "200", "y": 50},
-    {"label": "150", "y": 100},
-    {"label": "100", "y": 150},
-    {"label": "50", "y": 200},
-    {"label": "0", "y": 250},
-]
-Y_AXIS_LABELS_100: List[Dict[str, Union[str, int]]] = [
-    {"label": "100", "y": 0},
-    {"label": "80", "y": 50},
-    {"label": "60", "y": 100},
-    {"label": "40", "y": 150},
-    {"label": "20", "y": 200},
-    {"label": "0", "y": 250},
-]
-MULTIPLIER_100_TO_250: float = 250 / 100
 ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
     "declaration_state": "present",
     "scope_state": "present",
@@ -68,6 +52,34 @@ ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
     "enforcement_procedure_state": "present",
     "access_requirements_state": "req-met",
 }
+
+
+@dataclass
+class ChartAxisTick:
+    value: Union[int, datetime]
+    label: str
+    x_position: int
+    y_position: int
+    label_line_2: str = ""
+
+
+Y_AXIS_250: List[ChartAxisTick] = [
+    ChartAxisTick(value=250, label="250", x_position=0, y_position=0),
+    ChartAxisTick(value=200, label="200", x_position=0, y_position=50),
+    ChartAxisTick(value=150, label="150", x_position=0, y_position=100),
+    ChartAxisTick(value=100, label="100", x_position=0, y_position=150),
+    ChartAxisTick(value=50, label="50", x_position=0, y_position=200),
+    ChartAxisTick(value=0, label="0", x_position=0, y_position=250),
+]
+Y_AXIS_100: List[ChartAxisTick] = [
+    ChartAxisTick(value=100, label="100", x_position=0, y_position=0),
+    ChartAxisTick(value=80, label="80", x_position=0, y_position=50),
+    ChartAxisTick(value=60, label="60", x_position=0, y_position=100),
+    ChartAxisTick(value=40, label="40", x_position=0, y_position=150),
+    ChartAxisTick(value=20, label="20", x_position=0, y_position=200),
+    ChartAxisTick(value=0, label="0", x_position=0, y_position=250),
+]
+MULTIPLIER_100_TO_250: float = 250 / 100
 
 
 def calculate_current_month_progress(
@@ -112,7 +124,7 @@ def build_yearly_metric_chart(
         str,
         int,
         List[Dict[str, Union[datetime, int]]],
-        List[Dict[str, Union[str, int]]],
+        List[ChartAxisTick],
     ],
 ]:
     """
@@ -140,30 +152,36 @@ def build_yearly_metric_chart(
         "chart_width": CHART_WIDTH,
         "x_axis_tick_y2": GRAPH_HEIGHT + X_AXIS_TICK_HEIGHT,
         "x_axis_label_y": GRAPH_HEIGHT + X_AXIS_LABEL_Y_OFFSET,
-        "y_axis_labels": build_cases_y_axis_labels(max_value=max_value),
+        "y_axis": build_cases_y_axis(max_value=max_value),
     }
 
 
-def build_13_month_x_axis_labels() -> List[Dict[str, Union[str, int]]]:
+def build_13_month_x_axis() -> List[ChartAxisTick]:
     """Build x-axis labels for chart based on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
-    x_axis_labels: List[Dict[str, Union[str, int]]] = []
-    for count, x_position in enumerate(range(0, 650, 50)):
-        x_axis_label: Dict[str, Union[str, int]] = {
-            "label": X_AXIS_LABELS[(count + current_month - 1) % 12],
-            "x": x_position,
-        }
-        if x_axis_label["label"] == "Jan":
-            x_axis_label["label_line_2"] = now.year
-        x_axis_labels.append(x_axis_label)
-    if current_month == 1:
-        x_axis_labels[0]["label_line_2"] = now.year - 1
-    return x_axis_labels
+    value_date: datetime = datetime(now.year - 1, current_month, 1, tzinfo=timezone.utc)
+    x_axis: List[ChartAxisTick] = []
+    for x_position in range(0, 650, 50):
+        x_axis_tick: ChartAxisTick = ChartAxisTick(
+            value=value_date,
+            label=value_date.strftime("%b"),
+            x_position=x_position,
+            y_position=GRAPH_HEIGHT + X_AXIS_LABEL_Y_OFFSET,
+        )
+        if value_date.month == 1:
+            x_axis_tick.label_line_2 = str(value_date.year)
+        x_axis.append(x_axis_tick)
+        if current_month < 12:
+            current_month += 1
+        else:
+            current_month = 1
+        value_date = datetime(now.year - 1, current_month, 1, tzinfo=timezone.utc)
+    return x_axis
 
 
-def build_cases_y_axis_labels(max_value: int) -> List[Dict[str, Union[str, int]]]:
-    return Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
+def build_cases_y_axis(max_value: int) -> List[ChartAxisTick]:
+    return Y_AXIS_250 if max_value > 100 else Y_AXIS_100
 
 
 def calculate_x_axis_position_from_month(now: datetime, metric_date: datetime) -> int:
