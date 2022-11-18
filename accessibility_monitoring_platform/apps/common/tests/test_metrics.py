@@ -4,16 +4,20 @@ Test - common utility functions
 import pytest
 from unittest.mock import patch
 
-from typing import Dict, List, Union
+from typing import List
 from datetime import datetime, timezone
 
 from ..metrics import (
+    TimeseriesData,
     ChartAxisTick,
+    Point,
+    Polyline,
+    TimeseriesLineChart,
     calculate_current_month_progress,
     build_yearly_metric_chart,
     build_13_month_x_axis,
     build_cases_y_axis,
-    calculate_x_axis_position_from_month,
+    calculate_x_position_from_metric_date,
     Y_AXIS_100,
     Y_AXIS_250,
 )
@@ -87,33 +91,172 @@ def test_build_yearly_metric_chart():
     Test building of yearly metric data for line chart
     """
     label: str = "Label"
-    all_table_rows: List[Dict[str, Union[datetime, int]]] = [
-        {"month_date": datetime(2021, 11, 1), "count": 42},
-        {"month_date": datetime(2021, 12, 1), "count": 54},
-        {"month_date": datetime(2022, 1, 1), "count": 45},
-        {"month_date": datetime(2022, 2, 1), "count": 20},
-        {"month_date": datetime(2022, 3, 1), "count": 64},
-        {"month_date": datetime(2022, 4, 1), "count": 22},
-        {"month_date": datetime(2022, 5, 1), "count": 44},
-        {"month_date": datetime(2022, 6, 1), "count": 42},
-        {"month_date": datetime(2022, 7, 1), "count": 45},
-        {"month_date": datetime(2022, 8, 1), "count": 49},
-        {"month_date": datetime(2022, 9, 1), "count": 52},
-        {"month_date": datetime(2022, 10, 1), "count": 54},
-        {"month_date": datetime(2022, 11, 1), "count": 8},
+    all_table_rows: List[TimeseriesData] = [
+        TimeseriesData(datetime=datetime(2021, 11, 1), value=42),
+        TimeseriesData(datetime=datetime(2021, 12, 1), value=54),
+        TimeseriesData(datetime=datetime(2022, 1, 1), value=45),
+        TimeseriesData(datetime=datetime(2022, 2, 1), value=20),
+        TimeseriesData(datetime=datetime(2022, 3, 1), value=64),
+        TimeseriesData(datetime=datetime(2022, 4, 1), value=22),
+        TimeseriesData(datetime=datetime(2022, 5, 1), value=44),
+        TimeseriesData(datetime=datetime(2022, 6, 1), value=42),
+        TimeseriesData(datetime=datetime(2022, 7, 1), value=45),
+        TimeseriesData(datetime=datetime(2022, 8, 1), value=49),
+        TimeseriesData(datetime=datetime(2022, 9, 1), value=52),
+        TimeseriesData(datetime=datetime(2022, 10, 1), value=54),
+        TimeseriesData(datetime=datetime(2022, 11, 1), value=8),
     ]
     assert build_yearly_metric_chart(label=label, all_table_rows=all_table_rows) == {
         "label": label,
         "all_table_rows": all_table_rows,
-        "previous_month_rows": all_table_rows[:-1],
-        "current_month_rows": all_table_rows[-2:],
-        "graph_height": 250,
-        "graph_width": 600,
-        "chart_height": 300,
-        "chart_width": 750,
-        "x_axis_tick_y2": 260,
-        "x_axis_label_y": 275,
-        "y_axis": Y_AXIS_100,
+        "chart": TimeseriesLineChart(
+            x_axis=[
+                ChartAxisTick(
+                    value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Nov",
+                    x_position=0,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 12, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Dec",
+                    x_position=50,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Jan",
+                    x_position=100,
+                    y_position=275,
+                    label_line_2="2021",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 2, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Feb",
+                    x_position=150,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 3, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Mar",
+                    x_position=200,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Apr",
+                    x_position=250,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc),
+                    label="May",
+                    x_position=300,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 6, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Jun",
+                    x_position=350,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 7, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Jul",
+                    x_position=400,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 8, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Aug",
+                    x_position=450,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 9, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Sep",
+                    x_position=500,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 10, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Oct",
+                    x_position=550,
+                    y_position=275,
+                    label_line_2="",
+                ),
+                ChartAxisTick(
+                    value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
+                    label="Nov",
+                    x_position=600,
+                    y_position=275,
+                    label_line_2="",
+                ),
+            ],
+            y_axis=[
+                ChartAxisTick(
+                    value=100, label="100", x_position=0, y_position=0, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=80, label="80", x_position=0, y_position=50, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=60, label="60", x_position=0, y_position=100, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=40, label="40", x_position=0, y_position=150, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=20, label="20", x_position=0, y_position=200, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=0, label="0", x_position=0, y_position=250, label_line_2=""
+                ),
+            ],
+            polylines=[
+                Polyline(
+                    points=[
+                        Point(x_position=0, y_position=145),
+                        Point(x_position=50, y_position=115),
+                        Point(x_position=100, y_position=137),
+                        Point(x_position=150, y_position=200),
+                        Point(x_position=200, y_position=90),
+                        Point(x_position=250, y_position=195),
+                        Point(x_position=300, y_position=140),
+                        Point(x_position=350, y_position=145),
+                        Point(x_position=400, y_position=137),
+                        Point(x_position=450, y_position=127),
+                        Point(x_position=500, y_position=120),
+                        Point(x_position=550, y_position=115),
+                    ],
+                    stroke_dasharray="",
+                    stroke="#1d70b8",
+                ),
+                Polyline(
+                    points=[
+                        Point(x_position=550, y_position=115),
+                        Point(x_position=600, y_position=230),
+                    ],
+                    stroke_dasharray="5",
+                    stroke="#1d70b8",
+                ),
+            ],
+            graph_height=250,
+            graph_width=600,
+            chart_height=300,
+            chart_width=750,
+            x_axis_tick_y2=260,
+        ),
     }
 
 
@@ -346,11 +489,11 @@ def test_build_cases_y_axis_labels(max_value, expected_result):
         (datetime(2022, 1, 15), datetime(2021, 1, 1), 0),
     ],
 )
-def test_calculate_x_axis_position_from_month(now, metric_date, expected_result):
+def test_calculate_x_position_from_metric_date(now, metric_date, expected_result):
     """
     Test metric's position on the x-axis of a chart is calculated correctly.
     """
     assert (
-        calculate_x_axis_position_from_month(now=now, metric_date=metric_date)
+        calculate_x_position_from_metric_date(now=now, metric_date=metric_date)
         == expected_result
     )

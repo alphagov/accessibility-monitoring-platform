@@ -25,8 +25,10 @@ from ..cases.models import (
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
-    ChartAxisTick,
+    TimeseriesData,
+    TimeseriesLineChart,
     calculate_current_month_progress,
+    build_timeseries_data,
     build_yearly_metric_chart,
     build_13_month_x_axis,
     calculate_metric_progress,
@@ -241,38 +243,24 @@ class MetricsCaseTemplateView(TemplateView):
                 str,
                 Union[
                     str,
-                    int,
-                    List[Dict[str, Union[datetime, int]]],
-                    List[ChartAxisTick],
+                    List[TimeseriesData],
+                    TimeseriesLineChart,
                 ],
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1)
         x_axis = build_13_month_x_axis()
-        for label, date_column in [
+        for label, date_column_name in [
             ("Cases created over the last year", "created"),
             ("Tests completed over the last year", "testing_details_complete_date"),
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            cases: QuerySet[Case] = Case.objects.filter(
-                **{f"{date_column}__gte": start_date}
+            all_table_rows: List[TimeseriesData] = build_timeseries_data(
+                queryset=Case.objects,
+                date_column_name=date_column_name,
+                start_date=start_date,
             )
-            month_dates: QuerySet = cases.dates(  # type: ignore
-                date_column, kind="month"
-            )
-            all_table_rows: List[Dict[str, Union[datetime, int]]] = [
-                {
-                    "month_date": month_date,
-                    "count": cases.filter(
-                        **{
-                            f"{date_column}__year": month_date.year,
-                            f"{date_column}__month": month_date.month,
-                        }
-                    ).count(),
-                }
-                for month_date in month_dates
-            ]
             if all_table_rows:
                 yearly_metrics.append(
                     build_yearly_metric_chart(
@@ -354,12 +342,12 @@ class MetricsPolicyTemplateView(TemplateView):
 
         context["annual_metrics"] = [
             calculate_metric_progress(
-                label="Websites compliant after audit in the last 90 days",
+                label="Websites compliant after retest in the last 90 days",
                 partial_count=fixed_audits_count,
                 total_count=closed_audits_count,
             ),
             calculate_metric_progress(
-                label="Statements compliant after audit in the last 90 days",
+                label="Statements compliant after retest in the last 90 days",
                 partial_count=compliant_audits_count,
                 total_count=closed_audits_count,
             ),
@@ -385,12 +373,13 @@ class MetricsPolicyTemplateView(TemplateView):
                 str,
                 Union[
                     str,
-                    int,
-                    List[Dict[str, Union[datetime, int]]],
-                    List[Dict[str, Union[str, int]]],
+                    List[TimeseriesData],
+                    TimeseriesLineChart,
                 ],
             ]
         ] = []
+
+        context["x_axis"] = build_13_month_x_axis()
 
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
@@ -411,63 +400,47 @@ class MetricsPolicyTemplateView(TemplateView):
             | Q(case__status="in-correspondence-with-equalities-body")
         )
 
-        month_dates: QuerySet = thirteen_month_retested_audits.dates(  # type: ignore
-            "retest_date", kind="month"
+        fixed_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+            queryset=thirteen_month_fixed_audits,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
         )
-        all_table_rows: List[Dict[str, Union[datetime, int]]] = [
-            {
-                "month_date": month_date,
-                "partial_count": thirteen_month_fixed_audits.filter(
-                    **{
-                        "retest_date__month": month_date.month,
-                        "retest_date__year": month_date.year,
-                    }
-                ).count(),
-                "total_count": thirteen_month_closed_audits.filter(
-                    **{
-                        "retest_date__month": month_date.month,
-                        "retest_date__year": month_date.year,
-                    }
-                ).count(),
-            }
-            for month_date in month_dates
-        ]
+        closed_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+            queryset=thirteen_month_closed_audits,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        )
+
+        all_table_rows = fixed_audits_by_month
+
         if all_table_rows:
             monthly_metrics.append(
-                {
-                    "label": "State of websites after audit in last year",
-                    "all_table_rows": all_table_rows,
-                }
+                build_yearly_metric_chart(
+                    label="State of websites after retest in last year",
+                    all_table_rows=all_table_rows,
+                )
             )
+
         thirteen_month_compliant_audits: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
-        all_table_rows: List[Dict[str, Union[datetime, int]]] = [
-            {
-                "month_date": month_date,
-                "partial_count": thirteen_month_compliant_audits.filter(
-                    **{
-                        "retest_date__month": month_date.month,
-                        "retest_date__year": month_date.year,
-                    }
-                ).count(),
-                "total_count": thirteen_month_closed_audits.filter(
-                    **{
-                        "retest_date__month": month_date.month,
-                        "retest_date__year": month_date.year,
-                    }
-                ).count(),
-            }
-            for month_date in month_dates
-        ]
+
+        compliant_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+            queryset=thirteen_month_compliant_audits,
+            date_column_name="retest_date",
+            start_date=thirteen_month_start_date,
+        )
+
+        all_table_rows = compliant_audits_by_month
+
         if all_table_rows:
             monthly_metrics.append(
-                {
-                    "label": "State of accessibility statements after audit in last year",
-                    "all_table_rows": all_table_rows,
-                }
+                build_yearly_metric_chart(
+                    label="State of accessibility statements after retest in last year",
+                    all_table_rows=all_table_rows,
+                )
             )
 
         context["monthly_metrics"] = monthly_metrics

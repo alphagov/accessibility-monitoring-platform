@@ -25,6 +25,7 @@
                 {% endfor %}
                 {% for metric in monthly_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
+                    {% include 'common/metrics/chart.svg' with chart=metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -44,10 +45,9 @@
                                     {% for table_row in metric.all_table_rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
-                                                {{ table_row.month_date|date:"F" }}
-                                                {{ table_row.month_date.year }}
+                                                {{ table_row.datetime|date:"F Y" }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ table_row.partial_count|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.value|intcomma }}</td>
                                             <td class="govuk-table__cell">{{ table_row.total_count|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
