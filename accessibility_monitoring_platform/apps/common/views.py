@@ -256,16 +256,18 @@ class MetricsCaseTemplateView(TemplateView):
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            all_table_rows: List[TimeseriesData] = build_timeseries_data(
+            table_rows: List[TimeseriesData] = build_timeseries_data(
                 queryset=Case.objects,
                 date_column_name=date_column_name,
                 start_date=start_date,
             )
-            if all_table_rows:
+            if table_rows:
                 yearly_metrics.append(
-                    build_yearly_metric_chart(
-                        label=label, all_table_rows=all_table_rows
-                    )
+                    {
+                        "label": label,
+                        "table_rows": table_rows,
+                        "chart": build_yearly_metric_chart(data_series=[table_rows]),
+                    }
                 )
 
         extra_context: Dict[str, Any] = {
@@ -373,7 +375,7 @@ class MetricsPolicyTemplateView(TemplateView):
                 str,
                 Union[
                     str,
-                    List[TimeseriesData],
+                    List[Dict[str, Union[datetime, int]]],
                     TimeseriesLineChart,
                 ],
             ]
@@ -411,14 +413,27 @@ class MetricsPolicyTemplateView(TemplateView):
             start_date=thirteen_month_start_date,
         )
 
-        all_table_rows = fixed_audits_by_month
+        table_rows: List[Dict[str, Union[datetime, int]]] = []
+        for fixed_audits, closed_audits in zip(  # type: ignore
+            fixed_audits_by_month, closed_audits_by_month
+        ):
+            table_rows.append(
+                {
+                    "datetime": fixed_audits.datetime,  # type: ignore
+                    "fixed": fixed_audits.value,  # type: ignore
+                    "closed": closed_audits.value,  # type: ignore
+                }
+            )
 
-        if all_table_rows:
+        if fixed_audits_by_month or closed_audits_by_month:
             monthly_metrics.append(
-                build_yearly_metric_chart(
-                    label="State of websites after retest in last year",
-                    all_table_rows=all_table_rows,
-                )
+                {
+                    "label": "State of websites after retest in last year",
+                    "table_rows": table_rows,
+                    "chart": build_yearly_metric_chart(
+                        data_series=[fixed_audits_by_month, closed_audits_by_month]
+                    ),
+                }
             )
 
         thirteen_month_compliant_audits: QuerySet[
@@ -433,14 +448,27 @@ class MetricsPolicyTemplateView(TemplateView):
             start_date=thirteen_month_start_date,
         )
 
-        all_table_rows = compliant_audits_by_month
+        table_rows: List[Dict[str, Union[datetime, int]]] = []
+        for compliant_audits, closed_audits in zip(  # type: ignore
+            compliant_audits_by_month, closed_audits_by_month
+        ):
+            table_rows.append(
+                {
+                    "datetime": fixed_audits.datetime,  # type: ignore
+                    "fixed": compliant_audits.value,  # type: ignore
+                    "closed": closed_audits.value,  # type: ignore
+                }
+            )
 
-        if all_table_rows:
+        if compliant_audits_by_month or closed_audits_by_month:
             monthly_metrics.append(
-                build_yearly_metric_chart(
-                    label="State of accessibility statements after retest in last year",
-                    all_table_rows=all_table_rows,
-                )
+                {
+                    "label": "State of accessibility statements after retest in last year",
+                    "table_rows": table_rows,
+                    "chart": build_yearly_metric_chart(
+                        data_series=[compliant_audits_by_month, closed_audits_by_month]
+                    ),
+                }
             )
 
         context["monthly_metrics"] = monthly_metrics

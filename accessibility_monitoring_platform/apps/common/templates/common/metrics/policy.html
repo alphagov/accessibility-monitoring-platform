@@ -42,13 +42,13 @@
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for table_row in metric.all_table_rows %}
+                                    {% for table_row in metric.table_rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
                                                 {{ table_row.datetime|date:"F Y" }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ table_row.value|intcomma }}</td>
-                                            <td class="govuk-table__cell">{{ table_row.total_count|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.fixed|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.closed|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

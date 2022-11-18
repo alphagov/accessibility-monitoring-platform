@@ -199,21 +199,21 @@ def build_cases_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 
 def build_yearly_metric_chart(
-    label: str, all_table_rows: List[TimeseriesData]
-) -> Dict[str, Union[str, List[TimeseriesData], TimeseriesLineChart]]:
+    data_series: List[List[TimeseriesData]],
+) -> TimeseriesLineChart:
     """
     Given numbers of things done each month, derive the values needed to draw
     a line chart.
     """
     now: datetime = timezone.now()
-    max_value: int = max([table_row.value for table_row in all_table_rows])
+    max_value: int = max([item.value for items in data_series for item in items])
     polylines = [
         Polyline(
             points=[
                 build_position(
                     now, max_value, value=row.value, metric_date=row.datetime
                 )
-                for row in all_table_rows[:-1]
+                for row in data_series[0][:-1]
             ]
         ),
         Polyline(
@@ -222,20 +222,38 @@ def build_yearly_metric_chart(
                 build_position(
                     now, max_value, value=row.value, metric_date=row.datetime
                 )
-                for row in all_table_rows[-2:]
+                for row in data_series[0][-2:]
             ],
         ),
     ]
+    if len(data_series) > 1:
+        polylines += [
+            Polyline(
+                stroke="orange",
+                points=[
+                    build_position(
+                        now, max_value, value=row.value, metric_date=row.datetime
+                    )
+                    for row in data_series[1][:-1]
+                ],
+            ),
+            Polyline(
+                stroke="orange",
+                stroke_dasharray=DOTTED_LINE_DASHARRAY,
+                points=[
+                    build_position(
+                        now, max_value, value=row.value, metric_date=row.datetime
+                    )
+                    for row in data_series[1][-2:]
+                ],
+            ),
+        ]
 
-    return {
-        "label": label,
-        "all_table_rows": all_table_rows,
-        "chart": TimeseriesLineChart(
-            polylines=polylines,
-            x_axis=build_13_month_x_axis(),
-            y_axis=build_cases_y_axis(max_value=max_value),
-        ),
-    }
+    return TimeseriesLineChart(
+        polylines=polylines,
+        x_axis=build_13_month_x_axis(),
+        y_axis=build_cases_y_axis(max_value=max_value),
+    )
 
 
 def calculate_metric_progress(
