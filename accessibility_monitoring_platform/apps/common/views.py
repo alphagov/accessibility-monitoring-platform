@@ -2,7 +2,7 @@
 Common views
 """
 from typing import Any, Dict, List, Type, Union
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -11,7 +11,7 @@ from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
@@ -33,6 +33,7 @@ from .metrics import (
     build_13_month_x_axis,
     calculate_metric_progress,
     count_statement_issues,
+    build_html_table_rows,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -181,7 +182,7 @@ class MetricsCaseTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        now: datetime = timezone.now()
+        now: datetime = django_timezone.now()
         first_of_this_month: datetime = datetime(
             now.year, now.month, 1, tzinfo=timezone.utc
         )
@@ -256,17 +257,19 @@ class MetricsCaseTemplateView(TemplateView):
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            table_rows: List[TimeseriesData] = build_timeseries_data(
+            html_table_rows: List[TimeseriesData] = build_timeseries_data(
                 queryset=Case.objects,
                 date_column_name=date_column_name,
                 start_date=start_date,
             )
-            if table_rows:
+            if html_table_rows:
                 yearly_metrics.append(
                     {
                         "label": label,
-                        "table_rows": table_rows,
-                        "chart": build_yearly_metric_chart(data_series=[table_rows]),
+                        "html_table_rows": html_table_rows,
+                        "chart": build_yearly_metric_chart(
+                            data_sequences=[html_table_rows]
+                        ),
                     }
                 )
 
@@ -289,7 +292,7 @@ class MetricsPolicyTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add number of cases to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        now: datetime = timezone.now()
+        now: datetime = django_timezone.now()
         start_date: datetime = now - timedelta(days=90)
         retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=start_date
@@ -413,25 +416,17 @@ class MetricsPolicyTemplateView(TemplateView):
             start_date=thirteen_month_start_date,
         )
 
-        table_rows: List[Dict[str, Union[datetime, int]]] = []
-        for fixed_audits, closed_audits in zip(  # type: ignore
-            fixed_audits_by_month, closed_audits_by_month
-        ):
-            table_rows.append(
-                {
-                    "datetime": fixed_audits.datetime,  # type: ignore
-                    "fixed": fixed_audits.value,  # type: ignore
-                    "closed": closed_audits.value,  # type: ignore
-                }
-            )
+        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
+            first_series=fixed_audits_by_month, second_series=closed_audits_by_month
+        )
 
         if fixed_audits_by_month or closed_audits_by_month:
             monthly_metrics.append(
                 {
                     "label": "State of websites after retest in last year",
-                    "table_rows": table_rows,
+                    "html_table_rows": html_table_rows,
                     "chart": build_yearly_metric_chart(
-                        data_series=[closed_audits_by_month, fixed_audits_by_month]
+                        data_sequences=[closed_audits_by_month, fixed_audits_by_month]
                     ),
                 }
             )
@@ -448,25 +443,20 @@ class MetricsPolicyTemplateView(TemplateView):
             start_date=thirteen_month_start_date,
         )
 
-        table_rows: List[Dict[str, Union[datetime, int]]] = []
-        for compliant_audits, closed_audits in zip(  # type: ignore
-            compliant_audits_by_month, closed_audits_by_month
-        ):
-            table_rows.append(
-                {
-                    "datetime": fixed_audits.datetime,  # type: ignore
-                    "fixed": compliant_audits.value,  # type: ignore
-                    "closed": closed_audits.value,  # type: ignore
-                }
-            )
+        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
+            first_series=compliant_audits_by_month, second_series=closed_audits_by_month
+        )
 
         if compliant_audits_by_month or closed_audits_by_month:
             monthly_metrics.append(
                 {
                     "label": "State of accessibility statements after retest in last year",
-                    "table_rows": table_rows,
+                    "html_table_rows": html_table_rows,
                     "chart": build_yearly_metric_chart(
-                        data_series=[closed_audits_by_month, compliant_audits_by_month]
+                        data_sequences=[
+                            closed_audits_by_month,
+                            compliant_audits_by_month,
+                        ]
                     ),
                 }
             )

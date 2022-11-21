@@ -2,7 +2,7 @@
 
 import calendar
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone as datetime_timezone
 from typing import (
     Any,
     Dict,
@@ -26,6 +26,12 @@ X_AXIS_STEP: int = 50
 X_AXIS_TICK_HEIGHT: int = 10
 X_AXIS_LABEL_Y_OFFSET: int = 25
 DOTTED_LINE_DASHARRAY: str = "5"
+LINE_COLOURS: List[str] = [
+    "#1d70b8",  # govuk-colour("blue")
+    "#f47738",  # govuk-colour("orange")
+    "#d53880",  # govuk-colour("pink")
+    "#00703c",  # govuk-colour("green")
+]
 ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
     "declaration_state": "present",
     "scope_state": "present",
@@ -93,8 +99,8 @@ class Point:
 @dataclass
 class Polyline:
     points: List[Point]
+    stroke: str
     stroke_dasharray: str = ""
-    stroke: str = "#1d70b8"
 
 
 @dataclass
@@ -169,7 +175,9 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     """Build x-axis labels for chart based on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
-    value_date: datetime = datetime(now.year - 1, current_month, 1, tzinfo=timezone.utc)
+    value_date: datetime = datetime(
+        now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
+    )
     x_axis: List[ChartAxisTick] = []
     for x_position in range(0, 650, 50):
         x_axis_tick: ChartAxisTick = ChartAxisTick(
@@ -185,7 +193,9 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
             current_month += 1
         else:
             current_month = 1
-        value_date = datetime(now.year - 1, current_month, 1, tzinfo=timezone.utc)
+        value_date = datetime(
+            now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
+        )
     return x_axis
 
 
@@ -199,61 +209,53 @@ def build_cases_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 
 def build_yearly_metric_chart(
-    data_series: List[List[TimeseriesData]],
+    data_sequences: List[List[TimeseriesData]],
 ) -> TimeseriesLineChart:
     """
     Given numbers of things done each month, derive the values needed to draw
     a line chart.
     """
     now: datetime = timezone.now()
-    max_value: int = max([item.value for items in data_series for item in items])
-    polylines = [
-        Polyline(
-            points=[
-                build_position(
-                    now, max_value, value=row.value, metric_date=row.datetime
-                )
-                for row in data_series[0][:-1]
-            ]
-        ),
-        Polyline(
-            stroke_dasharray=DOTTED_LINE_DASHARRAY,
-            points=[
-                build_position(
-                    now, max_value, value=row.value, metric_date=row.datetime
-                )
-                for row in data_series[0][-2:]
-            ],
-        ),
-    ]
-    if len(data_series) > 1:
-        polylines += [
+    max_value: int = max(
+        [item.value for data_sequence in data_sequences for item in data_sequence]
+    )
+    polylines = []
+    for index, data_sequence in enumerate(data_sequences):
+        line_colour: str = LINE_COLOURS[index % len(LINE_COLOURS)]
+        polylines.append(
             Polyline(
-                stroke="orange",
+                stroke=line_colour,
                 points=[
                     build_position(
                         now, max_value, value=row.value, metric_date=row.datetime
                     )
-                    for row in data_series[1][:-1]
+                    for row in data_sequence[:-1]
                 ],
-            ),
+            )
+        )
+        polylines.append(
             Polyline(
-                stroke="orange",
+                stroke=line_colour,
                 stroke_dasharray=DOTTED_LINE_DASHARRAY,
                 points=[
                     build_position(
                         now, max_value, value=row.value, metric_date=row.datetime
                     )
-                    for row in data_series[1][-2:]
+                    for row in data_sequence[-2:]
                 ],
-            ),
-        ]
+            )
+        )
 
     return TimeseriesLineChart(
         polylines=polylines,
         x_axis=build_13_month_x_axis(),
         y_axis=build_cases_y_axis(max_value=max_value),
     )
+
+
+def get_line_stroke(index: int) -> str:
+    """Return colour to use when drawing a polyline in a chart"""
+    return LINE_COLOURS[index % len(LINE_COLOURS)]
 
 
 def calculate_metric_progress(
@@ -307,3 +309,66 @@ def build_timeseries_data(
         )
         for month_date in month_dates
     ]
+
+
+def build_html_table_rows(
+    first_series: List[TimeseriesData],
+    second_series: List[TimeseriesData],
+) -> List[Dict[str, Union[datetime, int]]]:
+    """
+    Given two lists of timeseries data, merge them into a single list of data
+    for a 3-column html table
+    """
+    first_position: int = 0
+    second_position: int = 0
+    html_table_rows: List[Dict[str, Union[datetime, int]]] = []
+    while first_position < len(first_series) and second_position < len(second_series):
+        if (
+            first_series[first_position].datetime
+            < second_series[second_position].datetime
+        ):
+            html_table_rows.append(
+                {
+                    "datetime": first_series[first_position].datetime,
+                    "first_value": first_series[first_position].value,
+                }
+            )
+            first_position += 1
+        elif (
+            second_series[second_position].datetime
+            < first_series[first_position].datetime
+        ):
+            html_table_rows.append(
+                {
+                    "datetime": second_series[second_position].datetime,
+                    "second_value": second_series[second_position].value,
+                }
+            )
+            second_position += 1
+        else:
+            html_table_rows.append(
+                {
+                    "datetime": first_series[first_position].datetime,
+                    "first_value": first_series[first_position].value,
+                    "second_value": second_series[second_position].value,
+                }
+            )
+            first_position += 1
+            second_position += 1
+    while first_position < len(first_series):
+        html_table_rows.append(
+            {
+                "datetime": first_series[first_position].datetime,
+                "first_value": first_series[first_position].value,
+            }
+        )
+        first_position += 1
+    while second_position < len(second_series):
+        html_table_rows.append(
+            {
+                "datetime": second_series[second_position].datetime,
+                "second_value": second_series[second_position].value,
+            }
+        )
+        second_position += 1
+    return html_table_rows
