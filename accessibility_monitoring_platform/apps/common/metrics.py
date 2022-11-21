@@ -48,7 +48,7 @@ ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
 
 
 @dataclass
-class TimeseriesData:
+class TimeseriesDatapoint:
     datetime: datetime
     value: int
 
@@ -209,7 +209,7 @@ def build_cases_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 
 def build_yearly_metric_chart(
-    data_sequences: List[List[TimeseriesData]],
+    data_sequences: List[List[TimeseriesDatapoint]],
 ) -> TimeseriesLineChart:
     """
     Given numbers of things done each month, derive the values needed to draw
@@ -286,7 +286,7 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
 
 def build_timeseries_data(
     queryset: QuerySet, date_column_name: str, start_date: datetime
-) -> List[TimeseriesData]:
+) -> List[TimeseriesDatapoint]:
     """
     Given a queryset containing a timestamp field return the numbers found
     in each month.
@@ -298,7 +298,7 @@ def build_timeseries_data(
         date_column_name, kind="month"
     )
     return [
-        TimeseriesData(
+        TimeseriesDatapoint(
             datetime=month_date,
             value=items_since_start_date.filter(
                 **{
@@ -312,63 +312,28 @@ def build_timeseries_data(
 
 
 def build_html_table_rows(
-    first_series: List[TimeseriesData],
-    second_series: List[TimeseriesData],
+    first_series: List[TimeseriesDatapoint],
+    second_series: List[TimeseriesDatapoint],
 ) -> List[Dict[str, Union[datetime, int]]]:
     """
     Given two lists of timeseries data, merge them into a single list of data
     for a 3-column html table
     """
-    first_position: int = 0
-    second_position: int = 0
-    html_table_rows: List[Dict[str, Union[datetime, int]]] = []
-    while first_position < len(first_series) and second_position < len(second_series):
-        if (
-            first_series[first_position].datetime
-            < second_series[second_position].datetime
-        ):
-            html_table_rows.append(
-                {
-                    "datetime": first_series[first_position].datetime,
-                    "first_value": first_series[first_position].value,
-                }
-            )
-            first_position += 1
-        elif (
-            second_series[second_position].datetime
-            < first_series[first_position].datetime
-        ):
-            html_table_rows.append(
-                {
-                    "datetime": second_series[second_position].datetime,
-                    "second_value": second_series[second_position].value,
-                }
-            )
-            second_position += 1
+    html_table_data: Dict[datetime, Dict[str, Union[datetime, int]]] = {
+        timeseries_datapoint.datetime: {
+            "datetime": timeseries_datapoint.datetime,
+            "first_value": timeseries_datapoint.value,
+        }
+        for timeseries_datapoint in first_series
+    }
+    for timeseries_datapoint in second_series:
+        if timeseries_datapoint.datetime in html_table_data:
+            html_table_data[timeseries_datapoint.datetime][
+                "second_value"
+            ] = timeseries_datapoint.value
         else:
-            html_table_rows.append(
-                {
-                    "datetime": first_series[first_position].datetime,
-                    "first_value": first_series[first_position].value,
-                    "second_value": second_series[second_position].value,
-                }
-            )
-            first_position += 1
-            second_position += 1
-    while first_position < len(first_series):
-        html_table_rows.append(
-            {
-                "datetime": first_series[first_position].datetime,
-                "first_value": first_series[first_position].value,
+            html_table_data[timeseries_datapoint.datetime] = {
+                "datetime": timeseries_datapoint.datetime,
+                "second_value": timeseries_datapoint.value,
             }
-        )
-        first_position += 1
-    while second_position < len(second_series):
-        html_table_rows.append(
-            {
-                "datetime": second_series[second_position].datetime,
-                "second_value": second_series[second_position].value,
-            }
-        )
-        second_position += 1
-    return html_table_rows
+    return html_table_data.values()  # type: ignore

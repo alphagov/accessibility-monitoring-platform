@@ -25,7 +25,7 @@ from ..cases.models import (
 
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
-    TimeseriesData,
+    TimeseriesDatapoint,
     TimeseriesLineChart,
     calculate_current_month_progress,
     build_timeseries_data,
@@ -244,7 +244,7 @@ class MetricsCaseTemplateView(TemplateView):
                 str,
                 Union[
                     str,
-                    List[TimeseriesData],
+                    List[TimeseriesDatapoint],
                     TimeseriesLineChart,
                 ],
             ]
@@ -257,7 +257,7 @@ class MetricsCaseTemplateView(TemplateView):
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            html_table_rows: List[TimeseriesData] = build_timeseries_data(
+            html_table_rows: List[TimeseriesDatapoint] = build_timeseries_data(
                 queryset=Case.objects,
                 date_column_name=date_column_name,
                 start_date=start_date,
@@ -405,12 +405,12 @@ class MetricsPolicyTemplateView(TemplateView):
             | Q(case__status="in-correspondence-with-equalities-body")
         )
 
-        fixed_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+        fixed_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
             queryset=thirteen_month_fixed_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
         )
-        closed_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+        closed_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
             queryset=thirteen_month_closed_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
@@ -437,7 +437,7 @@ class MetricsPolicyTemplateView(TemplateView):
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
 
-        compliant_audits_by_month: List[TimeseriesData] = build_timeseries_data(
+        compliant_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
             queryset=thirteen_month_compliant_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
