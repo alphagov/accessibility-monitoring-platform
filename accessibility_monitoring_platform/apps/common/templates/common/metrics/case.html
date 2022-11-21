@@ -19,14 +19,14 @@
                 {% for metric in monthly_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
                     <p class="govuk-body-m">
-                        <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
+                        <span class="govuk-!-font-size-48"><b>{{ metric.this_month_value }}</b></span>
                         {% include 'common/metrics/arrow_icon.svgt' %}
                         {% if metric.expected_progress_difference_label %}
                             Projected {{ metric.expected_progress_difference }}%
                             {{ metric.expected_progress_difference_label }}
                         {% endif %}
                         {{ first_of_last_month|date:"F" }}
-                        ({{ metric.number_done_last_month }} {{ metric.label|lower }})
+                        ({{ metric.last_month_value }} {{ metric.label|lower }})
                     </p>
                 {% endfor %}
                 {% for metric in yearly_metrics %}

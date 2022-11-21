@@ -38,7 +38,7 @@ class TimeseriesDatapoint:
 
 
 def calculate_current_month_progress(
-    label: str, number_done_this_month: int, number_done_last_month: int
+    label: str, this_month_value: int, last_month_value: int
 ) -> Dict[str, Union[str, int]]:
     """
     Given the current day of the month compare a number of things done
@@ -46,19 +46,19 @@ def calculate_current_month_progress(
     and express as a percentage above or below.
     """
     now: datetime = timezone.now()
-    days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
+    _, days_in_current_month = calendar.monthrange(now.year, now.month)
     metric: Dict[str, Union[str, int]] = {
         "label": label,
-        "number_done_this_month": number_done_this_month,
-        "number_done_last_month": number_done_last_month,
+        "this_month_value": this_month_value,
+        "last_month_value": last_month_value,
     }
-    if number_done_last_month == 0:
+    if last_month_value == 0:
         return metric
 
     percentage_progress: int = int(
         (
-            (number_done_this_month / (now.day / days_in_current_month))
-            / number_done_last_month
+            (this_month_value / (now.day / days_in_current_month))
+            / last_month_value
         )
         * 100
     )

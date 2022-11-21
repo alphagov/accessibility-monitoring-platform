@@ -2,12 +2,12 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone as datetime_timezone
+from itertools import chain
 from typing import List, Union
 
 from django.utils import timezone
 
 from .metrics import TimeseriesDatapoint
-
 
 GRAPH_HEIGHT: int = 250
 GRAPH_WIDTH: int = 600
@@ -15,11 +15,11 @@ CHART_HEIGHT_EXTRA: int = 50
 CHART_WIDTH_EXTRA: int = 150
 CHART_HEIGHT: int = GRAPH_HEIGHT + CHART_HEIGHT_EXTRA
 CHART_WIDTH: int = GRAPH_WIDTH + CHART_WIDTH_EXTRA
+AXIS_TICK_LENGTH: int = 10
 X_AXIS_STEP: int = 50
-X_AXIS_TICK_HEIGHT: int = 10
 X_AXIS_LABEL_Y_OFFSET: int = 25
-DOTTED_LINE_DASHARRAY: str = "5"
-LINE_COLOURS: List[str] = [
+STROKE_DASHARRAY_DOTTED: str = "5"
+STROKE_COLOURS: List[str] = [
     "#1d70b8",  # govuk-colour("blue")
     "#f47738",  # govuk-colour("orange")
     "#d53880",  # govuk-colour("pink")
@@ -86,54 +86,62 @@ class TimeseriesLineChart:
     graph_width: int = GRAPH_WIDTH
     chart_height: int = CHART_HEIGHT
     chart_width: int = CHART_WIDTH
-    x_axis_tick_y2: int = GRAPH_HEIGHT + X_AXIS_TICK_HEIGHT
+    x_axis_tick_y2: int = GRAPH_HEIGHT + AXIS_TICK_LENGTH
+    y_axis_tick_x1: int = AXIS_TICK_LENGTH * -1
 
 
-def calculate_x_position_from_metric_date(now: datetime, metric_date: datetime) -> int:
-    """Calculate position of metric on x-axis from current and metric months."""
-    row_offset: int = (now.year - metric_date.year) * 12 + now.month - metric_date.month
+def calculate_x_position_from_datapoint_datetime(
+    now: datetime, datapoint_datetime: datetime
+) -> int:
+    """
+    Calculate position of timeseries datapoint on x-axis from current and
+    datapoint months.
+    """
+    row_offset: int = (
+        (now.year - datapoint_datetime.year) * 12 + now.month - datapoint_datetime.month
+    )
     return X_AXIS_STEP * abs(12 - row_offset)
 
 
-def build_position(
-    now: datetime, max_value: int, value: int, metric_date: datetime
+def calculate_timeseries_point(
+    now: datetime, max_value: int, datapoint: TimeseriesDatapoint
 ) -> Point:
     """Work out the position of a point on the line in a timeseries line chart"""
-    x_position: int = calculate_x_position_from_metric_date(
-        now=now, metric_date=metric_date
+    x_position: int = calculate_x_position_from_datapoint_datetime(
+        now=now, datapoint_datetime=datapoint.datetime
     )
     if max_value > 100:
-        y_position: int = GRAPH_HEIGHT - value
+        y_position: int = GRAPH_HEIGHT - datapoint.value
     elif max_value > 50:
-        y_position: int = int(GRAPH_HEIGHT - (value * MULTIPLIER_100_TO_250))
+        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_100_TO_250))
     else:
-        y_position: int = int(GRAPH_HEIGHT - (value * MULTIPLIER_50_TO_250))
+        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_50_TO_250))
     return Point(x_position=x_position, y_position=y_position)
 
 
 def build_13_month_x_axis() -> List[ChartAxisTick]:
-    """Build x-axis labels for chart based on the current month"""
+    """Build x-axis monthly labels for chart based on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
-    value_date: datetime = datetime(
+    tick_datetime: datetime = datetime(
         now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
     )
     x_axis: List[ChartAxisTick] = []
     for x_position in range(0, 650, 50):
         x_axis_tick: ChartAxisTick = ChartAxisTick(
-            value=value_date,
-            label=value_date.strftime("%b"),
+            value=tick_datetime,
+            label=tick_datetime.strftime("%b"),
             x_position=x_position,
             y_position=GRAPH_HEIGHT + X_AXIS_LABEL_Y_OFFSET,
         )
-        if value_date.month == 1:
-            x_axis_tick.label_line_2 = str(value_date.year)
+        if tick_datetime.month == 1:
+            x_axis_tick.label_line_2 = str(tick_datetime.year)
         x_axis.append(x_axis_tick)
         if current_month < 12:
             current_month += 1
         else:
             current_month = 1
-        value_date = datetime(
+        tick_datetime = datetime(
             now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
         )
     return x_axis
@@ -156,32 +164,28 @@ def build_yearly_metric_chart(
     a line chart.
     """
     now: datetime = timezone.now()
-    max_value: int = max(
-        [item.value for data_sequence in data_sequences for item in data_sequence]
-    )
+    max_value: int = max([datapoint.value for datapoint in chain(*data_sequences)])
     polylines = []
     for index, data_sequence in enumerate(data_sequences):
-        line_colour: str = LINE_COLOURS[index % len(LINE_COLOURS)]
+        stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]
+        penultimate_datapoints: List[TimeseriesDatapoint] = data_sequence[:-1]
+        last_month_datapoints: List[TimeseriesDatapoint] = data_sequence[-2:]
         polylines.append(
             Polyline(
-                stroke=line_colour,
+                stroke=stroke,
                 points=[
-                    build_position(
-                        now, max_value, value=row.value, metric_date=row.datetime
-                    )
-                    for row in data_sequence[:-1]
+                    calculate_timeseries_point(now, max_value, datapoint=datapoint)
+                    for datapoint in penultimate_datapoints
                 ],
             )
         )
         polylines.append(
             Polyline(
-                stroke=line_colour,
-                stroke_dasharray=DOTTED_LINE_DASHARRAY,
+                stroke=stroke,
+                stroke_dasharray=STROKE_DASHARRAY_DOTTED,
                 points=[
-                    build_position(
-                        now, max_value, value=row.value, metric_date=row.datetime
-                    )
-                    for row in data_sequence[-2:]
+                    calculate_timeseries_point(now, max_value, datapoint=datapoint)
+                    for datapoint in last_month_datapoints
                 ],
             )
         )
@@ -195,4 +199,4 @@ def build_yearly_metric_chart(
 
 def get_line_stroke(index: int) -> str:
     """Return colour to use when drawing a polyline in a chart"""
-    return LINE_COLOURS[index % len(LINE_COLOURS)]
+    return STROKE_COLOURS[index % len(STROKE_COLOURS)]

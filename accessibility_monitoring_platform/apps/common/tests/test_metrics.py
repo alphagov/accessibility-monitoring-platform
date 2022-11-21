@@ -14,7 +14,7 @@ METRIC_LABEL: str = "Metric label"
 
 
 @pytest.mark.parametrize(
-    "day_of_month, number_done_this_month, number_done_last_month, expected_metric",
+    "day_of_month, this_month_value, last_month_value, expected_metric",
     [
         (
             31,
@@ -55,8 +55,8 @@ METRIC_LABEL: str = "Metric label"
 def test_calculate_current_month_progress(
     mock_timezone,
     day_of_month,
-    number_done_this_month,
-    number_done_last_month,
+    this_month_value,
+    last_month_value,
     expected_metric,
 ):
     """
@@ -64,11 +64,11 @@ def test_calculate_current_month_progress(
     """
     mock_timezone.now.return_value = datetime(2022, 12, day_of_month)
     expected_metric["label"] = METRIC_LABEL
-    expected_metric["number_done_this_month"] = number_done_this_month
-    expected_metric["number_done_last_month"] = number_done_last_month
+    expected_metric["this_month_value"] = this_month_value
+    expected_metric["last_month_value"] = last_month_value
 
     assert expected_metric == calculate_current_month_progress(
         label=METRIC_LABEL,
-        number_done_this_month=number_done_this_month,
-        number_done_last_month=number_done_last_month,
+        this_month_value=this_month_value,
+        last_month_value=last_month_value,
     )

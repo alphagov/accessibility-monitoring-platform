@@ -16,7 +16,7 @@ from ..chart import (
     build_yearly_metric_chart,
     build_13_month_x_axis,
     build_cases_y_axis,
-    calculate_x_position_from_metric_date,
+    calculate_x_position_from_datapoint_datetime,
     Y_AXIS_100,
     Y_AXIS_250,
 )
@@ -190,6 +190,7 @@ def test_build_yearly_metric_chart():
         chart_height=300,
         chart_width=750,
         x_axis_tick_y2=260,
+        y_axis_tick_x1=-10,
     )
 
 
@@ -415,18 +416,22 @@ def test_build_cases_y_axis_labels(max_value, expected_result):
 
 
 @pytest.mark.parametrize(
-    "now,metric_date,expected_result",
+    "now,datapoint_datetime,expected_result",
     [
         (datetime(2022, 11, 15), datetime(2022, 11, 1), 600),
         (datetime(2022, 1, 15), datetime(2021, 11, 1), 500),
         (datetime(2022, 1, 15), datetime(2021, 1, 1), 0),
     ],
 )
-def test_calculate_x_position_from_metric_date(now, metric_date, expected_result):
+def test_calculate_x_position_from_metric_date(
+    now, datapoint_datetime, expected_result
+):
     """
     Test metric's position on the x-axis of a chart is calculated correctly.
     """
     assert (
-        calculate_x_position_from_metric_date(now=now, metric_date=metric_date)
+        calculate_x_position_from_datapoint_datetime(
+            now=now, datapoint_datetime=datapoint_datetime
+        )
         == expected_result
     )

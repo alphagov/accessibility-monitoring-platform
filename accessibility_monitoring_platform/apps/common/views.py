@@ -197,10 +197,10 @@ class MetricsCaseTemplateView(TemplateView):
         monthly_metrics: List[Dict[str, Union[str, int]]] = [
             calculate_current_month_progress(
                 label="Cases created",
-                number_done_this_month=Case.objects.filter(
+                this_month_value=Case.objects.filter(
                     created__gte=first_of_this_month
                 ).count(),
-                number_done_last_month=Case.objects.filter(
+                last_month_value=Case.objects.filter(
                     created__gte=first_of_last_month
                 )
                 .filter(created__lt=first_of_this_month)
@@ -208,10 +208,10 @@ class MetricsCaseTemplateView(TemplateView):
             ),
             calculate_current_month_progress(
                 label="Tests completed",
-                number_done_this_month=Case.objects.filter(
+                this_month_value=Case.objects.filter(
                     testing_details_complete_date__gte=first_of_this_month
                 ).count(),
-                number_done_last_month=Case.objects.filter(
+                last_month_value=Case.objects.filter(
                     testing_details_complete_date__gte=first_of_last_month
                 )
                 .filter(testing_details_complete_date__lt=first_of_this_month)
@@ -219,10 +219,10 @@ class MetricsCaseTemplateView(TemplateView):
             ),
             calculate_current_month_progress(
                 label="Reports sent",
-                number_done_this_month=Case.objects.filter(
+                this_month_value=Case.objects.filter(
                     report_sent_date__gte=first_of_this_month
                 ).count(),
-                number_done_last_month=Case.objects.filter(
+                last_month_value=Case.objects.filter(
                     report_sent_date__gte=first_of_last_month
                 )
                 .filter(report_sent_date__lt=first_of_this_month)
@@ -230,10 +230,10 @@ class MetricsCaseTemplateView(TemplateView):
             ),
             calculate_current_month_progress(
                 label="Cases closed",
-                number_done_this_month=Case.objects.filter(
+                this_month_value=Case.objects.filter(
                     completed_date__gte=first_of_this_month
                 ).count(),
-                number_done_last_month=Case.objects.filter(
+                last_month_value=Case.objects.filter(
                     completed_date__gte=first_of_last_month
                 )
                 .filter(completed_date__lt=first_of_this_month)
@@ -304,9 +304,7 @@ class MetricsPolicyTemplateView(TemplateView):
         )
         fixed_audits_count: int = fixed_audits.count()
         closed_audits: QuerySet[Audit] = retested_audits.filter(
-            Q(
-                case__status="case-closed-sent-to-equalities-body"
-            )  # pylint: disable=unsupported-binary-operation
+            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
@@ -399,9 +397,7 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_closed_audits: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
-            Q(
-                case__status="case-closed-sent-to-equalities-body"
-            )  # pylint: disable=unsupported-binary-operation
+            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
