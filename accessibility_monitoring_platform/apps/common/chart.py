@@ -31,34 +31,34 @@ STROKE_COLOURS: List[str] = [
 class ChartAxisTick:
     value: Union[int, datetime]
     label: str
-    x_position: int
-    y_position: int
+    x_position: int = 0
+    y_position: int = 0
     label_line_2: str = ""
 
 
 Y_AXIS_250: List[ChartAxisTick] = [
-    ChartAxisTick(value=250, label="250", x_position=0, y_position=0),
-    ChartAxisTick(value=200, label="200", x_position=0, y_position=50),
-    ChartAxisTick(value=150, label="150", x_position=0, y_position=100),
-    ChartAxisTick(value=100, label="100", x_position=0, y_position=150),
-    ChartAxisTick(value=50, label="50", x_position=0, y_position=200),
-    ChartAxisTick(value=0, label="0", x_position=0, y_position=250),
+    ChartAxisTick(value=250, label="250", y_position=0),
+    ChartAxisTick(value=200, label="200", y_position=50),
+    ChartAxisTick(value=150, label="150", y_position=100),
+    ChartAxisTick(value=100, label="100", y_position=150),
+    ChartAxisTick(value=50, label="50", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
 ]
 Y_AXIS_100: List[ChartAxisTick] = [
-    ChartAxisTick(value=100, label="100", x_position=0, y_position=0),
-    ChartAxisTick(value=80, label="80", x_position=0, y_position=50),
-    ChartAxisTick(value=60, label="60", x_position=0, y_position=100),
-    ChartAxisTick(value=40, label="40", x_position=0, y_position=150),
-    ChartAxisTick(value=20, label="20", x_position=0, y_position=200),
-    ChartAxisTick(value=0, label="0", x_position=0, y_position=250),
+    ChartAxisTick(value=100, label="100", y_position=0),
+    ChartAxisTick(value=80, label="80", y_position=50),
+    ChartAxisTick(value=60, label="60", y_position=100),
+    ChartAxisTick(value=40, label="40", y_position=150),
+    ChartAxisTick(value=20, label="20", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
 ]
 Y_AXIS_50: List[ChartAxisTick] = [
-    ChartAxisTick(value=50, label="50", x_position=0, y_position=0),
-    ChartAxisTick(value=40, label="40", x_position=0, y_position=50),
-    ChartAxisTick(value=30, label="30", x_position=0, y_position=100),
-    ChartAxisTick(value=20, label="20", x_position=0, y_position=150),
-    ChartAxisTick(value=10, label="10", x_position=0, y_position=200),
-    ChartAxisTick(value=0, label="0", x_position=0, y_position=250),
+    ChartAxisTick(value=50, label="50", y_position=0),
+    ChartAxisTick(value=40, label="40", y_position=50),
+    ChartAxisTick(value=30, label="30", y_position=100),
+    ChartAxisTick(value=20, label="20", y_position=150),
+    ChartAxisTick(value=10, label="10", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
 ]
 MULTIPLIER_100_TO_250: float = 250 / 100
 MULTIPLIER_50_TO_250: float = 250 / 50
@@ -120,7 +120,7 @@ def calculate_timeseries_point(
 
 
 def build_13_month_x_axis() -> List[ChartAxisTick]:
-    """Build x-axis monthly labels for chart based on the current month"""
+    """Build monthly x-axis for timeseries chart based on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
     tick_datetime: datetime = datetime(
@@ -147,7 +147,7 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def build_cases_y_axis(max_value: int) -> List[ChartAxisTick]:
+def build_y_axis(max_value: int) -> List[ChartAxisTick]:
     if max_value > 100:
         return Y_AXIS_250
     elif max_value > 50:
@@ -160,7 +160,7 @@ def build_yearly_metric_chart(
     data_sequences: List[List[TimeseriesDatapoint]],
 ) -> TimeseriesLineChart:
     """
-    Given numbers of things done each month, derive the values needed to draw
+    Given timeseries datapoints, derive the values needed to draw
     a line chart.
     """
     now: datetime = timezone.now()
@@ -193,7 +193,7 @@ def build_yearly_metric_chart(
     return TimeseriesLineChart(
         polylines=polylines,
         x_axis=build_13_month_x_axis(),
-        y_axis=build_cases_y_axis(max_value=max_value),
+        y_axis=build_y_axis(max_value=max_value),
     )
 
 

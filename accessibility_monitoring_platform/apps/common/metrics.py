@@ -56,10 +56,7 @@ def calculate_current_month_progress(
         return metric
 
     percentage_progress: int = int(
-        (
-            (this_month_value / (now.day / days_in_current_month))
-            / last_month_value
-        )
+        ((this_month_value / (now.day / days_in_current_month)) / last_month_value)
         * 100
     )
     expected_progress_difference: int = percentage_progress - 100
@@ -68,6 +65,7 @@ def calculate_current_month_progress(
     )
     metric["expected_progress_difference"] = abs(expected_progress_difference)
     metric["expected_progress_difference_label"] = expected_progress_difference_label
+
     return metric
 
 
@@ -90,8 +88,8 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     fixed_statement_issues_count: int = 0
     for audit in audits:
         for fieldname, good_value in ACCESSIBILITY_STATEMENT_TESTS.items():
-            statement_issues_count += 1
             if getattr(audit, fieldname) != good_value:
+                statement_issues_count += 1
                 if getattr(audit, f"audit_retest_{fieldname}") == good_value:
                     fixed_statement_issues_count += 1
     return (fixed_statement_issues_count, statement_issues_count)

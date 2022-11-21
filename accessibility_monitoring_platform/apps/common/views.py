@@ -200,9 +200,7 @@ class MetricsCaseTemplateView(TemplateView):
                 this_month_value=Case.objects.filter(
                     created__gte=first_of_this_month
                 ).count(),
-                last_month_value=Case.objects.filter(
-                    created__gte=first_of_last_month
-                )
+                last_month_value=Case.objects.filter(created__gte=first_of_last_month)
                 .filter(created__lt=first_of_this_month)
                 .count(),
             ),
@@ -304,7 +302,9 @@ class MetricsPolicyTemplateView(TemplateView):
         )
         fixed_audits_count: int = fixed_audits.count()
         closed_audits: QuerySet[Audit] = retested_audits.filter(
-            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+            Q(
+                case__status="case-closed-sent-to-equalities-body"
+            )  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
@@ -397,7 +397,9 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_closed_audits: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
-            Q(case__status="case-closed-sent-to-equalities-body")  # pylint: disable=unsupported-binary-operation
+            Q(
+                case__status="case-closed-sent-to-equalities-body"
+            )  # pylint: disable=unsupported-binary-operation
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
