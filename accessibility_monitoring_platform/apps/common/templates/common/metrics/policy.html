@@ -25,7 +25,7 @@
                 {% endfor %}
                 {% for metric in monthly_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
-                    {% include 'common/metrics/chart.svg' with chart=metric.chart %}
+                    {% include 'common/metrics/chart.svgt' with chart=metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">

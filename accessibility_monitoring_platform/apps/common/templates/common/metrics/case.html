@@ -20,7 +20,7 @@
                     <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ metric.number_done_this_month }}</b></span>
-                        {% include 'common/metrics/arrow_icon.svg' %}
+                        {% include 'common/metrics/arrow_icon.svgt' %}
                         {% if metric.expected_progress_difference_label %}
                             Projected {{ metric.expected_progress_difference }}%
                             {{ metric.expected_progress_difference_label }}
@@ -31,7 +31,7 @@
                 {% endfor %}
                 {% for metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
-                    {% include 'common/metrics/chart.svg' with chart=metric.chart %}
+                    {% include 'common/metrics/chart.svgt' with chart=metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">

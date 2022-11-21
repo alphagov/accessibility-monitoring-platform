@@ -23,14 +23,16 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 
+from .chart import (
+    TimeseriesLineChart,
+    build_yearly_metric_chart,
+    build_13_month_x_axis,
+)
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
     TimeseriesDatapoint,
-    TimeseriesLineChart,
     calculate_current_month_progress,
     build_timeseries_data,
-    build_yearly_metric_chart,
-    build_13_month_x_axis,
     calculate_metric_progress,
     count_statement_issues,
     build_html_table_rows,
