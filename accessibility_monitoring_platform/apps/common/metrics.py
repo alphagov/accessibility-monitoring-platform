@@ -95,7 +95,7 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     return (fixed_statement_issues_count, statement_issues_count)
 
 
-def build_timeseries_data(
+def group_timeseries_data_by_month(
     queryset: QuerySet, date_column_name: str, start_date: datetime
 ) -> List[TimeseriesDatapoint]:
     """
@@ -147,4 +147,4 @@ def build_html_table_rows(
                 "datetime": timeseries_datapoint.datetime,
                 "second_value": timeseries_datapoint.value,
             }
-    return html_table_data.values()  # type: ignore
+    return sorted(list(html_table_data.values()), key=lambda x: x["datetime"])

@@ -5,14 +5,18 @@ from typing import Dict, List, Tuple, Union
 import pytest
 from unittest.mock import patch
 
-from datetime import datetime
+from datetime import date, datetime
 
 from ...audits.models import Audit
+from ...cases.models import Case
 
 from ..metrics import (
+    TimeseriesDatapoint,
     calculate_current_month_progress,
     calculate_metric_progress,
     count_statement_issues,
+    group_timeseries_data_by_month,
+    build_html_table_rows,
 )
 
 METRIC_LABEL: str = "Metric label"
@@ -333,3 +337,82 @@ def test_calculate_metric_progress(
 def test_count_statement_issues(audits: List[Audit], expected_result: Tuple[int, int]):
     """Test counting issues and fixed issues for accessibility statments"""
     assert count_statement_issues(audits=audits) == expected_result  # type: ignore
+
+
+@pytest.mark.django_db
+def test_group_timeseries_data_by_month():
+    """
+    Test counting objects and grouping a queryset with a date/datetime field by
+    month
+    """
+    Case.objects.create(case_details_complete_date=date(2022, 1, 1))
+    Case.objects.create(case_details_complete_date=date(2022, 1, 2))
+    Case.objects.create(case_details_complete_date=date(2022, 1, 3))
+    Case.objects.create(case_details_complete_date=date(2022, 2, 4))
+    Case.objects.create(case_details_complete_date=date(2022, 2, 5))
+    Case.objects.create(case_details_complete_date=date(2022, 4, 6))
+
+    assert group_timeseries_data_by_month(
+        queryset=Case.objects,
+        date_column_name="case_details_complete_date",
+        start_date=datetime(2022, 1, 1),
+    ) == [
+        TimeseriesDatapoint(datetime=date(2022, 1, 1), value=3),  # type: ignore
+        TimeseriesDatapoint(datetime=date(2022, 2, 1), value=2),  # type: ignore
+        TimeseriesDatapoint(datetime=date(2022, 4, 1), value=1),  # type: ignore
+    ]
+
+
+@pytest.mark.parametrize(
+    "first_series, second_series, expected_result",
+    [
+        (
+            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1)],
+            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2)],
+            [
+                {
+                    "datetime": datetime(2022, 1, 1, 0, 0),
+                    "first_value": 1,
+                    "second_value": 2,
+                }
+            ],
+        ),
+        (
+            [
+                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+                TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=5),
+                TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=7),
+            ],
+            [
+                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
+                TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
+                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=6),
+                TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=8),
+            ],
+            [
+                {
+                    "datetime": datetime(2022, 1, 1, 0, 0),
+                    "first_value": 1,
+                    "second_value": 2,
+                },
+                {"datetime": datetime(2022, 2, 1, 0, 0), "first_value": 3},
+                {"datetime": datetime(2022, 3, 1, 0, 0), "second_value": 4},
+                {
+                    "datetime": datetime(2022, 4, 1, 0, 0),
+                    "first_value": 5,
+                    "second_value": 6,
+                },
+                {"datetime": datetime(2022, 7, 1, 0, 0), "first_value": 7},
+                {"datetime": datetime(2022, 8, 1, 0, 0), "second_value": 8},
+            ],
+        ),
+    ],
+)
+def test_build_html_table_rows(
+    first_series: List[TimeseriesDatapoint],
+    second_series: List[TimeseriesDatapoint],
+    expected_result: List[Dict[str, Union[datetime, int]]],
+):
+    """Test merging multiple data series into a single heml table context"""
+    assert build_html_table_rows(first_series, second_series) == expected_result

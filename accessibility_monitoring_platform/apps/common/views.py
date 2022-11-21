@@ -32,7 +32,7 @@ from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdat
 from .metrics import (
     TimeseriesDatapoint,
     calculate_current_month_progress,
-    build_timeseries_data,
+    group_timeseries_data_by_month,
     calculate_metric_progress,
     count_statement_issues,
     build_html_table_rows,
@@ -257,7 +257,7 @@ class MetricsCaseTemplateView(TemplateView):
             ("Reports sent over the last year", "report_sent_date"),
             ("Cases completed over the last year", "completed_date"),
         ]:
-            html_table_rows: List[TimeseriesDatapoint] = build_timeseries_data(
+            html_table_rows: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
                 queryset=Case.objects,
                 date_column_name=date_column_name,
                 start_date=start_date,
@@ -405,12 +405,16 @@ class MetricsPolicyTemplateView(TemplateView):
             | Q(case__status="in-correspondence-with-equalities-body")
         )
 
-        fixed_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
+        fixed_audits_by_month: List[
+            TimeseriesDatapoint
+        ] = group_timeseries_data_by_month(
             queryset=thirteen_month_fixed_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
         )
-        closed_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
+        closed_audits_by_month: List[
+            TimeseriesDatapoint
+        ] = group_timeseries_data_by_month(
             queryset=thirteen_month_closed_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
@@ -437,7 +441,9 @@ class MetricsPolicyTemplateView(TemplateView):
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
 
-        compliant_audits_by_month: List[TimeseriesDatapoint] = build_timeseries_data(
+        compliant_audits_by_month: List[
+            TimeseriesDatapoint
+        ] = group_timeseries_data_by_month(
             queryset=thirteen_month_compliant_audits,
             date_column_name="retest_date",
             start_date=thirteen_month_start_date,
