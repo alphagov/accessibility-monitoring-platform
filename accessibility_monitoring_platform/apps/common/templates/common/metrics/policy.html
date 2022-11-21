@@ -16,14 +16,14 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in annual_metrics %}
+                {% for metric in progress_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ metric.percentage }}%</b></span>
                         {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }}
                     </p>
                 {% endfor %}
-                {% for metric in monthly_metrics %}
+                {% for metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }}</h2>
                     {% include 'common/metrics/chart.svgt' with chart=metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">

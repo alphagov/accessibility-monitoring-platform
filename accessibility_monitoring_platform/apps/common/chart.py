@@ -36,12 +36,12 @@ class ChartAxisTick:
     label_line_2: str = ""
 
 
-Y_AXIS_250: List[ChartAxisTick] = [
-    ChartAxisTick(value=250, label="250", y_position=0),
-    ChartAxisTick(value=200, label="200", y_position=50),
-    ChartAxisTick(value=150, label="150", y_position=100),
-    ChartAxisTick(value=100, label="100", y_position=150),
-    ChartAxisTick(value=50, label="50", y_position=200),
+Y_AXIS_50: List[ChartAxisTick] = [
+    ChartAxisTick(value=50, label="50", y_position=0),
+    ChartAxisTick(value=40, label="40", y_position=50),
+    ChartAxisTick(value=30, label="30", y_position=100),
+    ChartAxisTick(value=20, label="20", y_position=150),
+    ChartAxisTick(value=10, label="10", y_position=200),
     ChartAxisTick(value=0, label="0", y_position=250),
 ]
 Y_AXIS_100: List[ChartAxisTick] = [
@@ -52,16 +52,16 @@ Y_AXIS_100: List[ChartAxisTick] = [
     ChartAxisTick(value=20, label="20", y_position=200),
     ChartAxisTick(value=0, label="0", y_position=250),
 ]
-Y_AXIS_50: List[ChartAxisTick] = [
-    ChartAxisTick(value=50, label="50", y_position=0),
-    ChartAxisTick(value=40, label="40", y_position=50),
-    ChartAxisTick(value=30, label="30", y_position=100),
-    ChartAxisTick(value=20, label="20", y_position=150),
-    ChartAxisTick(value=10, label="10", y_position=200),
+Y_AXIS_250: List[ChartAxisTick] = [
+    ChartAxisTick(value=250, label="250", y_position=0),
+    ChartAxisTick(value=200, label="200", y_position=50),
+    ChartAxisTick(value=150, label="150", y_position=100),
+    ChartAxisTick(value=100, label="100", y_position=150),
+    ChartAxisTick(value=50, label="50", y_position=200),
     ChartAxisTick(value=0, label="0", y_position=250),
 ]
-MULTIPLIER_100_TO_250: float = 250 / 100
 MULTIPLIER_50_TO_250: float = 250 / 50
+MULTIPLIER_100_TO_250: float = 250 / 100
 
 
 @dataclass
@@ -164,7 +164,8 @@ def build_yearly_metric_chart(
     a line chart.
     """
     now: datetime = timezone.now()
-    max_value: int = max([datapoint.value for datapoint in chain(*data_sequences)])
+    values: List[int] = [datapoint.value for datapoint in chain(*data_sequences)]
+    max_value: int = max(values) if values else 0
     polylines = []
     for index, data_sequence in enumerate(data_sequences):
         stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]

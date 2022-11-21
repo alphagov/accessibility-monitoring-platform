@@ -16,7 +16,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in monthly_metrics %}
+                {% for metric in progress_metrics %}
                     <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
                     <p class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ metric.this_month_value }}</b></span>
@@ -47,12 +47,12 @@
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for table_row in metric.html_table_rows %}
+                                    {% for datapoint in metric.datapoints %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
-                                                {{ table_row.datetime|date:"F Y" }}
+                                                {{ datapoint.datetime|date:"F Y" }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ table_row.value|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ datapoint.value|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
