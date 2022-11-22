@@ -362,11 +362,6 @@ class MetricsPolicyTemplateView(TemplateView):
                 partial_count=fixed_statement_issues_count,
                 total_count=statement_issues_count,
             ),
-            calculate_metric_progress(
-                label="Cases completed with equalities bodies in last year",
-                partial_count=equality_body_cases_completed_count,
-                total_count=equality_body_cases_in_progress_count,
-            ),
         ]
 
         yearly_metrics: List[
@@ -461,6 +456,8 @@ class MetricsPolicyTemplateView(TemplateView):
 
         extra_context: Dict[str, Any] = {
             "progress_metrics": progress_metrics,
+            "equality_body_cases_completed_count": equality_body_cases_completed_count,
+            "equality_body_cases_in_progress_count": equality_body_cases_in_progress_count,
             "yearly_metrics": yearly_metrics,
         }
         return {**extra_context, **context}
