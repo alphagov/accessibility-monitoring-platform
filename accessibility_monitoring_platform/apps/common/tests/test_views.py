@@ -567,7 +567,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
 def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     """
-    Test policy yearly metric table values for accessibility statement state.
+    Test policy yearly metric table values for accessibility statement state
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
