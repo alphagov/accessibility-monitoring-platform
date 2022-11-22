@@ -16,16 +16,16 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in progress_metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
+                {% for progress_metric in progress_metrics %}
+                    <h2 class="govuk-heading-m">{{ progress_metric.label }}</h2>
                     <p class="govuk-body-m">
-                        <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ metric.percentage }}%</b></span>
-                        {{ metric.partial_count|intcomma }} out of {{ metric.total_count|intcomma }}
+                        <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ progress_metric.percentage }}%</b></span>
+                        {{ progress_metric.partial_count|intcomma }} out of {{ progress_metric.total_count|intcomma }}
                     </p>
                 {% endfor %}
-                {% for metric in yearly_metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
-                    {% include 'common/metrics/chart.svgt' with chart=metric.chart %}
+                {% for yearly_metric in yearly_metrics %}
+                    <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
+                    {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -42,7 +42,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for table_row in metric.html_table_rows %}
+                                    {% for table_row in yearly_metric.html_table_rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
                                                 {{ table_row.datetime|date:"F Y" }}

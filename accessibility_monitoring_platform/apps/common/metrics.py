@@ -12,7 +12,6 @@ from typing import (
 )
 
 from django.db.models.query import QuerySet
-from django.utils import timezone
 
 from ..audits.models import Audit
 
@@ -38,14 +37,13 @@ class TimeseriesDatapoint:
 
 
 def calculate_current_month_progress(
-    label: str, this_month_value: int, last_month_value: int
+    now: datetime, label: str, this_month_value: int, last_month_value: int
 ) -> Dict[str, Union[str, int]]:
     """
     Given the current day of the month compare a number of things done
     to date in the current month to the total done in the previous month
     and express as a percentage above or below.
     """
-    now: datetime = timezone.now()
     _, days_in_current_month = calendar.monthrange(now.year, now.month)
     metric: Dict[str, Union[str, int]] = {
         "label": label,

@@ -16,22 +16,22 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
-                {% for metric in progress_metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }} in {% now "F" %}</h2>
-                    <p class="govuk-body-m">
-                        <span class="govuk-!-font-size-48"><b>{{ metric.this_month_value }}</b></span>
+                {% for progress_metric in progress_metrics %}
+                    <h2 class="govuk-heading-m">{{ progress_metric.label }} in {% now "F" %}</h2>
+                    <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
+                        <span class="govuk-!-font-size-48"><b>{{ progress_metric.this_month_value }}</b></span>
                         {% include 'common/metrics/arrow_icon.svgt' %}
-                        {% if metric.expected_progress_difference_label %}
-                            Projected {{ metric.expected_progress_difference }}%
-                            {{ metric.expected_progress_difference_label }}
+                        {% if progress_metric.expected_progress_difference_label %}
+                            Projected {{ progress_metric.expected_progress_difference }}%
+                            {{ progress_metric.expected_progress_difference_label }}
                         {% endif %}
                         {{ first_of_last_month|date:"F" }}
-                        ({{ metric.last_month_value }} {{ metric.label|lower }})
+                        ({{ progress_metric.last_month_value }} {{ progress_metric.label|lower }})
                     </p>
                 {% endfor %}
-                {% for metric in yearly_metrics %}
-                    <h2 class="govuk-heading-m">{{ metric.label }}</h2>
-                    {% include 'common/metrics/chart.svgt' with chart=metric.chart %}
+                {% for yearly_metric in yearly_metrics %}
+                    <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
+                    {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
                     <details class="govuk-details" data-module="govuk-details">
                         <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -39,7 +39,7 @@
                             </span>
                         </summary>
                         <div id="table-view-{{ forloop.counter }}" class="amp-preview govuk-details__text">
-                            <table class="govuk-table">
+                            <table id="{{ yearly_metric.label|slugify }}" class="govuk-table">
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
                                         <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
@@ -47,7 +47,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for datapoint in metric.datapoints %}
+                                    {% for datapoint in yearly_metric.datapoints %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
                                                 {{ datapoint.datetime|date:"F Y" }}

@@ -192,6 +192,7 @@ class MetricsCaseTemplateView(TemplateView):
 
         progress_metrics: List[Dict[str, Union[str, int]]] = [
             calculate_current_month_progress(
+                now=now,
                 label="Cases created",
                 this_month_value=Case.objects.filter(
                     created__gte=first_of_this_month
@@ -201,6 +202,7 @@ class MetricsCaseTemplateView(TemplateView):
                 .count(),
             ),
             calculate_current_month_progress(
+                now=now,
                 label="Tests completed",
                 this_month_value=Case.objects.filter(
                     testing_details_complete_date__gte=first_of_this_month
@@ -212,6 +214,7 @@ class MetricsCaseTemplateView(TemplateView):
                 .count(),
             ),
             calculate_current_month_progress(
+                now=now,
                 label="Reports sent",
                 this_month_value=Case.objects.filter(
                     report_sent_date__gte=first_of_this_month
@@ -223,6 +226,7 @@ class MetricsCaseTemplateView(TemplateView):
                 .count(),
             ),
             calculate_current_month_progress(
+                now=now,
                 label="Cases closed",
                 this_month_value=Case.objects.filter(
                     completed_date__gte=first_of_this_month
@@ -245,7 +249,7 @@ class MetricsCaseTemplateView(TemplateView):
                 ],
             ]
         ] = []
-        start_date: datetime = datetime(now.year - 1, now.month, 1)
+        start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         for label, date_column_name in [
             ("Cases created over the last year", "created"),
             ("Tests completed over the last year", "testing_details_complete_date"),
@@ -262,9 +266,7 @@ class MetricsCaseTemplateView(TemplateView):
                     {
                         "label": label,
                         "datapoints": datapoints,
-                        "chart": build_yearly_metric_chart(
-                            data_sequences=[datapoints]
-                        ),
+                        "chart": build_yearly_metric_chart(data_sequences=[datapoints]),
                     }
                 )
 
@@ -296,9 +298,9 @@ class MetricsPolicyTemplateView(TemplateView):
         )
         fixed_audits_count: int = fixed_audits.count()
         closed_audits: QuerySet[Audit] = retested_audits.filter(
-            Q(
+            Q(  # pylint: disable=unsupported-binary-operation
                 case__status="case-closed-sent-to-equalities-body"
-            )  # pylint: disable=unsupported-binary-operation
+            )
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")
@@ -389,9 +391,9 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_closed_audits: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
-            Q(
+            Q(  # pylint: disable=unsupported-binary-operation
                 case__status="case-closed-sent-to-equalities-body"
-            )  # pylint: disable=unsupported-binary-operation
+            )
             | Q(case__status="complete")
             | Q(case__status="case-closed-waiting-to-be-sent")
             | Q(case__status="in-correspondence-with-equalities-body")

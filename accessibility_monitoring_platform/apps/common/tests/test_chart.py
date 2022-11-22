@@ -303,7 +303,6 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
     Test building of x-axis for 13 month timeseries chart
     """
     mock_timezone.now.return_value = datetime(2022, month, 1)
-    mock_timezone.utc = timezone.utc
     assert build_13_month_x_axis() == expected_result
 
 

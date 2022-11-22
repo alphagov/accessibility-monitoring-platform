@@ -9,7 +9,7 @@
     fill="none"
 >
     <line x1="20" y1="5" x2="20" y2="35"/>
-    {% if metric.expected_progress_difference_label == 'under' %}
+    {% if progress_metric.expected_progress_difference_label == 'under' %}
         <line x1="20" y1="35" x2="30" y2="30"/>
         <line x1="20" y1="35" x2="10" y2="30"/>
     {% else %}
