@@ -15,7 +15,7 @@ from django.db.models.query import QuerySet
 
 from ..audits.models import Audit
 
-ACCESSIBILITY_STATEMENT_TESTS: Dict[str, str] = {
+ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
     "declaration_state": "present",
     "scope_state": "present",
     "compliance_state": "present",
@@ -42,7 +42,7 @@ def calculate_current_month_progress(
     """
     Given the current day of the month compare a number of things done
     to date in the current month to the total done in the previous month
-    and express as a percentage above or below.
+    and express that as a percentage above or below.
     """
     _, days_in_current_month = calendar.monthrange(now.year, now.month)
     metric: Dict[str, Union[str, int]] = {
@@ -85,7 +85,7 @@ def count_statement_issues(audits: QuerySet[Audit]) -> Tuple[int, int]:
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
     for audit in audits:
-        for fieldname, good_value in ACCESSIBILITY_STATEMENT_TESTS.items():
+        for fieldname, good_value in ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE.items():
             if getattr(audit, fieldname) != good_value:
                 statement_issues_count += 1
                 if getattr(audit, f"audit_retest_{fieldname}") == good_value:

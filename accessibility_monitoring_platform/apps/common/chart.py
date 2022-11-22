@@ -120,7 +120,7 @@ def calculate_timeseries_point(
 
 
 def build_13_month_x_axis() -> List[ChartAxisTick]:
-    """Build monthly x-axis for timeseries chart based on the current month"""
+    """Build monthly x-axis for timeseries chart ending on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
     tick_datetime: datetime = datetime(
@@ -147,7 +147,8 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def build_y_axis(max_value: int) -> List[ChartAxisTick]:
+def get_y_axis(max_value: int) -> List[ChartAxisTick]:
+    """Return y-axis based on the maximum value in the polyline"""
     if max_value > 100:
         return Y_AXIS_250
     elif max_value > 50:
@@ -194,7 +195,7 @@ def build_yearly_metric_chart(
     return TimeseriesLineChart(
         polylines=polylines,
         x_axis=build_13_month_x_axis(),
-        y_axis=build_y_axis(max_value=max_value),
+        y_axis=get_y_axis(max_value=max_value),
     )
 
 

@@ -16,9 +16,10 @@ from ..chart import (
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
     build_13_month_x_axis,
-    build_y_axis,
+    get_y_axis,
     build_yearly_metric_chart,
     get_line_stroke,
+    Y_AXIS_50,
     Y_AXIS_100,
     Y_AXIS_250,
 )
@@ -300,7 +301,7 @@ def test_calculate_timeseries_point(
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")
 def test_build_13_month_x_axis(mock_timezone, month, expected_result):
     """
-    Test building of x-axis for 13 month timeseries chart
+    Test building of x-axis for 13-month timeseries chart
     """
     mock_timezone.now.return_value = datetime(2022, month, 1)
     assert build_13_month_x_axis() == expected_result
@@ -309,15 +310,16 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
 @pytest.mark.parametrize(
     "max_value, expected_result",
     [
+        (49, Y_AXIS_50),
         (99, Y_AXIS_100),
         (101, Y_AXIS_250),
     ],
 )
-def test_build_y_axis(max_value, expected_result):
+def test_get_y_axis(max_value, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert build_y_axis(max_value=max_value) == expected_result
+    assert get_y_axis(max_value=max_value) == expected_result
 
 
 def test_build_yearly_metric_chart():
