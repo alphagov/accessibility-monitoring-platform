@@ -10,9 +10,9 @@ from pytest_django.asserts import assertContains, assertNotContains
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.text import slugify
 
-from ...cases.models import Case
+from ...audits.models import Audit
+from ...cases.models import Case, RECOMMENDATION_NO_ACTION
 from ..models import Platform
 from ..utils import get_platform_settings
 
@@ -73,6 +73,10 @@ CASE_METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
 
     </tbody>
 </table>"""
+POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{percentage}%</b></span>
+    {partial_count} out of {total_count}
+</p>"""
 
 
 @pytest.mark.parametrize(
@@ -268,16 +272,16 @@ def test_case_progress_metric_under(
 
 
 @pytest.mark.parametrize(
-    "label, case_field",
+    "table_id, case_field",
     [
-        ("Cases created over the last year", "created"),
-        ("Tests completed over the last year", "testing_details_complete_date"),
-        ("Reports sent over the last year", "report_sent_date"),
-        ("Cases completed over the last year", "completed_date"),
+        ("cases-created-over-the-last-year", "created"),
+        ("tests-completed-over-the-last-year", "testing_details_complete_date"),
+        ("reports-sent-over-the-last-year", "report_sent_date"),
+        ("cases-completed-over-the-last-year", "completed_date"),
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_case_yearly_metric(mock_timezone, label, case_field, admin_client):
+def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
     """
     Test case yearly metric table values.
     """
@@ -293,6 +297,40 @@ def test_case_yearly_metric(mock_timezone, label, case_field, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_YEARLY_TABLE.format(table_id=slugify(label)),
+        CASE_METRIC_YEARLY_TABLE.format(table_id=table_id),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_progress_policy_metric_website_compliance(mock_timezone, admin_client):
+    """
+    Test case yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="websites-compliant-after-retest-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
         html=True,
     )

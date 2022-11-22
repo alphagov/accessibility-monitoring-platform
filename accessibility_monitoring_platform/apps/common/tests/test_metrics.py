@@ -3,7 +3,6 @@ Test - common utility functions
 """
 from typing import Dict, List, Tuple, Union
 import pytest
-from unittest.mock import patch
 
 from datetime import date, datetime
 
@@ -60,9 +59,7 @@ METRIC_LABEL: str = "Metric label"
         ),
     ],
 )
-@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
 def test_calculate_current_month_progress(
-    mock_timezone,
     day_of_month,
     this_month_value,
     last_month_value,
@@ -71,12 +68,12 @@ def test_calculate_current_month_progress(
     """
     Test calculation of progress through current month
     """
-    mock_timezone.now.return_value = datetime(2022, 12, day_of_month)
     expected_metric["label"] = METRIC_LABEL
     expected_metric["this_month_value"] = this_month_value
     expected_metric["last_month_value"] = last_month_value
 
     assert expected_metric == calculate_current_month_progress(
+        now=datetime(2022, 12, day_of_month),
         label=METRIC_LABEL,
         this_month_value=this_month_value,
         last_month_value=last_month_value,
