@@ -38,36 +38,42 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
+                    {% if not audit.no_accessibility_statement_found %}
+                        {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
+                    {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
-                            {% if audit.accessibility_statement_backup_url_date %}
-                                <p class="govuk-body amp-margin-top-minus-20"> Added {{ audit.accessibility_statement_backup_url_date }} </p>
+                            {% if audit.no_accessibility_statement_found %}
+                                {% include 'audits/helpers/no_statement_warning.html' %}
+                            {% else %}
+                                {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
+                                {% if audit.accessibility_statement_backup_url_date %}
+                                    <p class="govuk-body amp-margin-top-minus-20"> Added {{ audit.accessibility_statement_backup_url_date }} </p>
+                                {% endif %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.scope_state help_details='audits/statement_examples/scope_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.scope_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.feedback_state help_details='audits/statement_examples/feedback_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.feedback_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.contact_information_state  help_details='audits/statement_examples/contact_information_state.html'%}
+                                <details class="govuk-details" data-module="govuk-details">
+                                    <summary class="govuk-details__summary">
+                                        <span class="govuk-details__summary-text">Add contact</span>
+                                    </summary>
+                                    <div class="govuk-details__text">
+                                        {% include 'common/amp_field.html' with field=form.add_contact_email %}
+                                        {% include 'common/amp_field.html' with field=form.add_contact_notes %}
+                                    </div>
+                                </details>
+                                {% include 'common/amp_field.html' with field=form.contact_information_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.enforcement_procedure_state help_details='audits/statement_examples/enforcement_procedure_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.enforcement_procedure_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.declaration_state help_details='audits/statement_examples/declaration_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.declaration_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.compliance_state help_details='audits/statement_examples/compliance_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.compliance_notes %}
+                                {% include 'audits/helpers/test_statement_field_info.html' with field=form.non_regulation_state help_details='audits/statement_examples/non_regulation_state.html' %}
+                                {% include 'common/amp_field.html' with field=form.non_regulation_notes %}
                             {% endif %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.scope_state help_details='audits/statement_examples/scope_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.scope_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.feedback_state help_details='audits/statement_examples/feedback_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.feedback_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.contact_information_state  help_details='audits/statement_examples/contact_information_state.html'%}
-                            <details class="govuk-details" data-module="govuk-details">
-                                <summary class="govuk-details__summary">
-                                    <span class="govuk-details__summary-text">Add contact</span>
-                                </summary>
-                                <div class="govuk-details__text">
-                                    {% include 'common/amp_field.html' with field=form.add_contact_email %}
-                                    {% include 'common/amp_field.html' with field=form.add_contact_notes %}
-                                </div>
-                            </details>
-                            {% include 'common/amp_field.html' with field=form.contact_information_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.enforcement_procedure_state help_details='audits/statement_examples/enforcement_procedure_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.enforcement_procedure_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.declaration_state help_details='audits/statement_examples/declaration_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.declaration_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.compliance_state help_details='audits/statement_examples/compliance_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.compliance_notes %}
-                            {% include 'audits/helpers/test_statement_field_info.html' with field=form.non_regulation_state help_details='audits/statement_examples/non_regulation_state.html' %}
-                            {% include 'common/amp_field.html' with field=form.non_regulation_notes %}
                             {% include 'common/amp_field.html' with field=form.audit_statement_1_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">

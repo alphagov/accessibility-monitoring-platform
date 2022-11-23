@@ -10,10 +10,14 @@
         </div>
     </div>
 </div>
-<table class="govuk-table">
-    <tbody class="govuk-table__body">
-        {% for row in audit_statement_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
-    </tbody>
-</table>
+{% if audit.no_accessibility_statement_found %}
+    {% include 'audits/helpers/no_statement_warning.html' %}
+{% else %}
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+            {% for row in audit_statement_rows %}
+                {% include 'cases/helpers/detail_row.html' with row=row %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

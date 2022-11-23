@@ -587,6 +587,11 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
+    def no_accessibility_statement_found(self):
+        page: Page = self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
+        return page is None or page.not_found == BOOLEAN_TRUE or page.url == ""
+
+    @property
     def contact_page(self):
         return self.every_page.filter(page_type=PAGE_TYPE_CONTACT).first()
 
