@@ -250,29 +250,29 @@ def test_wcag_definition_strings():
 
 
 @pytest.mark.django_db
-def test_no_accessibility_statement_found():
+def test_accessibility_statement_found():
     """
-    Test all the ways an accessibility statement may not be found.
+    Test that an accessibility statement was found.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     # No page
-    assert audit.no_accessibility_statement_found is True
+    assert audit.accessibility_statement_found is False
 
     page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
 
     # No URL
-    assert audit.no_accessibility_statement_found is True
+    assert audit.accessibility_statement_found is False
 
     page.url = "https://example.com"
     page.save()
 
     # Not found flag not set
-    assert audit.no_accessibility_statement_found is False
+    assert audit.accessibility_statement_found is True
 
     page.not_found = BOOLEAN_TRUE
     page.save()
 
     # Not found flag set
-    assert audit.no_accessibility_statement_found is True
+    assert audit.accessibility_statement_found is False

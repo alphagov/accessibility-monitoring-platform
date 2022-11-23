@@ -12,9 +12,7 @@
         </div>
     </div>
 </div>
-{% if audit.no_accessibility_statement_found %}
-    {% include 'audits/helpers/no_statement_warning.html' %}
-{% else %}
+{% if audit.accessibility_statement_found %}
     <table class="govuk-table">
         <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
@@ -240,4 +238,6 @@
             </tr>
         </tbody>
     </table>
+{% else %}
+    {% include 'audits/helpers/no_statement_warning.html' %}
 {% endif %}
