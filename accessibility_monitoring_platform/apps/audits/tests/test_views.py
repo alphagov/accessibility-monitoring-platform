@@ -934,7 +934,7 @@ def test_retest_details_renders_when_no_psb_response(admin_client):
 def test_retest_page_checks_edit_page_loads(admin_client):
     """Test retest page checks edit view page loads and contains errors"""
     audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit)
+    page: Page = Page.objects.create(audit=audit, retest_notes=PAGE_RETEST_NOTES)
     page_pk: Dict[str, int] = {"pk": page.id}  # type: ignore
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_PDF)
     wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(type=TEST_TYPE_AXE)
@@ -958,6 +958,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Retesting Additional")
+    assertContains(response, PAGE_RETEST_NOTES)
     assertContains(response, WCAG_TYPE_AXE_NAME)
     assertContains(response, WCAG_TYPE_PDF_NAME)
 
