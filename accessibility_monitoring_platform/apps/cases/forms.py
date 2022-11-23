@@ -329,7 +329,10 @@ class CaseQAProcessUpdateForm(VersionForm):
         choices=REPORT_REVIEW_STATUS_CHOICES,
         help_text="This field affects the case status",
     )
-    reviewer = AMPAuditorModelChoiceField(label="QA Auditor")
+    reviewer = AMPAuditorModelChoiceField(
+        label="QA Auditor",
+        help_text="This field affects the case status",
+    )
     report_approved_status = AMPChoiceRadioField(
         label="Report approved?",
         choices=REPORT_APPROVED_STATUS_CHOICES,
