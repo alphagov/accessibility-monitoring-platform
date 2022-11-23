@@ -17,6 +17,7 @@ from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 from ...cases.models import Case, Contact, REPORT_METHODOLOGY_ODT
 from ..models import (
     PAGE_TYPE_PDF,
+    PAGE_TYPE_STATEMENT,
     Audit,
     CheckResult,
     Page,
@@ -740,12 +741,35 @@ def test_statement_update_one_shows_statement_link(admin_client):
 @pytest.mark.parametrize(
     "url_name, field_label",
     [
-        ("audits:audit-detail", "Non-accessible Content - non compliance with regulations"),
-        ("audits:edit-audit-statement-1", "Non-accessible Content - non compliance with regulations"),
-        ("audits:edit-audit-statement-2", "Non-accessible Content - disproportionate burden"),
+        (
+            "audits:audit-detail",
+            "Non-accessible Content - non compliance with regulations",
+        ),
+        (
+            "audits:edit-audit-statement-1",
+            "Non-accessible Content - non compliance with regulations",
+        ),
+        (
+            "audits:edit-audit-statement-2",
+            "Non-accessible Content - disproportionate burden",
+        ),
+        (
+            "audits:audit-retest-detail",
+            "Retest non-accessible content - non compliance with regulations state",
+        ),
+        (
+            "audits:edit-audit-retest-statement-1",
+            "Non-accessible Content - non compliance with regulations",
+        ),
+        (
+            "audits:edit-audit-retest-statement-2",
+            "Non-accessible Content - disproportionate burden",
+        ),
     ],
 )
-def test_statement_details_hidden_when_no_statement_page(url_name, field_label, admin_client):
+def test_statement_details_hidden_when_no_statement_page(
+    url_name, field_label, admin_client
+):
     """
     Test that accessibility statement details and form fields shown only if
     such a page is present.
@@ -1158,6 +1182,9 @@ def test_all_initial_statement_one_notes_included_on_retest(admin_client):
     audit.compliance_notes = "Initial compliance notes"
     audit.non_regulation_notes = "Initial non-regulation notes"
     audit.save()
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    )
 
     audit_pk: int = audit.id  # type: ignore
     path_kwargs: Dict[str, int] = {"pk": audit_pk}
@@ -1188,6 +1215,9 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     audit.method_notes = "Initial method notes"
     audit.access_requirements_notes = "Initial access requirements notes"
     audit.save()
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    )
 
     audit_pk: int = audit.id  # type: ignore
     path_kwargs: Dict[str, int] = {"pk": audit_pk}
