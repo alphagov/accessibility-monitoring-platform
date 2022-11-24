@@ -3,32 +3,31 @@
 {% load l10n %}
 {% load humanize %}
 
-{% block title %}Case metrics{% endblock %}
+{% block title %}Policy metrics{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/metrics/breadcrumbs.html' with current='Case metrics' %}
+    {% include 'common/metrics/breadcrumbs.html' with current='Policy metrics' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'common/metrics/nav_steps.html' with current='common:metrics-case' %}
+                {% include 'common/metrics/nav_steps.html' with current='common:metrics-policy' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Case metrics</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Policy metrics</h1>
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
                 {% for progress_metric in progress_metrics %}
-                    <h2 class="govuk-heading-m">{{ progress_metric.label }} in {% now "F" %}</h2>
+                    <h2 class="govuk-heading-m">{{ progress_metric.label }}</h2>
                     <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
-                        <span class="govuk-!-font-size-48"><b>{{ progress_metric.this_month_value }}</b></span>
-                        {% include 'common/metrics/arrow_icon.svgt' %}
-                        {% if progress_metric.expected_progress_difference_label %}
-                            Projected {{ progress_metric.expected_progress_difference }}%
-                            {{ progress_metric.expected_progress_difference_label }}
-                        {% endif %}
-                        {{ first_of_last_month|date:"F" }}
-                        ({{ progress_metric.last_month_value }} {{ progress_metric.label|lower }})
+                        <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ progress_metric.percentage }}%</b></span>
+                        {{ progress_metric.partial_count|intcomma }} out of {{ progress_metric.total_count|intcomma }}
                     </p>
                 {% endfor %}
+                <h2 class="govuk-heading-m">Cases completed with equalities bodies in last year</h2>
+                <p id="cases-completed-with-equalities-bodies" class="govuk-body-m">
+                    <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{{ equality_body_cases_completed_count|intcomma }}</b></span>
+                    with {{ equality_body_cases_in_progress_count|intcomma }} in progress
+                </p>
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
                     {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
@@ -39,20 +38,22 @@
                             </span>
                         </summary>
                         <div id="table-view-{{ forloop.counter }}" class="amp-preview govuk-details__text">
-                            <table id="{{ yearly_metric.label|slugify }}" class="govuk-table">
+                            <table class="govuk-table">
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
                                         <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Fixed</th>
+                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Case closed</th>
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for datapoint in yearly_metric.datapoints %}
+                                    {% for table_row in yearly_metric.html_table_rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
-                                                {{ datapoint.datetime|date:"F Y" }}
+                                                {{ table_row.datetime|date:"F Y" }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ datapoint.value|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.first_value|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ table_row.second_value|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

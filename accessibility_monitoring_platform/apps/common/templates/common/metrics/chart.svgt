@@ -1,0 +1,43 @@
+<svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 {{ chart.chart_width }} {{ chart.chart_height }}"
+    width="100%"
+    height="{{ chart.chart_height }}"
+    stroke="currentColor"
+    stroke-width="1"
+    fill="none"
+>
+    <g transform="translate(50)">
+        <line stroke-width="3" x1="0" x2="{{ chart.graph_width }}" y1="{{ chart.graph_height }}" y2="{{ chart.graph_height }}"></line>
+        {% for x_axis_tick in chart.x_axis %}
+            <line stroke-width="3" x1="{{ x_axis_tick.x_position }}" x2="{{ x_axis_tick.x_position }}" y1="{{ chart.graph_height }}" y2="{{ chart.x_axis_tick_y2 }}"></line>
+            <text fill="currentColor" text-anchor="middle" x="{{ x_axis_tick.x_position }}" y="{{ x_axis_tick.y_position }}">
+                {{ x_axis_tick.label }}
+            </text>
+            {% if x_axis_tick.label_line_2 %}
+                <text fill="currentColor" text-anchor="middle" x="{{ x_axis_tick.x_position }}" y="{{ x_axis_tick.y_position }}">
+                    <tspan dy="20">{{ x_axis_tick.label_line_2 }}</tspan>
+                </text>
+            {% endif %}
+        {% endfor %}
+        <line stroke-width="3" x1="0" x2="0" y1="0" y2="{{ chart.graph_height }}"></line>
+        {% for y_axis_tick in chart.y_axis %}
+            <line stroke-width="3" x1="{{ chart.y_axis_tick_x1 }}" x2="0" y1="{{ y_axis_tick.y_position }}" y2="{{ y_axis_tick.y_position }}"></line>
+            <line x1="0" x2="{{ chart.graph_width }}" y1="{{ y_axis_tick.y_position }}" y2="{{ y_axis_tick.y_position }}"></line>
+            <text fill="currentColor" alignment-baseline="middle" text-anchor="end" x="-12" y="{{ y_axis_tick.y_position }}">{{ y_axis_tick.label }}</text>
+        {% endfor %}
+        <line x1="{{ chart.graph_width }}" x2="{{ chart.graph_width }}" y1="0" y2="{{ chart.graph_height }}"></line>
+        {% for polyline in chart.polylines %}
+            <polyline
+                stroke="{{ polyline.stroke }}"
+                stroke-width="3"
+                {% if polyline.stroke_dasharray %}stroke-dasharray="{{ polyline.stroke_dasharray }}"{% endif %}
+                points="
+                {% for point in polyline.points %}
+                    {{ point.x_position }},{{ point.y_position }}
+                {% endfor %}"
+            />
+        {% endfor %}
+    </g>
+</svg>

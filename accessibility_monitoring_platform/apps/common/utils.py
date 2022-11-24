@@ -2,7 +2,6 @@
 from datetime import date, datetime, timedelta
 
 import re
-import calendar
 import csv
 import json
 from typing import (
@@ -32,27 +31,6 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
 CONTACT_FIELDS = ["contact_email", "contact_notes"]
-GRAPH_HEIGHT: int = 250
-CHART_HEIGHT_EXTRA: int = 50
-CHART_WIDTH_EXTRA: int = 150
-X_AXIS_STEP: int = 50
-X_AXIS_TICK_HEIGHT: int = 10
-X_AXIS_LABEL_1_Y_OFFSET: int = 25
-X_AXIS_LABEL_2_Y_OFFSET: int = 45
-Y_AXIS_LABELS_250: List[Dict[str, Union[str, int]]] = [
-    {"label": "250", "y": 0},
-    {"label": "200", "y": 50},
-    {"label": "150", "y": 100},
-    {"label": "100", "y": 150},
-    {"label": "50", "y": 200},
-    {"label": "0", "y": 250},
-]
-Y_AXIS_LABELS_100: List[Dict[str, Union[str, int]]] = [
-    {"label": "100", "y": 0},
-    {"label": "50", "y": 125},
-    {"label": "0", "y": 250},
-]
-MULTIPLIER_100_TO_250: float = 250 / 100
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
@@ -259,81 +237,3 @@ def checks_if_2fa_is_enabled(user: User) -> bool:
 def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
     """Check list of keys in dictionary for at least one truthy value"""
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
-
-
-def calculate_current_month_progress(
-    label: str, number_done_this_month: int, number_done_last_month: int
-) -> Dict[str, Union[str, int]]:
-    """
-    Given the current day of the month compare a number of things done
-    to date in the current month to the total done in the previous month
-    and express as a percentage above or below.
-    """
-    now: datetime = timezone.now()
-    days_in_current_month: int = calendar.monthrange(now.year, now.month)[1]
-    metric: Dict[str, Union[str, int]] = {
-        "label": label,
-        "number_done_this_month": number_done_this_month,
-        "number_done_last_month": number_done_last_month,
-    }
-    if number_done_last_month == 0:
-        return metric
-
-    percentage_progress: int = int(
-        (
-            (number_done_this_month / (now.day / days_in_current_month))
-            / number_done_last_month
-        )
-        * 100
-    )
-    expected_progress_difference: int = percentage_progress - 100
-    expected_progress_difference_label: str = (
-        "under" if expected_progress_difference < 0 else "over"
-    )
-    metric["expected_progress_difference"] = abs(expected_progress_difference)
-    metric["expected_progress_difference_label"] = expected_progress_difference_label
-    return metric
-
-
-def build_yearly_metric_chart(
-    label: str, all_table_rows: List[Dict[str, Union[datetime, int]]]
-) -> Dict[
-    str,
-    Union[
-        str,
-        int,
-        List[Dict[str, Union[datetime, int]]],
-        List[Dict[str, Union[str, int]]],
-    ],
-]:
-    """
-    Given numbers of things done each month, derive the values needed to draw
-    a line chart.
-    """
-    x_position: int = 0
-    max_value: int = max([table_row["count"] for table_row in all_table_rows])  # type: ignore
-    for table_row in all_table_rows:
-        if max_value > 100:
-            table_row["y"] = GRAPH_HEIGHT - table_row["count"]  # type: ignore
-        else:
-            table_row["y"] = GRAPH_HEIGHT - (table_row["count"] * MULTIPLIER_100_TO_250)  # type: ignore
-        table_row["x"] = x_position
-        x_position = x_position + X_AXIS_STEP
-    last_x_position: int = all_table_rows[-1]["x"]  # type: ignore
-    y_axis_labels: List[Dict[str, Union[str, int]]] = (
-        Y_AXIS_LABELS_250 if max_value > 100 else Y_AXIS_LABELS_100
-    )
-    return {
-        "label": label,
-        "all_table_rows": all_table_rows,
-        "previous_month_rows": all_table_rows[:-1],
-        "current_month_rows": all_table_rows[-2:],
-        "graph_height": GRAPH_HEIGHT,
-        "chart_height": GRAPH_HEIGHT + CHART_HEIGHT_EXTRA,
-        "chart_width": last_x_position + CHART_WIDTH_EXTRA,
-        "last_x_position": last_x_position,
-        "x_axis_tick_y2": GRAPH_HEIGHT + X_AXIS_TICK_HEIGHT,
-        "x_axis_label_1_y": GRAPH_HEIGHT + X_AXIS_LABEL_1_Y_OFFSET,
-        "x_axis_label_2_y": GRAPH_HEIGHT + X_AXIS_LABEL_2_Y_OFFSET,
-        "y_axis_labels": y_axis_labels,
-    }

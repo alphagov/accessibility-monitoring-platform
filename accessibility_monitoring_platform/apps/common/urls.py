@@ -15,6 +15,7 @@ from .views import (
     PrivacyNoticeTemplateView,
     MarkdownCheatsheetTemplateView,
     MetricsCaseTemplateView,
+    MetricsPolicyTemplateView,
 )
 
 app_name: str = "common"
@@ -52,5 +53,10 @@ urlpatterns: List[URLPattern] = [
         "metrics-case/",
         login_required(MetricsCaseTemplateView.as_view()),
         name="metrics-case",
+    ),
+    path(
+        "metrics-policy/",
+        login_required(MetricsPolicyTemplateView.as_view()),
+        name="metrics-policy",
     ),
 ]

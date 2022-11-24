@@ -7,4 +7,12 @@
                 Case metrics</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:metrics-policy' %}
+            Policy metrics
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-policy' %}">
+                Policy metrics</a>
+        {% endif %}
+    </p>
 </nav>

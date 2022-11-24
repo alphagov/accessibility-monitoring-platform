@@ -55,6 +55,7 @@ PAGE_TITLES_BY_URL = {
     "/common/edit-active-qa-auditor/": "Active QA auditor",
     "/common/markdown-cheatsheet/": "Markdown cheatsheet",
     "/common/metrics-case/": "Case metrics",
+    "/common/metrics-policy/": "Policy metrics",
     "/common/platform-versions/": "Platform version history",
     "/common/report-issue/": "Report an issue",
     "/notifications/notifications-list/": "Comments",

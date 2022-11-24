@@ -1,7 +1,9 @@
 """
 Tests for common views
 """
+from datetime import datetime, timezone
 import pytest
+from unittest.mock import patch
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -9,6 +11,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
 
+from ...audits.models import Audit, CheckResult, Page, WcagDefinition
+from ...cases.models import (
+    Case,
+    RECOMMENDATION_NO_ACTION,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+)
 from ..models import Platform
 from ..utils import get_platform_settings
 
@@ -17,6 +25,92 @@ EMAIL_MESSAGE: str = "Email message"
 ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
 target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
+CASE_METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
+        stroke="currentColor" stroke-width="3" fill="none">
+            <line x1="20" y1="5" x2="20" y2="35"/>
+            <line x1="20" y1="5" x2="30" y2="10"/>
+            <line x1="20" y1="5" x2="10" y2="10"/>
+        </svg>
+    Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
+</p>"""
+CASE_METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
+        stroke="currentColor" stroke-width="3" fill="none">
+            <line x1="20" y1="5" x2="20" y2="35"/>
+            <line x1="20" y1="35" x2="30" y2="30"/>
+            <line x1="20" y1="35" x2="10" y2="30"/>
+    </svg>
+    Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
+</p>"""
+CASE_METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
+            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                    November 2021
+                </td>
+                <td class="govuk-table__cell">1</td>
+            </tr>
+
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                    December 2021
+                </td>
+                <td class="govuk-table__cell">2</td>
+            </tr>
+
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                    January 2022
+                </td>
+                <td class="govuk-table__cell">1</td>
+            </tr>
+
+    </tbody>
+</table>"""
+POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">
+    <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{percentage}%</b></span>
+    {partial_count} out of {total_count}
+</p>"""
+POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_id}" class="amp-preview govuk-details__text">
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Fixed</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Case closed</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                        November 2021
+                    </td>
+                    <td class="govuk-table__cell">1</td>
+                    <td class="govuk-table__cell">2</td>
+                </tr>
+
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                        December 2021
+                    </td>
+                    <td class="govuk-table__cell">2</td>
+                    <td class="govuk-table__cell">4</td>
+                </tr>
+
+        </tbody>
+    </table>
+</div>"""
 
 
 @pytest.mark.parametrize(
@@ -29,6 +123,8 @@ class="govuk-link govuk-link--no-visited-state">report</a>"""
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
+        ("common:metrics-case", ">Case metrics</h1>"),
+        ("common:metrics-policy", ">Policy metrics</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
@@ -127,3 +223,395 @@ def test_issue_report_link(prototype_name, issue_report_link_expected, admin_cli
         assertContains(response, ISSUE_REPORT_LINK, html=True)
     else:
         assertNotContains(response, ISSUE_REPORT_LINK, html=True)
+
+
+@pytest.mark.parametrize(
+    "case_field, metric_id, lowercase_label",
+    [
+        ("created", "cases-created", "cases created"),
+        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("report_sent_date", "reports-sent", "reports sent"),
+        ("completed_date", "cases-closed", "cases closed"),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_case_progress_metric_over(
+    mock_timezone, case_field, metric_id, lowercase_label, admin_client
+):
+    """
+    Test case progress metric, which is over this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+
+    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        CASE_METRIC_OVER_THIS_MONTH.format(
+            metric_id=metric_id,
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label=lowercase_label,
+        ),
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "case_field, metric_id, lowercase_label",
+    [
+        ("created", "cases-created", "cases created"),
+        ("testing_details_complete_date", "tests-completed", "tests completed"),
+        ("report_sent_date", "reports-sent", "reports sent"),
+        ("completed_date", "cases-closed", "cases closed"),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_case_progress_metric_under(
+    mock_timezone, case_field, metric_id, lowercase_label, admin_client
+):
+    """
+    Test case progress metric, which is under this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        CASE_METRIC_UNDER_THIS_MONTH.format(
+            metric_id=metric_id,
+            number_this_month=1,
+            percentage_difference=23,
+            number_last_month=2,
+            lowercase_label=lowercase_label,
+        ),
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "table_id, case_field",
+    [
+        ("cases-created-over-the-last-year", "created"),
+        ("tests-completed-over-the-last-year", "testing_details_complete_date"),
+        ("reports-sent-over-the-last-year", "report_sent_date"),
+        ("cases-completed-over-the-last-year", "completed_date"),
+    ],
+)
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
+    """
+    Test case yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    Case.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)})
+    Case.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)})
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        CASE_METRIC_YEARLY_TABLE.format(table_id=table_id),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
+    """
+    Test policy progress metric for website compliance is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="websites-compliant-after-retest-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client):
+    """
+    Test policy progress metric for website compliance is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="statements-compliant-after-retest-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
+    """
+    Test policy progress metric for website accessibility issues is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state="error",
+        retest_state="fixed",
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state="error",
+        retest_state="not-fixed",
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="website-accessibility-issues-fixed-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
+    """
+    Test policy progress metric for accessibility statement issues is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+    Audit.objects.create(
+        case=case,
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        audit_retest_declaration_state="present",
+        audit_retest_scope_state="present",
+        audit_retest_access_requirements_state="req-met",
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="statement-issues-fixed-in-the-last-90-days",
+            percentage=27,
+            partial_count=3,
+            total_count=11,
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_client):
+    """
+    Test policy metric for completed cases with equalities bodies.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    Case.objects.create(
+        created=datetime(2021, 11, 12, tzinfo=timezone.utc),
+        enforcement_body_pursuing="yes-completed",
+    )
+    Case.objects.create(
+        created=datetime(2021, 5, 12, tzinfo=timezone.utc),
+        enforcement_body_pursuing="yes-in-progress",
+    )
+    Case.objects.create(
+        created=datetime(2021, 2, 1, tzinfo=timezone.utc),
+        enforcement_body_pursuing="yes-in-progress",
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<p id="cases-completed-with-equalities-bodies" class="govuk-body-m">
+            <span class="govuk-!-font-size-48 amp-padding-right-20"><b>1</b></span>
+            with 2 in progress
+        </p>""",
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
+    """
+    Test policy yearly metric table values for website state.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-1"),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
+    """
+    Test policy yearly metric table values for accessibility statement state
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+    )
+
+    case: Case = Case.objects.create(case_completed="complete-no-send")
+    Audit.objects.create(
+        case=case, retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc)
+    )
+    fixed_case: Case = Case.objects.create(
+        case_completed="complete-no-send",
+        accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    )
+    Audit.objects.create(
+        case=fixed_case, retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc)
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-2"),
+        html=True,
+    )
