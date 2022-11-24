@@ -9,6 +9,12 @@
     fill="none"
 >
     <g transform="translate(50)">
+        {% for line_label in chart.line_labels %}
+            <line stroke={{ line_label.stroke }} stroke-width="3" x1="{{ line_label.stroke_x1 }}" x2="{{ line_label.stroke_x2 }}" y1="{{ line_label.stroke_y }}" y2="{{ line_label.stroke_y }}"></line>
+            <text fill="currentColor" text-anchor="left" x="{{ line_label.label_x }}" y="{{ line_label.label_y }}">
+                {{ line_label.label }}
+            </text>
+        {% endfor %}
         <line stroke-width="3" x1="0" x2="{{ chart.graph_width }}" y1="{{ chart.graph_height }}" y2="{{ chart.graph_height }}"></line>
         {% for x_axis_tick in chart.x_axis %}
             <line stroke-width="3" x1="{{ x_axis_tick.x_position }}" x2="{{ x_axis_tick.x_position }}" y1="{{ chart.graph_height }}" y2="{{ chart.x_axis_tick_y2 }}"></line>

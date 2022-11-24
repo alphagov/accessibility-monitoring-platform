@@ -2,12 +2,11 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone as datetime_timezone
-from itertools import chain
 from typing import List, Union
 
 from django.utils import timezone
 
-from .metrics import TimeseriesDatapoint
+from .metrics import Timeseries, TimeseriesDatapoint
 
 GRAPH_HEIGHT: int = 250
 GRAPH_WIDTH: int = 600
@@ -25,6 +24,11 @@ STROKE_COLOURS: List[str] = [
     "#d53880",  # govuk-colour("pink")
     "#00703c",  # govuk-colour("green")
 ]
+LINE_LABEL_X_STEP: int = 110
+LINE_LABEL_Y: int = -10
+LINE_LABEL_STROKE_Y: int = -15
+LINE_LABEL_STROKE_LENGTH: int = 20
+LINE_LABEL_X_OFFSET: int = LINE_LABEL_STROKE_LENGTH + 10
 
 
 @dataclass
@@ -78,10 +82,22 @@ class Polyline:
 
 
 @dataclass
+class LineLabel:
+    label: str
+    stroke: str
+    label_x: int
+    label_y: int
+    stroke_x1: int
+    stroke_x2: int
+    stroke_y: int
+
+
+@dataclass
 class TimeseriesLineChart:
     x_axis: List[ChartAxisTick]
     y_axis: List[ChartAxisTick]
     polylines: List[Polyline]
+    line_labels: List[LineLabel]
     graph_height: int = GRAPH_HEIGHT
     graph_width: int = GRAPH_WIDTH
     chart_height: int = CHART_HEIGHT
@@ -158,20 +174,38 @@ def get_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 
 def build_yearly_metric_chart(
-    data_sequences: List[List[TimeseriesDatapoint]],
+    data_sequences: List[Timeseries],
 ) -> TimeseriesLineChart:
     """
     Given timeseries datapoints, derive the values needed to draw
     a line chart.
     """
     now: datetime = timezone.now()
-    values: List[int] = [datapoint.value for datapoint in chain(*data_sequences)]
+    values: List[int] = []
+    for data_sequence in data_sequences:
+        for datapoint in data_sequence.datapoints:
+            values.append(datapoint.value)
     max_value: int = max(values) if values else 0
     polylines = []
+    line_labels: List[LineLabel] = []
     for index, data_sequence in enumerate(data_sequences):
         stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]
-        penultimate_datapoints: List[TimeseriesDatapoint] = data_sequence[:-1]
-        last_month_datapoints: List[TimeseriesDatapoint] = data_sequence[-2:]
+        if data_sequence.label:
+            line_labels.append(
+                LineLabel(
+                    label=data_sequence.label,
+                    stroke=stroke,
+                    label_x=(LINE_LABEL_X_STEP * index) + LINE_LABEL_X_OFFSET,
+                    label_y=LINE_LABEL_Y,
+                    stroke_x1=LINE_LABEL_X_STEP * index,
+                    stroke_x2=(LINE_LABEL_X_STEP * index) + LINE_LABEL_STROKE_LENGTH,
+                    stroke_y=LINE_LABEL_STROKE_Y,
+                )
+            )
+        penultimate_datapoints: List[TimeseriesDatapoint] = data_sequence.datapoints[
+            :-1
+        ]
+        last_month_datapoints: List[TimeseriesDatapoint] = data_sequence.datapoints[-2:]
         polylines.append(
             Polyline(
                 stroke=stroke,
@@ -194,6 +228,7 @@ def build_yearly_metric_chart(
 
     return TimeseriesLineChart(
         polylines=polylines,
+        line_labels=line_labels,
         x_axis=build_13_month_x_axis(),
         y_axis=get_y_axis(max_value=max_value),
     )

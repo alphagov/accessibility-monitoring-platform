@@ -10,6 +10,7 @@ from ...audits.models import Audit
 from ...cases.models import Case
 
 from ..metrics import (
+    Timeseries,
     TimeseriesDatapoint,
     calculate_current_month_progress,
     calculate_metric_progress,
@@ -364,8 +365,12 @@ def test_group_timeseries_data_by_month():
     "first_series, second_series, expected_result",
     [
         (
-            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1)],
-            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2)],
+            Timeseries(
+                datapoints=[TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1)]
+            ),
+            Timeseries(
+                datapoints=[TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2)]
+            ),
             [
                 {
                     "datetime": datetime(2022, 1, 1, 0, 0),
@@ -375,18 +380,22 @@ def test_group_timeseries_data_by_month():
             ],
         ),
         (
-            [
-                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
-                TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
-                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=5),
-                TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=7),
-            ],
-            [
-                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
-                TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
-                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=6),
-                TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=8),
-            ],
+            Timeseries(
+                datapoints=[
+                    TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+                    TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+                    TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=5),
+                    TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=7),
+                ]
+            ),
+            Timeseries(
+                datapoints=[
+                    TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
+                    TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
+                    TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=6),
+                    TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=8),
+                ]
+            ),
             [
                 {
                     "datetime": datetime(2022, 1, 1, 0, 0),
@@ -407,8 +416,8 @@ def test_group_timeseries_data_by_month():
     ],
 )
 def test_build_html_table_rows(
-    first_series: List[TimeseriesDatapoint],
-    second_series: List[TimeseriesDatapoint],
+    first_series: Timeseries,
+    second_series: Timeseries,
     expected_result: List[Dict[str, Union[datetime, int]]],
 ):
     """Test merging multiple data series into a single heml table context"""

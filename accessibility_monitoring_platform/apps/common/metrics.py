@@ -36,6 +36,12 @@ class TimeseriesDatapoint:
     value: int
 
 
+@dataclass
+class Timeseries:
+    datapoints: List[TimeseriesDatapoint]
+    label: str = ""
+
+
 def calculate_current_month_progress(
     now: datetime, label: str, this_month_value: int, last_month_value: int
 ) -> Dict[str, Union[str, int]]:
@@ -121,8 +127,8 @@ def group_timeseries_data_by_month(
 
 
 def build_html_table_rows(
-    first_series: List[TimeseriesDatapoint],
-    second_series: List[TimeseriesDatapoint],
+    first_series: Timeseries,
+    second_series: Timeseries,
 ) -> List[Dict[str, Union[datetime, int]]]:
     """
     Given two lists of timeseries data, merge them into a single list of data
@@ -133,9 +139,9 @@ def build_html_table_rows(
             "datetime": timeseries_datapoint.datetime,
             "first_value": timeseries_datapoint.value,
         }
-        for timeseries_datapoint in first_series
+        for timeseries_datapoint in first_series.datapoints
     }
-    for timeseries_datapoint in second_series:
+    for timeseries_datapoint in second_series.datapoints:
         if timeseries_datapoint.datetime in html_table_data:
             html_table_data[timeseries_datapoint.datetime][
                 "second_value"

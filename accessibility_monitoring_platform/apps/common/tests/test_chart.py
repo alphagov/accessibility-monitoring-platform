@@ -4,10 +4,10 @@ Test - common utility functions
 import pytest
 from unittest.mock import patch
 
-from typing import List
 from datetime import datetime, timezone
 
 from ..chart import (
+    Timeseries,
     TimeseriesDatapoint,
     ChartAxisTick,
     Point,
@@ -326,23 +326,25 @@ def test_build_yearly_metric_chart():
     """
     Test building of yearly metric data for line chart
     """
-    data_sequences: List[TimeseriesDatapoint] = [
-        TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=42),
-        TimeseriesDatapoint(datetime=datetime(2021, 12, 1), value=54),
-        TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=45),
-        TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=20),
-        TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=64),
-        TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=22),
-        TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=44),
-        TimeseriesDatapoint(datetime=datetime(2022, 6, 1), value=42),
-        TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=45),
-        TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=49),
-        TimeseriesDatapoint(datetime=datetime(2022, 9, 1), value=52),
-        TimeseriesDatapoint(datetime=datetime(2022, 10, 1), value=54),
-        TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=8),
-    ]
+    data_sequence: Timeseries = Timeseries(
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=42),
+            TimeseriesDatapoint(datetime=datetime(2021, 12, 1), value=54),
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=45),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=20),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=64),
+            TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=22),
+            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=44),
+            TimeseriesDatapoint(datetime=datetime(2022, 6, 1), value=42),
+            TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=45),
+            TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=49),
+            TimeseriesDatapoint(datetime=datetime(2022, 9, 1), value=52),
+            TimeseriesDatapoint(datetime=datetime(2022, 10, 1), value=54),
+            TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=8),
+        ]
+    )
     assert build_yearly_metric_chart(
-        data_sequences=[data_sequences]
+        data_sequences=[data_sequence]
     ) == TimeseriesLineChart(
         x_axis=[
             ChartAxisTick(
@@ -485,6 +487,7 @@ def test_build_yearly_metric_chart():
                 stroke="#1d70b8",
             ),
         ],
+        line_labels=[],
         graph_height=250,
         graph_width=600,
         chart_height=300,

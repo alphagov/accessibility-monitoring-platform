@@ -26,6 +26,7 @@ from ..cases.models import (
 from .chart import TimeseriesLineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
+    Timeseries,
     TimeseriesDatapoint,
     calculate_current_month_progress,
     group_timeseries_data_by_month,
@@ -266,7 +267,9 @@ class MetricsCaseTemplateView(TemplateView):
                     {
                         "label": label,
                         "datapoints": datapoints,
-                        "chart": build_yearly_metric_chart(data_sequences=[datapoints]),
+                        "chart": build_yearly_metric_chart(
+                            data_sequences=[Timeseries(datapoints=datapoints)]
+                        ),
                     }
                 )
 
@@ -394,19 +397,21 @@ class MetricsPolicyTemplateView(TemplateView):
             | Q(case__status="in-correspondence-with-equalities-body")
         )
 
-        fixed_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_fixed_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
+        fixed_audits_by_month: Timeseries = Timeseries(
+            label="Fixed",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_fixed_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
-        closed_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_closed_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
+        closed_audits_by_month: Timeseries = Timeseries(
+            label="Closed",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_closed_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
 
         html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
@@ -429,12 +434,13 @@ class MetricsPolicyTemplateView(TemplateView):
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
 
-        compliant_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_compliant_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
+        compliant_audits_by_month: Timeseries = Timeseries(
+            label="Compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_compliant_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
 
         html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
