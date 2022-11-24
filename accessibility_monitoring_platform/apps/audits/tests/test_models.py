@@ -7,6 +7,7 @@ from typing import List
 from django.db.models.query import QuerySet
 
 from ...cases.models import Case
+from ...common.models import BOOLEAN_TRUE
 from ..models import (
     Audit,
     Page,
@@ -232,7 +233,7 @@ def test_check_result_returns_id_and_fields_for_retest():
 
 def test_wcag_definition_strings():
     """
-    Test WCAg definitions return expected string values.
+    Test WCAG definitions return expected string values.
     """
     wcag_definition: WcagDefinition = WcagDefinition(
         type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME
@@ -246,3 +247,32 @@ def test_wcag_definition_strings():
         str(wcag_definition_with_description)
         == f"{WCAG_TYPE_PDF_NAME}: {WCAG_DESCRIPTION} (PDF)"
     )
+
+
+@pytest.mark.django_db
+def test_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    # No page
+    assert audit.accessibility_statement_found is False
+
+    page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+
+    # No URL
+    assert audit.accessibility_statement_found is False
+
+    page.url = "https://example.com"
+    page.save()
+
+    # Not found flag not set
+    assert audit.accessibility_statement_found is True
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    # Not found flag set
+    assert audit.accessibility_statement_found is False
