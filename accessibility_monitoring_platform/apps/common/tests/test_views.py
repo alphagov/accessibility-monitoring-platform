@@ -86,8 +86,8 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_id}" class="amp-preview gov
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Fixed</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Case closed</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_2}</th>
+                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_3}</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
@@ -96,16 +96,16 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_id}" class="amp-preview gov
                     <td class="govuk-table__cell">
                         November 2021
                     </td>
-                    <td class="govuk-table__cell">1</td>
                     <td class="govuk-table__cell">2</td>
+                    <td class="govuk-table__cell">1</td>
                 </tr>
 
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         December 2021
                     </td>
-                    <td class="govuk-table__cell">2</td>
                     <td class="govuk-table__cell">4</td>
+                    <td class="govuk-table__cell">2</td>
                 </tr>
 
         </tbody>
@@ -559,7 +559,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-1"),
+        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-1", column_name_2="Closed", column_name_3="Fixed"),
         html=True,
     )
 
@@ -612,6 +612,6 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-2"),
+        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-2", column_name_2="Closed", column_name_3="Compliant"),
         html=True,
     )

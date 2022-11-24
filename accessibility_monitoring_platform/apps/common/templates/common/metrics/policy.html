@@ -42,18 +42,19 @@
                                 <thead class="govuk-table__head">
                                     <tr class="govuk-table__row">
                                         <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Fixed</th>
-                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Case closed</th>
+                                        {% for column_name in yearly_metric.html_table.column_names %}
+                                            <th scope="col" class="govuk-table__header govuk-!-width-one-third">{{ column_name }}</th>
+                                        {% endfor %}
                                     </tr>
                                 </thead>
                                 <tbody class="govuk-table__body">
-                                    {% for table_row in yearly_metric.html_table_rows %}
+                                    {% for row in yearly_metric.html_table.rows %}
                                         <tr class="govuk-table__row">
                                             <td class="govuk-table__cell">
-                                                {{ table_row.datetime|date:"F Y" }}
+                                                {{ row.datetime|date:"F Y" }}
                                             </td>
-                                            <td class="govuk-table__cell">{{ table_row.first_value|intcomma }}</td>
-                                            <td class="govuk-table__cell">{{ table_row.second_value|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ row.first_value|intcomma }}</td>
+                                            <td class="govuk-table__cell">{{ row.second_value|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

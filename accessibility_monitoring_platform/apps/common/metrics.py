@@ -42,6 +42,12 @@ class Timeseries:
     label: str = ""
 
 
+@dataclass
+class TimeseriesHtmlTable:
+    column_names: List[str]
+    rows: List[Dict[str, Union[datetime, int]]]
+
+
 def calculate_current_month_progress(
     now: datetime, label: str, this_month_value: int, last_month_value: int
 ) -> Dict[str, Union[str, int]]:
@@ -126,10 +132,10 @@ def group_timeseries_data_by_month(
     ]
 
 
-def build_html_table_rows(
+def build_html_table(
     first_series: Timeseries,
     second_series: Timeseries,
-) -> List[Dict[str, Union[datetime, int]]]:
+) -> TimeseriesHtmlTable:
     """
     Given two lists of timeseries data, merge them into a single list of data
     for a 3-column html table
@@ -151,4 +157,7 @@ def build_html_table_rows(
                 "datetime": timeseries_datapoint.datetime,
                 "second_value": timeseries_datapoint.value,
             }
-    return sorted(list(html_table_data.values()), key=lambda x: x["datetime"])
+    return TimeseriesHtmlTable(
+        column_names=[first_series.label, second_series.label],
+        rows=sorted(list(html_table_data.values()), key=lambda x: x["datetime"]),
+    )

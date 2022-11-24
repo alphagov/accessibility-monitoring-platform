@@ -28,11 +28,12 @@ from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdat
 from .metrics import (
     Timeseries,
     TimeseriesDatapoint,
+    TimeseriesHtmlTable,
     calculate_current_month_progress,
     group_timeseries_data_by_month,
     calculate_metric_progress,
     count_statement_issues,
-    build_html_table_rows,
+    build_html_table,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -372,7 +373,7 @@ class MetricsPolicyTemplateView(TemplateView):
                 str,
                 Union[
                     str,
-                    List[Dict[str, Union[datetime, int]]],
+                    TimeseriesHtmlTable,
                     TimeseriesLineChart,
                 ],
             ]
@@ -414,14 +415,13 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         )
 
-        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
-            first_series=fixed_audits_by_month, second_series=closed_audits_by_month
-        )
-
         yearly_metrics.append(
             {
                 "label": "State of websites after retest in last year",
-                "html_table_rows": html_table_rows,
+                "html_table": build_html_table(
+                    first_series=closed_audits_by_month,
+                    second_series=fixed_audits_by_month,
+                ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[closed_audits_by_month, fixed_audits_by_month]
                 ),
@@ -443,14 +443,13 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         )
 
-        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
-            first_series=compliant_audits_by_month, second_series=closed_audits_by_month
-        )
-
         yearly_metrics.append(
             {
                 "label": "State of accessibility statements after retest in last year",
-                "html_table_rows": html_table_rows,
+                "html_table": build_html_table(
+                    first_series=closed_audits_by_month,
+                    second_series=compliant_audits_by_month,
+                ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[
                         closed_audits_by_month,
