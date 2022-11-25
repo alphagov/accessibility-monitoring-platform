@@ -31,34 +31,7 @@
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
                     {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
-                    <details class="govuk-details" data-module="govuk-details">
-                        <summary class="govuk-details__summary">
-                            <span class="govuk-details__summary-text">
-                                Table view
-                            </span>
-                        </summary>
-                        <div id="table-view-{{ forloop.counter }}" class="amp-preview govuk-details__text">
-                            <table class="govuk-table">
-                                <thead class="govuk-table__head">
-                                    <tr class="govuk-table__row">
-                                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                                        {% for column_name in yearly_metric.html_table.column_names %}
-                                            <th scope="col" class="govuk-table__header govuk-!-width-one-third">{{ column_name }}</th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody class="govuk-table__body">
-                                    {% for row in yearly_metric.html_table.rows %}
-                                        <tr class="govuk-table__row">
-                                            {% for cell in row %}
-                                                <td class="govuk-table__cell">{{ cell }}</td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </details>
+                    {% include 'common/metrics/table.html' with html_table=yearly_metric.html_table %}
                 {% endfor %}
             </div>
         </div>

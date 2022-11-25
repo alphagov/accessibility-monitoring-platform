@@ -141,7 +141,9 @@ def build_html_table(
     Given lists of timeseries data, merge them into a context object for a
     single HTML table
     """
-    column_names: List[str] = [timeseries.label for timeseries in table_data]
+    column_names: List[str] = ["Month"] + [
+        timeseries.label for timeseries in table_data
+    ]
     empty_row: List[str] = ["" for _ in range(len(table_data))]
     html_table_data: Dict[datetime, List[str]] = {}
     for timeseries in table_data:

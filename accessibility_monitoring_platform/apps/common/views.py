@@ -246,6 +246,7 @@ class MetricsCaseTemplateView(TemplateView):
                 str,
                 Union[
                     str,
+                    TimeseriesHtmlTable,
                     List[TimeseriesDatapoint],
                     TimeseriesLineChart,
                 ],
@@ -263,11 +264,21 @@ class MetricsCaseTemplateView(TemplateView):
                 date_column_name=date_column_name,
                 start_date=start_date,
             )
+            table_data: List[Timeseries] = [
+                Timeseries(
+                    label="Count",
+                    datapoints=group_timeseries_data_by_month(
+                        queryset=Case.objects,
+                        date_column_name=date_column_name,
+                        start_date=start_date,
+                    ),
+                )
+            ]
             if datapoints:
                 yearly_metrics.append(
                     {
                         "label": label,
-                        "datapoints": datapoints,
+                        "html_table": build_html_table(table_data=table_data),
                         "chart": build_yearly_metric_chart(
                             data_sequences=[Timeseries(datapoints=datapoints)]
                         ),
