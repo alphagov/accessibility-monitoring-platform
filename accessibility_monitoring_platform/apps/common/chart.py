@@ -83,21 +83,25 @@ class Polyline:
 
 @dataclass
 class LineLabel:
+    """Individual line and label in chart key"""
+
     label: str
-    stroke: str
+    line_stroke: str
     label_x: int
     label_y: int
-    stroke_x1: int
-    stroke_x2: int
-    stroke_y: int
+    line_x1: int
+    line_x2: int
+    line_y: int
 
 
 @dataclass
-class TimeseriesLineChart:
+class LineChart:
+    """Context for SVG line of chart"""
+
+    key: List[LineLabel]
+    polylines: List[Polyline]
     x_axis: List[ChartAxisTick]
     y_axis: List[ChartAxisTick]
-    polylines: List[Polyline]
-    line_labels: List[LineLabel]
     graph_height: int = GRAPH_HEIGHT
     graph_width: int = GRAPH_WIDTH
     chart_height: int = CHART_HEIGHT
@@ -175,7 +179,7 @@ def get_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 def build_yearly_metric_chart(
     lines: List[Timeseries],
-) -> TimeseriesLineChart:
+) -> LineChart:
     """
     Given timeseries datapoints, derive the values needed to draw
     a line chart.
@@ -187,24 +191,22 @@ def build_yearly_metric_chart(
             values.append(datapoint.value)
     max_value: int = max(values) if values else 0
     polylines = []
-    line_labels: List[LineLabel] = []
+    chart_key: List[LineLabel] = []
     for index, timeseries in enumerate(lines):
         stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]
         if timeseries.label:
-            line_labels.append(
+            chart_key.append(
                 LineLabel(
                     label=timeseries.label,
-                    stroke=stroke,
+                    line_stroke=stroke,
                     label_x=(LINE_LABEL_X_STEP * index) + LINE_LABEL_X_OFFSET,
                     label_y=LINE_LABEL_Y,
-                    stroke_x1=LINE_LABEL_X_STEP * index,
-                    stroke_x2=(LINE_LABEL_X_STEP * index) + LINE_LABEL_STROKE_LENGTH,
-                    stroke_y=LINE_LABEL_STROKE_Y,
+                    line_x1=LINE_LABEL_X_STEP * index,
+                    line_x2=(LINE_LABEL_X_STEP * index) + LINE_LABEL_STROKE_LENGTH,
+                    line_y=LINE_LABEL_STROKE_Y,
                 )
             )
-        penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
-            :-1
-        ]
+        penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[:-1]
         last_month_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[-2:]
         polylines.append(
             Polyline(
@@ -226,9 +228,9 @@ def build_yearly_metric_chart(
             )
         )
 
-    return TimeseriesLineChart(
+    return LineChart(
         polylines=polylines,
-        line_labels=line_labels,
+        key=chart_key,
         x_axis=build_13_month_x_axis(),
         y_axis=get_y_axis(max_value=max_value),
     )

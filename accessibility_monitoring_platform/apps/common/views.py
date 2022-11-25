@@ -23,7 +23,7 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 
-from .chart import TimeseriesLineChart, build_yearly_metric_chart
+from .chart import LineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
     Timeseries,
@@ -248,7 +248,7 @@ class MetricsCaseTemplateView(TemplateView):
                     str,
                     TimeseriesHtmlTable,
                     List[TimeseriesDatapoint],
-                    TimeseriesLineChart,
+                    LineChart,
                 ],
             ]
         ] = []
@@ -385,7 +385,7 @@ class MetricsPolicyTemplateView(TemplateView):
                 Union[
                     str,
                     TimeseriesHtmlTable,
-                    TimeseriesLineChart,
+                    LineChart,
                 ],
             ]
         ] = []

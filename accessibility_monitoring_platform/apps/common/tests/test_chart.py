@@ -12,7 +12,8 @@ from ..chart import (
     ChartAxisTick,
     Point,
     Polyline,
-    TimeseriesLineChart,
+    LineChart,
+    LineLabel,
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
     build_13_month_x_axis,
@@ -327,6 +328,7 @@ def test_build_yearly_metric_chart():
     Test building of yearly metric data for line chart
     """
     timeseries: Timeseries = Timeseries(
+        label="Counts",
         datapoints=[
             TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=42),
             TimeseriesDatapoint(datetime=datetime(2021, 12, 1), value=54),
@@ -341,9 +343,49 @@ def test_build_yearly_metric_chart():
             TimeseriesDatapoint(datetime=datetime(2022, 9, 1), value=52),
             TimeseriesDatapoint(datetime=datetime(2022, 10, 1), value=54),
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=8),
-        ]
+        ],
     )
-    assert build_yearly_metric_chart(lines=[timeseries]) == TimeseriesLineChart(
+
+    assert build_yearly_metric_chart(lines=[timeseries]) == LineChart(
+        key=[
+            LineLabel(
+                label="Counts",
+                line_stroke="#1d70b8",
+                label_x=30,
+                label_y=-10,
+                line_x1=0,
+                line_x2=20,
+                line_y=-15,
+            )
+        ],
+        polylines=[
+            Polyline(
+                points=[
+                    Point(x_position=0, y_position=145),
+                    Point(x_position=50, y_position=115),
+                    Point(x_position=100, y_position=137),
+                    Point(x_position=150, y_position=200),
+                    Point(x_position=200, y_position=90),
+                    Point(x_position=250, y_position=195),
+                    Point(x_position=300, y_position=140),
+                    Point(x_position=350, y_position=145),
+                    Point(x_position=400, y_position=137),
+                    Point(x_position=450, y_position=127),
+                    Point(x_position=500, y_position=120),
+                    Point(x_position=550, y_position=115),
+                ],
+                stroke_dasharray="",
+                stroke="#1d70b8",
+            ),
+            Polyline(
+                points=[
+                    Point(x_position=550, y_position=115),
+                    Point(x_position=600, y_position=230),
+                ],
+                stroke_dasharray="5",
+                stroke="#1d70b8",
+            ),
+        ],
         x_axis=[
             ChartAxisTick(
                 value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
@@ -457,35 +499,6 @@ def test_build_yearly_metric_chart():
                 value=0, label="0", x_position=0, y_position=250, label_line_2=""
             ),
         ],
-        polylines=[
-            Polyline(
-                points=[
-                    Point(x_position=0, y_position=145),
-                    Point(x_position=50, y_position=115),
-                    Point(x_position=100, y_position=137),
-                    Point(x_position=150, y_position=200),
-                    Point(x_position=200, y_position=90),
-                    Point(x_position=250, y_position=195),
-                    Point(x_position=300, y_position=140),
-                    Point(x_position=350, y_position=145),
-                    Point(x_position=400, y_position=137),
-                    Point(x_position=450, y_position=127),
-                    Point(x_position=500, y_position=120),
-                    Point(x_position=550, y_position=115),
-                ],
-                stroke_dasharray="",
-                stroke="#1d70b8",
-            ),
-            Polyline(
-                points=[
-                    Point(x_position=550, y_position=115),
-                    Point(x_position=600, y_position=230),
-                ],
-                stroke_dasharray="5",
-                stroke="#1d70b8",
-            ),
-        ],
-        line_labels=[],
         graph_height=250,
         graph_width=600,
         chart_height=300,
