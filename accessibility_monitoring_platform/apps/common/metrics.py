@@ -30,6 +30,7 @@ ACCESSIBILITY_STATEMENT_FIELD_VALID_VALUE: Dict[str, str] = {
     "enforcement_procedure_state": "present",
     "access_requirements_state": "req-met",
 }
+FIRST_COLUMN_HEADER: str = "Month"
 
 
 @dataclass
@@ -135,27 +136,27 @@ def group_timeseries_data_by_month(
 
 
 def build_html_table(
-    table_data: List[Timeseries],
+    columns: List[Timeseries],
 ) -> TimeseriesHtmlTable:
     """
     Given lists of timeseries data, merge them into a context object for a
     single HTML table
     """
-    column_names: List[str] = ["Month"] + [
-        timeseries.label for timeseries in table_data
+    column_names: List[str] = [FIRST_COLUMN_HEADER] + [
+        timeseries.label for timeseries in columns
     ]
-    empty_row: List[str] = ["" for _ in range(len(table_data))]
-    html_table_data: Dict[datetime, List[str]] = {}
-    for timeseries in table_data:
+    empty_row: List[str] = ["" for _ in range(len(columns))]
+    html_columns: Dict[datetime, List[str]] = {}
+    for timeseries in columns:
         for datapoint in timeseries.datapoints:
-            html_table_data[datapoint.datetime] = [
+            html_columns[datapoint.datetime] = [
                 datapoint.datetime.strftime("%B %Y")
             ] + empty_row
-    for index, timeseries in enumerate(table_data, start=1):
+    for index, timeseries in enumerate(columns, start=1):
         for datapoint in timeseries.datapoints:
-            html_table_data[datapoint.datetime][index] = intcomma(datapoint.value)
+            html_columns[datapoint.datetime][index] = intcomma(datapoint.value)
 
     return TimeseriesHtmlTable(
         column_names=column_names,
-        rows=list(OrderedDict(sorted(html_table_data.items())).values()),
+        rows=list(OrderedDict(sorted(html_columns.items())).values()),
     )

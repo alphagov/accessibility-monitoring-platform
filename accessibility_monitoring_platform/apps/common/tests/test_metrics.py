@@ -18,11 +18,16 @@ from ..metrics import (
     count_statement_issues,
     group_timeseries_data_by_month,
     build_html_table,
+    FIRST_COLUMN_HEADER,
 )
 
 METRIC_LABEL: str = "Metric label"
 FIRST_COLUMN_NAME: str = "Column one"
 SECOND_COLUMN_NAME: str = "Column two"
+COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
+    FIRST_COLUMN_NAME,
+    SECOND_COLUMN_NAME,
+]
 
 
 @pytest.mark.parametrize(
@@ -365,7 +370,7 @@ def test_group_timeseries_data_by_month():
 
 
 @pytest.mark.parametrize(
-    "table_data, expected_result",
+    "columns, expected_result",
     [
         (
             [
@@ -383,7 +388,7 @@ def test_group_timeseries_data_by_month():
                 ),
             ],
             TimeseriesHtmlTable(
-                column_names=[FIRST_COLUMN_NAME, SECOND_COLUMN_NAME],
+                column_names=COLUMN_NAMES,
                 rows=[["January 2022", "1", "2"]],
             ),
         ),
@@ -409,7 +414,7 @@ def test_group_timeseries_data_by_month():
                 ),
             ],
             TimeseriesHtmlTable(
-                column_names=[FIRST_COLUMN_NAME, SECOND_COLUMN_NAME],
+                column_names=COLUMN_NAMES,
                 rows=[
                     ["January 2022", "1", "2"],
                     ["February 2022", "3", ""],
@@ -423,8 +428,8 @@ def test_group_timeseries_data_by_month():
     ],
 )
 def test_build_html_table(
-    table_data: List[Timeseries],
+    columns: List[Timeseries],
     expected_result: TimeseriesHtmlTable,
 ):
     """Test merging multiple data series into a single HTML table context"""
-    assert build_html_table(table_data=table_data) == expected_result
+    assert build_html_table(columns=columns) == expected_result

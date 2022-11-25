@@ -31,7 +31,7 @@
                 {% for yearly_metric in yearly_metrics %}
                     <h2 class="govuk-heading-m">{{ yearly_metric.label }}</h2>
                     {% include 'common/metrics/chart.svgt' with chart=yearly_metric.chart %}
-                    {% include 'common/metrics/table.html' with html_table=yearly_metric.html_table %}
+                    {% include 'common/metrics/table.html' %}
                 {% endfor %}
             </div>
         </div>

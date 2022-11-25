@@ -264,7 +264,7 @@ class MetricsCaseTemplateView(TemplateView):
                 date_column_name=date_column_name,
                 start_date=start_date,
             )
-            table_data: List[Timeseries] = [
+            columns: List[Timeseries] = [
                 Timeseries(
                     label="Count",
                     datapoints=group_timeseries_data_by_month(
@@ -278,7 +278,7 @@ class MetricsCaseTemplateView(TemplateView):
                 yearly_metrics.append(
                     {
                         "label": label,
-                        "html_table": build_html_table(table_data=table_data),
+                        "html_table": build_html_table(columns=columns),
                         "chart": build_yearly_metric_chart(
                             data_sequences=[Timeseries(datapoints=datapoints)]
                         ),
@@ -430,7 +430,7 @@ class MetricsPolicyTemplateView(TemplateView):
             {
                 "label": "State of websites after retest in last year",
                 "html_table": build_html_table(
-                    table_data=[closed_audits_by_month, fixed_audits_by_month],
+                    columns=[closed_audits_by_month, fixed_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[closed_audits_by_month, fixed_audits_by_month]
@@ -457,7 +457,7 @@ class MetricsPolicyTemplateView(TemplateView):
             {
                 "label": "State of accessibility statements after retest in last year",
                 "html_table": build_html_table(
-                    table_data=[closed_audits_by_month, compliant_audits_by_month],
+                    columns=[closed_audits_by_month, compliant_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[

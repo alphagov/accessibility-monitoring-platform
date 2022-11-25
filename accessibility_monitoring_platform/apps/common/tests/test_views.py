@@ -563,7 +563,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
             table_view_id="table-view-1",
             table_id="state-of-websites-after-retest-in-last-year",
             column_name_2="Closed",
-            column_name_3="Fixed"
+            column_name_3="Fixed",
         ),
         html=True,
     )
@@ -621,7 +621,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
             table_view_id="table-view-2",
             table_id="state-of-accessibility-statements-after-retest-in-last-year",
             column_name_2="Closed",
-            column_name_3="Compliant"
+            column_name_3="Compliant",
         ),
         html=True,
     )
