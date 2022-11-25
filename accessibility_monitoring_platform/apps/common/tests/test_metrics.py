@@ -384,7 +384,7 @@ def test_group_timeseries_data_by_month():
             ],
             TimeseriesHtmlTable(
                 column_names=[FIRST_COLUMN_NAME, SECOND_COLUMN_NAME],
-                rows=[["Jan 2022", "1", "2"]],
+                rows=[["January 2022", "1", "2"]],
             ),
         ),
         (
@@ -411,12 +411,12 @@ def test_group_timeseries_data_by_month():
             TimeseriesHtmlTable(
                 column_names=[FIRST_COLUMN_NAME, SECOND_COLUMN_NAME],
                 rows=[
-                    ["Jan 2022", "1", "2"],
-                    ["Feb 2022", "3", ""],
-                    ["Mar 2022", "", "4"],
-                    ["Apr 2022", "5", "6"],
-                    ["Jul 2022", "7", ""],
-                    ["Aug 2022", "", "8"],
+                    ["January 2022", "1", "2"],
+                    ["February 2022", "3", ""],
+                    ["March 2022", "", "4"],
+                    ["April 2022", "5", "6"],
+                    ["July 2022", "7", ""],
+                    ["August 2022", "", "8"],
                 ],
             ),
         ),
