@@ -50,11 +50,9 @@
                                 <tbody class="govuk-table__body">
                                     {% for row in yearly_metric.html_table.rows %}
                                         <tr class="govuk-table__row">
-                                            <td class="govuk-table__cell">
-                                                {{ row.datetime|date:"F Y" }}
-                                            </td>
-                                            <td class="govuk-table__cell">{{ row.first_value|intcomma }}</td>
-                                            <td class="govuk-table__cell">{{ row.second_value|intcomma }}</td>
+                                            {% for cell in row %}
+                                                <td class="govuk-table__cell">{{ cell }}</td>
+                                            {% endfor %}
                                         </tr>
                                     {% endfor %}
                                 </tbody>

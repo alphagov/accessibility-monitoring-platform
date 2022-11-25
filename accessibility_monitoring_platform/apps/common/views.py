@@ -419,8 +419,7 @@ class MetricsPolicyTemplateView(TemplateView):
             {
                 "label": "State of websites after retest in last year",
                 "html_table": build_html_table(
-                    first_series=closed_audits_by_month,
-                    second_series=fixed_audits_by_month,
+                    table_data=[closed_audits_by_month, fixed_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[closed_audits_by_month, fixed_audits_by_month]
@@ -447,8 +446,7 @@ class MetricsPolicyTemplateView(TemplateView):
             {
                 "label": "State of accessibility statements after retest in last year",
                 "html_table": build_html_table(
-                    first_series=closed_audits_by_month,
-                    second_series=compliant_audits_by_month,
+                    table_data=[closed_audits_by_month, compliant_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
                     data_sequences=[

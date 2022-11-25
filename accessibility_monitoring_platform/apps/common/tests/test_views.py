@@ -559,7 +559,9 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-1", column_name_2="Closed", column_name_3="Fixed"),
+        POLICY_YEARLY_METRIC_STATE.format(
+            table_id="table-view-1", column_name_2="Closed", column_name_3="Fixed"
+        ),
         html=True,
     )
 
@@ -612,6 +614,8 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(table_id="table-view-2", column_name_2="Closed", column_name_3="Compliant"),
+        POLICY_YEARLY_METRIC_STATE.format(
+            table_id="table-view-2", column_name_2="Closed", column_name_3="Compliant"
+        ),
         html=True,
     )

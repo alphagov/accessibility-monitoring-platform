@@ -1,6 +1,7 @@
 """ Utility functions for calculating metrics and charts """
 
 import calendar
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import (
@@ -11,6 +12,7 @@ from typing import (
     Union,
 )
 
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 
 from ..audits.models import Audit
@@ -45,7 +47,7 @@ class Timeseries:
 @dataclass
 class TimeseriesHtmlTable:
     column_names: List[str]
-    rows: List[Dict[str, Union[datetime, int]]]
+    rows: List[List[str]]
 
 
 def calculate_current_month_progress(
@@ -133,31 +135,25 @@ def group_timeseries_data_by_month(
 
 
 def build_html_table(
-    first_series: Timeseries,
-    second_series: Timeseries,
+    table_data: List[Timeseries],
 ) -> TimeseriesHtmlTable:
     """
-    Given two lists of timeseries data, merge them into a single list of data
-    for a 3-column html table
+    Given lists of timeseries data, merge them into a context object for a
+    single HTML table
     """
-    html_table_data: Dict[datetime, Dict[str, Union[datetime, int]]] = {
-        timeseries_datapoint.datetime: {
-            "datetime": timeseries_datapoint.datetime,
-            "first_value": timeseries_datapoint.value,
-        }
-        for timeseries_datapoint in first_series.datapoints
-    }
-    for timeseries_datapoint in second_series.datapoints:
-        if timeseries_datapoint.datetime in html_table_data:
-            html_table_data[timeseries_datapoint.datetime][
-                "second_value"
-            ] = timeseries_datapoint.value
-        else:
-            html_table_data[timeseries_datapoint.datetime] = {
-                "datetime": timeseries_datapoint.datetime,
-                "second_value": timeseries_datapoint.value,
-            }
+    column_names: List[str] = [timeseries.label for timeseries in table_data]
+    empty_row: List[str] = ["" for _ in range(len(table_data))]
+    html_table_data: Dict[datetime, List[str]] = {}
+    for timeseries in table_data:
+        for datapoint in timeseries.datapoints:
+            html_table_data[datapoint.datetime] = [
+                datapoint.datetime.strftime("%B %Y")
+            ] + empty_row
+    for index, timeseries in enumerate(table_data, start=1):
+        for datapoint in timeseries.datapoints:
+            html_table_data[datapoint.datetime][index] = intcomma(datapoint.value)
+
     return TimeseriesHtmlTable(
-        column_names=[first_series.label, second_series.label],
-        rows=sorted(list(html_table_data.values()), key=lambda x: x["datetime"]),
+        column_names=column_names,
+        rows=list(OrderedDict(sorted(html_table_data.items())).values()),
     )
