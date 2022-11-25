@@ -326,7 +326,7 @@ def test_build_yearly_metric_chart():
     """
     Test building of yearly metric data for line chart
     """
-    data_sequence: Timeseries = Timeseries(
+    timeseries: Timeseries = Timeseries(
         datapoints=[
             TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=42),
             TimeseriesDatapoint(datetime=datetime(2021, 12, 1), value=54),
@@ -343,9 +343,7 @@ def test_build_yearly_metric_chart():
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=8),
         ]
     )
-    assert build_yearly_metric_chart(
-        data_sequences=[data_sequence]
-    ) == TimeseriesLineChart(
+    assert build_yearly_metric_chart(lines=[timeseries]) == TimeseriesLineChart(
         x_axis=[
             ChartAxisTick(
                 value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),

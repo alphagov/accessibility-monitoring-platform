@@ -174,7 +174,7 @@ def get_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 
 def build_yearly_metric_chart(
-    data_sequences: List[Timeseries],
+    lines: List[Timeseries],
 ) -> TimeseriesLineChart:
     """
     Given timeseries datapoints, derive the values needed to draw
@@ -182,18 +182,18 @@ def build_yearly_metric_chart(
     """
     now: datetime = timezone.now()
     values: List[int] = []
-    for data_sequence in data_sequences:
-        for datapoint in data_sequence.datapoints:
+    for timeseries in lines:
+        for datapoint in timeseries.datapoints:
             values.append(datapoint.value)
     max_value: int = max(values) if values else 0
     polylines = []
     line_labels: List[LineLabel] = []
-    for index, data_sequence in enumerate(data_sequences):
+    for index, timeseries in enumerate(lines):
         stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]
-        if data_sequence.label:
+        if timeseries.label:
             line_labels.append(
                 LineLabel(
-                    label=data_sequence.label,
+                    label=timeseries.label,
                     stroke=stroke,
                     label_x=(LINE_LABEL_X_STEP * index) + LINE_LABEL_X_OFFSET,
                     label_y=LINE_LABEL_Y,
@@ -202,10 +202,10 @@ def build_yearly_metric_chart(
                     stroke_y=LINE_LABEL_STROKE_Y,
                 )
             )
-        penultimate_datapoints: List[TimeseriesDatapoint] = data_sequence.datapoints[
+        penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
             :-1
         ]
-        last_month_datapoints: List[TimeseriesDatapoint] = data_sequence.datapoints[-2:]
+        last_month_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[-2:]
         polylines.append(
             Polyline(
                 stroke=stroke,

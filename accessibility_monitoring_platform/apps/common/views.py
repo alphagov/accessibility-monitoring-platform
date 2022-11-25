@@ -280,7 +280,7 @@ class MetricsCaseTemplateView(TemplateView):
                         "label": label,
                         "html_table": build_html_table(columns=columns),
                         "chart": build_yearly_metric_chart(
-                            data_sequences=[Timeseries(datapoints=datapoints)]
+                            lines=[Timeseries(datapoints=datapoints)]
                         ),
                     }
                 )
@@ -433,7 +433,7 @@ class MetricsPolicyTemplateView(TemplateView):
                     columns=[closed_audits_by_month, fixed_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
-                    data_sequences=[closed_audits_by_month, fixed_audits_by_month]
+                    lines=[closed_audits_by_month, fixed_audits_by_month]
                 ),
             }
         )
@@ -460,7 +460,7 @@ class MetricsPolicyTemplateView(TemplateView):
                     columns=[closed_audits_by_month, compliant_audits_by_month],
                 ),
                 "chart": build_yearly_metric_chart(
-                    data_sequences=[
+                    lines=[
                         closed_audits_by_month,
                         compliant_audits_by_month,
                     ]
