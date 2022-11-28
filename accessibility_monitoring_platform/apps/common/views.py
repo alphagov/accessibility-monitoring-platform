@@ -244,12 +244,7 @@ class MetricsCaseTemplateView(TemplateView):
         yearly_metrics: List[
             Dict[
                 str,
-                Union[
-                    str,
-                    TimeseriesHtmlTable,
-                    List[TimeseriesDatapoint],
-                    LineChart,
-                ],
+                Union[str, TimeseriesHtmlTable, List[TimeseriesDatapoint], LineChart],
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
@@ -274,16 +269,15 @@ class MetricsCaseTemplateView(TemplateView):
                     ),
                 )
             ]
-            if datapoints:
-                yearly_metrics.append(
-                    {
-                        "label": label,
-                        "html_table": build_html_table(columns=columns),
-                        "chart": build_yearly_metric_chart(
-                            lines=[Timeseries(datapoints=datapoints)]
-                        ),
-                    }
-                )
+            yearly_metrics.append(
+                {
+                    "label": label,
+                    "html_table": build_html_table(columns=columns),
+                    "chart": build_yearly_metric_chart(
+                        lines=[Timeseries(datapoints=datapoints)]
+                    ),
+                }
+            )
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
@@ -379,17 +373,6 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         ]
 
-        yearly_metrics: List[
-            Dict[
-                str,
-                Union[
-                    str,
-                    TimeseriesHtmlTable,
-                    LineChart,
-                ],
-            ]
-        ] = []
-
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
@@ -426,18 +409,6 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         )
 
-        yearly_metrics.append(
-            {
-                "label": "State of websites after retest in last year",
-                "html_table": build_html_table(
-                    columns=[closed_audits_by_month, fixed_audits_by_month],
-                ),
-                "chart": build_yearly_metric_chart(
-                    lines=[closed_audits_by_month, fixed_audits_by_month]
-                ),
-            }
-        )
-
         thirteen_month_compliant_audits: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
@@ -453,7 +424,16 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         )
 
-        yearly_metrics.append(
+        yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
+            {
+                "label": "State of websites after retest in last year",
+                "html_table": build_html_table(
+                    columns=[closed_audits_by_month, fixed_audits_by_month],
+                ),
+                "chart": build_yearly_metric_chart(
+                    lines=[closed_audits_by_month, fixed_audits_by_month]
+                ),
+            },
             {
                 "label": "State of accessibility statements after retest in last year",
                 "html_table": build_html_table(
@@ -465,8 +445,8 @@ class MetricsPolicyTemplateView(TemplateView):
                         compliant_audits_by_month,
                     ]
                 ),
-            }
-        )
+            },
+        ]
 
         extra_context: Dict[str, Any] = {
             "progress_metrics": progress_metrics,
