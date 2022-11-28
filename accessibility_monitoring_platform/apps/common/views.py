@@ -23,15 +23,17 @@ from ..cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
 
-from .chart import TimeseriesLineChart, build_yearly_metric_chart
+from .chart import LineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
 from .metrics import (
+    Timeseries,
     TimeseriesDatapoint,
+    TimeseriesHtmlTable,
     calculate_current_month_progress,
     group_timeseries_data_by_month,
     calculate_metric_progress,
     count_statement_issues,
-    build_html_table_rows,
+    build_html_table,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -242,11 +244,7 @@ class MetricsCaseTemplateView(TemplateView):
         yearly_metrics: List[
             Dict[
                 str,
-                Union[
-                    str,
-                    List[TimeseriesDatapoint],
-                    TimeseriesLineChart,
-                ],
+                Union[str, TimeseriesHtmlTable, List[TimeseriesDatapoint], LineChart],
             ]
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
@@ -261,14 +259,25 @@ class MetricsCaseTemplateView(TemplateView):
                 date_column_name=date_column_name,
                 start_date=start_date,
             )
-            if datapoints:
-                yearly_metrics.append(
-                    {
-                        "label": label,
-                        "datapoints": datapoints,
-                        "chart": build_yearly_metric_chart(data_sequences=[datapoints]),
-                    }
+            columns: List[Timeseries] = [
+                Timeseries(
+                    label="Count",
+                    datapoints=group_timeseries_data_by_month(
+                        queryset=Case.objects,
+                        date_column_name=date_column_name,
+                        start_date=start_date,
+                    ),
                 )
+            ]
+            yearly_metrics.append(
+                {
+                    "label": label,
+                    "html_table": build_html_table(columns=columns),
+                    "chart": build_yearly_metric_chart(
+                        lines=[Timeseries(datapoints=datapoints)]
+                    ),
+                }
+            )
 
         extra_context: Dict[str, Any] = {
             "first_of_last_month": first_of_last_month,
@@ -364,17 +373,6 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         ]
 
-        yearly_metrics: List[
-            Dict[
-                str,
-                Union[
-                    str,
-                    List[Dict[str, Union[datetime, int]]],
-                    TimeseriesLineChart,
-                ],
-            ]
-        ] = []
-
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
@@ -394,33 +392,21 @@ class MetricsPolicyTemplateView(TemplateView):
             | Q(case__status="in-correspondence-with-equalities-body")
         )
 
-        fixed_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_fixed_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
+        fixed_audits_by_month: Timeseries = Timeseries(
+            label="Fixed",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_fixed_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
-        closed_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_closed_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
-        )
-
-        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
-            first_series=fixed_audits_by_month, second_series=closed_audits_by_month
-        )
-
-        yearly_metrics.append(
-            {
-                "label": "State of websites after retest in last year",
-                "html_table_rows": html_table_rows,
-                "chart": build_yearly_metric_chart(
-                    data_sequences=[closed_audits_by_month, fixed_audits_by_month]
-                ),
-            }
+        closed_audits_by_month: Timeseries = Timeseries(
+            label="Closed",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_closed_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
 
         thirteen_month_compliant_audits: QuerySet[
@@ -429,30 +415,38 @@ class MetricsPolicyTemplateView(TemplateView):
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
 
-        compliant_audits_by_month: List[
-            TimeseriesDatapoint
-        ] = group_timeseries_data_by_month(
-            queryset=thirteen_month_compliant_audits,
-            date_column_name="retest_date",
-            start_date=thirteen_month_start_date,
+        compliant_audits_by_month: Timeseries = Timeseries(
+            label="Compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_compliant_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
         )
 
-        html_table_rows: List[Dict[str, Union[datetime, int]]] = build_html_table_rows(
-            first_series=compliant_audits_by_month, second_series=closed_audits_by_month
-        )
-
-        yearly_metrics.append(
+        yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
+            {
+                "label": "State of websites after retest in last year",
+                "html_table": build_html_table(
+                    columns=[closed_audits_by_month, fixed_audits_by_month],
+                ),
+                "chart": build_yearly_metric_chart(
+                    lines=[closed_audits_by_month, fixed_audits_by_month]
+                ),
+            },
             {
                 "label": "State of accessibility statements after retest in last year",
-                "html_table_rows": html_table_rows,
+                "html_table": build_html_table(
+                    columns=[closed_audits_by_month, compliant_audits_by_month],
+                ),
                 "chart": build_yearly_metric_chart(
-                    data_sequences=[
+                    lines=[
                         closed_audits_by_month,
                         compliant_audits_by_month,
                     ]
                 ),
-            }
-        )
+            },
+        ]
 
         extra_context: Dict[str, Any] = {
             "progress_metrics": progress_metrics,

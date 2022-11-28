@@ -10,15 +10,24 @@ from ...audits.models import Audit
 from ...cases.models import Case
 
 from ..metrics import (
+    Timeseries,
     TimeseriesDatapoint,
+    TimeseriesHtmlTable,
     calculate_current_month_progress,
     calculate_metric_progress,
     count_statement_issues,
     group_timeseries_data_by_month,
-    build_html_table_rows,
+    build_html_table,
+    FIRST_COLUMN_HEADER,
 )
 
 METRIC_LABEL: str = "Metric label"
+FIRST_COLUMN_NAME: str = "Column one"
+SECOND_COLUMN_NAME: str = "Column two"
+COLUMN_NAMES: List[str] = [FIRST_COLUMN_HEADER] + [
+    FIRST_COLUMN_NAME,
+    SECOND_COLUMN_NAME,
+]
 
 
 @pytest.mark.parametrize(
@@ -361,55 +370,66 @@ def test_group_timeseries_data_by_month():
 
 
 @pytest.mark.parametrize(
-    "first_series, second_series, expected_result",
+    "columns, expected_result",
     [
         (
-            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1)],
-            [TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2)],
             [
-                {
-                    "datetime": datetime(2022, 1, 1, 0, 0),
-                    "first_value": 1,
-                    "second_value": 2,
-                }
+                Timeseries(
+                    label=FIRST_COLUMN_NAME,
+                    datapoints=[
+                        TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1)
+                    ],
+                ),
+                Timeseries(
+                    label=SECOND_COLUMN_NAME,
+                    datapoints=[
+                        TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2)
+                    ],
+                ),
             ],
+            TimeseriesHtmlTable(
+                column_names=COLUMN_NAMES,
+                rows=[["January 2022", "1", "2"]],
+            ),
         ),
         (
             [
-                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
-                TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
-                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=5),
-                TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=7),
+                Timeseries(
+                    label=FIRST_COLUMN_NAME,
+                    datapoints=[
+                        TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+                        TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+                        TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=5),
+                        TimeseriesDatapoint(datetime=datetime(2022, 7, 1), value=7),
+                    ],
+                ),
+                Timeseries(
+                    label=SECOND_COLUMN_NAME,
+                    datapoints=[
+                        TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
+                        TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
+                        TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=6),
+                        TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=8),
+                    ],
+                ),
             ],
-            [
-                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
-                TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
-                TimeseriesDatapoint(datetime=datetime(2022, 4, 1), value=6),
-                TimeseriesDatapoint(datetime=datetime(2022, 8, 1), value=8),
-            ],
-            [
-                {
-                    "datetime": datetime(2022, 1, 1, 0, 0),
-                    "first_value": 1,
-                    "second_value": 2,
-                },
-                {"datetime": datetime(2022, 2, 1, 0, 0), "first_value": 3},
-                {"datetime": datetime(2022, 3, 1, 0, 0), "second_value": 4},
-                {
-                    "datetime": datetime(2022, 4, 1, 0, 0),
-                    "first_value": 5,
-                    "second_value": 6,
-                },
-                {"datetime": datetime(2022, 7, 1, 0, 0), "first_value": 7},
-                {"datetime": datetime(2022, 8, 1, 0, 0), "second_value": 8},
-            ],
+            TimeseriesHtmlTable(
+                column_names=COLUMN_NAMES,
+                rows=[
+                    ["January 2022", "1", "2"],
+                    ["February 2022", "3", ""],
+                    ["March 2022", "", "4"],
+                    ["April 2022", "5", "6"],
+                    ["July 2022", "7", ""],
+                    ["August 2022", "", "8"],
+                ],
+            ),
         ),
     ],
 )
-def test_build_html_table_rows(
-    first_series: List[TimeseriesDatapoint],
-    second_series: List[TimeseriesDatapoint],
-    expected_result: List[Dict[str, Union[datetime, int]]],
+def test_build_html_table(
+    columns: List[Timeseries],
+    expected_result: TimeseriesHtmlTable,
 ):
-    """Test merging multiple data series into a single heml table context"""
-    assert build_html_table_rows(first_series, second_series) == expected_result
+    """Test merging multiple data series into a single HTML table context"""
+    assert build_html_table(columns=columns) == expected_result
