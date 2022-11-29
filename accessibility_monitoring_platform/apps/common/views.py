@@ -484,18 +484,21 @@ class MetricsReportTemplateView(TemplateView):
                 label="Published reports",
                 this_month_value=S3Report.objects.filter(
                     created__gte=first_of_this_month
-                ).count(),
+                )
+                .filter(latest_published=True)
+                .count(),
                 last_month_value=S3Report.objects.filter(
-                    created__gte=first_of_last_month
+                    created__gte=first_of_last_month,
                 )
                 .filter(created__lt=first_of_this_month)
+                .filter(latest_published=True)
                 .count(),
             ),
         ]
 
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
-            queryset=S3Report.objects,
+            queryset=S3Report.objects.filter(latest_published=True),
             date_column_name="created",
             start_date=start_date,
         )

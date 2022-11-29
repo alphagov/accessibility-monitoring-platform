@@ -123,7 +123,7 @@ class Report(VersionModel):
     @property
     def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
-        return self.case.s3report_set.all().last()  # type: ignore
+        return self.case.s3report_set.filter(latest_published=True).last()  # type: ignore
 
     @property
     def top_level_sections(self) -> QuerySet["BaseTemplate"]:

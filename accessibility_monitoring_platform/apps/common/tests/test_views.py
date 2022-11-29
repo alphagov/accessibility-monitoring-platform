@@ -26,7 +26,7 @@ EMAIL_MESSAGE: str = "Email message"
 ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
 target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
-CASE_METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
         stroke="currentColor" stroke-width="3" fill="none">
@@ -36,7 +36,7 @@ CASE_METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
         </svg>
     Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
 </p>"""
-CASE_METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
         stroke="currentColor" stroke-width="3" fill="none">
@@ -46,7 +46,7 @@ CASE_METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     </svg>
     Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
 </p>"""
-CASE_METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
+METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
@@ -256,7 +256,7 @@ def test_case_progress_metric_over(
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_OVER_THIS_MONTH.format(
+        METRIC_OVER_THIS_MONTH.format(
             metric_id=metric_id,
             number_this_month=1,
             percentage_difference=55,
@@ -296,7 +296,7 @@ def test_case_progress_metric_under(
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_UNDER_THIS_MONTH.format(
+        METRIC_UNDER_THIS_MONTH.format(
             metric_id=metric_id,
             number_this_month=1,
             percentage_difference=23,
@@ -333,7 +333,7 @@ def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_YEARLY_TABLE.format(table_id=table_id),
+        METRIC_YEARLY_TABLE.format(table_id=table_id),
         html=True,
     )
 
@@ -643,24 +643,27 @@ def test_report_progress_metric_over(mock_timezone, admin_client):
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_OVER_THIS_MONTH.format(
+        METRIC_OVER_THIS_MONTH.format(
             metric_id="published-reports",
             number_this_month=1,
             percentage_difference=55,
@@ -679,35 +682,37 @@ def test_report_progress_metric_under(mock_timezone, admin_client):
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
-
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_UNDER_THIS_MONTH.format(
+        METRIC_UNDER_THIS_MONTH.format(
             metric_id="published-reports",
             number_this_month=1,
             percentage_difference=23,
@@ -731,28 +736,32 @@ def test_report_yearly_metric(mock_timezone, admin_client):
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
     with patch(
         "django.utils.timezone.now",
         Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
     ):
-        S3Report.objects.create(case=case, version=1)
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_YEARLY_TABLE.format(table_id="reports-published-over-the-last-year"),
+        METRIC_YEARLY_TABLE.format(table_id="reports-published-over-the-last-year"),
         html=True,
     )

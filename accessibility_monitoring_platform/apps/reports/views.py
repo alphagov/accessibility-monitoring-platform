@@ -17,6 +17,14 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 
+from ..cases.models import Case
+from ..common.utils import (
+    record_model_create_event,
+    record_model_update_event,
+)
+from ..s3_read_write.models import S3Report
+from ..s3_read_write.utils import S3ReadWriteReport
+
 from .forms import (
     ReportMetadataUpdateForm,
     SectionUpdateForm,
@@ -37,12 +45,6 @@ from .utils import (
     generate_report_content,
     get_report_visits_metrics,
 )
-from ..common.utils import (
-    record_model_create_event,
-    record_model_update_event,
-)
-from ..cases.models import Case
-from ..s3_read_write.utils import S3ReadWriteReport
 
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -300,6 +302,10 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     )
     context = {"report": report}
     html: str = template.render(context, request)  # type: ignore
+    published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
+    for s3_report in published_s3_reports:
+        s3_report.latest_published = False
+        s3_report.save()
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,

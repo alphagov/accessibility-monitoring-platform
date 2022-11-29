@@ -105,7 +105,7 @@ def generate_report_content(report: Report) -> None:
 
 def create_url_table_rows(report: Report, section: Section) -> None:
     """Create url table row data for each testable page in the report"""
-    for row_number, page in enumerate(report.case.audit.testable_pages, start=1):
+    for row_number, page in enumerate(report.case.audit.testable_pages, start=1):  # type: ignore
         TableRow.objects.create(
             section=section,
             cell_content_1=str(page),

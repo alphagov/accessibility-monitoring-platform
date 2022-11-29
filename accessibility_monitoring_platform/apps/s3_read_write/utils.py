@@ -82,6 +82,7 @@ class S3ReadWriteReport:
             version=version,
             guid=guid,
             html=html_content,
+            latest_published=True,
         )
 
         s3report.save()
