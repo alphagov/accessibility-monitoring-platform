@@ -22,6 +22,7 @@ from ..cases.models import (
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
 )
+from ..s3_read_write.models import S3Report
 
 from .chart import LineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
@@ -454,4 +455,70 @@ class MetricsPolicyTemplateView(TemplateView):
             "equality_body_cases_in_progress_count": equality_body_cases_in_progress_count,
             "yearly_metrics": yearly_metrics,
         }
+        return {**extra_context, **context}
+
+
+class MetricsReportTemplateView(TemplateView):
+    """
+    View of report metrics
+    """
+
+    template_name: str = "common/metrics/report.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add number of cases to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        now: datetime = django_timezone.now()
+        first_of_this_month: datetime = datetime(
+            now.year, now.month, 1, tzinfo=timezone.utc
+        )
+        first_of_last_month: datetime = (
+            datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
+            if now.month > 1
+            else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
+        )
+
+        progress_metrics: List[Dict[str, Union[str, int]]] = [
+            calculate_current_month_progress(
+                now=now,
+                label="Published reports",
+                this_month_value=S3Report.objects.filter(
+                    created__gte=first_of_this_month
+                ).count(),
+                last_month_value=S3Report.objects.filter(
+                    created__gte=first_of_last_month
+                )
+                .filter(created__lt=first_of_this_month)
+                .count(),
+            ),
+        ]
+
+        start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+        datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
+            queryset=S3Report.objects,
+            date_column_name="created",
+            start_date=start_date,
+        )
+        columns: List[Timeseries] = [
+            Timeseries(
+                label="Count",
+                datapoints=datapoints,
+            )
+        ]
+        yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
+            {
+                "label": "Reports published over the last year",
+                "html_table": build_html_table(columns=columns),
+                "chart": build_yearly_metric_chart(
+                    lines=[Timeseries(datapoints=datapoints)]
+                ),
+            }
+        ]
+
+        extra_context: Dict[str, Any] = {
+            "first_of_last_month": first_of_last_month,
+            "progress_metrics": progress_metrics,
+            "yearly_metrics": yearly_metrics,
+        }
+
         return {**extra_context, **context}
