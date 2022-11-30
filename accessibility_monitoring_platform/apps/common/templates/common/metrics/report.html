@@ -8,7 +8,7 @@
 {% block content %}
 <div class="govuk-width-container">
     {% include 'common/metrics/breadcrumbs.html' with current='Report metrics' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0 amp-report-wrapper">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 {% include 'common/metrics/nav_steps.html' with current='common:metrics-report' %}
@@ -18,7 +18,7 @@
                 <p class="govuk-body-m">Today is {{ today|amp_date }}.</p>
                 <p class="govuk-body-m">
                     There are {{ number_open_cases }} open cases.
-                    {{ number_template_reports }} of which use non-HTML reports.
+                    {{ number_template_reports }} of which use the ODT templates report methodology.
                 </p>
                 {% for progress_metric in progress_metrics %}
                     <h2 class="govuk-heading-m">{{ progress_metric.label }} in {% now "F" %}</h2>

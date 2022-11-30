@@ -785,7 +785,7 @@ def test_report_open_cases_metric(mock_timezone, admin_client):
         response,
         """<p class="govuk-body-m">
             There are 2 open cases.
-            1 of which use non-HTML reports.
+            1 of which use the ODT templates report methodology.
         </p>""",
         html=True,
     )
