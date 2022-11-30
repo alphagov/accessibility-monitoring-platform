@@ -21,6 +21,7 @@ from ..cases.models import (
     Case,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    REPORT_METHODOLOGY_ODT,
 )
 from ..s3_read_write.models import S3Report
 
@@ -39,6 +40,15 @@ from .metrics import (
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
 from .utils import get_platform_settings
+
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+    "deleted",
+]
 
 
 class ContactAdminView(FormView):
@@ -477,6 +487,13 @@ class MetricsReportTemplateView(TemplateView):
             if now.month > 1
             else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
         )
+        open_cases: QuerySet[Case] = Case.objects.all().exclude(
+            status__in=CLOSED_CASE_STATUSES
+        )
+        number_open_cases: int = open_cases.count()
+        number_template_reports: int = open_cases.filter(
+            report_methodology=REPORT_METHODOLOGY_ODT
+        ).count()
 
         progress_metrics: List[Dict[str, Union[str, int]]] = [
             calculate_current_month_progress(
@@ -519,6 +536,8 @@ class MetricsReportTemplateView(TemplateView):
         ]
 
         extra_context: Dict[str, Any] = {
+            "number_open_cases": number_open_cases,
+            "number_template_reports": number_template_reports,
             "first_of_last_month": first_of_last_month,
             "progress_metrics": progress_metrics,
             "yearly_metrics": yearly_metrics,
