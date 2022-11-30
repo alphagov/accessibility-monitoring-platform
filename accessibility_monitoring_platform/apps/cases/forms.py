@@ -45,10 +45,6 @@ from .models import (
     WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
-    TESTING_METHODOLOGY_CHOICES,
-    TESTING_METHODOLOGY_PLATFORM,
-    REPORT_METHODOLOGY_CHOICES,
-    REPORT_METHODOLOGY_PLATFORM,
     PSB_LOCATION_CHOICES,
     REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
@@ -175,17 +171,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
-    testing_methodology = AMPChoiceRadioField(
-        label="Testing methodology?",
-        choices=TESTING_METHODOLOGY_CHOICES,
-    )
-
-    report_methodology = (
-        AMPChoiceRadioField(  # Uncomment when reports are ready to be deployed
-            label="Report methodology?",
-            choices=REPORT_METHODOLOGY_CHOICES,
-        )
-    )
     previous_case_url = AMPURLField(
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
@@ -226,24 +211,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
         else:
             raise ValidationError("Previous case not found in platform")
 
-    def clean(self):
-        cleaned_data = super().clean()
-        testing_methodology = cleaned_data.get("testing_methodology")  # type: ignore
-        report_methodology = cleaned_data.get("report_methodology")  # type: ignore
-        if (
-            testing_methodology != TESTING_METHODOLOGY_PLATFORM
-            and report_methodology == REPORT_METHODOLOGY_PLATFORM
-        ):
-            self.add_error(
-                "testing_methodology",
-                "Testing methodology has to be platform for reporting methodology to be platform",
-            )
-            self.add_error(
-                "report_methodology",
-                "For reporting methodology to be platform, testing methodology has to be platform",
-            )
-        return cleaned_data
-
     class Meta:
         model = Case
         fields = [
@@ -252,8 +219,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "home_page_url",
             "organisation_name",
             "enforcement_body",
-            "testing_methodology",
-            "report_methodology",
             "psb_location",
             "sector",
             "is_complaint",

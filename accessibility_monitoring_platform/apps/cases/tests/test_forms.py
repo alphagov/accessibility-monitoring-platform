@@ -22,46 +22,6 @@ def test_case_search_form_user_field_includes_choice_of_unassigned(fieldname):
 
 
 @pytest.mark.parametrize(
-    "testing_methodology, report_methodology, expected_valid",
-    [
-        ("platform", "platform", True),
-        ("spreadsheet", "platform", False),
-        ("platform", "odt", True),
-        ("spreadsheet", "odt", True),
-    ],
-)
-@pytest.mark.django_db
-def test_case_report_detail_update_form_methodology_validation(
-    testing_methodology, report_methodology, expected_valid
-):
-    """Tests testing and report methodology cross-field validation"""
-    case: Case = Case.objects.create()
-    form: CaseDetailUpdateForm = CaseDetailUpdateForm(
-        data={
-            "version": case.version,
-            "home_page_url": HOME_PAGE_URL,
-            "enforcement_body": "ehrc",
-            "testing_methodology": testing_methodology,
-            "report_methodology": report_methodology,
-        },
-        instance=case,
-    )
-
-    if expected_valid:
-        assert form.is_valid()
-    else:
-        assert not form.is_valid()
-        assert form.errors == {
-            "testing_methodology": [
-                "Testing methodology has to be platform for reporting methodology to be platform",
-            ],
-            "report_methodology": [
-                "For reporting methodology to be platform, testing methodology has to be platform",
-            ],
-        }
-
-
-@pytest.mark.parametrize(
     "previous_case_url, requests_status, expected_error_message",
     [
         ("", 200, ""),

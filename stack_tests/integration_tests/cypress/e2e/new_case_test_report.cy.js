@@ -32,8 +32,6 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | Case details`)
     cy.get('#id_auditor').select('Auditor')
     cy.get('#id_enforcement_body_0').click()
-    cy.get('[name="testing_methodology"]').check('platform')
-    cy.get('[name="report_methodology"]').check('platform')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Testing details`)
