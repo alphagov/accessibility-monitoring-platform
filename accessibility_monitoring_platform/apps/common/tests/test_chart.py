@@ -323,10 +323,12 @@ def test_get_y_axis(max_value, expected_result):
     assert get_y_axis(max_value=max_value) == expected_result
 
 
-def test_build_yearly_metric_chart():
+@patch("accessibility_monitoring_platform.apps.common.chart.timezone")
+def test_build_yearly_metric_chart(mock_timezone):
     """
     Test building of yearly metric data for line chart
     """
+    mock_timezone.now.return_value = datetime(2022, 11, 10)
     timeseries: Timeseries = Timeseries(
         label="Counts",
         datapoints=[
