@@ -3,6 +3,7 @@
         <h2 id="test-results" class="govuk-heading-l">Testing details</h2>
     </div>
     <div class="govuk-grid-column-one-thirds">
+        {% if case.testing_methodology == "platform" %}
         <div class="govuk-button-group amp-flex-end">
             <a href="{% url 'cases:edit-test-results' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
@@ -10,6 +11,7 @@
                 Edit testing details
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 <table class="govuk-table">
@@ -38,9 +40,42 @@
                 </p>
             {% endif %}
         {% else %}
-            {% for row in testing_details_rows %}
-                {% include 'cases/helpers/detail_row.html' with row=row %}
-            {% endfor %}
-        {% endif %}
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Test status</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Initial accessibility statement decision
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_accessibility_statement_state_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Accessibility statement notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ case.accessibility_statement_notes|markdown_to_html }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Initial compliance decision</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_is_website_compliant_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance notes</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ case.compliance_decision_notes|markdown_to_html }}
+            </td>
+        </tr>
+{% endif %}
     </tbody>
 </table>

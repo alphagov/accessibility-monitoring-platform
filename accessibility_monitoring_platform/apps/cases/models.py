@@ -318,7 +318,7 @@ class Case(VersionModel):
     notes = models.TextField(default="", blank=True)
     case_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Testing details page
+    # Historic testing details page
     test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT

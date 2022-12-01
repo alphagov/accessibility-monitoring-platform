@@ -652,67 +652,6 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     )
 
 
-@pytest.mark.parametrize(
-    "case_edit_path, button_name, expected_redirect_path",
-    [
-        (
-            "cases:edit-twelve-week-retest",
-            "save_continue",
-            "cases:edit-review-changes",
-        ),
-        (
-            "cases:edit-review-changes",
-            "save_continue",
-            "cases:edit-final-website",
-        ),
-        ("cases:edit-final-website", "save", "cases:edit-final-website"),
-        (
-            "cases:edit-final-website",
-            "save_continue",
-            "cases:edit-final-statement",
-        ),
-        ("cases:edit-final-statement", "save", "cases:edit-final-statement"),
-        (
-            "cases:edit-final-statement",
-            "save_continue",
-            "cases:edit-case-close",
-        ),
-    ],
-)
-def test_spreadsheet_case_edit_redirects_based_on_button_pressed(
-    case_edit_path,
-    button_name,
-    expected_redirect_path,
-    admin_client,
-):
-    """
-    Test that a successful case update redirects based on the button pressed
-    when the case testing methodology is spreadsheet
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "home_page_url": HOME_PAGE_URL,
-            "enforcement_body": "ehrc",
-            "version": case.version,
-            button_name: "Button value",
-        },
-    )
-    assert response.status_code == 302
-    assert (
-        response.url  # type: ignore
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
-    )
-
-
 def test_add_contact_form_appears(admin_client):
     """Test that pressing the add contact button adds a new contact form"""
     case: Case = Case.objects.create()
@@ -1240,22 +1179,22 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
 
 
 @pytest.mark.parametrize(
-    "flag_name, section_name, edit_url_name",
+    "flag_name, section_name, section_id",
     [
         (
             "final_website_complete_date",
             "Final website compliance decision",
-            "edit-final-website",
+            "final-website",
         ),
         (
             "final_statement_complete_date",
             "Final accessibility statement compliance decision",
-            "edit-final-statement",
+            "final-statement",
         ),
     ],
 )
 def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
-    flag_name, section_name, edit_url_name, admin_client
+    flag_name, section_name, section_id, admin_client
 ):
     """
     Test that the section complete tick is displayed in contents
@@ -1266,7 +1205,6 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
     )
     setattr(case, flag_name, TODAY)
     case.save()
-    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
@@ -1277,12 +1215,8 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
     assertContains(
         response,
         f"""<li>
-            <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
+            <a href="#{section_id}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
-            |
-            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
-                Edit<span class="govuk-visually-hidden">complete</span>
-            </a>
             &check;
         </li>""",
         html=True,
@@ -1342,47 +1276,6 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     when case testing methodology is platform
     """
     case: Case = Case.objects.create()
-    setattr(case, flag_name, TODAY)
-    case.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id}),  # type: ignore
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f'{step_name}<span class="govuk-visually-hidden">complete</span> &check;',
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url, flag_name, step_name",
-    [
-        (
-            "cases:edit-final-website",
-            "final_website_complete_date",
-            "Final website compliance decision",
-        ),
-        (
-            "cases:edit-final-statement",
-            "final_statement_complete_date",
-            "Final accessibility statement compliance decision",
-        ),
-    ],
-)
-def test_section_complete_check_displayed_in_steps_spreadsheet_methodology(
-    step_url, flag_name, step_name, admin_client
-):
-    """
-    Test that the section complete tick is displayed in list of steps
-    when case testing methodology is spreadsheet
-    """
-    case: Case = Case.objects.create(
-        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-    )
     setattr(case, flag_name, TODAY)
     case.save()
 
@@ -1548,66 +1441,6 @@ def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform
         '<div class="govuk-hint">'
         "There is no test spreadsheet for this case"
         "</div>",
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
-)
-def test_case_final_views_contain_placeholder_no_accessibility_statement_notes(
-    step_url,
-    admin_client,
-):
-    """
-    Test that the case final statement and website views
-    contain placeholder text if there are no accessibility statement notes
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-form-group">
-            <label class="govuk-label"><b>Initial accessibility statement notes</b></label>
-            <div class="govuk-hint">
-                No notes for this case
-            </div>
-        </div>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "step_url", ["cases:edit-final-statement", "cases:edit-final-website"]
-)
-def test_case_final_views_contains_placeholder_no_compliance_decision_notes(
-    step_url,
-    admin_client,
-):
-    """
-    Test that the case final views contain placeholder text
-    if there are no compliance decision notes
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id})  # type: ignore
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<div class="govuk-form-group">
-            <label class="govuk-label"><b>Initial compliance notes</b></label>
-            <div class="govuk-hint">
-                No notes for this case
-            </div>
-        </div>""",
-        html=True,
     )
 
 
@@ -1817,8 +1650,6 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-report-correspondence"),
         ("trello_url", "edit-twelve-week-correspondence"),
         ("zendesk_url", "edit-review-changes"),
-        ("zendesk_url", "edit-final-website"),
-        ("zendesk_url", "edit-final-statement"),
         ("zendesk_url", "edit-case-close"),
         ("trello_url", "edit-enforcement-body-correspondence"),
         ("zendesk_url", "edit-post-case"),
@@ -2077,146 +1908,6 @@ def test_update_case_checks_version(admin_client):
     )
 
 
-def test_testing_details_shows_audits_version_if_methodology_is_platform(admin_client):
-    """
-    Test that the edit testing details page shows the start test button
-    and does not show the link to test results field when testing methodology is platform.
-    """
-    case: Case = Case.objects.create(testing_methodology="platform")
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
-    )
-
-    assert response.status_code == 200
-
-    create_audit_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
-    assertContains(
-        response,
-        f"""<a href="{create_audit_url}"
-            role="button" draggable="false" class="govuk-button govuk-button--secondary"
-            data-module="govuk-button">
-                Start test
-        </a>""",
-        html=True,
-    )
-    assertNotContains(
-        response,
-        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
-            <b>Link to test results</b>
-        </label>""",
-        html=True,
-    )
-
-
-def test_testing_details_shows_spreadsheet_version_if_methodology_is_spreadsheet(
-    admin_client,
-):
-    """
-    Test that the edit testing details page does not show the start test button
-    and does show the link to test results field when testing methodology is spreadsheet.
-    """
-    case: Case = Case.objects.create(testing_methodology="spreadsheet")
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
-    )
-
-    assert response.status_code == 200
-
-    create_audit_url: str = reverse("audits:audit-create", kwargs={"case_id": case.id})  # type: ignore
-    assertNotContains(
-        response,
-        f"""<a href="{create_audit_url}"
-            role="button" draggable="false" class="govuk-button govuk-button--secondary"
-            data-module="govuk-button">
-                Start test
-        </a>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<label id="id_test_results_url-label" class="govuk-label" for="id_test_results_url">
-            <b>Link to test results</b>
-        </label>""",
-        html=True,
-    )
-
-
-def test_testing_details_shows_test_results_if_methodology_is_platform(admin_client):
-    """
-    Test that the edit testing details page shows the view test button
-    and test results when testing methodology is platform and audit exists.
-    """
-    case: Case = Case.objects.create(
-        testing_methodology="platform",
-        is_website_compliant="partially-compliant",
-        compliance_decision_notes=COMPLIANCE_DECISION_NOTES,
-        accessibility_statement_state="not-compliant",
-        accessibility_statement_notes=ACCESSIBILITY_STATEMENT_NOTES,
-    )
-    audit: Audit = Audit.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-test-results", kwargs={"pk": case.id}),  # type: ignore
-    )
-
-    assert response.status_code == 200
-
-    view_audit_url: str = reverse("audits:audit-detail", kwargs={"pk": audit.id})  # type: ignore
-    assertContains(
-        response,
-        f"""<a href="{view_audit_url}"
-            role="button" draggable="false" class="govuk-button govuk-button--secondary"
-            data-module="govuk-button">
-                View test
-        </a>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance decision</th>
-            <td class="govuk-table__cell amp-width-one-half">Partially compliant</td>
-        </tr>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">
-                Initial website compliance notes
-            </th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                <p>{COMPLIANCE_DECISION_NOTES}</p>
-            </td>
-        </tr>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">
-                Initial accessibility statement compliance decision
-            </th>
-            <td class="govuk-table__cell amp-width-one-half">Not compliant</td>
-        </tr>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">
-                Initial accessibility statement compliance notes
-            </th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                <p>{ACCESSIBILITY_STATEMENT_NOTES}</p>
-            </td>
-        </tr>""",
-        html=True,
-    )
-
-
 @pytest.mark.parametrize(
     "edit_url_name",
     [
@@ -2230,8 +1921,6 @@ def test_testing_details_shows_test_results_if_methodology_is_platform(admin_cli
         "edit-twelve-week-correspondence",
         "edit-twelve-week-retest",
         "edit-review-changes",
-        "edit-final-website",
-        "edit-final-statement",
         "edit-case-close",
         "edit-enforcement-body-correspondence",
         "edit-post-case",

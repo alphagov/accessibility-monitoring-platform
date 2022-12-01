@@ -26,8 +26,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseTwelveWeekCorrespondenceEmailTemplateView,
     CaseTwelveWeekRetestUpdateView,
     CaseReviewChangesUpdateView,
-    CaseFinalStatementUpdateView,
-    CaseFinalWebsiteUpdateView,
     CaseCloseUpdateView,
     PostCaseUpdateView,
     CaseEnforcementBodyCorrespondenceUpdateView,
@@ -118,16 +116,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-review-changes/",
         login_required(CaseReviewChangesUpdateView.as_view()),
         name="edit-review-changes",
-    ),
-    path(
-        "<int:pk>/edit-final-website/",
-        login_required(CaseFinalWebsiteUpdateView.as_view()),
-        name="edit-final-website",
-    ),
-    path(
-        "<int:pk>/edit-final-statement/",
-        login_required(CaseFinalStatementUpdateView.as_view()),
-        name="edit-final-statement",
     ),
     path(
         "<int:pk>/edit-case-close/",

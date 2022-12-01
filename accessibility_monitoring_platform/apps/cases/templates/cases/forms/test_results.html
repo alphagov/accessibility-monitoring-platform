@@ -30,40 +30,38 @@
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        {% if case.testing_methodology == 'platform' %}
-                            {% if case.audit %}
-                                <div class="govuk-button-group">
-                                    <a
-                                        href="{% url 'audits:audit-detail' case.audit.id %}"
-                                        role="button"
-                                        draggable="false"
-                                        class="govuk-button govuk-button--secondary"
-                                        data-module="govuk-button"
-                                    >
-                                        View test
-                                    </a>
-                                </div>
-                                <table class="govuk-table">
-                                    <tbody class="govuk-table__body">
-                                        {% include 'cases/helpers/platform_testing_details.html' %}
-                                    </tbody>
-                                </table>
-                            {% else %}
-                                <p class="govuk-body">
-                                    This case does not have a test. Click Start test to move to the testing environment.
-                                </p>
-                                <div class="govuk-button-group">
-                                    <a
-                                        href="{% url 'audits:audit-create' case.id %}"
-                                        role="button"
-                                        draggable="false"
-                                        class="govuk-button govuk-button--secondary"
-                                        data-module="govuk-button"
-                                    >
-                                        Start test
-                                    </a>
-                                </div>
-                            {% endif %}
+                        {% if case.audit %}
+                            <div class="govuk-button-group">
+                                <a
+                                    href="{% url 'audits:audit-detail' case.audit.id %}"
+                                    role="button"
+                                    draggable="false"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                >
+                                    View test
+                                </a>
+                            </div>
+                            <table class="govuk-table">
+                                <tbody class="govuk-table__body">
+                                    {% include 'cases/helpers/platform_testing_details.html' %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="govuk-body">
+                                This case does not have a test. Click Start test to move to the testing environment.
+                            </p>
+                            <div class="govuk-button-group">
+                                <a
+                                    href="{% url 'audits:audit-create' case.id %}"
+                                    role="button"
+                                    draggable="false"
+                                    class="govuk-button govuk-button--secondary"
+                                    data-module="govuk-button"
+                                >
+                                    Start test
+                                </a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
