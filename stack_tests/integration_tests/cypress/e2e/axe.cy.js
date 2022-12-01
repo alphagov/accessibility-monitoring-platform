@@ -51,6 +51,7 @@ const loggedInUrls = [
   '/common/markdown-cheatsheet/',
   '/common/metrics-case/',
   '/common/metrics-policy/',
+  '/common/metrics-report/',
   '/common/platform-versions/',
   '/common/report-issue/',
   '/notifications/notifications-list/',
