@@ -23,8 +23,7 @@ class S3Report(models.Model):
     s3_directory = models.TextField(default="", blank=True)
     version = models.IntegerField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    visible = models.BooleanField(default=True)
-    deprecated = models.BooleanField(default=False)
+    latest_published = models.BooleanField(default=False)
     guid = models.CharField(max_length=40, blank=True)
     html = models.TextField(default="", blank=True)
 

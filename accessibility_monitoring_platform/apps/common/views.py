@@ -21,7 +21,9 @@ from ..cases.models import (
     Case,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    REPORT_METHODOLOGY_ODT,
 )
+from ..s3_read_write.models import S3Report
 
 from .chart import LineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
@@ -38,6 +40,15 @@ from .metrics import (
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
 from .utils import get_platform_settings
+
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+    "deleted",
+]
 
 
 class ContactAdminView(FormView):
@@ -454,4 +465,82 @@ class MetricsPolicyTemplateView(TemplateView):
             "equality_body_cases_in_progress_count": equality_body_cases_in_progress_count,
             "yearly_metrics": yearly_metrics,
         }
+        return {**extra_context, **context}
+
+
+class MetricsReportTemplateView(TemplateView):
+    """
+    View of report metrics
+    """
+
+    template_name: str = "common/metrics/report.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add number of cases to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        now: datetime = django_timezone.now()
+        first_of_this_month: datetime = datetime(
+            now.year, now.month, 1, tzinfo=timezone.utc
+        )
+        first_of_last_month: datetime = (
+            datetime(now.year, now.month - 1, 1, tzinfo=timezone.utc)
+            if now.month > 1
+            else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
+        )
+        open_cases: QuerySet[Case] = Case.objects.all().exclude(
+            status__in=CLOSED_CASE_STATUSES
+        )
+        number_open_cases: int = open_cases.count()
+        number_template_reports: int = open_cases.filter(
+            report_methodology=REPORT_METHODOLOGY_ODT
+        ).count()
+
+        progress_metrics: List[Dict[str, Union[str, int]]] = [
+            calculate_current_month_progress(
+                now=now,
+                label="Published reports",
+                this_month_value=S3Report.objects.filter(
+                    created__gte=first_of_this_month
+                )
+                .filter(latest_published=True)
+                .count(),
+                last_month_value=S3Report.objects.filter(
+                    created__gte=first_of_last_month,
+                )
+                .filter(created__lt=first_of_this_month)
+                .filter(latest_published=True)
+                .count(),
+            ),
+        ]
+
+        start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
+        datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
+            queryset=S3Report.objects.filter(latest_published=True),
+            date_column_name="created",
+            start_date=start_date,
+        )
+        columns: List[Timeseries] = [
+            Timeseries(
+                label="Count",
+                datapoints=datapoints,
+            )
+        ]
+        yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
+            {
+                "label": "Reports published over the last year",
+                "html_table": build_html_table(columns=columns),
+                "chart": build_yearly_metric_chart(
+                    lines=[Timeseries(datapoints=datapoints)]
+                ),
+            }
+        ]
+
+        extra_context: Dict[str, Any] = {
+            "number_open_cases": number_open_cases,
+            "number_template_reports": number_template_reports,
+            "first_of_last_month": first_of_last_month,
+            "progress_metrics": progress_metrics,
+            "yearly_metrics": yearly_metrics,
+        }
+
         return {**extra_context, **context}

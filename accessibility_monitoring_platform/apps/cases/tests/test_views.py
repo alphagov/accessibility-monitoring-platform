@@ -2477,7 +2477,9 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     """
     case: Case = Case.objects.create()
     Report.objects.create(case=case)
-    s3_report: S3Report = S3Report.objects.create(case=case, guid="guid", version=0)
+    s3_report: S3Report = S3Report.objects.create(
+        case=case, guid="guid", version=0, latest_published=True
+    )
     s3_report_url: str = (
         f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{s3_report.guid}"
     )

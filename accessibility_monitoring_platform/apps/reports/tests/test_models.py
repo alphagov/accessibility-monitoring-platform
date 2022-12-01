@@ -104,7 +104,9 @@ def test_latest_s3_report_returned():
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
     S3Report.objects.create(case=case, version=0)
-    second_s3_report: S3Report = S3Report.objects.create(case=case, version=1)
+    second_s3_report: S3Report = S3Report.objects.create(
+        case=case, version=1, latest_published=True
+    )
 
     assert report.latest_s3_report == second_s3_report
 

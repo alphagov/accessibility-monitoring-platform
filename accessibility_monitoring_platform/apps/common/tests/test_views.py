@@ -3,7 +3,7 @@ Tests for common views
 """
 from datetime import datetime, timezone
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -16,7 +16,9 @@ from ...cases.models import (
     Case,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    REPORT_METHODOLOGY_ODT,
 )
+from ...s3_read_write.models import S3Report
 from ..models import Platform
 from ..utils import get_platform_settings
 
@@ -25,7 +27,7 @@ EMAIL_MESSAGE: str = "Email message"
 ISSUE_REPORT_LINK: str = """<a href="/common/report-issue/?page_url=/"
 target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
-CASE_METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
         stroke="currentColor" stroke-width="3" fill="none">
@@ -35,7 +37,7 @@ CASE_METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
         </svg>
     Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
 </p>"""
-CASE_METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
+METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
         stroke="currentColor" stroke-width="3" fill="none">
@@ -45,7 +47,7 @@ CASE_METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     </svg>
     Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
 </p>"""
-CASE_METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
+METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
@@ -125,6 +127,7 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-previe
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
         ("common:metrics-case", ">Case metrics</h1>"),
         ("common:metrics-policy", ">Policy metrics</h1>"),
+        ("common:metrics-report", ">Report metrics</h1>"),
     ],
 )
 def test_page_renders(url_name, expected_header, admin_client):
@@ -254,7 +257,7 @@ def test_case_progress_metric_over(
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_OVER_THIS_MONTH.format(
+        METRIC_OVER_THIS_MONTH.format(
             metric_id=metric_id,
             number_this_month=1,
             percentage_difference=55,
@@ -294,7 +297,7 @@ def test_case_progress_metric_under(
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_UNDER_THIS_MONTH.format(
+        METRIC_UNDER_THIS_MONTH.format(
             metric_id=metric_id,
             number_this_month=1,
             percentage_difference=23,
@@ -331,7 +334,7 @@ def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        CASE_METRIC_YEARLY_TABLE.format(table_id=table_id),
+        METRIC_YEARLY_TABLE.format(table_id=table_id),
         html=True,
     )
 
@@ -623,5 +626,166 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
             column_name_2="Closed",
             column_name_3="Compliant",
         ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_progress_metric_over(mock_timezone, admin_client):
+    """
+    Test report progress metric, which is over this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_OVER_THIS_MONTH.format(
+            metric_id="published-reports",
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label="published reports",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_progress_metric_under(mock_timezone, admin_client):
+    """
+    Test report progress metric, which is under this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_UNDER_THIS_MONTH.format(
+            metric_id="published-reports",
+            number_this_month=1,
+            percentage_difference=23,
+            number_last_month=2,
+            lowercase_label="published reports",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_yearly_metric(mock_timezone, admin_client):
+    """
+    Test report yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
+    ):
+        case: Case = Case.objects.create()
+        S3Report.objects.create(case=case, version=1, latest_published=True)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_YEARLY_TABLE.format(table_id="reports-published-over-the-last-year"),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_open_cases_metric(mock_timezone, admin_client):
+    """
+    Test report metric numbers of open cases and non-HTML reports.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    Case.objects.create()
+    Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<p class="govuk-body-m">
+            There are 2 open cases.
+            1 of which use the ODT templates report methodology.
+        </p>""",
         html=True,
     )
