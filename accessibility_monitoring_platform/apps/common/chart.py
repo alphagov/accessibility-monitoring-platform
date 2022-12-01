@@ -206,8 +206,19 @@ def build_yearly_metric_chart(
                     line_y=LINE_LABEL_STROKE_Y,
                 )
             )
-        penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[:-1]
-        last_month_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[-2:]
+        if (
+            timeseries.datapoints
+            and timeseries.datapoints[-1].datetime.month == now.month
+        ):
+            penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
+                :-1
+            ]
+            last_month_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
+                -2:
+            ]
+        else:
+            penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints
+            last_month_datapoints: List[TimeseriesDatapoint] = []
         polylines.append(
             Polyline(
                 stroke=stroke,
