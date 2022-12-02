@@ -107,7 +107,7 @@ class CaseSearchForm(AMPDateRangeForm):
         super().__init__(*args, **kwargs)
 
         auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
-            User.objects.filter(groups__name="Auditor")
+            User.objects.filter(groups__name="Historic auditor")
         )
         self.fields["auditor"].choices = auditor_choices  # type: ignore
         self.fields["reviewer"].choices = auditor_choices  # type: ignore

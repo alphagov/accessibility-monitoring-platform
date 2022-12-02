@@ -5,10 +5,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typing import List, Tuple
 
+from django.contrib.auth.models import Group, User
+
 from ..forms import CaseSearchForm, CaseDetailUpdateForm
 from ..models import Case
 
 USER_CHOICES: List[Tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
+FIRST_NAME: str = "Mock"
+LAST_NAME: str = "User"
 HOME_PAGE_URL: str = "https://example.com"
 
 
@@ -19,6 +23,22 @@ def test_case_search_form_user_field_includes_choice_of_unassigned(fieldname):
     form: CaseSearchForm = CaseSearchForm()
     assert fieldname in form.fields
     assert form.fields[fieldname].choices == USER_CHOICES  # type: ignore
+
+
+@pytest.mark.parametrize("fieldname", ["auditor", "reviewer"])
+@pytest.mark.django_db
+def test_case_search_form_user_field_includes_historic_auditors(fieldname):
+    """Tests if user choice field includes members of Historic auditor group"""
+    group: Group = Group.objects.create(name="Historic auditor")
+    user: User = User.objects.create(first_name=FIRST_NAME, last_name=LAST_NAME)
+    group.user_set.add(user)  # type: ignore
+    expected_choices: List[Tuple[str, str]] = USER_CHOICES + [
+        (user.id, f"{FIRST_NAME} {LAST_NAME}")  # type: ignore
+    ]
+
+    form: CaseSearchForm = CaseSearchForm()
+    assert fieldname in form.fields
+    assert form.fields[fieldname].choices == expected_choices  # type: ignore
 
 
 @pytest.mark.parametrize(
