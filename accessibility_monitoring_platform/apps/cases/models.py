@@ -91,10 +91,6 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Complete",
     ),
     (
-        "deleted",
-        "Deleted",
-    ),
-    (
         STATUS_DEACTIVATED,
         "Deactivated",
     ),
@@ -210,14 +206,6 @@ CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
     (CASE_COMPLETED_SEND, "Case is complete and is ready to send to the equality body"),
     (CASE_COMPLETED_NO_SEND, "Case should not be sent to the equality body"),
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
-]
-
-DELETE_DECISION_DEFAULT: str = "not-psb"
-DELETE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    (DELETE_DECISION_DEFAULT, "Organisation is not a public sector body"),
-    ("mistake", "Case was opened by mistake"),
-    ("duplicate", "This case was a duplicate case"),
-    ("other", "Other"),
 ]
 
 QA_STATUS_DEFAULT: str = "unknown"
@@ -471,15 +459,6 @@ class Case(VersionModel):
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
-    # Delete case page
-    is_deleted = models.BooleanField(default=False)
-    delete_reason = models.CharField(
-        max_length=20,
-        choices=DELETE_DECISION_CHOICES,
-        default=DELETE_DECISION_DEFAULT,
-    )
-    delete_notes = models.TextField(default="", blank=True)
-
     # Deactivate case page
     is_deactivated = models.BooleanField(default=False)
     deactivate_date = models.DateField(null=True, blank=True)
@@ -560,9 +539,7 @@ class Case(VersionModel):
         return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
     def set_status(self) -> str:  # noqa: C901
-        if self.is_deleted:
-            return "deleted"
-        elif self.is_deactivated:
+        if self.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
             self.case_completed == "complete-no-send"

@@ -171,9 +171,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                 )
         is_complaint: str = form.cleaned_data.get("is_complaint", IS_COMPLAINT_DEFAULT)
 
-    if filters.get("status", "") != "deleted":
-        filters["is_deleted"] = False
-
     if filters.get("status", "") == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
         del filters["status"]

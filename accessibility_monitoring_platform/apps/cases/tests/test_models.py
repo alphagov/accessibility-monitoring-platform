@@ -239,7 +239,6 @@ def test_next_action_due_date_for_in_12_week_correspondence():
         "final-decision-due",
         "in-correspondence-with-equalities-body",
         "complete",
-        "deleted",
     ],
 )
 def test_next_action_due_date_not_set(status):
