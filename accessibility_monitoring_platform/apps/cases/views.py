@@ -42,7 +42,6 @@ from .models import (
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
-    TESTING_METHODOLOGY_SPREADSHEET,
     REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
@@ -62,8 +61,6 @@ from .forms import (
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
     CaseTwelveWeekRetestUpdateForm,
     CaseReviewChangesUpdateForm,
-    CaseFinalStatementUpdateForm,
-    CaseFinalWebsiteUpdateForm,
     CaseCloseUpdateForm,
     PostCaseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
@@ -163,9 +160,6 @@ class CaseDetailView(DetailView):
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
 
-        if self.object.testing_methodology == TESTING_METHODOLOGY_SPREADSHEET:  # type: ignore
-            context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())  # type: ignore
-
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()  # type: ignore
         )
@@ -179,8 +173,6 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())  # type: ignore
         context["qa_process_rows"] = qa_process_rows
         context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())  # type: ignore
-        context["final_website_rows"] = get_rows(form=CaseFinalWebsiteUpdateForm())  # type: ignore
-        context["final_statement_rows"] = get_rows(form=CaseFinalStatementUpdateForm())  # type: ignore
         context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())  # type: ignore
         context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())  # type: ignore
         context["enforcement_body_correspondence_rows"] = get_rows(
@@ -343,21 +335,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
-
-    def get_form(self):
-        """Hide fields if testing using platform"""
-        form = super().get_form()
-        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-            for fieldname in [
-                "test_results_url",
-                "test_status",
-                "accessibility_statement_state",
-                "accessibility_statement_notes",
-                "is_website_compliant",
-                "compliance_decision_notes",
-            ]:
-                form.fields[fieldname].widget = forms.HiddenInput()
-        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -730,40 +707,6 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
-            if case.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-                return reverse("cases:edit-case-close", kwargs=case_pk)
-            return reverse("cases:edit-final-website", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseFinalWebsiteUpdateView(CaseUpdateView):
-    """
-    View to record final website compliance decision
-    """
-
-    form_class: Type[CaseFinalWebsiteUpdateForm] = CaseFinalWebsiteUpdateForm
-    template_name: str = "cases/forms/final_website.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("cases:edit-final-statement", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseFinalStatementUpdateView(CaseUpdateView):
-    """
-    View to record final accessibility statement compliance decision
-    """
-
-    form_class: Type[CaseFinalStatementUpdateForm] = CaseFinalStatementUpdateForm
-    template_name: str = "cases/forms/final_statement.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 

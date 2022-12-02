@@ -35,8 +35,6 @@ PAGE_TITLES_BY_URL = {
     "/cases/[id]/edit-case-details/": "Case details",
     "/cases/[id]/edit-contact-details/": "Contact details",
     "/cases/[id]/edit-enforcement-body-correspondence/": "Equality body summary",
-    "/cases/[id]/edit-final-statement/": "Final accessibility statement compliance decision",
-    "/cases/[id]/edit-final-website/": "Final website compliance decision",
     "/cases/[id]/edit-no-psb-response/": "Public sector body is unresponsive",
     "/cases/[id]/edit-post-case/": "Post case summary",
     "/cases/[id]/edit-qa-process/": "QA process",

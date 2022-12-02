@@ -17,7 +17,9 @@
     <h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>
     <ul class="govuk-list">
         {% include './nav_step.html' with edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
-        {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
+        {% if case.testing_methodology == 'platform' %}
+            {% include './nav_step.html' with edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}
+        {% endif %}
         {% include './nav_step.html' with edit_name='cases:edit-report-details' name='Report details' complete=case.reporting_details_complete_date %}
         {% include './nav_step.html' with edit_name='cases:edit-qa-process' name='QA process' complete=case.qa_process_complete_date %}
         {% include './nav_step.html' with edit_name='cases:edit-contact-details' name='Contact details' complete=case.contact_details_complete_date %}
@@ -27,10 +29,6 @@
             {% include './nav_step.html' with edit_name='cases:edit-twelve-week-retest' name='12-week retest' complete=case.twelve_week_retest_complete_date %}
         {% endif %}
         {% include './nav_step.html' with edit_name='cases:edit-review-changes' name='Reviewing changes' complete=case.review_changes_complete_date %}
-        {% if case.testing_methodology != 'platform' %}
-            {% include './nav_step.html' with edit_name='cases:edit-final-website' name='Final website compliance decision' complete=case.final_website_complete_date %}
-            {% include './nav_step.html' with edit_name='cases:edit-final-statement' name='Final accessibility statement compliance decision' complete=case.final_statement_complete_date %}
-        {% endif %}
         {% include './nav_step.html' with edit_name='cases:edit-case-close' name='Closing the case' complete=case.case_close_complete_date %}
     </ul>
     <h3 class="govuk-heading-s amp-margin-bottom-5">Post case</h3>

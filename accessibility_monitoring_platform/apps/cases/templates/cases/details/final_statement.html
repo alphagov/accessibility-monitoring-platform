@@ -1,21 +1,54 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
         <h2 id="final-statement" class="govuk-heading-l">Final accessibility statement compliance decision</h2>
-    </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group">
-            <a href="{% url 'cases:edit-final-statement' case.id %}"
-                class="govuk-link govuk-link--no-visited-state amp-text-align-right"
-                rel="noreferrer noopener">
-                Edit final accessibility statement compliance decision
-            </a>
-        </div>
     </div>
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">
-        {% for row in final_statement_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Disproportionate burden claimed?
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_is_disproportionate_claimed_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Disproportionate burden notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ case.disproportionate_notes|markdown_to_html }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Link to accessibility statement screenshot
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {% if case.accessibility_statement_screenshot_url %}
+                    <a href="{{ case.accessibility_statement_screenshot_url }}" class="govuk-link">
+                        {{ case.accessibility_statement_screenshot_url }}</a>
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Final accessibility statement decision
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_accessibility_statement_state_final_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">
+                Final accessibility statement notes
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ case.accessibility_statement_notes_final|markdown_to_html }}
+            </td>
+        </tr>
     </tbody>
 </table>
