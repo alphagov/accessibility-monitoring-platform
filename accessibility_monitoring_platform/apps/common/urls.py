@@ -14,6 +14,7 @@ from .views import (
     AccessibilityStatementTemplateView,
     PrivacyNoticeTemplateView,
     MarkdownCheatsheetTemplateView,
+    MoreInformationTemplateView,
     MetricsCaseTemplateView,
     MetricsPolicyTemplateView,
     MetricsReportTemplateView,
@@ -49,6 +50,11 @@ urlpatterns: List[URLPattern] = [
         "markdown-cheatsheet/",
         login_required(MarkdownCheatsheetTemplateView.as_view()),
         name="markdown-cheatsheet",
+    ),
+    path(
+        "more-information/",
+        login_required(MoreInformationTemplateView.as_view()),
+        name="more-information",
     ),
     path(
         "metrics-case/",
