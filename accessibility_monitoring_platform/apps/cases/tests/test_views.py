@@ -82,8 +82,10 @@ TODAY: date = date.today()
 
 def add_user_to_auditor_groups(user: User) -> None:
     auditor_group: Group = Group.objects.create(name="Auditor")
+    historic_auditor_group: Group = Group.objects.create(name="Historic auditor")
     qa_auditor_group: Group = Group.objects.create(name="QA auditor")
     auditor_group.user_set.add(user)  # type: ignore
+    historic_auditor_group.user_set.add(user)  # type: ignore
     qa_auditor_group.user_set.add(user)  # type: ignore
 
 
