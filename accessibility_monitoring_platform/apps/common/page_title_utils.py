@@ -52,6 +52,7 @@ PAGE_TITLES_BY_URL = {
     "/common/contact/": "Contact admin",
     "/common/edit-active-qa-auditor/": "Active QA auditor",
     "/common/markdown-cheatsheet/": "Markdown cheatsheet",
+    "/common/more-information/": "More information about monitoring",
     "/common/metrics-case/": "Case metrics",
     "/common/metrics-policy/": "Policy metrics",
     "/common/metrics-report/": "Report metrics",

@@ -125,6 +125,7 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-previe
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
+        ("common:more-information", "More information about monitoring"),
         ("common:metrics-case", ">Case metrics</h1>"),
         ("common:metrics-policy", ">Policy metrics</h1>"),
         ("common:metrics-report", ">Report metrics</h1>"),

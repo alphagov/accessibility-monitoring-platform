@@ -47,6 +47,7 @@ const loggedInUrls = [
   '/common/contact/',
   '/common/edit-active-qa-auditor/',
   '/common/markdown-cheatsheet/',
+  '/common/more-information/',
   '/common/metrics-case/',
   '/common/metrics-policy/',
   '/common/metrics-report/',

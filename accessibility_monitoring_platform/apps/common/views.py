@@ -183,6 +183,10 @@ class MarkdownCheatsheetTemplateView(PlatformTemplateView):
     template_name: str = "common/settings/markdown_cheatsheet.html"
 
 
+class MoreInformationTemplateView(PlatformTemplateView):
+    template_name: str = "common/settings/more_information.html"
+
+
 class MetricsCaseTemplateView(TemplateView):
     """
     View of case metrics
