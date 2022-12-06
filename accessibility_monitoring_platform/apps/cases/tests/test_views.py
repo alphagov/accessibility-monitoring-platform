@@ -1147,7 +1147,7 @@ def test_preferred_contact_displayed(admin_client):
         ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
-def test_section_complete_check_displayed_in_contents_platform_methodology(
+def test_section_complete_check_displayed_in_platform_testing_methodology(
     flag_name, section_name, edit_url_name, admin_client
 ):
     """
@@ -1183,6 +1183,31 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
 @pytest.mark.parametrize(
     "flag_name, section_name, section_id",
     [
+        ("case_details_complete_date", "Case details", "case-details"),
+        ("testing_details_complete_date", "Testing details", "test-results"),
+        ("reporting_details_complete_date", "Report details", "report-details"),
+        ("qa_process_complete_date", "QA process", "qa-process"),
+        ("contact_details_complete_date", "Contact details", "contact-details"),
+        (
+            "report_correspondence_complete_date",
+            "Report correspondence",
+            "report-correspondence",
+        ),
+        (
+            "twelve_week_correspondence_complete_date",
+            "12-week correspondence",
+            "twelve-week-correspondence",
+        ),
+        (
+            "twelve_week_retest_complete_date",
+            "12-week retest",
+            "twelve-week-retest",
+        ),
+        (
+            "review_changes_complete_date",
+            "Reviewing changes",
+            "review-changes",
+        ),
         (
             "final_website_complete_date",
             "Final website compliance decision",
@@ -1193,9 +1218,14 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
             "Final accessibility statement compliance decision",
             "final-statement",
         ),
+        (
+            "case_close_complete_date",
+            "Closing the case",
+            "case-close",
+        ),
     ],
 )
-def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
+def test_section_complete_check_displayed_in_testing_spreadsheet_methodology(
     flag_name, section_name, section_id, admin_client
 ):
     """
@@ -1577,6 +1607,103 @@ def test_case_details_includes_no_link_to_report(admin_client):
         </tr>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "Edit reminder",
+        "Edit case details",
+        "Edit testing details",
+        "Edit report details",
+        "Edit QA process",
+        "Edit contact details",
+        "Edit report correspondence",
+        "Edit 12-week correspondence",
+        "Edit 12-week retest",
+        "Edit reviewing changes",
+        "Edit closing the case",
+        "Edit equality body summary",
+        "Edit post case summary",
+    ],
+)
+def test_case_details_shows_edit_links(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details show edit links when testing methodology is platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, edit_link_label)
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "Edit reminder",
+        "Edit equality body summary",
+        "Edit post case summary",
+    ],
+)
+def test_case_details_shows_edit_links_when_spreadsheet(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details show edit links when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(response, edit_link_label)
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "Edit case details",
+        "Edit testing details",
+        "Edit report details",
+        "Edit QA process",
+        "Edit contact details",
+        "Edit report correspondence",
+        "Edit 12-week correspondence",
+        "Edit 12-week retest",
+        "Edit reviewing changes",
+        "Edit closing the case",
+    ],
+)
+def test_case_details_hides_edit_links_when_spreadsheet(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details does not show edit links when testing methodology is
+    spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertNotContains(response, edit_link_label)
 
 
 def test_status_change_message_shown(admin_client):
@@ -2480,5 +2607,267 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
             <a href="{link_url}"
                 class="govuk-link govuk-link--no-visited-state">
                 {label}</a>&check;</li>""",
+        html=True,
+    )
+
+
+def test_case_steps_shown_when_platform_testing(admin_client):
+    """
+    Test case steps shown when testing methodology is platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
+        html=True,
+    )
+
+
+def test_case_steps_hidden_when_testing_spreadsheet(admin_client):
+    """
+    Test case details not showm edit links when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
+            "Case details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-test-results",
+            "Testing details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-details",
+            "Report details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-qa-process",
+            "QA process",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-contact-details",
+            "Contact details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-correspondence",
+            "Report correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-correspondence",
+            "12-week correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-retest",
+            "12-week retest",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-review-changes",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
+            "Closing the case",
+        ),
+        (
+            "cases:edit-post-case",
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body summary",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-post-case",
+            "Post case summary",
+        ),
+    ],
+)
+def test_navigation_links_shown_when_platform_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test case steps' navigation links are shown when testing methodology is
+    platform.
+    """
+    case: Case = Case.objects.create()
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-post-case",
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body summary",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-post-case",
+            "Post case summary",
+        ),
+    ],
+)
+def test_navigation_links_shown_when_spreadsheet_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test correct case steps' navigation links are shown when testing methodology
+    is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
+            "Case details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-test-results",
+            "Testing details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-details",
+            "Report details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-qa-process",
+            "QA process",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-contact-details",
+            "Contact details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-correspondence",
+            "Report correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-correspondence",
+            "12-week correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-retest",
+            "12-week retest",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-review-changes",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
+            "Closing the case",
+        ),
+    ],
+)
+def test_navigation_links_hidden_when_spreadsheet_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test correct case steps' navigation links are not hodden when testing
+    methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
         html=True,
     )
