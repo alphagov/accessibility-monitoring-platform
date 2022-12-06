@@ -2,14 +2,16 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 id="case-close" class="govuk-heading-l">Closing the case</h2>
     </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-case-close' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit closing the case
-            </a>
-        </div>
+    <div class="govuk-grid-column-one-third">
+        {% if case.testing_methodology == "platform" %}
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'cases:edit-case-close' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit closing the case
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 <table class="govuk-table">

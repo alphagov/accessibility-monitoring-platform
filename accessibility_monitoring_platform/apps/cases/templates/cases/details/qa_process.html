@@ -1,15 +1,17 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-two-third">
         <h2 id="qa-process" class="govuk-heading-l">QA process</h2>
     </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-qa-process' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit QA process
-            </a>
-        </div>
+    <div class="govuk-grid-column-one-third">
+        {% if case.testing_methodology == "platform" %}
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'cases:edit-qa-process' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit QA process
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 <table class="govuk-table">

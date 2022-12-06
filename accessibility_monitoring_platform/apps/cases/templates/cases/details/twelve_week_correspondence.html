@@ -2,14 +2,16 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 id="twelve-week-correspondence" class="govuk-heading-l">12-week correspondence</h2>
     </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit 12-week correspondence
-            </a>
-        </div>
+    <div class="govuk-grid-column-one-third">
+        {% if case.testing_methodology == "platform" %}
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit 12-week correspondence
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 <table class="govuk-table">
