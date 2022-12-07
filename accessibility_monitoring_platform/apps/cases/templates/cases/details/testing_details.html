@@ -2,7 +2,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 id="test-results" class="govuk-heading-l">Testing details</h2>
     </div>
-    <div class="govuk-grid-column-one-thirds">
+    <div class="govuk-grid-column-one-third">
         {% if case.testing_methodology == "platform" %}
         <div class="govuk-button-group amp-flex-end">
             <a href="{% url 'cases:edit-test-results' case.id %}"
