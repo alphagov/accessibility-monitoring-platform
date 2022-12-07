@@ -22,6 +22,7 @@ from ..cases.models import (
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
+    CLOSED_CASE_STATUSES,
 )
 from ..s3_read_write.models import S3Report
 
@@ -40,15 +41,6 @@ from .metrics import (
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
 from .utils import get_platform_settings
-
-CLOSED_CASE_STATUSES: List[str] = [
-    "case-closed-sent-to-equalities-body",
-    "complete",
-    "case-closed-waiting-to-be-sent",
-    "in-correspondence-with-equalities-body",
-    "deactivated",
-    "deleted",
-]
 
 
 class ContactAdminView(FormView):
