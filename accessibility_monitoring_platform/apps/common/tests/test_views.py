@@ -29,21 +29,34 @@ target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
 METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
-    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
-        stroke="currentColor" stroke-width="3" fill="none">
-            <line x1="20" y1="5" x2="20" y2="35"/>
-            <line x1="20" y1="5" x2="30" y2="10"/>
-            <line x1="20" y1="5" x2="10" y2="10"/>
-        </svg>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <svg version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <defs id="defs874" />
+        <g transform="matrix(0,-0.02890173,-0.02890173,0,16.661851,42.167634)" id="g868" style="stroke-width:34.6">
+            <path
+                fill="currentColor"
+                d="M 1113,284 763,-66 H 442 L 676,168 H 75 V 400 H 676 L 442,633 h 321 z"
+                id="path866"
+                style="stroke-width:897.871" />
+        </g>
+    </svg>
     Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
 </p>"""
 METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
-    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
-        stroke="currentColor" stroke-width="3" fill="none">
-            <line x1="20" y1="5" x2="20" y2="35"/>
-            <line x1="20" y1="35" x2="30" y2="30"/>
-            <line x1="20" y1="35" x2="10" y2="30"/>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <svg version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <defs id="defs874" />
+            <g transform="matrix(0,0.02890173,0.02890173,0,0.27456977,7.8323783)"
+                id="g868" style="stroke-width:34.6">
+                    <path
+                        fill="currentColor"
+                        d="M 1113,284 763,-66 H 442 L 676,168 H 75 V 400 H 676 L 442,633 h 321 z"
+                        id="path866"
+                        style="stroke-width:897.871" />
+        </g>
     </svg>
     Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
 </p>"""
