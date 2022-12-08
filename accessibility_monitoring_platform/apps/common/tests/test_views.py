@@ -68,28 +68,58 @@ METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
         </tr>
     </thead>
     <tbody class="govuk-table__body">
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    November 2021
-                </td>
+                <td class="govuk-table__cell">January 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">February 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">March 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">April 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">May 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">June 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">July 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">August 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">September 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">October 2021</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">November 2021</td>
                 <td class="govuk-table__cell">1</td>
             </tr>
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    December 2021
-                </td>
+                <td class="govuk-table__cell">December 2021</td>
                 <td class="govuk-table__cell">2</td>
             </tr>
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    January 2022
-                </td>
+                <td class="govuk-table__cell">January 2022</td>
                 <td class="govuk-table__cell">1</td>
             </tr>
-
     </tbody>
 </table>"""
 POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">
@@ -101,28 +131,105 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-previe
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header">Month</th>
-                <th scope="col" class="govuk-table__header">{column_name_2}</th>
-                <th scope="col" class="govuk-table__header">{column_name_3}</th>
+                <th scope="col" class="govuk-table__header">Tested</th>
+                <th scope="col" class="govuk-table__header">Compliant</th>
+                <th scope="col" class="govuk-table__header">Retested</th>
+                <th scope="col" class="govuk-table__header">No action</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">January 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">February 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">March 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">April 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">May 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">June 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
 
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
-                        November 2021
-                    </td>
-                    <td class="govuk-table__cell">2</td>
-                    <td class="govuk-table__cell">1</td>
-                </tr>
-
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
-                        December 2021
-                    </td>
-                    <td class="govuk-table__cell">4</td>
-                    <td class="govuk-table__cell">2</td>
-                </tr>
-
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">July 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">August 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">September 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">October 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">November 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">2</td>
+                <td class="govuk-table__cell">1</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">December 2021</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">4</td>
+                <td class="govuk-table__cell">2</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">January 2022</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">0</td>
+            </tr>
         </tbody>
     </table>
 </div>"""
@@ -583,8 +690,6 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         POLICY_YEARLY_METRIC_STATE.format(
             table_view_id="table-view-1",
             table_id="state-of-websites-after-retest-in-last-year",
-            column_name_2="Closed",
-            column_name_3="Fixed",
         ),
         html=True,
     )
@@ -603,6 +708,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
@@ -615,6 +721,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
@@ -627,6 +734,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
@@ -636,13 +744,12 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
     assert response.status_code == 200
+    f = open("t.html", "w"); f.write(str(response.content)); f.close()
     assertContains(
         response,
         POLICY_YEARLY_METRIC_STATE.format(
             table_view_id="table-view-2",
             table_id="state-of-accessibility-statements-after-retest-in-last-year",
-            column_name_2="Closed",
-            column_name_3="Compliant",
         ),
         html=True,
     )

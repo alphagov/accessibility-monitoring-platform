@@ -4,7 +4,7 @@ Test - common utility functions
 from typing import Dict, List, Tuple, Union
 import pytest
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from ...audits.models import Audit
 from ...cases.models import Case
@@ -363,9 +363,19 @@ def test_group_timeseries_data_by_month():
         date_column_name="case_details_complete_date",
         start_date=datetime(2022, 1, 1),
     ) == [
-        TimeseriesDatapoint(datetime=date(2022, 1, 1), value=3),  # type: ignore
-        TimeseriesDatapoint(datetime=date(2022, 2, 1), value=2),  # type: ignore
-        TimeseriesDatapoint(datetime=date(2022, 4, 1), value=1),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 1, 1, tzinfo=timezone.utc), value=3),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 2, 1, tzinfo=timezone.utc), value=2),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 3, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 4, 1, tzinfo=timezone.utc), value=1),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 5, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 6, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 7, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 8, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 9, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 10, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 11, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2022, 12, 1, tzinfo=timezone.utc), value=0),  # type: ignore
+        TimeseriesDatapoint(datetime=datetime(2023, 1, 1, tzinfo=timezone.utc), value=0),  # type: ignore
     ]
 
 

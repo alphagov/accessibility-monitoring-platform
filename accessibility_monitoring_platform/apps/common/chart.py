@@ -40,6 +40,14 @@ class ChartAxisTick:
     label_line_2: str = ""
 
 
+Y_AXIS_RATIO: List[ChartAxisTick] = [
+    ChartAxisTick(value=100, label="1.0", y_position=0),
+    ChartAxisTick(value=80, label="0.8", y_position=50),
+    ChartAxisTick(value=60, label="0.6", y_position=100),
+    ChartAxisTick(value=40, label="0.4", y_position=150),
+    ChartAxisTick(value=20, label="0.2", y_position=200),
+    ChartAxisTick(value=0, label="0.0", y_position=250),
+]
 Y_AXIS_50: List[ChartAxisTick] = [
     ChartAxisTick(value=50, label="50", y_position=0),
     ChartAxisTick(value=40, label="40", y_position=50),
@@ -169,8 +177,10 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def get_y_axis(max_value: int) -> List[ChartAxisTick]:
+def get_y_axis(max_value: int, is_ratio: bool = False) -> List[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
+    if is_ratio:
+        return Y_AXIS_RATIO
     if max_value > 100:
         return Y_AXIS_250
     elif max_value > 50:
@@ -181,6 +191,7 @@ def get_y_axis(max_value: int) -> List[ChartAxisTick]:
 
 def build_yearly_metric_chart(
     lines: List[Timeseries],
+    y_axis_ratio: bool = False,
 ) -> LineChart:
     """
     Given timeseries datapoints, derive the values needed to draw
@@ -245,7 +256,7 @@ def build_yearly_metric_chart(
         polylines=polylines,
         key=chart_key,
         x_axis=build_13_month_x_axis(),
-        y_axis=get_y_axis(max_value=max_value),
+        y_axis=get_y_axis(max_value=max_value, is_ratio=y_axis_ratio),
     )
 
 

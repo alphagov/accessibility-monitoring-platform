@@ -19,6 +19,7 @@ from django.views.generic.list import ListView
 from ..audits.models import Audit, CheckResult
 from ..cases.models import (
     Case,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
@@ -36,6 +37,7 @@ from .metrics import (
     calculate_metric_progress,
     count_statement_issues,
     build_html_table,
+    convert_timeseries_pair_to_ratio,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -388,77 +390,141 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         ]
 
+        thirteen_month_tested: QuerySet[Audit] = Audit.objects.filter(
+            date_of_test__gte=thirteen_month_start_date
+        )
+        thirteen_month_website_initial_compliant: QuerySet[
+            Audit
+        ] = thirteen_month_tested.filter(
+            case__is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT
+        )
+        thirteen_month_statement_initial_compliant: QuerySet[
+            Audit
+        ] = thirteen_month_tested.filter(
+            case__accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        )
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
-        thirteen_month_fixed_audits: QuerySet[
+        thirteen_month_final_no_action: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
             case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
-        thirteen_month_closed_audits: QuerySet[
-            Audit
-        ] = thirteen_month_retested_audits.filter(
-            Q(  # pylint: disable=unsupported-binary-operation
-                case__status="case-closed-sent-to-equalities-body"
-            )
-            | Q(case__status="complete")
-            | Q(case__status="case-closed-waiting-to-be-sent")
-            | Q(case__status="in-correspondence-with-equalities-body")
-        )
+        # thirteen_month_fixed_audits: QuerySet[
+        #     Audit
+        # ] = thirteen_month_retested_audits.filter(
+        #     case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
+        # )
+        # thirteen_month_closed_audits: QuerySet[
+        #     Audit
+        # ] = thirteen_month_retested_audits.filter(
+        #     Q(  # pylint: disable=unsupported-binary-operation
+        #         case__status="case-closed-sent-to-equalities-body"
+        #     )
+        #     | Q(case__status="complete")
+        #     | Q(case__status="case-closed-waiting-to-be-sent")
+        #     | Q(case__status="in-correspondence-with-equalities-body")
+        # )
 
-        fixed_audits_by_month: Timeseries = Timeseries(
-            label="Fixed",
+        tested_by_month: Timeseries = Timeseries(
+            label="Tested",
             datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_fixed_audits,
-                date_column_name="retest_date",
+                queryset=thirteen_month_tested,
+                date_column_name="date_of_test",
                 start_date=thirteen_month_start_date,
             ),
         )
-        closed_audits_by_month: Timeseries = Timeseries(
-            label="Closed",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_closed_audits,
-                date_column_name="retest_date",
-                start_date=thirteen_month_start_date,
-            ),
-        )
-
-        thirteen_month_compliant_audits: QuerySet[
-            Audit
-        ] = thirteen_month_retested_audits.filter(
-            case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-        )
-
-        compliant_audits_by_month: Timeseries = Timeseries(
+        website_initial_compliant_by_month: Timeseries = Timeseries(
             label="Compliant",
             datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_compliant_audits,
+                queryset=thirteen_month_website_initial_compliant,
+                date_column_name="date_of_test",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        statement_initial_compliant_by_month: Timeseries = Timeseries(
+            label="Compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_statement_initial_compliant,
+                date_column_name="date_of_test",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        retested_by_month: Timeseries = Timeseries(
+            label="Retested",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_retested_audits,
                 date_column_name="retest_date",
                 start_date=thirteen_month_start_date,
             ),
+        )
+        final_no_action_by_month: Timeseries = Timeseries(
+            label="No action",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_final_no_action,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+
+        # thirteen_month_compliant_audits: QuerySet[
+        #     Audit
+        # ] = thirteen_month_retested_audits.filter(
+        #     case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        # )
+
+        # compliant_audits_by_month: Timeseries = Timeseries(
+        #     label="Compliant",
+        #     datapoints=group_timeseries_data_by_month(
+        #         queryset=thirteen_month_compliant_audits,
+        #         date_column_name="retest_date",
+        #         start_date=thirteen_month_start_date,
+        #     ),
+        # )
+        website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Initial",
+            partial_timeseries=website_initial_compliant_by_month,
+            total_timeseries=tested_by_month,
+        )
+        statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Initial",
+            partial_timeseries=statement_initial_compliant_by_month,
+            total_timeseries=tested_by_month,
+        )
+        final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Final",
+            partial_timeseries=final_no_action_by_month,
+            total_timeseries=retested_by_month,
         )
 
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
                 "label": "State of websites after retest in last year",
                 "html_table": build_html_table(
-                    columns=[closed_audits_by_month, fixed_audits_by_month],
+                    columns=[
+                        tested_by_month,
+                        website_initial_compliant_by_month,
+                        retested_by_month,
+                        final_no_action_by_month,
+                    ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[closed_audits_by_month, fixed_audits_by_month]
+                    lines=[website_initial_ratio, final_ratio], y_axis_ratio=True
                 ),
             },
             {
                 "label": "State of accessibility statements after retest in last year",
                 "html_table": build_html_table(
-                    columns=[closed_audits_by_month, compliant_audits_by_month],
+                    columns=[
+                        tested_by_month,
+                        statement_initial_compliant_by_month,
+                        retested_by_month,
+                        final_no_action_by_month,
+                    ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[
-                        closed_audits_by_month,
-                        compliant_audits_by_month,
-                    ]
+                    lines=[statement_initial_ratio, final_ratio], y_axis_ratio=True
                 ),
             },
         ]

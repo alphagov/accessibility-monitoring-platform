@@ -20,6 +20,7 @@ from ..chart import (
     get_y_axis,
     build_yearly_metric_chart,
     get_line_stroke,
+    Y_AXIS_RATIO,
     Y_AXIS_50,
     Y_AXIS_100,
     Y_AXIS_250,
@@ -309,18 +310,19 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
 
 
 @pytest.mark.parametrize(
-    "max_value, expected_result",
+    "max_value, is_ratio, expected_result",
     [
-        (49, Y_AXIS_50),
-        (99, Y_AXIS_100),
-        (101, Y_AXIS_250),
+        (49, False, Y_AXIS_50),
+        (99, False, Y_AXIS_100),
+        (101, False, Y_AXIS_250),
+        (50, True, Y_AXIS_RATIO),
     ],
 )
-def test_get_y_axis(max_value, expected_result):
+def test_get_y_axis(max_value, is_ratio, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert get_y_axis(max_value=max_value) == expected_result
+    assert get_y_axis(max_value=max_value, is_ratio=is_ratio) == expected_result
 
 
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")
