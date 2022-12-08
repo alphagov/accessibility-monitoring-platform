@@ -143,8 +143,9 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     """Build monthly x-axis for timeseries chart ending on the current month"""
     now: datetime = timezone.now()
     current_month: int = now.month
+    current_year: int = now.year - 1
     tick_datetime: datetime = datetime(
-        now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
+        current_year, current_month, 1, tzinfo=datetime_timezone.utc
     )
     x_axis: List[ChartAxisTick] = []
     for x_position in range(0, 650, 50):
@@ -161,8 +162,9 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
             current_month += 1
         else:
             current_month = 1
+            current_year += 1
         tick_datetime = datetime(
-            now.year - 1, current_month, 1, tzinfo=datetime_timezone.utc
+            current_year, current_month, 1, tzinfo=datetime_timezone.utc
         )
     return x_axis
 
