@@ -63,8 +63,8 @@ METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
 METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+            <th scope="col" class="govuk-table__header">Month</th>
+            <th scope="col" class="govuk-table__header">Count</th>
         </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -100,9 +100,9 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-previe
     <table id="{table_id}" class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_2}</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_3}</th>
+                <th scope="col" class="govuk-table__header">Month</th>
+                <th scope="col" class="govuk-table__header">{column_name_2}</th>
+                <th scope="col" class="govuk-table__header">{column_name_3}</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
