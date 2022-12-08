@@ -264,10 +264,10 @@ class MetricsCaseTemplateView(TemplateView):
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         for label, date_column_name in [
-            ("Cases created over the last year", "created"),
-            ("Tests completed over the last year", "testing_details_complete_date"),
-            ("Reports sent over the last year", "report_sent_date"),
-            ("Cases completed over the last year", "completed_date"),
+            ("Cases created", "created"),
+            ("Tests completed", "testing_details_complete_date"),
+            ("Reports sent", "report_sent_date"),
+            ("Cases completed", "completed_date"),
         ]:
             datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
                 queryset=Case.objects,
@@ -276,7 +276,7 @@ class MetricsCaseTemplateView(TemplateView):
             )
             columns: List[Timeseries] = [
                 Timeseries(
-                    label="Count",
+                    label=label,
                     datapoints=group_timeseries_data_by_month(
                         queryset=Case.objects,
                         date_column_name=date_column_name,
@@ -286,7 +286,7 @@ class MetricsCaseTemplateView(TemplateView):
             ]
             yearly_metrics.append(
                 {
-                    "label": label,
+                    "label": f"{label} over the last year",
                     "html_table": build_html_table(columns=columns),
                     "chart": build_yearly_metric_chart(
                         lines=[Timeseries(datapoints=datapoints)]
@@ -525,7 +525,7 @@ class MetricsReportTemplateView(TemplateView):
         )
         columns: List[Timeseries] = [
             Timeseries(
-                label="Count",
+                label="Published reports",
                 datapoints=datapoints,
             )
         ]

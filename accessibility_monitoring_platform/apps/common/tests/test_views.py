@@ -64,7 +64,7 @@ METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header">Month</th>
-            <th scope="col" class="govuk-table__header">Count</th>
+            <th scope="col" class="govuk-table__header">{label}</th>
         </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -323,16 +323,20 @@ def test_case_progress_metric_under(
 
 
 @pytest.mark.parametrize(
-    "table_id, case_field",
+    "label, table_id, case_field",
     [
-        ("cases-created-over-the-last-year", "created"),
-        ("tests-completed-over-the-last-year", "testing_details_complete_date"),
-        ("reports-sent-over-the-last-year", "report_sent_date"),
-        ("cases-completed-over-the-last-year", "completed_date"),
+        ("Cases created", "cases-created-over-the-last-year", "created"),
+        (
+            "Tests completed",
+            "tests-completed-over-the-last-year",
+            "testing_details_complete_date",
+        ),
+        ("Reports sent", "reports-sent-over-the-last-year", "report_sent_date"),
+        ("Cases completed", "cases-completed-over-the-last-year", "completed_date"),
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
+def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_client):
     """
     Test case yearly metric table values.
     """
@@ -348,7 +352,7 @@ def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_YEARLY_TABLE.format(table_id=table_id),
+        METRIC_YEARLY_TABLE.format(label=label, table_id=table_id),
         html=True,
     )
 
@@ -777,7 +781,9 @@ def test_report_yearly_metric(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_YEARLY_TABLE.format(table_id="reports-published-over-the-last-year"),
+        METRIC_YEARLY_TABLE.format(
+            label="Published reports", table_id="reports-published-over-the-last-year"
+        ),
         html=True,
     )
 
