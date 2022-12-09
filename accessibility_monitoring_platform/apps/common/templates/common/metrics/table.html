@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <details class="govuk-details" data-module="govuk-details">
     <summary class="govuk-details__summary">
         <span class="govuk-details__summary-text">
@@ -17,7 +19,13 @@
                 {% for row in yearly_metric.html_table.rows %}
                     <tr class="govuk-table__row">
                         {% for cell in row %}
-                            <td class="govuk-table__cell{% if forloop.counter > 1 %} govuk-table__cell--numeric{% endif %}">{{ cell }}</td>
+                            <td class="govuk-table__cell{% if forloop.counter > 1 %} govuk-table__cell--numeric{% endif %}">
+                                {% if forloop.counter > 1 %}
+                                    {{ cell|intcomma }}
+                                {% else %}
+                                    {{ cell }}
+                                {% endif %}
+                            </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}

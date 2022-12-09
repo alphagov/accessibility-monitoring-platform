@@ -25,6 +25,7 @@ from ..cases.models import (
     REPORT_METHODOLOGY_ODT,
 )
 from ..s3_read_write.models import S3Report
+from ..reports.models import ReportVisitsMetrics
 
 from .chart import LineChart, build_yearly_metric_chart
 from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
@@ -557,6 +558,14 @@ class MetricsReportTemplateView(TemplateView):
                 start_date=start_date,
             ),
         )
+        report_views_by_month: Timeseries = Timeseries(
+            label="Report views",
+            datapoints=group_timeseries_data_by_month(
+                queryset=ReportVisitsMetrics.objects,
+                date_column_name="created",
+                start_date=start_date,
+            ),
+        )
 
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
@@ -565,7 +574,14 @@ class MetricsReportTemplateView(TemplateView):
                 "chart": build_yearly_metric_chart(
                     lines=[convert_timeseries_to_cumulative(published_reports_by_month)]
                 ),
-            }
+            },
+            {
+                "label": "Reports views over the last year",
+                "html_table": build_html_table(columns=[report_views_by_month]),
+                "chart": build_yearly_metric_chart(
+                    lines=[report_views_by_month]
+                ),
+            },
         ]
 
         extra_context: Dict[str, Any] = {

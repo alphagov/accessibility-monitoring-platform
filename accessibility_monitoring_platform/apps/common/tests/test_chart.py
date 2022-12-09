@@ -25,6 +25,8 @@ from ..chart import (
     Y_AXIS_100,
     Y_AXIS_250,
     Y_AXIS_500,
+    Y_AXIS_1000,
+    Y_AXIS_5000,
 )
 
 
@@ -82,6 +84,18 @@ def test_calculate_x_position_from_metric_date(
             300,
             TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=300),
             Point(x_position=300, y_position=100),
+        ),
+        (
+            datetime(2022, 11, 15),
+            800,
+            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=800),
+            Point(x_position=300, y_position=50),
+        ),
+        (
+            datetime(2022, 11, 15),
+            2500,
+            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=2500),
+            Point(x_position=300, y_position=125),
         ),
     ],
 )
@@ -305,6 +319,8 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
         (99, False, Y_AXIS_100),
         (101, False, Y_AXIS_250),
         (251, False, Y_AXIS_500),
+        (501, False, Y_AXIS_1000),
+        (1001, False, Y_AXIS_5000),
         (50, True, Y_AXIS_RATIO),
     ],
 )

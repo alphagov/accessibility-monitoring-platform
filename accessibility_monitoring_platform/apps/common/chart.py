@@ -80,9 +80,27 @@ Y_AXIS_500: List[ChartAxisTick] = [
     ChartAxisTick(value=100, label="100", y_position=200),
     ChartAxisTick(value=0, label="0", y_position=250),
 ]
+Y_AXIS_1000: List[ChartAxisTick] = [
+    ChartAxisTick(value=1000, label="1000", y_position=0),
+    ChartAxisTick(value=800, label="800", y_position=50),
+    ChartAxisTick(value=600, label="600", y_position=100),
+    ChartAxisTick(value=400, label="400", y_position=150),
+    ChartAxisTick(value=200, label="200", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
+]
+Y_AXIS_5000: List[ChartAxisTick] = [
+    ChartAxisTick(value=5000, label="5000", y_position=0),
+    ChartAxisTick(value=4000, label="4000", y_position=50),
+    ChartAxisTick(value=5000, label="3000", y_position=100),
+    ChartAxisTick(value=2000, label="2000", y_position=150),
+    ChartAxisTick(value=1000, label="1000", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
+]
 MULTIPLIER_50_TO_250: float = 250 / 50
 MULTIPLIER_100_TO_250: float = 250 / 100
 MULTIPLIER_500_TO_250: float = 250 / 500
+MULTIPLIER_1000_TO_250: float = 250 / 1000
+MULTIPLIER_5000_TO_250: float = 250 / 5000
 
 
 @dataclass
@@ -147,7 +165,11 @@ def calculate_timeseries_point(
     x_position: int = calculate_x_position_from_datapoint_datetime(
         now=now, datapoint_datetime=datapoint.datetime
     )
-    if max_value > 100:
+    if max_value > 1000:
+        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_5000_TO_250))
+    elif max_value > 500:
+        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_1000_TO_250))
+    elif max_value > 100:
         y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_500_TO_250))
     elif max_value > 50:
         y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_100_TO_250))
@@ -190,14 +212,17 @@ def get_y_axis(max_value: int, is_ratio: bool = False) -> List[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
     if is_ratio:
         return Y_AXIS_RATIO
+    if max_value > 1000:
+        return Y_AXIS_5000
+    if max_value > 500:
+        return Y_AXIS_1000
     if max_value > 250:
         return Y_AXIS_500
-    elif max_value > 100:
+    if max_value > 100:
         return Y_AXIS_250
-    elif max_value > 50:
+    if max_value > 50:
         return Y_AXIS_100
-    else:
-        return Y_AXIS_50
+    return Y_AXIS_50
 
 
 def build_yearly_metric_chart(

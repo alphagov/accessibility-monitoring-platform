@@ -20,6 +20,8 @@ from ...cases.models import (
     REPORT_METHODOLOGY_ODT,
 )
 from ...s3_read_write.models import S3Report
+from ...reports.models import ReportVisitsMetrics
+
 from ..models import Platform
 from ..utils import get_platform_settings
 
@@ -65,7 +67,7 @@ METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header">Month</th>
-            <th scope="col" class="govuk-table__header govuk-table__header--numeric">{label}</th>
+            <th scope="col" class="govuk-table__header govuk-table__header--numeric">{column_header}</th>
         </tr>
     </thead>
     <tbody class="govuk-table__body">
@@ -460,7 +462,7 @@ def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_cl
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_YEARLY_TABLE.format(label=label, table_id=table_id),
+        METRIC_YEARLY_TABLE.format(column_header=label, table_id=table_id),
         html=True,
     )
 
@@ -860,9 +862,9 @@ def test_report_progress_metric_under(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_yearly_metric(mock_timezone, admin_client):
+def test_report_published_yearly_metric(mock_timezone, admin_client):
     """
-    Test report yearly metric table values.
+    Test report published yearly metric table values.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
@@ -884,7 +886,38 @@ def test_report_yearly_metric(mock_timezone, admin_client):
     assertContains(
         response,
         METRIC_YEARLY_TABLE.format(
-            label="Published reports", table_id="reports-published-over-the-last-year"
+            column_header="Published reports", table_id="reports-published-over-the-last-year"
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_viewed_yearly_metric(mock_timezone, admin_client):
+    """
+    Test report published yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    for creation_time in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
+            case: Case = Case.objects.create()
+            ReportVisitsMetrics.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_YEARLY_TABLE.format(
+            column_header="Report views", table_id="reports-views-over-the-last-year"
         ),
         html=True,
     )
