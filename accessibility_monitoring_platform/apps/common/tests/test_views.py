@@ -14,6 +14,7 @@ from django.urls import reverse
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import (
     Case,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
@@ -197,8 +198,8 @@ POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-previe
             </tr>
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell">September 2021</td>
-                <td class="govuk-table__cell">0</td>
-                <td class="govuk-table__cell">0</td>
+                <td class="govuk-table__cell">2</td>
+                <td class="govuk-table__cell">1</td>
                 <td class="govuk-table__cell">0</td>
                 <td class="govuk-table__cell">0</td>
             </tr>
@@ -648,14 +649,19 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+        case=case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    fixed_case: Case = Case.objects.create(
+    initially_compliant_website_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        case=initially_compliant_website_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
@@ -698,21 +704,26 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
 def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     """
-    Test policy yearly metric table values for accessibility statement state
+    Test policy yearly metric table values for accessibility statement state.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+        case=case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    fixed_case: Case = Case.objects.create(
+    initally_compliant_statement_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        case=initally_compliant_statement_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
@@ -744,7 +755,6 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
     assert response.status_code == 200
-    f = open("t.html", "w"); f.write(str(response.content)); f.close()
     assertContains(
         response,
         POLICY_YEARLY_METRIC_STATE.format(

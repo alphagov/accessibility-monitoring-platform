@@ -18,6 +18,7 @@ from ..metrics import (
     count_statement_issues,
     group_timeseries_data_by_month,
     build_html_table,
+    convert_timeseries_pair_to_ratio,
     FIRST_COLUMN_HEADER,
 )
 
@@ -443,3 +444,38 @@ def test_build_html_table(
 ):
     """Test merging multiple data series into a single HTML table context"""
     assert build_html_table(columns=columns) == expected_result
+
+
+def test_convert_timeseries_pair_to_ratio():
+    """
+    Test merging two timeseries into one containing the ratios of the values
+    in both.
+    """
+    partial_timeseries: Timeseries = Timeseries(
+        label="Partial",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=2),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=3),
+        ],
+    )
+    total_timeseries: Timeseries = Timeseries(
+        label="Total",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
+        ],
+    )
+    assert convert_timeseries_pair_to_ratio(
+        label="Ratios",
+        partial_timeseries=partial_timeseries,
+        total_timeseries=total_timeseries,
+    ) == Timeseries(
+        label="Ratios",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=50),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=66),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=75),
+        ],
+    )

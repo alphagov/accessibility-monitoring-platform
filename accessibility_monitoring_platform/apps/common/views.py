@@ -411,21 +411,6 @@ class MetricsPolicyTemplateView(TemplateView):
         ] = thirteen_month_retested_audits.filter(
             case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
-        # thirteen_month_fixed_audits: QuerySet[
-        #     Audit
-        # ] = thirteen_month_retested_audits.filter(
-        #     case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
-        # )
-        # thirteen_month_closed_audits: QuerySet[
-        #     Audit
-        # ] = thirteen_month_retested_audits.filter(
-        #     Q(  # pylint: disable=unsupported-binary-operation
-        #         case__status="case-closed-sent-to-equalities-body"
-        #     )
-        #     | Q(case__status="complete")
-        #     | Q(case__status="case-closed-waiting-to-be-sent")
-        #     | Q(case__status="in-correspondence-with-equalities-body")
-        # )
 
         tested_by_month: Timeseries = Timeseries(
             label="Tested",
@@ -468,20 +453,6 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         )
 
-        # thirteen_month_compliant_audits: QuerySet[
-        #     Audit
-        # ] = thirteen_month_retested_audits.filter(
-        #     case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-        # )
-
-        # compliant_audits_by_month: Timeseries = Timeseries(
-        #     label="Compliant",
-        #     datapoints=group_timeseries_data_by_month(
-        #         queryset=thirteen_month_compliant_audits,
-        #         date_column_name="retest_date",
-        #         start_date=thirteen_month_start_date,
-        #     ),
-        # )
         website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Initial",
             partial_timeseries=website_initial_compliant_by_month,
