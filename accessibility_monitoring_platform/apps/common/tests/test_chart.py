@@ -511,8 +511,8 @@ def test_build_yearly_metric_chart(mock_timezone):
         ],
         graph_height=250,
         graph_width=600,
-        chart_height=300,
-        chart_width=750,
+        chart_height=330,
+        chart_width=680,
         x_axis_tick_y2=260,
         y_axis_tick_x1=-10,
     )
@@ -670,8 +670,8 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
         ],
         graph_height=250,
         graph_width=600,
-        chart_height=300,
-        chart_width=750,
+        chart_height=330,
+        chart_width=680,
         x_axis_tick_y2=260,
         y_axis_tick_x1=-10,
     )

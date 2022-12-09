@@ -931,7 +931,8 @@ def test_report_published_yearly_metric(mock_timezone, admin_client):
     assertContains(
         response,
         METRIC_YEARLY_TABLE.format(
-            column_header="Published reports", table_id="reports-published-over-the-last-year"
+            column_header="Published reports",
+            table_id="reports-published-over-the-last-year",
         ),
         html=True,
     )

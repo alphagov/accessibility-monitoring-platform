@@ -279,15 +279,13 @@ class MetricsCaseTemplateView(TemplateView):
                     queryset=Case.objects,
                     date_column_name=date_column_name,
                     start_date=start_date,
-                )
+                ),
             )
             yearly_metrics.append(
                 {
                     "label": f"{label} over the last year",
                     "html_table": build_html_table(columns=[timeseries]),
-                    "chart": build_yearly_metric_chart(
-                        lines=[timeseries]
-                    ),
+                    "chart": build_yearly_metric_chart(lines=[timeseries]),
                 }
             )
 
@@ -552,8 +550,7 @@ class MetricsReportTemplateView(TemplateView):
                 label="Report views",
                 this_month_value=ReportVisitsMetrics.objects.filter(
                     created__gte=first_of_this_month
-                )
-                .count(),
+                ).count(),
                 last_month_value=ReportVisitsMetrics.objects.filter(
                     created__gte=first_of_last_month,
                 )
@@ -565,8 +562,7 @@ class MetricsReportTemplateView(TemplateView):
                 label="Reports acknowledged",
                 this_month_value=Case.objects.filter(
                     report_acknowledged_date__gte=first_of_this_month
-                )
-                .count(),
+                ).count(),
                 last_month_value=Case.objects.filter(
                     report_acknowledged_date__gte=first_of_last_month,
                 )
@@ -604,9 +600,7 @@ class MetricsReportTemplateView(TemplateView):
             {
                 "label": "Reports views over the last year",
                 "html_table": build_html_table(columns=[report_views_by_month]),
-                "chart": build_yearly_metric_chart(
-                    lines=[report_views_by_month]
-                ),
+                "chart": build_yearly_metric_chart(lines=[report_views_by_month]),
             },
         ]
 
