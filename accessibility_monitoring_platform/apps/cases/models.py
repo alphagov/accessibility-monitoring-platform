@@ -245,6 +245,15 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+    "deleted",
+]
+
 
 class Case(VersionModel):
     """
