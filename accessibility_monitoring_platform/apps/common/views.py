@@ -38,6 +38,7 @@ from .metrics import (
     count_statement_issues,
     build_html_table,
     convert_timeseries_pair_to_ratio,
+    convert_timeseries_to_cumulative,
 )
 from .models import IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
@@ -271,27 +272,20 @@ class MetricsCaseTemplateView(TemplateView):
             ("Reports sent", "report_sent_date"),
             ("Cases completed", "completed_date"),
         ]:
-            datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
-                queryset=Case.objects,
-                date_column_name=date_column_name,
-                start_date=start_date,
-            )
-            columns: List[Timeseries] = [
-                Timeseries(
-                    label=label,
-                    datapoints=group_timeseries_data_by_month(
-                        queryset=Case.objects,
-                        date_column_name=date_column_name,
-                        start_date=start_date,
-                    ),
+            timeseries: Timeseries = Timeseries(
+                label=label,
+                datapoints=group_timeseries_data_by_month(
+                    queryset=Case.objects,
+                    date_column_name=date_column_name,
+                    start_date=start_date,
                 )
-            ]
+            )
             yearly_metrics.append(
                 {
                     "label": f"{label} over the last year",
-                    "html_table": build_html_table(columns=columns),
+                    "html_table": build_html_table(columns=[timeseries]),
                     "chart": build_yearly_metric_chart(
-                        lines=[Timeseries(datapoints=datapoints)]
+                        lines=[timeseries]
                     ),
                 }
             )
@@ -555,23 +549,21 @@ class MetricsReportTemplateView(TemplateView):
         ]
 
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
-        datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
-            queryset=S3Report.objects.filter(latest_published=True),
-            date_column_name="created",
-            start_date=start_date,
+        published_reports_by_month: Timeseries = Timeseries(
+            label="Published reports",
+            datapoints=group_timeseries_data_by_month(
+                queryset=S3Report.objects.filter(latest_published=True),
+                date_column_name="created",
+                start_date=start_date,
+            ),
         )
-        columns: List[Timeseries] = [
-            Timeseries(
-                label="Published reports",
-                datapoints=datapoints,
-            )
-        ]
+
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
                 "label": "Reports published over the last year",
-                "html_table": build_html_table(columns=columns),
+                "html_table": build_html_table(columns=[published_reports_by_month]),
                 "chart": build_yearly_metric_chart(
-                    lines=[Timeseries(datapoints=datapoints)]
+                    lines=[convert_timeseries_to_cumulative(published_reports_by_month)]
                 ),
             }
         ]

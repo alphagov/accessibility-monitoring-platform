@@ -868,30 +868,15 @@ def test_report_yearly_metric(mock_timezone, admin_client):
 
     case: Case = Case.objects.create()
 
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for creation_time in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 

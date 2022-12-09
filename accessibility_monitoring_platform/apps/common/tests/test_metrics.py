@@ -19,6 +19,7 @@ from ..metrics import (
     group_timeseries_data_by_month,
     build_html_table,
     convert_timeseries_pair_to_ratio,
+    convert_timeseries_to_cumulative,
     FIRST_COLUMN_HEADER,
 )
 
@@ -477,5 +478,26 @@ def test_convert_timeseries_pair_to_ratio():
             TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=50),
             TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=66),
             TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=75),
+        ],
+    )
+
+
+def test_convert_timeseries_to_cumulative():
+    """Test converting the datapoints of a timeseries to be cumulative"""
+    assert convert_timeseries_to_cumulative(
+        Timeseries(
+            label="Label",
+            datapoints=[
+                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+                TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+                TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=5),
+            ],
+        )
+    ) == Timeseries(
+        label="Label",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=4),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=9),
         ],
     )

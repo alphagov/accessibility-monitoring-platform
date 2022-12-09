@@ -72,8 +72,17 @@ Y_AXIS_250: List[ChartAxisTick] = [
     ChartAxisTick(value=50, label="50", y_position=200),
     ChartAxisTick(value=0, label="0", y_position=250),
 ]
+Y_AXIS_500: List[ChartAxisTick] = [
+    ChartAxisTick(value=500, label="500", y_position=0),
+    ChartAxisTick(value=400, label="400", y_position=50),
+    ChartAxisTick(value=300, label="300", y_position=100),
+    ChartAxisTick(value=200, label="200", y_position=150),
+    ChartAxisTick(value=100, label="100", y_position=200),
+    ChartAxisTick(value=0, label="0", y_position=250),
+]
 MULTIPLIER_50_TO_250: float = 250 / 50
 MULTIPLIER_100_TO_250: float = 250 / 100
+MULTIPLIER_500_TO_250: float = 250 / 500
 
 
 @dataclass
@@ -139,7 +148,7 @@ def calculate_timeseries_point(
         now=now, datapoint_datetime=datapoint.datetime
     )
     if max_value > 100:
-        y_position: int = GRAPH_HEIGHT - datapoint.value
+        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_500_TO_250))
     elif max_value > 50:
         y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_100_TO_250))
     else:
@@ -181,7 +190,9 @@ def get_y_axis(max_value: int, is_ratio: bool = False) -> List[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
     if is_ratio:
         return Y_AXIS_RATIO
-    if max_value > 100:
+    if max_value > 250:
+        return Y_AXIS_500
+    elif max_value > 100:
         return Y_AXIS_250
     elif max_value > 50:
         return Y_AXIS_100

@@ -189,3 +189,19 @@ def convert_timeseries_pair_to_ratio(
             value: int = int((partial.value * 100) / total.value)
         datapoints.append(TimeseriesDatapoint(datetime=total.datetime, value=value))
     return Timeseries(label=label, datapoints=datapoints)
+
+
+def convert_timeseries_to_cumulative(timeseries: Timeseries) -> Timeseries:
+    """
+    Given partial and total timeseries return a timeseries where the values
+    are the first divided by the second as a percentage
+    """
+    cumulative_value: int = 0
+    cumulative_datapoints: List[TimeseriesDatapoint] = []
+    for datapoint in timeseries.datapoints:
+        cumulative_value += datapoint.value
+        cumulative_datapoints.append(
+            TimeseriesDatapoint(datetime=datapoint.datetime, value=cumulative_value)
+        )
+    timeseries.datapoints = cumulative_datapoints
+    return timeseries
