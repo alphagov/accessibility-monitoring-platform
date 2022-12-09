@@ -768,33 +768,24 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_progress_metric_over(mock_timezone, admin_client):
+def test_report_published_progress_metric_over(mock_timezone, admin_client):
     """
-    Test report progress metric, which is over this month, is calculated and
+    Test published reports progress metric, which is over this month, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
-
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for created_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch(
+            "django.utils.timezone.now",
+            Mock(return_value=created_date),
+        ):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -813,37 +804,25 @@ def test_report_progress_metric_over(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_progress_metric_under(mock_timezone, admin_client):
+def test_report_published_progress_metric_under(mock_timezone, admin_client):
     """
-    Test report progress metric, which is under this month, is calculated and
+    Test published reports progress metric, which is under this month, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for created_date in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch(
+            "django.utils.timezone.now",
+            Mock(return_value=created_date),
+        ):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -856,6 +835,72 @@ def test_report_progress_metric_under(mock_timezone, admin_client):
             percentage_difference=23,
             number_last_month=2,
             lowercase_label="published reports",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_viewed_progress_metric_over(mock_timezone, admin_client):
+    """
+    Test reports viewed progress metric, which is over this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    for created_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=created_date)):
+            case: Case = Case.objects.create()
+            ReportVisitsMetrics.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_OVER_THIS_MONTH.format(
+            metric_id="report-views",
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label="report views",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_acknowledged_progress_metric_over(mock_timezone, admin_client):
+    """
+    Test report acknowledged progress metric, which is over this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+
+    for acknowledged_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        Case.objects.create(report_acknowledged_date=acknowledged_date)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_OVER_THIS_MONTH.format(
+            metric_id="reports-acknowledged",
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label="reports acknowledged",
         ),
         html=True,
     )

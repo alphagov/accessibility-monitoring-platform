@@ -547,6 +547,32 @@ class MetricsReportTemplateView(TemplateView):
                 .filter(latest_published=True)
                 .count(),
             ),
+            calculate_current_month_progress(
+                now=now,
+                label="Report views",
+                this_month_value=ReportVisitsMetrics.objects.filter(
+                    created__gte=first_of_this_month
+                )
+                .count(),
+                last_month_value=ReportVisitsMetrics.objects.filter(
+                    created__gte=first_of_last_month,
+                )
+                .filter(created__lt=first_of_this_month)
+                .count(),
+            ),
+            calculate_current_month_progress(
+                now=now,
+                label="Reports acknowledged",
+                this_month_value=Case.objects.filter(
+                    report_acknowledged_date__gte=first_of_this_month
+                )
+                .count(),
+                last_month_value=Case.objects.filter(
+                    report_acknowledged_date__gte=first_of_last_month,
+                )
+                .filter(report_acknowledged_date__lt=first_of_this_month)
+                .count(),
+            ),
         ]
 
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
