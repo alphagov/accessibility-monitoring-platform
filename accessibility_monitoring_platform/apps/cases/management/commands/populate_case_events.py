@@ -1,4 +1,5 @@
 """Populate case events with data from events"""
+from datetime import datetime
 import json
 from unittest.mock import patch, Mock
 
@@ -20,6 +21,7 @@ from ...models import (
     CASE_EVENT_CASE_COMPLETED,
 )
 from ....common.models import Event, EVENT_TYPE_MODEL_UPDATE
+from ....common.utils import amp_format_date
 
 REPORT_REVIEW_STATUS_LABELS = {
     "ready-to-review": "Yes",
@@ -143,11 +145,17 @@ class Command(BaseCommand):
                             old_retest_date = old["fields"]["retest_date"]
                             new_retest_date = new["fields"]["retest_date"]
                             if old_retest_date != new_retest_date:
+                                if new_retest_date is None:
+                                    retest_date = None
+                                else:
+                                    retest_date = amp_format_date(
+                                        datetime.strptime(new_retest_date, "%Y-%m-%d")
+                                    )
                                 CaseEvent.objects.create(
                                     case=case,
                                     done_by=event.created_by,
                                     event_type=CASE_EVENT_START_RETEST,
-                                    message=f"Started retest (set to {new_retest_date})",
+                                    message=f"Started retest (set to {retest_date})",
                                 )
             else:
                 new = json.loads(value["new"])[0]
