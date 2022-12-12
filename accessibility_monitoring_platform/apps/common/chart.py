@@ -155,15 +155,15 @@ def build_y_axis(y_tick_size: int, is_ratio: bool = False) -> List[ChartAxisTick
     if is_ratio:
         return Y_AXIS_RATIO
     return [
-        ChartAxisTick(value=y_tick_size * 5, label=str(y_tick_size * 5), y_position=0),
-        ChartAxisTick(value=y_tick_size * 4, label=str(y_tick_size * 4), y_position=50),
+        ChartAxisTick(value=y_tick_size * 5, label=str(f"{y_tick_size * 5:,}"), y_position=0),
+        ChartAxisTick(value=y_tick_size * 4, label=str(f"{y_tick_size * 4:,}"), y_position=50),
         ChartAxisTick(
-            value=y_tick_size * 3, label=str(y_tick_size * 3), y_position=100
+            value=y_tick_size * 3, label=str(f"{y_tick_size * 3:,}"), y_position=100
         ),
         ChartAxisTick(
-            value=y_tick_size * 2, label=str(y_tick_size * 2), y_position=150
+            value=y_tick_size * 2, label=str(f"{y_tick_size * 2:,}"), y_position=150
         ),
-        ChartAxisTick(value=y_tick_size, label=str(y_tick_size), y_position=200),
+        ChartAxisTick(value=y_tick_size, label=str(f"{y_tick_size:,}"), y_position=200),
         ChartAxisTick(value=0, label="0", y_position=250),
     ]
 
