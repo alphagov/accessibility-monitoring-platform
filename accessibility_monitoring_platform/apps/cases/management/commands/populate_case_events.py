@@ -79,14 +79,18 @@ class Command(BaseCommand):
                             new_is_ready_for_final_decision = BOOLEAN_LABELS[
                                 new["fields"]["is_ready_for_final_decision"]
                             ]
-                            old_case_completed = CASE_COMPLETED_LABELS[old["fields"]["case_completed"]]
-                            new_case_completed = CASE_COMPLETED_LABELS[new["fields"]["case_completed"]]
-                            old_report_approved_status = REPORT_APPROVED_STATUS_LABELS[old["fields"][
-                                "report_approved_status"
-                            ]]
-                            new_report_approved_status = REPORT_APPROVED_STATUS_LABELS[new["fields"][
-                                "report_approved_status"
-                            ]]
+                            old_case_completed = CASE_COMPLETED_LABELS[
+                                old["fields"]["case_completed"]
+                            ]
+                            new_case_completed = CASE_COMPLETED_LABELS[
+                                new["fields"]["case_completed"]
+                            ]
+                            old_report_approved_status = REPORT_APPROVED_STATUS_LABELS[
+                                old["fields"]["report_approved_status"]
+                            ]
+                            new_report_approved_status = REPORT_APPROVED_STATUS_LABELS[
+                                new["fields"]["report_approved_status"]
+                            ]
                             case: Case = Case.objects.get(id=case_id)
                             if old_auditor != new_auditor:
                                 CaseEvent.objects.create(
