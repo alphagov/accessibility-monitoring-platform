@@ -8,6 +8,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
@@ -17,7 +18,15 @@ from ..common.utils import build_filters
 
 from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
 
-from .models import Case, Contact, STATUS_READY_TO_QA
+from .models import (
+    Case,
+    CaseEvent,
+    Contact,
+    STATUS_READY_TO_QA,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CREATE_AUDIT,
+)
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -263,3 +272,27 @@ def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str
     if "search" in search_args:
         search_args["case_search"] = search_args.pop("search")
     return search_args
+
+
+def record_case_event(
+    user: User, new_case: Case, old_case: Optional[Case] = None
+) -> None:
+    if old_case is None:
+        CaseEvent.objects.create(
+            case=new_case, created_by=user, type=CASE_EVENT_TYPE_CREATE
+        )
+        return
+    if old_case.auditor != new_case.auditor:
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_AUDITOR,
+            message=f"Auditor changed from {old_case.auditor} to {new_case.auditor}",
+        )
+    if old_case.audit is None and new_case.audit is not None:
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_CREATE_AUDIT,
+            message="Start of test",
+        )

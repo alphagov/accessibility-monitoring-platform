@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case, Contact
+from ..cases.models import Case, CaseEvent, Contact, CASE_EVENT_CREATE_AUDIT
 from ..common.forms import AMPChoiceCheckboxWidget
 from ..common.utils import (
     record_model_update_event,
@@ -119,6 +119,12 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         )
     audit: Audit = Audit.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=audit)  # type: ignore
+    CaseEvent.objects.create(
+        case=case,
+        created_by=request.user,
+        type=CASE_EVENT_CREATE_AUDIT,
+        message="Start of test",
+    )
     create_mandatory_pages_for_new_audit(audit=audit)
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
 

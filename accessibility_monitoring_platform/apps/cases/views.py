@@ -8,6 +8,7 @@ import urllib
 
 from django import forms
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -71,6 +72,7 @@ from .utils import (
     download_ehrc_cases,
     filter_cases,
     replace_search_key_with_case_search,
+    record_case_event,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -258,7 +260,10 @@ class CaseCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
+        case: Case = self.object  # type: ignore
+        user: User = self.request.user  # type: ignore
+        record_model_create_event(user=user, model_object=case)
+        record_case_event(user=user, new_case=case)
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-details", kwargs=case_pk)
@@ -283,8 +288,10 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         if form.changed_data:
             self.object: Case = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            user: User = self.request.user  # type: ignore
+            record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+            record_case_event(user=user, new_case=self.object, old_case=old_case)
 
             if (
                 old_case.report_approved_status != self.object.report_approved_status

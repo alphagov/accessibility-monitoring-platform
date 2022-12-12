@@ -245,6 +245,22 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
+CASE_EVENT_TYPE_CREATE: str = "create"
+CASE_EVENT_AUDITOR: str = "auditor"
+CASE_EVENT_CREATE_AUDIT: str = "create_audit"
+CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (CASE_EVENT_TYPE_CREATE, "Create"),
+    (CASE_EVENT_AUDITOR, "Change of auditor"),
+    (CASE_EVENT_CREATE_AUDIT, "Start test"),
+    ("create_report", "Create report"),
+    ("ready_for_qa", "Report ready for QA"),
+    ("qa_auditor", "Change of QA auditor"),
+    ("approve_report", "Report approved"),
+    ("retest", "Start retest"),
+    ("ready_for_final_decision", "Ready for final decision"),
+    ("completed", "Completed"),
+]
+
 
 class Case(VersionModel):
     """
@@ -757,3 +773,21 @@ class Contact(models.Model):
         if not self.id:  # type: ignore
             self.created = timezone.now()
         super().save(*args, **kwargs)
+
+
+class CaseEvent(models.Model):
+    """
+    Model to records events on a case
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    type = models.CharField(
+        max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
+    )
+    message = models.TextField(default="Created", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="case_event_created_by_user",
+    )
+    created = models.DateTimeField(auto_now_add=True)
