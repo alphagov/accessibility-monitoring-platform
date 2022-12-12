@@ -16,6 +16,8 @@ from ....cases.models import (
     CASE_EVENT_QA_AUDITOR,
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_START_RETEST,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_CASE_COMPLETED,
 )
 from ...models import Event, EVENT_TYPE_MODEL_UPDATE
 
@@ -46,6 +48,14 @@ class Command(BaseCommand):
                             new_review_status = new["fields"]["report_review_status"]
                             old_reviewer = users.get(old["fields"]["reviewer"], "None")
                             new_reviewer = users.get(new["fields"]["reviewer"], "None")
+                            old_is_ready_for_final_decision = old["fields"][
+                                "is_ready_for_final_decision"
+                            ]
+                            new_is_ready_for_final_decision = new["fields"][
+                                "is_ready_for_final_decision"
+                            ]
+                            old_case_completed = old["fields"]["case_completed"]
+                            new_case_completed = new["fields"]["case_completed"]
                             old_report_approved_status = old["fields"][
                                 "report_approved_status"
                             ]
@@ -80,6 +90,23 @@ class Command(BaseCommand):
                                     created_by=event.created_by,
                                     type=CASE_EVENT_APPROVE_REPORT,
                                     message=f"Report approved changed from '{old_report_approved_status}' to '{new_report_approved_status}'",
+                                )
+                            if (
+                                old_is_ready_for_final_decision
+                                != new_is_ready_for_final_decision
+                            ):
+                                CaseEvent.objects.create(
+                                    case=case,
+                                    created_by=event.created_by,
+                                    type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+                                    message=f"Case ready for final decision changed from '{old_is_ready_for_final_decision}' to '{new_is_ready_for_final_decision}'",
+                                )
+                            if old_case_completed != new_case_completed:
+                                CaseEvent.objects.create(
+                                    case=case,
+                                    created_by=event.created_by,
+                                    type=CASE_EVENT_CASE_COMPLETED,
+                                    message=f"Case completed changed from '{old_case_completed}' to '{new_case_completed}'",
                                 )
                         if old["model"] == "audits.audit":
                             case_id = new["fields"]["case"]

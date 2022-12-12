@@ -29,6 +29,8 @@ from .models import (
     CASE_EVENT_READY_FOR_QA,
     CASE_EVENT_QA_AUDITOR,
     CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_CASE_COMPLETED,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -323,4 +325,22 @@ def record_case_event(
             created_by=user,
             type=CASE_EVENT_APPROVE_REPORT,
             message=f"Report approved changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
+        old_status: str = old_case.get_is_ready_for_final_decision_display()  # type: ignore
+        new_status: str = new_case.get_is_ready_for_final_decision_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+            message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.case_completed != new_case.case_completed:
+        old_status: str = old_case.get_case_completed_display()  # type: ignore
+        new_status: str = new_case.get_case_completed_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_CASE_COMPLETED,
+            message=f"Case completed changed from '{old_status}' to '{new_status}'",
         )
