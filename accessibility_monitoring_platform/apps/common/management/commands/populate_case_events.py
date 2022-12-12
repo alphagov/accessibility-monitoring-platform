@@ -13,6 +13,9 @@ from ....cases.models import (
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_CREATE_REPORT,
     CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_START_RETEST,
 )
 from ...models import Event, EVENT_TYPE_MODEL_UPDATE
 
@@ -32,14 +35,24 @@ class Command(BaseCommand):
                 else:
                     old = json.loads(value["old"])[0]
                     new = json.loads(value["new"])[0]
-                    if old["model"] == "cases.case":
-                        case_id = old["pk"]
-                        old_auditor = users.get(old["fields"]["auditor"], "None")
-                        new_auditor = users.get(new["fields"]["auditor"], "None")
-                        old_review_status = old["fields"]["report_review_status"]
-                        new_review_status = new["fields"]["report_review_status"]
-                        case: Case = Case.objects.get(id=case_id)
-                        with patch("django.utils.timezone.now", Mock(return_value=event.created)):
+                    with patch(
+                        "django.utils.timezone.now", Mock(return_value=event.created)
+                    ):
+                        if old["model"] == "cases.case":
+                            case_id = old["pk"]
+                            old_auditor = users.get(old["fields"]["auditor"], "None")
+                            new_auditor = users.get(new["fields"]["auditor"], "None")
+                            old_review_status = old["fields"]["report_review_status"]
+                            new_review_status = new["fields"]["report_review_status"]
+                            old_reviewer = users.get(old["fields"]["reviewer"], "None")
+                            new_reviewer = users.get(new["fields"]["reviewer"], "None")
+                            old_report_approved_status = old["fields"][
+                                "report_approved_status"
+                            ]
+                            new_report_approved_status = new["fields"][
+                                "report_approved_status"
+                            ]
+                            case: Case = Case.objects.get(id=case_id)
                             if old_auditor != new_auditor:
                                 CaseEvent.objects.create(
                                     case=case,
@@ -54,12 +67,40 @@ class Command(BaseCommand):
                                     type=CASE_EVENT_READY_FOR_QA,
                                     message=f"Report ready to be reviewed changed from '{old_review_status}' to '{new_review_status}'",
                                 )
+                            if old_reviewer != new_reviewer:
+                                CaseEvent.objects.create(
+                                    case=case,
+                                    created_by=event.created_by,
+                                    type=CASE_EVENT_QA_AUDITOR,
+                                    message=f"QA auditor changed from {old_reviewer} to {new_reviewer}",
+                                )
+                            if old_report_approved_status != new_report_approved_status:
+                                CaseEvent.objects.create(
+                                    case=case,
+                                    created_by=event.created_by,
+                                    type=CASE_EVENT_APPROVE_REPORT,
+                                    message=f"Report approved changed from '{old_report_approved_status}' to '{new_report_approved_status}'",
+                                )
+                        if old["model"] == "audits.audit":
+                            case_id = new["fields"]["case"]
+                            case: Case = Case.objects.get(id=case_id)
+                            old_retest_date = old["fields"]["retest_date"]
+                            new_retest_date = new["fields"]["retest_date"]
+                            if old_retest_date != new_retest_date:
+                                CaseEvent.objects.create(
+                                    case=case,
+                                    created_by=event.created_by,
+                                    type=CASE_EVENT_START_RETEST,
+                                    message=f"Started retest (set to {new_retest_date})",
+                                )
             else:
                 new = json.loads(value["new"])[0]
                 if new["model"] == "cases.case":
                     case_id = new["pk"]
                     case: Case = Case.objects.get(id=case_id)
-                    with patch("django.utils.timezone.now", Mock(return_value=event.created)):
+                    with patch(
+                        "django.utils.timezone.now", Mock(return_value=event.created)
+                    ):
                         CaseEvent.objects.create(
                             case=case,
                             created=event.created,
@@ -69,7 +110,9 @@ class Command(BaseCommand):
                 if new["model"] == "audits.audit":
                     case_id = new["fields"]["case"]
                     case: Case = Case.objects.get(id=case_id)
-                    with patch("django.utils.timezone.now", Mock(return_value=event.created)):
+                    with patch(
+                        "django.utils.timezone.now", Mock(return_value=event.created)
+                    ):
                         CaseEvent.objects.create(
                             case=case,
                             created_by=event.created_by,
@@ -79,7 +122,9 @@ class Command(BaseCommand):
                 if new["model"] == "reports.report":
                     case_id = new["fields"]["case"]
                     case: Case = Case.objects.get(id=case_id)
-                    with patch("django.utils.timezone.now", Mock(return_value=event.created)):
+                    with patch(
+                        "django.utils.timezone.now", Mock(return_value=event.created)
+                    ):
                         CaseEvent.objects.create(
                             case=case,
                             created_by=event.created_by,

@@ -15,13 +15,20 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..cases.models import Case, CaseEvent, Contact, CASE_EVENT_CREATE_AUDIT
+from ..cases.models import (
+    Case,
+    CaseEvent,
+    Contact,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_START_RETEST,
+)
 from ..common.forms import AMPChoiceCheckboxWidget
 from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
     list_to_dictionary_of_lists,
     get_id_from_button_name,
+    amp_format_date,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -119,13 +126,13 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         )
     audit: Audit = Audit.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=audit)  # type: ignore
+    create_mandatory_pages_for_new_audit(audit=audit)
     CaseEvent.objects.create(
         case=case,
         created_by=request.user,
         type=CASE_EVENT_CREATE_AUDIT,
         message="Started test",
     )
-    create_mandatory_pages_for_new_audit(audit=audit)
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
 
 
@@ -202,6 +209,14 @@ class AuditUpdateView(UpdateView):
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
             record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            old_audit: Audit = Audit.objects.get(id=self.object.id)  # type: ignore
+            if old_audit.retest_date != self.object.retest_date:
+                CaseEvent.objects.create(
+                    case=self.object.case,
+                    created_by=self.request.user,
+                    type=CASE_EVENT_START_RETEST,
+                    message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",  # type: ignore
+                )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -926,6 +941,12 @@ def start_retest(
     audit.retest_date = date.today()
     record_model_update_event(user=request.user, model_object=audit)  # type: ignore
     audit.save()
+    CaseEvent.objects.create(
+        case=audit.case,
+        created_by=request.user,
+        type=CASE_EVENT_START_RETEST,
+        message="Started retest",
+    )
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
 
 

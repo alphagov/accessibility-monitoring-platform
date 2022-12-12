@@ -20,7 +20,7 @@ class CaseEventAdmin(admin.ModelAdmin):
 
     readonly_fields = ["case", "type", "message", "created", "created_by"]
     search_fields = ["case__organisation_name", "case__id"]
-    list_display = ["case", "created", "type", "created_by", "message"]
+    list_display = ["case", "created", "created_by", "message", "type"]
     list_filter = ["type"]
 
 

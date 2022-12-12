@@ -251,6 +251,8 @@ CASE_EVENT_CREATE_AUDIT: str = "create_audit"
 CASE_EVENT_CREATE_REPORT: str = "create_report"
 CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
 CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
+CASE_EVENT_APPROVE_REPORT: str = "approve_report"
+CASE_EVENT_START_RETEST: str = "retest"
 CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (CASE_EVENT_TYPE_CREATE, "Create"),
     (CASE_EVENT_AUDITOR, "Change of auditor"),
@@ -258,8 +260,8 @@ CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (CASE_EVENT_CREATE_REPORT, "Create report"),
     (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
     (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
-    ("approve_report", "Report approved"),
-    ("retest", "Start retest"),
+    (CASE_EVENT_APPROVE_REPORT, "Report approval"),
+    (CASE_EVENT_START_RETEST, "Start retest"),
     ("ready_for_final_decision", "Ready for final decision"),
     ("completed", "Completed"),
 ]
