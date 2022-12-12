@@ -1,7 +1,7 @@
 <svg
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="-50 -25 {{ chart.chart_width }} {{ chart.chart_height }}"
+    viewBox="-60 -25 {{ chart.chart_width }} {{ chart.chart_height }}"
     stroke="currentColor"
     stroke-width="1"
     fill="none"
