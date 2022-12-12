@@ -26,6 +26,8 @@ from .models import (
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_AUDITOR,
     CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_QA_AUDITOR,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
@@ -295,4 +297,20 @@ def record_case_event(
             created_by=user,
             type=CASE_EVENT_CREATE_AUDIT,
             message="Start of test",
+        )
+    if old_case.report_review_status != new_case.report_review_status:
+        old_status: str = old_case.get_report_review_status_display()  # type: ignore
+        new_status: str = new_case.get_report_review_status_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_READY_FOR_QA,
+            message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.reviewer != new_case.reviewer:
+        CaseEvent.objects.create(
+            case=old_case,
+            created_by=user,
+            type=CASE_EVENT_QA_AUDITOR,
+            message=f"QA Auditor changed from {old_case.reviewer} to {new_case.reviewer}",
         )

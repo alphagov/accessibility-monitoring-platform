@@ -248,13 +248,16 @@ PSB_APPEAL_WINDOW_IN_DAYS = 28
 CASE_EVENT_TYPE_CREATE: str = "create"
 CASE_EVENT_AUDITOR: str = "auditor"
 CASE_EVENT_CREATE_AUDIT: str = "create_audit"
+CASE_EVENT_CREATE_REPORT: str = "create_report"
+CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
+CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
 CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (CASE_EVENT_TYPE_CREATE, "Create"),
     (CASE_EVENT_AUDITOR, "Change of auditor"),
     (CASE_EVENT_CREATE_AUDIT, "Start test"),
-    ("create_report", "Create report"),
-    ("ready_for_qa", "Report ready for QA"),
-    ("qa_auditor", "Change of QA auditor"),
+    (CASE_EVENT_CREATE_REPORT, "Create report"),
+    (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
+    (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
     ("approve_report", "Report approved"),
     ("retest", "Start retest"),
     ("ready_for_final_decision", "Ready for final decision"),
@@ -784,10 +787,16 @@ class CaseEvent(models.Model):
     type = models.CharField(
         max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
     )
-    message = models.TextField(default="Created", blank=True)
+    message = models.TextField(default="Created case", blank=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name="case_event_created_by_user",
     )
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created"]
+
+    def __str__(self) -> str:
+        return str(f"{self.case.organisation_name} #{self.message}")

@@ -123,7 +123,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         case=case,
         created_by=request.user,
         type=CASE_EVENT_CREATE_AUDIT,
-        message="Start of test",
+        message="Started test",
     )
     create_mandatory_pages_for_new_audit(audit=audit)
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
