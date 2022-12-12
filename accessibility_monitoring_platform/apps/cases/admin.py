@@ -3,6 +3,7 @@ Admin for cases
 """
 from django.contrib import admin
 
+from ..common.admin import ExportCsvMixin
 from .models import Case, CaseEvent, Contact
 
 
@@ -15,13 +16,14 @@ class CaseAdmin(admin.ModelAdmin):
     list_filter = ["auditor"]
 
 
-class CaseEventAdmin(admin.ModelAdmin):
+class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for CaseEvent model"""
 
-    readonly_fields = ["case", "type", "message", "created", "created_by"]
+    readonly_fields = ["case", "event_type", "message", "event_time", "done_by"]
     search_fields = ["case__organisation_name", "case__id"]
-    list_display = ["case", "created", "created_by", "message", "type"]
-    list_filter = ["type"]
+    list_display = ["message", "event_time", "done_by", "case", "event_type"]
+    list_filter = ["event_type"]
+    actions = ["export_as_csv"]
 
 
 class ContactAdmin(admin.ModelAdmin):

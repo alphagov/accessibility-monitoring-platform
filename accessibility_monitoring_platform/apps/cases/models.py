@@ -788,19 +788,19 @@ class CaseEvent(models.Model):
     """
 
     case = models.ForeignKey(Case, on_delete=models.PROTECT)
-    type = models.CharField(
+    event_type = models.CharField(
         max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
     )
     message = models.TextField(default="Created case", blank=True)
-    created_by = models.ForeignKey(
+    done_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="case_event_created_by_user",
+        related_name="case_event_done_by_user",
     )
-    created = models.DateTimeField(auto_now_add=True)
+    event_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["created"]
+        ordering = ["event_time"]
 
     def __str__(self) -> str:
-        return str(f"{self.case.organisation_name} #{self.message}")
+        return str(f"{self.case.organisation_name}: {self.message}")

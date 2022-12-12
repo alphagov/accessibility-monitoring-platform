@@ -68,8 +68,8 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     generate_report_content(report=report)
     CaseEvent.objects.create(
         case=case,
-        created_by=request.user,
-        type=CASE_EVENT_CREATE_REPORT,
+        done_by=request.user,
+        event_type=CASE_EVENT_CREATE_REPORT,
         message="Created report",
     )
     return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))  # type: ignore

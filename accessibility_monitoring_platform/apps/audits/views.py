@@ -129,8 +129,8 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     create_mandatory_pages_for_new_audit(audit=audit)
     CaseEvent.objects.create(
         case=case,
-        created_by=request.user,
-        type=CASE_EVENT_CREATE_AUDIT,
+        done_by=request.user,
+        event_type=CASE_EVENT_CREATE_AUDIT,
         message="Started test",
     )
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
@@ -213,8 +213,8 @@ class AuditUpdateView(UpdateView):
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
                     case=self.object.case,
-                    created_by=self.request.user,
-                    type=CASE_EVENT_START_RETEST,
+                    done_by=self.request.user,
+                    event_type=CASE_EVENT_START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",  # type: ignore
                 )
             self.object.save()
@@ -943,8 +943,8 @@ def start_retest(
     audit.save()
     CaseEvent.objects.create(
         case=audit.case,
-        created_by=request.user,
-        type=CASE_EVENT_START_RETEST,
+        done_by=request.user,
+        event_type=CASE_EVENT_START_RETEST,
         message="Started retest",
     )
     return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
