@@ -17,16 +17,11 @@ from ..chart import (
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
     build_13_month_x_axis,
-    get_y_axis,
+    build_y_axis,
+    calculate_y_tick_size,
     build_yearly_metric_chart,
     get_line_stroke,
     Y_AXIS_RATIO,
-    Y_AXIS_50,
-    Y_AXIS_100,
-    Y_AXIS_250,
-    Y_AXIS_500,
-    Y_AXIS_1000,
-    Y_AXIS_5000,
 )
 
 
@@ -53,57 +48,39 @@ def test_calculate_x_position_from_metric_date(
 
 
 @pytest.mark.parametrize(
-    "now, max_value, datapoint, expected_result",
+    "now, y_tick_size, datapoint, expected_result",
     [
         (
             datetime(2022, 11, 15),
-            49,
+            4,
+            TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
+            Point(x_position=600, y_position=87),
+        ),
+        (
+            datetime(2022, 11, 15),
+            10,
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
             Point(x_position=600, y_position=185),
         ),
         (
             datetime(2022, 11, 15),
-            51,
+            20,
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
             Point(x_position=600, y_position=217),
         ),
         (
             datetime(2022, 11, 15),
-            101,
-            TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
-            Point(x_position=600, y_position=243),
-        ),
-        (
-            datetime(2022, 11, 15),
-            100,
-            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=100),
-            Point(x_position=300, y_position=0),
-        ),
-        (
-            datetime(2022, 11, 15),
-            300,
-            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=300),
-            Point(x_position=300, y_position=100),
-        ),
-        (
-            datetime(2022, 11, 15),
-            800,
-            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=800),
-            Point(x_position=300, y_position=50),
-        ),
-        (
-            datetime(2022, 11, 15),
-            2500,
-            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=2500),
-            Point(x_position=300, y_position=125),
+            20,
+            TimeseriesDatapoint(datetime=datetime(2022, 10, 1), value=13),
+            Point(x_position=550, y_position=217),
         ),
     ],
 )
 def test_calculate_timeseries_point(
-    now: datetime, max_value: int, datapoint: TimeseriesDatapoint, expected_result: int
+    now: datetime, y_tick_size: int, datapoint: TimeseriesDatapoint, expected_result: int
 ):
     """Test position of timeseries data point is calculated correctly"""
-    assert calculate_timeseries_point(now, max_value, datapoint) == expected_result
+    assert calculate_timeseries_point(now, y_tick_size, datapoint) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -313,22 +290,60 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
 
 
 @pytest.mark.parametrize(
-    "max_value, is_ratio, expected_result",
+    "max_value, y_tick_size",
     [
-        (49, False, Y_AXIS_50),
-        (99, False, Y_AXIS_100),
-        (101, False, Y_AXIS_250),
-        (251, False, Y_AXIS_500),
-        (501, False, Y_AXIS_1000),
-        (1001, False, Y_AXIS_5000),
+        (7, 2),
+        (10, 2),
+        (11, 4),
+        (49, 10),
+        (50, 10),
+        (51, 20),
+        (100, 20),
+        (101, 40),
+        (800, 200),
+        (1001, 400),
+    ],
+)
+def test_calculate_y_tick_size(max_value, y_tick_size):
+    """Test nice y tick size is calculated from max value"""
+    assert calculate_y_tick_size(max_value) == y_tick_size
+
+
+@pytest.mark.parametrize(
+    "y_tick_size, is_ratio, expected_result",
+    [
+        (
+            20,
+            False,
+            [
+                ChartAxisTick(
+                    value=100, label="100", x_position=0, y_position=0, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=80, label="80", x_position=0, y_position=50, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=60, label="60", x_position=0, y_position=100, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=40, label="40", x_position=0, y_position=150, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=20, label="20", x_position=0, y_position=200, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=0, label="0", x_position=0, y_position=250, label_line_2=""
+                ),
+            ],
+        ),
         (50, True, Y_AXIS_RATIO),
     ],
 )
-def test_get_y_axis(max_value, is_ratio, expected_result):
+def test_build_y_axis(y_tick_size, is_ratio, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert get_y_axis(max_value=max_value, is_ratio=is_ratio) == expected_result
+    assert build_y_axis(y_tick_size=y_tick_size, is_ratio=is_ratio) == expected_result
 
 
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")

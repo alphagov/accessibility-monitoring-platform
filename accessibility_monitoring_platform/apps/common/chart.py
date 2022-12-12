@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone as datetime_timezone
+import math
 from typing import List, Union
 
 from django.utils import timezone
@@ -29,6 +30,7 @@ LINE_LABEL_Y: int = -10
 LINE_LABEL_STROKE_Y: int = -15
 LINE_LABEL_STROKE_LENGTH: int = 20
 LINE_LABEL_X_OFFSET: int = LINE_LABEL_STROKE_LENGTH + 10
+Y_AXIS_NUMBER_OF_TICKS: int = 5
 
 
 @dataclass
@@ -48,59 +50,6 @@ Y_AXIS_RATIO: List[ChartAxisTick] = [
     ChartAxisTick(value=20, label="0.2", y_position=200),
     ChartAxisTick(value=0, label="0.0", y_position=250),
 ]
-Y_AXIS_50: List[ChartAxisTick] = [
-    ChartAxisTick(value=50, label="50", y_position=0),
-    ChartAxisTick(value=40, label="40", y_position=50),
-    ChartAxisTick(value=30, label="30", y_position=100),
-    ChartAxisTick(value=20, label="20", y_position=150),
-    ChartAxisTick(value=10, label="10", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-Y_AXIS_100: List[ChartAxisTick] = [
-    ChartAxisTick(value=100, label="100", y_position=0),
-    ChartAxisTick(value=80, label="80", y_position=50),
-    ChartAxisTick(value=60, label="60", y_position=100),
-    ChartAxisTick(value=40, label="40", y_position=150),
-    ChartAxisTick(value=20, label="20", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-Y_AXIS_250: List[ChartAxisTick] = [
-    ChartAxisTick(value=250, label="250", y_position=0),
-    ChartAxisTick(value=200, label="200", y_position=50),
-    ChartAxisTick(value=150, label="150", y_position=100),
-    ChartAxisTick(value=100, label="100", y_position=150),
-    ChartAxisTick(value=50, label="50", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-Y_AXIS_500: List[ChartAxisTick] = [
-    ChartAxisTick(value=500, label="500", y_position=0),
-    ChartAxisTick(value=400, label="400", y_position=50),
-    ChartAxisTick(value=300, label="300", y_position=100),
-    ChartAxisTick(value=200, label="200", y_position=150),
-    ChartAxisTick(value=100, label="100", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-Y_AXIS_1000: List[ChartAxisTick] = [
-    ChartAxisTick(value=1000, label="1000", y_position=0),
-    ChartAxisTick(value=800, label="800", y_position=50),
-    ChartAxisTick(value=600, label="600", y_position=100),
-    ChartAxisTick(value=400, label="400", y_position=150),
-    ChartAxisTick(value=200, label="200", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-Y_AXIS_5000: List[ChartAxisTick] = [
-    ChartAxisTick(value=5000, label="5000", y_position=0),
-    ChartAxisTick(value=4000, label="4000", y_position=50),
-    ChartAxisTick(value=5000, label="3000", y_position=100),
-    ChartAxisTick(value=2000, label="2000", y_position=150),
-    ChartAxisTick(value=1000, label="1000", y_position=200),
-    ChartAxisTick(value=0, label="0", y_position=250),
-]
-MULTIPLIER_50_TO_250: float = 250 / 50
-MULTIPLIER_100_TO_250: float = 250 / 100
-MULTIPLIER_500_TO_250: float = 250 / 500
-MULTIPLIER_1000_TO_250: float = 250 / 1000
-MULTIPLIER_5000_TO_250: float = 250 / 5000
 
 
 @dataclass
@@ -159,22 +108,15 @@ def calculate_x_position_from_datapoint_datetime(
 
 
 def calculate_timeseries_point(
-    now: datetime, max_value: int, datapoint: TimeseriesDatapoint
+    now: datetime, y_tick_size: int, datapoint: TimeseriesDatapoint
 ) -> Point:
     """Work out the position of a point on the line in a timeseries line chart"""
     x_position: int = calculate_x_position_from_datapoint_datetime(
         now=now, datapoint_datetime=datapoint.datetime
     )
-    if max_value > 1000:
-        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_5000_TO_250))
-    elif max_value > 500:
-        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_1000_TO_250))
-    elif max_value > 100:
-        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_500_TO_250))
-    elif max_value > 50:
-        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_100_TO_250))
-    else:
-        y_position: int = int(GRAPH_HEIGHT - (datapoint.value * MULTIPLIER_50_TO_250))
+    y_position: int = int(
+        GRAPH_HEIGHT - (datapoint.value * 250 / (y_tick_size * Y_AXIS_NUMBER_OF_TICKS))
+    )
     return Point(x_position=x_position, y_position=y_position)
 
 
@@ -208,21 +150,41 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def get_y_axis(max_value: int, is_ratio: bool = False) -> List[ChartAxisTick]:
+def build_y_axis(y_tick_size: int, is_ratio: bool = False) -> List[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
     if is_ratio:
         return Y_AXIS_RATIO
-    if max_value > 1000:
-        return Y_AXIS_5000
-    if max_value > 500:
-        return Y_AXIS_1000
-    if max_value > 250:
-        return Y_AXIS_500
-    if max_value > 100:
-        return Y_AXIS_250
-    if max_value > 50:
-        return Y_AXIS_100
-    return Y_AXIS_50
+    return [
+        ChartAxisTick(value=y_tick_size * 5, label=str(y_tick_size * 5), y_position=0),
+        ChartAxisTick(value=y_tick_size * 4, label=str(y_tick_size * 4), y_position=50),
+        ChartAxisTick(
+            value=y_tick_size * 3, label=str(y_tick_size * 3), y_position=100
+        ),
+        ChartAxisTick(
+            value=y_tick_size * 2, label=str(y_tick_size * 2), y_position=150
+        ),
+        ChartAxisTick(value=y_tick_size, label=str(y_tick_size), y_position=200),
+        ChartAxisTick(value=0, label="0", y_position=250),
+    ]
+
+
+def calculate_y_tick_size(max_value: int) -> int:
+    """
+    For a maximum value calculate the next highest nice maximum y-axis tick
+    value
+    """
+    if max_value <= 10:
+        max_tick: int = 5 if max_value <= 5 else 10
+        tick = int(max_tick / 5)
+    else:
+        scale = int(math.log10(max_value))
+        multiplier: int = 10**scale
+        for step in [1, 2, 5, 10]:
+            max_tick: int = step * multiplier
+            if max_tick >= max_value:
+                break
+        tick = int(max_tick / 5)  # type: ignore
+    return tick
 
 
 def build_yearly_metric_chart(
@@ -239,6 +201,7 @@ def build_yearly_metric_chart(
         for datapoint in timeseries.datapoints:
             values.append(datapoint.value)
     max_value: int = max(values) if values else 0
+    y_tick_size: int = calculate_y_tick_size(max_value)
     polylines = []
     chart_key: List[LineLabel] = []
     for index, timeseries in enumerate(lines):
@@ -272,7 +235,7 @@ def build_yearly_metric_chart(
             Polyline(
                 stroke=stroke,
                 points=[
-                    calculate_timeseries_point(now, max_value, datapoint=datapoint)
+                    calculate_timeseries_point(now=now, y_tick_size=y_tick_size, datapoint=datapoint)
                     for datapoint in penultimate_datapoints
                 ],
             )
@@ -282,7 +245,7 @@ def build_yearly_metric_chart(
                 stroke=stroke,
                 stroke_dasharray=STROKE_DASHARRAY_DOTTED,
                 points=[
-                    calculate_timeseries_point(now, max_value, datapoint=datapoint)
+                    calculate_timeseries_point(now=now, y_tick_size=y_tick_size, datapoint=datapoint)
                     for datapoint in last_month_datapoints
                 ],
             )
@@ -292,7 +255,7 @@ def build_yearly_metric_chart(
         polylines=polylines,
         key=chart_key,
         x_axis=build_13_month_x_axis(),
-        y_axis=get_y_axis(max_value=max_value, is_ratio=y_axis_ratio),
+        y_axis=build_y_axis(y_tick_size=y_tick_size, is_ratio=y_axis_ratio),
     )
 
 
