@@ -1,6 +1,7 @@
 """Populate new CaseEvent model"""
 from datetime import datetime
 import json
+from typing import Dict
 from unittest.mock import patch, Mock
 
 from django.db import migrations
@@ -20,22 +21,22 @@ from ..models import (
 from ...common.models import EVENT_TYPE_MODEL_UPDATE
 from ...common.utils import amp_format_date
 
-REPORT_REVIEW_STATUS_LABELS = {
+REPORT_REVIEW_STATUS_LABELS: Dict[str, str] = {
     "ready-to-review": "Yes",
     "in-progress": "In progress",
     "not-started": "Not started",
 }
-BOOLEAN_LABELS = {
+BOOLEAN_LABELS: Dict[str, str] = {
     "yes": "Yes",
     "no": "No",
 }
-CASE_COMPLETED_LABELS = {
+CASE_COMPLETED_LABELS: Dict[str, str] = {
     "complete-send": "Case is complete and is ready to send to the equality body",
     "complete-no-send": "Case should not be sent to the equality body",
     "no-decision": "Case still in progress",
 }
 
-REPORT_APPROVED_STATUS_LABELS = {
+REPORT_APPROVED_STATUS_LABELS: Dict[str, str] = {
     "yes": "Yes",
     "in-progress": "Further work is needed",
     "not-started": "Not started",
@@ -43,52 +44,57 @@ REPORT_APPROVED_STATUS_LABELS = {
 
 
 def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argument
+    """Populate case events with data from events"""
+    # pylint: disable=invalid-name
+    # pylint: disable=line-too-long
     Event = apps.get_model("common", "Event")
     Case = apps.get_model("cases", "Case")
     CaseEvent = apps.get_model("cases", "CaseEvent")
     User = apps.get_model("auth", "User")
 
-    users = {user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()}  # type: ignore
+    users: dict[int, str] = {
+        user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
+    }
 
     for event in Event.objects.all().order_by("id"):
-        value = json.loads(event.value)
+        value: Dict = json.loads(event.value)
         if event.type == EVENT_TYPE_MODEL_UPDATE:
             if value["old"] == value["new"]:
                 event.delete()
             else:
-                old = json.loads(value["old"])[0]
-                new = json.loads(value["new"])[0]
+                old: Dict = json.loads(value["old"])[0]
+                new: Dict = json.loads(value["new"])[0]
                 with patch(
                     "django.utils.timezone.now", Mock(return_value=event.created)
                 ):
                     if old["model"] == "cases.case":
-                        case_id = old["pk"]
-                        old_auditor = users.get(old["fields"]["auditor"], "none")
-                        new_auditor = users.get(new["fields"]["auditor"], "none")
-                        old_review_status = REPORT_REVIEW_STATUS_LABELS[
+                        case_id: int = old["pk"]
+                        old_auditor: str = users.get(old["fields"]["auditor"], "none")
+                        new_auditor: str = users.get(new["fields"]["auditor"], "none")
+                        old_review_status: str = REPORT_REVIEW_STATUS_LABELS[
                             old["fields"]["report_review_status"]
                         ]
-                        new_review_status = REPORT_REVIEW_STATUS_LABELS[
+                        new_review_status: str = REPORT_REVIEW_STATUS_LABELS[
                             new["fields"]["report_review_status"]
                         ]
-                        old_reviewer = users.get(old["fields"]["reviewer"], "none")
-                        new_reviewer = users.get(new["fields"]["reviewer"], "none")
-                        old_is_ready_for_final_decision = BOOLEAN_LABELS[
+                        old_reviewer: str = users.get(old["fields"]["reviewer"], "none")
+                        new_reviewer: str = users.get(new["fields"]["reviewer"], "none")
+                        old_is_ready_for_final_decision: str = BOOLEAN_LABELS[
                             old["fields"]["is_ready_for_final_decision"]
                         ]
-                        new_is_ready_for_final_decision = BOOLEAN_LABELS[
+                        new_is_ready_for_final_decision: str = BOOLEAN_LABELS[
                             new["fields"]["is_ready_for_final_decision"]
                         ]
-                        old_case_completed = CASE_COMPLETED_LABELS[
+                        old_case_completed: str = CASE_COMPLETED_LABELS[
                             old["fields"]["case_completed"]
                         ]
-                        new_case_completed = CASE_COMPLETED_LABELS[
+                        new_case_completed: str = CASE_COMPLETED_LABELS[
                             new["fields"]["case_completed"]
                         ]
-                        old_report_approved_status = REPORT_APPROVED_STATUS_LABELS[
+                        old_report_approved_status: str = REPORT_APPROVED_STATUS_LABELS[
                             old["fields"]["report_approved_status"]
                         ]
-                        new_report_approved_status = REPORT_APPROVED_STATUS_LABELS[
+                        new_report_approved_status: str = REPORT_APPROVED_STATUS_LABELS[
                             new["fields"]["report_approved_status"]
                         ]
                         case = Case.objects.get(id=case_id)
@@ -138,15 +144,15 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
                                 message=f"Case completed changed from '{old_case_completed}' to '{new_case_completed}'",
                             )
                     if old["model"] == "audits.audit":
-                        case_id = new["fields"]["case"]
+                        case_id: int = new["fields"]["case"]
                         case = Case.objects.get(id=case_id)
-                        old_retest_date = old["fields"]["retest_date"]
-                        new_retest_date = new["fields"]["retest_date"]
+                        old_retest_date: str = old["fields"]["retest_date"]
+                        new_retest_date: str = new["fields"]["retest_date"]
                         if old_retest_date != new_retest_date:
                             if new_retest_date is None:
-                                retest_date = None
+                                retest_date: str = "None"
                             else:
-                                retest_date = amp_format_date(
+                                retest_date: str = amp_format_date(
                                     datetime.strptime(new_retest_date, "%Y-%m-%d")
                                 )
                             CaseEvent.objects.create(
@@ -156,9 +162,9 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
                                 message=f"Started retest (set to {retest_date})",
                             )
         else:
-            new = json.loads(value["new"])[0]
+            new: Dict = json.loads(value["new"])[0]
             if new["model"] == "cases.case":
-                case_id = new["pk"]
+                case_id: int = new["pk"]
                 case = Case.objects.get(id=case_id)
                 with patch(
                     "django.utils.timezone.now", Mock(return_value=event.created)
@@ -169,7 +175,7 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
                         event_type=CASE_EVENT_TYPE_CREATE,
                     )
             if new["model"] == "audits.audit":
-                case_id = new["fields"]["case"]
+                case_id: int = new["fields"]["case"]
                 case = Case.objects.get(id=case_id)
                 with patch(
                     "django.utils.timezone.now", Mock(return_value=event.created)
@@ -181,7 +187,7 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
                         message="Started test",
                     )
             if new["model"] == "reports.report":
-                case_id = new["fields"]["case"]
+                case_id: int = new["fields"]["case"]
                 case = Case.objects.get(id=case_id)
                 with patch(
                     "django.utils.timezone.now", Mock(return_value=event.created)
@@ -195,6 +201,8 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
 
 
 def delete_case_events(apps, schema_editor):  # pylint: disable=unused-argument
+    """Delete all case events"""
+    # pylint: disable=invalid-name
     CaseEvent = apps.get_model("cases", "CaseEvent")
     CaseEvent.objects.all().delete()
 

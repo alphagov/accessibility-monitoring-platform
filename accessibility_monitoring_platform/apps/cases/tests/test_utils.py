@@ -268,8 +268,12 @@ def test_record_case_event(
 def test_record_case_event_auditor_change():
     """Test case event created on change of auditor"""
     user: User = User.objects.create()
-    new_auditor: User = User.objects.create(username="new", first_name="New", last_name="User")
-    old_auditor: User = User.objects.create(username="old", first_name="Old", last_name="User")
+    new_auditor: User = User.objects.create(
+        username="new", first_name="New", last_name="User"
+    )
+    old_auditor: User = User.objects.create(
+        username="old", first_name="Old", last_name="User"
+    )
     new_case: Case = Case.objects.create(auditor=new_auditor)
     old_case: Case = Case.objects.create(auditor=old_auditor)
 
@@ -305,8 +309,12 @@ def test_record_case_event_audit_create():
 def test_record_case_event_reviewer_change():
     """Test case event created on change of reviewer"""
     user: User = User.objects.create()
-    new_reviewer: User = User.objects.create(username="new", first_name="New", last_name="User")
-    old_reviewer: User = User.objects.create(username="old", first_name="Old", last_name="User")
+    new_reviewer: User = User.objects.create(
+        username="new", first_name="New", last_name="User"
+    )
+    old_reviewer: User = User.objects.create(
+        username="old", first_name="Old", last_name="User"
+    )
     new_case: Case = Case.objects.create(reviewer=new_reviewer)
     old_case: Case = Case.objects.create(reviewer=old_reviewer)
 

@@ -288,8 +288,12 @@ def record_case_event(
         )
         return
     if old_case.auditor != new_case.auditor:
-        old_user_name: str = old_case.auditor.get_full_name() if old_case.auditor is not None else "none"
-        new_user_name: str = new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
+        old_user_name: str = (
+            old_case.auditor.get_full_name() if old_case.auditor is not None else "none"
+        )
+        new_user_name: str = (
+            new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
+        )
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
@@ -313,8 +317,16 @@ def record_case_event(
             message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
         )
     if old_case.reviewer != new_case.reviewer:
-        old_user_name: str = old_case.reviewer.get_full_name() if old_case.reviewer is not None else "none"
-        new_user_name: str = new_case.reviewer.get_full_name() if new_case.reviewer is not None else "none"
+        old_user_name: str = (
+            old_case.reviewer.get_full_name()
+            if old_case.reviewer is not None
+            else "none"
+        )
+        new_user_name: str = (
+            new_case.reviewer.get_full_name()
+            if new_case.reviewer is not None
+            else "none"
+        )
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
