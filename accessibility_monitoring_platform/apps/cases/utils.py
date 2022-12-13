@@ -282,6 +282,7 @@ def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str
 def record_case_event(
     user: User, new_case: Case, old_case: Optional[Case] = None
 ) -> None:
+    """Create a case event based on the changes between the old and new cases"""
     if old_case is None:
         CaseEvent.objects.create(
             case=new_case, done_by=user, event_type=CASE_EVENT_TYPE_CREATE
