@@ -315,7 +315,7 @@ def record_case_event(
             case=old_case,
             done_by=user,
             event_type=CASE_EVENT_QA_AUDITOR,
-            message=f"QA Auditor changed from {old_case.reviewer} to {new_case.reviewer}",
+            message=f"QA auditor changed from {old_case.reviewer} to {new_case.reviewer}",
         )
     if old_case.report_approved_status != new_case.report_approved_status:
         old_status: str = old_case.get_report_approved_status_display()  # type: ignore
