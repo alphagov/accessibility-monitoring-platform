@@ -12,6 +12,7 @@ from django.db.models import QuerySet
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
+from ...common.models import BOOLEAN_TRUE
 from ..models import (
     Case,
     CaseEvent,
@@ -22,8 +23,11 @@ from ..models import (
     CASE_EVENT_READY_FOR_QA,
     CASE_EVENT_QA_AUDITOR,
     CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_CASE_COMPLETED,
     REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
+    CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
     get_sent_date,
@@ -224,7 +228,19 @@ def test_replace_search_key_with_case_search(
             {},
             CASE_EVENT_APPROVE_REPORT,
             "Report approved changed from 'Not started' to 'Yes'",
-        )
+        ),
+        (
+            {"is_ready_for_final_decision": BOOLEAN_TRUE},
+            {},
+            CASE_EVENT_READY_FOR_FINAL_DECISION,
+            "Case ready for final decision changed from 'No' to 'Yes'",
+        ),
+        (
+            {"case_completed": CASE_COMPLETED_NO_SEND},
+            {},
+            CASE_EVENT_CASE_COMPLETED,
+            "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'",
+        ),
     ],
 )
 @pytest.mark.django_db

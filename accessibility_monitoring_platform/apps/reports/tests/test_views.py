@@ -9,6 +9,7 @@ from moto import mock_s3
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -18,8 +19,10 @@ from ...audits.models import (
 )
 from ...cases.models import (
     Case,
+    CaseEvent,
     REPORT_APPROVED_STATUS_APPROVED,
     REPORT_READY_TO_REVIEW,
+    CASE_EVENT_CREATE_REPORT,
 )
 from ...s3_read_write.models import S3Report
 
@@ -87,6 +90,25 @@ def test_create_report_does_not_create_duplicate(admin_client):
 
     assert response.status_code == 302
     assert Report.objects.filter(case=report.case).count() == 1
+
+
+def test_create_report_creates_case_event(admin_client):
+    """Test that report create al creates a case event"""
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_CREATE_REPORT
+    assert case_event.message == "Created report"
 
 
 @pytest.mark.parametrize(
