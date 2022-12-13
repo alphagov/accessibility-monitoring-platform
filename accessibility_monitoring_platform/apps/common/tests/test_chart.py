@@ -17,12 +17,11 @@ from ..chart import (
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
     build_13_month_x_axis,
-    get_y_axis,
+    build_y_axis,
+    calculate_y_tick_size,
     build_yearly_metric_chart,
     get_line_stroke,
-    Y_AXIS_50,
-    Y_AXIS_100,
-    Y_AXIS_250,
+    Y_AXIS_RATIO,
 )
 
 
@@ -49,57 +48,39 @@ def test_calculate_x_position_from_metric_date(
 
 
 @pytest.mark.parametrize(
-    "now, max_value, datapoint, expected_result",
+    "now, y_tick_size, datapoint, expected_result",
     [
         (
             datetime(2022, 11, 15),
-            49,
+            4,
+            TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
+            Point(x_position=600, y_position=87),
+        ),
+        (
+            datetime(2022, 11, 15),
+            10,
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
             Point(x_position=600, y_position=185),
         ),
         (
             datetime(2022, 11, 15),
-            49,
-            TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=13),
-            Point(x_position=0, y_position=185),
-        ),
-        (
-            datetime(2022, 11, 15),
-            51,
+            20,
             TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
             Point(x_position=600, y_position=217),
         ),
         (
             datetime(2022, 11, 15),
-            51,
-            TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=13),
-            Point(x_position=0, y_position=217),
-        ),
-        (
-            datetime(2022, 11, 15),
-            101,
-            TimeseriesDatapoint(datetime=datetime(2022, 11, 1), value=13),
-            Point(x_position=600, y_position=237),
-        ),
-        (
-            datetime(2022, 11, 15),
-            101,
-            TimeseriesDatapoint(datetime=datetime(2021, 11, 1), value=13),
-            Point(x_position=0, y_position=237),
-        ),
-        (
-            datetime(2022, 11, 15),
-            100,
-            TimeseriesDatapoint(datetime=datetime(2022, 5, 1), value=100),
-            Point(x_position=300, y_position=0),
+            20,
+            TimeseriesDatapoint(datetime=datetime(2022, 10, 1), value=13),
+            Point(x_position=550, y_position=217),
         ),
     ],
 )
 def test_calculate_timeseries_point(
-    now: datetime, max_value: int, datapoint: TimeseriesDatapoint, expected_result: int
+    now: datetime, y_tick_size: int, datapoint: TimeseriesDatapoint, expected_result: int
 ):
     """Test position of timeseries data point is calculated correctly"""
-    assert calculate_timeseries_point(now, max_value, datapoint) == expected_result
+    assert calculate_timeseries_point(now, y_tick_size, datapoint) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -123,77 +104,77 @@ def test_calculate_timeseries_point(
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc),
                     label="Jan",
                     x_position=100,
                     y_position=275,
-                    label_line_2="2021",
+                    label_line_2="2022",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 2, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 2, 1, 0, 0, tzinfo=timezone.utc),
                     label="Feb",
                     x_position=150,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 3, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 3, 1, 0, 0, tzinfo=timezone.utc),
                     label="Mar",
                     x_position=200,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 4, 1, 0, 0, tzinfo=timezone.utc),
                     label="Apr",
                     x_position=250,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 5, 1, 0, 0, tzinfo=timezone.utc),
                     label="May",
                     x_position=300,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 6, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 6, 1, 0, 0, tzinfo=timezone.utc),
                     label="Jun",
                     x_position=350,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 7, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 7, 1, 0, 0, tzinfo=timezone.utc),
                     label="Jul",
                     x_position=400,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 8, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 8, 1, 0, 0, tzinfo=timezone.utc),
                     label="Aug",
                     x_position=450,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 9, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 9, 1, 0, 0, tzinfo=timezone.utc),
                     label="Sep",
                     x_position=500,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 10, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 10, 1, 0, 0, tzinfo=timezone.utc),
                     label="Oct",
                     x_position=550,
                     y_position=275,
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 11, 1, 0, 0, tzinfo=timezone.utc),
                     label="Nov",
                     x_position=600,
                     y_position=275,
@@ -289,11 +270,11 @@ def test_calculate_timeseries_point(
                     label_line_2="",
                 ),
                 ChartAxisTick(
-                    value=datetime(2021, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    value=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc),
                     label="Jan",
                     x_position=600,
                     y_position=275,
-                    label_line_2="2021",
+                    label_line_2="2022",
                 ),
             ],
         ),
@@ -309,18 +290,60 @@ def test_build_13_month_x_axis(mock_timezone, month, expected_result):
 
 
 @pytest.mark.parametrize(
-    "max_value, expected_result",
+    "max_value, y_tick_size",
     [
-        (49, Y_AXIS_50),
-        (99, Y_AXIS_100),
-        (101, Y_AXIS_250),
+        (7, 2),
+        (10, 2),
+        (11, 4),
+        (49, 10),
+        (50, 10),
+        (51, 20),
+        (100, 20),
+        (101, 40),
+        (800, 200),
+        (1001, 400),
     ],
 )
-def test_get_y_axis(max_value, expected_result):
+def test_calculate_y_tick_size(max_value, y_tick_size):
+    """Test nice y tick size is calculated from max value"""
+    assert calculate_y_tick_size(max_value) == y_tick_size
+
+
+@pytest.mark.parametrize(
+    "y_tick_size, is_ratio, expected_result",
+    [
+        (
+            20,
+            False,
+            [
+                ChartAxisTick(
+                    value=100, label="100", x_position=0, y_position=0, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=80, label="80", x_position=0, y_position=50, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=60, label="60", x_position=0, y_position=100, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=40, label="40", x_position=0, y_position=150, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=20, label="20", x_position=0, y_position=200, label_line_2=""
+                ),
+                ChartAxisTick(
+                    value=0, label="0", x_position=0, y_position=250, label_line_2=""
+                ),
+            ],
+        ),
+        (50, True, Y_AXIS_RATIO),
+    ],
+)
+def test_build_y_axis(y_tick_size, is_ratio, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert get_y_axis(max_value=max_value) == expected_result
+    assert build_y_axis(y_tick_size=y_tick_size, is_ratio=is_ratio) == expected_result
 
 
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")
@@ -404,77 +427,77 @@ def test_build_yearly_metric_chart(mock_timezone):
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 1, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jan",
                 x_position=100,
                 y_position=275,
-                label_line_2="2021",
+                label_line_2="2022",
             ),
             ChartAxisTick(
-                value=datetime(2021, 2, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 2, 1, 0, 0, tzinfo=timezone.utc),
                 label="Feb",
                 x_position=150,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 3, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 3, 1, 0, 0, tzinfo=timezone.utc),
                 label="Mar",
                 x_position=200,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 4, 1, 0, 0, tzinfo=timezone.utc),
                 label="Apr",
                 x_position=250,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 5, 1, 0, 0, tzinfo=timezone.utc),
                 label="May",
                 x_position=300,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 6, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 6, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jun",
                 x_position=350,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 7, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 7, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jul",
                 x_position=400,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 8, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 8, 1, 0, 0, tzinfo=timezone.utc),
                 label="Aug",
                 x_position=450,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 9, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 9, 1, 0, 0, tzinfo=timezone.utc),
                 label="Sep",
                 x_position=500,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 10, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 10, 1, 0, 0, tzinfo=timezone.utc),
                 label="Oct",
                 x_position=550,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 11, 1, 0, 0, tzinfo=timezone.utc),
                 label="Nov",
                 x_position=600,
                 y_position=275,
@@ -503,8 +526,8 @@ def test_build_yearly_metric_chart(mock_timezone):
         ],
         graph_height=250,
         graph_width=600,
-        chart_height=300,
-        chart_width=750,
+        chart_height=330,
+        chart_width=680,
         x_axis_tick_y2=260,
         y_axis_tick_x1=-10,
     )
@@ -563,77 +586,77 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 1, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jan",
                 x_position=100,
                 y_position=275,
-                label_line_2="2021",
+                label_line_2="2022",
             ),
             ChartAxisTick(
-                value=datetime(2021, 2, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 2, 1, 0, 0, tzinfo=timezone.utc),
                 label="Feb",
                 x_position=150,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 3, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 3, 1, 0, 0, tzinfo=timezone.utc),
                 label="Mar",
                 x_position=200,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 4, 1, 0, 0, tzinfo=timezone.utc),
                 label="Apr",
                 x_position=250,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 5, 1, 0, 0, tzinfo=timezone.utc),
                 label="May",
                 x_position=300,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 6, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 6, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jun",
                 x_position=350,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 7, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 7, 1, 0, 0, tzinfo=timezone.utc),
                 label="Jul",
                 x_position=400,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 8, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 8, 1, 0, 0, tzinfo=timezone.utc),
                 label="Aug",
                 x_position=450,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 9, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 9, 1, 0, 0, tzinfo=timezone.utc),
                 label="Sep",
                 x_position=500,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 10, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 10, 1, 0, 0, tzinfo=timezone.utc),
                 label="Oct",
                 x_position=550,
                 y_position=275,
                 label_line_2="",
             ),
             ChartAxisTick(
-                value=datetime(2021, 11, 1, 0, 0, tzinfo=timezone.utc),
+                value=datetime(2022, 11, 1, 0, 0, tzinfo=timezone.utc),
                 label="Nov",
                 x_position=600,
                 y_position=275,
@@ -662,8 +685,8 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
         ],
         graph_height=250,
         graph_width=600,
-        chart_height=300,
-        chart_width=750,
+        chart_height=330,
+        chart_width=680,
         x_axis_tick_y2=260,
         y_axis_tick_x1=-10,
     )

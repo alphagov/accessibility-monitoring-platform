@@ -268,8 +268,8 @@ def test_record_case_event(
 def test_record_case_event_auditor_change():
     """Test case event created on change of auditor"""
     user: User = User.objects.create()
-    new_auditor: User = User.objects.create(username="new_user")
-    old_auditor: User = User.objects.create(username="old_user")
+    new_auditor: User = User.objects.create(username="new", first_name="New", last_name="User")
+    old_auditor: User = User.objects.create(username="old", first_name="Old", last_name="User")
     new_case: Case = Case.objects.create(auditor=new_auditor)
     old_case: Case = Case.objects.create(auditor=old_auditor)
 
@@ -280,7 +280,7 @@ def test_record_case_event_auditor_change():
 
     case_event = case_events[0]
     assert case_event.event_type == CASE_EVENT_AUDITOR
-    assert case_event.message == "Auditor changed from old_user to new_user"
+    assert case_event.message == "Auditor changed from Old User to New User"
 
 
 @pytest.mark.django_db
@@ -305,8 +305,8 @@ def test_record_case_event_audit_create():
 def test_record_case_event_reviewer_change():
     """Test case event created on change of reviewer"""
     user: User = User.objects.create()
-    new_reviewer: User = User.objects.create(username="new_user")
-    old_reviewer: User = User.objects.create(username="old_user")
+    new_reviewer: User = User.objects.create(username="new", first_name="New", last_name="User")
+    old_reviewer: User = User.objects.create(username="old", first_name="Old", last_name="User")
     new_case: Case = Case.objects.create(reviewer=new_reviewer)
     old_case: Case = Case.objects.create(reviewer=old_reviewer)
 
@@ -317,4 +317,4 @@ def test_record_case_event_reviewer_change():
 
     case_event = case_events[0]
     assert case_event.event_type == CASE_EVENT_QA_AUDITOR
-    assert case_event.message == "QA auditor changed from old_user to new_user"
+    assert case_event.message == "QA auditor changed from Old User to New User"

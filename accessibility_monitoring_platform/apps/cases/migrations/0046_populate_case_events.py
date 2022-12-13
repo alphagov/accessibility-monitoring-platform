@@ -48,7 +48,7 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
     CaseEvent = apps.get_model("cases", "CaseEvent")
     User = apps.get_model("auth", "User")
 
-    users = {user.id: user for user in User.objects.all()}  # type: ignore
+    users = {user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()}  # type: ignore
 
     for event in Event.objects.all().order_by("id"):
         value = json.loads(event.value)
@@ -63,16 +63,16 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
                 ):
                     if old["model"] == "cases.case":
                         case_id = old["pk"]
-                        old_auditor = users.get(old["fields"]["auditor"], "None")
-                        new_auditor = users.get(new["fields"]["auditor"], "None")
+                        old_auditor = users.get(old["fields"]["auditor"], "none")
+                        new_auditor = users.get(new["fields"]["auditor"], "none")
                         old_review_status = REPORT_REVIEW_STATUS_LABELS[
                             old["fields"]["report_review_status"]
                         ]
                         new_review_status = REPORT_REVIEW_STATUS_LABELS[
                             new["fields"]["report_review_status"]
                         ]
-                        old_reviewer = users.get(old["fields"]["reviewer"], "None")
-                        new_reviewer = users.get(new["fields"]["reviewer"], "None")
+                        old_reviewer = users.get(old["fields"]["reviewer"], "none")
+                        new_reviewer = users.get(new["fields"]["reviewer"], "none")
                         old_is_ready_for_final_decision = BOOLEAN_LABELS[
                             old["fields"]["is_ready_for_final_decision"]
                         ]

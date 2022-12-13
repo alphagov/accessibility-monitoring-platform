@@ -288,11 +288,13 @@ def record_case_event(
         )
         return
     if old_case.auditor != new_case.auditor:
+        old_user_name: str = old_case.auditor.get_full_name() if old_case.auditor is not None else "none"
+        new_user_name: str = new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
             event_type=CASE_EVENT_AUDITOR,
-            message=f"Auditor changed from {old_case.auditor} to {new_case.auditor}",
+            message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.audit is None and new_case.audit is not None:
         CaseEvent.objects.create(
@@ -311,11 +313,13 @@ def record_case_event(
             message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
         )
     if old_case.reviewer != new_case.reviewer:
+        old_user_name: str = old_case.reviewer.get_full_name() if old_case.reviewer is not None else "none"
+        new_user_name: str = new_case.reviewer.get_full_name() if new_case.reviewer is not None else "none"
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
             event_type=CASE_EVENT_QA_AUDITOR,
-            message=f"QA auditor changed from {old_case.reviewer} to {new_case.reviewer}",
+            message=f"QA auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.report_approved_status != new_case.report_approved_status:
         old_status: str = old_case.get_report_approved_status_display()  # type: ignore

@@ -267,6 +267,13 @@ CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
     (CASE_EVENT_READY_FOR_FINAL_DECISION, "Ready for final decision"),
     (CASE_EVENT_CASE_COMPLETED, "Completed"),
 ]
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+]
 
 
 class Case(VersionModel):

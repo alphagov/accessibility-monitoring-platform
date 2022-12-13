@@ -581,6 +581,7 @@ def test_updating_case_creates_case_event(admin_client):
 
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    # pylint: disable=line-too-long
     assert (
         case_event.message
         == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"

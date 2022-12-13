@@ -3,7 +3,7 @@
 import calendar
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import (
     Any,
     Dict,
@@ -14,6 +14,7 @@ from typing import (
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
+
 
 from ..audits.models import Audit
 
@@ -118,9 +119,18 @@ def group_timeseries_data_by_month(
     items_since_start_date: QuerySet = queryset.filter(
         **{f"{date_column_name}__gte": start_date}
     )
-    month_dates: QuerySet = items_since_start_date.dates(  # type: ignore
-        date_column_name, kind="month"
-    )
+    current_year: int = start_date.year
+    current_month: int = start_date.month
+    month_dates: List[datetime] = []
+    for _ in range(13):
+        month_dates.append(
+            datetime(current_year, current_month, 1, tzinfo=timezone.utc)
+        )
+        if current_month < 12:
+            current_month += 1
+        else:
+            current_month = 1
+            current_year += 1
     return [
         TimeseriesDatapoint(
             datetime=month_date,
@@ -160,3 +170,38 @@ def build_html_table(
         column_names=column_names,
         rows=list(OrderedDict(sorted(html_columns.items())).values()),
     )
+
+
+def convert_timeseries_pair_to_ratio(
+    label: str, partial_timeseries: Timeseries, total_timeseries: Timeseries
+) -> Timeseries:
+    """
+    Given partial and total timeseries return a timeseries where the values
+    are the first divided by the second as a percentage
+    """
+    datapoints: List[TimeseriesDatapoint] = []
+    for partial, total in zip(
+        partial_timeseries.datapoints, total_timeseries.datapoints
+    ):
+        if total.value == 0:
+            value: int = 0
+        else:
+            value: int = int((partial.value * 100) / total.value)
+        datapoints.append(TimeseriesDatapoint(datetime=total.datetime, value=value))
+    return Timeseries(label=label, datapoints=datapoints)
+
+
+def convert_timeseries_to_cumulative(timeseries: Timeseries) -> Timeseries:
+    """
+    Given partial and total timeseries return a timeseries where the values
+    are the first divided by the second as a percentage
+    """
+    cumulative_value: int = 0
+    cumulative_datapoints: List[TimeseriesDatapoint] = []
+    for datapoint in timeseries.datapoints:
+        cumulative_value += datapoint.value
+        cumulative_datapoints.append(
+            TimeseriesDatapoint(datetime=datapoint.datetime, value=cumulative_value)
+        )
+    timeseries.datapoints = cumulative_datapoints
+    return timeseries

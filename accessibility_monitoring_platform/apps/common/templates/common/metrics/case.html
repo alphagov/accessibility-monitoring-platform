@@ -20,7 +20,11 @@
                     <h2 class="govuk-heading-m">{{ progress_metric.label }} in {% now "F" %}</h2>
                     <p id="{{ progress_metric.label|slugify }}" class="govuk-body-m">
                         <span class="govuk-!-font-size-48"><b>{{ progress_metric.this_month_value }}</b></span>
-                        {% include 'common/metrics/arrow_icon.svgt' %}
+                        {% if progress_metric.expected_progress_difference_label == 'under' %}
+                            {% include 'common/metrics/arrow_down.svgt' %}
+                        {% else %}
+                            {% include 'common/metrics/arrow_up.svgt' %}
+                        {% endif %}
                         {% if progress_metric.expected_progress_difference_label %}
                             Projected {{ progress_metric.expected_progress_difference }}%
                             {{ progress_metric.expected_progress_difference_label }}
