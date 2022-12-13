@@ -30,7 +30,7 @@ from django_otp.plugins.otp_email.models import EmailDevice
 
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
 
-CONTACT_FIELDS = ["contact_email", "contact_notes"]
+CONTACT_COLUMNS: List[str] = ["Contact email", "Contact notes"]
 
 
 def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
@@ -48,6 +48,7 @@ def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
 def download_as_csv(
     queryset: QuerySet[Any],
     field_names: List[str],
+    column_names: List[str],
     filename: str = "download.csv",
     include_contact: bool = False,
 ) -> HttpResponse:
@@ -57,9 +58,9 @@ def download_as_csv(
 
     writer: Any = csv.writer(response)
     if include_contact:
-        writer.writerow(field_names + CONTACT_FIELDS)
+        writer.writerow(column_names + CONTACT_COLUMNS)
     else:
-        writer.writerow(field_names)
+        writer.writerow(column_names)
 
     output: List[List[str]] = []
     for item in queryset:
@@ -70,6 +71,8 @@ def download_as_csv(
                 value: str = ",".join(
                     [str(related_item) for related_item in item_attr.all()]
                 )
+            elif hasattr(item, f"get_{field_name}_display"):
+                value: str = getattr(item, f"get_{field_name}_display")()
             else:
                 value: str = str(item_attr)
             row.append(value)

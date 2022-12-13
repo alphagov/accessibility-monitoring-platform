@@ -25,7 +25,6 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import get_field_names_for_export
 from ...common.utils import amp_format_date
 from ...reports.models import Report
 
@@ -47,6 +46,7 @@ from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
+    CSV_EXPORT_CASE_COLUMN_NAMES,
     find_duplicate_cases,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
@@ -74,7 +74,7 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
+case_fields_to_export_str: str = ",".join(CSV_EXPORT_CASE_COLUMN_NAMES.values())
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()

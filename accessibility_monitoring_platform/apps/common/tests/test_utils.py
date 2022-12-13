@@ -56,6 +56,7 @@ class MockModel:
 
 
 MOCK_MODEL_FIELDS: List[str] = ["integer_field", "char_field"]
+MOCK_COLUMNS: List[str] = ["Integer field", "Char field"]
 MOCK_MODEL_DATA: List[List[str]] = [["1", "char1"], ["2", "char2"]]
 MOCK_QUERYSET: List[MockModel] = [
     MockModel(integer_field=1, char_field="char1"),
@@ -69,6 +70,7 @@ def get_csv_response() -> HttpResponse:
     return download_as_csv(
         queryset=MOCK_QUERYSET,  # type: ignore
         field_names=MOCK_MODEL_FIELDS,
+        column_names=MOCK_COLUMNS,
         filename=CSV_FILENAME,
     )
 
@@ -101,7 +103,7 @@ def test_response_headers_contains_filename():
 def test_csv_header_is_as_expected():
     """Tests that the csv header matches the list of fields"""
     csv_header, _ = get_csv_data_header_and_body()
-    assert csv_header == MOCK_MODEL_FIELDS
+    assert csv_header == MOCK_COLUMNS
 
 
 def test_csv_body_is_as_expected():
