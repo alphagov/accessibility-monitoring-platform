@@ -316,7 +316,7 @@ def test_case_list_view_sector_filter(admin_client):
 
 def test_case_equality_body_export_list_view(admin_client):
     """Test that the case equality body export list view returns csv data"""
-    response: HttpResponse = admin_client.get(reverse("cases:export-ehrc-cases"))
+    response: HttpResponse = admin_client.get(reverse("cases:export-equality-body-cases"))
 
     assert response.status_code == 200
     assertContains(response, case_equality_body_columns_to_export_str)

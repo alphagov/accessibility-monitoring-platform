@@ -38,9 +38,9 @@ app_name: str = "cases"
 urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path(
-        "export-as-ehrc-csv/",
+        "export-as-equality-body-csv/",
         login_required(export_equality_body_cases),
-        name="export-ehrc-cases",
+        name="export-equality-body-cases",
     ),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),
     path(
