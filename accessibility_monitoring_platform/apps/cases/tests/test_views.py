@@ -74,7 +74,9 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_columns_to_export_str: str = ",".join(column.column_name for column in CASE_COLUMNS_FOR_EXPORT)
+case_columns_to_export_str: str = ",".join(
+    column.column_name for column in CASE_COLUMNS_FOR_EXPORT
+)
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()

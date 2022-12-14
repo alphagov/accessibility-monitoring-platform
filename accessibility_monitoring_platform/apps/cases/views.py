@@ -831,7 +831,7 @@ def export_single_case(
     Returns:
         HttpResponse: Django HttpResponse
     """
-    return download_cases(cases=Case.objects.filter(id=pk))
+    return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
 
 
 def export_ehrc_cases(request: HttpRequest) -> HttpResponse:

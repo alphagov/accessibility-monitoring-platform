@@ -107,6 +107,19 @@ def test_case_filtered_by_is_complaint(
     assert filtered_cases[0].organisation_name == expected_name
 
 
+def test_format_case_field_with_no_data():
+    """
+    Test that format_model_field returns empty string if no model instance
+    """
+    assert (
+        format_model_field(
+            model_instance=None,
+            column=ColumnAndFieldNames(column_name="A", field_name="a"),
+        )
+        == ""
+    )
+
+
 @pytest.mark.parametrize(
     "column, case_value, expected_formatted_value",
     [

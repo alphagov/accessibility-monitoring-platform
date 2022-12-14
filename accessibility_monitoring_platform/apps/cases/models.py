@@ -208,12 +208,15 @@ CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
-QA_STATUS_DEFAULT: str = "unknown"
+QA_STATUS_UNKNOWN: str = "unknown"
+QA_STATUS_UNASSIGNED: str = "unassigned-qa-case"
+QA_STATUS_IN_QA: str = "in-qa"
+QA_STATUS_QA_APPROVED: str = "qa-approved"
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_DEFAULT, "Unknown"),
-    ("unassigned_qa_case", "Unassigned QA case"),
-    ("in_qa", "In QA"),
-    ("qa_approved", "QA approved"),
+    (QA_STATUS_UNKNOWN, "Unknown"),
+    (QA_STATUS_UNASSIGNED, "Unassigned QA case"),
+    (QA_STATUS_IN_QA, "In QA"),
+    (QA_STATUS_QA_APPROVED, "QA approved"),
 ]
 
 ENFORCEMENT_BODY_PURSUING_NO: str = "no"
@@ -475,7 +478,7 @@ class Case(VersionModel):
 
     # Dashboard page
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
+        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_UNKNOWN
     )
 
     class Meta:
@@ -618,18 +621,18 @@ class Case(VersionModel):
             and self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return STATUS_READY_TO_QA
+            return QA_STATUS_UNASSIGNED
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "in-qa"
+            return QA_STATUS_IN_QA
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "qa-approved"
-        return "unknown"
+            return QA_STATUS_QA_APPROVED
+        return QA_STATUS_UNKNOWN
 
     @property
     def in_report_correspondence_progress(self) -> str:

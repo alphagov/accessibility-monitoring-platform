@@ -525,10 +525,10 @@ def download_ehrc_cases(
     return response
 
 
-def download_cases(cases: QuerySet[Case]) -> HttpResponse:
+def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
     """Given a Case queryset, download the data in csv format"""
     response: Any = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=cases.csv"
+    response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer: Any = csv.writer(response)
     writer.writerow(
