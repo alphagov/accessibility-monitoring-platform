@@ -42,11 +42,11 @@ from ..models import (
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
+from ..utils import CASE_COLUMNS_FOR_EXPORT
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
     TWELVE_WEEKS_IN_DAYS,
-    CSV_EXPORT_CASE_COLUMN_NAMES,
     find_duplicate_cases,
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
@@ -74,7 +74,7 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_fields_to_export_str: str = ",".join(CSV_EXPORT_CASE_COLUMN_NAMES.values())
+case_columns_to_export_str: str = ",".join(column.column_name for column in CASE_COLUMNS_FOR_EXPORT)
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
@@ -307,7 +307,7 @@ def test_case_export_list_view(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_case_export_list_view_respects_filters(admin_client):
@@ -333,7 +333,7 @@ def test_case_export_single_view(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_deactivate_case_view(admin_client):

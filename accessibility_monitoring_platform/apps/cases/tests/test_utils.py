@@ -127,8 +127,8 @@ def test_case_filtered_by_is_complaint(
                 column_name="Enforcement recommendation",
                 field_name="recommendation_for_enforcement",
             ),
-            "no-action",
-            "No action",
+            "no-further-action",
+            "No further action",
         ),
         (
             ColumnAndFieldNames(

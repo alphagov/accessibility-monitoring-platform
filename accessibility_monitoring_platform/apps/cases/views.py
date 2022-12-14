@@ -24,9 +24,7 @@ from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
 from ..common.utils import (
-    download_as_csv,
     extract_domain_from_url,
-    get_field_names_for_export,
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
@@ -71,6 +69,7 @@ from .utils import (
     download_ehrc_cases,
     filter_cases,
     replace_search_key_with_case_search,
+    download_cases,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -86,96 +85,6 @@ ADVANCED_SEARCH_FIELDS: List[str] = [
     "sector",
     "is_complaint",
 ]
-CSV_EXPORT_CASE_COLUMN_NAMES: Dict[str, str] = {
-    "id": "Case no.",
-    "version": "Version",
-    "created_by": "Created by",
-    "created": "Date created",
-    "status": "Status",
-    "auditor": "Auditor",
-    "test_type": "Type of test",
-    "home_page_url": "Full URL",
-    "domain": "Domain name",
-    "organisation_name": "Organisation name",
-    "psb_location": "Public sector body location",
-    "sector": "Sector",
-    "enforcement_body": "Which equalities body will check the case?",
-    "testing_methodology": "Testing methodology",
-    "report_methodology": "Report methodology",
-    "is_complaint": "Complaint?",
-    "previous_case_url": "URL to previous case",
-    "trello_url": "Trello ticket URL",
-    "notes": "Case details notes",
-    "case_details_complete_date": "Case details page complete",
-    "test_results_url": "Link to test results spreadsheet",
-    "test_status": "Spreadsheet test status",
-    "accessibility_statement_state": "Initial accessibility statement compliance decision",
-    "accessibility_statement_notes": "Initial accessibility statement compliance notes",
-    "is_website_compliant": "Initial website compliance decision",
-    "compliance_decision_notes": "Initial website compliance notes",
-    "testing_details_complete_date": "Testing details page complete",
-    "report_draft_url": "Link to report draft",
-    "report_notes": "Report details notes",
-    "reporting_details_complete_date": "Report details page complete",
-    "report_review_status": "Report ready to be reviewed?",
-    "reviewer": "QA auditor",
-    "report_approved_status": "Report approved?",
-    "reviewer_notes": "QA notes",
-    "report_final_pdf_url": "Link to final PDF report",
-    "report_final_odt_url": "Link to final ODT report",
-    "qa_process_complete_date": "QA process page complete",
-    "contact_details_complete_date": "Contact details page complete",
-    "report_sent_date": "Report sent on",
-    "report_followup_week_1_sent_date": "1-week followup sent date",
-    "report_followup_week_4_sent_date": "4-week followup sent date",
-    "report_acknowledged_date": "Report acknowledged",
-    "zendesk_url": "Zendesk ticket URL",
-    "correspondence_notes": "Report correspondence notes",
-    "report_correspondence_complete_date": "Report correspondence page complete",
-    "report_followup_week_1_due_date": "1-week followup due date",
-    "report_followup_week_4_due_date": "4-week followup due date",
-    "report_followup_week_12_due_date": "12-week followup due date",
-    "no_psb_contact": "Do you want to mark the PSB as unresponsive to this case?",
-    "twelve_week_update_requested_date": "12-week update requested",
-    "twelve_week_1_week_chaser_sent_date": "12-week chaser 1-week followup sent date",
-    "twelve_week_correspondence_acknowledged_date": "12-week update received",
-    "twelve_week_correspondence_notes": "12-week correspondence notes",
-    "twelve_week_response_state": "Mark the case as having no response to 12 week deadline",
-    "twelve_week_correspondence_complete_date": "12-week correspondence page complete",
-    "twelve_week_1_week_chaser_due_date": "12-week chaser 1-week followup due date",
-    "twelve_week_retest_complete_date": "12-week retest page complete",
-    "psb_progress_notes": "Summary of progress made from public sector body",
-    "retested_website_date": "Retested website?",
-    "is_ready_for_final_decision": "Is this case ready for final decision?",
-    "review_changes_complete_date": "Reviewing changes page complete",
-    "website_state_final": "12-week website compliance decision",
-    "website_state_notes_final": "12-week website compliance decision notes",
-    "final_website_complete_date": "Final website compliance decision page complete (spreadsheet testing)",
-    "is_disproportionate_claimed": "Disproportionate burden claimed? (spreadsheet testing)",
-    "disproportionate_notes": "Disproportionate burden notes (spreadsheet testing)",
-    "accessibility_statement_screenshot_url": "Link to accessibility statement screenshot (spreadsheet testing)",
-    "accessibility_statement_state_final": "12-week accessibility statement compliance decision",
-    "accessibility_statement_notes_final": "12-week accessibility statement compliance notes",
-    "final_statement_complete_date": "Final accessibility statement compliance decision page complete (spreadsheet testing)",
-    "recommendation_for_enforcement": "Recommendation for equality body",
-    "recommendation_notes": "Enforcement recommendation notes",
-    "compliance_email_sent_date": "Date when compliance decision email sent to public sector body",
-    "case_completed": "Case completed",
-    "completed_date": "Date case completed first updated",
-    "case_close_complete_date": "Closing the case page complete",
-    "psb_appeal_notes": "Public sector body statement appeal notes",
-    "post_case_notes": "Summary of events after the case was closed",
-    "post_case_complete_date": "Post case summary page complete",
-    "case_updated_date": "Case updated (on post case summary page)",
-    "sent_to_enforcement_body_sent_date": "Date sent to equality body",
-    "enforcement_body_pursuing": "Equality body pursuing this case?",
-    "enforcement_body_correspondence_notes": "Equality body correspondence notes",
-    "enforcement_correspondence_complete_date": "Equality body summary page complete",
-    "is_deactivated": "Deactivated case",
-    "deactivate_date": "Date deactivated",
-    "deactivate_notes": "Reason why (deactivated)",
-    "qa_status": "QA status",
-}
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -248,7 +157,9 @@ class CaseDetailView(DetailView):
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),  # type: ignore
         ]
 
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
+        get_rows: Callable = partial(
+            extract_form_labels_and_values, instance=self.object  # type: ignore
+        )
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()  # type: ignore
@@ -904,15 +815,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    field_names: List[str] = get_field_names_for_export(Case)
-    column_names: List[str] = [CSV_EXPORT_CASE_COLUMN_NAMES.get(field_name, field_name) for field_name in field_names]
-    return download_as_csv(
-        queryset=filter_cases(form=case_search_form),
-        field_names=field_names,
-        column_names=column_names,
-        filename="cases.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=filter_cases(form=case_search_form))
 
 
 def export_single_case(
@@ -928,15 +831,7 @@ def export_single_case(
     Returns:
         HttpResponse: Django HttpResponse
     """
-    field_names: List[str] = get_field_names_for_export(Case)
-    column_names: List[str] = [CSV_EXPORT_CASE_COLUMN_NAMES.get(field_name, field_name) for field_name in field_names]
-    return download_as_csv(
-        queryset=Case.objects.filter(id=pk),
-        field_names=field_names,
-        column_names=column_names,
-        filename=f"case_#{pk}.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=Case.objects.filter(id=pk))
 
 
 def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
