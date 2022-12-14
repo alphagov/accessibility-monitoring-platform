@@ -492,7 +492,7 @@ def format_model_field(
         return value
 
 
-def download_ehrc_cases(
+def download_equality_body_cases(
     cases: QuerySet[Case],
     filename: str = "ehrc_cases.csv",
 ) -> HttpResponse:

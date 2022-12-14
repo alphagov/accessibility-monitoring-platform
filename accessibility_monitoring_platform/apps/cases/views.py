@@ -66,7 +66,7 @@ from .forms import (
 )
 from .utils import (
     get_sent_date,
-    download_ehrc_cases,
+    download_equality_body_cases,
     filter_cases,
     replace_search_key_with_case_search,
     download_cases,
@@ -846,4 +846,4 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    return download_ehrc_cases(cases=filter_cases(form=case_search_form))
+    return download_equality_body_cases(cases=filter_cases(form=case_search_form))
