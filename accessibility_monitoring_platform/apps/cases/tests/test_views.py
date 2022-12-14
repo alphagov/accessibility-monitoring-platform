@@ -42,7 +42,12 @@ from ..models import (
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
-from ..utils import CASE_COLUMNS_FOR_EXPORT
+from ..utils import (
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
+)
 from ..views import (
     ONE_WEEK_IN_DAYS,
     FOUR_WEEKS_IN_DAYS,
@@ -74,8 +79,13 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
+case_equality_body_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+)
 case_columns_to_export_str: str = ",".join(
-    column.column_name for column in CASE_COLUMNS_FOR_EXPORT
+    column.column_name
+    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
 )
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
@@ -302,6 +312,14 @@ def test_case_list_view_sector_filter(admin_client):
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
+
+
+def test_case_equality_body_export_list_view(admin_client):
+    """Test that the case equality body export list view returns csv data"""
+    response: HttpResponse = admin_client.get(reverse("cases:export-ehrc-cases"))
+
+    assert response.status_code == 200
+    assertContains(response, case_equality_body_columns_to_export_str)
 
 
 def test_case_export_list_view(admin_client):
