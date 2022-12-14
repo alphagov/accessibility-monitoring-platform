@@ -13,7 +13,7 @@ const converter = new showdown.Converter()
 function previewMarkdown (sourceId, targetId) {
   const markdown = document.getElementById(sourceId).value
   const targetElement = document.getElementById(targetId)
-  targetElement.innerHTML = converter.makeHtml(markdown)
+  targetElement.innerHTML = converter.makeHtml(markdown.replaceAll('<', '&lt;').replaceAll('`&lt;', '`<'))
 }
 
 const previewElements = document.getElementsByClassName('amp-preview')
