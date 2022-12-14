@@ -12,8 +12,13 @@ from typing import Any, Dict, List, Tuple
 from django.http import HttpResponse
 from django.http.request import QueryDict
 
+from ...audits.models import Audit
 from ..models import Case, Contact
 from ..utils import (
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
     get_sent_date,
     filter_cases,
     ColumnAndFieldNames,
@@ -225,9 +230,12 @@ def test_replace_search_key_with_case_search(
 @pytest.mark.django_db
 def test_download_equality_body_cases():
     """Test creation of CSV for equality bodies"""
-    cases: List[Case] = [
-        Case.objects.create(),
-    ]
+    case: Case = Case.objects.create()
+    cases: List[Case] = [case]
+    Audit.objects.create(
+        case=case, audit_retest_disproportionate_burden_notes="Audit for CSV export"
+    )
+
     response: HttpResponse = download_equality_body_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
 
     assert response.status_code == 200
@@ -240,33 +248,8 @@ def test_download_equality_body_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     assert csv_header == [
-        "Equality body",
-        "Test type",
-        "Case No.",
-        "Case completed date",
-        "Organisation",
-        "Website URL",
-        "Is it a complaint?",
-        "Link to report",
-        "Enforcement recommendation",
-        "Enforcement recommendation notes",
-        "Summary of progress made / response from PSB",
-        "Disproportionate Burden Claimed?",
-        "Disproportionate Burden Notes",
-        "Accessibility Statement Decision",
-        "Notes on accessibility statement",
-        "Contact detail",
-        "Contact name",
-        "Job title",
-        "Report sent on",
-        "Report acknowledged",
-        "Followup date - 12-week deadline",
-        "Retest date",
-        "Published report",
-        "Initial disproportionate burden claimed?",
-        "Initial disproportionate notes",
-        "Final disproportionate burden claimed?",
-        "Final disproportionate notes",
+        column.column_name
+        for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
     ]
     assert csv_body == [
         [
@@ -293,10 +276,10 @@ def test_download_equality_body_cases():
             "",
             "",
             "",
+            "No claim",
             "",
-            "",
-            "",
-            "",
+            "No claim",
+            "Audit for CSV export",
         ]
     ]
 
@@ -322,96 +305,8 @@ def test_download_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     assert csv_header == [
-        "Case no.",
-        "Version",
-        "Created by",
-        "Date created",
-        "Status",
-        "Auditor",
-        "Type of test",
-        "Full URL",
-        "Domain name",
-        "Organisation name",
-        "Public sector body location",
-        "Sector",
-        "Which equalities body will check the case?",
-        "Testing methodology",
-        "Report methodology",
-        "Complaint?",
-        "URL to previous case",
-        "Trello ticket URL",
-        "Case details notes",
-        "Case details page complete",
-        "Link to test results spreadsheet",
-        "Spreadsheet test status",
-        "Initial accessibility statement compliance decision",
-        "Initial accessibility statement compliance notes",
-        "Initial website compliance decision",
-        "Initial website compliance notes",
-        "Testing details page complete",
-        "Link to report draft",
-        "Report details notes",
-        "Report details page complete",
-        "Report ready to be reviewed?",
-        "QA auditor",
-        "Report approved?",
-        "QA notes",
-        "Link to final PDF report",
-        "Link to final ODT report",
-        "QA process page complete",
-        "Contact details page complete",
-        "Report sent on",
-        "1-week followup sent date",
-        "4-week followup sent date",
-        "Report acknowledged",
-        "Zendesk ticket URL",
-        "Report correspondence notes",
-        "Report correspondence page complete",
-        "1-week followup due date",
-        "4-week followup due date",
-        "12-week followup due date",
-        "Do you want to mark the PSB as unresponsive to this case?",
-        "12-week update requested",
-        "12-week chaser 1-week followup sent date",
-        "12-week update received",
-        "12-week correspondence notes",
-        "Mark the case as having no response to 12 week deadline",
-        "12-week correspondence page complete",
-        "12-week chaser 1-week followup due date",
-        "12-week retest page complete",
-        "Summary of progress made from public sector body",
-        "Retested website?",
-        "Is this case ready for final decision?",
-        "Reviewing changes page complete",
-        "12-week website compliance decision",
-        "12-week website compliance decision notes",
-        "Final website compliance decision page complete (spreadsheet testing)",
-        "Disproportionate burden claimed? (spreadsheet testing)",
-        "Disproportionate burden notes (spreadsheet testing)",
-        "Link to accessibility statement screenshot (spreadsheet testing)",
-        "12-week accessibility statement compliance decision",
-        "12-week accessibility statement compliance notes",
-        "Final accessibility statement compliance decision page complete (spreadsheet testing)",
-        "Recommendation for equality body",
-        "Enforcement recommendation notes",
-        "Date when compliance decision email sent to public sector body",
-        "Case completed",
-        "Date case completed first updated",
-        "Closing the case page complete",
-        "Public sector body statement appeal notes",
-        "Summary of events after the case was closed",
-        "Post case summary page complete",
-        "Case updated (on post case summary page)",
-        "Date sent to equality body",
-        "Equality body pursuing this case?",
-        "Equality body correspondence notes",
-        "Equality body summary page complete",
-        "Deactivated case",
-        "Date deactivated",
-        "Reason why (deactivated)",
-        "QA status",
-        "Contact email",
-        "Contact notes",
+        column.column_name
+        for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
     ]
     assert csv_body == [
         [

@@ -35,7 +35,7 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
-COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
+COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Equality body",
         field_name="enforcement_body",
@@ -93,7 +93,7 @@ COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
     ),
 ]
 
-EXTRA_AUDIT_COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
+EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Initial disproportionate burden claimed?",
         field_name="disproportionate_burden_state",
@@ -504,7 +504,8 @@ def download_equality_body_cases(
     writer.writerow(
         [
             column.column_name
-            for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC
+            for column in COLUMNS_FOR_EQUALITY_BODY
+            + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
         ]
     )
 
@@ -512,12 +513,12 @@ def download_equality_body_cases(
     for case in cases:
         contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))  # type: ignore
         row = []
-        for column in COLUMNS_FOR_EHRC:
+        for column in COLUMNS_FOR_EQUALITY_BODY:
             if column.field_name is None:
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
-        for column in EXTRA_AUDIT_COLUMNS_FOR_EHRC:
+        for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:
             row.append(format_model_field(model_instance=case.audit, column=column))  # type: ignore
         output.append(row)
     writer.writerows(output)

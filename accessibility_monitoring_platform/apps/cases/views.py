@@ -834,7 +834,7 @@ def export_single_case(
     return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
 
 
-def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases to send to an enforcement body
 
