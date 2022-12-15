@@ -696,11 +696,11 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
     "index, expected_result",
     [
         (0, "#1d70b8"),
-        (1, "#f47738"),
-        (2, "#d53880"),
-        (3, "#00703c"),
+        (1, "#85994b"),
+        (2, "#912B88"),
+        (3, "#ffdd00"),
         (4, "#1d70b8"),
-        (5, "#f47738"),
+        (5, "#85994b"),
     ],
 )
 def test_get_line_stroke(index: int, expected_result: str):

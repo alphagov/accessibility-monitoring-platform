@@ -21,9 +21,9 @@ X_AXIS_LABEL_Y_OFFSET: int = 25
 STROKE_DASHARRAY_DOTTED: str = "5"
 STROKE_COLOURS: List[str] = [
     "#1d70b8",  # govuk-colour("blue")
-    "#f47738",  # govuk-colour("orange")
-    "#d53880",  # govuk-colour("pink")
-    "#00703c",  # govuk-colour("green")
+    "#85994b",  # govuk-colour("light-green")
+    "#912B88",  # govuk-colour("bright-purple")
+    "#ffdd00",  # govuk-colour("yellow")
 ]
 LINE_LABEL_X_STEP: int = 110
 LINE_LABEL_Y: int = -10
