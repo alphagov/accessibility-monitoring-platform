@@ -1,5 +1,5 @@
 <svg
-    aria-hidden="true"
+    alt="Line graph"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="-60 -25 {{ chart.chart_width }} {{ chart.chart_height }}"
     stroke="currentColor"
