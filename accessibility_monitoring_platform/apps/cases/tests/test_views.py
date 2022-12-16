@@ -33,6 +33,7 @@ from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_SPREADSHEET,
     Case,
+    CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
@@ -41,6 +42,9 @@ from ..models import (
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
     COLUMNS_FOR_EQUALITY_BODY,
@@ -316,7 +320,9 @@ def test_case_list_view_sector_filter(admin_client):
 
 def test_case_equality_body_export_list_view(admin_client):
     """Test that the case equality body export list view returns csv data"""
-    response: HttpResponse = admin_client.get(reverse("cases:export-equality-body-cases"))
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-equality-body-cases")
+    )
 
     assert response.status_code == 200
     assertContains(response, case_equality_body_columns_to_export_str)
@@ -552,6 +558,56 @@ def test_create_case_can_create_duplicate_cases(
 
     assert response.status_code == 302
     assert response.url == expected_redirect_url  # type: ignore
+
+
+def test_create_case_creates_case_event(admin_client):
+    """Test that a successful case create also creates a case event"""
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "save_exit": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    case: Case = Case.objects.get(home_page_url=HOME_PAGE_URL)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_TYPE_CREATE
+    assert case_event.message == "Created case"
+
+
+def test_updating_case_creates_case_event(admin_client):
+    """
+    Test that updating a case (changing case completed) creates a case event
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),  # type: ignore
+        {
+            "case_completed": CASE_COMPLETED_NO_SEND,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    # pylint: disable=line-too-long
+    assert (
+        case_event.message
+        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+    )
 
 
 @pytest.mark.parametrize(

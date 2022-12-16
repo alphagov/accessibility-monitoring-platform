@@ -2,7 +2,6 @@
 Tests for audits views
 """
 import pytest
-
 from typing import Dict, List, Optional
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -14,7 +13,14 @@ from django.utils import timezone
 
 from accessibility_monitoring_platform.apps.common.models import BOOLEAN_TRUE
 
-from ...cases.models import Case, Contact, REPORT_METHODOLOGY_ODT
+from ...cases.models import (
+    Case,
+    CaseEvent,
+    Contact,
+    REPORT_METHODOLOGY_ODT,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_START_RETEST,
+)
 from ..models import (
     PAGE_TYPE_PDF,
     PAGE_TYPE_STATEMENT,
@@ -198,6 +204,27 @@ def test_create_audit_does_not_create_a_duplicate(admin_client):
     assert Audit.objects.filter(case=audit.case).count() == 1
 
 
+def test_create_audit_creates_case_event(admin_client):
+    """Test that audit create creates a case event"""
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:audit-create", kwargs=path_kwargs),
+        {
+            "save_continue": "Create test",
+        },
+    )
+
+    assert response.status_code == 302
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_CREATE_AUDIT
+    assert case_event.message == "Started test"
+
+
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
@@ -374,6 +401,32 @@ def test_audit_edit_redirects_based_on_button_pressed(
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path  # type: ignore
+
+
+def test_retest_date_change_creates_case_event(admin_client):
+    """Test that changing the retest date creates a case event"""
+    audit: Audit = create_audit()
+    path_kwargs: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-retest-metadata", kwargs=path_kwargs),
+        {
+            "retest_date_0": 30,
+            "retest_date_1": 11,
+            "retest_date_2": 2022,
+            "save": "Save",
+            "version": audit.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=audit.case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.message == "Started retest (date set to 30 November 2022)"
 
 
 @pytest.mark.parametrize(
@@ -931,6 +984,26 @@ def test_start_retest_redirects(admin_client):
     assert response.url == reverse(  # type: ignore
         "audits:edit-audit-retest-metadata", kwargs={"pk": audit_pk}
     )
+
+
+def test_start_retest_creates_case_event(admin_client):
+    """Test that starting a retest creates case event"""
+    audit: Audit = create_audit()
+    audit_pk: int = audit.id  # type: ignore
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:audit-retest-start", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=audit.case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_START_RETEST
+    assert case_event.message == "Started retest"
 
 
 def test_retest_details_renders_when_no_psb_response(admin_client):
