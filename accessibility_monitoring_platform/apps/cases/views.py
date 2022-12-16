@@ -25,9 +25,7 @@ from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
 from ..common.utils import (
-    download_as_csv,
     extract_domain_from_url,
-    get_field_names_for_export,
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
@@ -69,9 +67,10 @@ from .forms import (
 )
 from .utils import (
     get_sent_date,
-    download_ehrc_cases,
+    download_equality_body_cases,
     filter_cases,
     replace_search_key_with_case_search,
+    download_cases,
     record_case_event,
 )
 
@@ -160,7 +159,9 @@ class CaseDetailView(DetailView):
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),  # type: ignore
         ]
 
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
+        get_rows: Callable = partial(
+            extract_form_labels_and_values, instance=self.object  # type: ignore
+        )
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()  # type: ignore
@@ -821,12 +822,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    return download_as_csv(
-        queryset=filter_cases(form=case_search_form),
-        field_names=get_field_names_for_export(Case),
-        filename="cases.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=filter_cases(form=case_search_form))
 
 
 def export_single_case(
@@ -842,15 +838,10 @@ def export_single_case(
     Returns:
         HttpResponse: Django HttpResponse
     """
-    return download_as_csv(
-        queryset=Case.objects.filter(id=pk),
-        field_names=get_field_names_for_export(Case),
-        filename=f"case_#{pk}.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
 
 
-def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases to send to an enforcement body
 
@@ -862,4 +853,4 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    return download_ehrc_cases(cases=filter_cases(form=case_search_form))
+    return download_equality_body_cases(cases=filter_cases(form=case_search_form))

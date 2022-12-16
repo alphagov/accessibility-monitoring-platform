@@ -16,7 +16,6 @@ from django.db import models
 from .forms import AMPTextField, AMPURLField
 from .models import Sector
 
-CONTACT_FIELDS = ["contact_email", "contact_notes"]
 EXCLUDED_FIELDS = [
     "version",
     "case_details_complete_date",
@@ -38,8 +37,6 @@ EXCLUDED_FIELDS = [
     "axe_checks_complete_date",
     "case_close_complete_date",
     "contact_details_complete_date",
-    "final_statement_complete_date",
-    "final_website_complete_date",
     "post_case_complete_date",
     "review_changes_complete_date",
     "twelve_week_correspondence_complete_date",

@@ -3,16 +3,20 @@ Test utility functions of cases app
 """
 import pytest
 
+import csv
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, List, Optional
+import io
+from typing import Any, Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
+from django.http import HttpResponse
 from django.http.request import QueryDict
 
 from ...audits.models import Audit
 from ...common.models import BOOLEAN_TRUE
+
 from ..models import (
     Case,
     CaseEvent,
@@ -30,12 +34,18 @@ from ..models import (
     CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
     get_sent_date,
     filter_cases,
     ColumnAndFieldNames,
     format_model_field,
     format_contacts,
     replace_search_key_with_case_search,
+    download_equality_body_cases,
+    download_cases,
     record_case_event,
 )
 
@@ -57,6 +67,8 @@ CONTACTS: List[Contact] = [
     ),
 ]
 
+CSV_EXPORT_FILENAME: str = "cases_export.csv"
+
 
 @dataclass
 class MockCase:
@@ -70,6 +82,15 @@ class MockForm:
     """Mock of form for testing"""
 
     cleaned_data: Dict[str, str]
+
+
+def decode_csv_response(response: HttpResponse) -> Tuple[List[str], List[List[str]]]:
+    """Decode CSV HTTP response and break into column names and data"""
+    content: str = response.content.decode("utf-8")
+    cvs_reader: Any = csv.reader(io.StringIO(content))
+    csv_body: List[List[str]] = list(cvs_reader)
+    csv_header: List[str] = csv_body.pop(0)
+    return csv_header, csv_body
 
 
 @pytest.mark.parametrize(
@@ -127,6 +148,19 @@ def test_case_filtered_by_is_complaint(
     assert filtered_cases[0].organisation_name == expected_name
 
 
+def test_format_case_field_with_no_data():
+    """
+    Test that format_model_field returns empty string if no model instance
+    """
+    assert (
+        format_model_field(
+            model_instance=None,
+            column=ColumnAndFieldNames(column_name="A", field_name="a"),
+        )
+        == ""
+    )
+
+
 @pytest.mark.parametrize(
     "column, case_value, expected_formatted_value",
     [
@@ -147,8 +181,8 @@ def test_case_filtered_by_is_complaint(
                 column_name="Enforcement recommendation",
                 field_name="recommendation_for_enforcement",
             ),
-            "no-action",
-            "No action",
+            "no-further-action",
+            "No further action",
         ),
         (
             ColumnAndFieldNames(
@@ -211,6 +245,184 @@ def test_replace_search_key_with_case_search(
     while converting QueryDict to dict.
     """
     assert replace_search_key_with_case_search(query_dict) == expected_dict
+
+
+@pytest.mark.django_db
+def test_download_equality_body_cases():
+    """Test creation of CSV for equality bodies"""
+    case: Case = Case.objects.create()
+    cases: List[Case] = [case]
+    Audit.objects.create(
+        case=case, audit_retest_disproportionate_burden_notes="Audit for CSV export"
+    )
+
+    response: HttpResponse = download_equality_body_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+
+    assert response.status_code == 200
+
+    assert response.headers == {  # type: ignore
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    assert csv_header == [
+        column.column_name
+        for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+    ]
+    assert csv_body == [
+        [
+            "EHRC",
+            "Simplified",
+            "1",
+            "",
+            "",
+            "",
+            "No",
+            "",
+            "Not selected",
+            "",
+            "",
+            "Not known",
+            "",
+            "Not selected",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "No claim",
+            "",
+            "No claim",
+            "Audit for CSV export",
+        ]
+    ]
+
+
+@pytest.mark.django_db
+def test_download_cases():
+    """Test creation of CSV download of cases"""
+    case: Case = Case.objects.create()
+    cases: List[Case] = [case]
+    Contact.objects.create(
+        case=case, email="test@example.com", notes="Contact for CSV export"
+    )
+
+    response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+
+    assert response.status_code == 200
+
+    assert response.headers == {  # type: ignore
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    assert csv_header == [
+        column.column_name
+        for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    ]
+
+    assert csv_body == [
+        [
+            "1",
+            "1",
+            "",
+            "16/12/2022",
+            "Unassigned case",
+            "",
+            "Simplified",
+            "",
+            "",
+            "",
+            "Unknown",
+            "",
+            "EHRC",
+            "Platform",
+            "Platform (requires Platform in testing methodology)",
+            "No",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Not started",
+            "Not selected",
+            "",
+            "Not selected",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Not started",
+            "",
+            "Not started",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "No",
+            "",
+            "",
+            "",
+            "",
+            "Not selected",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "No",
+            "",
+            "Not known",
+            "",
+            "",
+            "Not known",
+            "",
+            "",
+            "Not selected",
+            "",
+            "",
+            "Not selected",
+            "",
+            "",
+            "Case still in progress",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "No",
+            "",
+            "",
+            "False",
+            "",
+            "",
+            "Unknown",
+            "test@example.com",
+            "Contact for CSV export",
+        ]
+    ]
 
 
 @pytest.mark.parametrize(

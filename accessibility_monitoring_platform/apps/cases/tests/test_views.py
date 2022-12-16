@@ -25,7 +25,6 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import get_field_names_for_export
 from ...common.utils import amp_format_date
 from ...reports.models import Report
 
@@ -46,6 +45,12 @@ from ..models import (
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_CASE_COMPLETED,
     CASE_COMPLETED_NO_SEND,
+)
+from ..utils import (
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -78,7 +83,14 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
+case_equality_body_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+)
+case_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+)
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
@@ -306,12 +318,22 @@ def test_case_list_view_sector_filter(admin_client):
     assertNotContains(response, "Excluded")
 
 
+def test_case_equality_body_export_list_view(admin_client):
+    """Test that the case equality body export list view returns csv data"""
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-equality-body-cases")
+    )
+
+    assert response.status_code == 200
+    assertContains(response, case_equality_body_columns_to_export_str)
+
+
 def test_case_export_list_view(admin_client):
     """Test that the case export list view returns csv data"""
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_case_export_list_view_respects_filters(admin_client):
@@ -337,7 +359,7 @@ def test_case_export_single_view(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_deactivate_case_view(admin_client):

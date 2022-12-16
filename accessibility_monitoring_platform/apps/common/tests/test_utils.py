@@ -4,16 +4,13 @@ Test - common utility functions
 import pytest
 
 from typing import Any, Dict, List, Tuple
-import csv
 from datetime import date, datetime, timedelta
-import io
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -29,7 +26,6 @@ from ..models import (
 )
 from ..utils import (
     build_filters,
-    download_as_csv,
     extract_domain_from_url,
     amp_format_date,
     amp_format_datetime,
@@ -53,61 +49,6 @@ class MockModel:
         self.integer_field = integer_field
         self.char_field = char_field
         self.field_not_in_csv = "field_not_in_csv"
-
-
-MOCK_MODEL_FIELDS: List[str] = ["integer_field", "char_field"]
-MOCK_MODEL_DATA: List[List[str]] = [["1", "char1"], ["2", "char2"]]
-MOCK_QUERYSET: List[MockModel] = [
-    MockModel(integer_field=1, char_field="char1"),
-    MockModel(integer_field=2, char_field="char2"),
-]
-CSV_FILENAME: str = "filename.csv"
-
-
-def get_csv_response() -> HttpResponse:
-    """Call download_as_csv and return response"""
-    return download_as_csv(
-        queryset=MOCK_QUERYSET,  # type: ignore
-        field_names=MOCK_MODEL_FIELDS,
-        filename=CSV_FILENAME,
-    )
-
-
-def get_csv_data_header_and_body() -> Tuple[List[str], List[List[str]]]:
-    """Get the csv data and return the headers and body separately"""
-    response: HttpResponse = get_csv_response()
-    content: str = response.content.decode("utf-8")
-    cvs_reader: Any = csv.reader(io.StringIO(content))
-    csv_body: List[List[str]] = list(cvs_reader)
-    csv_header: List[str] = csv_body.pop(0)
-    return csv_header, csv_body
-
-
-def test_response_code_is_200():
-    """Tests whether the download function response has status code 200"""
-    response: HttpResponse = get_csv_response()
-    assert response.status_code == 200
-
-
-def test_response_headers_contains_filename():
-    """Tests that the response headers contains the requested file name"""
-    response: HttpResponse = get_csv_response()
-    assert (
-        response.headers["Content-Disposition"]  # type: ignore
-        == f"attachment; filename={CSV_FILENAME}"
-    )
-
-
-def test_csv_header_is_as_expected():
-    """Tests that the csv header matches the list of fields"""
-    csv_header, _ = get_csv_data_header_and_body()
-    assert csv_header == MOCK_MODEL_FIELDS
-
-
-def test_csv_body_is_as_expected():
-    """Tests that the csv data matches that returned by the queryset"""
-    _, csv_body = get_csv_data_header_and_body()
-    assert csv_body == MOCK_MODEL_DATA
 
 
 def test_extract_domain_from_url_https():
