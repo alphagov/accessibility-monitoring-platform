@@ -13,7 +13,7 @@ from ..chart import (
     Point,
     Polyline,
     LineChart,
-    LineLabel,
+    LegendEntry,
     PolylineStroke,
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
@@ -376,11 +376,11 @@ def test_build_yearly_metric_chart(mock_timezone):
     )
 
     assert build_yearly_metric_chart(lines=[timeseries]) == LineChart(
-        key=[
-            LineLabel(
+        legend=[
+            LegendEntry(
                 label="Counts",
-                line_stroke="#1d70b8",
-                line_stroke_dasharray="",
+                stroke="#1d70b8",
+                stroke_dasharray="",
                 label_x=30,
                 label_y=-10,
                 line_x1=0,
@@ -546,11 +546,11 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
     )
 
     assert build_yearly_metric_chart(lines=[timeseries]) == LineChart(
-        key=[
-            LineLabel(
+        legend=[
+            LegendEntry(
                 label="Counts",
-                line_stroke="#1d70b8",
-                line_stroke_dasharray="",
+                stroke="#1d70b8",
+                stroke_dasharray="",
                 label_x=30,
                 label_y=-10,
                 line_x1=0,
@@ -693,12 +693,10 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
 @pytest.mark.parametrize(
     "index, expected_result",
     [
-        (0, PolylineStroke(colour="#1d70b8", dasharray="")),
-        (1, PolylineStroke(colour="#00703c", dasharray="2")),
-        (2, PolylineStroke(colour="#4c2c92", dasharray="6")),
-        (3, PolylineStroke(colour="#d4351c", dasharray="2 2 8 4")),
-        (4, PolylineStroke(colour="#1d70b8", dasharray="")),
-        (5, PolylineStroke(colour="#00703c", dasharray="2")),
+        (0, PolylineStroke(stroke="#1d70b8", dasharray="")),
+        (1, PolylineStroke(stroke="#00703c", dasharray="2")),
+        (2, PolylineStroke(stroke="#4c2c92", dasharray="6")),
+        (3, PolylineStroke(stroke="#d4351c", dasharray="2 2 8 4")),
     ],
 )
 def test_get_polyline_stroke(index: int, expected_result: PolylineStroke):
