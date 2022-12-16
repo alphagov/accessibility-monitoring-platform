@@ -8,6 +8,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
@@ -17,7 +18,20 @@ from ..common.utils import build_filters
 
 from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
 
-from .models import Case, Contact, STATUS_READY_TO_QA
+from .models import (
+    Case,
+    CaseEvent,
+    Contact,
+    STATUS_READY_TO_QA,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_CASE_COMPLETED,
+)
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -263,3 +277,87 @@ def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str
     if "search" in search_args:
         search_args["case_search"] = search_args.pop("search")
     return search_args
+
+
+def record_case_event(
+    user: User, new_case: Case, old_case: Optional[Case] = None
+) -> None:
+    """Create a case event based on the changes between the old and new cases"""
+    if old_case is None:
+        CaseEvent.objects.create(
+            case=new_case, done_by=user, event_type=CASE_EVENT_TYPE_CREATE
+        )
+        return
+    if old_case.auditor != new_case.auditor:
+        old_user_name: str = (
+            old_case.auditor.get_full_name() if old_case.auditor is not None else "none"
+        )
+        new_user_name: str = (
+            new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
+        )
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_AUDITOR,
+            message=f"Auditor changed from {old_user_name} to {new_user_name}",
+        )
+    if old_case.audit is None and new_case.audit is not None:
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_CREATE_AUDIT,
+            message="Start of test",
+        )
+    if old_case.report_review_status != new_case.report_review_status:
+        old_status: str = old_case.get_report_review_status_display()  # type: ignore
+        new_status: str = new_case.get_report_review_status_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_READY_FOR_QA,
+            message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.reviewer != new_case.reviewer:
+        old_user_name: str = (
+            old_case.reviewer.get_full_name()
+            if old_case.reviewer is not None
+            else "none"
+        )
+        new_user_name: str = (
+            new_case.reviewer.get_full_name()
+            if new_case.reviewer is not None
+            else "none"
+        )
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_QA_AUDITOR,
+            message=f"QA auditor changed from {old_user_name} to {new_user_name}",
+        )
+    if old_case.report_approved_status != new_case.report_approved_status:
+        old_status: str = old_case.get_report_approved_status_display()  # type: ignore
+        new_status: str = new_case.get_report_approved_status_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_APPROVE_REPORT,
+            message=f"Report approved changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
+        old_status: str = old_case.get_is_ready_for_final_decision_display()  # type: ignore
+        new_status: str = new_case.get_is_ready_for_final_decision_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+            message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.case_completed != new_case.case_completed:
+        old_status: str = old_case.get_case_completed_display()  # type: ignore
+        new_status: str = new_case.get_case_completed_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_CASE_COMPLETED,
+            message=f"Case completed changed from '{old_status}' to '{new_status}'",
+        )

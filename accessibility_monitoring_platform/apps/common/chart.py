@@ -155,8 +155,12 @@ def build_y_axis(y_tick_size: int, is_ratio: bool = False) -> List[ChartAxisTick
     if is_ratio:
         return Y_AXIS_RATIO
     return [
-        ChartAxisTick(value=y_tick_size * 5, label=str(f"{y_tick_size * 5:,}"), y_position=0),
-        ChartAxisTick(value=y_tick_size * 4, label=str(f"{y_tick_size * 4:,}"), y_position=50),
+        ChartAxisTick(
+            value=y_tick_size * 5, label=str(f"{y_tick_size * 5:,}"), y_position=0
+        ),
+        ChartAxisTick(
+            value=y_tick_size * 4, label=str(f"{y_tick_size * 4:,}"), y_position=50
+        ),
         ChartAxisTick(
             value=y_tick_size * 3, label=str(f"{y_tick_size * 3:,}"), y_position=100
         ),
@@ -235,7 +239,9 @@ def build_yearly_metric_chart(
             Polyline(
                 stroke=stroke,
                 points=[
-                    calculate_timeseries_point(now=now, y_tick_size=y_tick_size, datapoint=datapoint)
+                    calculate_timeseries_point(
+                        now=now, y_tick_size=y_tick_size, datapoint=datapoint
+                    )
                     for datapoint in penultimate_datapoints
                 ],
             )
@@ -245,7 +251,9 @@ def build_yearly_metric_chart(
                 stroke=stroke,
                 stroke_dasharray=STROKE_DASHARRAY_DOTTED,
                 points=[
-                    calculate_timeseries_point(now=now, y_tick_size=y_tick_size, datapoint=datapoint)
+                    calculate_timeseries_point(
+                        now=now, y_tick_size=y_tick_size, datapoint=datapoint
+                    )
                     for datapoint in last_month_datapoints
                 ],
             )

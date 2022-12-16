@@ -77,7 +77,10 @@ def test_calculate_x_position_from_metric_date(
     ],
 )
 def test_calculate_timeseries_point(
-    now: datetime, y_tick_size: int, datapoint: TimeseriesDatapoint, expected_result: int
+    now: datetime,
+    y_tick_size: int,
+    datapoint: TimeseriesDatapoint,
+    expected_result: int,
 ):
     """Test position of timeseries data point is calculated correctly"""
     assert calculate_timeseries_point(now, y_tick_size, datapoint) == expected_result
