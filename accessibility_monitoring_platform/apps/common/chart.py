@@ -28,6 +28,7 @@ Y_AXIS_NUMBER_OF_TICKS: int = 5
 @dataclass
 class PolylineStroke:
     """Attributes to distinguish lines in chart"""
+
     stroke: str
     dasharray: str
 
@@ -43,6 +44,7 @@ POLYLINE_STROKES: List[PolylineStroke] = [
 @dataclass
 class ChartAxisTick:
     """Date to draw lines as ticks on x and y axes"""
+
     value: Union[int, datetime]
     label: str
     x_position: int = 0
