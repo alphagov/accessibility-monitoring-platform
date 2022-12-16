@@ -7,7 +7,7 @@
     fill="none"
 >
     {% for line_label in chart.key %}
-        <line stroke={{ line_label.line_stroke }} stroke-width="3" x1="{{ line_label.line_x1 }}" x2="{{ line_label.line_x2 }}" y1="{{ line_label.line_y }}" y2="{{ line_label.line_y }}"></line>
+        <line stroke={{ line_label.line_stroke }} {% if line_label.line_stroke_dasharray %}stroke-dasharray="{{ line_label.line_stroke_dasharray }}"{% endif %} stroke-width="3" x1="{{ line_label.line_x1 }}" x2="{{ line_label.line_x2 }}" y1="{{ line_label.line_y }}" y2="{{ line_label.line_y }}"></line>
         <text fill="currentColor" text-anchor="left" x="{{ line_label.label_x }}" y="{{ line_label.label_y }}">
             {{ line_label.label }}
         </text>
