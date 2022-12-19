@@ -10,7 +10,7 @@ from django.db import connection, models
 
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
 from ....audits.models import Audit, CheckResult, Page, WcagDefinition
-from ....cases.models import Case, Contact
+from ....cases.models import Case, CaseEvent, Contact
 from ....comments.models import Comment, CommentHistory
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
@@ -87,7 +87,7 @@ class Command(BaseCommand):
             ]
         )
         delete_from_models([Reminder])
-        delete_from_models([Contact, Case])
+        delete_from_models([Contact, CaseEvent, Case])
         delete_from_models(
             [ChangeToPlatform, Event, IssueReport, Platform, Sector]
         )  # Common

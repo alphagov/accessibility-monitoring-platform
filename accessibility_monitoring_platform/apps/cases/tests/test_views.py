@@ -25,7 +25,6 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import get_field_names_for_export
 from ...common.utils import amp_format_date
 from ...reports.models import Report
 
@@ -34,6 +33,7 @@ from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_SPREADSHEET,
     Case,
+    CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
@@ -42,6 +42,15 @@ from ..models import (
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_COMPLETED_NO_SEND,
+)
+from ..utils import (
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -74,7 +83,14 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
+case_equality_body_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+)
+case_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+)
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
@@ -302,12 +318,22 @@ def test_case_list_view_sector_filter(admin_client):
     assertNotContains(response, "Excluded")
 
 
+def test_case_equality_body_export_list_view(admin_client):
+    """Test that the case equality body export list view returns csv data"""
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-equality-body-cases")
+    )
+
+    assert response.status_code == 200
+    assertContains(response, case_equality_body_columns_to_export_str)
+
+
 def test_case_export_list_view(admin_client):
     """Test that the case export list view returns csv data"""
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_case_export_list_view_respects_filters(admin_client):
@@ -333,7 +359,7 @@ def test_case_export_single_view(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_deactivate_case_view(admin_client):
@@ -532,6 +558,56 @@ def test_create_case_can_create_duplicate_cases(
 
     assert response.status_code == 302
     assert response.url == expected_redirect_url  # type: ignore
+
+
+def test_create_case_creates_case_event(admin_client):
+    """Test that a successful case create also creates a case event"""
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "save_exit": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    case: Case = Case.objects.get(home_page_url=HOME_PAGE_URL)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_TYPE_CREATE
+    assert case_event.message == "Created case"
+
+
+def test_updating_case_creates_case_event(admin_client):
+    """
+    Test that updating a case (changing case completed) creates a case event
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),  # type: ignore
+        {
+            "case_completed": CASE_COMPLETED_NO_SEND,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    # pylint: disable=line-too-long
+    assert (
+        case_event.message
+        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+    )
 
 
 @pytest.mark.parametrize(
