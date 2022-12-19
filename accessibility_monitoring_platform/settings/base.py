@@ -53,6 +53,7 @@ CSRF_TRUSTED_ORIGINS.append("http://localhost:3000")
 # Application definition
 
 INSTALLED_APPS = [
+    "websites.apps.WebsitesConfig",
     "accessibility_monitoring_platform.apps.cases",
     "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.common",
