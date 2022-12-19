@@ -33,7 +33,7 @@ class="govuk-link govuk-link--no-visited-state">report</a>"""
 METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <svg version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+    <svg alt="Up arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
         xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
         <defs id="defs874" />
         <g transform="matrix(0,-0.02890173,-0.02890173,0,16.661851,42.167634)" id="g868" style="stroke-width:34.6">
@@ -49,7 +49,7 @@ METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
 METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <svg version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+    <svg alt="Down arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
         xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
         <defs id="defs874" />
             <g transform="matrix(0,0.02890173,0.02890173,0,0.27456977,7.8323783)"

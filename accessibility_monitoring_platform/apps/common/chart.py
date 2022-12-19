@@ -1,5 +1,4 @@
 """ Utility functions for calculating metrics and charts """
-
 from dataclasses import dataclass
 from datetime import datetime, timezone as datetime_timezone
 import math
@@ -18,13 +17,6 @@ CHART_WIDTH: int = GRAPH_WIDTH + CHART_WIDTH_EXTRA
 AXIS_TICK_LENGTH: int = 10
 X_AXIS_STEP: int = 50
 X_AXIS_LABEL_Y_OFFSET: int = 25
-STROKE_DASHARRAY_DOTTED: str = "5"
-STROKE_COLOURS: List[str] = [
-    "#1d70b8",  # govuk-colour("blue")
-    "#f47738",  # govuk-colour("orange")
-    "#d53880",  # govuk-colour("pink")
-    "#00703c",  # govuk-colour("green")
-]
 LINE_LABEL_X_STEP: int = 110
 LINE_LABEL_Y: int = -10
 LINE_LABEL_STROKE_Y: int = -15
@@ -34,7 +26,25 @@ Y_AXIS_NUMBER_OF_TICKS: int = 5
 
 
 @dataclass
+class PolylineStroke:
+    """Attributes to distinguish lines in chart"""
+
+    stroke: str
+    dasharray: str
+
+
+POLYLINE_STROKES: List[PolylineStroke] = [
+    PolylineStroke(stroke="#1d70b8", dasharray=""),  # govuk-colour("blue")
+    PolylineStroke(stroke="#00703c", dasharray="2"),  # govuk-colour("green")
+    PolylineStroke(stroke="#4c2c92", dasharray="6"),  # govuk-colour("purple")
+    PolylineStroke(stroke="#d4351c", dasharray="2 2 8 4"),  # govuk-colour("red")
+]
+
+
+@dataclass
 class ChartAxisTick:
+    """Date to draw lines as ticks on x and y axes"""
+
     value: Union[int, datetime]
     label: str
     x_position: int = 0
@@ -66,11 +76,12 @@ class Polyline:
 
 
 @dataclass
-class LineLabel:
-    """Individual line and label in chart key"""
+class LegendEntry:
+    """Sample line and label in chart legend"""
 
     label: str
-    line_stroke: str
+    stroke: str
+    stroke_dasharray: str
     label_x: int
     label_y: int
     line_x1: int
@@ -82,7 +93,7 @@ class LineLabel:
 class LineChart:
     """Context for SVG line of chart"""
 
-    key: List[LineLabel]
+    legend: List[LegendEntry]
     polylines: List[Polyline]
     x_axis: List[ChartAxisTick]
     y_axis: List[ChartAxisTick]
@@ -206,15 +217,16 @@ def build_yearly_metric_chart(
             values.append(datapoint.value)
     max_value: int = max(values) if values else 0
     y_tick_size: int = calculate_y_tick_size(max_value)
-    polylines = []
-    chart_key: List[LineLabel] = []
+    polylines: List[Polyline] = []
+    chart_legend: List[LegendEntry] = []
     for index, timeseries in enumerate(lines):
-        stroke: str = STROKE_COLOURS[index % len(STROKE_COLOURS)]
+        polyline_stroke: PolylineStroke = get_polyline_stroke(index)
         if timeseries.label:
-            chart_key.append(
-                LineLabel(
+            chart_legend.append(
+                LegendEntry(
                     label=timeseries.label,
-                    line_stroke=stroke,
+                    stroke=polyline_stroke.stroke,
+                    stroke_dasharray=polyline_stroke.dasharray,
                     label_x=(LINE_LABEL_X_STEP * index) + LINE_LABEL_X_OFFSET,
                     label_y=LINE_LABEL_Y,
                     line_x1=LINE_LABEL_X_STEP * index,
@@ -222,51 +234,29 @@ def build_yearly_metric_chart(
                     line_y=LINE_LABEL_STROKE_Y,
                 )
             )
-        if (
-            timeseries.datapoints
-            and timeseries.datapoints[-1].datetime.month == now.month
-        ):
-            penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
-                :-1
-            ]
-            last_month_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints[
-                -2:
-            ]
-        else:
-            penultimate_datapoints: List[TimeseriesDatapoint] = timeseries.datapoints
-            last_month_datapoints: List[TimeseriesDatapoint] = []
         polylines.append(
             Polyline(
-                stroke=stroke,
+                stroke=polyline_stroke.stroke,
+                stroke_dasharray=polyline_stroke.dasharray,
                 points=[
                     calculate_timeseries_point(
                         now=now, y_tick_size=y_tick_size, datapoint=datapoint
                     )
-                    for datapoint in penultimate_datapoints
-                ],
-            )
-        )
-        polylines.append(
-            Polyline(
-                stroke=stroke,
-                stroke_dasharray=STROKE_DASHARRAY_DOTTED,
-                points=[
-                    calculate_timeseries_point(
-                        now=now, y_tick_size=y_tick_size, datapoint=datapoint
-                    )
-                    for datapoint in last_month_datapoints
+                    for datapoint in timeseries.datapoints
                 ],
             )
         )
 
     return LineChart(
         polylines=polylines,
-        key=chart_key,
+        legend=chart_legend,
         x_axis=build_13_month_x_axis(),
         y_axis=build_y_axis(y_tick_size=y_tick_size, is_ratio=y_axis_ratio),
     )
 
 
-def get_line_stroke(index: int) -> str:
-    """Return colour to use when drawing a polyline in a chart"""
-    return STROKE_COLOURS[index % len(STROKE_COLOURS)]
+def get_polyline_stroke(index: int) -> PolylineStroke:
+    """
+    Return stroke colour and dasharray to use when drawing a polyline in a chart
+    """
+    return POLYLINE_STROKES[index]

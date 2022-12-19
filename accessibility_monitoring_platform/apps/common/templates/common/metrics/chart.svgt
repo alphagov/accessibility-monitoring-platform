@@ -1,15 +1,15 @@
 <svg
-    aria-hidden="true"
+    alt="Line graph"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="-60 -25 {{ chart.chart_width }} {{ chart.chart_height }}"
     stroke="currentColor"
     stroke-width="1"
     fill="none"
 >
-    {% for line_label in chart.key %}
-        <line stroke={{ line_label.line_stroke }} stroke-width="3" x1="{{ line_label.line_x1 }}" x2="{{ line_label.line_x2 }}" y1="{{ line_label.line_y }}" y2="{{ line_label.line_y }}"></line>
-        <text fill="currentColor" text-anchor="left" x="{{ line_label.label_x }}" y="{{ line_label.label_y }}">
-            {{ line_label.label }}
+    {% for entry in chart.legend %}
+        <line stroke={{ entry.stroke }} stroke-dasharray="{{ entry.stroke_dasharray }}" stroke-width="3" x1="{{ entry.line_x1 }}" x2="{{ entry.line_x2 }}" y1="{{ entry.line_y }}" y2="{{ entry.line_y }}"></line>
+        <text fill="currentColor" text-anchor="left" x="{{ entry.label_x }}" y="{{ entry.label_y }}">
+            {{ entry.label }}
         </text>
     {% endfor %}
     <line stroke-width="3" x1="0" x2="{{ chart.graph_width }}" y1="{{ chart.graph_height }}" y2="{{ chart.graph_height }}"></line>
@@ -35,7 +35,7 @@
         <polyline
             stroke="{{ polyline.stroke }}"
             stroke-width="3"
-            {% if polyline.stroke_dasharray %}stroke-dasharray="{{ polyline.stroke_dasharray }}"{% endif %}
+            stroke-dasharray="{{ polyline.stroke_dasharray }}"
             points="
             {% for point in polyline.points %}
                 {{ point.x_position }},{{ point.y_position }}

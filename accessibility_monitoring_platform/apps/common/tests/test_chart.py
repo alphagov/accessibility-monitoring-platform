@@ -13,14 +13,15 @@ from ..chart import (
     Point,
     Polyline,
     LineChart,
-    LineLabel,
+    LegendEntry,
+    PolylineStroke,
     calculate_x_position_from_datapoint_datetime,
     calculate_timeseries_point,
     build_13_month_x_axis,
     build_y_axis,
     calculate_y_tick_size,
     build_yearly_metric_chart,
-    get_line_stroke,
+    get_polyline_stroke,
     Y_AXIS_RATIO,
 )
 
@@ -375,10 +376,11 @@ def test_build_yearly_metric_chart(mock_timezone):
     )
 
     assert build_yearly_metric_chart(lines=[timeseries]) == LineChart(
-        key=[
-            LineLabel(
+        legend=[
+            LegendEntry(
                 label="Counts",
-                line_stroke="#1d70b8",
+                stroke="#1d70b8",
+                stroke_dasharray="",
                 label_x=30,
                 label_y=-10,
                 line_x1=0,
@@ -401,18 +403,11 @@ def test_build_yearly_metric_chart(mock_timezone):
                     Point(x_position=450, y_position=127),
                     Point(x_position=500, y_position=120),
                     Point(x_position=550, y_position=115),
-                ],
-                stroke_dasharray="",
-                stroke="#1d70b8",
-            ),
-            Polyline(
-                points=[
-                    Point(x_position=550, y_position=115),
                     Point(x_position=600, y_position=230),
                 ],
-                stroke_dasharray="5",
                 stroke="#1d70b8",
-            ),
+                stroke_dasharray="",
+            )
         ],
         x_axis=[
             ChartAxisTick(
@@ -551,10 +546,11 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
     )
 
     assert build_yearly_metric_chart(lines=[timeseries]) == LineChart(
-        key=[
-            LineLabel(
+        legend=[
+            LegendEntry(
                 label="Counts",
-                line_stroke="#1d70b8",
+                stroke="#1d70b8",
+                stroke_dasharray="",
                 label_x=30,
                 label_y=-10,
                 line_x1=0,
@@ -570,8 +566,7 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
                 ],
                 stroke="#1d70b8",
                 stroke_dasharray="",
-            ),
-            Polyline(points=[], stroke="#1d70b8", stroke_dasharray="5"),
+            )
         ],
         x_axis=[
             ChartAxisTick(
@@ -698,13 +693,11 @@ def test_build_yearly_metric_chart_no_current_month_data(mock_timezone):
 @pytest.mark.parametrize(
     "index, expected_result",
     [
-        (0, "#1d70b8"),
-        (1, "#f47738"),
-        (2, "#d53880"),
-        (3, "#00703c"),
-        (4, "#1d70b8"),
-        (5, "#f47738"),
+        (0, PolylineStroke(stroke="#1d70b8", dasharray="")),
+        (1, PolylineStroke(stroke="#00703c", dasharray="2")),
+        (2, PolylineStroke(stroke="#4c2c92", dasharray="6")),
+        (3, PolylineStroke(stroke="#d4351c", dasharray="2 2 8 4")),
     ],
 )
-def test_get_line_stroke(index: int, expected_result: str):
-    assert get_line_stroke(index) == expected_result
+def test_get_polyline_stroke(index: int, expected_result: PolylineStroke):
+    assert get_polyline_stroke(index) == expected_result

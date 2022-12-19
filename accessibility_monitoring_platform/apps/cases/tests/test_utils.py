@@ -5,7 +5,7 @@ import pytest
 
 import csv
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, timezone
 import io
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -307,7 +307,9 @@ def test_download_equality_body_cases():
 @pytest.mark.django_db
 def test_download_cases():
     """Test creation of CSV download of cases"""
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(
+        created=datetime(2022, 12, 16, tzinfo=timezone.utc)
+    )
     cases: List[Case] = [case]
     Contact.objects.create(
         case=case, email="test@example.com", notes="Contact for CSV export"
