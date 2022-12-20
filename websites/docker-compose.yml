@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+    db:
+        image: postgres:11.12
+        restart: always
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: secret
+            PGDATA: /var/lib/postgresql/axe_data
+        ports:
+            - "5436:5435"
+        command: -p 5436
+
+    app:
+        build:
+            context: ..
+            dockerfile: ./websites/Dockerfile
+        image: "axe_platform_image"
+        command: >
+            bash -c "
+            python manage.py migrate;
+            python manage.py run_axe_core --initial;
+            "
+        ports:
+            - "8003:8003"
+        depends_on:
+            - db
+        environment:
+            - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8003 web web:8003'
+            - SECRET_KEY='123456789'
+            - DEBUG=TRUE
+            - INTEGRATION_TEST=TRUE
+            - PORT='8003'
+            - POSTGRES_NAME=postgres
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_HOST=db
+            - POSTGRES_PORT=5436

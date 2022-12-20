@@ -10,21 +10,23 @@ class WebsiteAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     list_display = [
         "url",
-        "axe_core_critical_count",
-        "axe_core_serious_count",
-        "axe_core_message",
+        "type",
+        "critical",
+        "serious",
+        "message",
     ]
-    list_filter = ["response_type", "response_status_code"]
+    list_filter = ["type", "response_status_code"]
     readonly_fields = [
         "url",
+        "type",
         "response_status_code",
         "response_headers",
         "response_content",
-        "axe_core_critical_count",
-        "axe_core_serious_count",
-        "axe_core_message",
-        "axe_core_violations",
-        "axe_core_results",
+        "critical",
+        "serious",
+        "message",
+        "violations",
+        "results",
     ]
     search_fields = [
         "url",
@@ -38,15 +40,15 @@ class WebsiteAdmin(admin.ModelAdmin, ExportCsvMixin):
             None,
             {
                 "fields": (
-                    "url",
+                    ("url", "type"),
                     (
                         "response_status_code",
-                        "axe_core_critical_count",
-                        "axe_core_serious_count",
+                        "critical",
+                        "serious",
                     ),
-                    "axe_core_message",
-                    "axe_core_violations",
-                    "axe_core_results",
+                    "message",
+                    "violations",
+                    "results",
                     "response_headers",
                     "response_content",
                 )
