@@ -23,6 +23,14 @@ class Website(models.Model):
     response_status_code = models.IntegerField(default=0)
     response_headers = models.TextField(default="", blank=True)
     response_content = models.TextField(default="", blank=True)
+    axe_core_critical_count = models.IntegerField(default=0)
+    axe_core_serious_count = models.IntegerField(default=0)
+    axe_core_message = models.TextField(default="", blank=True)
+    axe_core_violations = models.TextField(default="", blank=True)
+    axe_core_results = models.TextField(default="", blank=True)
+
+    class Meta:
+        ordering = ["id"]
 
     def __str__(self) -> str:
-        return str(f"{self.url}")
+        return str(f"#{self.id}: {self.url}")  # type: ignore

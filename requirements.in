@@ -16,3 +16,4 @@ phonenumbers
 django-csp
 pytest-django
 webdriver-manager
+axe-selenium-python
