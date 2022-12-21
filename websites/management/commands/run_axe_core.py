@@ -7,6 +7,7 @@ from typing import Dict, List
 from axe_selenium_python import Axe
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -90,6 +91,8 @@ def record_axe_results(website: Website, axe_core_results: Dict):
 def run_axe_core():
     """Run axe-core tests"""
     websites: QuerySet[Website] = Website.objects.all()
+    chrome_options: Options = Options()
+    chrome_options.add_argument("--headless")
 
     total_websites: int = websites.count()
     for count, website in enumerate(websites, start=1):
@@ -97,7 +100,8 @@ def run_axe_core():
         if website.results:
             continue
         driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install())
+            service=ChromeService(ChromeDriverManager().install()),
+            options=chrome_options,
         )
         try:
             driver.get(website.url)
