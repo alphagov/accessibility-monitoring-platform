@@ -18,11 +18,11 @@ services:
             dockerfile: ./websites/Dockerfile
         image: "axe_platform_image"
         volumes:
-            - "./:/code/accessibility_monitoring_platform/websites/"
+            - "./:/code/websites/"
         command: >
             bash -c "
             python manage.py migrate;
-            python manage.py run_axe_core --initial --file websites/urls.txt;
+            python manage.py run_axe_core;
             "
         ports:
             - "8003:8003"
