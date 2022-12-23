@@ -1,6 +1,5 @@
-"""Populate websites"""
+"""Utility functions for websites app"""
 # pylint: disable=line-too-long
-import concurrent.futures
 import json
 import requests
 from typing import Dict, List
@@ -12,10 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
-from django.core.management.base import BaseCommand
-from django.db.models import QuerySet
-
-from ...models import (
+from .models import (
     Website,
     WEBSITE_RESPONSE_VALID,
     WEBSITE_RESPONSE_ERROR,
@@ -28,7 +24,7 @@ REQUEST_HEADERS: Dict[str, str] = {
 }
 
 
-def get_url(url: str):
+def create_website(url: str):
     """Get URL and store response"""
     try:
         response: requests.Response = requests.get(
@@ -53,13 +49,6 @@ def get_url(url: str):
             response_content=str(exception),
         )
     print(f"Created {website}")
-
-
-def get_urls(urls: List[str]):
-    """Get urls using requests library"""
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        for url in urls:
-            executor.submit(get_url, url)
 
 
 def record_axe_results(website: Website, axe_core_results: Dict):
@@ -91,13 +80,15 @@ def record_axe_results(website: Website, axe_core_results: Dict):
 
 def axe_check_website(website: Website, chrome_options: Options):
     """Run Axe core checks on a website"""
-    print(f"Started {website}")
+    print(f"Axe check started {website}")
+
     driver = webdriver.Chrome(
         service=ChromeService(ChromeDriverManager().install()),
         options=chrome_options,
     )
     try:
         driver.get(website.url)
+        website.final_url = driver.current_url
         axe: Axe = Axe(driver)
         axe.inject()
         axe_core_results: Dict = axe.run()
@@ -107,14 +98,12 @@ def axe_check_website(website: Website, chrome_options: Options):
         website.type = WEBSITE_WEBDRIVER_ERROR
         website.response_content = str(exception)
         website.save()
-    print(f"Finished {website}")
+
+    print(f"Axe check finished {website}")
 
 
-def run_axe_core():
-    """Run axe-core tests"""
-    websites: QuerySet[Website] = Website.objects.filter(results="")
-    print(f"Found {websites.count()} websites to process")
-
+def get_chrome_options() -> Options:
+    """Return options for chrome webdriver"""
     chrome_options: Options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -123,45 +112,4 @@ def run_axe_core():
     chrome_prefs = {}
     chrome_options.experimental_options["prefs"] = chrome_prefs
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        for website in websites:
-            executor.submit(axe_check_website, website, chrome_options)
-
-
-class Command(BaseCommand):
-    """Django command to reset the websites data and run axe-core tests"""
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--initial",
-            action="store_true",
-            dest="initial",
-            default=False,
-            help="Initialise data",
-        )
-        parser.add_argument(
-            "--file",
-            action="store",
-            dest="file",
-            default=False,
-            help="Read URLs from file",
-        )
-
-    def handle(self, *args, **options):  # pylint: disable=unused-argument
-        """Run axe-core tests"""
-        initial = options["initial"]
-        url_file = options["file"]
-        urls: List[str] = []
-
-        if url_file:
-            with open(url_file, "r", encoding="utf-8") as f:
-                urls: List[str] = [url.strip() for url in f.readlines()]
-
-        if initial:
-            Website.objects.all().delete()
-
-        if urls:
-            get_urls(urls=urls)
-
-        run_axe_core()
+    return chrome_options

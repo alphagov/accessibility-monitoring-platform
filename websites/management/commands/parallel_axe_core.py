@@ -1,8 +1,7 @@
-"""Populate websites"""
+"""Populate websites using parallel processing"""
 # pylint: disable=line-too-long
+import concurrent.futures
 from typing import List
-
-from selenium.webdriver.chrome.options import Options
 
 from django.core.management.base import BaseCommand
 from django.db.models import QuerySet
@@ -13,17 +12,19 @@ from ...utils import create_website, axe_check_website, get_chrome_options
 
 def create_websites(urls: List[str]):
     """Create websites from urls"""
-    for url in urls:
-        create_website(url=url)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for url in urls:
+            executor.submit(create_website, url)
 
 
 def run_axe_core():
     """Run axe-core tests"""
     websites: QuerySet[Website] = Website.objects.filter(results="")
-    chrome_options: Options = get_chrome_options()
+    print(f"Found {websites.count()} websites to process")
 
-    for website in websites:
-        axe_check_website(website, chrome_options)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for website in websites:
+            executor.submit(axe_check_website, website, get_chrome_options())
 
 
 class Command(BaseCommand):

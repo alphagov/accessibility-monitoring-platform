@@ -19,6 +19,7 @@ class Website(models.Model):
     """Websites tested for accessibility"""
 
     url = models.TextField(default="", blank=True)
+    final_url = models.TextField(default="", blank=True)
     type = models.CharField(
         max_length=10, choices=WEBSITE_RESPONSE_CHOICES, default=WEBSITE_RESPONSE_VALID
     )
