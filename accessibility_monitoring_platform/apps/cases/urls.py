@@ -9,7 +9,7 @@ from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.cases.views import (
     export_cases,
     export_single_case,
-    export_ehrc_cases,
+    export_equality_body_cases,
     CaseCreateView,
     CaseContactFormsetUpdateView,
     CaseDetailView,
@@ -26,8 +26,6 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseTwelveWeekCorrespondenceEmailTemplateView,
     CaseTwelveWeekRetestUpdateView,
     CaseReviewChangesUpdateView,
-    CaseFinalStatementUpdateView,
-    CaseFinalWebsiteUpdateView,
     CaseCloseUpdateView,
     PostCaseUpdateView,
     CaseEnforcementBodyCorrespondenceUpdateView,
@@ -40,9 +38,9 @@ app_name: str = "cases"
 urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path(
-        "export-as-ehrc-csv/",
-        login_required(export_ehrc_cases),
-        name="export-ehrc-cases",
+        "export-as-equality-body-csv/",
+        login_required(export_equality_body_cases),
+        name="export-equality-body-cases",
     ),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),
     path(
@@ -118,16 +116,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-review-changes/",
         login_required(CaseReviewChangesUpdateView.as_view()),
         name="edit-review-changes",
-    ),
-    path(
-        "<int:pk>/edit-final-website/",
-        login_required(CaseFinalWebsiteUpdateView.as_view()),
-        name="edit-final-website",
-    ),
-    path(
-        "<int:pk>/edit-final-statement/",
-        login_required(CaseFinalStatementUpdateView.as_view()),
-        name="edit-final-statement",
     ),
     path(
         "<int:pk>/edit-case-close/",

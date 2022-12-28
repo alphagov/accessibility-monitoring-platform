@@ -17,7 +17,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.detail import DetailView
 
-from ..cases.models import Case
+from ..cases.models import Case, CaseEvent, CASE_EVENT_CREATE_REPORT
 from ..common.utils import (
     record_model_create_event,
     record_model_update_event,
@@ -66,6 +66,12 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)  # type: ignore
     generate_report_content(report=report)
+    CaseEvent.objects.create(
+        case=case,
+        done_by=request.user,
+        event_type=CASE_EVENT_CREATE_REPORT,
+        message="Created report",
+    )
     return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))  # type: ignore
 
 

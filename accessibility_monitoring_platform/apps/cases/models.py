@@ -91,10 +91,6 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Complete",
     ),
     (
-        "deleted",
-        "Deleted",
-    ),
-    (
         STATUS_DEACTIVATED,
         "Deactivated",
     ),
@@ -212,20 +208,15 @@ CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
-DELETE_DECISION_DEFAULT: str = "not-psb"
-DELETE_DECISION_CHOICES: List[Tuple[str, str]] = [
-    (DELETE_DECISION_DEFAULT, "Organisation is not a public sector body"),
-    ("mistake", "Case was opened by mistake"),
-    ("duplicate", "This case was a duplicate case"),
-    ("other", "Other"),
-]
-
-QA_STATUS_DEFAULT: str = "unknown"
+QA_STATUS_UNKNOWN: str = "unknown"
+QA_STATUS_UNASSIGNED: str = "unassigned-qa-case"
+QA_STATUS_IN_QA: str = "in-qa"
+QA_STATUS_QA_APPROVED: str = "qa-approved"
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_DEFAULT, "Unknown"),
-    ("unassigned_qa_case", "Unassigned QA case"),
-    ("in_qa", "In QA"),
-    ("qa_approved", "QA approved"),
+    (QA_STATUS_UNKNOWN, "Unknown"),
+    (QA_STATUS_UNASSIGNED, "Unassigned QA case"),
+    (QA_STATUS_IN_QA, "In QA"),
+    (QA_STATUS_QA_APPROVED, "QA approved"),
 ]
 
 ENFORCEMENT_BODY_PURSUING_NO: str = "no"
@@ -256,6 +247,36 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
 
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
+
+CASE_EVENT_TYPE_CREATE: str = "create"
+CASE_EVENT_AUDITOR: str = "auditor"
+CASE_EVENT_CREATE_AUDIT: str = "create_audit"
+CASE_EVENT_CREATE_REPORT: str = "create_report"
+CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
+CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
+CASE_EVENT_APPROVE_REPORT: str = "approve_report"
+CASE_EVENT_START_RETEST: str = "retest"
+CASE_EVENT_READY_FOR_FINAL_DECISION: str = "read_for_final_decision"
+CASE_EVENT_CASE_COMPLETED: str = "completed"
+CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (CASE_EVENT_TYPE_CREATE, "Create"),
+    (CASE_EVENT_AUDITOR, "Change of auditor"),
+    (CASE_EVENT_CREATE_AUDIT, "Start test"),
+    (CASE_EVENT_CREATE_REPORT, "Create report"),
+    (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
+    (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
+    (CASE_EVENT_APPROVE_REPORT, "Report approval"),
+    (CASE_EVENT_START_RETEST, "Start retest"),
+    (CASE_EVENT_READY_FOR_FINAL_DECISION, "Ready for final decision"),
+    (CASE_EVENT_CASE_COMPLETED, "Completed"),
+]
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+]
 
 
 class Case(VersionModel):
@@ -318,7 +339,7 @@ class Case(VersionModel):
     notes = models.TextField(default="", blank=True)
     case_details_complete_date = models.DateField(null=True, blank=True)
 
-    # Testing details page
+    # Historic testing details page
     test_results_url = models.TextField(default="", blank=True)
     test_status = models.CharField(
         max_length=200, choices=TEST_STATUS_CHOICES, default=TEST_STATUS_DEFAULT
@@ -471,15 +492,6 @@ class Case(VersionModel):
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
-    # Delete case page
-    is_deleted = models.BooleanField(default=False)
-    delete_reason = models.CharField(
-        max_length=20,
-        choices=DELETE_DECISION_CHOICES,
-        default=DELETE_DECISION_DEFAULT,
-    )
-    delete_notes = models.TextField(default="", blank=True)
-
     # Deactivate case page
     is_deactivated = models.BooleanField(default=False)
     deactivate_date = models.DateField(null=True, blank=True)
@@ -487,7 +499,7 @@ class Case(VersionModel):
 
     # Dashboard page
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
+        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_UNKNOWN
     )
 
     class Meta:
@@ -562,9 +574,7 @@ class Case(VersionModel):
         return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
 
     def set_status(self) -> str:  # noqa: C901
-        if self.is_deleted:
-            return "deleted"
-        elif self.is_deactivated:
+        if self.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
             self.case_completed == "complete-no-send"
@@ -634,18 +644,18 @@ class Case(VersionModel):
             and self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return STATUS_READY_TO_QA
+            return QA_STATUS_UNASSIGNED
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "in-qa"
+            return QA_STATUS_IN_QA
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "qa-approved"
-        return "unknown"
+            return QA_STATUS_QA_APPROVED
+        return QA_STATUS_UNKNOWN
 
     @property
     def in_report_correspondence_progress(self) -> str:
@@ -782,3 +792,27 @@ class Contact(models.Model):
         if not self.id:  # type: ignore
             self.created = timezone.now()
         super().save(*args, **kwargs)
+
+
+class CaseEvent(models.Model):
+    """
+    Model to records events on a case
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    event_type = models.CharField(
+        max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
+    )
+    message = models.TextField(default="Created case", blank=True)
+    done_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="case_event_done_by_user",
+    )
+    event_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["event_time"]
+
+    def __str__(self) -> str:
+        return str(f"{self.case.organisation_name}: {self.message}")

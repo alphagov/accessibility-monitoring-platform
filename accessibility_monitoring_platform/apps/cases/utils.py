@@ -8,6 +8,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
@@ -17,7 +18,20 @@ from ..common.utils import build_filters
 
 from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
 
-from .models import Case, Contact, STATUS_READY_TO_QA
+from .models import (
+    Case,
+    CaseEvent,
+    Contact,
+    STATUS_READY_TO_QA,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_AUDITOR,
+    CASE_EVENT_CREATE_AUDIT,
+    CASE_EVENT_READY_FOR_QA,
+    CASE_EVENT_QA_AUDITOR,
+    CASE_EVENT_APPROVE_REPORT,
+    CASE_EVENT_READY_FOR_FINAL_DECISION,
+    CASE_EVENT_CASE_COMPLETED,
+)
 
 CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -35,7 +49,7 @@ CONTACT_NOTES_COLUMN_NUMBER = "Contact notes"
 
 ColumnAndFieldNames = namedtuple("ColumnAndFieldNames", ["column_name", "field_name"])
 
-COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
+COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Equality body",
         field_name="enforcement_body",
@@ -93,7 +107,7 @@ COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
     ),
 ]
 
-EXTRA_AUDIT_COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
+EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Initial disproportionate burden claimed?",
         field_name="disproportionate_burden_state",
@@ -112,14 +126,279 @@ EXTRA_AUDIT_COLUMNS_FOR_EHRC: List[ColumnAndFieldNames] = [
     ),
 ]
 
-CAPITALISE_FIELDS = [
-    "test_type",
-    "is_complaint",
-    "is_disproportionate_claimed",
-    "accessibility_statement_state_final",
-    "recommendation_for_enforcement",
-    "disproportionate_burden_state",
-    "audit_retest_disproportionate_burden_state",
+CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
+    ColumnAndFieldNames(column_name="Case no.", field_name="id"),
+    ColumnAndFieldNames(column_name="Version", field_name="version"),
+    ColumnAndFieldNames(column_name="Created by", field_name="created_by"),
+    ColumnAndFieldNames(column_name="Date created", field_name="created"),
+    ColumnAndFieldNames(column_name="Status", field_name="status"),
+    ColumnAndFieldNames(column_name="Auditor", field_name="auditor"),
+    ColumnAndFieldNames(column_name="Type of test", field_name="test_type"),
+    ColumnAndFieldNames(column_name="Full URL", field_name="home_page_url"),
+    ColumnAndFieldNames(column_name="Domain name", field_name="domain"),
+    ColumnAndFieldNames(
+        column_name="Organisation name", field_name="organisation_name"
+    ),
+    ColumnAndFieldNames(
+        column_name="Public sector body location", field_name="psb_location"
+    ),
+    ColumnAndFieldNames(column_name="Sector", field_name="sector"),
+    ColumnAndFieldNames(
+        column_name="Which equalities body will check the case?",
+        field_name="enforcement_body",
+    ),
+    ColumnAndFieldNames(
+        column_name="Testing methodology", field_name="testing_methodology"
+    ),
+    ColumnAndFieldNames(
+        column_name="Report methodology", field_name="report_methodology"
+    ),
+    ColumnAndFieldNames(column_name="Complaint?", field_name="is_complaint"),
+    ColumnAndFieldNames(
+        column_name="URL to previous case", field_name="previous_case_url"
+    ),
+    ColumnAndFieldNames(column_name="Trello ticket URL", field_name="trello_url"),
+    ColumnAndFieldNames(column_name="Case details notes", field_name="notes"),
+    ColumnAndFieldNames(
+        column_name="Case details page complete",
+        field_name="case_details_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Link to test results spreadsheet", field_name="test_results_url"
+    ),
+    ColumnAndFieldNames(
+        column_name="Spreadsheet test status", field_name="test_status"
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial accessibility statement compliance decision",
+        field_name="accessibility_statement_state",
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial accessibility statement compliance notes",
+        field_name="accessibility_statement_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial website compliance decision",
+        field_name="is_website_compliant",
+    ),
+    ColumnAndFieldNames(
+        column_name="Initial website compliance notes",
+        field_name="compliance_decision_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Testing details page complete",
+        field_name="testing_details_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Link to report draft", field_name="report_draft_url"
+    ),
+    ColumnAndFieldNames(column_name="Report details notes", field_name="report_notes"),
+    ColumnAndFieldNames(
+        column_name="Report details page complete",
+        field_name="reporting_details_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Report ready to be reviewed?", field_name="report_review_status"
+    ),
+    ColumnAndFieldNames(column_name="QA auditor", field_name="reviewer"),
+    ColumnAndFieldNames(
+        column_name="Report approved?", field_name="report_approved_status"
+    ),
+    ColumnAndFieldNames(column_name="QA notes", field_name="reviewer_notes"),
+    ColumnAndFieldNames(
+        column_name="Link to final PDF report", field_name="report_final_pdf_url"
+    ),
+    ColumnAndFieldNames(
+        column_name="Link to final ODT report", field_name="report_final_odt_url"
+    ),
+    ColumnAndFieldNames(
+        column_name="QA process page complete", field_name="qa_process_complete_date"
+    ),
+    ColumnAndFieldNames(
+        column_name="Contact details page complete",
+        field_name="contact_details_complete_date",
+    ),
+    ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
+    ColumnAndFieldNames(
+        column_name="1-week followup sent date",
+        field_name="report_followup_week_1_sent_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="4-week followup sent date",
+        field_name="report_followup_week_4_sent_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Report acknowledged", field_name="report_acknowledged_date"
+    ),
+    ColumnAndFieldNames(column_name="Zendesk ticket URL", field_name="zendesk_url"),
+    ColumnAndFieldNames(
+        column_name="Report correspondence notes", field_name="correspondence_notes"
+    ),
+    ColumnAndFieldNames(
+        column_name="Report correspondence page complete",
+        field_name="report_correspondence_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="1-week followup due date",
+        field_name="report_followup_week_1_due_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="4-week followup due date",
+        field_name="report_followup_week_4_due_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week followup due date",
+        field_name="report_followup_week_12_due_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Do you want to mark the PSB as unresponsive to this case?",
+        field_name="no_psb_contact",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week update requested",
+        field_name="twelve_week_update_requested_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week chaser 1-week followup sent date",
+        field_name="twelve_week_1_week_chaser_sent_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week update received",
+        field_name="twelve_week_correspondence_acknowledged_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week correspondence notes",
+        field_name="twelve_week_correspondence_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Mark the case as having no response to 12 week deadline",
+        field_name="twelve_week_response_state",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week correspondence page complete",
+        field_name="twelve_week_correspondence_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week chaser 1-week followup due date",
+        field_name="twelve_week_1_week_chaser_due_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week retest page complete",
+        field_name="twelve_week_retest_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Summary of progress made from public sector body",
+        field_name="psb_progress_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Retested website?", field_name="retested_website_date"
+    ),
+    ColumnAndFieldNames(
+        column_name="Is this case ready for final decision?",
+        field_name="is_ready_for_final_decision",
+    ),
+    ColumnAndFieldNames(
+        column_name="Reviewing changes page complete",
+        field_name="review_changes_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week website compliance decision",
+        field_name="website_state_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week website compliance decision notes",
+        field_name="website_state_notes_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="Final website compliance decision page complete (spreadsheet testing)",
+        field_name="final_website_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Disproportionate burden claimed? (spreadsheet testing)",
+        field_name="is_disproportionate_claimed",
+    ),
+    ColumnAndFieldNames(
+        column_name="Disproportionate burden notes (spreadsheet testing)",
+        field_name="disproportionate_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Link to accessibility statement screenshot (spreadsheet testing)",
+        field_name="accessibility_statement_screenshot_url",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week accessibility statement compliance decision",
+        field_name="accessibility_statement_state_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="12-week accessibility statement compliance notes",
+        field_name="accessibility_statement_notes_final",
+    ),
+    ColumnAndFieldNames(
+        column_name="Final accessibility statement compliance decision page complete (spreadsheet testing)",
+        field_name="final_statement_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Recommendation for equality body",
+        field_name="recommendation_for_enforcement",
+    ),
+    ColumnAndFieldNames(
+        column_name="Enforcement recommendation notes",
+        field_name="recommendation_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Date when compliance decision email sent to public sector body",
+        field_name="compliance_email_sent_date",
+    ),
+    ColumnAndFieldNames(column_name="Case completed", field_name="case_completed"),
+    ColumnAndFieldNames(
+        column_name="Date case completed first updated", field_name="completed_date"
+    ),
+    ColumnAndFieldNames(
+        column_name="Closing the case page complete",
+        field_name="case_close_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Public sector body statement appeal notes",
+        field_name="psb_appeal_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Summary of events after the case was closed",
+        field_name="post_case_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Post case summary page complete",
+        field_name="post_case_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Case updated (on post case summary page)",
+        field_name="case_updated_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Date sent to equality body",
+        field_name="sent_to_enforcement_body_sent_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Equality body pursuing this case?",
+        field_name="enforcement_body_pursuing",
+    ),
+    ColumnAndFieldNames(
+        column_name="Equality body correspondence notes",
+        field_name="enforcement_body_correspondence_notes",
+    ),
+    ColumnAndFieldNames(
+        column_name="Equality body summary page complete",
+        field_name="enforcement_correspondence_complete_date",
+    ),
+    ColumnAndFieldNames(column_name="Deactivated case", field_name="is_deactivated"),
+    ColumnAndFieldNames(column_name="Date deactivated", field_name="deactivate_date"),
+    ColumnAndFieldNames(
+        column_name="Reason why (deactivated)", field_name="deactivate_notes"
+    ),
+    ColumnAndFieldNames(column_name="QA status", field_name="qa_status"),
+]
+CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
+    ColumnAndFieldNames(column_name="Contact email", field_name="email"),
+    ColumnAndFieldNames(column_name="Contact notes", field_name="notes"),
 ]
 
 
@@ -171,9 +450,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                 )
         is_complaint: str = form.cleaned_data.get("is_complaint", IS_COMPLAINT_DEFAULT)
 
-    if filters.get("status", "") != "deleted":
-        filters["is_deleted"] = False
-
     if filters.get("status", "") == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
         del filters["status"]
@@ -211,23 +487,26 @@ def format_contacts(contacts: List[Contact], column: ColumnAndFieldNames) -> str
 
 
 def format_model_field(
-    model_instance: Union[Audit, Case], column: ColumnAndFieldNames
+    model_instance: Union[Audit, Case, Contact, None], column: ColumnAndFieldNames
 ) -> str:
     """
     For a model field, return the value, suitably formatted.
     """
+    if model_instance is None:
+        return ""
     value: Any = getattr(model_instance, column.field_name, "")
+    get_display_name: str = f"get_{column.field_name}_display"
     if isinstance(value, date) or isinstance(value, datetime):
         return value.strftime("%d/%m/%Y")
     elif column.field_name == "enforcement_body":
         return value.upper()
-    elif column.field_name in CAPITALISE_FIELDS:
-        return value.capitalize().replace("-", " ")
+    elif hasattr(model_instance, get_display_name):
+        return getattr(model_instance, get_display_name)()
     else:
         return value
 
 
-def download_ehrc_cases(
+def download_equality_body_cases(
     cases: QuerySet[Case],
     filename: str = "ehrc_cases.csv",
 ) -> HttpResponse:
@@ -239,7 +518,8 @@ def download_ehrc_cases(
     writer.writerow(
         [
             column.column_name
-            for column in COLUMNS_FOR_EHRC + EXTRA_AUDIT_COLUMNS_FOR_EHRC
+            for column in COLUMNS_FOR_EQUALITY_BODY
+            + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
         ]
     )
 
@@ -247,13 +527,40 @@ def download_ehrc_cases(
     for case in cases:
         contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))  # type: ignore
         row = []
-        for column in COLUMNS_FOR_EHRC:
+        for column in COLUMNS_FOR_EQUALITY_BODY:
             if column.field_name is None:
                 row.append(format_contacts(contacts=contacts, column=column))
             else:
                 row.append(format_model_field(model_instance=case, column=column))
-        for column in EXTRA_AUDIT_COLUMNS_FOR_EHRC:
+        for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:
             row.append(format_model_field(model_instance=case.audit, column=column))  # type: ignore
+        output.append(row)
+    writer.writerows(output)
+
+    return response
+
+
+def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpResponse:
+    """Given a Case queryset, download the data in csv format"""
+    response: Any = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+
+    writer: Any = csv.writer(response)
+    writer.writerow(
+        [
+            column.column_name
+            for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+        ]
+    )
+
+    output: List[List[str]] = []
+    for case in cases:
+        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()  # type: ignore
+        row = []
+        for column in CASE_COLUMNS_FOR_EXPORT:
+            row.append(format_model_field(model_instance=case, column=column))
+        for column in CONTACT_COLUMNS_FOR_EXPORT:
+            row.append(format_model_field(model_instance=contact, column=column))
         output.append(row)
     writer.writerows(output)
 
@@ -266,3 +573,87 @@ def replace_search_key_with_case_search(request_get: QueryDict) -> Dict[str, str
     if "search" in search_args:
         search_args["case_search"] = search_args.pop("search")
     return search_args
+
+
+def record_case_event(
+    user: User, new_case: Case, old_case: Optional[Case] = None
+) -> None:
+    """Create a case event based on the changes between the old and new cases"""
+    if old_case is None:
+        CaseEvent.objects.create(
+            case=new_case, done_by=user, event_type=CASE_EVENT_TYPE_CREATE
+        )
+        return
+    if old_case.auditor != new_case.auditor:
+        old_user_name: str = (
+            old_case.auditor.get_full_name() if old_case.auditor is not None else "none"
+        )
+        new_user_name: str = (
+            new_case.auditor.get_full_name() if new_case.auditor is not None else "none"
+        )
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_AUDITOR,
+            message=f"Auditor changed from {old_user_name} to {new_user_name}",
+        )
+    if old_case.audit is None and new_case.audit is not None:
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_CREATE_AUDIT,
+            message="Start of test",
+        )
+    if old_case.report_review_status != new_case.report_review_status:
+        old_status: str = old_case.get_report_review_status_display()  # type: ignore
+        new_status: str = new_case.get_report_review_status_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_READY_FOR_QA,
+            message=f"Report ready to be reviewed changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.reviewer != new_case.reviewer:
+        old_user_name: str = (
+            old_case.reviewer.get_full_name()
+            if old_case.reviewer is not None
+            else "none"
+        )
+        new_user_name: str = (
+            new_case.reviewer.get_full_name()
+            if new_case.reviewer is not None
+            else "none"
+        )
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_QA_AUDITOR,
+            message=f"QA auditor changed from {old_user_name} to {new_user_name}",
+        )
+    if old_case.report_approved_status != new_case.report_approved_status:
+        old_status: str = old_case.get_report_approved_status_display()  # type: ignore
+        new_status: str = new_case.get_report_approved_status_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_APPROVE_REPORT,
+            message=f"Report approved changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
+        old_status: str = old_case.get_is_ready_for_final_decision_display()  # type: ignore
+        new_status: str = new_case.get_is_ready_for_final_decision_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_READY_FOR_FINAL_DECISION,
+            message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
+        )
+    if old_case.case_completed != new_case.case_completed:
+        old_status: str = old_case.get_case_completed_display()  # type: ignore
+        new_status: str = new_case.get_case_completed_display()  # type: ignore
+        CaseEvent.objects.create(
+            case=old_case,
+            done_by=user,
+            event_type=CASE_EVENT_CASE_COMPLETED,
+            message=f"Case completed changed from '{old_status}' to '{new_status}'",
+        )

@@ -2,7 +2,6 @@
 from datetime import date, datetime, timedelta
 
 import re
-import csv
 import json
 from typing import (
     Any,
@@ -11,7 +10,6 @@ from typing import (
     Match,
     Optional,
     Tuple,
-    Type,
     Union,
 )
 from zoneinfo import ZoneInfo
@@ -21,70 +19,12 @@ from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
-from django.db.models.fields.reverse_related import ManyToOneRel
-from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.utils import timezone
 
 from django_otp.plugins.otp_email.models import EmailDevice
 
 from .models import Event, Platform, EVENT_TYPE_MODEL_CREATE, ChangeToPlatform
-
-CONTACT_FIELDS = ["contact_email", "contact_notes"]
-
-
-def get_field_names_for_export(model: Type[models.Model]) -> List[str]:
-    """
-    Returns a list of names of all the fields in a model.
-    Exclude those representing reverse relationships.
-    """
-    return [
-        field.name
-        for field in model._meta.get_fields()  # pylint: disable=protected-access
-        if not isinstance(field, ManyToOneRel)
-    ]
-
-
-def download_as_csv(
-    queryset: QuerySet[Any],
-    field_names: List[str],
-    filename: str = "download.csv",
-    include_contact: bool = False,
-) -> HttpResponse:
-    """Given a queryset and a list of field names, download the data in csv format"""
-    response: Any = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
-    writer: Any = csv.writer(response)
-    if include_contact:
-        writer.writerow(field_names + CONTACT_FIELDS)
-    else:
-        writer.writerow(field_names)
-
-    output: List[List[str]] = []
-    for item in queryset:
-        row: List[str] = []
-        for field_name in field_names:
-            item_attr: Any = getattr(item, field_name)
-            if hasattr(item_attr, "all"):
-                value: str = ",".join(
-                    [str(related_item) for related_item in item_attr.all()]
-                )
-            else:
-                value: str = str(item_attr)
-            row.append(value)
-
-        if include_contact:
-            contacts: List[Any] = list(item.contact_set.filter(is_deleted=False))  # type: ignore
-            if contacts:
-                row.append(contacts[0].email)
-                row.append(contacts[0].notes)
-
-        output.append(row)
-
-    writer.writerows(output)
-
-    return response
 
 
 def extract_domain_from_url(url: str) -> str:

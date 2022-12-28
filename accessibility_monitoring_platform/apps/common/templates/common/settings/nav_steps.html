@@ -47,4 +47,12 @@
                 Markdown cheatsheet</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:more-information' %}
+            More information
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:more-information' %}">
+                More information</a>
+        {% endif %}
+    </p>
 </nav>

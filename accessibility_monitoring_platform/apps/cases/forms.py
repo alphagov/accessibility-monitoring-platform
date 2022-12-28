@@ -34,15 +34,10 @@ from .models import (
     Case,
     Contact,
     STATUS_CHOICES,
-    TEST_STATUS_CHOICES,
-    ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
     CASE_COMPLETED_CHOICES,
     PREFERRED_CHOICES,
-    IS_WEBSITE_COMPLIANT_CHOICES,
     BOOLEAN_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
-    IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-    WEBSITE_STATE_FINAL_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
     PSB_LOCATION_CHOICES,
@@ -107,7 +102,7 @@ class CaseSearchForm(AMPDateRangeForm):
         super().__init__(*args, **kwargs)
 
         auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
-            User.objects.filter(groups__name="Auditor")
+            User.objects.filter(groups__name="Historic auditor")
         )
         self.fields["auditor"].choices = auditor_choices  # type: ignore
         self.fields["reviewer"].choices = auditor_choices  # type: ignore
@@ -234,33 +229,12 @@ class CaseTestResultsUpdateForm(VersionForm):
     Form for updating test results
     """
 
-    test_results_url = AMPURLField(label="Link to test results")
-    test_status = AMPChoiceRadioField(
-        label="Test status",
-        choices=TEST_STATUS_CHOICES,
-        help_text="This field affects the case status",
-    )
-    accessibility_statement_state = AMPChoiceRadioField(
-        label="Initial accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    )
-    accessibility_statement_notes = AMPTextField(label="Accessibility statement notes")
-    is_website_compliant = AMPChoiceRadioField(
-        label="Initial compliance decision", choices=IS_WEBSITE_COMPLIANT_CHOICES
-    )
-    compliance_decision_notes = AMPTextField(label="Initial website compliance notes")
     testing_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
-            "test_results_url",
-            "test_status",
-            "accessibility_statement_state",
-            "accessibility_statement_notes",
-            "is_website_compliant",
-            "compliance_decision_notes",
             "testing_details_complete_date",
         ]
 
@@ -535,66 +509,6 @@ class CaseReviewChangesUpdateForm(VersionForm):
             "psb_progress_notes",
             "is_ready_for_final_decision",
             "review_changes_complete_date",
-        ]
-
-
-class CaseFinalWebsiteUpdateForm(VersionForm):
-    """
-    Form to record final website compliance decision
-    """
-
-    website_state_final = AMPChoiceRadioField(
-        label="Final website compliance decision",
-        choices=WEBSITE_STATE_FINAL_CHOICES,
-    )
-    website_state_notes_final = AMPTextField(
-        label="Final website compliance decision notes",
-    )
-    final_website_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "website_state_final",
-            "website_state_notes_final",
-            "final_website_complete_date",
-        ]
-
-
-class CaseFinalStatementUpdateForm(VersionForm):
-    """
-    Form to record final accessibility statement compliance decision
-    """
-
-    is_disproportionate_claimed = AMPChoiceRadioField(
-        label="Disproportionate burden claimed?",
-        help_text="This field affects the case status",
-        choices=IS_DISPROPORTIONATE_CLAIMED_CHOICES,
-    )
-    disproportionate_notes = AMPTextField(label="Disproportionate burden notes")
-    accessibility_statement_screenshot_url = AMPURLField(
-        label="Link to accessibility statement screenshot"
-    )
-    accessibility_statement_state_final = AMPChoiceRadioField(
-        label="Final accessibility statement decision",
-        choices=ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    )
-    accessibility_statement_notes_final = AMPTextField(
-        label="Final accessibility statement notes",
-    )
-    final_statement_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields = [
-            "version",
-            "is_disproportionate_claimed",
-            "disproportionate_notes",
-            "accessibility_statement_screenshot_url",
-            "accessibility_statement_state_final",
-            "accessibility_statement_notes_final",
-            "final_statement_complete_date",
         ]
 
 

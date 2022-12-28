@@ -8,6 +8,7 @@ import urllib
 
 from django import forms
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -24,9 +25,7 @@ from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
 from ..common.utils import (
-    download_as_csv,
     extract_domain_from_url,
-    get_field_names_for_export,
     get_id_from_button_name,
     record_model_update_event,
     record_model_create_event,
@@ -42,7 +41,6 @@ from .models import (
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     TESTING_METHODOLOGY_PLATFORM,
-    TESTING_METHODOLOGY_SPREADSHEET,
     REPORT_METHODOLOGY_PLATFORM,
 )
 from .forms import (
@@ -62,8 +60,6 @@ from .forms import (
     CaseTwelveWeekCorrespondenceDueDatesUpdateForm,
     CaseTwelveWeekRetestUpdateForm,
     CaseReviewChangesUpdateForm,
-    CaseFinalStatementUpdateForm,
-    CaseFinalWebsiteUpdateForm,
     CaseCloseUpdateForm,
     PostCaseUpdateForm,
     CaseEnforcementBodyCorrespondenceUpdateForm,
@@ -71,9 +67,11 @@ from .forms import (
 )
 from .utils import (
     get_sent_date,
-    download_ehrc_cases,
+    download_equality_body_cases,
     filter_cases,
     replace_search_key_with_case_search,
+    download_cases,
+    record_case_event,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -161,10 +159,9 @@ class CaseDetailView(DetailView):
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),  # type: ignore
         ]
 
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=self.object)  # type: ignore
-
-        if self.object.testing_methodology == TESTING_METHODOLOGY_SPREADSHEET:  # type: ignore
-            context["testing_details_rows"] = get_rows(form=CaseTestResultsUpdateForm())  # type: ignore
+        get_rows: Callable = partial(
+            extract_form_labels_and_values, instance=self.object  # type: ignore
+        )
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
             form=CaseQAProcessUpdateForm()  # type: ignore
@@ -179,8 +176,6 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())  # type: ignore
         context["qa_process_rows"] = qa_process_rows
         context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())  # type: ignore
-        context["final_website_rows"] = get_rows(form=CaseFinalWebsiteUpdateForm())  # type: ignore
-        context["final_statement_rows"] = get_rows(form=CaseFinalStatementUpdateForm())  # type: ignore
         context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())  # type: ignore
         context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())  # type: ignore
         context["enforcement_body_correspondence_rows"] = get_rows(
@@ -266,7 +261,10 @@ class CaseCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
+        case: Case = self.object  # type: ignore
+        user: User = self.request.user  # type: ignore
+        record_model_create_event(user=user, model_object=case)
+        record_case_event(user=user, new_case=case)
         case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-details", kwargs=case_pk)
@@ -291,8 +289,10 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         if form.changed_data:
             self.object: Case = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            user: User = self.request.user  # type: ignore
+            record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+            record_case_event(user=user, new_case=self.object, old_case=old_case)
 
             if (
                 old_case.report_approved_status != self.object.report_approved_status
@@ -343,21 +343,6 @@ class CaseTestResultsUpdateView(CaseUpdateView):
 
     form_class: Type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
     template_name: str = "cases/forms/test_results.html"
-
-    def get_form(self):
-        """Hide fields if testing using platform"""
-        form = super().get_form()
-        if self.object.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-            for fieldname in [
-                "test_results_url",
-                "test_status",
-                "accessibility_statement_state",
-                "accessibility_statement_notes",
-                "is_website_compliant",
-                "compliance_decision_notes",
-            ]:
-                form.fields[fieldname].widget = forms.HiddenInput()
-        return form
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -730,40 +715,6 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
         if "save_continue" in self.request.POST:
             case: Case = self.object
             case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
-            if case.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
-                return reverse("cases:edit-case-close", kwargs=case_pk)
-            return reverse("cases:edit-final-website", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseFinalWebsiteUpdateView(CaseUpdateView):
-    """
-    View to record final website compliance decision
-    """
-
-    form_class: Type[CaseFinalWebsiteUpdateForm] = CaseFinalWebsiteUpdateForm
-    template_name: str = "cases/forms/final_website.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
-            return reverse("cases:edit-final-statement", kwargs=case_pk)
-        return super().get_success_url()
-
-
-class CaseFinalStatementUpdateView(CaseUpdateView):
-    """
-    View to record final accessibility statement compliance decision
-    """
-
-    form_class: Type[CaseFinalStatementUpdateForm] = CaseFinalStatementUpdateForm
-    template_name: str = "cases/forms/final_statement.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
@@ -871,12 +822,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    return download_as_csv(
-        queryset=filter_cases(form=case_search_form),
-        field_names=get_field_names_for_export(Case),
-        filename="cases.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=filter_cases(form=case_search_form))
 
 
 def export_single_case(
@@ -892,15 +838,10 @@ def export_single_case(
     Returns:
         HttpResponse: Django HttpResponse
     """
-    return download_as_csv(
-        queryset=Case.objects.filter(id=pk),
-        field_names=get_field_names_for_export(Case),
-        filename=f"case_#{pk}.csv",
-        include_contact=True,
-    )
+    return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
 
 
-def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases to send to an enforcement body
 
@@ -912,4 +853,4 @@ def export_ehrc_cases(request: HttpRequest) -> HttpResponse:
     """
     case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
     case_search_form.is_valid()
-    return download_ehrc_cases(cases=filter_cases(form=case_search_form))
+    return download_equality_body_cases(cases=filter_cases(form=case_search_form))
