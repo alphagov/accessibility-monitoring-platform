@@ -400,6 +400,13 @@ CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(column_name="Contact email", field_name="email"),
     ColumnAndFieldNames(column_name="Contact notes", field_name="notes"),
 ]
+FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
+    ColumnAndFieldNames(column_name="Case no.", field_name="id"),
+    ColumnAndFieldNames(
+        column_name="Organisation name", field_name="organisation_name"
+    ),
+    ColumnAndFieldNames(column_name="Closing the case date", field_name="compliance_email_sent_date"),
+]
 
 
 def get_sent_date(
@@ -558,6 +565,33 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
         contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()  # type: ignore
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
+            row.append(format_model_field(model_instance=case, column=column))
+        for column in CONTACT_COLUMNS_FOR_EXPORT:
+            row.append(format_model_field(model_instance=contact, column=column))
+        output.append(row)
+    writer.writerows(output)
+
+    return response
+
+
+def download_feedback_survey_cases(cases: QuerySet[Case], filename: str = "feedback_survey_cases.csv") -> HttpResponse:
+    """Given a Case queryset, download the data in csv format"""
+    response: Any = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+
+    writer: Any = csv.writer(response)
+    writer.writerow(
+        [
+            column.column_name
+            for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+        ]
+    )
+
+    output: List[List[str]] = []
+    for case in cases:
+        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()  # type: ignore
+        row = []
+        for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=case, column=column))
         for column in CONTACT_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=contact, column=column))
