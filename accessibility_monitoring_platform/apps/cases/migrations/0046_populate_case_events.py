@@ -55,8 +55,9 @@ def populate_case_events(apps, schema_editor):  # pylint: disable=unused-argumen
     users: dict[int, str] = {
         user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
     }
-
-    for event in Event.objects.all().order_by("id"):
+    # Filter events by the content type to reduce memory needed for this to run.
+    # Django content type ids: 26|cases|case, 48|audits|audit, 54|reports|report
+    for event in Event.objects.filter(content_type__in=[26, 48, 54]).order_by("id"):
         value: Dict = json.loads(event.value)
         if event.type == EVENT_TYPE_MODEL_UPDATE:
             if value["old"] == value["new"]:
