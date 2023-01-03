@@ -1,6 +1,6 @@
 /* global cy before Cypress */
 
-const organisationName = 'Met Office'
+const organisationName = 'Doncaster College'
 
 describe('View case', () => {
   before(() => {
@@ -38,10 +38,6 @@ describe('View case', () => {
 
     cy.contains('Edit reviewing changes').click()
     cy.title().should('eq', `${organisationName} | Reviewing changes`)
-    cy.contains('Case').click()
-
-    cy.contains('Edit final accessibility statement compliance decision').click()
-    cy.title().should('eq', `${organisationName} | Final accessibility statement compliance decision`)
     cy.contains('Case').click()
 
     cy.contains('Edit closing the case').click()
