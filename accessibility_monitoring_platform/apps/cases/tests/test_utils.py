@@ -34,6 +34,7 @@ from ..models import (
     CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
@@ -44,6 +45,7 @@ from ..utils import (
     format_model_field,
     format_contacts,
     replace_search_key_with_case_search,
+    download_feedback_survey_cases,
     download_equality_body_cases,
     download_cases,
     record_case_event,
@@ -245,6 +247,32 @@ def test_replace_search_key_with_case_search(
     while converting QueryDict to dict.
     """
     assert replace_search_key_with_case_search(query_dict) == expected_dict
+
+
+@pytest.mark.django_db
+def test_download_feedback_survey_cases():
+    """Test creation of CSV for feedback survey"""
+    case: Case = Case.objects.create(
+        compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc)
+    )
+    cases: List[Case] = [case]
+
+    response: HttpResponse = download_feedback_survey_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+
+    assert response.status_code == 200
+
+    assert response.headers == {  # type: ignore
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    assert csv_header == [
+        column.column_name
+        for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+    ]
+    assert csv_body == [["1", "", "16/12/2022", "", ""]]
 
 
 @pytest.mark.django_db

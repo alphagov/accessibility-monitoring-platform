@@ -251,3 +251,5 @@ stack_tests/smoke_tests/cypress/videos
 stack_tests/smoke_tests_viewer/cypress/downloads
 stack_tests/smoke_tests_viewer/cypress/screenshots
 stack_tests/smoke_tests_viewer/cypress/videos
+
+.elasticbeanstalk

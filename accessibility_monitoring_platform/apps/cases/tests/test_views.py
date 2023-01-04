@@ -47,6 +47,7 @@ from ..models import (
     CASE_COMPLETED_NO_SEND,
 )
 from ..utils import (
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     COLUMNS_FOR_EQUALITY_BODY,
     EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
     CASE_COLUMNS_FOR_EXPORT,
@@ -83,6 +84,10 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
+case_feedback_survey_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+)
 case_equality_body_columns_to_export_str: str = ",".join(
     column.column_name
     for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
@@ -316,6 +321,16 @@ def test_case_list_view_sector_filter(admin_client):
     assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
+
+
+def test_case_feedback_survey_export_list_view(admin_client):
+    """Test that the case feedback survey export list view returns csv data"""
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-feedback-survey-cases")
+    )
+
+    assert response.status_code == 200
+    assertContains(response, case_feedback_survey_columns_to_export_str)
 
 
 def test_case_equality_body_export_list_view(admin_client):
