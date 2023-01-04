@@ -10,6 +10,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     export_cases,
     export_single_case,
     export_equality_body_cases,
+    export_feedback_suvey_cases,
     CaseCreateView,
     CaseContactFormsetUpdateView,
     CaseDetailView,
@@ -37,6 +38,11 @@ from accessibility_monitoring_platform.apps.cases.views import (
 app_name: str = "cases"
 urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
+    path(
+        "export-feedback-survey-cases-csv/",
+        login_required(export_feedback_suvey_cases),
+        name="export-feedback-survey-cases",
+    ),
     path(
         "export-as-equality-body-csv/",
         login_required(export_equality_body_cases),
