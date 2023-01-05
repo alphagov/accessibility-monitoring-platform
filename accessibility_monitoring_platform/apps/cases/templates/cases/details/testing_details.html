@@ -43,8 +43,12 @@
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
             <td class="govuk-table__cell amp-width-one-half">
-                <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
-            </td>
+                {% if case.test_results_url %}
+                    <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
+                {% else %}
+                    None
+                {% endif %}
+                </td>
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header amp-width-one-half">Test status</th>
