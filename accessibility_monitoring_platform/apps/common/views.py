@@ -456,7 +456,7 @@ class MetricsPolicyTemplateView(TemplateView):
 
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
-                "label": "State of websites after retest in last year",
+                "label": "Proportion of websites which are acceptable",
                 "html_table": build_html_table(
                     columns=[
                         tested_by_month,
@@ -470,7 +470,7 @@ class MetricsPolicyTemplateView(TemplateView):
                 ),
             },
             {
-                "label": "State of accessibility statements after retest in last year",
+                "label": "Proportion of accessibility statements which are acceptable",
                 "html_table": build_html_table(
                     columns=[
                         tested_by_month,

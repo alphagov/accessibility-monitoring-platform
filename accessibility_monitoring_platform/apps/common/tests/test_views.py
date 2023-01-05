@@ -697,7 +697,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
         response,
         POLICY_YEARLY_METRIC_STATE.format(
             table_view_id="table-view-1",
-            table_id="state-of-websites-after-retest-in-last-year",
+            table_id="proportion-of-websites-which-are-acceptable",
         ),
         html=True,
     )
@@ -761,7 +761,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
         response,
         POLICY_YEARLY_METRIC_STATE.format(
             table_view_id="table-view-2",
-            table_id="state-of-accessibility-statements-after-retest-in-last-year",
+            table_id="proportion-of-accessibility-statements-which-are-acceptable",
         ),
         html=True,
     )
