@@ -2962,3 +2962,27 @@ def test_navigation_links_hidden_when_spreadsheet_testing(
         f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
         html=True,
     )
+
+
+def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
+    """
+    Test case details hides link to test results when URL not present
+    when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
+        </tr>""",
+        html=True,
+    )
