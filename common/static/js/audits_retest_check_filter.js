@@ -37,7 +37,7 @@ function brokenFilter (divTag, checked, className) {
 
 function notRetestedFilter (divTag, checked, className) {
   const val = divTag.querySelector('div.govuk-radios [name*="form-"][name*="-retest_state"]:checked').value
-  if (checked && val !== 'not-tested' && !divTag.className.includes(className)) {
+  if (checked && val !== 'not-retested' && !divTag.className.includes(className)) {
     divTag.className += className
   } else {
     divTag.className = divTag.className.replace(className, '')
