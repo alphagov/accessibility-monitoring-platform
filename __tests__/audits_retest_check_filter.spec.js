@@ -79,13 +79,13 @@ describe('test brokenFilter', () => {
 
 describe('test notRetestedFilter', () => {
   it.each([
-    ['remove', 'not-tested', true, 'keyword-class', ''],
+    ['remove', 'not-retested', true, 'keyword-class', ''],
     ['remove', 'other', true, 'keyword-class', ''],
-    ['remove', 'not-tested', false, 'keyword-class', ''],
+    ['remove', 'not-retested', false, 'keyword-class', ''],
     ['remove', 'other', false, 'keyword-class', ''],
-    ['add', 'not-tested', true, 'other-class', 'other-classkeyword-class'],
+    ['add', 'not-retested', true, 'other-class', 'other-classkeyword-class'],
     ['add', 'other', true, 'other-class', 'other-classkeyword-class'],
-    ['preserve', 'not-tested', false, 'other-class', 'other-class'],
+    ['preserve', 'not-retested', false, 'other-class', 'other-class'],
     ['preserve', 'other', false, 'other-class', 'other-class']
   ])('%p class name: %p, %p, %p, %p', (behaviour, value, checked, divTagClass, expectedDivTagClass) => {
     const className = 'keyword-class'
