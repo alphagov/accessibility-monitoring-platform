@@ -67,9 +67,14 @@ class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for CaseEvent model"""
 
     readonly_fields = ["case", "event_type", "message", "event_time", "done_by"]
-    search_fields = ["case__organisation_name", "case__id", "message"]
+    search_fields = [
+        "case__organisation_name",
+        "case__id",
+        "message",
+        "done_by__username",
+    ]
     list_display = ["message", "event_time", "done_by", "case", "event_type"]
-    list_filter = ["event_type"]
+    list_filter = ["event_type", ("done_by", admin.RelatedOnlyFieldListFilter)]
     actions = ["export_as_csv"]
 
 
