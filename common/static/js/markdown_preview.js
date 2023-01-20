@@ -8,7 +8,7 @@ markdown to be previewed.
 
 const showdown = require('showdown')
 showdown.setFlavor('original')
-const converter = new showdown.Converter()
+const converter = new showdown.Converter({ ghCodeBlocks: true })
 
 function previewMarkdown (sourceId, targetId) {
   const markdown = document.getElementById(sourceId).value
