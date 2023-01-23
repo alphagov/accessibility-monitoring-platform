@@ -11,7 +11,7 @@ showdown.setFlavor('original')
 const converter = new showdown.Converter({ ghCodeBlocks: true })
 
 function previewMarkdown (sourceId, targetId) {
-  const markdown = document.getElementById(sourceId).value
+  const markdown = document.getElementById(sourceId).value.replaceAll('<', '&lt;').replaceAll('_', '&#95;')
   const targetElement = document.getElementById(targetId)
   targetElement.innerHTML = converter.makeHtml(markdown)
 }

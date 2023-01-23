@@ -54,7 +54,7 @@ HOME_PAGE_NAME: str = "Home name"
 PDF_PAGE_NAME: str = "PDF name"
 HOME_PAGE_URL: str = "https://example.com/home"
 PDF_PAGE_URL: str = "https://example.com/pdf"
-CHECK_RESULT_NOTES: str = "Check results note"
+CHECK_RESULT_NOTES: str = "Check results note <span>including HTML</span>"
 
 
 class MockRequest:
