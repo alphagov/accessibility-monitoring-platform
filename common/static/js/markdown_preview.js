@@ -10,10 +10,21 @@ const showdown = require('showdown')
 showdown.setFlavor('original')
 const converter = new showdown.Converter({ ghCodeBlocks: true })
 
+function escapeSpecialChars (str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+    .replace(/_/g, '&#95;') // Used by showdown as alternative to *
+}
+
 function previewMarkdown (sourceId, targetId) {
-  const markdown = document.getElementById(sourceId).value.replaceAll('<', '&lt;').replaceAll('_', '&#95;')
+  const markdown = document.getElementById(sourceId).value
+  const escapedText = escapeSpecialChars(markdown)
   const targetElement = document.getElementById(targetId)
-  targetElement.innerHTML = converter.makeHtml(markdown)
+  targetElement.innerHTML = converter.makeHtml(escapedText)
 }
 
 const previewElements = document.getElementsByClassName('amp-preview')
@@ -29,5 +40,6 @@ Array.from(previewElements).forEach(function (previewElement) {
 })
 
 module.exports = {
+  escapeSpecialChars,
   previewMarkdown
 }
