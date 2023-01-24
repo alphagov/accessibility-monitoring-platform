@@ -4,6 +4,7 @@
 
 const specialChars = '&<>"\'_'
 const escapedSpecialChars = '&amp;&lt;&gt;&quot;&apos;&#95;'
+const doubleEscapedSpecialChars = '&amp;amp;&amp;lt;&amp;gt;&amp;quot;&amp;apos;&amp;#95;'
 const sourceId = 'id_form-0-notes'
 const targetId = 'preview-id_form-0-notes'
 const sourceMarkdown = '# Header 1 <span>spanning</span>'
@@ -14,12 +15,14 @@ document.body.innerHTML = `<textarea id="${sourceId}">${sourceMarkdown}</textare
 
 const {
   escapeSpecialChars,
+  undoubleEscape,
   previewMarkdown
 } = require('../common/static/js/markdown_preview')
 
 describe('test markdown preview functions are present', () => {
   it.each([
     escapeSpecialChars,
+    undoubleEscape,
     previewMarkdown
   ])('%p is a function', (functionFromModule) => {
     expect(typeof functionFromModule).toBe('function')
@@ -29,6 +32,12 @@ describe('test markdown preview functions are present', () => {
 describe('test escapeSpecialChars', () => {
   test('special characters are escaped', () => {
     expect(escapeSpecialChars(specialChars)).toEqual(escapedSpecialChars)
+  })
+})
+
+describe('test undoubleEscape', () => {
+  test('double escaped special characters are unescaped', () => {
+    expect(undoubleEscape(doubleEscapedSpecialChars)).toEqual(escapedSpecialChars)
   })
 })
 

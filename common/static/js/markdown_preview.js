@@ -20,11 +20,21 @@ function escapeSpecialChars (str) {
     .replace(/_/g, '&#95;') // Used by showdown as alternative to *
 }
 
+function undoubleEscape (str) {
+  return str
+    .replace(/&amp;amp;/g, '&amp;')
+    .replace(/&amp;lt;/g, '&lt;')
+    .replace(/&amp;gt;/g, '&gt;')
+    .replace(/&amp;quot;/g, '&quot;')
+    .replace(/&amp;apos;/g, '&apos;')
+    .replace(/&amp;#95;/g, '&#95;')
+}
+
 function previewMarkdown (sourceId, targetId) {
   const markdown = document.getElementById(sourceId).value
   const escapedText = escapeSpecialChars(markdown)
   const targetElement = document.getElementById(targetId)
-  targetElement.innerHTML = converter.makeHtml(escapedText)
+  targetElement.innerHTML = undoubleEscape(converter.makeHtml(escapedText))
 }
 
 const previewElements = document.getElementsByClassName('amp-preview')
@@ -41,5 +51,6 @@ Array.from(previewElements).forEach(function (previewElement) {
 
 module.exports = {
   escapeSpecialChars,
+  undoubleEscape,
   previewMarkdown
 }
