@@ -38,6 +38,14 @@ def test_markdown_to_html_escapes_html():
     )
 
 
+def test_markdown_to_html_undoes_double_escapes_html():
+    """Test markdown converted to HTML undoes any double escapes."""
+    assert (
+        markdown_to_html("`<span>span in code</code>`\n\n&lt;")
+        == "<p><code>&lt;span&gt;span in code&lt;/code&gt;</code></p>\n<p>&lt;</p>"
+    )
+
+
 @pytest.mark.parametrize(
     "date_to_format,expected_result",
     [
