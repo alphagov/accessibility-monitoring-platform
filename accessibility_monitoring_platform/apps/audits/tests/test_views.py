@@ -2,6 +2,7 @@
 Tests for audits views
 """
 import pytest
+from datetime import date
 from typing import Dict, List, Optional
 
 from pytest_django.asserts import assertContains, assertNotContains
@@ -68,6 +69,7 @@ NO_ACCESSIBILITY_STATEMENT_WARNING: str = """<strong class="govuk-warning-text__
         Test > Pages</a>
     and uncheck 'Not found?'
 </strong>"""
+MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 
 
 def create_audit() -> Audit:
@@ -1158,6 +1160,32 @@ def test_retest_page_shows_and_hides_fixed_errors(admin_client):
     assert response.status_code == 200
 
     assertNotContains(response, FIXED_ERROR_NOTES)
+
+
+def test_retest_pages_shows_missing_pages(admin_client):
+    """Test that user is shown if page was marked as missing on retest"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    page: Page = Page.objects.create(audit=audit, url="https://example.com")
+
+    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, MISSING_PAGE_ON_RETEST)
+
+    Page.objects.create(
+        audit=audit,
+        url="https://example.com",
+        retest_page_missing_date=date(2022, 12, 16),
+    )
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, MISSING_PAGE_ON_RETEST)
 
 
 def test_retest_website_decision_saved_on_case(admin_client):
