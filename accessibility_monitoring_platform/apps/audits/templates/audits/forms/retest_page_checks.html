@@ -40,20 +40,34 @@
                     </legend>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=filter_form.name %}
+                            <h2 class="govuk-heading-m" id="number_of_errors">Found 0 errors</h2>
                         </div>
                     </div>
                     <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.fixed %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.not_fixed %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.not_retested %}
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=filter_form.name %}
                         </div>
                     </div>
+                    <details class="govuk-details" data-module="govuk-details">
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                Show advanced filters
+                            </span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-one-third">
+                                    {% include 'common/amp_field.html' with field=filter_form.fixed %}
+                                </div>
+                                <div class="govuk-grid-column-one-third">
+                                    {% include 'common/amp_field.html' with field=filter_form.not_fixed %}
+                                </div>
+                                <div class="govuk-grid-column-one-third">
+                                    {% include 'common/amp_field.html' with field=filter_form.not_retested %}
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -112,12 +126,6 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <hr class="amp-width-100">
-                            <h2 class="govuk-heading-m" id="number_of_errors">Found 0 errors</h2>
-                        </div>
-                    </div>
                     {% include 'common/error_summary.html' %}
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -126,6 +134,7 @@
                     {% for check_result, form in check_results_and_forms %}
                         <div class="govuk-grid-row" id="testlist {{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}">
                             <div class="govuk-grid-column-full">
+                                <hr class="amp-width-100">
                                 <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
                                 <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
                                 {% include 'common/amp_form_snippet.html' %}
