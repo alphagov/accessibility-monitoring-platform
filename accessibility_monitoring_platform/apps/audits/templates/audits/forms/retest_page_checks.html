@@ -131,7 +131,10 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
                     {% for check_result, form in check_results_and_forms %}
-                        <div class="govuk-grid-row" id="testlist {{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}">
+                        <div class="govuk-grid-row"
+                            data-check-type="{{ check_result.wcag_definition.type }}"
+                            data-filter-string="{{ check_result.wcag_definition.name }} {{ check_result.wcag_definition.description }}"
+                        >
                             <div class="govuk-grid-column-full">
                                 <hr class="amp-width-100">
                                 <label class="govuk-label"><b>{{ check_result.wcag_definition }}</b></label>
@@ -170,6 +173,6 @@
             </div>
         </div>
     </main>
-    <script src="{% static 'js/audits_retest_check_filter.js' %}"></script>
+    <script src="{% static 'js/audits_check_filter.js' %}"></script>
 </div>
 {% endblock %}

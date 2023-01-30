@@ -10,17 +10,13 @@ const bodyHtml = fs.readFileSync(file, { encoding: 'utf8', flag: 'r' })
 document.body.innerHTML = bodyHtml
 
 const {
-  bodyListener,
   updateCheckListFiltering,
-  updateChecksListener,
   updateNotTestedCounts
 } = require('../common/static/js/audits_check_filter')
 
 describe('test audits check filter functions are present', () => {
   it.each([
-    bodyListener,
     updateCheckListFiltering,
-    updateChecksListener,
     updateNotTestedCounts
   ])('%p is a function', (functionFromModule) => {
     expect(typeof functionFromModule).toBe('function')
