@@ -56,14 +56,13 @@
                         </summary>
                         <div class="govuk-details__text">
                             <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.fixed %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_field.html' with field=filter_form.type_filter %}
                                 </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.not_fixed %}
-                                </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.not_retested %}
+                            </div>
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_field.html' with field=filter_form.state_filter %}
                                 </div>
                             </div>
                         </div>

@@ -57,25 +57,13 @@
                         </summary>
                         <div class="govuk-details__text">
                             <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.manual %}
-                                </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.axe %}
-                                </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.pdf %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_field.html' with field=filter_form.type_filter %}
                                 </div>
                             </div>
                             <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.error_found %}
-                                </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.no_issue %}
-                                </div>
-                                <div class="govuk-grid-column-one-third">
-                                    {% include 'common/amp_field.html' with field=filter_form.not_tested %}
+                                <div class="govuk-grid-column-full">
+                                    {% include 'common/amp_field.html' with field=filter_form.state_filter %}
                                 </div>
                             </div>
                         </div>
@@ -132,7 +120,10 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
                     {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
-                        <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
+                        <div class="govuk-grid-row"
+                            data-check-type="{{ wcag_definition.type }}"
+                            data-filter-string="{{wcag_definition.name}} {{wcag_definition.description}}"
+                        >
                             <div class="govuk-grid-column-full">
                                 <hr class="amp-width-100">
                                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}

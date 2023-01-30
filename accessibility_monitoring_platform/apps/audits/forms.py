@@ -1,7 +1,7 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from django import forms
 
@@ -54,6 +54,19 @@ from .models import (
     WcagDefinition,
     TEST_TYPE_CHOICES,
 )
+
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = [
+    ("manual", "Manual tests"),
+    ("axe", "Axe tests"),
+    ("pdf", "PDF"),
+    ("", "All"),
+]
+TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = CHECK_RESULT_STATE_CHOICES + [("", "All")]
+RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = RETEST_CHECK_RESULT_STATE_CHOICES + [("", "All")]
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -179,35 +192,23 @@ class CheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
-    manual = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests"})
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
     )
-    axe = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Axe tests"})
-    )
-    pdf = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "PDF"})
-    )
-    error_found = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Error found"})
-    )
-    no_issue = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "No issue"})
-    )
-    not_tested = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not tested"})
+    state_filter = AMPChoiceRadioField(
+        label="Test state",
+        choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
     )
 
     class Meta:
         model = Page
         fields: List[str] = [
             "name",
-            "manual",
-            "axe",
-            "pdf",
-            "error_found",
-            "no_issue",
-            "not_tested",
+            "type_filter",
+            "state_filter",
         ]
 
 
@@ -768,23 +769,23 @@ class RetestCheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
-    fixed = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Fixed"})
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
     )
-    not_fixed = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not fixed"})
-    )
-    not_retested = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not retested"})
+    state_filter = AMPChoiceRadioField(
+        label="Retest state",
+        choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
     )
 
     class Meta:
         model = Page
         fields: List[str] = [
             "name",
-            "fixed",
-            "not_fixed",
-            "not_retested",
+            "type_filter",
+            "state_filter",
         ]
 
 
