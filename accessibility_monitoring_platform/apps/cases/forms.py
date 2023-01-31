@@ -126,6 +126,10 @@ class CaseCreateForm(forms.ModelForm):
         choices=PSB_LOCATION_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    previous_case_url = AMPURLField(
+        label="URL to previous case",
+        help_text="If the website has been previously audited, include a link to the case below"
+    )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
         choices=BOOLEAN_CHOICES,
@@ -142,6 +146,7 @@ class CaseCreateForm(forms.ModelForm):
             "enforcement_body",
             "psb_location",
             "sector",
+            "previous_case_url",
             "is_complaint",
         ]
 
