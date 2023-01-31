@@ -94,7 +94,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
                     {% endif %}
 
                     <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
@@ -116,6 +115,10 @@
                             {% include 'common/amp_field.html' with field=form.is_complaint %}
                         </div>
                     </div>
+
+                    {% if duplicate_cases %}
+                        <h2 id="case-details" class="govuk-heading-m">Do you wish to continue?</h2>
+                    {% endif %}
 
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">

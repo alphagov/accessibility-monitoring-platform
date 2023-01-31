@@ -128,7 +128,7 @@ class CaseCreateForm(forms.ModelForm):
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     previous_case_url = AMPURLField(
         label="URL to previous case",
-        help_text="If the website has been previously audited, include a link to the case below"
+        help_text="If the website has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
