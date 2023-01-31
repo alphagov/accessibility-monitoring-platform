@@ -1,13 +1,13 @@
 /*
 All user to filter checks displayed by type, if check has been tested and WCAG definition name.
 */
-const testPage = document.location.href.indexOf('edit-audit-page-checks') > -1
+const testPage = document.getElementById('id_form-0-check_result_state_0') !== null
 const checkStateNameSuffix = testPage ? 'check_result_state' : 'retest_state'
 
 const divElements = document.getElementsByTagName('div')
 
 const checkListElements = Array.from(divElements).filter(divElement => divElement.hasAttribute('data-check-type'))
-if (testPage) {
+if (testPage === true) {
   checkListElements.forEach(checkListElement => {
     checkListElement.addEventListener('input', updateNotTestedCounts)
   })
@@ -26,7 +26,9 @@ stateRadioButtons.forEach(stateRadioButton => {
   stateRadioButton.addEventListener('change', updateCheckListFiltering)
 })
 
-function updateCheckListFiltering (e) {
+document.getElementById('clear_search_form').addEventListener('click', resetFilterForm)
+
+function updateCheckListFiltering (event) {
   const typeFilterValue = document.querySelector('input[name="type_filter"]:checked').value
   const stateFilterValue = document.querySelector('input[name="state_filter"]:checked').value
   const textFilterValue = document.getElementById('id_name').value
@@ -34,14 +36,14 @@ function updateCheckListFiltering (e) {
 
   checkListElements.forEach(checkListElement => {
     checkListElement.style.display = 'block'
-    if (typeFilterValue && checkListElement.getAttribute('data-check-type') !== typeFilterValue) {
+    if (typeFilterValue !== '' && checkListElement.getAttribute('data-check-type') !== typeFilterValue) {
       checkListElement.style.display = 'none'
     }
     const stateValue = checkListElement.querySelector(`div.govuk-radios [name*="form-"][name*="-${checkStateNameSuffix}"]:checked`).value
-    if (stateFilterValue && stateValue !== stateFilterValue) {
+    if (stateFilterValue !== '' && stateValue !== stateFilterValue) {
       checkListElement.style.display = 'none'
     }
-    if (textFilterValue && !checkListElement.getAttribute('data-filter-string').toLowerCase().includes(textFilterValue.toLowerCase())) {
+    if (textFilterValue !== '' && !checkListElement.getAttribute('data-filter-string').toLowerCase().includes(textFilterValue.toLowerCase())) {
       checkListElement.style.display = 'none'
     }
 
@@ -54,7 +56,7 @@ function updateCheckListFiltering (e) {
   })
 }
 
-function updateNotTestedCounts (e) {
+function updateNotTestedCounts (event) {
   let manualNotTested = 0
   let axeNotTested = 0
   let pdfNotTested = 0
@@ -81,21 +83,21 @@ function updateNotTestedCounts (e) {
   document.querySelector('label[for=id_type_filter_2]').innerHTML = `PDF (${pdfNotTested} not tested)`
 }
 
-document.getElementById('clear_search_form').addEventListener('click', function (event) {
+function resetFilterForm (event) {
   event.preventDefault()
   document.getElementById('id_name').value = ''
-  document.getElementById('id_type_filter_3').checked = true
-  document.getElementById('id_state_filter_3').checked = true
-
+  document.getElementById('id_type_filter_3').checked = true // Set type filter to all
+  document.getElementById('id_state_filter_3').checked = true // Set state filter to all
   updateCheckListFiltering()
-})
+}
 
 updateCheckListFiltering()
-if (testPage) {
+if (testPage === true) {
   updateNotTestedCounts()
 }
 
 module.exports = {
+  resetFilterForm,
   updateCheckListFiltering,
   updateNotTestedCounts
 }
