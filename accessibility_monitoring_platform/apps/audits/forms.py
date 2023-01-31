@@ -192,14 +192,15 @@ class CheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
+    state_filter = AMPChoiceRadioField(
+        label="",
+        choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
+    )
     type_filter = AMPChoiceRadioField(
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
-        initial="",
-    )
-    state_filter = AMPChoiceRadioField(
-        label="Test state",
-        choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
     )
 
@@ -207,8 +208,8 @@ class CheckResultFilterForm(forms.Form):
         model = Page
         fields: List[str] = [
             "name",
-            "type_filter",
             "state_filter",
+            "type_filter",
         ]
 
 

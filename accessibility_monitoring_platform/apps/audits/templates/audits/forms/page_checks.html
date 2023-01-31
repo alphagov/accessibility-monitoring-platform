@@ -41,43 +41,102 @@
                     </legend>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</h2>
+                            <p class="govuk-body-m" id="number_of_errors">Showing 78 errors</p>
                         </div>
                     </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=filter_form.name %}
+                            <label id="id_name-label" class="govuk-label" for="id_name"><b>Filter WCAG tests, category, or grouping</b></label>
+                            <input type="text" name="name" class="govuk-input" id="id_name" />
                         </div>
                     </div>
-                    <details class="govuk-details" data-module="govuk-details">
-                        <summary class="govuk-details__summary">
-                            <span class="govuk-details__summary-text">
-                                Show advanced filters
-                            </span>
-                        </summary>
-                        <div class="govuk-details__text">
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_field.html' with field=filter_form.type_filter %}
-                                </div>
-                            </div>
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-full">
-                                    {% include 'common/amp_field.html' with field=filter_form.state_filter %}
+                    <div class="govuk-grid-row amp-margin-top-10 amp-margin-bottom-10 amp-padding-left-15">
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="type_filter" value="manual" horizontal id="id_type_filter_0" />
+
+                                    <label class="govuk-label govuk-radios__label" for="id_type_filter_0">
+                                        Manual
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                    </details>
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="type_filter" value="axe" horizontal id="id_type_filter_1" />
+                                    <label class="govuk-label govuk-radios__label" for="id_type_filter_1">
+                                        Axe
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="type_filter" value="pdf" horizontal id="id_type_filter_2" />
+                                    <label class="govuk-label govuk-radios__label" for="id_type_filter_2">
+                                        PDF
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="govuk-radios amp-display-flex">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" type="radio" name="type_filter" value="" horizontal id="id_type_filter_3" checked />
+                                <label class="govuk-label govuk-radios__label" for="id_type_filter_3">
+                                    All
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row amp-margin-top-10 amp-margin-bottom-10 amp-padding-left-15">
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="state_filter" value="error" horizontal id="id_state_filter_0" />
+                                    <label class="govuk-label govuk-radios__label" for="id_state_filter_0">
+                                        Error found
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="state_filter" value="no-error" horizontal id="id_state_filter_1" />
+
+                                    <label class="govuk-label govuk-radios__label" for="id_state_filter_1">
+                                        No issue
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="amp-grid-column-28">
+                            <div class="govuk-radios amp-display-flex">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" type="radio" name="state_filter" value="not-tested" horizontal id="id_state_filter_2" />
+
+                                    <label class="govuk-label govuk-radios__label" for="id_state_filter_2">
+                                        Not tested
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="govuk-radios amp-display-flex">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" type="radio" name="state_filter" value="" horizontal id="id_state_filter_3" checked />
+
+                                <label class="govuk-label govuk-radios__label" for="id_state_filter_3">
+                                    All
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Clear search form"
-                                name="clear"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                                id="clear_search_form"
-                            />
+                            <input type="submit" value="Clear search form" name="clear" class="govuk-button govuk-button--secondary" data-module="govuk-button" id="clear_search_form" />
                         </div>
                     </div>
                 </fieldset>
@@ -125,7 +184,7 @@
                             data-filter-string="{{wcag_definition.name}} {{wcag_definition.description}}"
                         >
                             <div class="govuk-grid-column-full">
-                                <hr class="amp-width-100">
+                                <hr class="amp-width-100 amp-margin-bottom-30">
                                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                                 {% include 'common/amp_field.html' with field=form.check_result_state %}
                                 {% if matching_issues %}
@@ -160,7 +219,7 @@
                     {% endfor %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <hr class="amp-width-100">
+                            <hr class="amp-width-100 amp-margin-bottom-30">
                         </div>
                     </div>
                     <div class="govuk-grid-row">

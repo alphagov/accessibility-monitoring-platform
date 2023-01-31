@@ -21,11 +21,6 @@ document.getElementById('clear_search_form').addEventListener('click', resetFilt
 
 const divElements = document.getElementsByTagName('div')
 const checkListElements = Array.from(divElements).filter(divElement => divElement.hasAttribute('data-check-type'))
-if (testPage === true) {
-  checkListElements.forEach(checkListElement => {
-    checkListElement.addEventListener('input', updateNotTestedCounts)
-  })
-}
 
 function resetFilterForm (event) {
   event.preventDefault()
@@ -62,40 +57,9 @@ function updateCheckListFiltering (event) {
   })
 }
 
-function updateNotTestedCounts (event) {
-  let manualNotTested = 0
-  let axeNotTested = 0
-  let pdfNotTested = 0
-
-  checkListElements.forEach(checkListElement => {
-    const stateValue = checkListElement.querySelector('div.govuk-radios [name*="form-"][name*="-check_result_state"]:checked').value
-    const typeValue = checkListElement.getAttribute("data-check-type")
-    if (stateValue === 'not-tested') {
-      switch (typeValue) {
-        case 'manual':
-          manualNotTested += 1
-          break;
-        case 'axe':
-          axeNotTested += 1
-          break;
-        case 'pdf':
-          pdfNotTested += 1
-      }
-    }
-  })
-
-  document.querySelector('label[for=id_type_filter_0]').innerHTML = `Manual tests (${manualNotTested} not tested)`
-  document.querySelector('label[for=id_type_filter_1]').innerHTML = `Axe tests (${axeNotTested} not tested)`
-  document.querySelector('label[for=id_type_filter_2]').innerHTML = `PDF (${pdfNotTested} not tested)`
-}
-
 updateCheckListFiltering()
-if (testPage === true) {
-  updateNotTestedCounts()
-}
 
 module.exports = {
   resetFilterForm,
-  updateCheckListFiltering,
-  updateNotTestedCounts
+  updateCheckListFiltering
 }

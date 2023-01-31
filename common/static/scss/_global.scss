@@ -193,6 +193,10 @@ img, .amp-max-width-100 {
     margin-bottom: 15px;
 }
 
+.amp-margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
 .amp-margin-bottom-40 {
     margin-bottom: 40px;
 }
@@ -223,6 +227,14 @@ img, .amp-max-width-100 {
 
 .amp-padding-left-10 {
     padding-left: 10px;
+}
+
+.amp-padding-left-15{
+    padding-left: 15px;
+}
+
+.amp-padding-right-0 {
+    padding-right: 0;
 }
 
 .amp-padding-right-20 {
@@ -709,4 +721,9 @@ img, .amp-max-width-100 {
 
 svg {
     font-family: "GDS Transport",arial,sans-serif;
+}
+
+.amp-grid-column-28 {
+    float: left;
+    width: 28%;
 }
