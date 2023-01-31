@@ -60,7 +60,7 @@ describe('test updateCheckListFiltering', () => {
   test('check number of errors not tested', () => {
     document.getElementById('id_state_filter_2').checked = true
     updateCheckListFiltering()
-    expect(document.getElementById('number_of_errors').innerHTML).toEqual('Showing 72 errors')
+    expect(document.getElementById('number_of_errors').innerHTML).toEqual('Showing 71 errors')
   })
 
   test('check number of contrast errors', () => {

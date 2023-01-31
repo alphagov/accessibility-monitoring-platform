@@ -41,7 +41,6 @@ from .forms import (
     AuditExtraPageFormsetOneExtra,
     AuditPagesUpdateForm,
     AuditPageChecksForm,
-    CheckResultFilterForm,
     CheckResultForm,
     CheckResultFormset,
     AuditWebsiteDecisionUpdateForm,
@@ -56,7 +55,6 @@ from .forms import (
     AuditRetestMetadataUpdateForm,
     AuditRetestPagesUpdateForm,
     AuditRetestPageChecksForm,
-    RetestCheckResultFilterForm,
     RetestCheckResultFormset,
     AuditRetestWebsiteDecisionUpdateForm,
     CaseFinalWebsiteDecisionUpdateForm,
@@ -365,9 +363,6 @@ class AuditPageChecksFormView(FormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
-        context["filter_form"] = CheckResultFilterForm(
-            initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
-        )
         other_pages_failed_check_results: Dict[
             WcagDefinition, List[CheckResult]
         ] = other_page_failed_check_results(page=self.page)
@@ -757,13 +752,6 @@ class AuditRetestPageChecksFormView(AuditPageChecksFormView):
         """Populate context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["page"] = self.page
-        context["filter_form"] = RetestCheckResultFilterForm(
-            initial={
-                "fixed": False,
-                "not-fixed": False,
-                "not-tested": False,
-            }
-        )
         if self.request.POST:
             check_results_formset: RetestCheckResultFormset = RetestCheckResultFormset(
                 self.request.POST
