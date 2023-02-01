@@ -55,10 +55,7 @@ from .models import (
     TEST_TYPE_CHOICES,
 )
 
-CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = [
-    ("manual", "Manual tests"),
-    ("axe", "Axe tests"),
-    ("pdf", "PDF"),
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
     ("", "All"),
 ]
 TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
@@ -183,6 +180,32 @@ class AuditPageChecksForm(forms.Form):
         fields: List[str] = [
             "complete_date",
             "no_errors_date",
+        ]
+
+
+class CheckResultFilterForm(forms.Form):
+    """
+    Form for filtering check results
+    """
+
+    name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
+    )
+    state_filter = AMPChoiceRadioField(
+        label="Test state",
+        choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
+    )
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "type_filter",
+            "state_filter",
         ]
 
 
@@ -734,6 +757,32 @@ class AuditRetestPageChecksForm(forms.Form):
         fields: List[str] = [
             "retest_complete_date",
             "retest_page_missing_date",
+        ]
+
+
+class RetestCheckResultFilterForm(forms.Form):
+    """
+    Form for filtering check results on retest
+    """
+
+    name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
+    )
+    state_filter = AMPChoiceRadioField(
+        label="Retest state",
+        choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
+    )
+
+    class Meta:
+        model = Page
+        fields: List[str] = [
+            "name",
+            "type_filter",
+            "state_filter",
         ]
 
 
