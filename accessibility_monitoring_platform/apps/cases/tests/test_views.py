@@ -1957,25 +1957,33 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
 
 
 @pytest.mark.django_db
-def test_create_case_also_creates_event(admin_client):
-    """Test that create case also creates event"""
+def test_create_case_with_duplicates_shows_previous_url_field(admin_client):
+    """
+    Test that create case with duplicates found shows URL to previous case field
+    """
+    Case.objects.create(
+        home_page_url=HOME_PAGE_URL,
+        organisation_name="other organisation name",
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url="other_url",
+    )
+
     response: HttpResponse = admin_client.post(
-        f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
+        reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
-            "save_exit": "Button value",
         },
     )
 
-    assert response.status_code == 302
-
-    case: Case = Case.objects.get(pk=1)
-    content_type: ContentType = ContentType.objects.get_for_model(Case)
-    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)  # type: ignore
-
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "If the website has been previously audited, include a link to the case below",
+    )
 
 
 def test_updating_case_create_event(admin_client):
