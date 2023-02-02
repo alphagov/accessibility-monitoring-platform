@@ -193,11 +193,13 @@ class CheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     state_filter = AMPChoiceRadioField(
         label="Test state",
         choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
 
     class Meta:
@@ -770,11 +772,13 @@ class RetestCheckResultFilterForm(forms.Form):
         label="Type of WCAG error",
         choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
         initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
     state_filter = AMPChoiceRadioField(
         label="Retest state",
         choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
         initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
 
     class Meta:

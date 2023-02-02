@@ -421,6 +421,22 @@ img, .amp-max-width-100 {
     }
 }
 
+// Fos use in test check results filtering
+
+.amp-filter-form {
+    background-color: #F2F2F1;
+    margin: 0 0 10px 0;
+    padding: 10px 10px 0 10px;
+
+    h2, .govuk-form-group {
+        margin-bottom: 10px;
+    }
+
+    .govuk-fieldset__legend, .govuk-fieldset__legend--l {
+        margin-bottom: 0;
+    }
+}
+
 // For use in reports
 
 .border-bottom-report::after {

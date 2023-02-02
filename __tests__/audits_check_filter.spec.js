@@ -11,15 +11,13 @@ document.body.innerHTML = bodyHtml
 
 const {
   resetFilterForm,
-  updateCheckListFiltering,
-  updateNotTestedCounts
+  updateCheckListFiltering
 } = require('../common/static/js/audits_check_filter')
 
 describe('test audits check filter functions are present', () => {
   it.each([
     resetFilterForm,
-    updateCheckListFiltering,
-    updateNotTestedCounts
+    updateCheckListFiltering
   ])('%p is a function', (functionFromModule) => {
     expect(typeof functionFromModule).toBe('function')
   })
@@ -37,16 +35,6 @@ describe('test resetFilterForm', () => {
     expect(document.getElementById('id_type_filter_3').checked).toEqual(true)
     expect(document.getElementById('id_state_filter_3').checked).toEqual(true)
     expect(document.getElementById('number_of_errors').innerHTML).toEqual('Showing 78 errors')
-  })
-})
-
-describe('test updateNotTestedCounts', () => {
-  test('check type counts calculated', () => {
-    updateNotTestedCounts()
-
-    expect(document.querySelector('label[for=id_type_filter_0]').innerHTML).toEqual('Manual tests (14 not tested)')
-    expect(document.querySelector('label[for=id_type_filter_1]').innerHTML).toEqual('Axe tests (54 not tested)')
-    expect(document.querySelector('label[for=id_type_filter_2]').innerHTML).toEqual('PDF (4 not tested)')
   })
 })
 
