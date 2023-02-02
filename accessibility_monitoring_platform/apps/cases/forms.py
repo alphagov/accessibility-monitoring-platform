@@ -10,6 +10,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.utils.safestring import mark_safe
 
 from ..common.forms import (
     VersionForm,
@@ -529,7 +530,13 @@ class CaseCloseUpdateForm(VersionForm):
         label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
     )
-    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
+    recommendation_notes = AMPTextField(
+        label="Enforcement recommendation notes",
+        help_text=mark_safe(
+            '<a href="#" id="amp-copy-text-link" class="govuk-link govuk-link--no-visited-state">Fill text field</a>'
+            " with notes from Summary of progress made from public sector body"
+        ),
+    )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
         choices=CASE_COMPLETED_CHOICES,
