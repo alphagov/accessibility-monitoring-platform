@@ -31,16 +31,9 @@ from ..forms import (
 
 EXPECTED_RADIO_SELECT_WIDGET_HTML: str = """
 <div class="govuk-radios">
-    <div class="govuk-radios__item">
+    <div class="govuk-radios__item amp-margin-right-5">
         <input class="govuk-radios__input" type="radio" name="name" value="val1">
         <label class="govuk-label govuk-radios__label">Label1</label>
-    </div>
-</div>"""
-"""
-<div class="govuk-radios">
-    <div class="govuk-radios__item">
-        <input class="govuk-radios__input" type="radio" name="name" value="val1">
-        <label class="govuk-label govuk-radios__label">Label1!</label>
     </div>
 </div>"""
 

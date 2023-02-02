@@ -35,50 +35,7 @@
         {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=page.audit.case %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h2 class="govuk-fieldset__heading">Search WCAG error</h2>
-                    </legend>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=filter_form.name %}
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.manual %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.axe %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.pdf %}
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.error_found %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.no_issue %}
-                        </div>
-                        <div class="govuk-grid-column-one-third">
-                            {% include 'common/amp_field.html' with field=filter_form.not_tested %}
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full govuk-button-group">
-                            <input
-                                type="submit"
-                                value="Clear search form"
-                                name="clear"
-                                class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button"
-                                id="clear_search_form"
-                            />
-                        </div>
-                    </div>
-                </fieldset>
+                {% include 'audits/helpers/page_check_filters.html' with page='test' %}
                 <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -112,24 +69,18 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <hr class="amp-width-100">
-                        </div>
-                    </div>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <h2 class="govuk-heading-m" id="number_of_errors">Showing {{ definitions_forms_errors|length }} errors</h2>
-                        </div>
-                    </div>
                     {% include 'common/error_summary.html' %}
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ check_results_formset.management_form }}
                     {% for wcag_definition, form, matching_issues in definitions_forms_errors %}
-                        <div class="govuk-grid-row" id="testlist {{ wcag_definition.type }} {{wcag_definition.name}} {{wcag_definition.description}}">
+                        <div class="govuk-grid-row"
+                            data-check-type="{{ wcag_definition.type }}"
+                            data-filter-string="{{wcag_definition.name}} {{wcag_definition.description}}"
+                        >
                             <div class="govuk-grid-column-full">
+                                <hr class="amp-width-100 amp-margin-bottom-30">
                                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                                 {% include 'common/amp_field.html' with field=form.check_result_state %}
                                 {% if matching_issues %}
@@ -164,7 +115,7 @@
                     {% endfor %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <hr class="amp-width-100">
+                            <hr class="amp-width-100 amp-margin-bottom-30">
                         </div>
                     </div>
                     <div class="govuk-grid-row">
@@ -174,6 +125,13 @@
                                 value="Save"
                                 name="save"
                                 class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and next page"
+                                name="save_continue"
+                                class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                         </div>
