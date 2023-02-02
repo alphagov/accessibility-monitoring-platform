@@ -1,5 +1,5 @@
 /*
-Allow user to populate input field.
+Allow user to populate Enforcement recommendation notes input field.
 */
 
 function copyTextToInput (sourceId, targetId) {
@@ -24,11 +24,10 @@ copyTextLink.onclick = function () {
 }
 copyTextLink.onkeypress = function () {
   event.preventDefault()
-  // eslint-disable-next-line no-undef
   keyboardCopyTextToInput(event, sourceId, targetId)
 }
 
-  module.exports = {
-    copyTextToInput,
-    keyboardCopyTextToInput
-  }
+module.exports = {
+  copyTextToInput,
+  keyboardCopyTextToInput
+}
