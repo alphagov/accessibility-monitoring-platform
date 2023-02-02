@@ -3,12 +3,13 @@
  */
 
 const summaryText = 'Summary text to copy'
-const sourceId = 'summary_id'
-const destinationId = 'notes_id'
+const controlId = 'amp-copy-text-control'
+const sourceId = 'copy-summary-source'
+const destinationId = 'id_recommendation_notes'
 
 document.body.innerHTML = `<textarea id="${sourceId}" hidden>${summaryText}</textarea>
  <a tabIndex="0"
-    id="amp-copy-text-link">
+    id="${controlId}">
     Click to populate summary text
 </a>
 <textarea id="${destinationId}"></textarea>`
@@ -30,7 +31,8 @@ describe('test cases copy summary functions are present', () => {
 describe('test copyTextToInput', () => {
   test('copy text happens (on click)', () => {
     document.getElementById(destinationId).value = ''
-    copyTextToInput(sourceId, destinationId)
+    const mockEvent = { preventDefault: jest.fn, code: '' }
+    copyTextToInput(mockEvent)
     expect(document.getElementById(destinationId).value).toEqual(summaryText)
   })
 })
@@ -42,14 +44,14 @@ describe('test keyboardCopyTextToInput', () => {
   ])('copy text happens when %p key pressed', (eventCode) => {
     document.getElementById(destinationId).value = ''
     const mockEvent = { preventDefault: jest.fn, code: eventCode }
-    keyboardCopyTextToInput(mockEvent, sourceId, destinationId)
+    keyboardCopyTextToInput(mockEvent)
     expect(document.getElementById(destinationId).value).toEqual(summaryText)
   })
 
   test("copy text doesn't happen when neither enter nor space key pressed", () => {
     document.getElementById(destinationId).value = ''
     const mockEvent = { preventDefault: jest.fn, code: '' }
-    keyboardCopyTextToInput(mockEvent, sourceId, destinationId)
+    keyboardCopyTextToInput(mockEvent)
     expect(document.getElementById(destinationId).value).toEqual('')
   })
 })

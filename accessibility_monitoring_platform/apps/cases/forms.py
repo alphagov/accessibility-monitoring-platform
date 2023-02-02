@@ -533,7 +533,7 @@ class CaseCloseUpdateForm(VersionForm):
     recommendation_notes = AMPTextField(
         label="Enforcement recommendation notes",
         help_text=mark_safe(
-            '<a href="#" id="amp-copy-text-link" class="govuk-link govuk-link--no-visited-state">Fill text field</a>'
+            '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
             " with notes from Summary of progress made from public sector body"
         ),
     )
