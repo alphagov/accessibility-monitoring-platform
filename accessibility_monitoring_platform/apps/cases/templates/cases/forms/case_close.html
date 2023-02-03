@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}{{ case.organisation_name }} | Closing the case{% endblock %}
 
 {% block content %}
@@ -126,4 +128,9 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<textarea id="copy-summary-source" hidden>{{ case.psb_progress_notes }}</textarea>
+<script src="{% static 'js/cases_copy_summary.js' %}"></script>
 {% endblock %}
