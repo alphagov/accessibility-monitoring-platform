@@ -10,6 +10,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.utils.safestring import mark_safe
 
 from ..common.forms import (
     VersionForm,
@@ -126,6 +127,10 @@ class CaseCreateForm(forms.ModelForm):
         choices=PSB_LOCATION_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    previous_case_url = AMPURLField(
+        label="URL to previous case",
+        help_text="If the website has been previously audited, include a link to the case below",
+    )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
         choices=BOOLEAN_CHOICES,
@@ -142,6 +147,7 @@ class CaseCreateForm(forms.ModelForm):
             "enforcement_body",
             "psb_location",
             "sector",
+            "previous_case_url",
             "is_complaint",
         ]
 
@@ -524,7 +530,13 @@ class CaseCloseUpdateForm(VersionForm):
         label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
     )
-    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
+    recommendation_notes = AMPTextField(
+        label="Enforcement recommendation notes",
+        help_text=mark_safe(
+            '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
+            " with notes from Summary of progress made from public sector body"
+        ),
+    )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
         choices=CASE_COMPLETED_CHOICES,

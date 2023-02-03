@@ -70,10 +70,11 @@ NO_ACCESSIBILITY_STATEMENT_WARNING: str = """<strong class="govuk-warning-text__
     and uncheck 'Not found?'
 </strong>"""
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
+ORGANISATION_NAME: str = "Organisation name"
 
 
 def create_audit() -> Audit:
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
     audit: Audit = Audit.objects.create(case=case)
     return audit
 
@@ -1437,3 +1438,68 @@ def test_clear_published_report_data_updated_time_view(admin_client):
     audit_from_db: Audit = Audit.objects.get(**audit_pk)
 
     assert audit_from_db.published_report_data_updated_time is None
+
+
+def test_update_audit_checks_version(admin_client):
+    """Test that updating an audit shows an error if the version of the audit has changed"""
+    audit: Audit = create_audit()
+    case: Case = audit.case
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),  # type: ignore
+        {
+            "version": audit.version - 1,
+            "case-version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li class="govuk-error-message">
+                    {str(audit)} has changed since this page loaded
+                </li>
+            </ul>
+        </div>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-website-decision",
+        "audits:edit-statement-decision",
+        "audits:edit-audit-retest-website-decision",
+        "audits:edit-audit-retest-statement-decision",
+    ],
+)
+def test_update_audit_checks_case_version(url_name, admin_client):
+    """Test that updating a case shows an error if the version of the case has changed"""
+    audit: Audit = create_audit()
+    case: Case = audit.case
+
+    response: HttpResponse = admin_client.post(
+        reverse(url_name, kwargs={"pk": audit.id}),  # type: ignore
+        {
+            "version": audit.version,
+            "case-version": case.version - 1,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li class="govuk-error-message">
+                    {str(case)} has changed since this page loaded
+                </li>
+            </ul>
+        </div>""",
+        html=True,
+    )

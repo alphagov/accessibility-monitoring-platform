@@ -193,12 +193,20 @@ img, .amp-max-width-100 {
     margin-bottom: 15px;
 }
 
+.amp-margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
 .amp-margin-bottom-40 {
     margin-bottom: 40px;
 }
 
 .amp-margin-left-10 {
     margin-left: 10px;
+}
+
+.amp-margin-right-5 {
+    margin-right: 5px !important;
 }
 
 .amp-margin-top-0 {
@@ -246,54 +254,6 @@ img, .amp-max-width-100 {
 }
 
 .hide-retest-options {
-    display: none;
-}
-
-// For use in common/static/js/audits_check_filter.js
-
-.filter-div-manual {
-    display: none;
-}
-
-.filter-div-pdf {
-    display: none;
-}
-
-.filter-div-axe {
-    display: none;
-}
-
-.filter-div-error-found {
-    display: none;
-}
-
-.filter-div-no-issue {
-    display: none;
-}
-
-.filter-div-not-tested {
-    display: none;
-}
-
-.text-filter {
-    display: none;
-}
-
-// For use in common/static/js/audits_retest_check_filter.js
-
-.filter-div-fixed {
-    display: none;
-}
-
-.filter-div-broken {
-    display: none;
-}
-
-.filter-div-not-retested {
-    display: none;
-}
-
-.text-filter {
     display: none;
 }
 
@@ -458,6 +418,21 @@ img, .amp-max-width-100 {
     span,
     a {
       padding: 0 10 0 0;
+    }
+}
+
+// Fos use in test check results filtering
+
+.amp-filter-form {
+    margin: 0 0 10px 0;
+    padding: 10px 0 0 0;
+
+    h2, .govuk-form-group {
+        margin-bottom: 10px;
+    }
+
+    .govuk-fieldset__legend, .govuk-fieldset__legend--l {
+        margin-bottom: 0;
     }
 }
 

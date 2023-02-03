@@ -462,7 +462,7 @@ class AuditWebsiteDecisionUpdateView(AuditUpdateView):
         if case_form.is_valid():
             case_form.save()
         else:
-            return super().form_invalid(form)
+            return super().form_invalid(case_form)
 
         return super().form_valid(form)
 
@@ -556,7 +556,7 @@ class AuditStatementDecisionUpdateView(AuditUpdateView):
         if case_form.is_valid():
             case_form.save()
         else:
-            return super().form_invalid(form)
+            return super().form_invalid(case_form)
 
         return super().form_valid(form)
 
