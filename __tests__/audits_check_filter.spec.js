@@ -68,4 +68,11 @@ describe('test updateCheckListFiltering', () => {
     updateCheckListFiltering()
     expect(document.getElementById('number_of_errors').innerHTML).toEqual('Showing 3 errors')
   })
+
+  test('check single error', () => {
+    document.getElementById('id_name').value = 'contrast'
+    document.getElementById('id_type_filter_2').checked = true
+    updateCheckListFiltering()
+    expect(document.getElementById('number_of_errors').innerHTML).toEqual('Showing 1 error')
+  })
 })

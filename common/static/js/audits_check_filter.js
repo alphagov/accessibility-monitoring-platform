@@ -53,7 +53,8 @@ function updateCheckListFiltering (event) {
       numberChecksDisplayed += 1
     }
 
-    document.getElementById('number_of_errors').innerHTML = `Showing ${numberChecksDisplayed} errors`
+    const errorSuffix = numberChecksDisplayed === 1 ? 'error' : 'errors'
+    document.getElementById('number_of_errors').innerHTML = `Showing ${numberChecksDisplayed} ${errorSuffix}`
   })
 }
 
