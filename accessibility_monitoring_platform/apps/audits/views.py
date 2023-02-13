@@ -247,16 +247,18 @@ class AuditCaseUpdateView(AuditUpdateView):
             context["case_form"] = case_form
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
         """Populate two forms from post request"""
-        self.object = self.get_object()  # type: ignore
-        form = self.form_class(request.POST, instance=self.object)  # type: ignore
-        case_form = self.case_form_class(  # type: ignore
+        self.object: Audit = self.get_object()  # type: ignore
+        form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
+        case_form: Form = self.case_form_class(  # type: ignore
             request.POST, instance=self.object.case, prefix="case"  # type: ignore
         )
         if form.is_valid() and case_form.is_valid():
             form.save()  # type: ignore
-            case_form.save()
+            case_form.save()  # type: ignore
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
