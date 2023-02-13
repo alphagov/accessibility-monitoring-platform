@@ -30,6 +30,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' with form=case_form %}
                 {% include 'common/error_summary.html' %}
                 {% include 'audits/helpers/end_of_test.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
