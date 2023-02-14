@@ -143,7 +143,7 @@ def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -156,7 +156,7 @@ def test_case_list_view_filters_by_case_number(admin_client):
     response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")  # type: ignore
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -171,7 +171,7 @@ def test_case_list_view_filters_by_psb_location(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -187,7 +187,7 @@ def test_case_list_view_filters_by_sector_name(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -214,7 +214,7 @@ def test_case_list_view_string_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -242,7 +242,7 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -270,7 +270,7 @@ def test_case_list_view_user_unassigned_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -298,7 +298,7 @@ def test_case_list_view_date_range_filters(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -318,7 +318,7 @@ def test_case_list_view_sector_filter(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
