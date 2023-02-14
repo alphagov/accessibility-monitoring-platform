@@ -5,12 +5,12 @@
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h2 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-1">
+                <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-report-ready-to-qa">
                     Report ready for QA - {{ cases_by_status.ready_for_qa|length }}
                 </span>
             </h2>
         </div>
-        <div id="accordion-qa-cases-content-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-1">
+        <div id="accordion-qa-cases-content-report-ready-to-qa" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-report-ready-to-qa">
             {% include "./13_ready_to_qa.html" with cases=cases_by_status.ready_for_qa %}
         </div>
     </div>
@@ -18,12 +18,12 @@
         <div class="govuk-accordion__section ">
             <div class="govuk-accordion__section-header">
                 <h2 class="govuk-accordion__section-heading">
-                    <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-2">
+                    <span class="govuk-accordion__section-button" id="accordion-qa-cases-heading-requires-your-review">
                         Cases assigned to you for QA - {{ cases_by_status.requires_your_review|length }}
                     </span>
                 </h2>
             </div>
-            <div id="accordion-qa-cases-content-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-2">
+            <div id="accordion-qa-cases-content-requires-your-review" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-qa-cases-heading-requires-your-review">
                 {% include "./5_requires_your_review.html" with cases=cases_by_status.requires_your_review %}
             </div>
         </div>
