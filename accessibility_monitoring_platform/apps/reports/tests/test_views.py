@@ -44,8 +44,11 @@ from ..utils import (
 SECTION_NAME: str = "Section name"
 SECTION_CONTENT: str = "I am section content"
 
-USER_NAME = "user1"
-USER_PASSWORD = "bar"
+USER_NAME: str = "user1"
+USER_PASSWORD: str = "bar"
+
+FIRST_CODENAME: str = "FirstCodename"
+SECOND_CODENAME: str = "SecondCodename"
 
 
 def create_report() -> Report:
@@ -577,21 +580,21 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     case.save()
 
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename="codename"
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
     )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename="codename"
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
     )
     ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=5678, fingerprint_codename="codename2"
+        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
     )
     url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=all"""
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
 
-    assertContains(response, "codename")
-    assertContains(response, "codename2")
+    assertContains(response, FIRST_CODENAME)
+    assertContains(response, SECOND_CODENAME)
     assertContains(response, "Viewing 3 visits")
     assertContains(response, "Report visit logs")
     assertContains(response, "View unique visitors")
@@ -602,10 +605,14 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     assertContains(response, "Viewing 2 visits")
     assertContains(response, "View all visits")
 
-    url: str = f"""{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?userhash=codename2"""
+    # Check unique visitors are sorted by most recent visit first
+    html: str = response.content.decode()
+    assert html.index(FIRST_CODENAME) > html.index(SECOND_CODENAME)
+
+    url: str = f'{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?userhash={SECOND_CODENAME}'
     response: HttpResponse = admin_client.get(url)
     assert response.status_code == 200
-    assertContains(response, "codename2")
+    assertContains(response, SECOND_CODENAME)
     assertContains(response, "Viewing 1 visits")
     assertContains(response, "View all visits")
 
