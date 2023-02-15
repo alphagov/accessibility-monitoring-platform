@@ -1,12 +1,8 @@
 /* global cy before Cypress */
 
 describe('Search page', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/cases/')
   })
 

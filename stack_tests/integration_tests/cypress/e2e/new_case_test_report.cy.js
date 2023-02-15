@@ -10,7 +10,6 @@ describe('Create case, tests and report', () => {
   })
 
   it('can follow case lifecycle', () => {
-    Cypress.Cookies.preserveOnce('sessionid')
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search')

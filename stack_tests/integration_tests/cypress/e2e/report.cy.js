@@ -11,12 +11,8 @@ const newIssueDescription = 'New issue description'
 const newIssueWhereFound = 'New issue where found'
 
 describe('Report publisher', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/reports/1/report-publisher')
   })
 

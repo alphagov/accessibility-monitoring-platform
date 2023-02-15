@@ -8,12 +8,8 @@ const disproportionateNote = 'Disproportionate burden note'
 const statementComplianceNote = 'Accessibility statement compliance note'
 
 describe('View test', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/audits/1/audit-retest-detail')
   })
 
