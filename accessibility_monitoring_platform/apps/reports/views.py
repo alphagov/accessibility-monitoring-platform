@@ -373,6 +373,7 @@ class ReportVisitsMetricsView(ReportTemplateView):
                         fingerprint_hash=query_set["fingerprint_hash"]
                     ).first()
                 )
+            visit_logs.sort(reverse=True, key=lambda x: x.id)
             context["visit_logs"] = visit_logs
         else:
             context["visit_logs"] = ReportVisitsMetrics.objects.filter(
