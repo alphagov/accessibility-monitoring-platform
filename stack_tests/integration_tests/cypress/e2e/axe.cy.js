@@ -77,8 +77,7 @@ const axeConfig = {
 
 describe('Axe core checks', () => {
   it('logged in urls', () => {
-    cy.login()
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     loggedInUrls.forEach(url => {
       cy.visit(url)
       cy.injectAxe()

@@ -15,12 +15,8 @@ const postCaseNote = 'Post case note'
 const psbAppealNote = 'PSB appeal note'
 
 describe('View case', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/cases/1/view')
   })
 

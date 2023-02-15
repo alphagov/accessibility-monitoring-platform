@@ -3,12 +3,8 @@
 const organisationName = 'Doncaster College'
 
 describe('View case', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
   })
 
   it('can edit case details', () => {
