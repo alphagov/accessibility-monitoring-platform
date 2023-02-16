@@ -3,6 +3,7 @@
 describe('Account details page', () => {
   beforeEach(() => {
     cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.visit('/')
   })
 
   it('can see page', () => {

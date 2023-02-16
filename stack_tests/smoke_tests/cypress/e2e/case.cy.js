@@ -5,6 +5,7 @@ const organisationName = 'Doncaster College'
 describe('View case', () => {
   beforeEach(() => {
     cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.visit('/')
   })
 
   it('can edit case details', () => {
