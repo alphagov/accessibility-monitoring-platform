@@ -25,6 +25,7 @@ from .views import (
     AuditRetestPageChecksFormView,
     AuditRetestWebsiteDecisionUpdateView,
     AuditRetestStatement1UpdateView,
+    Audit12WeekStatementUpdateView,
     AuditRetestStatement2UpdateView,
     AuditRetestStatementDecisionUpdateView,
     WcagDefinitionListView,
@@ -148,6 +149,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-1/",
         login_required(AuditRetestStatement1UpdateView.as_view()),
         name="edit-audit-retest-statement-1",
+    ),
+    path(
+        "<int:pk>/edit-audit-12-week-statement/",
+        login_required(Audit12WeekStatementUpdateView.as_view()),
+        name="edit-audit-12-week-statement",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-2/",

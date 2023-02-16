@@ -852,6 +852,27 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
+class Audit12WeekStatementUpdateForm(VersionForm):
+    """
+    Form to add a statement at 12-weeks (no initial statement)
+    """
+    # 12-week accessibility statement (no initial statement)
+    twelve_week_accessibility_statement_url = AMPURLField(
+        label="Link to accessibility statement",
+    )
+    twelve_week_accessibility_statement_backup_url = AMPURLField(
+        label="Link to backup accessibility statement (if required)",
+    )
+
+    class Meta:
+        model = Audit
+        fields = [
+            "version",
+            "twelve_week_accessibility_statement_url",
+            "twelve_week_accessibility_statement_backup_url",
+        ]
+
+
 class AuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks

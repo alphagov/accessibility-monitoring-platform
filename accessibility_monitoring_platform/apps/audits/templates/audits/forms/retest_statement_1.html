@@ -74,7 +74,7 @@
                                 {% include 'common/amp_field.html' with field=form.audit_retest_non_regulation_state %}
                                 {% include 'common/amp_field.html' with field=form.audit_retest_non_regulation_notes %}
                             {% else %}
-                                {% include 'audits/helpers/no_statement_warning.html' %}
+                                {% include 'audits/helpers/no_statement_at_retest.html' %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.audit_retest_statement_1_complete_date %}
                         </div>

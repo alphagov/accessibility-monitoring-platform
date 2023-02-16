@@ -426,6 +426,14 @@ class Audit(VersionModel):
         null=True, blank=True
     )
 
+    # 12-week accessibility statement (no initial statement)
+    twelve_week_accessibility_statement_url = models.TextField(
+        default="", blank=True
+    )
+    twelve_week_accessibility_statement_backup_url = models.TextField(
+        default="", blank=True
+    )
+
     # Retest accessibility statement 1
     audit_retest_accessibility_statement_backup_url = models.TextField(
         default="", blank=True

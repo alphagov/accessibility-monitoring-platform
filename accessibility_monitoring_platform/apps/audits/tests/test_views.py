@@ -69,6 +69,12 @@ NO_ACCESSIBILITY_STATEMENT_WARNING: str = """<strong class="govuk-warning-text__
         Test > Pages</a>
     and uncheck 'Not found?'
 </strong>"""
+NO_ACCESSIBILITY_STATEMENT_ON_RETEST: str = """<p class="govuk-body-m">
+    The statement assessment is not visible, as no statement was found during the initial test.
+    <a href="/audits/1/edit-audit-12-week-statement/" class="govuk-link govuk-link--no-visited-state">
+        Append a statement to the 12-week test</a>
+    if the organisation has added a statement to their website.
+</p>"""
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
 
@@ -809,18 +815,6 @@ def test_statement_update_one_shows_statement_link(admin_client):
             "audits:edit-audit-statement-2",
             "Non-accessible Content - disproportionate burden",
         ),
-        (
-            "audits:audit-retest-detail",
-            "Retest non-accessible content - non compliance with regulations state",
-        ),
-        (
-            "audits:edit-audit-retest-statement-1",
-            "Non-accessible Content - non compliance with regulations",
-        ),
-        (
-            "audits:edit-audit-retest-statement-2",
-            "Non-accessible Content - disproportionate burden",
-        ),
     ],
 )
 def test_statement_details_hidden_when_no_statement_page(
@@ -865,6 +859,68 @@ def test_statement_details_hidden_when_no_statement_page(
     assert response.status_code == 200
 
     assertContains(response, NO_ACCESSIBILITY_STATEMENT_WARNING, html=True)
+    assertNotContains(response, field_label)
+
+
+@pytest.mark.parametrize(
+    "url_name, field_label",
+    [
+        (
+            "audits:audit-retest-detail",
+            "Retest non-accessible content - non compliance with regulations state",
+        ),
+        (
+            "audits:edit-audit-retest-statement-1",
+            "Non-accessible Content - non compliance with regulations",
+        ),
+        (
+            "audits:edit-audit-retest-statement-2",
+            "Non-accessible Content - disproportionate burden",
+        ),
+    ],
+)
+def test_statement_details_hidden_when_no_statement_page_on_retest(
+    url_name, field_label, admin_client
+):
+    """
+    Test that accessibility statement details and form fields shown only if
+    such a page is present.
+    """
+    audit: Audit = create_audit_and_pages()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, field_label)
+
+    page: Page = audit.accessibility_statement_page
+    page.url = ACCESSIBILITY_STATEMENT_URL
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertContains(response, field_label)
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
     assertNotContains(response, field_label)
 
 
