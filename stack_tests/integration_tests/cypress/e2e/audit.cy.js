@@ -9,12 +9,8 @@ const accessibilityStatementComplianceNote = 'Accessibility statement compliance
 const reportOptionsNote = 'Report options note'
 
 describe('View test', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/audits/1/detail')
   })
 

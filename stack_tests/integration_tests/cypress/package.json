@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "axe-core": "4.5.0",
-    "cypress": "10.9.0",
+    "cypress": "12.5.1",
     "cypress-axe": "^1.0.0"
   }
 }
