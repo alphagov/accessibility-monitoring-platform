@@ -430,9 +430,6 @@ class Audit(VersionModel):
     twelve_week_accessibility_statement_url = models.TextField(
         default="", blank=True
     )
-    twelve_week_accessibility_statement_backup_url = models.TextField(
-        default="", blank=True
-    )
 
     # Retest accessibility statement 1
     audit_retest_accessibility_statement_backup_url = models.TextField(
@@ -595,9 +592,13 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
-    def accessibility_statement_found(self):
+    def accessibility_statement_initially_found(self):
         page: Page = self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
         return page is not None and page.url != "" and page.not_found == BOOLEAN_FALSE
+
+    @property
+    def twelve_week_accessibility_statement_found(self):
+        return self.twelve_week_accessibility_statement_url != ""
 
     @property
     def contact_page(self):

@@ -37,12 +37,19 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% if audit.accessibility_statement_found %}
+                    {% if audit.accessibility_statement_initially_found %}
+                        {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
+                    {% elif audit.twelve_week_accessibility_statement_found %}
+                        <p class="govuk-body-m">
+                            The statement was appended during the 12-week retest.
+                            <a href="{% url 'audits:edit-audit-12-week-statement' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit or remove appended statement links</a>
+                        </p>
                         {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
                     {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.accessibility_statement_found %}
+                            {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
                                 {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
                                 {% if audit.audit_retest_accessibility_statement_backup_url_date %}
                                     <p class="govuk-body amp-margin-top-minus-20"> Added {{audit.audit_retest_accessibility_statement_backup_url_date}} </p>

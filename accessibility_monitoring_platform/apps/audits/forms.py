@@ -860,7 +860,7 @@ class Audit12WeekStatementUpdateForm(VersionForm):
     twelve_week_accessibility_statement_url = AMPURLField(
         label="Link to accessibility statement",
     )
-    twelve_week_accessibility_statement_backup_url = AMPURLField(
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
         label="Link to backup accessibility statement (if required)",
     )
 
@@ -869,7 +869,7 @@ class Audit12WeekStatementUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_accessibility_statement_url",
-            "twelve_week_accessibility_statement_backup_url",
+            "audit_retest_accessibility_statement_backup_url",
         ]
 
 
