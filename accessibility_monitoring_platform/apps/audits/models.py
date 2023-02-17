@@ -427,9 +427,7 @@ class Audit(VersionModel):
     )
 
     # 12-week accessibility statement (no initial statement)
-    twelve_week_accessibility_statement_url = models.TextField(
-        default="", blank=True
-    )
+    twelve_week_accessibility_statement_url = models.TextField(default="", blank=True)
 
     # Retest accessibility statement 1
     audit_retest_accessibility_statement_backup_url = models.TextField(
@@ -663,7 +661,7 @@ class Page(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
-        return self.name if self.name else self.get_page_type_display()  # type: ignore
+        return self.name if self.name else self.get_page_type_display()
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
@@ -713,8 +711,8 @@ class WcagDefinition(models.Model):
 
     def __str__(self) -> str:
         if self.description:
-            return str(f"{self.name}: {self.description} ({self.get_type_display()})")  # type: ignore
-        return f"{self.name} ({self.get_type_display()})"  # type: ignore
+            return str(f"{self.name}: {self.description} ({self.get_type_display()})")
+        return f"{self.name} ({self.get_type_display()})"
 
 
 class CheckResult(models.Model):
@@ -754,7 +752,7 @@ class CheckResult(models.Model):
     @property
     def dict_for_retest(self) -> Dict[str, str]:
         return {
-            "id": self.id,  # type: ignore
+            "id": self.id,
             "retest_state": self.retest_state,
             "retest_notes": self.retest_notes,
         }
