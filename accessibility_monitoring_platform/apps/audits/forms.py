@@ -860,9 +860,7 @@ class Audit12WeekStatementUpdateForm(VersionForm):
     # 12-week accessibility statement (no initial statement)
     twelve_week_accessibility_statement_url = AMPURLField(
         label="Link to accessibility statement",
-    )
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to backup accessibility statement (if required)",
+        help_text="Blank out to remove appended statement",
     )
 
     class Meta:
@@ -870,7 +868,6 @@ class Audit12WeekStatementUpdateForm(VersionForm):
         fields = [
             "version",
             "twelve_week_accessibility_statement_url",
-            "audit_retest_accessibility_statement_backup_url",
         ]
 
 
