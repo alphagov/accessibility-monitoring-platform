@@ -30,6 +30,6 @@ def test_page_title_returned(path, page_title):
 def test_page_title_for_case_page_returned():
     """Page title for case-specific page present"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    path: str = reverse("cases:case-detail", kwargs={"pk": case.id})  # type: ignore
+    path: str = reverse("cases:case-detail", kwargs={"pk": case.id})
 
     assert get_page_title(path) == f"{ORGANISATION_NAME} | View case"

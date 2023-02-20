@@ -172,7 +172,7 @@ def test_get_platform_settings():
     """Test get_platform_settings returns the platform settings row"""
     platform: Platform = get_platform_settings()
 
-    assert platform.id == 1  # type: ignore
+    assert platform.id == 1
 
 
 @pytest.mark.django_db
@@ -204,7 +204,7 @@ def test_record_model_create_event():
     record_model_create_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
+    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
     assert event.type == EVENT_TYPE_MODEL_CREATE
 
@@ -216,7 +216,7 @@ def test_record_model_update_event():
     record_model_update_event(user=user, model_object=user)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
-    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)  # type: ignore
+    event: Event = Event.objects.get(content_type=content_type, object_id=user.id)
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
 

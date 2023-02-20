@@ -64,7 +64,7 @@ def create_audit_and_check_results() -> Audit:
     )
 
     audit: Audit = create_audit_and_pages()
-    pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
+    pages: QuerySet[Page] = audit.page_audit.all()
 
     for page in pages:
         check_result_state: str = (
@@ -128,7 +128,7 @@ def test_audit_testable_pages_returns_expected_page():
     )
 
     assert len(audit.testable_pages) == 1
-    assert audit.testable_pages[0].id == testable_page.id  # type: ignore
+    assert audit.testable_pages[0].id == testable_page.id
 
 
 @pytest.mark.django_db
@@ -225,7 +225,7 @@ def test_check_result_returns_id_and_fields_for_retest():
     check_result: CheckResult = home_page.all_check_results[0]
 
     assert check_result.dict_for_retest == {
-        "id": check_result.id,  # type: ignore
+        "id": check_result.id,
         "retest_state": RETEST_CHECK_RESULT_DEFAULT,
         "retest_notes": "",
     }

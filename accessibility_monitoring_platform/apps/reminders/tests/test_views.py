@@ -34,7 +34,7 @@ def test_create_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     case: Case = Case.objects.create(auditor=user)
 
     response: HttpResponse = client.post(
-        reverse("reminders:reminder-create", kwargs={"case_id": case.id}),  # type: ignore
+        reverse("reminders:reminder-create", kwargs={"case_id": case.id}),
         {
             "due_date_0": REMINDER_DUE_DATE.day,
             "due_date_1": REMINDER_DUE_DATE.month,
@@ -45,7 +45,7 @@ def test_create_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     )
 
     assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.reminder is not None
     assert updated_case.reminder.due_date == REMINDER_DUE_DATE
@@ -67,7 +67,7 @@ def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     )
 
     response: HttpResponse = client.post(
-        reverse("reminders:edit-reminder", kwargs={"pk": reminder.id}),  # type: ignore
+        reverse("reminders:edit-reminder", kwargs={"pk": reminder.id}),
         {
             "due_date_0": REMINDER_DUE_DATE.day,
             "due_date_1": REMINDER_DUE_DATE.month,
@@ -78,7 +78,7 @@ def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     )
 
     assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.reminder is not None
     assert updated_case.reminder.description == NEW_REMINDER_DESCRIPTION
@@ -128,13 +128,13 @@ def test_delete_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     )
 
     response: HttpResponse = client.get(
-        reverse("reminders:delete-reminder", kwargs={"pk": reminder.id}),  # type: ignore
+        reverse("reminders:delete-reminder", kwargs={"pk": reminder.id}),
     )
 
     assert response.status_code == 302
 
-    deleted_reminder: Reminder = Reminder.objects.get(pk=reminder.id)  # type: ignore
+    deleted_reminder: Reminder = Reminder.objects.get(pk=reminder.id)
     assert deleted_reminder.is_deleted
 
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
     assert updated_case.reminder is None

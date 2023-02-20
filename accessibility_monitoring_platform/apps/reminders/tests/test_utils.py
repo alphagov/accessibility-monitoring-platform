@@ -94,7 +94,7 @@ def test_deleted_reminders_not_counted():
 @pytest.mark.django_db
 def test_add_reminder_context_data():
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    assert add_reminder_context_data(context={}, case_id=case.id) == {  # type: ignore
+    assert add_reminder_context_data(context={}, case_id=case.id) == {
         "case": case,
         "page_heading": "Reminder",
         "page_title": "Organisation Name | Reminder",

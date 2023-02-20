@@ -522,7 +522,7 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")  # type: ignore
+        return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
@@ -562,13 +562,13 @@ class Audit(VersionModel):
 
     @property
     def deleted_pages(self):
-        return self.page_audit.filter(is_deleted=True)  # type: ignore
+        return self.page_audit.filter(is_deleted=True)
 
     @property
     def every_page(self):
         """Sort page of type PDF to be last"""
         return (
-            self.page_audit.filter(is_deleted=False)  # type: ignore
+            self.page_audit.filter(is_deleted=False)
             .annotate(
                 position_pdfs_last=DjangoCase(
                     When(page_type=PAGE_TYPE_PDF, then=1), default=0
@@ -613,7 +613,7 @@ class Audit(VersionModel):
     @property
     def failed_check_results(self):
         return (
-            self.checkresult_audit.filter(  # type: ignore
+            self.checkresult_audit.filter(
                 is_deleted=False,
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
@@ -669,7 +669,7 @@ class Page(models.Model):
     @property
     def all_check_results(self):
         return (
-            self.checkresult_page.filter(is_deleted=False)  # type: ignore
+            self.checkresult_page.filter(is_deleted=False)
             .order_by("wcag_definition__id")
             .select_related("wcag_definition")
             .all()

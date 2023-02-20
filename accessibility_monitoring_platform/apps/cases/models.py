@@ -506,7 +506,7 @@ class Case(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.organisation_name} | #{self.id}")  # type: ignore
+        return str(f"{self.organisation_name} | #{self.id}")
 
     def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
@@ -533,7 +533,7 @@ class Case(VersionModel):
 
     @property
     def title(self) -> str:
-        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
+        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")
 
     @property
     def next_action_due_date(self) -> Optional[date]:
@@ -571,7 +571,7 @@ class Case(VersionModel):
 
     @property
     def reminder(self):
-        return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
+        return self.reminder_case.filter(is_deleted=False).first()
 
     def set_status(self) -> str:  # noqa: C901
         if self.is_deactivated:
@@ -729,7 +729,7 @@ class Case(VersionModel):
 
     @property
     def contact_exists(self) -> bool:
-        return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
+        return Contact.objects.filter(case_id=self.id).exists()
 
     @property
     def psb_appeal_deadline(self) -> Optional[date]:
@@ -746,14 +746,14 @@ class Case(VersionModel):
     @property
     def audit(self):
         try:
-            return self.audit_case  # type: ignore
+            return self.audit_case
         except ObjectDoesNotExist:
             return None
 
     @property
     def report(self):
         try:
-            return self.report_case  # type: ignore
+            return self.report_case
         except ObjectDoesNotExist:
             return None
 
@@ -789,7 +789,7 @@ class Contact(models.Model):
         return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs) -> None:
-        if not self.id:  # type: ignore
+        if not self.id:
             self.created = timezone.now()
         super().save(*args, **kwargs)
 

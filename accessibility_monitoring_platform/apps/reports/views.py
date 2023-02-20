@@ -64,7 +64,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
             reverse("reports:report-publisher", kwargs={"pk": case.report.id})
         )
     report: Report = Report.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=report)  # type: ignore
+    record_model_create_event(user=request.user, model_object=report)
     generate_report_content(report=report)
     CaseEvent.objects.create(
         case=case,
@@ -72,7 +72,7 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CASE_EVENT_CREATE_REPORT,
         message="Created report",
     )
-    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))  # type: ignore
+    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
 
 
 def rebuild_report(
@@ -108,7 +108,7 @@ class ReportDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add report visits metrics context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object.case))  # type: ignore
+        context.update(get_report_visits_metrics(self.object.case))
         return context
 
 
@@ -124,8 +124,8 @@ class ReportUpdateView(UpdateView):
         """Add event on change of report"""
         if form.changed_data:
             self.object: Report = form.save(commit=False)
-            self.object.created_by = self.request.user  # type: ignore
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            self.object.created_by = self.request.user
+            record_model_update_event(user=self.request.user, model_object=self.object)
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -145,7 +145,7 @@ class ReportMetadataUpdateView(ReportUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            report_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            report_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("reports:edit-report", kwargs=report_pk)
         return super().get_success_url()
 
@@ -163,7 +163,7 @@ class SectionUpdateView(ReportUpdateView):
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        section: Section = self.object  # type: ignore
+        section: Section = self.object
 
         if section.has_table:
             if section.template_type == TEMPLATE_TYPE_URLS:
@@ -178,12 +178,12 @@ class SectionUpdateView(ReportUpdateView):
                 if "add_row" in self.request.GET:
                     table_rows_formset: TableRowFormsetOneExtra = (
                         TableRowFormsetOneExtra(
-                            queryset=section.tablerow_set.all(),  # type: ignore
+                            queryset=section.tablerow_set.all(),
                         )
                     )
                 else:
                     table_rows_formset: TableRowFormset = TableRowFormset(
-                        queryset=section.tablerow_set.all(),  # type: ignore
+                        queryset=section.tablerow_set.all(),
                     )
 
             for form in table_rows_formset.forms:
@@ -197,7 +197,7 @@ class SectionUpdateView(ReportUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        section: Section = self.object  # type: ignore
+        section: Section = self.object
         if section.template_type == TEMPLATE_TYPE_URLS:
             form.fields["content"].widget = forms.HiddenInput()
         elif section.has_table:
@@ -216,13 +216,13 @@ class SectionUpdateView(ReportUpdateView):
             if table_rows_formset.is_valid():
                 table_rows: List[TableRow] = table_rows_formset.save(commit=False)
                 for table_row in table_rows:
-                    if not table_row.section_id:  # type: ignore
+                    if not table_row.section_id:
                         table_row.section = section
-                        table_row.row_number = section.tablerow_set.count() + 1  # type: ignore
+                        table_row.row_number = section.tablerow_set.count() + 1
                         table_row.save()
-                        record_model_create_event(user=self.request.user, model_object=table_row)  # type: ignore
+                        record_model_create_event(user=self.request.user, model_object=table_row)
                     else:
-                        record_model_update_event(user=self.request.user, model_object=table_row)  # type: ignore
+                        record_model_update_event(user=self.request.user, model_object=table_row)
                         table_row.save()
             else:
                 return super().form_invalid(form)
@@ -230,7 +230,7 @@ class SectionUpdateView(ReportUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        section: Section = self.object  # type: ignore
+        section: Section = self.object
         if section.has_table:
             updated_table_row_id: Optional[int] = check_for_buttons_by_name(
                 request=self.request, section=section
@@ -238,10 +238,10 @@ class SectionUpdateView(ReportUpdateView):
             if updated_table_row_id is not None:
                 return f"{self.request.path}#row-{updated_table_row_id}"
         if "save_exit" in self.request.POST:
-            report_pk: Dict[str, int] = {"pk": self.object.report.id}  # type: ignore
+            report_pk: Dict[str, int] = {"pk": self.object.report.id}
             return reverse("reports:edit-report", kwargs=report_pk)
         if "add_row" in self.request.POST:
-            section_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            section_pk: Dict[str, int] = {"pk": self.object.id}
             url: str = reverse("reports:edit-report-section", kwargs=section_pk)
             url: str = f"{url}?add_row=true#row-None"
             return url
@@ -271,7 +271,7 @@ class ReportPublisherTemplateView(ReportTemplateView):
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
         context["s3_report"] = report.latest_s3_report
-        context["html_report"] = template.render(context, self.request)  # type: ignore
+        context["html_report"] = template.render(context, self.request)
         return context
 
 
@@ -307,7 +307,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
     context = {"report": report}
-    html: str = template.render(context, request)  # type: ignore
+    html: str = template.render(context, request)
     published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
     for s3_report in published_s3_reports:
         s3_report.latest_published = False
@@ -316,7 +316,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     s3_read_write_report.upload_string_to_s3_as_html(
         html_content=html,
         case=report.case,
-        user=request.user,  # type: ignore
+        user=request.user,
         report_version=report.report_version,
     )
     messages.add_message(
@@ -325,7 +325,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         mark_safe("HTML report successfully created!" ""),
     )
     return redirect(
-        reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
+        reverse("reports:report-publisher", kwargs={"pk": report.id})
     )
 
 
@@ -365,7 +365,7 @@ class ReportVisitsMetricsView(ReportTemplateView):
             disinct_values: QuerySet = (
                 ReportVisitsMetrics.objects.filter(case=context["report"].case)
                 .values("fingerprint_hash")
-                .distinct()  # type: ignore
+                .distinct()
             )
             for query_set in disinct_values:
                 visit_logs.append(

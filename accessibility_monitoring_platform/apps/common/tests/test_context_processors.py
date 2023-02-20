@@ -75,7 +75,7 @@ def test_platform_page_template_context():
     platform_page_context: Dict[
         str, Union[AMPTopMenuForm, str, Platform, int]
     ] = platform_page(
-        mock_request  # type: ignore
+        mock_request
     )
 
     assert platform_page_context["platform"] is not None

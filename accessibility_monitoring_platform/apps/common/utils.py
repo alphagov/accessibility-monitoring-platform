@@ -107,7 +107,7 @@ def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
 def record_model_update_event(user: User, model_object: models.Model) -> None:
     """Record model update event"""
     value: Dict[str, str] = {}
-    old_model = model_object.__class__.objects.get(pk=model_object.id)  # type: ignore
+    old_model = model_object.__class__.objects.get(pk=model_object.id)
     value["old"] = serializers.serialize("json", [old_model])
     value["new"] = serializers.serialize("json", [model_object])
     Event.objects.create(created_by=user, parent=model_object, value=json.dumps(value))

@@ -1,4 +1,3 @@
-""" Utility functions for calculating metrics and charts """
 from dataclasses import dataclass
 from datetime import datetime, timezone as datetime_timezone
 import math
@@ -190,15 +189,16 @@ def calculate_y_tick_size(max_value: int) -> int:
     """
     if max_value <= 10:
         max_tick: int = 5 if max_value <= 5 else 10
-        tick = int(max_tick / 5)
+        tick: int = int(max_tick / 5)
     else:
+        max_tick: int = 1
         scale = int(math.log10(max_value))
         multiplier: int = 10**scale
         for step in [1, 2, 5, 10]:
             max_tick: int = step * multiplier
             if max_tick >= max_value:
                 break
-        tick = int(max_tick / 5)  # type: ignore
+        tick: int = int(max_tick / 5)
     return tick
 
 

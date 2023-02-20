@@ -127,7 +127,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
             reverse("audits:edit-audit-metadata", kwargs={"pk": case.audit.id})
         )
     audit: Audit = Audit.objects.create(case=case)
-    record_model_create_event(user=request.user, model_object=audit)  # type: ignore
+    record_model_create_event(user=request.user, model_object=audit)
     create_mandatory_pages_for_new_audit(audit=audit)
     CaseEvent.objects.create(
         case=case,
@@ -135,7 +135,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CASE_EVENT_CREATE_AUDIT,
         message="Started test",
     )
-    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
 
 
 def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
@@ -151,9 +151,9 @@ def delete_page(request: HttpRequest, pk: int) -> HttpResponse:
     """
     page: Page = get_object_or_404(Page, id=pk)
     page.is_deleted = True
-    record_model_update_event(user=request.user, model_object=page)  # type: ignore
+    record_model_update_event(user=request.user, model_object=page)
     page.save()
-    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
 
 def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
@@ -169,9 +169,9 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     """
     page: Page = get_object_or_404(Page, id=pk)
     page.is_deleted = False
-    record_model_update_event(user=request.user, model_object=page)  # type: ignore
+    record_model_update_event(user=request.user, model_object=page)
     page.save()
-    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))  # type: ignore
+    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
 
 
 class AuditDetailView(DetailView):
@@ -185,7 +185,7 @@ class AuditDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add table rows to context for each section of page"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object  # type: ignore
+        audit: Audit = self.object
 
         context["audit_metadata_rows"] = get_audit_metadata_rows(audit=audit)
         context["website_decision_rows"] = get_website_decision_rows(audit=audit)
@@ -210,14 +210,14 @@ class AuditUpdateView(UpdateView):
         """Add event on change of audit"""
         if form.changed_data:
             self.object: Audit = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
-            old_audit: Audit = Audit.objects.get(id=self.object.id)  # type: ignore
+            record_model_update_event(user=self.request.user, model_object=self.object)
+            old_audit: Audit = Audit.objects.get(id=self.object.id)
             if old_audit.retest_date != self.object.retest_date:
                 CaseEvent.objects.create(
                     case=self.object.case,
                     done_by=self.request.user,
                     event_type=CASE_EVENT_START_RETEST,
-                    message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",  # type: ignore
+                    message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
                 )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -238,11 +238,11 @@ class AuditCaseUpdateView(AuditUpdateView):
 
         if "case_form" not in context:
             if self.request.POST:
-                case_form: Form = self.case_form_class(  # type: ignore
+                case_form: Form = self.case_form_class(
                     self.request.POST, instance=self.object.case, prefix="case"
                 )
             else:
-                case_form: Form = self.case_form_class(  # type: ignore
+                case_form: Form = self.case_form_class(
                     instance=self.object.case, prefix="case"
                 )
             context["case_form"] = case_form
@@ -252,18 +252,18 @@ class AuditCaseUpdateView(AuditUpdateView):
         self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
     ) -> Union[HttpResponseRedirect, HttpResponse]:
         """Populate two forms from post request"""
-        self.object: Audit = self.get_object()  # type: ignore
+        self.object: Audit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
-        case_form: Form = self.case_form_class(  # type: ignore
-            request.POST, instance=self.object.case, prefix="case"  # type: ignore
+        case_form: Form = self.case_form_class(
+            request.POST, instance=self.object.case, prefix="case"
         )
         if form.is_valid() and case_form.is_valid():
-            form.save()  # type: ignore
-            case_form.save()  # type: ignore
+            form.save()
+            case_form.save()
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
-                self.get_context_data(form=form, case_form=case_form)  # type: ignore
+                self.get_context_data(form=form, case_form=case_form)
             )
 
 
@@ -278,7 +278,7 @@ class AuditMetadataUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-pages", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -316,7 +316,7 @@ class AuditPagesUpdateView(AuditUpdateView):
                     queryset=self.object.extra_pages, prefix="extra"
                 )
         for form in standard_pages_formset:
-            if form.instance.page_type == PAGE_TYPE_FORM:  # type: ignore
+            if form.instance.page_type == PAGE_TYPE_FORM:
                 form.fields["is_contact_page"].label = "Form is on contact page"
                 form.fields["is_contact_page"].widget = AMPChoiceCheckboxWidget(
                     attrs={"label": "Mark as on contact page"}
@@ -338,7 +338,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         if standard_pages_formset.is_valid():
             pages: List[Page] = standard_pages_formset.save(commit=False)
             for page in pages:
-                record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                record_model_update_event(user=self.request.user, model_object=page)
                 page.save()
         else:
             return super().form_invalid(form)
@@ -346,12 +346,12 @@ class AuditPagesUpdateView(AuditUpdateView):
         if extra_pages_formset.is_valid():
             pages: List[Page] = extra_pages_formset.save(commit=False)
             for page in pages:
-                if not page.audit_id:  # type: ignore
+                if not page.audit_id:
                     page.audit = audit
                     page.save()
-                    record_model_create_event(user=self.request.user, model_object=page)  # type: ignore
+                    record_model_create_event(user=self.request.user, model_object=page)
                 else:
-                    record_model_update_event(user=self.request.user, model_object=page)  # type: ignore
+                    record_model_update_event(user=self.request.user, model_object=page)
                     page.save()
         else:
             return super().form_invalid(form)
@@ -363,7 +363,7 @@ class AuditPagesUpdateView(AuditUpdateView):
         if page_id_to_delete is not None:
             page_to_delete: Page = Page.objects.get(id=page_id_to_delete)
             page_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=page_to_delete)  # type: ignore
+            record_model_update_event(user=self.request.user, model_object=page_to_delete)
             page_to_delete.save()
 
         return super().form_valid(form)
@@ -371,7 +371,7 @@ class AuditPagesUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         audit: Audit = self.object
-        audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+        audit_pk: Dict[str, int] = {"pk": audit.id}
         url: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
         if "add_extra" in self.request.POST:
             url: str = f"{url}?add_extra=true#extra-page-1"
@@ -456,7 +456,7 @@ class AuditPageChecksFormView(FormView):
         check_results_formset: CheckResultFormset = context["check_results_formset"]
         if check_results_formset.is_valid():
             create_or_update_check_results_for_page(
-                user=self.request.user,  # type: ignore
+                user=self.request.user,
                 page=page,
                 check_result_forms=check_results_formset.forms,
             )
@@ -485,7 +485,7 @@ class AuditWebsiteDecisionUpdateView(AuditCaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -514,7 +514,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-2", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -530,7 +530,7 @@ class AuditStatement2UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-decision", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -551,7 +551,7 @@ class AuditStatementDecisionUpdateView(AuditCaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-report-options", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -578,7 +578,7 @@ class AuditReportOptionsUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-summary", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -602,18 +602,18 @@ class AuditSummaryUpdateView(AuditUpdateView):
 
         if show_failures_by_page:
             context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="page"  # type: ignore
+                items=audit.failed_check_results, group_by_attr="page"
             )
         else:
             context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=audit.failed_check_results, group_by_attr="wcag_definition"  # type: ignore
+                items=audit.failed_check_results, group_by_attr="wcag_definition"
             )
 
         get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
         context["audit_statement_rows"] = get_rows(
-            form=AuditStatement1UpdateForm()  # type: ignore
+            form=AuditStatement1UpdateForm()
         ) + get_rows(
-            form=AuditStatement2UpdateForm()  # type: ignore
+            form=AuditStatement2UpdateForm()
         )
 
         return context
@@ -622,10 +622,10 @@ class AuditSummaryUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             audit: Audit = self.object
-            case_pk: Dict[str, int] = {"pk": audit.case.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": audit.case.id}
             return reverse("cases:edit-test-results", kwargs=case_pk)
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-report-text", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -648,7 +648,7 @@ class AuditReportTextUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             audit: Audit = self.object
-            case_pk: Dict[str, int] = {"pk": audit.case.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": audit.case.id}
             return reverse("cases:edit-test-results", kwargs=case_pk)
         return super().get_success_url()
 
@@ -665,17 +665,17 @@ class AuditRetestDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add table rows to context for each section of page"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object  # type: ignore
+        audit: Audit = self.object
 
         get_rows: Callable = partial(
             extract_form_labels_and_values, instance=audit.case
         )
         context["audit_retest_metadata_rows"] = get_audit_metadata_rows(audit=audit)
         context["audit_retest_website_decision_rows"] = get_rows(
-            form=CaseFinalWebsiteDecisionUpdateForm()  # type: ignore
+            form=CaseFinalWebsiteDecisionUpdateForm()
         )
         context["audit_retest_statement_decision_rows"] = get_rows(
-            form=CaseFinalStatementDecisionUpdateForm()  # type: ignore
+            form=CaseFinalStatementDecisionUpdateForm()
         )
 
         return context
@@ -694,7 +694,7 @@ class AuditRetestMetadataUpdateView(AuditUpdateView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             if not audit.case.psb_response:
-                audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+                audit_pk: Dict[str, int] = {"pk": self.object.id}
                 return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
             return get_next_retest_page_url(audit=audit)
         return super().get_success_url()
@@ -717,7 +717,7 @@ class AuditRetestPagesUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -820,7 +820,7 @@ class AuditRetestWebsiteDecisionUpdateView(AuditCaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -836,7 +836,7 @@ class AuditRetestStatement1UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-statement-2", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -852,7 +852,7 @@ class Audit12WeekStatementUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_return" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -868,7 +868,7 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse(
                 "audits:edit-audit-retest-statement-decision", kwargs=audit_pk
             )
@@ -891,7 +891,7 @@ class AuditRetestStatementDecisionUpdateView(AuditCaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:audit-retest-detail", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -911,7 +911,7 @@ def start_retest(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.retest_date = date.today()
-    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
+    record_model_update_event(user=request.user, model_object=audit)
     audit.save()
     CaseEvent.objects.create(
         case=audit.case,
@@ -976,7 +976,7 @@ class WcagDefinitionListView(ListView):
         get_without_page: Dict[str, Union[str, List[object]]] = {
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
 
@@ -1025,10 +1025,10 @@ def clear_published_report_data_updated_time(
     """
     audit: Audit = get_object_or_404(Audit, id=pk)
     audit.published_report_data_updated_time = None
-    record_model_update_event(user=request.user, model_object=audit)  # type: ignore
+    record_model_update_event(user=request.user, model_object=audit)
     audit.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
-        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
     )
-    return redirect(redirect_destination)  # type: ignore
+    return redirect(redirect_destination)

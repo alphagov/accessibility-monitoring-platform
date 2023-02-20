@@ -28,10 +28,10 @@ class Reminder(models.Model):
         ordering = ["-id"]
 
     def __str__(self):
-        return str(f"#{self.id} | {self.description}")  # type: ignore
+        return str(f"#{self.id} | {self.description}")
 
     def get_absolute_url(self):
-        return reverse("cases:case-detail", kwargs={"pk": self.case.id})  # type: ignore
+        return reverse("cases:case-detail", kwargs={"pk": self.case.id})
 
     @property
     def tense(self):
