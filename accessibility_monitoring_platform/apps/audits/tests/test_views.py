@@ -60,6 +60,7 @@ WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
 PAGE_RETEST_NOTES: str = "Retest notes"
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
+ACCESSIBILITY_STATEMENT_12_WEEK: str = "https://example.com/12-week-accessibility-statement"
 NO_ACCESSIBILITY_STATEMENT_WARNING: str = """<strong class="govuk-warning-text__text">
     <span class="govuk-warning-text__assistive">Warning</span>
     The statement assessment is not visible as no statement has been found
@@ -151,6 +152,21 @@ def test_audit_detail_shows_number_of_errors(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "PDF - 2")
+
+
+def test_audit_detail_shows_12_week_statement(admin_client):
+    """Test that audit detail view shows the 12-week statement"""
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    audit.twelve_week_accessibility_statement_url = ACCESSIBILITY_STATEMENT_12_WEEK
+    audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-retest-detail", kwargs=audit_pk)
+    )
+
+    assert response.status_code == 200
+    assertContains(response, ACCESSIBILITY_STATEMENT_12_WEEK)
 
 
 def test_restore_page_view(admin_client):

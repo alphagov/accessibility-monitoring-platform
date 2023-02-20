@@ -252,7 +252,7 @@ def test_wcag_definition_strings():
 @pytest.mark.django_db
 def test_accessibility_statement_initially_found():
     """
-    Test that an accessibility statement was found.
+    Test that an accessibility statement was initially found.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
@@ -276,3 +276,18 @@ def test_accessibility_statement_initially_found():
 
     # Not found flag set
     assert audit.accessibility_statement_initially_found is False
+
+
+@pytest.mark.django_db
+def test_twelve_week_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found on 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.twelve_week_accessibility_statement_found is False
+
+    audit.twelve_week_accessibility_statement_url = "https://example.com/statement"
+
+    assert audit.twelve_week_accessibility_statement_found is True
