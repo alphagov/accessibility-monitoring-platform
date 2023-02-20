@@ -861,12 +861,17 @@ class Audit12WeekStatementUpdateForm(VersionForm):
         label="Link to accessibility statement",
         help_text="Blank out to remove appended statement",
     )
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to backup accessibility statement",
+        help_text="Blank out to remove appended statement",
+    )
 
     class Meta:
         model = Audit
         fields = [
             "version",
             "twelve_week_accessibility_statement_url",
+            "audit_retest_accessibility_statement_backup_url",
         ]
 
 
@@ -1001,7 +1006,7 @@ class AuditRetestStatement2UpdateForm(VersionForm):
 
 class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
-    Form for retesting statement swcision
+    Form for retesting statement decision
     """
 
     audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
