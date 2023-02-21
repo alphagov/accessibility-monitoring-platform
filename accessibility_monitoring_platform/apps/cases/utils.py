@@ -16,7 +16,7 @@ from django.http.request import QueryDict
 from ..audits.models import Audit
 from ..common.utils import build_filters
 
-from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
+from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
 
 from .models import (
     Case,
@@ -432,7 +432,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     filters: Dict = {}  # type: ignore
     search_query = Q()
     sort_by: str = DEFAULT_SORT
-    is_complaint: str = IS_COMPLAINT_DEFAULT
 
     if hasattr(form, "cleaned_data"):
         filters: Dict[str, Any] = build_filters(
@@ -457,7 +456,10 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
                 )
-        is_complaint: str = form.cleaned_data.get("is_complaint", IS_COMPLAINT_DEFAULT)
+        for filter_name in ["is_complaint", "enforcement_body"]:
+            filter_value: str = form.cleaned_data.get(filter_name, NO_FILTER)
+            if filter_value != NO_FILTER:
+                filters[filter_name] = filter_value
 
     if filters.get("status", "") == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
@@ -467,9 +469,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
-
-    if is_complaint != IS_COMPLAINT_DEFAULT:
-        filters["is_complaint"] = is_complaint
 
     return (
         Case.objects.filter(search_query, **filters)
