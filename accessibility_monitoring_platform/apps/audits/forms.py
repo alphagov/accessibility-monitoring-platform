@@ -852,6 +852,29 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
+class Audit12WeekStatementUpdateForm(VersionForm):
+    """
+    Form to add a statement at 12-weeks (no initial statement)
+    """
+
+    twelve_week_accessibility_statement_url = AMPURLField(
+        label="Link to accessibility statement",
+        help_text="Blank out to remove appended statement",
+    )
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to backup accessibility statement",
+        help_text="Blank out to remove appended statement",
+    )
+
+    class Meta:
+        model = Audit
+        fields = [
+            "version",
+            "twelve_week_accessibility_statement_url",
+            "audit_retest_accessibility_statement_backup_url",
+        ]
+
+
 class AuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks
@@ -983,7 +1006,7 @@ class AuditRetestStatement2UpdateForm(VersionForm):
 
 class AuditRetestStatementDecisionUpdateForm(VersionForm):
     """
-    Form for retesting statement swcision
+    Form for retesting statement decision
     """
 
     audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()

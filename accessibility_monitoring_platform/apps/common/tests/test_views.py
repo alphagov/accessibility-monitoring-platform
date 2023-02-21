@@ -282,7 +282,7 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("dashboard:home")  # type: ignore
+    assert response.url == reverse("dashboard:home")
 
     if subject or message:
         assert len(mailoutbox) == 1

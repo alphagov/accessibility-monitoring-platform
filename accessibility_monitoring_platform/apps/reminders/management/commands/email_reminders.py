@@ -30,7 +30,7 @@ class Command(BaseCommand):
         Find reminders due today, group them by user, and email them to their user.
         """
         reminders_by_user: Dict[User, List[Reminder]] = list_to_dictionary_of_lists(
-            items=Reminder.objects.filter(due_date=date.today()), group_by_attr="user"  # type: ignore
+            items=Reminder.objects.filter(due_date=date.today()), group_by_attr="user"
         )
 
         for user, user_reminders in reminders_by_user.items():
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 "reminders": user_reminders,
             }
             template: str = get_template("reminders/email.txt")
-            content: str = template.render(context)  # type: ignore
+            content: str = template.render(context)
             email: EmailMessage = EmailMessage(
                 subject="You have a reminder in the monitoring platform",
                 body=content,

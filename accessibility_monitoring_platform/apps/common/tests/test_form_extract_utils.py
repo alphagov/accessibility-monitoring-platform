@@ -74,7 +74,7 @@ def test_extract_form_labels_and_values():
     )
 
     labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()  # type: ignore
+        instance=case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 6
@@ -85,7 +85,7 @@ def test_extract_form_labels_and_values():
         label=SECTOR_LABEL, value=sector.name
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -109,7 +109,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
     case: Case = Case()
 
     labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()  # type: ignore
+        instance=case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 5
@@ -118,7 +118,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
         label=SECTOR_LABEL, value="Unknown"
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,

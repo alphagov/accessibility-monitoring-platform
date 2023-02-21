@@ -27,7 +27,7 @@ def platform_page(
         "today": timezone.now(),
         "top_menu_form": AMPTopMenuForm(),
         "platform": platform,
-        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),  # type: ignore
-        "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),  # type: ignore
+        "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
+        "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),
         "django_settings": settings,
     }

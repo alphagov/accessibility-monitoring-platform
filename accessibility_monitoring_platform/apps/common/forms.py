@@ -26,7 +26,7 @@ class VersionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        version_on_form: int = int(cleaned_data.get("version", 0))  # type: ignore
+        version_on_form: int = int(cleaned_data.get("version", 0))
         if version_on_form != self.instance.version:
             self.add_error(
                 None,
@@ -285,7 +285,7 @@ class AMPAuditorModelChoiceField(AMPModelChoiceField):
 
     def label_from_instance(self, obj):
         """Return full name from user"""
-        return obj.get_full_name()  # type: ignore
+        return obj.get_full_name()
 
 
 class AMPQAAuditorModelChoiceField(AMPAuditorModelChoiceField):

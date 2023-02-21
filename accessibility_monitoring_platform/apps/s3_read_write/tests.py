@@ -27,7 +27,7 @@ def test_upload_string_to_s3():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id  # type: ignore
+    case_id: int = case.id
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
@@ -48,7 +48,7 @@ def test_upload_string_to_s3():
         aws_secret_access_key=DATABASES["aws-s3-bucket"]["aws_secret_access_key"],
         endpoint_url=S3_MOCK_ENDPOINT,
     )
-    obj = s3_resource.Object("bucketname", s3report.s3_directory)  # type: ignore
+    obj = s3_resource.Object("bucketname", s3report.s3_directory)
     assert obj.get()["Body"].read().decode("utf-8") == raw_html
 
 
@@ -62,7 +62,7 @@ def test_retrieve_raw_html():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id  # type: ignore
+    case_id: int = case.id
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>
@@ -107,7 +107,7 @@ def test_s3_no_such_key():
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
-    case_id: int = case.id  # type: ignore
+    case_id: int = case.id
     raw_html: str = f"""
         <div>
             <h1 class="govuk-body-l">org: {case.organisation_name}</h1>

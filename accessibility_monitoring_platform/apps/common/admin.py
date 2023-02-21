@@ -21,7 +21,7 @@ class ExportCsvMixin:
 
     def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
 
-        meta = self.model._meta  # type: ignore  # pylint: disable=protected-access
+        meta = self.model._meta  # pylint: disable=protected-access
         field_names = [field.name for field in meta.fields]
 
         response = HttpResponse(content_type="text/csv")

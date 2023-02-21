@@ -19,7 +19,7 @@ from .models import Comment, CommentHistory
 
 def save_comment_history(comment: Comment) -> bool:
     """Will take a new comment object and save the history to comment history"""
-    original_comment: Comment = Comment.objects.get(pk=comment.id)  # type: ignore
+    original_comment: Comment = Comment.objects.get(pk=comment.id)
     history: CommentHistory = CommentHistory(
         comment=comment, before=original_comment.body, after=comment.body
     )
@@ -56,7 +56,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
         and comment.case.auditor is not None
         and request.user != comment.case.auditor
     ):
-        user_ids.add(comment.case.auditor.id)  # type: ignore
+        user_ids.add(comment.case.auditor.id)
 
     # If page is edit-qa-process, then it find the QA and add them to the set of ids
     if (
@@ -64,14 +64,14 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
         and comment.case.reviewer
         and "edit-qa-process" in str(comment.path)
     ):
-        user_ids.add(comment.case.reviewer.id)  # type: ignore
+        user_ids.add(comment.case.reviewer.id)
 
     # Remove the commentor from the list of ids
-    if request.user.id in user_ids:  # type: ignore
-        user_ids.remove(request.user.id)  # type: ignore
+    if request.user.id in user_ids:
+        user_ids.remove(request.user.id)
 
-    first_name: str = request.user.first_name  # type: ignore
-    last_name: str = request.user.last_name  # type: ignore
+    first_name: str = request.user.first_name
+    last_name: str = request.user.last_name
     body: str = (
         f"{first_name} {last_name} left a message in discussion:\n\n{comment.body}"
     )
@@ -110,7 +110,7 @@ class CreateCaseCommentFormView(FormView):
         form = SubmitCommentForm(self.request.POST)
         comment: Comment = form.save(commit=False)
 
-        comment.user = self.request.user  # type: ignore
+        comment.user = self.request.user
         comment.page = "qa_process"
         comment.case = case
         comment.path = comment_path
@@ -129,7 +129,8 @@ class CommentDeleteView(View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponseRedirect:
         """Deletes a comment"""
         comment: Comment = Comment.objects.get(pk=pk)
-        if comment.user.id == request.user.id:  # type: ignore # Checks whether the comment was posted by user
+        if comment.user.id == request.user.id:  # type: ignore
+            # Checks whether the comment was posted by user
             comment.hidden = True
             comment.save()
             messages.success(request, "Comment successfully removed")
@@ -156,7 +157,7 @@ class CommentEditView(UpdateView):
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Updates comment and saves comment history"""
-        form.instance.created_by = self.model.user  # type: ignore
+        form.instance.created_by = self.model.user
         comment: Comment = form.save(commit=False)
         comment.updated_date = datetime.datetime.now(tz=datetime.timezone.utc)
 

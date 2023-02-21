@@ -6,17 +6,21 @@
         </summary>
         <div class="govuk-details__text">{% include example %}</div>
     </details>
-    <details class="govuk-details" data-module="govuk-details">
-        <summary class="govuk-details__summary">
-            <span class="govuk-details__summary-text">View initial decision</span>
-        </summary>
-        <div class="govuk-details__text">
-            <label class="govuk-label"><b>Initial decision</b></label>
-            <div class="govuk-hint">{{ decision }}</div>
-            <label class="govuk-label"><b>Initial notes</b></label>
-            <div class="govuk-hint amp-notes">
-                {% if notes %}{{ notes|markdown_to_html }}{% else %}None{% endif %}
+    {% if audit.twelve_week_accessibility_statement_found %}
+        <p class="govuk-body-m">Statement missing during initial test</p>
+    {% else %}
+        <details class="govuk-details" data-module="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">View initial decision</span>
+            </summary>
+            <div class="govuk-details__text">
+                <label class="govuk-label"><b>Initial decision</b></label>
+                <div class="govuk-hint">{{ decision }}</div>
+                <label class="govuk-label"><b>Initial notes</b></label>
+                <div class="govuk-hint amp-notes">
+                    {% if notes %}{{ notes|markdown_to_html }}{% else %}None{% endif %}
+                </div>
             </div>
-        </div>
-    </details>
+        </details>
+    {% endif %}
 </div>

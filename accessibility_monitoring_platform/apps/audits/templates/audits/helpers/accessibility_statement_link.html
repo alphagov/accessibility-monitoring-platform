@@ -1,9 +1,15 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <div class="govuk-body">
-            <a href="{{ audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to {{ audit.accessibility_statement_page|lower }}
-            </a>
+            {% if audit.twelve_week_accessibility_statement_found %}
+                <a href="{{ audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to accessibility statement
+                </a>
+            {% else %}
+                <a href="{{ audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                    Link to {{ audit.accessibility_statement_page|lower }}
+                </a>
+            {% endif %}
             {% if audit.accessibility_statement_backup_url and twelve_week_test %}
                 <br>
                 <a href="{{ audit.accessibility_statement_backup_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">

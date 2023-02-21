@@ -48,7 +48,7 @@ def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit metadata"""
     rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=audit,
-        form=AuditMetadataUpdateForm(),  # type: ignore
+        form=AuditMetadataUpdateForm(),
     )
     return rows
 
@@ -57,7 +57,7 @@ def get_website_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from website decision"""
     rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=audit.case,
-        form=CaseWebsiteDecisionUpdateForm(),  # type: ignore
+        form=CaseWebsiteDecisionUpdateForm(),
     )
     return rows
 
@@ -66,11 +66,11 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit statement checks"""
     statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=audit,
-        form=AuditStatement1UpdateForm(),  # type: ignore
+        form=AuditStatement1UpdateForm(),
     )
     statement_2_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=audit,
-        form=AuditStatement2UpdateForm(),  # type: ignore
+        form=AuditStatement2UpdateForm(),
     )
     return (
         statement_1_rows + statement_2_rows[1:]
@@ -81,7 +81,7 @@ def get_statement_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from statement decision"""
     rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
         instance=audit.case,
-        form=CaseStatementDecisionUpdateForm(),  # type: ignore
+        form=CaseStatementDecisionUpdateForm(),
     )
     return rows
 
@@ -92,7 +92,7 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         label=AuditReportOptionsUpdateForm.base_fields[
             "accessibility_statement_state"
         ].label,
-        value=audit.get_accessibility_statement_state_display(),  # type: ignore
+        value=audit.get_accessibility_statement_state_display(),
     )
     accessibility_statement_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
@@ -103,7 +103,7 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     ]
     report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
         label=AuditReportOptionsUpdateForm.base_fields["report_options_next"].label,
-        value=audit.get_report_options_next_display(),  # type: ignore
+        value=audit.get_report_options_next_display(),
     )
     report_next_issues_rows: List[FieldLabelAndValue] = [
         FieldLabelAndValue(
@@ -222,7 +222,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
     Return the path of the page to go to when a save and continue button is
     pressed on the page where pages or pages check results are entered.
     """
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    audit_pk: Dict[str, int] = {"pk": audit.id}
     if not audit.testable_pages:
         return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
@@ -235,7 +235,7 @@ def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> s
         return reverse("audits:edit-website-decision", kwargs=audit_pk)
 
     current_page_position: int = testable_pages.index(current_page)
-    next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}  # type: ignore
+    next_page_pk: Dict[str, int] = {"pk": testable_pages[current_page_position + 1].id}
     return reverse("audits:edit-audit-page-checks", kwargs=next_page_pk)
 
 
@@ -246,7 +246,7 @@ def get_next_retest_page_url(
     Return the path of the page to go to when a save and continue button is
     pressed on the page where pages or pages check results are retested.
     """
-    audit_pk: Dict[str, int] = {"pk": audit.id}  # type: ignore
+    audit_pk: Dict[str, int] = {"pk": audit.id}
     testable_pages_with_errors: List[Page] = [
         page for page in audit.testable_pages if page.failed_check_results
     ]
@@ -254,14 +254,14 @@ def get_next_retest_page_url(
         return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     if current_page is None:
-        next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}  # type: ignore
+        next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[0].id}
         return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
     if testable_pages_with_errors[-1] == current_page:
         return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
-    next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}  # type: ignore
+    next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}
     return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
 

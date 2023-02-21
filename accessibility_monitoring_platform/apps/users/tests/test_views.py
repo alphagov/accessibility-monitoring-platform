@@ -143,7 +143,7 @@ def test_edit_user_loads_correctly_with_auth(client):
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
     response: HttpResponse = client.get(
-        reverse("users:edit-user", kwargs={"pk": user.id})  # type: ignore
+        reverse("users:edit-user", kwargs={"pk": user.id})
     )
 
     assert response.status_code == 200
@@ -155,12 +155,12 @@ def test_edit_user_loads_correctly_with_auth(client):
 def test_edit_user_loads_correctly_no_auth(client):
     """Tests if a unauthenticated user returns a 302 response"""
     user: User = create_user()
-    url: str = reverse("users:edit-user", kwargs={"pk": user.id})  # type: ignore
+    url: str = reverse("users:edit-user", kwargs={"pk": user.id})
 
     response: HttpResponse = client.get(url)
 
     assert response.status_code == 302
-    assert response.url == f"/account/login/?next={url}"  # type: ignore
+    assert response.url == f"/account/login/?next={url}"
 
 
 @pytest.mark.django_db
@@ -172,7 +172,7 @@ def test_edit_user_post_saves_correctly(client):
 
     data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
     response: HttpResponse = client.post(
-        reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
+        reverse("users:edit-user", kwargs={"pk": user.id}),
         data=data,
         follow=True,
     )
@@ -210,7 +210,7 @@ def test_edit_user_post_errors_appear(client):
     data["password"] = INVALID_PASSWORD
 
     response: HttpResponse = client.post(
-        reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
+        reverse("users:edit-user", kwargs={"pk": user.id}),
         data=data,
         follow=True,
     )
@@ -241,11 +241,11 @@ def test_2fa_not_enabled_on_user_update(client):
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
-    data: Dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()  # type: ignore
+    data: Dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()
     del data["enable_2fa"]
 
     response: HttpResponse = client.post(
-        reverse("users:edit-user", kwargs={"pk": user.id}),  # type: ignore
+        reverse("users:edit-user", kwargs={"pk": user.id}),
         data=data,
         follow=True,
     )
@@ -268,7 +268,7 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response.url == f"/account/login/?next={url}"  # type: ignore
+    assert response.url == f"/account/login/?next={url}"
 
     auth_data: Dict[str, str] = {
         "auth-username": VALID_USER_EMAIL,
@@ -281,7 +281,7 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
     assert response.status_code == 200
     assertContains(response, "Token")
 
-    user = auth.get_user(client)  # type: ignore
+    user = auth.get_user(client)
     assert not user.is_authenticated
 
     assert len(mailoutbox) == 1
@@ -297,5 +297,5 @@ def test_user_with_2fa_emailed_token_to_login(client, mailoutbox):
 
     assert response.status_code == 200
 
-    user = auth.get_user(client)  # type: ignore
+    user = auth.get_user(client)
     assert user.is_authenticated

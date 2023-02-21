@@ -28,7 +28,7 @@ def test_base_template_export_as_csv(admin_client):
         reverse("admin:reports_basetemplate_changelist"),
         {
             "action": "export_as_csv",
-            "_selected_action": [base_template_1.id, base_template_2.id],  # type: ignore
+            "_selected_action": [base_template_1.id, base_template_2.id],
         },
     )
 

@@ -66,7 +66,7 @@ class IssueReport(models.Model):
     notes = models.TextField(default="", blank=True)
 
     def __str__(self):
-        return f"#{self.id} {self.page_title}"  # type: ignore
+        return f"#{self.id} {self.page_title}"
 
 
 class Platform(models.Model):

@@ -30,7 +30,7 @@ def test_case_created_timestamp_is_not_updated():
     updated_organisation_name: str = "updated organisation name"
     case.organisation_name = updated_organisation_name
     case.save()
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.organisation_name == updated_organisation_name
     assert updated_case.created == original_created_timestamp
@@ -49,7 +49,7 @@ def test_case_renders_as_organisation_name_bar_id():
     """Test the Case string is organisation_name | id"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
-    assert str(case) == f"{case.organisation_name} | #{case.id}"  # type: ignore
+    assert str(case) == f"{case.organisation_name} | #{case.id}"
 
 
 @pytest.mark.django_db
@@ -59,7 +59,7 @@ def test_case_title_is_organisation_name_bar_domain_bar_id():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"  # type: ignore
+    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"
 
 
 @pytest.mark.django_db
@@ -71,7 +71,7 @@ def test_case_completed_timestamp_is_updated_on_completion():
 
     case.case_completed = "no-action"
     case.save()
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.completed_date is not None
     assert isinstance(updated_case.completed_date, datetime)
@@ -97,7 +97,7 @@ def test_contact_created_timestamp_is_not_updated():
     updated_name: str = "updated name"
     contact.name = updated_name
     contact.save()
-    updated_contact: Contact = Contact.objects.get(pk=contact.id)  # type: ignore
+    updated_contact: Contact = Contact.objects.get(pk=contact.id)
 
     assert updated_contact.name == updated_name
     assert updated_contact.created == original_created_timestamp
@@ -112,8 +112,8 @@ def test_most_recently_created_contact_returned_first():
 
     contacts: List[Contact] = list(Contact.objects.filter(case=case))
 
-    assert contacts[0].id == contact2.id  # type: ignore
-    assert contacts[1].id == contact1.id  # type: ignore
+    assert contacts[0].id == contact2.id
+    assert contacts[1].id == contact1.id
 
 
 @pytest.mark.django_db
@@ -128,9 +128,9 @@ def test_preferred_contact_returned_first():
 
     contacts: List[Contact] = list(Contact.objects.filter(case=case))
 
-    assert contacts[0].id == preferred_contact.id  # type: ignore
-    assert contacts[1].id == contact2.id  # type: ignore
-    assert contacts[2].id == contact1.id  # type: ignore
+    assert contacts[0].id == preferred_contact.id
+    assert contacts[1].id == contact2.id
+    assert contacts[2].id == contact1.id
 
 
 @pytest.mark.parametrize(

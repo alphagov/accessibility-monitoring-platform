@@ -150,37 +150,37 @@ class CaseDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["contacts"] = self.object.contact_set.filter(is_deleted=False)  # type: ignore
+        context["contacts"] = self.object.contact_set.filter(is_deleted=False)
         case_details_prefix: List[FieldLabelAndValue] = [
             FieldLabelAndValue(
                 label="Date created",
-                value=self.object.created,  # type: ignore
+                value=self.object.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
-            FieldLabelAndValue(label="Status", value=self.object.get_status_display()),  # type: ignore
+            FieldLabelAndValue(label="Status", value=self.object.get_status_display()),
         ]
 
         get_rows: Callable = partial(
-            extract_form_labels_and_values, instance=self.object  # type: ignore
+            extract_form_labels_and_values, instance=self.object
         )
 
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
-            form=CaseQAProcessUpdateForm()  # type: ignore
+            form=CaseQAProcessUpdateForm()
         )
 
-        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:  # type: ignore
-            context.update(get_report_visits_metrics(self.object))  # type: ignore
+        if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
+            context.update(get_report_visits_metrics(self.object))
 
         context["case_details_rows"] = case_details_prefix + get_rows(
-            form=CaseDetailUpdateForm()  # type: ignore
+            form=CaseDetailUpdateForm()
         )
-        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())  # type: ignore
+        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
         context["qa_process_rows"] = qa_process_rows
-        context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())  # type: ignore
-        context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())  # type: ignore
-        context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())  # type: ignore
+        context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())
+        context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())
+        context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())
         context["enforcement_body_correspondence_rows"] = get_rows(
-            form=CaseEnforcementBodyCorrespondenceUpdateForm()  # type: ignore
+            form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
         return context
 
@@ -224,7 +224,7 @@ class CaseListView(ListView):
             dictionary=get_without_page, keys_to_check=ADVANCED_SEARCH_FIELDS
         )
         context["form"] = self.form
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)  # type: ignore
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
         return context
 
 
@@ -242,7 +242,7 @@ class CaseCreateView(CreateView):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
             case: Case = form.save(commit=False)
-            case.created_by = self.request.user  # type: ignore
+            case.created_by = self.request.user
             return super().form_valid(form)
 
         context: Dict[str, Any] = self.get_context_data()
@@ -257,16 +257,16 @@ class CaseCreateView(CreateView):
             return self.render_to_response(context)
 
         case: Case = form.save(commit=False)
-        case.created_by = self.request.user  # type: ignore
+        case.created_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case: Case = self.object  # type: ignore
-        user: User = self.request.user  # type: ignore
+        case: Case = self.object
+        user: User = self.request.user
         record_model_create_event(user=user, model_object=case)
         record_case_event(user=user, new_case=case)
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save_continue_case" in self.request.POST:
             url: str = reverse("cases:edit-case-details", kwargs=case_pk)
         elif "save_new_case" in self.request.POST:
@@ -290,9 +290,9 @@ class CaseUpdateView(UpdateView):
         """Add message on change of case"""
         if form.changed_data:
             self.object: Case = form.save(commit=False)
-            user: User = self.request.user  # type: ignore
+            user: User = self.request.user
             record_model_update_event(user=user, model_object=self.object)
-            old_case: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+            old_case: Case = Case.objects.get(pk=self.object.id)
             record_case_event(user=user, new_case=self.object, old_case=old_case)
 
             if (
@@ -300,7 +300,7 @@ class CaseUpdateView(UpdateView):
                 and self.object.report_approved_status
                 == REPORT_APPROVED_STATUS_APPROVED
             ):
-                self.object.reviewer = self.request.user  # type: ignore
+                self.object.reviewer = self.request.user
 
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
@@ -311,8 +311,8 @@ class CaseUpdateView(UpdateView):
                 messages.add_message(
                     self.request,
                     messages.INFO,
-                    f"Status changed from '{old_case.get_status_display()}'"  # type: ignore
-                    f" to '{self.object.get_status_display()}'",  # type: ignore
+                    f"Status changed from '{old_case.get_status_display()}'"
+                    f" to '{self.object.get_status_display()}'",
                 )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -332,7 +332,7 @@ class CaseDetailUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-test-results", kwargs=case_pk)
         return super().get_success_url()
 
@@ -348,7 +348,7 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-report-details", kwargs=case_pk)
         return super().get_success_url()
 
@@ -384,7 +384,7 @@ class CaseReportDetailsUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-qa-process", kwargs=case_pk)
         return super().get_success_url()
 
@@ -412,12 +412,12 @@ class CaseQAProcessUpdateView(CaseUpdateView):
         """Notify auditor if case has been QA approved."""
         if form.changed_data and "report_approved_status" in form.changed_data:
             if self.object.report_approved_status == REPORT_APPROVED_STATUS_APPROVED:
-                case: Case = self.object  # type: ignore
+                case: Case = self.object
                 if case.auditor:
                     add_notification(
                         user=case.auditor,
-                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",  # type: ignore
-                        path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+                        body=f"{self.request.user.get_full_name()} QA approved Case {case}",
+                        path=reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
                         list_description=f"{case} - QA process",
                         request=self.request,
                     )
@@ -428,7 +428,7 @@ class CaseQAProcessUpdateView(CaseUpdateView):
         Detect the submit button used and act accordingly.
         """
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-contact-details", kwargs=case_pk)
         return super().get_success_url()
 
@@ -447,7 +447,7 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(is_deleted=False)  # type: ignore
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(is_deleted=False)
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
@@ -463,12 +463,12 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_formset.is_valid():
             contacts: List[Contact] = contact_formset.save(commit=False)
             for contact in contacts:
-                if not contact.case_id:  # type: ignore
+                if not contact.case_id:
                     contact.case = case
                     contact.save()
-                    record_model_create_event(user=self.request.user, model_object=contact)  # type: ignore
+                    record_model_create_event(user=self.request.user, model_object=contact)
                 else:
-                    record_model_update_event(user=self.request.user, model_object=contact)  # type: ignore
+                    record_model_update_event(user=self.request.user, model_object=contact)
                     contact.save()
         else:
             return super().form_invalid(form)
@@ -479,13 +479,13 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_id_to_delete is not None:
             contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
             contact_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=contact_to_delete)  # type: ignore
+            record_model_update_event(user=self.request.user, model_object=contact_to_delete)
             contact_to_delete.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}
         if "save" in self.request.POST:
             return super().get_success_url()
         elif "save_continue" in self.request.POST:
@@ -521,7 +521,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        case: Case = form.instance  # type: ignore
+        case: Case = form.instance
         form.fields[
             "report_followup_week_1_sent_date"
         ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
@@ -536,7 +536,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         Otherwise set sent dates based on followup date checkboxes.
         """
         self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
         if "report_sent_date" in form.changed_data:
             self.object = calculate_report_followup_dates(
                 case=self.object, report_sent_date=form.cleaned_data["report_sent_date"]
@@ -556,7 +556,7 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
         return super().get_success_url()
 
@@ -573,7 +573,7 @@ class CaseReportFollowupDueDatesUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}
         return reverse("cases:edit-report-correspondence", kwargs=case_pk)
 
 
@@ -593,7 +593,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
         ].help_text = format_due_date_help_text(
-            form.instance.twelve_week_1_week_chaser_due_date  # type: ignore
+            form.instance.twelve_week_1_week_chaser_due_date
         )
         return form
 
@@ -603,7 +603,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         Otherwise set sent dates based on chaser date checkboxes.
         """
         self.object: Case = form.save(commit=False)
-        case_from_db: Case = Case.objects.get(pk=self.object.id)  # type: ignore
+        case_from_db: Case = Case.objects.get(pk=self.object.id)
         if "twelve_week_update_requested_date" in form.changed_data:
             self.object = calculate_twelve_week_chaser_dates(
                 case=self.object,
@@ -627,7 +627,7 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": case.id}
             if case.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
                 return reverse("cases:edit-twelve-week-retest", kwargs=case_pk)
             return reverse("cases:edit-review-changes", kwargs=case_pk)
@@ -646,7 +646,7 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}
         return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
@@ -670,7 +670,7 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+        case_pk: Dict[str, int] = {"pk": self.object.id}
         return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
 
 
@@ -685,7 +685,7 @@ class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-review-changes", kwargs=case_pk)
         return super().get_success_url()
 
@@ -701,12 +701,12 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate retested_website_date help text with link to test results for this case"""
         form = super().get_form()
-        if form.instance.testing_methodology == TESTING_METHODOLOGY_PLATFORM:  # type: ignore
+        if form.instance.testing_methodology == TESTING_METHODOLOGY_PLATFORM:
             form.fields["retested_website_date"].help_text = ""
         else:
-            if form.instance.test_results_url:  # type: ignore
+            if form.instance.test_results_url:
                 form.fields["retested_website_date"].help_text = mark_safe(
-                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'  # type: ignore
+                    f'The retest form can be found in the <a href="{form.instance.test_results_url}"'
                     ' class="govuk-link govuk-link--no-visited-state" target="_blank">test results</a>'
                 )
         return form
@@ -715,7 +715,7 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             case: Case = self.object
-            case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": case.id}
             return reverse("cases:edit-case-close", kwargs=case_pk)
         return super().get_success_url()
 
@@ -731,7 +731,7 @@ class CaseCloseUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-enforcement-body-correspondence", kwargs=case_pk)
         return super().get_success_url()
 
@@ -749,7 +749,7 @@ class CaseEnforcementBodyCorrespondenceUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-post-case", kwargs=case_pk)
         return super().get_success_url()
 
@@ -765,7 +765,7 @@ class PostCaseUpdateView(CaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
-            case_pk: Dict[str, int] = {"pk": self.object.id}  # type: ignore
+            case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:case-detail", kwargs=case_pk)
         return super().get_success_url()
 
@@ -783,7 +783,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
         case: Case = form.save(commit=False)
         case.is_deactivated = True
         case.deactivate_date = date.today()
-        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
+        record_model_update_event(user=self.request.user, model_object=case)
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())
 
@@ -800,7 +800,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
         """Process contents of valid form"""
         case: Case = form.save(commit=False)
         case.is_deactivated = False
-        record_model_update_event(user=self.request.user, model_object=case)  # type: ignore
+        record_model_update_event(user=self.request.user, model_object=case)
         case.save()
         return HttpResponseRedirect(case.get_absolute_url())
 

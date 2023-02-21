@@ -75,7 +75,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]
         ("none", "Unassigned"),
     ]
     for user in user_query.order_by("first_name", "last_name"):
-        user_choices_with_none.append((user.id, user.get_full_name()))  # type: ignore
+        user_choices_with_none.append((user.id, user.get_full_name()))
     return user_choices_with_none
 
 
@@ -105,8 +105,8 @@ class CaseSearchForm(AMPDateRangeForm):
         auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
             User.objects.filter(groups__name="Historic auditor")
         )
-        self.fields["auditor"].choices = auditor_choices  # type: ignore
-        self.fields["reviewer"].choices = auditor_choices  # type: ignore
+        self.fields["auditor"].choices = auditor_choices
+        self.fields["reviewer"].choices = auditor_choices
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -182,7 +182,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sector"].empty_label = "Unknown"  # type: ignore
+        self.fields["sector"].empty_label = "Unknown"
 
     def clean_previous_case_url(self):
         """Check url contains case number"""

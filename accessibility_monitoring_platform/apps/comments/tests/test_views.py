@@ -68,7 +68,7 @@ def test_add_comment_notification(rf):
     request: WSGIRequest = rf.get("/")
     request.user = user
 
-    comment_path: str = reverse("cases:edit-qa-process", kwargs={"pk": case.id})  # type: ignore
+    comment_path: str = reverse("cases:edit-qa-process", kwargs={"pk": case.id})
 
     comment: Comment = Comment(
         case=case,
@@ -112,14 +112,14 @@ def test_comment_create(client):
     qa_process_response: HttpResponse = client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": case.id},  # type: ignore
+            kwargs={"pk": case.id},
         )
     )
 
     assert qa_process_response.status_code == 200
 
     create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
         data={"body": COMMENT_TEXT},
         follow=True,
     )
@@ -145,11 +145,11 @@ def test_delete_comment(client):
     client.login(username=user.username, password=USER_PASSWORD)
 
     client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
         data={"body": COMMENT_TEXT},
         follow=True,
     )
@@ -163,14 +163,14 @@ def test_delete_comment(client):
     client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": case.id},  # type: ignore
+            kwargs={"pk": case.id},
         ),
     )
 
     delete_comment_response: HttpResponse = client.post(
         reverse(
             "comments:remove-comment",
-            kwargs={"pk": 1},  # type: ignore
+            kwargs={"pk": 1},
         ),
         follow=True,
     )
@@ -201,11 +201,11 @@ def test_edit_comment(client):
     client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": case.id},  # type: ignore
+            kwargs={"pk": case.id},
         )
     )
     client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
         data={"body": COMMENT_TEXT},
         follow=True,
     )
@@ -214,12 +214,12 @@ def test_edit_comment(client):
     client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": case.id},  # type: ignore
+            kwargs={"pk": case.id},
         )
     )
 
     edit_comment_response: HttpResponse = client.post(
-        reverse("comments:edit-comment", kwargs={"pk": 1}),  # type: ignore
+        reverse("comments:edit-comment", kwargs={"pk": 1}),
         data={"body": UPDATED_COMMENT_TEXT},
         follow=True,
     )
@@ -254,7 +254,7 @@ def test_comment_associated_for_correct_case(client):
     qa_process_response: HttpResponse = client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": first_case.id},  # type: ignore
+            kwargs={"pk": first_case.id},
         )
     )
 
@@ -263,14 +263,14 @@ def test_comment_associated_for_correct_case(client):
     more_recent_case_response: HttpResponse = client.get(
         reverse(
             "cases:edit-qa-process",
-            kwargs={"pk": latest_case_loaded.id},  # type: ignore
+            kwargs={"pk": latest_case_loaded.id},
         )
     )
 
     assert more_recent_case_response.status_code == 200
 
     create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": first_case.id}),  # type: ignore
+        reverse("comments:create-case-comment", kwargs={"case_id": first_case.id}),
         data={"body": COMMENT_TEXT},
         follow=True,
     )
