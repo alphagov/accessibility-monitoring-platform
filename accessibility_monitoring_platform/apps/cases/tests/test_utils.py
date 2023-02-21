@@ -165,11 +165,15 @@ def test_case_filtered_by_enforcement_body(
     enforcement_body_filter, expected_number, expected_name
 ):
     """Test that filtering by enforcement body is reflected in the queryset"""
-    Case.objects.create(organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni")
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni"
+    )
     Case.objects.create(
         organisation_name=ORGANISATION_NAME_EHRC, enforcement_body="ehrc"
     )
-    form: MockForm = MockForm(cleaned_data={"enforcement_body": enforcement_body_filter})
+    form: MockForm = MockForm(
+        cleaned_data={"enforcement_body": enforcement_body_filter}
+    )
 
     filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
 
