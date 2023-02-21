@@ -22,7 +22,7 @@ from ..chart import (
     calculate_y_tick_size,
     build_yearly_metric_chart,
     get_polyline_stroke,
-    Y_AXIS_RATIO,
+    Y_AXIS_PERCENT,
 )
 
 
@@ -314,7 +314,7 @@ def test_calculate_y_tick_size(max_value, y_tick_size):
 
 
 @pytest.mark.parametrize(
-    "y_tick_size, is_ratio, expected_result",
+    "y_tick_size, is_percent, expected_result",
     [
         (
             20,
@@ -340,14 +340,14 @@ def test_calculate_y_tick_size(max_value, y_tick_size):
                 ),
             ],
         ),
-        (50, True, Y_AXIS_RATIO),
+        (50, True, Y_AXIS_PERCENT),
     ],
 )
-def test_build_y_axis(y_tick_size, is_ratio, expected_result):
+def test_build_y_axis(y_tick_size, is_percent, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert build_y_axis(y_tick_size=y_tick_size, is_ratio=is_ratio) == expected_result
+    assert build_y_axis(y_tick_size=y_tick_size, is_percent=is_percent) == expected_result
 
 
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")
