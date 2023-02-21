@@ -375,9 +375,6 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         ]
 
-        # thirteen_month_tested: QuerySet[Audit] = Audit.objects.filter(
-        #     date_of_test__gte=thirteen_month_start_date
-        # )
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
@@ -403,7 +400,7 @@ class MetricsPolicyTemplateView(TemplateView):
         )
 
         retested_by_month: Timeseries = Timeseries(
-            label="Tested",
+            label="Cases",
             datapoints=group_timeseries_data_by_month(
                 queryset=thirteen_month_retested_audits,
                 date_column_name="retest_date",
@@ -426,10 +423,10 @@ class MetricsPolicyTemplateView(TemplateView):
                 start_date=thirteen_month_start_date,
             ),
         )
-        retested_by_month: Timeseries = Timeseries(
-            label="Cases",
+        final_no_action_by_month: Timeseries = Timeseries(
+            label="Finally acceptable",
             datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_retested_audits,
+                queryset=thirteen_month_final_no_action,
                 date_column_name="retest_date",
                 start_date=thirteen_month_start_date,
             ),
@@ -442,28 +439,20 @@ class MetricsPolicyTemplateView(TemplateView):
                 start_date=thirteen_month_start_date,
             ),
         )
-        final_no_action_by_month: Timeseries = Timeseries(
-            label="Finally acceptable",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_final_no_action,
-                date_column_name="retest_date",
-                start_date=thirteen_month_start_date,
-            ),
-        )
 
         website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Initial",
             partial_timeseries=website_initial_compliant_by_month,
             total_timeseries=retested_by_month,
         )
-        statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
-            label="Initial",
-            partial_timeseries=statement_initial_compliant_by_month,
-            total_timeseries=retested_by_month,
-        )
         website_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Final",
             partial_timeseries=final_no_action_by_month,
+            total_timeseries=retested_by_month,
+        )
+        statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Initial",
+            partial_timeseries=statement_initial_compliant_by_month,
             total_timeseries=retested_by_month,
         )
         statement_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
@@ -483,7 +472,8 @@ class MetricsPolicyTemplateView(TemplateView):
                     ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[website_initial_ratio, website_final_ratio], y_axis_percent=True
+                    lines=[website_initial_ratio, website_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
             {
@@ -496,7 +486,8 @@ class MetricsPolicyTemplateView(TemplateView):
                     ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[statement_initial_ratio, statement_final_ratio], y_axis_percent=True
+                    lines=[statement_initial_ratio, statement_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
         ]

@@ -347,7 +347,9 @@ def test_build_y_axis(y_tick_size, is_percent, expected_result):
     """
     Test building of y-axis for charts
     """
-    assert build_y_axis(y_tick_size=y_tick_size, is_percent=is_percent) == expected_result
+    assert (
+        build_y_axis(y_tick_size=y_tick_size, is_percent=is_percent) == expected_result
+    )
 
 
 @patch("accessibility_monitoring_platform.apps.common.chart.timezone")
