@@ -375,64 +375,66 @@ class MetricsPolicyTemplateView(TemplateView):
             ),
         ]
 
-        thirteen_month_tested: QuerySet[Audit] = Audit.objects.filter(
-            date_of_test__gte=thirteen_month_start_date
+        thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
+            retest_date__gte=thirteen_month_start_date
         )
         thirteen_month_website_initial_compliant: QuerySet[
             Audit
-        ] = thirteen_month_tested.filter(
+        ] = thirteen_month_retested_audits.filter(
             case__is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT
         )
         thirteen_month_statement_initial_compliant: QuerySet[
             Audit
-        ] = thirteen_month_tested.filter(
+        ] = thirteen_month_retested_audits.filter(
             case__accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-        )
-        thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
-            retest_date__gte=thirteen_month_start_date
         )
         thirteen_month_final_no_action: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
             case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
+        thirteen_month_statement_final_compliant: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
+            case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        )
 
-        tested_by_month: Timeseries = Timeseries(
-            label="Tested",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_tested,
-                date_column_name="date_of_test",
-                start_date=thirteen_month_start_date,
-            ),
-        )
-        website_initial_compliant_by_month: Timeseries = Timeseries(
-            label="Compliant",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_website_initial_compliant,
-                date_column_name="date_of_test",
-                start_date=thirteen_month_start_date,
-            ),
-        )
-        statement_initial_compliant_by_month: Timeseries = Timeseries(
-            label="Compliant",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_statement_initial_compliant,
-                date_column_name="date_of_test",
-                start_date=thirteen_month_start_date,
-            ),
-        )
         retested_by_month: Timeseries = Timeseries(
-            label="Retested",
+            label="Cases",
             datapoints=group_timeseries_data_by_month(
                 queryset=thirteen_month_retested_audits,
                 date_column_name="retest_date",
                 start_date=thirteen_month_start_date,
             ),
         )
+        website_initial_compliant_by_month: Timeseries = Timeseries(
+            label="Initially acceptable",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_website_initial_compliant,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        statement_initial_compliant_by_month: Timeseries = Timeseries(
+            label="Initially compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_statement_initial_compliant,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
         final_no_action_by_month: Timeseries = Timeseries(
-            label="No action",
+            label="Finally acceptable",
             datapoints=group_timeseries_data_by_month(
                 queryset=thirteen_month_final_no_action,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        statement_final_compliant_by_month: Timeseries = Timeseries(
+            label="Finally compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_statement_final_compliant,
                 date_column_name="retest_date",
                 start_date=thirteen_month_start_date,
             ),
@@ -441,16 +443,21 @@ class MetricsPolicyTemplateView(TemplateView):
         website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Initial",
             partial_timeseries=website_initial_compliant_by_month,
-            total_timeseries=tested_by_month,
+            total_timeseries=retested_by_month,
+        )
+        website_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Final",
+            partial_timeseries=final_no_action_by_month,
+            total_timeseries=retested_by_month,
         )
         statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Initial",
             partial_timeseries=statement_initial_compliant_by_month,
-            total_timeseries=tested_by_month,
+            total_timeseries=retested_by_month,
         )
-        final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+        statement_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
             label="Final",
-            partial_timeseries=final_no_action_by_month,
+            partial_timeseries=statement_final_compliant_by_month,
             total_timeseries=retested_by_month,
         )
 
@@ -459,28 +466,28 @@ class MetricsPolicyTemplateView(TemplateView):
                 "label": "Proportion of websites which are acceptable",
                 "html_table": build_html_table(
                     columns=[
-                        tested_by_month,
-                        website_initial_compliant_by_month,
                         retested_by_month,
+                        website_initial_compliant_by_month,
                         final_no_action_by_month,
                     ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[website_initial_ratio, final_ratio], y_axis_ratio=True
+                    lines=[website_initial_ratio, website_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
             {
-                "label": "Proportion of accessibility statements which are acceptable",
+                "label": "Proportion of accessibility statements which are compliant",
                 "html_table": build_html_table(
                     columns=[
-                        tested_by_month,
-                        statement_initial_compliant_by_month,
                         retested_by_month,
-                        final_no_action_by_month,
+                        statement_initial_compliant_by_month,
+                        statement_final_compliant_by_month,
                     ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[statement_initial_ratio, final_ratio], y_axis_ratio=True
+                    lines=[statement_initial_ratio, statement_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
         ]

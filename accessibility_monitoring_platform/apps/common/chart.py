@@ -51,13 +51,13 @@ class ChartAxisTick:
     label_line_2: str = ""
 
 
-Y_AXIS_RATIO: List[ChartAxisTick] = [
-    ChartAxisTick(value=100, label="1.0", y_position=0),
-    ChartAxisTick(value=80, label="0.8", y_position=50),
-    ChartAxisTick(value=60, label="0.6", y_position=100),
-    ChartAxisTick(value=40, label="0.4", y_position=150),
-    ChartAxisTick(value=20, label="0.2", y_position=200),
-    ChartAxisTick(value=0, label="0.0", y_position=250),
+Y_AXIS_PERCENT: List[ChartAxisTick] = [
+    ChartAxisTick(value=100, label="100%", y_position=0),
+    ChartAxisTick(value=80, label="80%", y_position=50),
+    ChartAxisTick(value=60, label="60%", y_position=100),
+    ChartAxisTick(value=40, label="40%", y_position=150),
+    ChartAxisTick(value=20, label="20%", y_position=200),
+    ChartAxisTick(value=0, label="0%", y_position=250),
 ]
 
 
@@ -160,10 +160,10 @@ def build_13_month_x_axis() -> List[ChartAxisTick]:
     return x_axis
 
 
-def build_y_axis(y_tick_size: int, is_ratio: bool = False) -> List[ChartAxisTick]:
+def build_y_axis(y_tick_size: int, is_percent: bool = False) -> List[ChartAxisTick]:
     """Return y-axis based on the maximum value in the polyline"""
-    if is_ratio:
-        return Y_AXIS_RATIO
+    if is_percent:
+        return Y_AXIS_PERCENT
     return [
         ChartAxisTick(
             value=y_tick_size * 5, label=str(f"{y_tick_size * 5:,}"), y_position=0
@@ -204,7 +204,7 @@ def calculate_y_tick_size(max_value: int) -> int:
 
 def build_yearly_metric_chart(
     lines: List[Timeseries],
-    y_axis_ratio: bool = False,
+    y_axis_percent: bool = False,
 ) -> LineChart:
     """
     Given timeseries datapoints, derive the values needed to draw
@@ -251,7 +251,7 @@ def build_yearly_metric_chart(
         polylines=polylines,
         legend=chart_legend,
         x_axis=build_13_month_x_axis(),
-        y_axis=build_y_axis(y_tick_size=y_tick_size, is_ratio=y_axis_ratio),
+        y_axis=build_y_axis(y_tick_size=y_tick_size, is_percent=y_axis_percent),
     )
 
 
