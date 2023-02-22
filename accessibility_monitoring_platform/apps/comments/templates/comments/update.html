@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ comment.case.organisation_name }} | Edit comment{% endblock %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' comment.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-process' comment.case.id %}">QA process</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Edit comment
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-body">
+            <h1 class="govuk-heading-xl">Edit comment</h1>
+        </div>
+        <form method="post" action="{% url 'comments:update-comment' comment.id %}">
+            {% csrf_token %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include 'common/amp_form_snippet.html' %}
+                </div>
+                <div class="govuk-grid-column-full govuk-button-group">
+                    <input
+                        type="submit"
+                        value="Save and return"
+                        name="save_return"
+                        class="govuk-button"
+                        data-module="govuk-button"
+                    />
+                    <a
+                        href="{% url 'cases:edit-qa-process' comment.case.id %}?discussion=open#qa-discussion"
+                        class="govuk-link govuk-link--no-visited-state"
+                    >
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+{% endblock %}

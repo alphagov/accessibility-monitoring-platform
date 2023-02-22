@@ -398,6 +398,12 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add flag to open qa discussion"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["open_discussion"] = self.request.GET.get("discussion")
+        return context
+
     def get_form(self):
         """Hide fields if testing using platform"""
         form = super().get_form()

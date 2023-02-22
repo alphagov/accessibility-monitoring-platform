@@ -1,19 +1,21 @@
 """ Comments view - handles posting and editing comments """
-from typing import Set
+from typing import Any, Dict, Tuple, Type, Set, Union
 import datetime
 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.forms import Form
 from django.forms.models import ModelForm
-from django.http import HttpResponseRedirect, HttpRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import View
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from ..cases.models import Case
 from ..notifications.utils import add_notification
 
-from .forms import SubmitCommentForm, EditCommentForm
+from .forms import SubmitCommentForm, EditCommentForm, CommentForm
 from .models import Comment, CommentHistory
 
 
@@ -92,6 +94,63 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
             request=request,
         )
     return True
+
+
+class CommentCreateView(CreateView):
+    """
+    View to create a case
+    """
+
+    model: Type[Comment] = Comment
+    form_class: Type[CommentForm] = CommentForm
+    context_object_name: str = "comment"
+    template_name: str = "comments/create.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        """Create comment"""
+        form: Form = self.form_class(request.POST)  # type: ignore
+        if form.is_valid():
+            self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+            Comment.objects.create(
+                case=self.case,
+                user=self.request.user,
+                body=form.cleaned_data.get("body")
+            )
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(
+                self.get_context_data(form=form)
+            )
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.case.id}
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
+
+
+class CommentUpdateView(UpdateView):
+    """
+    View to update a comment
+    """
+
+    model: Type[Comment] = Comment
+    form_class: Type[CommentForm] = CommentForm
+    context_object_name: str = "comment"
+    template_name: str = "comments/update.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.case.id}
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
 
 
 class CreateCaseCommentFormView(FormView):

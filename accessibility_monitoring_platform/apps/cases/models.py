@@ -573,6 +573,10 @@ class Case(VersionModel):
     def reminder(self):
         return self.reminder_case.filter(is_deleted=False).first()
 
+    @property
+    def qa_comments(self):
+        return self.comment_case.all().order_by("-created_date")
+
     def set_status(self) -> str:  # noqa: C901
         if self.is_deactivated:
             return STATUS_DEACTIVATED
