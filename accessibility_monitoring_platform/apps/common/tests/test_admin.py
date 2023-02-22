@@ -28,7 +28,7 @@ def test_issue_report_export_as_csv(admin_client):
         reverse("admin:common_issuereport_changelist"),
         {
             "action": "export_as_csv",
-            "_selected_action": [issue_report_1.id, issue_report_2.id],  # type: ignore
+            "_selected_action": [issue_report_1.id, issue_report_2.id],
         },
     )
 

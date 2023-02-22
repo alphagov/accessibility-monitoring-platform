@@ -56,12 +56,13 @@ SORT_CHOICES: List[Tuple[str, str]] = [
     ("id", "Oldest"),
     ("organisation_name", "Alphabetic"),
 ]
-IS_COMPLAINT_DEFAULT: str = ""
+NO_FILTER: str = ""
 IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (IS_COMPLAINT_DEFAULT, "All"),
+    (NO_FILTER, "All"),
     ("no", "No complaints"),
     ("yes", "Only complaints"),
 ]
+ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
 
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
@@ -75,7 +76,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]
         ("none", "Unassigned"),
     ]
     for user in user_query.order_by("first_name", "last_name"):
-        user_choices_with_none.append((user.id, user.get_full_name()))  # type: ignore
+        user_choices_with_none.append((user.id, user.get_full_name()))
     return user_choices_with_none
 
 
@@ -98,6 +99,9 @@ class CaseSearchForm(AMPDateRangeForm):
     is_complaint = AMPChoiceField(
         label="Filter complaints", choices=IS_COMPLAINT_CHOICES
     )
+    enforcement_body = AMPChoiceField(
+        label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -105,8 +109,8 @@ class CaseSearchForm(AMPDateRangeForm):
         auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
             User.objects.filter(groups__name="Historic auditor")
         )
-        self.fields["auditor"].choices = auditor_choices  # type: ignore
-        self.fields["reviewer"].choices = auditor_choices  # type: ignore
+        self.fields["auditor"].choices = auditor_choices
+        self.fields["reviewer"].choices = auditor_choices
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -182,7 +186,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sector"].empty_label = "Unknown"  # type: ignore
+        self.fields["sector"].empty_label = "Unknown"
 
     def clean_previous_case_url(self):
         """Check url contains case number"""

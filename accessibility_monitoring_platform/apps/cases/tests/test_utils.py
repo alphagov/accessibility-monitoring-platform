@@ -53,6 +53,8 @@ from ..utils import (
 
 ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
+ORGANISATION_NAME_ECNI: str = "Organisation name ecni"
+ORGANISATION_NAME_EHRC: str = "Organisation name ehrc"
 
 CONTACTS: List[Contact] = [
     Contact(
@@ -108,7 +110,7 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
     mock_case: MockCase = MockCase(sent_date=date_on_db)
 
     assert (
-        get_sent_date(form=mock_form, case_from_db=mock_case, sent_date_name="sent_date")  # type: ignore
+        get_sent_date(form=mock_form, case_from_db=mock_case, sent_date_name="sent_date")
         == expected_date
     )
 
@@ -119,7 +121,7 @@ def test_case_filtered_by_search_string():
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     form: MockForm = MockForm(cleaned_data={"case_search": ORGANISATION_NAME})
 
-    filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
+    filtered_cases: List[Case] = list(filter_cases(form))
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
@@ -137,12 +139,41 @@ def test_case_filtered_by_search_string():
 def test_case_filtered_by_is_complaint(
     is_complaint_filter, expected_number, expected_name
 ):
-    """Test that searching for cases is reflected in the queryset"""
+    """Test that filtering by complaint is reflected in the queryset"""
     Case.objects.create(organisation_name=ORGANISATION_NAME)
     Case.objects.create(
         organisation_name=ORGANISATION_NAME_COMPLAINT, is_complaint="yes"
     )
     form: MockForm = MockForm(cleaned_data={"is_complaint": is_complaint_filter})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == expected_number
+    assert filtered_cases[0].organisation_name == expected_name
+
+
+@pytest.mark.parametrize(
+    "enforcement_body_filter, expected_number, expected_name",
+    [
+        ("", 2, ORGANISATION_NAME_EHRC),
+        ("ehrc", 1, ORGANISATION_NAME_EHRC),
+        ("ecni", 1, ORGANISATION_NAME_ECNI),
+    ],
+)
+@pytest.mark.django_db
+def test_case_filtered_by_enforcement_body(
+    enforcement_body_filter, expected_number, expected_name
+):
+    """Test that filtering by enforcement body is reflected in the queryset"""
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni"
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME_EHRC, enforcement_body="ehrc"
+    )
+    form: MockForm = MockForm(
+        cleaned_data={"enforcement_body": enforcement_body_filter}
+    )
 
     filtered_cases: List[Case] = list(filter_cases(form))  # type: ignore
 
@@ -257,11 +288,11 @@ def test_download_feedback_survey_cases():
     )
     cases: List[Case] = [case]
 
-    response: HttpResponse = download_feedback_survey_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+    response: HttpResponse = download_feedback_survey_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
 
     assert response.status_code == 200
 
-    assert response.headers == {  # type: ignore
+    assert response.headers == {
         "Content-Type": "text/csv",
         "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
     }
@@ -284,11 +315,11 @@ def test_download_equality_body_cases():
         case=case, audit_retest_disproportionate_burden_notes="Audit for CSV export"
     )
 
-    response: HttpResponse = download_equality_body_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+    response: HttpResponse = download_equality_body_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
 
     assert response.status_code == 200
 
-    assert response.headers == {  # type: ignore
+    assert response.headers == {
         "Content-Type": "text/csv",
         "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
     }
@@ -343,11 +374,11 @@ def test_download_cases():
         case=case, email="test@example.com", notes="Contact for CSV export"
     )
 
-    response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)  # type: ignore
+    response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
 
     assert response.status_code == 200
 
-    assert response.headers == {  # type: ignore
+    assert response.headers == {
         "Content-Type": "text/csv",
         "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
     }

@@ -2,7 +2,9 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | 12-week accessibility statement compliance decision{% endblock %}
+{% load static %}
+
+{% block title %}{{ audit.case.organisation_name }} | Append accessibility statement{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -18,33 +20,29 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                12-week statement compliance decision
+                Append accessibility statement
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='12-week accessibility statement compliance decision' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Append accessibility statement' case=audit.case %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                {% include 'common/error_summary.html' with form=case_form %}
                 {% include 'common/error_summary.html' %}
-                {% include 'audits/helpers/end_of_test.html' %}
-                <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
+                <form method="post" action="{% url 'audits:edit-audit-12-week-statement' audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.twelve_week_accessibility_statement_found %}
-                                <p class="govuk-body-m">Statement missing during initial test</p>
-                            {% else %}
-                                {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                            {% include 'common/amp_field.html' with field=form.twelve_week_accessibility_statement_url %}
+                            {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                            {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                                <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
                             {% endif %}
-                            {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
-                            {% include 'common/amp_form_snippet.html' with form=case_form %}
-                            {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -56,25 +54,29 @@
                             />
                             <input
                                 type="submit"
-                                value="Save and exit"
-                                name="save_exit"
+                                value="Save and return"
+                                name="save_return"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:audit-detail' audit.id %}"
+                                href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to test view
+                                Cancel
                             </a>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-decision' %}
+                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-1' %}
             </div>
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/common_field_link_button.js' %}"></script>
 {% endblock %}

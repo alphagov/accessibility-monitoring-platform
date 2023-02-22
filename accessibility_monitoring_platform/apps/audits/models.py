@@ -426,6 +426,9 @@ class Audit(VersionModel):
         null=True, blank=True
     )
 
+    # 12-week accessibility statement (no initial statement)
+    twelve_week_accessibility_statement_url = models.TextField(default="", blank=True)
+
     # Retest accessibility statement 1
     audit_retest_accessibility_statement_backup_url = models.TextField(
         default="", blank=True
@@ -519,7 +522,7 @@ class Audit(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")  # type: ignore
+        return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
@@ -559,13 +562,13 @@ class Audit(VersionModel):
 
     @property
     def deleted_pages(self):
-        return self.page_audit.filter(is_deleted=True)  # type: ignore
+        return self.page_audit.filter(is_deleted=True)
 
     @property
     def every_page(self):
         """Sort page of type PDF to be last"""
         return (
-            self.page_audit.filter(is_deleted=False)  # type: ignore
+            self.page_audit.filter(is_deleted=False)
             .annotate(
                 position_pdfs_last=DjangoCase(
                     When(page_type=PAGE_TYPE_PDF, then=1), default=0
@@ -587,9 +590,13 @@ class Audit(VersionModel):
         return self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
 
     @property
-    def accessibility_statement_found(self):
+    def accessibility_statement_initially_found(self):
         page: Page = self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
         return page is not None and page.url != "" and page.not_found == BOOLEAN_FALSE
+
+    @property
+    def twelve_week_accessibility_statement_found(self):
+        return self.twelve_week_accessibility_statement_url != ""
 
     @property
     def contact_page(self):
@@ -606,7 +613,7 @@ class Audit(VersionModel):
     @property
     def failed_check_results(self):
         return (
-            self.checkresult_audit.filter(  # type: ignore
+            self.checkresult_audit.filter(
                 is_deleted=False,
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
@@ -654,7 +661,7 @@ class Page(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
-        return self.name if self.name else self.get_page_type_display()  # type: ignore
+        return self.name if self.name else self.get_page_type_display()
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
@@ -662,7 +669,7 @@ class Page(models.Model):
     @property
     def all_check_results(self):
         return (
-            self.checkresult_page.filter(is_deleted=False)  # type: ignore
+            self.checkresult_page.filter(is_deleted=False)
             .order_by("wcag_definition__id")
             .select_related("wcag_definition")
             .all()
@@ -704,8 +711,8 @@ class WcagDefinition(models.Model):
 
     def __str__(self) -> str:
         if self.description:
-            return str(f"{self.name}: {self.description} ({self.get_type_display()})")  # type: ignore
-        return f"{self.name} ({self.get_type_display()})"  # type: ignore
+            return str(f"{self.name}: {self.description} ({self.get_type_display()})")
+        return f"{self.name} ({self.get_type_display()})"
 
 
 class CheckResult(models.Model):
@@ -745,7 +752,7 @@ class CheckResult(models.Model):
     @property
     def dict_for_retest(self) -> Dict[str, str]:
         return {
-            "id": self.id,  # type: ignore
+            "id": self.id,
             "retest_state": self.retest_state,
             "retest_notes": self.retest_notes,
         }

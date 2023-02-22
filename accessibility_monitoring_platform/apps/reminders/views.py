@@ -36,7 +36,7 @@ class ReminderCreateView(CreateView):
         reminder: Reminder = form.save(commit=False)
         case: Case = Case.objects.get(pk=self.kwargs["case_id"])
         reminder.case = case
-        reminder.user = case.auditor  # type: ignore
+        reminder.user = case.auditor
         if "delete" in self.request.POST:
             reminder.is_deleted = True
         return super().form_valid(form)
@@ -49,7 +49,7 @@ class ReminderCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Record creation eventthe submit button used and act accordingly"""
-        record_model_create_event(user=self.request.user, model_object=self.object)  # type: ignore
+        record_model_create_event(user=self.request.user, model_object=self.object)
         return super().get_success_url()
 
 
@@ -68,14 +68,14 @@ class ReminderUpdateView(UpdateView):
             self.object: Reminder = form.save(commit=False)
             if "delete" in self.request.POST:
                 self.object.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=self.object)  # type: ignore
+            record_model_update_event(user=self.request.user, model_object=self.object)
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
         return add_reminder_context_data(
             context=super().get_context_data(**kwargs),
-            case_id=self.object.case.id,  # type: ignore
+            case_id=self.object.case.id,
         )
 
 
@@ -108,6 +108,6 @@ def delete_reminder(request: HttpRequest, pk: int) -> HttpResponse:
     """
     reminder: Reminder = get_object_or_404(Reminder, id=pk)
     reminder.is_deleted = True
-    record_model_update_event(user=request.user, model_object=reminder)  # type: ignore
+    record_model_update_event(user=request.user, model_object=reminder)
     reminder.save()
     return redirect(reverse("reminders:reminder-list"))

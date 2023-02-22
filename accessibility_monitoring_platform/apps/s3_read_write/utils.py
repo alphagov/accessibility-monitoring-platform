@@ -63,7 +63,7 @@ class S3ReadWriteReport:
 
         s3_url_for_report: str = self.url_builder(
             organisation_name=case.organisation_name,
-            case_id=case.id,  # type: ignore
+            case_id=case.id,
             version=version,
             report_version=report_version,
             guid=guid,
@@ -92,7 +92,7 @@ class S3ReadWriteReport:
         if S3Report.objects.filter(guid=guid).exists():
             s3file = S3Report.objects.get(guid=guid)
             try:
-                obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)  # type: ignore
+                obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)
                 return obj.get()["Body"].read().decode("utf-8")
             except self.s3_client.exceptions.NoSuchKey:
                 return NO_REPORT_HTML

@@ -32,7 +32,7 @@ def test_reminder_export_as_csv(admin_client):
         reverse("admin:reminders_reminder_changelist"),
         {
             "action": "export_as_csv",
-            "_selected_action": [reminder_1.id, reminder_2.id],  # type: ignore
+            "_selected_action": [reminder_1.id, reminder_2.id],
         },
     )
 

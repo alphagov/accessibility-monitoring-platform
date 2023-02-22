@@ -129,113 +129,18 @@ POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{percentage}%</b></span>
     {partial_count} out of {total_count}
 </p>"""
-POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-preview govuk-details__text">
-    <table id="{table_id}" class="govuk-table">
-        <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Month</th>
-                <th scope="col" class="govuk-table__header govuk-table__header--numeric">Tested</th>
-                <th scope="col" class="govuk-table__header govuk-table__header--numeric">Compliant</th>
-                <th scope="col" class="govuk-table__header govuk-table__header--numeric">Retested</th>
-                <th scope="col" class="govuk-table__header govuk-table__header--numeric">No action</th>
-            </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">January 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">February 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">March 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">April 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">May 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">June 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">July 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">August 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">September 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">October 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">November 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">December 2021</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <td class="govuk-table__cell">January 2022</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
-            </tr>
-        </tbody>
-    </table>
-</div>"""
+ACCEPTABLE_WEBSITES_ROW: str = """<tr class="govuk-table__row">
+    <td class="govuk-table__cell">December 2021</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
+</tr>"""
+COMPLIANT_STATEMENTS_ROW: str = """<tr class="govuk-table__row">
+    <td class="govuk-table__cell">December 2021</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
+</tr>"""
 
 
 @pytest.mark.parametrize(
@@ -282,7 +187,7 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("dashboard:home")  # type: ignore
+    assert response.url == reverse("dashboard:home")
 
     if subject or message:
         assert len(mailoutbox) == 1
@@ -695,10 +600,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(
-            table_view_id="table-view-1",
-            table_id="proportion-of-websites-which-are-acceptable",
-        ),
+        ACCEPTABLE_WEBSITES_ROW,
         html=True,
     )
 
@@ -759,10 +661,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(
-            table_view_id="table-view-2",
-            table_id="proportion-of-accessibility-statements-which-are-acceptable",
-        ),
+        COMPLIANT_STATEMENTS_ROW,
         html=True,
     )
 

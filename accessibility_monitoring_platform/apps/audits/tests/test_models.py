@@ -64,7 +64,7 @@ def create_audit_and_check_results() -> Audit:
     )
 
     audit: Audit = create_audit_and_pages()
-    pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
+    pages: QuerySet[Page] = audit.page_audit.all()
 
     for page in pages:
         check_result_state: str = (
@@ -128,7 +128,7 @@ def test_audit_testable_pages_returns_expected_page():
     )
 
     assert len(audit.testable_pages) == 1
-    assert audit.testable_pages[0].id == testable_page.id  # type: ignore
+    assert audit.testable_pages[0].id == testable_page.id
 
 
 @pytest.mark.django_db
@@ -225,7 +225,7 @@ def test_check_result_returns_id_and_fields_for_retest():
     check_result: CheckResult = home_page.all_check_results[0]
 
     assert check_result.dict_for_retest == {
-        "id": check_result.id,  # type: ignore
+        "id": check_result.id,
         "retest_state": RETEST_CHECK_RESULT_DEFAULT,
         "retest_notes": "",
     }
@@ -250,29 +250,44 @@ def test_wcag_definition_strings():
 
 
 @pytest.mark.django_db
-def test_accessibility_statement_found():
+def test_accessibility_statement_initially_found():
     """
-    Test that an accessibility statement was found.
+    Test that an accessibility statement was initially found.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     # No page
-    assert audit.accessibility_statement_found is False
+    assert audit.accessibility_statement_initially_found is False
 
     page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
 
     # No URL
-    assert audit.accessibility_statement_found is False
+    assert audit.accessibility_statement_initially_found is False
 
     page.url = "https://example.com"
     page.save()
 
     # Not found flag not set
-    assert audit.accessibility_statement_found is True
+    assert audit.accessibility_statement_initially_found is True
 
     page.not_found = BOOLEAN_TRUE
     page.save()
 
     # Not found flag set
-    assert audit.accessibility_statement_found is False
+    assert audit.accessibility_statement_initially_found is False
+
+
+@pytest.mark.django_db
+def test_twelve_week_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found on 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.twelve_week_accessibility_statement_found is False
+
+    audit.twelve_week_accessibility_statement_url = "https://example.com/statement"
+
+    assert audit.twelve_week_accessibility_statement_found is True

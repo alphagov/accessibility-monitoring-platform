@@ -37,15 +37,24 @@
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% if audit.accessibility_statement_found %}
+                    {% if audit.accessibility_statement_initially_found %}
+                        {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
+                    {% elif audit.twelve_week_accessibility_statement_found %}
+                        <p class="govuk-body-m">
+                            The statement was appended during the 12-week retest.
+                            <a href="{% url 'audits:edit-audit-12-week-statement' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit or remove appended statement links</a>
+                        </p>
                         {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
                     {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% if audit.accessibility_statement_found %}
-                                {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
-                                {% if audit.audit_retest_accessibility_statement_backup_url_date %}
-                                    <p class="govuk-body amp-margin-top-minus-20"> Added {{audit.audit_retest_accessibility_statement_backup_url_date}} </p>
+                            {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
+                                {% if audit.accessibility_statement_initially_found %}
+                                    {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                                    {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                                        <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
+                                    {% endif %}
                                 {% endif %}
                                 {% include 'audits/helpers/retest_statement_field_info.html' with name='Non-accessible Content - disproportionate burden' example='audits/statement_examples/disproportionate_burden_state.html' decision=audit.get_disproportionate_burden_state_display notes=audit.disproportionate_burden_notes %}
                                 {% include 'common/amp_field.html' with field=form.audit_retest_disproportionate_burden_state %}
@@ -66,7 +75,7 @@
                                 {% include 'common/amp_field.html' with field=form.audit_retest_access_requirements_state %}
                                 {% include 'common/amp_field.html' with field=form.audit_retest_access_requirements_notes %}
                             {% else %}
-                                {% include 'audits/helpers/no_statement_warning.html' %}
+                                {% include 'audits/helpers/no_statement_at_retest.html' %}
                             {% endif %}
                             {% include 'common/amp_field.html' with field=form.audit_retest_statement_2_complete_date %}
                         </div>

@@ -16,7 +16,7 @@ from django.http.request import QueryDict
 from ..audits.models import Audit
 from ..common.utils import build_filters
 
-from .forms import CaseSearchForm, DEFAULT_SORT, IS_COMPLAINT_DEFAULT
+from .forms import CaseSearchForm, DEFAULT_SORT, NO_FILTER
 
 from .models import (
     Case,
@@ -429,10 +429,9 @@ def get_sent_date(
 
 def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
-    filters: Dict = {}  # type: ignore
+    filters: Dict = {}
     search_query = Q()
     sort_by: str = DEFAULT_SORT
-    is_complaint: str = IS_COMPLAINT_DEFAULT
 
     if hasattr(form, "cleaned_data"):
         filters: Dict[str, Any] = build_filters(
@@ -457,7 +456,10 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
                     | Q(psb_location__icontains=search)
                     | Q(sector__name__icontains=search)
                 )
-        is_complaint: str = form.cleaned_data.get("is_complaint", IS_COMPLAINT_DEFAULT)
+        for filter_name in ["is_complaint", "enforcement_body"]:
+            filter_value: str = form.cleaned_data.get(filter_name, NO_FILTER)
+            if filter_value != NO_FILTER:
+                filters[filter_name] = filter_value
 
     if filters.get("status", "") == STATUS_READY_TO_QA:
         filters["qa_status"] = STATUS_READY_TO_QA
@@ -467,9 +469,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["auditor_id"] = None
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
-
-    if is_complaint != IS_COMPLAINT_DEFAULT:
-        filters["is_complaint"] = is_complaint
 
     return (
         Case.objects.filter(search_query, **filters)
@@ -533,7 +532,7 @@ def download_feedback_survey_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()  # type: ignore
+        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=case, column=column))
@@ -564,7 +563,7 @@ def download_equality_body_cases(
 
     output: List[List[str]] = []
     for case in cases:
-        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))  # type: ignore
+        contacts: List[Contact] = list(case.contact_set.filter(is_deleted=False))
         row = []
         for column in COLUMNS_FOR_EQUALITY_BODY:
             if column.field_name is None:
@@ -572,7 +571,7 @@ def download_equality_body_cases(
             else:
                 row.append(format_model_field(model_instance=case, column=column))
         for column in EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY:
-            row.append(format_model_field(model_instance=case.audit, column=column))  # type: ignore
+            row.append(format_model_field(model_instance=case.audit, column=column))
         output.append(row)
     writer.writerows(output)
 
@@ -594,7 +593,7 @@ def download_cases(cases: QuerySet[Case], filename: str = "cases.csv") -> HttpRe
 
     output: List[List[str]] = []
     for case in cases:
-        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()  # type: ignore
+        contact: Optional[Contact] = case.contact_set.filter(is_deleted=False).first()
         row = []
         for column in CASE_COLUMNS_FOR_EXPORT:
             row.append(format_model_field(model_instance=case, column=column))
@@ -644,8 +643,8 @@ def record_case_event(
             message="Start of test",
         )
     if old_case.report_review_status != new_case.report_review_status:
-        old_status: str = old_case.get_report_review_status_display()  # type: ignore
-        new_status: str = new_case.get_report_review_status_display()  # type: ignore
+        old_status: str = old_case.get_report_review_status_display()
+        new_status: str = new_case.get_report_review_status_display()
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
@@ -670,8 +669,8 @@ def record_case_event(
             message=f"QA auditor changed from {old_user_name} to {new_user_name}",
         )
     if old_case.report_approved_status != new_case.report_approved_status:
-        old_status: str = old_case.get_report_approved_status_display()  # type: ignore
-        new_status: str = new_case.get_report_approved_status_display()  # type: ignore
+        old_status: str = old_case.get_report_approved_status_display()
+        new_status: str = new_case.get_report_approved_status_display()
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
@@ -679,8 +678,8 @@ def record_case_event(
             message=f"Report approved changed from '{old_status}' to '{new_status}'",
         )
     if old_case.is_ready_for_final_decision != new_case.is_ready_for_final_decision:
-        old_status: str = old_case.get_is_ready_for_final_decision_display()  # type: ignore
-        new_status: str = new_case.get_is_ready_for_final_decision_display()  # type: ignore
+        old_status: str = old_case.get_is_ready_for_final_decision_display()
+        new_status: str = new_case.get_is_ready_for_final_decision_display()
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,
@@ -688,8 +687,8 @@ def record_case_event(
             message=f"Case ready for final decision changed from '{old_status}' to '{new_status}'",
         )
     if old_case.case_completed != new_case.case_completed:
-        old_status: str = old_case.get_case_completed_display()  # type: ignore
-        new_status: str = new_case.get_case_completed_display()  # type: ignore
+        old_status: str = old_case.get_case_completed_display()
+        new_status: str = new_case.get_case_completed_display()
         CaseEvent.objects.create(
             case=old_case,
             done_by=user,

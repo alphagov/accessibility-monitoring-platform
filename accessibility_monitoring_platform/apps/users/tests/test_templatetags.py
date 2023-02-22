@@ -15,7 +15,7 @@ def test_has_group_returns_true():
     """Returns boolean true if user in group"""
     user: User = User.objects.create()
     group: Group = Group.objects.create(name=GROUP_NAME)
-    group.user_set.add(user)  # type: ignore
+    group.user_set.add(user)
 
     assert has_group(user=user, group_name=GROUP_NAME)
 

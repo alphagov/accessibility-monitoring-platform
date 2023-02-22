@@ -69,7 +69,7 @@ def create_section(report: Report) -> Section:
 def test_create_report_redirects(admin_client):
     """Test that report create redirects to report metadata"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -77,13 +77,13 @@ def test_create_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs={"pk": 1})
 
 
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
     report: Report = create_report()
-    path_kwargs: Dict[str, int] = {"case_id": report.case.id}  # type: ignore
+    path_kwargs: Dict[str, int] = {"case_id": report.case.id}
 
     assert Report.objects.filter(case=report.case).count() == 1
 
@@ -98,7 +98,7 @@ def test_create_report_does_not_create_duplicate(admin_client):
 def test_create_report_creates_case_event(admin_client):
     """Test that report create al creates a case event"""
     case: Case = Case.objects.create()
-    path_kwargs: Dict[str, int] = {"case_id": case.id}  # type: ignore
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-create", kwargs=path_kwargs),
@@ -125,7 +125,7 @@ def test_create_report_creates_case_event(admin_client):
 def test_rebuild_report_redirects(return_to, expected_redirect, admin_client):
     """Test that report rebuild redirects correctly"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         f"{reverse('reports:report-rebuild', kwargs=report_pk_kwargs)}?return_to={return_to}",
@@ -133,7 +133,7 @@ def test_rebuild_report_redirects(return_to, expected_redirect, admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse(expected_redirect, kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse(expected_redirect, kwargs=report_pk_kwargs)
 
 
 @mock_s3
@@ -142,7 +142,7 @@ def test_publish_report_redirects(admin_client):
     Test that report publish redirects to report details
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     number_of_s3_reports: int = S3Report.objects.filter(case=report.case).count()
 
     response: HttpResponse = admin_client.get(
@@ -151,7 +151,7 @@ def test_publish_report_redirects(admin_client):
 
     assert response.status_code == 302
 
-    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)
     assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
     assert (
         S3Report.objects.filter(case=report.case).filter(latest_published=True).count()
@@ -163,7 +163,7 @@ def test_publish_report_redirects(admin_client):
 def test_report_published_message_shown(admin_client):
     """Test publishing the report causes a message to be shown on the next page"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publish", kwargs=report_pk_kwargs),
@@ -197,7 +197,7 @@ def test_report_published_message_shown(admin_client):
 def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     create_section(report)
 
     response: HttpResponse = admin_client.get(
@@ -215,7 +215,7 @@ def test_report_details_page_shows_notification(admin_client):
     mark report as ready to review
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     create_section(report)
 
     response: HttpResponse = admin_client.get(
@@ -234,7 +234,7 @@ def test_section_edit_page_loads(admin_client):
     """Test that the edit section page loads"""
     report: Report = create_report()
     section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
@@ -251,7 +251,7 @@ def test_report_edit_metadata_save_stays_on_page(admin_client):
     Test that pressing the save button on report edit metadata stays on the same page
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -263,14 +263,14 @@ def test_report_edit_metadata_save_stays_on_page(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == url  # type: ignore
+    assert response.url == url
 
 
 @pytest.mark.django_db
 def test_report_edit_metadata_redirects_to_details(admin_client):
     """Test that report edit metadata redirects to report details on save"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -282,7 +282,7 @@ def test_report_edit_metadata_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)
 
 
 @pytest.mark.django_db
@@ -290,7 +290,7 @@ def test_report_edit_section_save_button_stays_on_page(admin_client):
     """Test pressing save button on report edit section stays on page"""
     report: Report = create_report()
     section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
     url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -307,16 +307,16 @@ def test_report_edit_section_save_button_stays_on_page(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == url  # type: ignore
+    assert response.url == url
 
 
 @pytest.mark.django_db
 def test_report_edit_section_redirects_to_details(admin_client):
     """Test that report edit section redirects to report details on save"""
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
     url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -333,7 +333,7 @@ def test_report_edit_section_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)  # type: ignore
+    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)
 
 
 @pytest.mark.parametrize(
@@ -352,9 +352,9 @@ def test_report_edit_section_stays_on_page_on_row_button_pressed(
     """Test that report edit section stays on page when row-related button pressed"""
     report: Report = create_report()
     section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
     table_row: TableRow = TableRow.objects.create(section=section, row_number=1)
-    table_row_id: int = table_row.id  # type: ignore
+    table_row_id: int = table_row.id
     url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
@@ -371,7 +371,7 @@ def test_report_edit_section_stays_on_page_on_row_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == f"{url}#row-{table_row_id}"  # type: ignore
+    assert response.url == f"{url}#row-{table_row_id}"
 
 
 def test_unapproved_report_confirm_publish_asks_for_approval(admin_client):
@@ -380,7 +380,7 @@ def test_unapproved_report_confirm_publish_asks_for_approval(admin_client):
     when it has not been.
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-confirm-publish", kwargs=report_pk_kwargs)
@@ -398,8 +398,8 @@ def test_approved_report_confirm_publish_does_not_ask_for_approval(admin_client)
     if it is already approved
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
-    case: Case = report.case  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    case: Case = report.case
     case.report_approved_status = REPORT_APPROVED_STATUS_APPROVED
     case.save()
 
@@ -470,8 +470,8 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     mark report as ready to review
     """
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
-    case: Case = report.case  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    case: Case = report.case
     case.report_review_status = REPORT_READY_TO_REVIEW
     case.save()
 
@@ -505,8 +505,8 @@ def test_unpublished_report_data_updated_notification_shown(path_name, admin_cli
     report: Report = create_report()
     report.report_rebuilt = timezone.now()
     report.save()
-    audit: Audit = report.case.audit  # type: ignore
-    case_pk_kwargs: Dict[str, int] = {"pk": report.case.id}  # type: ignore
+    audit: Audit = report.case.audit
+    case_pk_kwargs: Dict[str, int] = {"pk": report.case.id}
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs=case_pk_kwargs), follow=True
@@ -540,8 +540,8 @@ def test_published_report_data_updated_notification_shown(admin_client):
     than latest report publish.
     """
     report: Report = create_report()
-    audit: Audit = report.case.audit  # type: ignore
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
+    audit: Audit = report.case.audit
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publish", kwargs=report_pk_kwargs), follow=True
@@ -575,8 +575,8 @@ def test_published_report_data_updated_notification_shown(admin_client):
 
 def test_report_metrics_displays_in_report_logs(admin_client):
     report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}  # type: ignore
-    case: Case = report.case  # type: ignore
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    case: Case = report.case
     case.save()
 
     ReportVisitsMetrics.objects.create(
@@ -628,7 +628,7 @@ def test_issues_section_edit_page_contains_warning(admin_client):
     section: Section = create_section(report)
     section.template_type = TEMPLATE_TYPE_ISSUES_TABLE
     section.save()
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
 
     response: HttpResponse = admin_client.get(
         reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
@@ -670,7 +670,7 @@ def test_section_edit_page_tables_use_hidden_labels(
     section: Section = create_section(report)
     section.template_type = section_type
     section.save()
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}  # type: ignore
+    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
     TableRow.objects.create(section=section, row_number=1)
 
     response: HttpResponse = admin_client.get(
