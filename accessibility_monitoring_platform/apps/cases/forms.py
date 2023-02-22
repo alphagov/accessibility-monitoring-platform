@@ -56,12 +56,13 @@ SORT_CHOICES: List[Tuple[str, str]] = [
     ("id", "Oldest"),
     ("organisation_name", "Alphabetic"),
 ]
-IS_COMPLAINT_DEFAULT: str = ""
+NO_FILTER: str = ""
 IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (IS_COMPLAINT_DEFAULT, "All"),
+    (NO_FILTER, "All"),
     ("no", "No complaints"),
     ("yes", "Only complaints"),
 ]
+ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
 
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
@@ -97,6 +98,9 @@ class CaseSearchForm(AMPDateRangeForm):
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     is_complaint = AMPChoiceField(
         label="Filter complaints", choices=IS_COMPLAINT_CHOICES
+    )
+    enforcement_body = AMPChoiceField(
+        label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
     )
 
     def __init__(self, *args, **kwargs):
