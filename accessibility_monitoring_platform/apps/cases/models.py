@@ -575,7 +575,7 @@ class Case(VersionModel):
 
     @property
     def qa_comments(self):
-        return self.comment_case.all().order_by("-created_date")
+        return self.comment_case.filter(hidden=False).order_by("-created_date")
 
     def set_status(self) -> str:  # noqa: C901
         if self.is_deactivated:

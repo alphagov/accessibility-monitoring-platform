@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 import urllib
 
 from django import forms
@@ -23,6 +23,9 @@ from django.views.generic.list import ListView
 
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
+
+from ..comments.forms import CommentCreateForm, CommentUpdateForm
+from ..comments.models import Comment
 
 from ..common.utils import (
     extract_domain_from_url,
@@ -438,6 +441,71 @@ class CaseQAProcessUpdateView(CaseUpdateView):
             case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-contact-details", kwargs=case_pk)
         return super().get_success_url()
+
+
+class QACommentCreateView(CreateView):
+    """
+    View to create a case
+    """
+
+    model: Type[Comment] = Comment
+    form_class: Type[CommentCreateForm] = CommentCreateForm
+    context_object_name: str = "comment"
+    template_name: str = "cases/forms/qa_add_comment.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        """Create comment"""
+        form: forms.Form = self.form_class(request.POST)  # type: ignore
+        if form.is_valid():
+            self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+            Comment.objects.create(
+                case=self.case,
+                user=self.request.user,
+                body=form.cleaned_data.get("body")
+            )
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(
+                self.get_context_data(form=form)
+            )
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.case.id}
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
+
+
+class QACommentUpdateView(UpdateView):
+    """
+    View to update a comment
+    """
+
+    model: Type[Comment] = Comment
+    form_class: Type[CommentUpdateForm] = CommentUpdateForm
+    context_object_name: str = "comment"
+    template_name: str = "cases/forms/qa_update_comment.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        comment: Comment = form.save(commit=False)
+        if "remove_comment" in self.request.POST:
+            if comment.user.id == self.request.user.id:  # type: ignore
+                comment.hidden = True
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.object.case.id}  # type: ignore
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
 
 
 class CaseContactFormsetUpdateView(CaseUpdateView):

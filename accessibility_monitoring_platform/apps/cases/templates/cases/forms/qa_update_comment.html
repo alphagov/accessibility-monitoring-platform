@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ case.organisation_name }} | Edit or delete comment{% endblock %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' comment.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-process' comment.case.id %}">QA process</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Edit or delete comment
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Edit or delete comment' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'cases:edit-qa-comment' comment.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Update comment and exit"
+                                name="add"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'cases:edit-qa-process' comment.case.id %}?discussion=open#qa-discussion"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                            <input
+                                type="submit"
+                                value="Remove comment"
+                                name="remove_comment"
+                                class="govuk-button govuk-button--warning"
+                                data-module="govuk-button"
+                            />
+                            </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-process' case=comment.case %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

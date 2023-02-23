@@ -39,6 +39,13 @@
                         class="govuk-button"
                         data-module="govuk-button"
                     />
+                    <input
+                        type="submit"
+                        value="Remove comment"
+                        name="remove_comment"
+                        class="govuk-button govuk-button--warning"
+                        data-module="govuk-button"
+                    />
                     <a
                         href="{% url 'cases:edit-qa-process' comment.case.id %}?discussion=open#qa-discussion"
                         class="govuk-link govuk-link--no-visited-state"

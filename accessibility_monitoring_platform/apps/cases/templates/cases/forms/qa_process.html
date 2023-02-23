@@ -71,21 +71,15 @@
                                 </summary>
                                 <div class="govuk-details__text">
                                     <p class="govuk-body-m">
-                                        <a href="{% url 'comments:create-comment' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        <a href="{% url 'cases:add-qa-comment' case.id %}" class="govuk-button govuk-button--secondary amp-margin-bottom-0">
                                             Add comment</a>
                                     </p>
                                     {% for comment in case.qa_comments %}
-                                        <p class="govuk-body">
-                                            <b class="govuk-body-l govuk-!-font-weight-bold">{{ comment.user.first_name }} {{ comment.user.last_name }} </b>
-                                            on {{ comment.created_date|amp_datetime }}
-                                        </p>
-                                        <div class="govuk-body">
-                                            {{ comment.body|markdown_to_html }}
-                                        </div>
+                                        {% include "comments/helpers/comment.html" %}
                                         {% if request.user == comment.user  %}
                                             <p class="govuk-body-m">
-                                                <a href="{% url 'comments:update-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
-                                                    Edit comment</a>
+                                                <a href="{% url 'cases:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                    Edit or delete comment</a>
                                             </p>
                                         {% endif %}
                                     {% endfor %}

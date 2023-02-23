@@ -6,12 +6,24 @@ from ..common.forms import AMPTextField
 from .models import Comment
 
 
-class CommentForm(forms.ModelForm):
+class CommentCreateForm(forms.ModelForm):
     """
-    Form for creating or updating a comment
+    Form for creating a comment
     """
 
-    body: AMPTextField = AMPTextField(label="Enter your comment")
+    body: AMPTextField = AMPTextField(label="Add comment")
+
+    class Meta:
+        model = Comment
+        fields = ["body"]
+
+
+class CommentUpdateForm(forms.ModelForm):
+    """
+    Form for updating a comment
+    """
+
+    body: AMPTextField = AMPTextField(label="Edit comment")
 
     class Meta:
         model = Comment
