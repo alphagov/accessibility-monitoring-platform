@@ -460,27 +460,20 @@ class QACommentCreateView(CreateView):
         context["case"] = self.case
         return context
 
-    def post(
-        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
-    ) -> Union[HttpResponseRedirect, HttpResponse]:
-        """Create comment"""
-        form: forms.Form = self.form_class(request.POST)  # type: ignore
-        if form.is_valid():
-            self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
-            Comment.objects.create(
-                case=self.case,
-                user=self.request.user,
-                body=form.cleaned_data.get("body")
-            )
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            return self.render_to_response(
-                self.get_context_data(form=form)
-            )
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        comment: Comment = Comment.objects.create(
+            case=self.case,
+            user=self.request.user,
+            body=form.cleaned_data.get("body")
+        )
+        record_model_create_event(user=self.request.user, model_object=comment)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.case.id}
+        case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
         return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
 
 
@@ -500,6 +493,7 @@ class QACommentUpdateView(UpdateView):
         if "remove_comment" in self.request.POST:
             if comment.user.id == self.request.user.id:  # type: ignore
                 comment.hidden = True
+        record_model_update_event(user=self.request.user, model_object=comment)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
