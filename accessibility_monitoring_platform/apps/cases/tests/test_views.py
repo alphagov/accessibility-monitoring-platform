@@ -628,7 +628,6 @@ def test_updating_case_creates_case_event(admin_client):
 
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
-    # pylint: disable=line-too-long
     assert (
         case_event.message
         == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
@@ -770,6 +769,11 @@ def test_add_qa_comment(admin_client, admin_user):
     assert comment.body == QA_COMMENT_BODY
     assert comment.user == admin_user
 
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == EVENT_TYPE_MODEL_CREATE
+
 
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
     """Test adding a QA comment redirects to QA process page"""
@@ -813,6 +817,7 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
         reverse(comment_edit_path, kwargs={"pk": comment.id}),
         {
             button_name: "Button value",
+            "body": "new body text",
         },
     )
     assert response.status_code == 302
@@ -820,6 +825,11 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
         response.url
         == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?discussion=open#qa-discussion'
     )
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == EVENT_TYPE_MODEL_UPDATE
 
 
 def test_qa_comment_removal(admin_client, admin_user):

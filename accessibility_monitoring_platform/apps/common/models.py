@@ -2,6 +2,9 @@
 Models for common data used across project
 """
 from typing import Dict, List, Tuple
+
+import json
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -143,6 +146,36 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["-created"]
+
+    @property
+    def old(self):
+        """Return old values of fields"""
+        value_dict = json.loads(self.value)
+        if "old" in value_dict:
+            return json.loads(value_dict["old"])[0]["fields"]
+        return ""
+
+    @property
+    def new(self):
+        """Return new values of fields"""
+        return json.loads(json.loads(self.value).get("new", ""))[0]["fields"]
+
+    @property
+    def diff(self):
+        """Return differences between old and new values of fields"""
+        if self.old == "":
+            return self.new
+        diff = {}
+        for key in self.new:
+            if key in self.old:
+                if self.old[key] != self.new[key]:
+                    diff[key] = f"{self.old[key]} -> {self.new[key]}"
+            else:
+                diff[key] = f"-> {self.new[key]}"
+        for key in self.old:
+            if key not in self.new:
+                diff[key] = f"{self.old[key]} ->"
+        return diff
 
 
 class VersionModel(models.Model):
