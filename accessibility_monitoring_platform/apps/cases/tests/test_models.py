@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 from typing import List
 
 from ..models import Case, Contact
+from ...comments.models import Comment
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
@@ -285,3 +286,20 @@ def test_case_save_increments_version():
     case.save()
 
     assert case.version == old_version + 1
+
+
+@pytest.mark.django_db
+def test_qa_comments():
+    """
+    Test the QA comments are returned in most recently created order
+    """
+    case: Case = Case.objects.create()
+    Comment.objects.create(case=case, hidden=True)
+    comment1: Comment = Comment.objects.create(case=case)
+    comment2: Comment = Comment.objects.create(case=case)
+
+    comments: List[Contact] = case.qa_comments
+
+    assert len(comments) == 2
+    assert comments[0].id == comment2.id
+    assert comments[1].id == comment1.id

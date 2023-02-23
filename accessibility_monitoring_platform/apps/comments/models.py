@@ -49,7 +49,6 @@ class CommentHistory(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name: str = "Comment history"
         verbose_name_plural: str = "Comment histories"
 
     def __str__(self) -> str:

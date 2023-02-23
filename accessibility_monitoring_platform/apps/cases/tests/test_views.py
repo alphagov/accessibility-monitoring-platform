@@ -18,6 +18,7 @@ from django.urls import reverse
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
+from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
     Event,
@@ -99,6 +100,7 @@ case_columns_to_export_str: str = ",".join(
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
+QA_COMMENT_BODY: str = "QA comment body"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -748,6 +750,113 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     )
     assert response.status_code == 302
     assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+def test_add_qa_comment(admin_client, admin_user):
+    """Test adding a QA comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+
+def test_add_qa_comment_redirects_to_qa_process(admin_client):
+    """Test adding a QA comment redirects to QA process page"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+    )
+
+
+@pytest.mark.parametrize(
+    "comment_edit_path, button_name, expected_redirect_path",
+    [
+        ("cases:edit-qa-comment", "save_return", "cases:edit-qa-process"),
+        ("cases:edit-qa-comment", "remove_comment", "cases:edit-qa-process"),
+    ],
+)
+def test_edit_qa_comment_redirects_based_on_button_pressed(
+    comment_edit_path,
+    button_name,
+    expected_redirect_path,
+    admin_client,
+):
+    """
+    Test that a successful case update redirects based on the button pressed
+    when the case testing methodology is platform
+    """
+    case: Case = Case.objects.create()
+    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
+    comment: Comment = Comment.objects.create(case=case, user=user)
+
+    response: HttpResponse = admin_client.post(
+        reverse(comment_edit_path, kwargs={"pk": comment.id}),
+        {
+            button_name: "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+    )
+
+
+def test_qa_comment_removal(admin_client, admin_user):
+    """Test removing QA comment by hiding it"""
+    case: Case = Case.objects.create()
+    comment: Comment = Comment.objects.create(case=case, user=admin_user)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comment", kwargs={"pk": case.id}),
+        {
+            "remove_comment": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.hidden is True
+
+
+def test_qa_comment_removal_not_allowed(admin_client):
+    """Test other users cannot hide QA comment"""
+    case: Case = Case.objects.create()
+    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
+    comment: Comment = Comment.objects.create(case=case, user=user)
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-comment", kwargs={"pk": case.id}),
+        {
+            "remove_comment": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.hidden is False
 
 
 def test_add_contact_form_appears(admin_client):
@@ -2464,6 +2573,23 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assert response.status_code == 200
     assertNotContains(response, "Link to final PDF report")
     assertNotContains(response, "Link to final ODT report")
+
+
+def test_qa_process_opens_discussion(admin_client):
+    """
+    Test that the QA process page opens the discussion details element
+    by default.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<details class="govuk-details" data-module="govuk-details" open>'
+    )
 
 
 def test_report_corespondence_shows_link_to_create_report(admin_client):
