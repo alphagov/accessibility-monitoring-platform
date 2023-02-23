@@ -1,7 +1,6 @@
 """Admin - admin page for comments"""
 from django.contrib import admin
 
-# Register your models here.
 from .models import Comment, CommentHistory
 
 
@@ -12,18 +11,14 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = [
         "case__organisation_name",
         "user__username",
-        "page",
         "body",
         "hidden",
-        "path",
     ]
     list_display = [
         "case",
         "user",
-        "page",
         "body",
         "hidden",
-        "path",
     ]
 
 

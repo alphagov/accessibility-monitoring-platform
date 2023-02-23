@@ -266,5 +266,9 @@ def get_report_visits_metrics(case: Case) -> Dict[str, str]:
     """Returns the visit metrics for reports"""
     return {
         "number_of_visits": case.reportvisitsmetrics_set.all().count(),
-        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list("fingerprint_hash").distinct().count(),
+        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list(
+            "fingerprint_hash"
+        )
+        .distinct()
+        .count(),
     }

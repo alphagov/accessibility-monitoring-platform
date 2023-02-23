@@ -22,17 +22,13 @@ class Comment(models.Model):
         blank=True,
         null=True,
     )
-    page = models.TextField(blank=True)
     body = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
-    path = models.TextField(default="", blank=True)
 
     class Meta:
         ordering: List[str] = ["created_date"]
-        verbose_name: str = "Comment"
-        verbose_name_plural: str = "Comments"
 
     def __str__(self) -> str:
         return f"Comment {self.body} by {self.user}"

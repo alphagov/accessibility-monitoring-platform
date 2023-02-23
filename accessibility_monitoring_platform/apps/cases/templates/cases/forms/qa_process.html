@@ -2,8 +2,6 @@
 
 {% load notifications %}
 
-{% load comments %}
-
 {% block title %}{{ case.organisation_name }} | QA process{% endblock %}
 
 {% block content %}
@@ -121,7 +119,6 @@
                         Submitting a comment does not save any changes in the above fields.
                     </strong>
                 </div>
-                {% comments_app request=request case=case %}
                 {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">

@@ -76,8 +76,12 @@ NO_ACCESSIBILITY_STATEMENT_ON_RETEST: str = """<p class="govuk-body-m">
     if the organisation has added a statement to their website.
 </p>"""
 NO_12_WEEK_STATEMENT_ON_RETEST_TEXT: str = "The statement assessment is not visible, as no statement was found during the initial test."
-ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = "https://example.com/12-week-accessibility-statement"
-TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT: str = "The statement was appended during the 12-week retest."
+ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = (
+    "https://example.com/12-week-accessibility-statement"
+)
+TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT: str = (
+    "The statement was appended during the 12-week retest."
+)
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
 
@@ -387,12 +391,12 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-audit-12-week-statement",
             "save",
-            "audits:edit-audit-12-week-statement"
+            "audits:edit-audit-12-week-statement",
         ),
         (
             "audits:edit-audit-12-week-statement",
             "save_return",
-            "audits:edit-audit-retest-statement-1"
+            "audits:edit-audit-retest-statement-1",
         ),
         (
             "audits:edit-audit-retest-statement-2",
@@ -633,7 +637,9 @@ def test_add_extra_page(admin_client):
     )
     assert response.status_code == 200
 
-    extra_pages: List[Page] = list(Page.objects.filter(audit=audit, page_type=PAGE_TYPE_EXTRA))
+    extra_pages: List[Page] = list(
+        Page.objects.filter(audit=audit, page_type=PAGE_TYPE_EXTRA)
+    )
 
     assert len(extra_pages) == 1
     assert extra_pages[0].name == EXTRA_PAGE_NAME
@@ -960,9 +966,7 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
         "audits:edit-audit-retest-statement-2",
     ],
 )
-def test_12_week_statement_page_shown_on_retest(
-    url_name, admin_client
-):
+def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     """
     Test that option to add 12-week accessibility statement shown.
     """

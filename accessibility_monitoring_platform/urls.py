@@ -39,7 +39,6 @@ urlpatterns = [
     path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
-    path("comments/", include("accessibility_monitoring_platform.apps.comments.urls")),
     path(
         "notifications/",
         include("accessibility_monitoring_platform.apps.notifications.urls"),

@@ -26,6 +26,7 @@ from ..reports.utils import get_report_visits_metrics
 
 from ..comments.forms import CommentCreateForm, CommentUpdateForm
 from ..comments.models import Comment
+from ..comments.utils import add_comment_notification
 
 from ..common.utils import (
     extract_domain_from_url,
@@ -464,11 +465,10 @@ class QACommentCreateView(CreateView):
         """Process contents of valid form"""
         self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
         comment: Comment = Comment.objects.create(
-            case=self.case,
-            user=self.request.user,
-            body=form.cleaned_data.get("body")
+            case=self.case, user=self.request.user, body=form.cleaned_data.get("body")
         )
         record_model_create_event(user=self.request.user, model_object=comment)
+        add_comment_notification(self.request, comment)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
@@ -516,7 +516,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(is_deleted=False)
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(
+                is_deleted=False
+            )
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
@@ -535,9 +537,13 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 if not contact.case_id:
                     contact.case = case
                     contact.save()
-                    record_model_create_event(user=self.request.user, model_object=contact)
+                    record_model_create_event(
+                        user=self.request.user, model_object=contact
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=contact)
+                    record_model_update_event(
+                        user=self.request.user, model_object=contact
+                    )
                     contact.save()
         else:
             return super().form_invalid(form)
@@ -548,7 +554,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_id_to_delete is not None:
             contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
             contact_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=contact_to_delete)
+            record_model_update_event(
+                user=self.request.user, model_object=contact_to_delete
+            )
             contact_to_delete.save()
         return super().form_valid(form)
 

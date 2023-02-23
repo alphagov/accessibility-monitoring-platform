@@ -111,6 +111,4 @@ class UserUpdateView(UpdateView):
         email_device.save()
 
         messages.success(self.request, "Successfully saved details!")
-        return HttpResponseRedirect(
-            reverse("users:edit-user", kwargs={"pk": user.id})
-        )
+        return HttpResponseRedirect(reverse("users:edit-user", kwargs={"pk": user.id}))

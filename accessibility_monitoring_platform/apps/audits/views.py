@@ -363,7 +363,9 @@ class AuditPagesUpdateView(AuditUpdateView):
         if page_id_to_delete is not None:
             page_to_delete: Page = Page.objects.get(id=page_id_to_delete)
             page_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=page_to_delete)
+            record_model_update_event(
+                user=self.request.user, model_object=page_to_delete
+            )
             page_to_delete.save()
 
         return super().form_valid(form)
@@ -612,9 +614,7 @@ class AuditSummaryUpdateView(AuditUpdateView):
         get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
         context["audit_statement_rows"] = get_rows(
             form=AuditStatement1UpdateForm()
-        ) + get_rows(
-            form=AuditStatement2UpdateForm()
-        )
+        ) + get_rows(form=AuditStatement2UpdateForm())
 
         return context
 
