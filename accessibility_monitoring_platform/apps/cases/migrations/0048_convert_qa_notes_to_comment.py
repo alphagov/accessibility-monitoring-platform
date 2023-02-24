@@ -15,16 +15,16 @@ def convert_qa_notes_to_comments(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     """Convert reviewer notes on case into comment"""
+    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+        # This process goes haywire when db is empty (e.g. setting up test env)
+        return
+
     Case = apps.get_model("cases", "Case")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
-        # This process goes haywire when using sqlite (e.g. setting up test env)
-        comment_contenttype_id = 45
-    else:
-        ContentType = apps.get_model("contenttypes", "contenttype")
-        comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
-        comment_contenttype_id = comment_contenttype.id
+    ContentType = apps.get_model("contenttypes", "contenttype")
+    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+    comment_contenttype_id = comment_contenttype.id
 
     for case in Case.objects.exclude(reviewer_notes=""):
         comment = Comment.objects.create(
@@ -48,6 +48,10 @@ def convert_comments_to_qa_notes(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     """Convert comments created above back into review notes on case"""
+    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+        # This process goes haywire when db is empty (e.g. setting up test env)
+        return
+
     Event = apps.get_model("common", "Event")
     Comment = apps.get_model("comments", "Comment")
     ContentType = apps.get_model("contenttypes", "contenttype")
