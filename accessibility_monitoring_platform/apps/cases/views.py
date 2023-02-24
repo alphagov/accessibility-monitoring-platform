@@ -3,7 +3,7 @@ Views for cases app
 """
 from datetime import date, timedelta
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 import urllib
 
 from django import forms
@@ -24,7 +24,7 @@ from django.views.generic.list import ListView
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
-from ..comments.forms import CommentCreateForm, CommentUpdateForm
+from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 
@@ -474,31 +474,6 @@ class QACommentCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
-
-
-class QACommentUpdateView(UpdateView):
-    """
-    View to update a comment
-    """
-
-    model: Type[Comment] = Comment
-    form_class: Type[CommentUpdateForm] = CommentUpdateForm
-    context_object_name: str = "comment"
-    template_name: str = "cases/forms/qa_update_comment.html"
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        comment: Comment = form.save(commit=False)
-        if "remove_comment" in self.request.POST:
-            if comment.user.id == self.request.user.id:  # type: ignore
-                comment.hidden = True
-        record_model_update_event(user=self.request.user, model_object=comment)
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        case_pk: Dict[str, int] = {"pk": self.object.case.id}  # type: ignore
         return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
 
 

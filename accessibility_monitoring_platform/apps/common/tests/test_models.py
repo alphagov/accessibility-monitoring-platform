@@ -39,10 +39,25 @@ REMOVE_FIELD_DIFF: str = {"field2": "value2 ->"}
 @pytest.mark.parametrize(
     "value, old_fields, new_fields, diff",
     [
-        (CHANGED_FIELD_VALUE, CHANGED_FIELD_OLD_FIELDS, CHANGED_FIELD_NEW_FIELDS, CHANGED_FIELD_DIFF),
-        (CREATE_ROW_VALUE, CREATE_ROW_OLD_FIELDS, CREATE_ROW_NEW_FIELDS, CREATE_ROW_NEW_FIELDS),
+        (
+            CHANGED_FIELD_VALUE,
+            CHANGED_FIELD_OLD_FIELDS,
+            CHANGED_FIELD_NEW_FIELDS,
+            CHANGED_FIELD_DIFF,
+        ),
+        (
+            CREATE_ROW_VALUE,
+            CREATE_ROW_OLD_FIELDS,
+            CREATE_ROW_NEW_FIELDS,
+            CREATE_ROW_NEW_FIELDS,
+        ),
         (ADD_FIELD_VALUE, ADD_FIELD_OLD_FIELDS, ADD_FIELD_NEW_FIELDS, ADD_FIELD_DIFF),
-        (REMOVE_FIELD_VALUE, REMOVE_FIELD_OLD_FIELDS, REMOVE_FIELD_NEW_FIELDS, REMOVE_FIELD_DIFF),
+        (
+            REMOVE_FIELD_VALUE,
+            REMOVE_FIELD_OLD_FIELDS,
+            REMOVE_FIELD_NEW_FIELDS,
+            REMOVE_FIELD_DIFF,
+        ),
     ],
 )
 def test_event_diff(value, old_fields, new_fields, diff):

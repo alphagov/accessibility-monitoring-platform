@@ -5,8 +5,8 @@ import pytest
 from datetime import date, datetime, timedelta
 from typing import List
 
-from ..models import Case, Contact
 from ...comments.models import Comment
+from ..models import Case, Contact
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"

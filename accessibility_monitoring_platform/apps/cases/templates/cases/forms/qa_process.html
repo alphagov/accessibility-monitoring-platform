@@ -76,7 +76,7 @@
                                         {% include "comments/helpers/comment.html" %}
                                         {% if request.user == comment.user  %}
                                             <p class="govuk-body-m">
-                                                <a href="{% url 'cases:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
                                                     Edit or delete comment</a>
                                             </p>
                                         {% endif %}

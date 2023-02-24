@@ -3,7 +3,6 @@
 {% block title %}{{ case.organisation_name }} | Edit or delete comment{% endblock %}
 
 {% block content %}
-
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
@@ -30,7 +29,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'cases:edit-qa-comment' comment.id %}">
+                <form method="post" action="{% url 'comments:edit-qa-comment' comment.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
