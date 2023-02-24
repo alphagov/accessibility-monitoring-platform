@@ -5,14 +5,15 @@ import json
 from django.core import serializers
 from django.db import migrations
 
-COMMENT_CONTENTTYPE_ID: int = 45
-
 
 def convert_comment_history(apps, schema_editor):  # pylint: disable=unused-argument
     """Convert comment history objects into events"""
     CommentHistory = apps.get_model("comments", "CommentHistory")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
+    ContentType = apps.get_model("contenttypes", "contenttype")
+    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+    comment_contenttype_id = comment_contenttype.id
 
     for comment_history in CommentHistory.objects.all():
         value: Dict[str, str] = {}
@@ -26,7 +27,7 @@ def convert_comment_history(apps, schema_editor):  # pylint: disable=unused-argu
 
         event = Event.objects.create(
             created_by=comment_history.comment.user,
-            content_type_id=COMMENT_CONTENTTYPE_ID,
+            content_type_id=comment_contenttype_id,
             object_id=comment_history.comment.id,
             value=json.dumps(value),
         )
@@ -36,14 +37,19 @@ def convert_comment_history(apps, schema_editor):  # pylint: disable=unused-argu
 
 def delete_comment_events(apps, schema_editor):  # pylint: disable=unused-argument
     """Delete comment events"""
+    ContentType = apps.get_model("contenttypes", "contenttype")
+    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+    comment_contenttype_id = comment_contenttype.id
     Event = apps.get_model("common", "Event")
-    Event.objects.filter(content_type_id=COMMENT_CONTENTTYPE_ID).delete()
+
+    Event.objects.filter(content_type_id=comment_contenttype_id).delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ("comments", "0006_alter_comment_options_remove_comment_page_and_more"),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [

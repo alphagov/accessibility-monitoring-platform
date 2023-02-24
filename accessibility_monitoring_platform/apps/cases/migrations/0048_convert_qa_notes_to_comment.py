@@ -6,7 +6,6 @@ import json
 from django.core import serializers
 from django.db import migrations
 
-COMMENT_CONTENTTYPE_ID: int = 45
 EVENT_TYPE_MODEL_CREATE: str = "model_create"
 COMMENT_PREFIX: str = "QA NOTES CONVERTED TO COMMENT\n\n"
 
@@ -18,6 +17,9 @@ def convert_qa_notes_to_comments(
     Case = apps.get_model("cases", "Case")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
+    ContentType = apps.get_model("contenttypes", "contenttype")
+    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+    comment_contenttype_id = comment_contenttype.id
 
     for case in Case.objects.exclude(reviewer_notes=""):
         comment = Comment.objects.create(
@@ -30,7 +32,7 @@ def convert_qa_notes_to_comments(
         value["new"] = serializers.serialize("json", [comment])
         Event.objects.create(
             created_by=case.auditor,
-            content_type_id=COMMENT_CONTENTTYPE_ID,
+            content_type_id=comment_contenttype_id,
             object_id=comment.id,
             value=json.dumps(value),
             type=EVENT_TYPE_MODEL_CREATE,
@@ -43,9 +45,12 @@ def convert_comments_to_qa_notes(
     """Convert comments created above back into review notes on case"""
     Event = apps.get_model("common", "Event")
     Comment = apps.get_model("comments", "Comment")
+    ContentType = apps.get_model("contenttypes", "contenttype")
+    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+    comment_contenttype_id = comment_contenttype.id
 
     for event in Event.objects.filter(
-        content_type_id=COMMENT_CONTENTTYPE_ID, type=EVENT_TYPE_MODEL_CREATE
+        content_type_id=comment_contenttype_id, type=EVENT_TYPE_MODEL_CREATE
     ):
         comment = Comment.objects.get(id=event.object_id)
         case = comment.case
@@ -61,6 +66,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("cases", "0047_alter_case_qa_status"),
         ("comments", "0008_delete_commenthistory"),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
