@@ -2,17 +2,16 @@
 from typing import Dict
 import json
 
-from django.conf import settings
 from django.core import serializers
 from django.db import migrations
 
 
 def convert_comment_history(apps, schema_editor):  # pylint: disable=unused-argument
     """Convert comment history objects into events"""
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    CommentHistory = apps.get_model("comments", "CommentHistory")
+    if CommentHistory.objects.all().count() == 0:
         # This process goes haywire when db is empty (e.g. setting up test env)
         return
-    CommentHistory = apps.get_model("comments", "CommentHistory")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
     ContentType = apps.get_model("contenttypes", "contenttype")
@@ -41,9 +40,6 @@ def convert_comment_history(apps, schema_editor):  # pylint: disable=unused-argu
 
 def delete_comment_events(apps, schema_editor):  # pylint: disable=unused-argument
     """Delete comment events"""
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
-        # This process goes haywire when db is empty (e.g. setting up test env)
-        return
     ContentType = apps.get_model("contenttypes", "contenttype")
     comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
     comment_contenttype_id = comment_contenttype.id

@@ -3,7 +3,6 @@
 from typing import Dict
 import json
 
-from django.conf import settings
 from django.core import serializers
 from django.db import migrations
 
@@ -15,11 +14,10 @@ def convert_qa_notes_to_comments(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     """Convert reviewer notes on case into comment"""
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    Case = apps.get_model("cases", "Case")
+    if Case.objects.all().count() == 0:
         # This process goes haywire when db is empty (e.g. setting up test env)
         return
-
-    Case = apps.get_model("cases", "Case")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
     ContentType = apps.get_model("contenttypes", "contenttype")
@@ -48,10 +46,6 @@ def convert_comments_to_qa_notes(
     apps, schema_editor
 ):  # pylint: disable=unused-argument
     """Convert comments created above back into review notes on case"""
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
-        # This process goes haywire when db is empty (e.g. setting up test env)
-        return
-
     Event = apps.get_model("common", "Event")
     Comment = apps.get_model("comments", "Comment")
     ContentType = apps.get_model("contenttypes", "contenttype")
