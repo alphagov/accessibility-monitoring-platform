@@ -2,7 +2,6 @@
 
 const organisationName = 'ExampleCorp'
 const caseDetailsNote = 'Case details note'
-const qaProcessNote = 'QA process note'
 const contactName = 'Example Contact 2'
 const contactEmail = 'example2@example.com'
 const zendeskUrl = 'https://zendesk.com/url'
@@ -48,11 +47,9 @@ describe('View case', () => {
     cy.contains('a', 'Edit QA process').click()
     cy.get('[name="report_review_status"]').check('ready-to-review')
     cy.get('#id_reviewer').select('QA Auditor')
-    cy.get('[name="reviewer_notes"]').clear().type(qaProcessNote)
     cy.get('[name="qa_process_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('Case').click()
-    cy.contains(qaProcessNote)
   })
 
   it('can edit contact details', () => {

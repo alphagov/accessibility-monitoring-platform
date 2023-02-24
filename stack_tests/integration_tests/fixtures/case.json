@@ -35,7 +35,6 @@
         "report_review_status": "ready-to-review",
         "reviewer": 2,
         "report_approved_status": "yes",
-        "reviewer_notes": "",
         "report_final_pdf_url": "",
         "report_final_odt_url": "",
         "qa_process_complete_date": null,
