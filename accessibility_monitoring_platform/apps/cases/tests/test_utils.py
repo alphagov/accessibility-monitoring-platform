@@ -445,7 +445,6 @@ def test_download_cases():
             "",
             "",
             "",
-            "",
             "No",
             "",
             "",
