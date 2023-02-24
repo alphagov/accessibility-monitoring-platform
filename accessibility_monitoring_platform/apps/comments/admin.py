@@ -21,4 +21,5 @@ class CommentAdmin(admin.ModelAdmin):
         "hidden",
     ]
 
+
 admin.site.register(Comment, CommentAdmin)

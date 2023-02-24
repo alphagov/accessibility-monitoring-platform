@@ -148,7 +148,7 @@ class Event(models.Model):
         ordering = ["-created"]
 
     @property
-    def old(self):
+    def old_fields(self):
         """Return old values of fields"""
         value_dict = json.loads(self.value)
         if "old" in value_dict:
@@ -156,25 +156,25 @@ class Event(models.Model):
         return ""
 
     @property
-    def new(self):
+    def new_fields(self):
         """Return new values of fields"""
         return json.loads(json.loads(self.value).get("new", ""))[0]["fields"]
 
     @property
     def diff(self):
         """Return differences between old and new values of fields"""
-        if self.old == "":
-            return self.new
+        if self.old_fields == "":
+            return self.new_fields
         diff = {}
-        for key in self.new:
-            if key in self.old:
-                if self.old[key] != self.new[key]:
-                    diff[key] = f"{self.old[key]} -> {self.new[key]}"
+        for key in self.new_fields:
+            if key in self.old_fields:
+                if self.old_fields[key] != self.new_fields[key]:
+                    diff[key] = f"{self.old_fields[key]} -> {self.new_fields[key]}"
             else:
-                diff[key] = f"-> {self.new[key]}"
-        for key in self.old:
-            if key not in self.new:
-                diff[key] = f"{self.old[key]} ->"
+                diff[key] = f"-> {self.new_fields[key]}"
+        for key in self.old_fields:
+            if key not in self.new_fields:
+                diff[key] = f"{self.old_fields[key]} ->"
         return diff
 
 

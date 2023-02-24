@@ -47,5 +47,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(convert_comment_history, reverse_code=delete_comment_events),
+        migrations.RunPython(
+            convert_comment_history, reverse_code=delete_comment_events
+        ),
     ]

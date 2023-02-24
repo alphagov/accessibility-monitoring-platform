@@ -46,8 +46,8 @@ class EventAdmin(admin.ModelAdmin):
         "value",
         "created",
         "created_by",
-        "old",
-        "new",
+        "old_fields",
+        "new_fields",
         "diff",
     ]
     search_fields = ["value", "created_by__username"]
@@ -68,8 +68,8 @@ class EventAdmin(admin.ModelAdmin):
                     ("content_type", "object_id"),
                     ("created_by", "created"),
                     ("diff",),
-                    ("old",),
-                    ("new",),
+                    ("old_fields",),
+                    ("new_fields",),
                     ("value",),
                 )
             },
