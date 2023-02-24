@@ -3,6 +3,7 @@
 from typing import Dict
 import json
 
+from django.conf import settings
 from django.core import serializers
 from django.db import migrations
 
@@ -17,9 +18,13 @@ def convert_qa_notes_to_comments(
     Case = apps.get_model("cases", "Case")
     Comment = apps.get_model("comments", "Comment")
     Event = apps.get_model("common", "Event")
-    ContentType = apps.get_model("contenttypes", "contenttype")
-    comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
-    comment_contenttype_id = comment_contenttype.id
+    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+        # This process goes haywire when using sqlite (e.g. setting up test env)
+        comment_contenttype_id = 45
+    else:
+        ContentType = apps.get_model("contenttypes", "contenttype")
+        comment_contenttype = ContentType.objects.get(app_label="comments", model="comment")
+        comment_contenttype_id = comment_contenttype.id
 
     for case in Case.objects.exclude(reviewer_notes=""):
         comment = Comment.objects.create(
