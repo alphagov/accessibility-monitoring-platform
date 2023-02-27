@@ -35,7 +35,7 @@
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
-                        <div class="govuk-grid-column-full govuk-button-group">
+                        <div class="govuk-grid-column-two-thirds govuk-button-group">
                             <input
                                 type="submit"
                                 value="Update comment and exit"
@@ -49,14 +49,16 @@
                             >
                                 Cancel
                             </a>
-                            <input
+                        </div>
+                        <div class="govuk-grid-column-one-third govuk-button-group amp-flex-end amp-padding-right-0">
+                                <input
                                 type="submit"
                                 value="Remove comment"
                                 name="remove_comment"
-                                class="govuk-button govuk-button--warning"
+                                class="govuk-button govuk-button--warning amp-margin-right-0"
                                 data-module="govuk-button"
                             />
-                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
