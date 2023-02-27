@@ -598,6 +598,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
+    enforcement_retest_document_url = AMPURLField(label="External retest document")
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -607,6 +608,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
+            "enforcement_retest_document_url",
             "enforcement_correspondence_complete_date",
         ]
 
