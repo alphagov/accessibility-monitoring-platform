@@ -9,7 +9,6 @@ from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
 from django.template.loader import get_template
 
-from ....common.utils import list_to_dictionary_of_lists
 from ...models import Reminder
 
 
@@ -29,9 +28,14 @@ class Command(BaseCommand):
         """
         Find reminders due today, group them by user, and email them to their user.
         """
-        reminders_by_user: Dict[User, List[Reminder]] = list_to_dictionary_of_lists(
-            items=Reminder.objects.filter(due_date=date.today()), group_by_attr="user"
-        )
+        reminders: Reminder = Reminder.objects.filter(due_date=date.today())
+        reminders_by_user: Dict[User, List[Reminder]] = {}
+        for reminder in reminders:
+            user: User = reminder.case.auditor
+            if user in reminders_by_user:
+                reminders_by_user[user].append(reminder)
+            else:
+                reminders_by_user[user] = [reminder]
 
         for user, user_reminders in reminders_by_user.items():
             context: EmailContextType = {

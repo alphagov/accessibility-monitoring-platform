@@ -50,7 +50,7 @@ def test_create_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     assert updated_case.reminder is not None
     assert updated_case.reminder.due_date == REMINDER_DUE_DATE
     assert updated_case.reminder.description == REMINDER_DESCRIPTION
-    assert updated_case.reminder.user == user
+    assert updated_case.reminder.case.auditor == user
 
 
 def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-name
@@ -60,7 +60,6 @@ def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     client, user = client_and_user
     case: Case = Case.objects.create(auditor=user)
     reminder: Reminder = Reminder.objects.create(
-        user=user,
         case=case,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,
@@ -93,14 +92,12 @@ def test_reminders_for_user_listed(
     client, user = client_and_user
     case_1: Case = Case.objects.create(auditor=user)
     Reminder.objects.create(
-        user=user,
         case=case_1,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,
     )
     case_2: Case = Case.objects.create(auditor=user)
     Reminder.objects.create(
-        user=user,
         case=case_2,
         due_date=date.today(),
         description=NEW_REMINDER_DESCRIPTION,
@@ -121,7 +118,6 @@ def test_delete_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     client, user = client_and_user
     case: Case = Case.objects.create(auditor=user)
     reminder: Reminder = Reminder.objects.create(
-        user=user,
         case=case,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,

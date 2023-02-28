@@ -21,18 +21,17 @@ REMINDER_DESCRIPTION_TOMORROW = "Reminder for tomorrow"
 @pytest.mark.django_db
 def test_email_reminders(mailoutbox):
     """Test email reminders command sends email for reminders due today"""
-    case: Case = Case.objects.create()
     user: User = User.objects.create(
         email=USER_EMAIL, first_name=USER_FIRST_NAME, last_name=USER_LAST_NAME
     )
+    case: Case = Case.objects.create(auditor=user)
     today: date = date.today()
     tomorrow: date = today + timedelta(days=1)
     Reminder.objects.create(
-        case=case, user=user, due_date=today, description=REMINDER_DESCRIPTION_TODAY
+        case=case, due_date=today, description=REMINDER_DESCRIPTION_TODAY,
     )
     Reminder.objects.create(
         case=case,
-        user=user,
         due_date=tomorrow,
         description=REMINDER_DESCRIPTION_TOMORROW,
     )
