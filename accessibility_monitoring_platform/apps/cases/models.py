@@ -490,6 +490,7 @@ class Case(VersionModel):
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
+    enforcement_retest_document_url = models.TextField(default="", blank=True)
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
