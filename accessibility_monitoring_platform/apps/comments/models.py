@@ -22,39 +22,13 @@ class Comment(models.Model):
         blank=True,
         null=True,
     )
-    page = models.TextField()
     body = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
-    path = models.TextField(default="")
 
     class Meta:
         ordering: List[str] = ["created_date"]
-        verbose_name: str = "Comment"
-        verbose_name_plural: str = "Comments"
 
     def __str__(self) -> str:
         return f"Comment {self.body} by {self.user}"
-
-
-class CommentHistory(models.Model):
-    """Comment history model"""
-
-    comment = models.ForeignKey(
-        Comment,
-        on_delete=models.PROTECT,
-        related_name="comment",
-        blank=True,
-        null=True,
-    )
-    before = models.TextField()
-    after = models.TextField()
-    created_date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name: str = "Comment history"
-        verbose_name_plural: str = "Comment histories"
-
-    def __str__(self) -> str:
-        return f"Comment {self.before} was updated to {self.after}"

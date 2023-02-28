@@ -365,19 +365,45 @@ def test_group_timeseries_data_by_month():
         date_column_name="case_details_complete_date",
         start_date=datetime(2022, 1, 1),
     ) == [
-        TimeseriesDatapoint(datetime=datetime(2022, 1, 1, tzinfo=timezone.utc), value=3),
-        TimeseriesDatapoint(datetime=datetime(2022, 2, 1, tzinfo=timezone.utc), value=2),
-        TimeseriesDatapoint(datetime=datetime(2022, 3, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 4, 1, tzinfo=timezone.utc), value=1),
-        TimeseriesDatapoint(datetime=datetime(2022, 5, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 6, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 7, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 8, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 9, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 10, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 11, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2022, 12, 1, tzinfo=timezone.utc), value=0),
-        TimeseriesDatapoint(datetime=datetime(2023, 1, 1, tzinfo=timezone.utc), value=0),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 1, 1, tzinfo=timezone.utc), value=3
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 2, 1, tzinfo=timezone.utc), value=2
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 3, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 4, 1, tzinfo=timezone.utc), value=1
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 5, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 6, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 7, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 8, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 9, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 10, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 11, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 12, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2023, 1, 1, tzinfo=timezone.utc), value=0
+        ),
     ]
 
 

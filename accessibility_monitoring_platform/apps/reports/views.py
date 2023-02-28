@@ -220,9 +220,13 @@ class SectionUpdateView(ReportUpdateView):
                         table_row.section = section
                         table_row.row_number = section.tablerow_set.count() + 1
                         table_row.save()
-                        record_model_create_event(user=self.request.user, model_object=table_row)
+                        record_model_create_event(
+                            user=self.request.user, model_object=table_row
+                        )
                     else:
-                        record_model_update_event(user=self.request.user, model_object=table_row)
+                        record_model_update_event(
+                            user=self.request.user, model_object=table_row
+                        )
                         table_row.save()
             else:
                 return super().form_invalid(form)
@@ -324,9 +328,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
         messages.INFO,
         mark_safe("HTML report successfully created!" ""),
     )
-    return redirect(
-        reverse("reports:report-publisher", kwargs={"pk": report.id})
-    )
+    return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
 
 
 class ReportWrapperUpdateView(UpdateView):
