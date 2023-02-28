@@ -448,7 +448,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if self.request.POST:
             contacts_formset = CaseContactFormset(self.request.POST)
         else:
-            contacts: QuerySet[Contact] = self.object.contact_set.filter(is_deleted=False)
+            contacts: QuerySet[Contact] = self.object.contact_set.filter(
+                is_deleted=False
+            )
             if "add_extra" in self.request.GET:
                 contacts_formset = CaseContactFormsetOneExtra(queryset=contacts)
             else:
@@ -467,9 +469,13 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
                 if not contact.case_id:
                     contact.case = case
                     contact.save()
-                    record_model_create_event(user=self.request.user, model_object=contact)
+                    record_model_create_event(
+                        user=self.request.user, model_object=contact
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=contact)
+                    record_model_update_event(
+                        user=self.request.user, model_object=contact
+                    )
                     contact.save()
         else:
             return super().form_invalid(form)
@@ -480,7 +486,9 @@ class CaseContactFormsetUpdateView(CaseUpdateView):
         if contact_id_to_delete is not None:
             contact_to_delete: Contact = Contact.objects.get(id=contact_id_to_delete)
             contact_to_delete.is_deleted = True
-            record_model_update_event(user=self.request.user, model_object=contact_to_delete)
+            record_model_update_event(
+                user=self.request.user, model_object=contact_to_delete
+            )
             contact_to_delete.save()
         return super().form_valid(form)
 

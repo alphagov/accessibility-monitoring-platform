@@ -32,6 +32,8 @@ class Command(BaseCommand):
         reminders_by_user: Dict[User, List[Reminder]] = {}
         for reminder in reminders:
             user: User = reminder.case.auditor
+            if user is None:
+                continue
             if user in reminders_by_user:
                 reminders_by_user[user].append(reminder)
             else:

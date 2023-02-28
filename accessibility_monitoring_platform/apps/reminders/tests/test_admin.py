@@ -43,7 +43,13 @@ def test_reminder_export_as_csv(admin_client):
     rows = list(cvs_reader)
 
     assert len(rows) == 2
-    assert [key for key in rows[0].keys()] == ["id", "case", "due_date", "description", "is_deleted"]
+    assert [key for key in rows[0].keys()] == [
+        "id",
+        "case",
+        "due_date",
+        "description",
+        "is_deleted",
+    ]
     assert rows[0]["due_date"] == str(today)
     assert rows[0]["description"] == REMINDER_DESCRIPTION_2
     assert rows[1]["due_date"] == str(today)

@@ -261,7 +261,9 @@ def get_next_retest_page_url(
         return reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
 
     current_page_position: int = testable_pages_with_errors.index(current_page)
-    next_page_pk: Dict[str, int] = {"pk": testable_pages_with_errors[current_page_position + 1].id}
+    next_page_pk: Dict[str, int] = {
+        "pk": testable_pages_with_errors[current_page_position + 1].id
+    }
     return reverse("audits:edit-audit-retest-page-checks", kwargs=next_page_pk)
 
 

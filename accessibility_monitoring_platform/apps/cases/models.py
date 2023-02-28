@@ -533,7 +533,9 @@ class Case(VersionModel):
 
     @property
     def title(self) -> str:
-        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")
+        return str(
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+        )
 
     @property
     def next_action_due_date(self) -> Optional[date]:

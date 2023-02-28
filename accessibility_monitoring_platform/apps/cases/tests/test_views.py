@@ -123,7 +123,9 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
         is_deleted=True,
     )
 
-    response: HttpResponse = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([undeleted_contact])
@@ -153,7 +155,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search={included_case.id}"
+    )
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
@@ -358,7 +362,9 @@ def test_case_export_list_view_respects_filters(admin_client):
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-export-list')}?auditor={user.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-export-list')}?auditor={user.id}"
+    )
 
     assert response.status_code == 200
     assertContains(response, "Included")
@@ -454,7 +460,9 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
 
@@ -739,10 +747,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
         },
     )
     assert response.status_code == 302
-    assert (
-        response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
-    )
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
 
 
 def test_add_contact_form_appears(admin_client):
@@ -1427,7 +1432,9 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
 
     assertContains(response, "This case does not have a test.")
 
-    edit_test_results_url: str = reverse("cases:edit-test-results", kwargs={"pk": case.id})
+    edit_test_results_url: str = reverse(
+        "cases:edit-test-results", kwargs={"pk": case.id}
+    )
     assertContains(
         response,
         f"""<a href="{edit_test_results_url}"
@@ -1457,7 +1464,9 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     assertContains(response, "This case does not have a retest.")
     assertContains(response, "Click Start retest to move to the testing environment.")
 
-    start_retest_url: str = reverse("audits:audit-retest-start", kwargs={"pk": audit.id})
+    start_retest_url: str = reverse(
+        "audits:audit-retest-start", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{start_retest_url}"
@@ -1485,7 +1494,9 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
 
     assert response.status_code == 200
 
-    view_retest_url: str = reverse("audits:audit-retest-detail", kwargs={"pk": audit.id})
+    view_retest_url: str = reverse(
+        "audits:audit-retest-detail", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{view_retest_url}"
@@ -1569,7 +1580,9 @@ def test_calculate_report_followup_dates():
     case: Case = Case()
     report_sent_date: date = date(2020, 1, 1)
 
-    updated_case = calculate_report_followup_dates(case=case, report_sent_date=report_sent_date)
+    updated_case = calculate_report_followup_dates(
+        case=case, report_sent_date=report_sent_date
+    )
 
     assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
     assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
@@ -2211,7 +2224,9 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     """
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
@@ -2329,7 +2344,9 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
     case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
@@ -2455,7 +2472,9 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
     if one does not exist.
     """
     case: Case = Case.objects.create()
-    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})
+    report_details_url: str = reverse(
+        "cases:edit-report-details", kwargs={"pk": case.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
