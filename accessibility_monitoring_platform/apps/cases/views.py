@@ -24,6 +24,10 @@ from django.views.generic.list import ListView
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
+from ..comments.forms import CommentCreateForm
+from ..comments.models import Comment
+from ..comments.utils import add_comment_notification
+
 from ..common.utils import (
     extract_domain_from_url,
     get_id_from_button_name,
@@ -398,6 +402,12 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add flag to open qa discussion"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["open_discussion"] = self.request.GET.get("discussion")
+        return context
+
     def get_form(self):
         """Hide fields if testing using platform"""
         form = super().get_form()
@@ -432,6 +442,39 @@ class CaseQAProcessUpdateView(CaseUpdateView):
             case_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("cases:edit-contact-details", kwargs=case_pk)
         return super().get_success_url()
+
+
+class QACommentCreateView(CreateView):
+    """
+    View to create a case
+    """
+
+    model: Type[Comment] = Comment
+    form_class: Type[CommentCreateForm] = CommentCreateForm
+    context_object_name: str = "comment"
+    template_name: str = "cases/forms/qa_add_comment.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add undeleted contacts to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        context["case"] = self.case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        self.case = get_object_or_404(Case, id=self.kwargs.get("case_id"))
+        comment: Comment = Comment.objects.create(
+            case=self.case, user=self.request.user, body=form.cleaned_data.get("body")
+        )
+        record_model_create_event(user=self.request.user, model_object=comment)
+        add_comment_notification(self.request, comment)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
 
 
 class CaseContactFormsetUpdateView(CaseUpdateView):

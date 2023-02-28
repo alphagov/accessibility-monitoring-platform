@@ -40,9 +40,25 @@ class ExportCsvMixin:
 class EventAdmin(admin.ModelAdmin):
     """Django admin configuration for Event model"""
 
-    readonly_fields = ["content_type", "object_id", "value", "created", "created_by"]
+    readonly_fields = [
+        "content_type",
+        "object_id",
+        "value",
+        "created",
+        "created_by",
+        "old_fields",
+        "new_fields",
+        "diff",
+    ]
     search_fields = ["value", "created_by__username"]
-    list_display = ["content_type", "object_id", "type", "created", "created_by"]
+    list_display = [
+        "content_type",
+        "object_id",
+        "type",
+        "created",
+        "created_by",
+        "diff",
+    ]
     list_filter = ["type", ("content_type", admin.RelatedOnlyFieldListFilter)]
     fieldsets = (
         (
@@ -51,6 +67,9 @@ class EventAdmin(admin.ModelAdmin):
                 "fields": (
                     ("content_type", "object_id"),
                     ("created_by", "created"),
+                    ("diff",),
+                    ("old_fields",),
+                    ("new_fields",),
                     ("value",),
                 )
             },
