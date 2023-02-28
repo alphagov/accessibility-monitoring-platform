@@ -2,8 +2,6 @@
 
 {% load notifications %}
 
-{% load comments %}
-
 {% block title %}{{ case.organisation_name }} | QA process{% endblock %}
 
 {% block content %}
@@ -62,6 +60,30 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>
+                            <details class="govuk-details" data-module="govuk-details"{% if open_discussion %} open{% endif %}>
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">
+                                        Show QA discussion ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})
+                                    </span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    <p class="govuk-body-m">
+                                        <a href="{% url 'cases:add-qa-comment' case.id %}" class="govuk-button govuk-button--secondary amp-margin-bottom-0">
+                                            Add comment</a>
+                                    </p>
+                                    {% for comment in case.qa_comments %}
+                                        {% include "comments/helpers/comment.html" %}
+                                        {% if request.user == comment.user  %}
+                                            <p class="govuk-body-m">
+                                                <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                    Edit or delete comment</a>
+                                            </p>
+                                        {% endif %}
+                                        <hr class="amp-width-100" />
+                                    {% endfor %}
+                                </div>
+                            </details>
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
                             {% if case.report_methodology == 'platform' and case.report %}
                                 <div class="govuk-form-group">
@@ -79,7 +101,6 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            {% include 'common/amp_field.html' with field=form.reviewer_notes %}
                             {% if case.report_methodology != 'platform' %}
                                 {% include 'common/amp_field.html' with field=form.report_final_odt_url %}
                                 {% include 'common/amp_field.html' with field=form.report_final_pdf_url %}
@@ -91,14 +112,6 @@
                         </div>
                     </div>
                 </form>
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                        <span class="govuk-warning-text__assistive">Warning</span>
-                        Submitting a comment does not save any changes in the above fields.
-                    </strong>
-                </div>
-                {% comments_app request=request case=case %}
                 {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">

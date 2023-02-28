@@ -18,6 +18,7 @@ from django.urls import reverse
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
+from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
     Event,
@@ -99,6 +100,7 @@ case_columns_to_export_str: str = ",".join(
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
+QA_COMMENT_BODY: str = "QA comment body"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
@@ -123,7 +125,9 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
         is_deleted=True,
     )
 
-    response: HttpResponse = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([undeleted_contact])
@@ -153,7 +157,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search={included_case.id}"
+    )
 
     assert response.status_code == 200
     assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
@@ -358,7 +364,9 @@ def test_case_export_list_view_respects_filters(admin_client):
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-export-list')}?auditor={user.id}")
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-export-list')}?auditor={user.id}"
+    )
 
     assert response.status_code == 200
     assertContains(response, "Included")
@@ -454,7 +462,9 @@ def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
 
@@ -618,7 +628,6 @@ def test_updating_case_creates_case_event(admin_client):
 
     case_event: CaseEvent = case_events[0]
     assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
-    # pylint: disable=line-too-long
     assert (
         case_event.message
         == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
@@ -739,9 +748,47 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
         },
     )
     assert response.status_code == 302
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+def test_add_qa_comment(admin_client, admin_user):
+    """Test adding a QA comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == EVENT_TYPE_MODEL_CREATE
+
+
+def test_add_qa_comment_redirects_to_qa_process(admin_client):
+    """Test adding a QA comment redirects to QA process page"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+        },
+    )
+    assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
     )
 
 
@@ -1427,7 +1474,9 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
 
     assertContains(response, "This case does not have a test.")
 
-    edit_test_results_url: str = reverse("cases:edit-test-results", kwargs={"pk": case.id})
+    edit_test_results_url: str = reverse(
+        "cases:edit-test-results", kwargs={"pk": case.id}
+    )
     assertContains(
         response,
         f"""<a href="{edit_test_results_url}"
@@ -1457,7 +1506,9 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     assertContains(response, "This case does not have a retest.")
     assertContains(response, "Click Start retest to move to the testing environment.")
 
-    start_retest_url: str = reverse("audits:audit-retest-start", kwargs={"pk": audit.id})
+    start_retest_url: str = reverse(
+        "audits:audit-retest-start", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{start_retest_url}"
@@ -1485,7 +1536,9 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
 
     assert response.status_code == 200
 
-    view_retest_url: str = reverse("audits:audit-retest-detail", kwargs={"pk": audit.id})
+    view_retest_url: str = reverse(
+        "audits:audit-retest-detail", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{view_retest_url}"
@@ -1569,7 +1622,9 @@ def test_calculate_report_followup_dates():
     case: Case = Case()
     report_sent_date: date = date(2020, 1, 1)
 
-    updated_case = calculate_report_followup_dates(case=case, report_sent_date=report_sent_date)
+    updated_case = calculate_report_followup_dates(
+        case=case, report_sent_date=report_sent_date
+    )
 
     assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
     assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
@@ -2211,7 +2266,9 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     """
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
@@ -2329,7 +2386,9 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
     case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
@@ -2449,13 +2508,32 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assertNotContains(response, "Link to final ODT report")
 
 
+def test_qa_process_opens_discussion(admin_client):
+    """
+    Test that the QA process page opens the discussion details element
+    by default.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<details class="govuk-details" data-module="govuk-details" open>'
+    )
+
+
 def test_report_corespondence_shows_link_to_create_report(admin_client):
     """
     Test that the report correspondence page shows link to create report
     if one does not exist.
     """
     case: Case = Case.objects.create()
-    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})
+    report_details_url: str = reverse(
+        "cases:edit-report-details", kwargs={"pk": case.id}
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),

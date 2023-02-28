@@ -1,287 +1,94 @@
-""" Tests - test for comments view """
+"""
+Tests for comments views
+"""
 import pytest
 
-from typing import Optional
-
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 
-from pytest_django.asserts import assertContains
-
 from ...cases.models import Case
-from ...notifications.models import Notification
+from ...common.models import (
+    Event,
+    EVENT_TYPE_MODEL_UPDATE,
+)
 
-from ..models import Comment, CommentHistory
-from ..views import save_comment_history, add_comment_notification
-from .create_user import create_user, USER_PASSWORD
-
-COMMENT_TEXT: str = "this is a comment"
-UPDATED_COMMENT_TEXT: str = "this is an updated comment"
-NEWER_COMMENT_TEXT: str = "this is a newer comment"
+from ..models import Comment
 
 
-@pytest.mark.django_db
-def test_save_comment_history():
-    """Tests if comment history function saves edited comment in CommentHistory"""
-    user: User = create_user()
-    comment: Comment = Comment(
-        user=user,
-        page="page",
-        body=COMMENT_TEXT,
+@pytest.mark.parametrize(
+    "comment_edit_path, button_name, expected_redirect_path",
+    [
+        ("comments:edit-qa-comment", "save_return", "cases:edit-qa-process"),
+        ("comments:edit-qa-comment", "remove_comment", "cases:edit-qa-process"),
+    ],
+)
+def test_edit_qa_comment_redirects_based_on_button_pressed(
+    comment_edit_path,
+    button_name,
+    expected_redirect_path,
+    admin_client,
+):
+    """
+    Test that a successful case update redirects based on the button pressed
+    when the case testing methodology is platform
+    """
+    case: Case = Case.objects.create()
+    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
+    comment: Comment = Comment.objects.create(case=case, user=user)
+
+    response: HttpResponse = admin_client.post(
+        reverse(comment_edit_path, kwargs={"pk": comment.id}),
+        {
+            button_name: "Button value",
+            "body": "new body text",
+        },
     )
-    comment.save()
-
-    newer_comment: Comment = Comment(
-        id=1,
-        user=user,
-        page="page",
-        body=NEWER_COMMENT_TEXT,
-    )
-
-    result: bool = save_comment_history(comment=newer_comment)
-    assert result
-
-    comment_history: Optional[CommentHistory] = CommentHistory.objects.filter(
-        comment=comment
-    ).first()
+    assert response.status_code == 302
     assert (
-        str(comment_history)
-        == f"Comment this is a comment was updated to {NEWER_COMMENT_TEXT}"
+        response.url
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?discussion=open#qa-discussion'
     )
 
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
-@pytest.mark.django_db
-def test_add_comment_notification(rf):
-    """
-    Test if add_comment_notification creates a notification.
+    assert event.type == EVENT_TYPE_MODEL_UPDATE
 
-    Users do not notify themselves so a seond user is required.
-    """
-    case: Case = Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
+
+def test_qa_comment_removal(admin_client, admin_user):
+    """Test removing QA comment by hiding it"""
+    case: Case = Case.objects.create()
+    comment: Comment = Comment.objects.create(case=case, user=admin_user)
+
+    response: HttpResponse = admin_client.post(
+        reverse("comments:edit-qa-comment", kwargs={"pk": case.id}),
+        {
+            "remove_comment": "Button value",
+        },
     )
+    assert response.status_code == 302
 
-    user: User = create_user()
-    request: WSGIRequest = rf.get("/")
-    request.user = user
+    comment: Comment = Comment.objects.get(case=case)
 
-    comment_path: str = reverse("cases:edit-qa-process", kwargs={"pk": case.id})
+    assert comment.hidden is True
 
-    comment: Comment = Comment(
-        case=case,
-        user=user,
-        page="edit-qa-process",
-        body=COMMENT_TEXT,
-        path=comment_path,
+
+def test_qa_comment_removal_not_allowed(admin_client):
+    """Test other users cannot hide QA comment"""
+    case: Case = Case.objects.create()
+    user: User = User.objects.create(first_name="Joe", last_name="Bloggs")
+    comment: Comment = Comment.objects.create(case=case, user=user)
+
+    response: HttpResponse = admin_client.post(
+        reverse("comments:edit-qa-comment", kwargs={"pk": case.id}),
+        {
+            "remove_comment": "Button value",
+        },
     )
-    comment.save()
+    assert response.status_code == 302
 
-    assert add_comment_notification(request=request, comment=comment)
-    assert Notification.objects.count() == 0
+    comment: Comment = Comment.objects.get(case=case)
 
-    second_user: User = create_user()
-    second_request: WSGIRequest = rf.get("/")
-    second_request.user = second_user
-
-    second_comment: Comment = Comment(
-        case=case,
-        user=second_user,
-        page="edit-qa-process",
-        body="this is a comment by a second user",
-        path=comment_path,
-    )
-    second_comment.save()
-
-    assert add_comment_notification(request=second_request, comment=second_comment)
-    assert Notification.objects.count() == 1
-
-
-@pytest.mark.django_db
-def test_comment_create(client):
-    """Test creating a comment"""
-    case: Case = Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-    )
-    user: User = create_user()
-    client.login(username=user.username, password=USER_PASSWORD)
-
-    qa_process_response: HttpResponse = client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": case.id},
-        )
-    )
-
-    assert qa_process_response.status_code == 200
-
-    create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
-        data={"body": COMMENT_TEXT},
-        follow=True,
-    )
-
-    assert create_comment_response.status_code == 200
-    assertContains(
-        create_comment_response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
-    )
-    assertContains(create_comment_response, "1 comment")
-    assertContains(create_comment_response, COMMENT_TEXT)
-    assert Comment.objects.count() == 1
-
-
-@pytest.mark.django_db
-def test_delete_comment(client):
-    """Test deleting a comment"""
-    case: Case = Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-    )
-    user: User = create_user()
-    client.login(username=user.username, password=USER_PASSWORD)
-
-    client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-    )
-
-    create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
-        data={"body": COMMENT_TEXT},
-        follow=True,
-    )
-
-    assert create_comment_response.status_code == 200
-
-    comment: Comment = Comment.objects.get(id=1)
-
-    assert not comment.hidden
-
-    client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": case.id},
-        ),
-    )
-
-    delete_comment_response: HttpResponse = client.post(
-        reverse(
-            "comments:remove-comment",
-            kwargs={"pk": 1},
-        ),
-        follow=True,
-    )
-
-    assert delete_comment_response.status_code == 200
-    assertContains(
-        delete_comment_response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
-    )
-    assertContains(delete_comment_response, "0 comments")
-
-    updated_comment: Comment = Comment.objects.get(id=1)
-
-    assert updated_comment.hidden
-
-
-@pytest.mark.django_db
-def test_edit_comment(client):
-    """Test for editing comment"""
-    case: Case = Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-    )
-    user: User = create_user()
-    client.login(username=user.username, password=USER_PASSWORD)
-
-    # Posting comment
-    client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": case.id},
-        )
-    )
-    client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": case.id}),
-        data={"body": COMMENT_TEXT},
-        follow=True,
-    )
-
-    # Editing comment
-    client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": case.id},
-        )
-    )
-
-    edit_comment_response: HttpResponse = client.post(
-        reverse("comments:edit-comment", kwargs={"pk": 1}),
-        data={"body": UPDATED_COMMENT_TEXT},
-        follow=True,
-    )
-    assertContains(
-        edit_comment_response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
-    )
-    assertContains(edit_comment_response, "1 comment")
-    assertContains(edit_comment_response, UPDATED_COMMENT_TEXT)
-    assertContains(edit_comment_response, "Last edited")
-    assert Comment.objects.count() == 1
-    assert CommentHistory.objects.count() == 1
-
-
-@pytest.mark.django_db
-def test_comment_associated_for_correct_case(client):
-    """
-    There was a bug whereby new comments were associated with the most recently
-    loaded case. This test is to check that that bug has not returned.
-    """
-    first_case: Case = Case.objects.create(
-        home_page_url="https://www.website.com",
-        organisation_name="org name",
-    )
-    latest_case_loaded: Case = Case.objects.create(
-        home_page_url="https://www.website2.com",
-        organisation_name="org2 name",
-    )
-    user: User = create_user()
-    client.login(username=user.username, password=USER_PASSWORD)
-
-    qa_process_response: HttpResponse = client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": first_case.id},
-        )
-    )
-
-    assert qa_process_response.status_code == 200
-
-    more_recent_case_response: HttpResponse = client.get(
-        reverse(
-            "cases:edit-qa-process",
-            kwargs={"pk": latest_case_loaded.id},
-        )
-    )
-
-    assert more_recent_case_response.status_code == 200
-
-    create_comment_response: HttpResponse = client.post(
-        reverse("comments:create-case-comment", kwargs={"case_id": first_case.id}),
-        data={"body": COMMENT_TEXT},
-        follow=True,
-    )
-
-    assert create_comment_response.status_code == 200
-    assertContains(
-        create_comment_response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-15">QA process</h1>""",
-    )
-    assertContains(create_comment_response, "1 comment")
-    assertContains(create_comment_response, COMMENT_TEXT)
-    assert Comment.objects.count() == 1
-
-    Comment.objects.get(case=first_case)
+    assert comment.hidden is False

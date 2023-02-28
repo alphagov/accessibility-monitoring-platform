@@ -31,6 +31,7 @@ urlpatterns = [
     path("", include("accessibility_monitoring_platform.apps.dashboard.urls")),
     path("accounts/login/", RedirectView.as_view(url="/")),
     path("audits/", include("accessibility_monitoring_platform.apps.audits.urls")),
+    path("comments/", include("accessibility_monitoring_platform.apps.comments.urls")),
     path("common/", include("accessibility_monitoring_platform.apps.common.urls")),
     path("reports/", include("accessibility_monitoring_platform.apps.reports.urls")),
     path(
@@ -39,7 +40,6 @@ urlpatterns = [
     path("overdue/", include("accessibility_monitoring_platform.apps.overdue.urls")),
     path("cases/", include("accessibility_monitoring_platform.apps.cases.urls")),
     path("user/", include("accessibility_monitoring_platform.apps.users.urls")),
-    path("comments/", include("accessibility_monitoring_platform.apps.comments.urls")),
     path(
         "notifications/",
         include("accessibility_monitoring_platform.apps.notifications.urls"),

@@ -110,7 +110,9 @@ def test_get_sent_date(date_on_form, date_on_db, expected_date):
     mock_case: MockCase = MockCase(sent_date=date_on_db)
 
     assert (
-        get_sent_date(form=mock_form, case_from_db=mock_case, sent_date_name="sent_date")
+        get_sent_date(
+            form=mock_form, case_from_db=mock_case, sent_date_name="sent_date"
+        )
         == expected_date
     )
 
@@ -288,7 +290,9 @@ def test_download_feedback_survey_cases():
     )
     cases: List[Case] = [case]
 
-    response: HttpResponse = download_feedback_survey_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
+    response: HttpResponse = download_feedback_survey_cases(
+        cases=cases, filename=CSV_EXPORT_FILENAME
+    )
 
     assert response.status_code == 200
 
@@ -315,7 +319,9 @@ def test_download_equality_body_cases():
         case=case, audit_retest_disproportionate_burden_notes="Audit for CSV export"
     )
 
-    response: HttpResponse = download_equality_body_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
+    response: HttpResponse = download_equality_body_cases(
+        cases=cases, filename=CSV_EXPORT_FILENAME
+    )
 
     assert response.status_code == 200
 
@@ -425,7 +431,6 @@ def test_download_cases():
             "Not started",
             "",
             "Not started",
-            "",
             "",
             "",
             "",
