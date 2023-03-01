@@ -490,6 +490,7 @@ class Case(VersionModel):
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
+    enforcement_retest_document_url = models.TextField(default="", blank=True)
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
@@ -533,7 +534,9 @@ class Case(VersionModel):
 
     @property
     def title(self) -> str:
-        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")
+        return str(
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+        )
 
     @property
     def next_action_due_date(self) -> Optional[date]:
@@ -572,6 +575,10 @@ class Case(VersionModel):
     @property
     def reminder(self):
         return self.reminder_case.filter(is_deleted=False).first()
+
+    @property
+    def qa_comments(self):
+        return self.comment_case.filter(hidden=False).order_by("-created_date")
 
     def set_status(self) -> str:  # noqa: C901
         if self.is_deactivated:

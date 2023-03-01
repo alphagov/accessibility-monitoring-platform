@@ -287,7 +287,6 @@ class CaseQAProcessUpdateForm(VersionForm):
         choices=REPORT_APPROVED_STATUS_CHOICES,
         help_text="This field affects the case status",
     )
-    reviewer_notes = AMPTextField(label="QA notes")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     qa_process_complete_date = AMPDatePageCompleteField()
@@ -299,7 +298,6 @@ class CaseQAProcessUpdateForm(VersionForm):
             "report_review_status",
             "reviewer",
             "report_approved_status",
-            "reviewer_notes",
             "report_final_odt_url",
             "report_final_pdf_url",
             "qa_process_complete_date",
@@ -598,6 +596,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
+    enforcement_retest_document_url = AMPURLField(label="External retest document")
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -607,6 +606,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
+            "enforcement_retest_document_url",
             "enforcement_correspondence_complete_date",
         ]
 

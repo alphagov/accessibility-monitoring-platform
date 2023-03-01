@@ -204,7 +204,6 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Report approved?", field_name="report_approved_status"
     ),
-    ColumnAndFieldNames(column_name="QA notes", field_name="reviewer_notes"),
     ColumnAndFieldNames(
         column_name="Link to final PDF report", field_name="report_final_pdf_url"
     ),
