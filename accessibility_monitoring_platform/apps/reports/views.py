@@ -43,7 +43,6 @@ from .models import (
 from .utils import (
     check_for_buttons_by_name,
     generate_report_content,
-    get_report_visits_metrics,
 )
 
 
@@ -104,12 +103,6 @@ class ReportDetailView(DetailView):
     model: Type[Report] = Report
     context_object_name: str = "report"
     template_name: str = "reports/report_edit.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add report visits metrics context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object.case))
-        return context
 
 
 class ReportUpdateView(UpdateView):
