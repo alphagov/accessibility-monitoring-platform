@@ -357,6 +357,30 @@ def test_case_export_list_view(admin_client):
     assertContains(response, case_columns_to_export_str)
 
 
+@pytest.mark.parametrize(
+    "export_view_name",
+    [
+        "cases:export-equality-body-cases",
+        "cases:case-export-list",
+        "cases:export-feedback-survey-cases",
+    ],
+)
+def test_case_export_view_filters_by_search(export_view_name, admin_client):
+    """
+    Test that the case list view page can be filtered by search from top menu
+    """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(export_view_name)}?search={included_case.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
 def test_case_export_list_view_respects_filters(admin_client):
     """Test that the case export list view includes only filtered data"""
     user: User = User.objects.create()
