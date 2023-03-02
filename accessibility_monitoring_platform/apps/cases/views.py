@@ -873,7 +873,9 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_cases(cases=filter_cases(form=case_search_form))
 
@@ -904,7 +906,9 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_equality_body_cases(cases=filter_cases(form=case_search_form))
 
@@ -919,6 +923,8 @@ def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))
