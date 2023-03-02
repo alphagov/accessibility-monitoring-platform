@@ -367,7 +367,7 @@ def test_case_export_list_view(admin_client):
 )
 def test_case_export_view_filters_by_search(export_view_name, admin_client):
     """
-    Test that the case list view page can be filtered by search from top menu
+    Test that the case exports can be filtered by search from top menu
     """
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
