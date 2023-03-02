@@ -1734,7 +1734,10 @@ def test_case_details_includes_link_to_report(admin_client):
     Test that the case details page contains a link to the report
     """
     report_final_pdf_url: str = "https://report-final-pdf-url.com"
-    case: Case = Case.objects.create(report_final_pdf_url=report_final_pdf_url)
+    case: Case = Case.objects.create(
+        report_methodology=REPORT_METHODOLOGY_ODT,
+        report_final_pdf_url=report_final_pdf_url,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
@@ -1758,7 +1761,7 @@ def test_case_details_includes_no_link_to_report(admin_client):
     """
     Test that the case details page contains no link to the report if none is set
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
 
     response: HttpResponse = admin_client.get(
         reverse("cases:case-detail", kwargs={"pk": case.id}),
