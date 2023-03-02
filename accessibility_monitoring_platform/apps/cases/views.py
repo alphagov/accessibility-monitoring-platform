@@ -169,8 +169,15 @@ class CaseDetailView(DetailView):
             extract_form_labels_and_values, instance=self.object
         )
 
+        excluded_fields: List[str] = (
+            ["report_final_odt_url", "report_final_pdf_url"]
+            if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM
+            else []
+        )
+
         qa_process_rows: List[FieldLabelAndValue] = get_rows(
-            form=CaseQAProcessUpdateForm()
+            form=CaseQAProcessUpdateForm(),
+            excluded_fields=excluded_fields,
         )
 
         if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
