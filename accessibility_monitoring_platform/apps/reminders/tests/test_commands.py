@@ -11,30 +11,38 @@ from django.core.management import call_command
 from ...cases.models import Case
 from ..models import Reminder
 
-USER_EMAIL = "user@example.com"
-USER_FIRST_NAME = "Joe"
-USER_LAST_NAME = "Quimby"
-REMINDER_DESCRIPTION_TODAY = "Reminder for today"
-REMINDER_DESCRIPTION_TOMORROW = "Reminder for tomorrow"
+USER_EMAIL: str = "user@example.com"
+USER_FIRST_NAME: str = "Joe"
+USER_LAST_NAME: str = "Quimby"
+REMINDER_DESCRIPTION_TODAY: str = "Reminder for today"
+REMINDER_DESCRIPTION_TOMORROW: str = "Reminder for tomorrow"
+REMINDER_DESCRIPTION_NO_AUDITOR: str = "Case has no auditor"
 
 
 @pytest.mark.django_db
 def test_email_reminders(mailoutbox):
     """Test email reminders command sends email for reminders due today"""
-    case: Case = Case.objects.create()
     user: User = User.objects.create(
         email=USER_EMAIL, first_name=USER_FIRST_NAME, last_name=USER_LAST_NAME
     )
+    case: Case = Case.objects.create(auditor=user)
     today: date = date.today()
     tomorrow: date = today + timedelta(days=1)
     Reminder.objects.create(
-        case=case, user=user, due_date=today, description=REMINDER_DESCRIPTION_TODAY
+        case=case,
+        due_date=today,
+        description=REMINDER_DESCRIPTION_TODAY,
     )
     Reminder.objects.create(
         case=case,
-        user=user,
         due_date=tomorrow,
         description=REMINDER_DESCRIPTION_TOMORROW,
+    )
+    case_without_auditor: Case = Case.objects.create()
+    Reminder.objects.create(
+        case=case_without_auditor,
+        due_date=today,
+        description=REMINDER_DESCRIPTION_NO_AUDITOR,
     )
 
     call_command("email_reminders")
@@ -44,3 +52,4 @@ def test_email_reminders(mailoutbox):
     assert f"{USER_FIRST_NAME} {USER_LAST_NAME}" in mailoutbox[0].body
     assert REMINDER_DESCRIPTION_TODAY in mailoutbox[0].body
     assert REMINDER_DESCRIPTION_TOMORROW not in mailoutbox[0].body
+    assert REMINDER_DESCRIPTION_NO_AUDITOR not in mailoutbox[0].body

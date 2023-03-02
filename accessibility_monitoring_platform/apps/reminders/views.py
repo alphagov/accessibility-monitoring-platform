@@ -36,7 +36,6 @@ class ReminderCreateView(CreateView):
         reminder: Reminder = form.save(commit=False)
         case: Case = Case.objects.get(pk=self.kwargs["case_id"])
         reminder.case = case
-        reminder.user = case.auditor
         if "delete" in self.request.POST:
             reminder.is_deleted = True
         return super().form_valid(form)
@@ -91,7 +90,7 @@ class ReminderListView(ListView):
     def get_queryset(self) -> QuerySet[Reminder]:
         """Get undeleted reminders for logged in user"""
         return Reminder.objects.filter(
-            user=self.request.user, is_deleted=False
+            case__auditor=self.request.user, is_deleted=False
         ).order_by("due_date")
 
 
