@@ -470,15 +470,12 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
-    if sort_by:
-        return (
-            Case.objects.filter(search_query, **filters)
-            .order_by(sort_by)
-            .select_related("auditor", "reviewer")
-            .all()
-        )
+    if not sort_by:
+        sort_by = "-id"
+
     return (
         Case.objects.filter(search_query, **filters)
+        .order_by(sort_by)
         .select_related("auditor", "reviewer")
         .all()
     )
