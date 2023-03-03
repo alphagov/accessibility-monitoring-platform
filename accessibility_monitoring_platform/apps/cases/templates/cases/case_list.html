@@ -21,45 +21,13 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">Search</h1>
             </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-quarter">
-                <h2 class="govuk-heading-m">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</h2>
-            </div>
-            <div class="govuk-grid-column-three-quarters">
+            <div class="govuk-grid-column-one-thirds">
                 <div class="govuk-button-group amp-flex-end">
-                    <a
-                        href="{% url 'cases:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                    >
-                        Equality bodies CSV
-                    </a>
-                    <a
-                        href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                    >
-                        Export to CSV
-                    </a>
-                    <a
-                        href="{% url 'cases:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary float-right"
-                        data-module="govuk-button"
-                    >
-                        Feedback survey CSV
-                    </a>
                     <a
                         href="{% url 'cases:case-create' %}"
                         role="button"
                         draggable="false"
-                        class="govuk-button float-right"
+                        class="govuk-button govuk-button--secondary float-right"
                         data-module="govuk-button"
                     >
                         Create case
@@ -74,7 +42,6 @@
                         <form method="get" action="{% url 'cases:case-list' %}">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
                                     {% include 'common/amp_field.html' with field=form.case_search %}
                                     <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
                                         <summary class="govuk-details__summary">
@@ -103,14 +70,50 @@
                                     data-module="govuk-button"
                                 />
                                 <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
-                                    Clear
+                                    Clear search
                                 </a>
                             </div>
                         </form>
+                        <hr class="amp-width-100" />
+                        <p class="govuk-body-m govuk-!-font-weight-bold amp-margin-bottom-5">Export CSV</p>
+                        <ul class="govuk-list">
+                            <li>
+                                <a
+                                    href="{% url 'cases:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    role="button"
+                                    draggable="false"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Equality bodies CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    role="button"
+                                    draggable="false"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'cases:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    role="button"
+                                    draggable="false"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Feedback survey CSV
+                                </a>
+                            </li>
+                        </ul>
+                        <hr class="amp-width-100" />
                     </div>
                 </div>
             </div>
             <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body-m govuk-!-font-weight-bold">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</p>
                 {% if cases %}
                     {% include "common/pagination_controls.html" %}
                     <table class="govuk-table">
