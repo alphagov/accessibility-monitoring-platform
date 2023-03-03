@@ -4,7 +4,7 @@ Tests for reminders views
 import pytest
 from datetime import date
 
-from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertContains, assertNotContains
 
 from django.http import HttpResponse
 from django.urls import reverse
@@ -50,7 +50,7 @@ def test_create_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     assert updated_case.reminder is not None
     assert updated_case.reminder.due_date == REMINDER_DUE_DATE
     assert updated_case.reminder.description == REMINDER_DESCRIPTION
-    assert updated_case.reminder.user == user
+    assert updated_case.reminder.case.auditor == user
 
 
 def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-name
@@ -60,7 +60,6 @@ def test_update_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     client, user = client_and_user
     case: Case = Case.objects.create(auditor=user)
     reminder: Reminder = Reminder.objects.create(
-        user=user,
         case=case,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,
@@ -93,14 +92,12 @@ def test_reminders_for_user_listed(
     client, user = client_and_user
     case_1: Case = Case.objects.create(auditor=user)
     Reminder.objects.create(
-        user=user,
         case=case_1,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,
     )
     case_2: Case = Case.objects.create(auditor=user)
     Reminder.objects.create(
-        user=user,
         case=case_2,
         due_date=date.today(),
         description=NEW_REMINDER_DESCRIPTION,
@@ -121,7 +118,6 @@ def test_delete_reminder(client_and_user):  # pylint: disable=redefined-outer-na
     client, user = client_and_user
     case: Case = Case.objects.create(auditor=user)
     reminder: Reminder = Reminder.objects.create(
-        user=user,
         case=case,
         due_date=REMINDER_DUE_DATE,
         description=REMINDER_DESCRIPTION,
@@ -138,3 +134,41 @@ def test_delete_reminder(client_and_user):  # pylint: disable=redefined-outer-na
 
     updated_case: Case = Case.objects.get(pk=case.id)
     assert updated_case.reminder is None
+
+
+def test_updating_auditor_changes_reminders_listed(
+    client_and_user,
+):  # pylint: disable=redefined-outer-name
+    """
+    Test that updating the case auditor changes the listed reminders.
+    """
+    client, user = client_and_user
+    case_1: Case = Case.objects.create(auditor=user)
+    Reminder.objects.create(
+        case=case_1,
+        due_date=REMINDER_DUE_DATE,
+        description=REMINDER_DESCRIPTION,
+    )
+    case_2: Case = Case.objects.create()
+    Reminder.objects.create(
+        case=case_2,
+        due_date=date.today(),
+        description=NEW_REMINDER_DESCRIPTION,
+    )
+
+    response: HttpResponse = client.get(reverse("reminders:reminder-list"))
+
+    assert response.status_code == 200
+    assertContains(response, "Reminders (1)")
+    assertContains(response, REMINDER_DESCRIPTION)
+    assertNotContains(response, NEW_REMINDER_DESCRIPTION)
+
+    case_2.auditor = user
+    case_2.save()
+
+    response: HttpResponse = client.get(reverse("reminders:reminder-list"))
+
+    assert response.status_code == 200
+    assertContains(response, "Reminders (2)")
+    assertContains(response, REMINDER_DESCRIPTION)
+    assertContains(response, NEW_REMINDER_DESCRIPTION)
