@@ -105,6 +105,9 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Published report", field_name="published_report_url"
     ),
+    ColumnAndFieldNames(
+        column_name="Previous Case No.", field_name="previous_case_number"
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [

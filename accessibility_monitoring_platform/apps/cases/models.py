@@ -771,6 +771,13 @@ class Case(VersionModel):
         else:
             return ""
 
+    @property
+    def previous_case_number(self):
+        result = re.search(r".*/cases/(\d+)/view.*", self.previous_case_url)
+        if result:
+            return result.group(1)
+        return None
+
 
 class Contact(models.Model):
     """
