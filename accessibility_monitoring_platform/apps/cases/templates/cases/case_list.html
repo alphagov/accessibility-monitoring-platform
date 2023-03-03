@@ -68,6 +68,48 @@
             </div>
         </div>
         <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <div class="govuk-grid-row cases-search-background">
+                    <div class="govuk-grid-column-full">
+                        <form method="get" action="{% url 'cases:case-list' %}">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
+                                        {% include 'common/amp_field.html' with field=form.case_search %}
+                                        {% include 'common/amp_field.html' with field=form.status %}
+                                        {% include 'common/amp_field.html' with field=form.auditor %}
+                                        {% include 'common/amp_field.html' with field=form.reviewer %}
+                                        <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
+                                            <summary class="govuk-details__summary">
+                                                <span class="govuk-details__summary-text">Advanced search</span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                {% include 'common/amp_field.html' with field=form.date_type %}
+                                                {% include 'common/amp_field.html' with field=form.date_start %}
+                                                {% include 'common/amp_field.html' with field=form.date_end %}
+                                                {% include 'common/amp_field.html' with field=form.sector %}
+                                                {% include 'common/amp_field.html' with field=form.is_complaint %}
+                                                {% include 'common/amp_field.html' with field=form.enforcement_body %}
+                                            </div>
+                                        </details>
+                                        {% include 'common/amp_field.html' with field=form.sort_by %}
+                                </div>
+                            </div>
+                            <div class="govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Search"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
+                                    Clear
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="govuk-grid-column-two-thirds">
                 {% if cases %}
                     {% include "common/pagination_controls.html" %}
@@ -173,48 +215,6 @@
                 {% else %}
                     &nbsp;
                 {% endif %}
-            </div>
-            <div class="govuk-grid-column-one-third">
-                <div class="govuk-grid-row cases-search-background">
-                    <div class="govuk-grid-column-full">
-                        <form method="get" action="{% url 'cases:case-list' %}">
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-full">
-                                    <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
-                                        {% include 'common/amp_field.html' with field=form.case_search %}
-                                        {% include 'common/amp_field.html' with field=form.status %}
-                                        {% include 'common/amp_field.html' with field=form.auditor %}
-                                        {% include 'common/amp_field.html' with field=form.reviewer %}
-                                        <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
-                                            <summary class="govuk-details__summary">
-                                                <span class="govuk-details__summary-text">Advanced search</span>
-                                            </summary>
-                                            <div class="govuk-details__text">
-                                                {% include 'common/amp_field.html' with field=form.date_type %}
-                                                {% include 'common/amp_field.html' with field=form.date_start %}
-                                                {% include 'common/amp_field.html' with field=form.date_end %}
-                                                {% include 'common/amp_field.html' with field=form.sector %}
-                                                {% include 'common/amp_field.html' with field=form.is_complaint %}
-                                                {% include 'common/amp_field.html' with field=form.enforcement_body %}
-                                            </div>
-                                        </details>
-                                        {% include 'common/amp_field.html' with field=form.sort_by %}
-                                </div>
-                            </div>
-                            <div class="govuk-button-group">
-                                <input
-                                    type="submit"
-                                    value="Search"
-                                    class="govuk-button"
-                                    data-module="govuk-button"
-                                />
-                                <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
-                                    Clear
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
