@@ -361,6 +361,7 @@ def test_download_equality_body_cases():
             "",
             "",
             "",
+            "",
             "No claim",
             "",
             "No claim",

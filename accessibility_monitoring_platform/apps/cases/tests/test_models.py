@@ -303,3 +303,18 @@ def test_qa_comments():
     assert len(comments) == 2
     assert comments[0].id == comment2.id
     assert comments[1].id == comment1.id
+
+
+@pytest.mark.parametrize(
+    "previous_case_url, previous_case_number",
+    [
+        ("https://...gov.uk/cases/191/view/", "191"),
+        ("", None),
+        ("https://...gov.uk/audits/191/view/", None),
+    ],
+)
+def test_previous_case_number(previous_case_url, previous_case_number):
+    """Test previous case number derived from url"""
+    case = Case(previous_case_url=previous_case_url)
+
+    assert case.previous_case_number == previous_case_number
