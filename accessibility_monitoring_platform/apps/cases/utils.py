@@ -438,8 +438,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
             field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
         )
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
-        if not sort_by:
-            sort_by: str = DEFAULT_SORT
         if form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
             if (
@@ -469,9 +467,15 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     if "reviewer_id" in filters and filters["reviewer_id"] == "none":
         filters["reviewer_id"] = None
 
+    if sort_by:
+        return (
+            Case.objects.filter(search_query, **filters)
+            .order_by(sort_by)
+            .select_related("auditor", "reviewer")
+            .all()
+        )
     return (
         Case.objects.filter(search_query, **filters)
-        .order_by(sort_by)
         .select_related("auditor", "reviewer")
         .all()
     )

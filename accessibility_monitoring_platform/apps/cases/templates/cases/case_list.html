@@ -69,21 +69,22 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                <div class="govuk-grid-row cases-search-background">
+                <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
                         <form method="get" action="{% url 'cases:case-list' %}">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <h2 class="govuk-heading-m cases-margin-top">Edit search</h2>
                                         {% include 'common/amp_field.html' with field=form.case_search %}
-                                        {% include 'common/amp_field.html' with field=form.status %}
-                                        {% include 'common/amp_field.html' with field=form.auditor %}
-                                        {% include 'common/amp_field.html' with field=form.reviewer %}
                                         <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
                                             <summary class="govuk-details__summary">
                                                 <span class="govuk-details__summary-text">Advanced search</span>
                                             </summary>
                                             <div class="govuk-details__text">
+                                                {% include 'common/amp_field.html' with field=form.sort_by %}
+                                                {% include 'common/amp_field.html' with field=form.status %}
+                                                {% include 'common/amp_field.html' with field=form.auditor %}
+                                                {% include 'common/amp_field.html' with field=form.reviewer %}
                                                 {% include 'common/amp_field.html' with field=form.date_type %}
                                                 {% include 'common/amp_field.html' with field=form.date_start %}
                                                 {% include 'common/amp_field.html' with field=form.date_end %}
@@ -92,7 +93,6 @@
                                                 {% include 'common/amp_field.html' with field=form.enforcement_body %}
                                             </div>
                                         </details>
-                                        {% include 'common/amp_field.html' with field=form.sort_by %}
                                 </div>
                             </div>
                             <div class="govuk-button-group">

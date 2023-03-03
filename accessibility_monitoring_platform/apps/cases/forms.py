@@ -50,7 +50,7 @@ from .models import (
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
-DEFAULT_SORT: str = "-id"
+DEFAULT_SORT: str = ""
 SORT_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
