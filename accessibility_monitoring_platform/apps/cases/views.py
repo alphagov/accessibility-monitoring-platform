@@ -870,6 +870,12 @@ class CaseStatusWorkflowDetailView(DetailView):
     template_name: str = "cases/status_workflow.html"
 
 
+class CaseOutstandingIssuesDetailView(DetailView):
+    model: Type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "cases/outstanding_issues.html"
+
+
 def export_cases(request: HttpRequest) -> HttpResponse:
     """
     View to export cases
