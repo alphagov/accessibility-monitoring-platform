@@ -154,14 +154,27 @@ if UNDER_TEST or INTEGRATION_TEST:
         "deploy_env": "",
     }
 else:
-    json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
-    vcap_services = json.loads(json_acceptable_string)
+    if os.getenv("COPILOT_LB_DNS"):  # Checks if the platform is on AWS and fetches the DB credentials
+        db_secrets: str = os.environ["A11YMONAPPCLUSTER_SECRET"]
+        json_acceptable_string: str = db_secrets.replace("'", "\"")
+        db_secrets_dict = json.loads(json_acceptable_string)
+        DATABASES["default"] = {
+            "NAME": db_secrets_dict["dbname"],
+            "USER": db_secrets_dict["username"],
+            "PASSWORD": db_secrets_dict["password"],
+            "HOST": db_secrets_dict["host"],
+            "PORT": db_secrets_dict["port"],
+            "CONN_MAX_AGE": 0,
+            "ENGINE": "django.db.backends.postgresql"
+        }
+    else:
+        json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
+        vcap_services = json.loads(json_acceptable_string)
+        DATABASES["default"] = dj_database_url.parse(
+            vcap_services["postgres"][0]["credentials"]["uri"]
+        )
 
-    DATABASES["default"] = dj_database_url.parse(
-        vcap_services["postgres"][0]["credentials"]["uri"]
-    )
-
-    DATABASES["aws-s3-bucket"] = vcap_services["aws-s3-bucket"][0]["credentials"]
+        DATABASES["aws-s3-bucket"] = vcap_services["aws-s3-bucket"][0]["credentials"]
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

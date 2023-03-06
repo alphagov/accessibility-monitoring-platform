@@ -141,14 +141,15 @@ if UNDER_TEST or INTEGRATION_TEST:
         "deploy_env": "",
     }
 else:
-    json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
-    vcap_services = json.loads(json_acceptable_string)
+    pass
+    # json_acceptable_string = os.getenv("VCAP_SERVICES", "").replace("'", '"')
+    # vcap_services = json.loads(json_acceptable_string)
 
-    DATABASES["default"] = dj_database_url.parse(
-        vcap_services["postgres"][0]["credentials"]["uri"]
-    )
+    # DATABASES["default"] = dj_database_url.parse(
+    #     vcap_services["postgres"][0]["credentials"]["uri"]
+    # )
 
-    DATABASES["aws-s3-bucket"] = vcap_services["aws-s3-bucket"][0]["credentials"]
+    # DATABASES["aws-s3-bucket"] = vcap_services["aws-s3-bucket"][0]["credentials"]
 
 
 # Password validation
