@@ -21,7 +21,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">Search</h1>
             </div>
-            <div class="govuk-grid-column-one-thirds">
+            <div class="govuk-grid-column-one-third">
                 <div class="govuk-button-group amp-flex-end">
                     <a
                         href="{% url 'cases:case-create' %}"
@@ -79,19 +79,7 @@
                         <ul class="govuk-list">
                             <li>
                                 <a
-                                    href="{% url 'cases:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    role="button"
-                                    draggable="false"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Equality bodies CSV
-                                </a>
-                            </li>
-                            <li>
-                                <a
                                     href="{% url 'cases:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    role="button"
-                                    draggable="false"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Export to CSV
@@ -100,11 +88,17 @@
                             <li>
                                 <a
                                     href="{% url 'cases:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                    role="button"
-                                    draggable="false"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
-                                    Feedback survey CSV
+                                    Export to feedback survey CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'cases:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to equality bodies CSV
                                 </a>
                             </li>
                         </ul>
