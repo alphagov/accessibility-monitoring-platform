@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load humanize %}
+
 {% block title %}{{ case.organisation_name }} | Outstanding issues{% endblock %}
 
 {% block content %}
@@ -25,10 +27,33 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-s">Sort WCAG issues</h2>
                 <h2 class="govuk-heading-s">WCAG issues</h2>
+                <ul class="govuk-list">
+                {% for page in case.audit.testable_pages %}
+                    {% if page.unfixed_check_results %}
+                        <li>
+                            <a href="#page-{{ page.id }}" rel="noreferrer noopener" class="govuk-link">
+                                {{ page }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
                 <h2 class="govuk-heading-s">Statement issues</h2>
                 <h2 class="govuk-heading-s">Overview</h2>
-                <h2 class="govuk-heading-s">Sort and filter WCAG issues</h2>
+                <p class="govuk-body">
+                    {{ case.audit.fixed_check_results.count|intcomma }}
+                    of {{ case.audit.failed_check_results.count|intcomma }} WCAG issues have been fixed
+
+                {% for page in case.audit.testable_pages %}
+                    {% if page.unfixed_check_results %}
+                        <h2 id="page-{{ page.id }}" class="govuk-heading-m">{{ page }}</h2>
+                        <table class="govuk-table">
+                            {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.unfixed_check_results %}
+                        </table>
+                    {% endif %}
+                {% endfor %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' %}
