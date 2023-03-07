@@ -34,6 +34,7 @@ from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
     check_dict_for_truthy_values,
+    list_to_dictionary_of_lists,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -874,6 +875,31 @@ class CaseOutstandingIssuesDetailView(DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/outstanding_issues.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_failures_by_page: bool = view_url_param == "Page view"
+        context["show_failures_by_page"] = show_failures_by_page
+
+        if show_failures_by_page:
+            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                items=case.audit.unfixed_check_results, group_by_attr="page"
+            )
+        else:
+            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                items=case.audit.unfixed_check_results, group_by_attr="wcag_definition"
+            )
+
+        # get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
+        # context["audit_statement_rows"] = get_rows(
+        #     form=AuditStatement1UpdateForm()
+        # ) + get_rows(form=AuditStatement2UpdateForm())
+
+        return context
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:

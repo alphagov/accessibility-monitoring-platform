@@ -633,6 +633,10 @@ class Audit(VersionModel):
     def fixed_check_results(self):
         return self.failed_check_results.filter(retest_state=RETEST_CHECK_RESULT_FIXED)
 
+    @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+
 
 class Page(models.Model):
     """
