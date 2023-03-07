@@ -83,6 +83,10 @@ ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
 ADVANCED_SEARCH_FIELDS: List[str] = [
+    "sort_by",
+    "status",
+    "auditor",
+    "reviewer",
     "date_start_0",
     "date_start_1",
     "date_start_2",
