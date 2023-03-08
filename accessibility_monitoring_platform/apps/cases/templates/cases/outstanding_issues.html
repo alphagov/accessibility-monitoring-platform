@@ -118,18 +118,22 @@
                     </thead>
                     <tbody class="govuk-table__body">
                         {% for statement_check in statement_checks %}
-                            <tr class="govuk-table__row ">
-                                <td class="govuk-table__cell amp-width-one-half">
-                                    <b>{{ statement_check.name }}</b><br>
-                                    {{ statement_check.original_state }}<br>
-                                    {{ statement_check.original_notes|markdown_to_html }}
-                                </td>
-                                <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                    <br>
-                                    {{ statement_check.final_state }}<br>
-                                    {{ statement_check.final_notes|markdown_to_html }}
-                                </td>
-                            </tr>
+                        <tr>
+                            <td class="amp-width-one-half">
+                                <b>{{ statement_check.name }}</b>
+                            </td>
+                            <td class="amp-width-one-half"></td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                {{ statement_check.original_state }}<br>
+                                {{ statement_check.original_notes|markdown_to_html }}
+                            </td>
+                            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                {{ statement_check.final_state }}<br>
+                                {{ statement_check.final_notes|markdown_to_html }}
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
