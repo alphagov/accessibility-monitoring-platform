@@ -887,11 +887,14 @@ class CaseOutstandingIssuesDetailView(DetailView):
 
         if show_failures_by_page:
             context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=case.audit.unfixed_check_results, group_by_attr="page"
+                items=case.audit.unfixed_check_results, group_by_attr="page"  # type: ignore
             )
         else:
             context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=case.audit.unfixed_check_results, group_by_attr="wcag_definition"
+                items=case.audit.unfixed_check_results.order_by(  # type: ignore
+                    "wcag_definition__name"
+                ),
+                group_by_attr="wcag_definition",
             )
 
         # get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)

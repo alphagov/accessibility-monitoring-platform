@@ -29,7 +29,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-s">Sort WCAG issues</h2>
                 <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
-                    View by {% if show_failures_by_page %}WCAG{% else %}Page{% endif %} type
+                    View by {% if show_failures_by_page %}WCAG type{% else %}page{% endif %}
                 </a>
                 <h2 class="govuk-heading-s">WCAG issues</h2>
                 <ul class="govuk-list">
