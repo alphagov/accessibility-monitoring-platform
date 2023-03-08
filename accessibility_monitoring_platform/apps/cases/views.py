@@ -21,6 +21,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
+from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
+
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
 
@@ -94,6 +96,25 @@ ADVANCED_SEARCH_FIELDS: List[str] = [
     "is_complaint",
     "enforcement_body",
 ]
+ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
+    "scope",
+    "feedback",
+    "contact_information",
+    "enforcement_procedure",
+    "declaration",
+    "compliance",
+    "non_regulation",
+    "disproportionate_burden",
+    "content_not_in_scope",
+    "preparation_date",
+    "review",
+    "method",
+    "access_requirements",
+]
+statement_fields = {
+    **AuditStatement1UpdateForm().fields,
+    **AuditStatement2UpdateForm().fields,
+}
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -882,7 +903,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
         case: Case = self.object
 
         view_url_param: Union[str, None] = self.request.GET.get("view")
-        show_failures_by_page: bool = view_url_param == "Page view"
+        show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
 
         if show_failures_by_page:
@@ -897,10 +918,28 @@ class CaseOutstandingIssuesDetailView(DetailView):
                 group_by_attr="wcag_definition",
             )
 
-        # get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
-        # context["audit_statement_rows"] = get_rows(
-        #     form=AuditStatement1UpdateForm()
-        # ) + get_rows(form=AuditStatement2UpdateForm())
+        statement_checks: List[Dict[str, str]] = []
+        number_fixed_statement_errors: int = 0
+        for prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
+            final_state: str = getattr(
+                case.audit, f"get_audit_retest_{prefix}_state_display"
+            )()
+            if final_state in ["Present and correct", "Meets requirements"]:
+                number_fixed_statement_errors += 1
+                continue
+            statement_checks.append(
+                {
+                    "name": statement_fields[f"{prefix}_state"].label,
+                    "original_state": getattr(
+                        case.audit, f"get_{prefix}_state_display"
+                    )(),
+                    "original_notes": getattr(case.audit, f"{prefix}_notes"),
+                    "final_state": final_state,
+                    "final_notes": getattr(case.audit, f"audit_retest_{prefix}_notes"),
+                }
+            )
+        context["number_fixed_statement_errors"] = number_fixed_statement_errors
+        context["statement_checks"] = statement_checks
 
         return context
 

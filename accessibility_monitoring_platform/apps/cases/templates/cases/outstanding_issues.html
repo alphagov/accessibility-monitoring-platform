@@ -27,11 +27,11 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-s">Sort WCAG issues</h2>
+                <h2 class="govuk-heading-s">Sort WCAG errors</h2>
                 <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
                     View by {% if show_failures_by_page %}WCAG type{% else %}page{% endif %}
                 </a>
-                <h2 class="govuk-heading-s">WCAG issues</h2>
+                <h2 class="govuk-heading-s">WCAG errors</h2>
                 <ul class="govuk-list">
                 {% if show_failures_by_page %}
                     {% for page, failures in audit_failures_by_page.items %}
@@ -53,12 +53,22 @@
                     {% endfor %}
                 {% endif %}
                 </ul>
-                <h2 class="govuk-heading-s">Statement issues</h2>
+                <h2 class="govuk-heading-s">Statement errors</h2>
+                <p class="govuk-body">
+                    <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
+                        Statement comparison
+                    </a>
+                </p>
                 <h2 class="govuk-heading-s">Overview</h2>
                 <p class="govuk-body">
                     {{ case.audit.fixed_check_results.count|intcomma }}
                     of {{ case.audit.failed_check_results.count|intcomma }}
-                    WCAG issues have been fixed
+                    WCAG errors have been fixed
+                </p>
+                <p class="govuk-body">
+                    {{ number_fixed_statement_errors }}
+                    of 13
+                    statement errors have been fixed
                 </p>
                 {% if show_failures_by_page %}
                     {% for page, failures in audit_failures_by_page.items %}
@@ -98,6 +108,31 @@
                         </div>
                     {% endfor %}
                 {% endif %}
+                <h2 id="statement-comparison" class="govuk-heading-m">Statement comparison</h2>
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th scope="col" class="govuk-table__header govuk-!-width-one-half">Original test</th>
+                            <th scope="col" class="govuk-table__header govuk-!-width-one-hald">12-week retest</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                        {% for statement_check in statement_checks %}
+                            <tr class="govuk-table__row ">
+                                <td class="govuk-table__cell amp-width-one-half">
+                                    <b>{{ statement_check.name }}</b><br>
+                                    {{ statement_check.original_state }}<br>
+                                    {{ statement_check.original_notes|markdown_to_html }}
+                                </td>
+                                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                    <br>
+                                    {{ statement_check.final_state }}<br>
+                                    {{ statement_check.final_notes|markdown_to_html }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' %}
