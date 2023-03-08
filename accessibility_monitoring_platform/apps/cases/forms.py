@@ -50,7 +50,7 @@ from .models import (
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
-DEFAULT_SORT: str = "-id"
+DEFAULT_SORT: str = ""
 SORT_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
@@ -86,9 +86,7 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    case_search = AMPCharField(
-        label="Search", help_text="Matches on URL, organisation, sector or location"
-    )
+    case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)

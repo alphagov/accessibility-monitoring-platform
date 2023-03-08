@@ -83,6 +83,10 @@ ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
 ADVANCED_SEARCH_FIELDS: List[str] = [
+    "sort_by",
+    "status",
+    "auditor",
+    "reviewer",
     "date_start_0",
     "date_start_1",
     "date_start_2",
@@ -880,7 +884,9 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_cases(cases=filter_cases(form=case_search_form))
 
@@ -911,7 +917,9 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_equality_body_cases(cases=filter_cases(form=case_search_form))
 
@@ -926,6 +934,8 @@ def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    case_search_form: CaseSearchForm = CaseSearchForm(request.GET)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
     case_search_form.is_valid()
     return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))

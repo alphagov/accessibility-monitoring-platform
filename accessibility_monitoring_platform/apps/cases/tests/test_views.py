@@ -147,7 +147,9 @@ def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -162,7 +164,9 @@ def test_case_list_view_filters_by_case_number(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -177,7 +181,9 @@ def test_case_list_view_filters_by_psb_location(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -193,7 +199,9 @@ def test_case_list_view_filters_by_sector_name(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -220,7 +228,9 @@ def test_case_list_view_string_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -248,7 +258,9 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -276,7 +288,9 @@ def test_case_list_view_user_unassigned_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -304,7 +318,9 @@ def test_case_list_view_date_range_filters(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -324,7 +340,9 @@ def test_case_list_view_sector_filter(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 case found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -355,6 +373,30 @@ def test_case_export_list_view(admin_client):
 
     assert response.status_code == 200
     assertContains(response, case_columns_to_export_str)
+
+
+@pytest.mark.parametrize(
+    "export_view_name",
+    [
+        "cases:export-equality-body-cases",
+        "cases:case-export-list",
+        "cases:export-feedback-survey-cases",
+    ],
+)
+def test_case_export_view_filters_by_search(export_view_name, admin_client):
+    """
+    Test that the case exports can be filtered by search from top menu
+    """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(export_view_name)}?search={included_case.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 def test_case_export_list_view_respects_filters(admin_client):
