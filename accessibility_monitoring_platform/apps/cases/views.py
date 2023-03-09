@@ -22,7 +22,10 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
-from ..audits.models import ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES
+from ..audits.models import (
+    ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
+    ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES,
+)
 
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
@@ -96,21 +99,6 @@ ADVANCED_SEARCH_FIELDS: List[str] = [
     "sector",
     "is_complaint",
     "enforcement_body",
-]
-ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
-    "scope",
-    "feedback",
-    "contact_information",
-    "enforcement_procedure",
-    "declaration",
-    "compliance",
-    "non_regulation",
-    "disproportionate_burden",
-    "content_not_in_scope",
-    "preparation_date",
-    "review",
-    "method",
-    "access_requirements",
 ]
 statement_fields = {
     **AuditStatement1UpdateForm().fields,
@@ -919,43 +907,6 @@ class CaseOutstandingIssuesDetailView(DetailView):
                     ),
                     group_by_attr="wcag_definition",
                 )
-
-        if case.audit:
-            statement_checks: List[Dict[str, str]] = []
-            for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
-                valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-                    field_name_prefix
-                )
-                original_state: str = getattr(case.audit, f"{field_name_prefix}_state")
-                final_state: str = getattr(
-                    case.audit, f"audit_retest_{field_name_prefix}_state"
-                )
-                if (
-                    valid_value
-                    and original_state != valid_value
-                    and final_state != valid_value
-                ):
-                    statement_checks.append(
-                        {
-                            "name": statement_fields[
-                                f"{field_name_prefix}_state"
-                            ].label,
-                            "original_state": getattr(
-                                case.audit, f"get_{field_name_prefix}_state_display"
-                            )(),
-                            "original_notes": getattr(
-                                case.audit, f"{field_name_prefix}_notes"
-                            ),
-                            "final_state": getattr(
-                                case.audit,
-                                f"get_audit_retest_{field_name_prefix}_state_display",
-                            )(),
-                            "final_notes": getattr(
-                                case.audit, f"audit_retest_{field_name_prefix}_notes"
-                            ),
-                        }
-                    )
-            context["statement_checks"] = statement_checks
 
         return context
 

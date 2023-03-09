@@ -119,36 +119,36 @@
                 <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                <table class="govuk-table">
-                    <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
-                            <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
-                        </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                        {% for statement_check in case.audit.finally_invalid_accessibility_statement_checks %}
-                        <tr>
-                            <td class="amp-width-one-half">
-                                <b>{{ statement_check.label }}</b>
-                            </td>
-                            <td class="amp-width-one-half"></td>
-                        </tr>
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                {{ statement_check.initial_state_display }}<br>
-                                {{ statement_check.initial_notes|markdown_to_html }}
-                            </td>
-                            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                {{ statement_check.final_state_display }}<br>
-                                {{ statement_check.final_notes|markdown_to_html }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
+                                    <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for statement_check in case.audit.finally_invalid_accessibility_statement_checks %}
+                                    <tr>
+                                        <td class="amp-width-one-half amp-padding-top-10">
+                                            <b>{{ statement_check.label }}</b>
+                                        </td>
+                                        <td class="amp-width-one-half amp-padding-top-10"></td>
+                                    </tr>
+                                    <tr class="govuk-table__row">
+                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                            {{ statement_check.initial_state_display }}<br>
+                                            {{ statement_check.initial_notes|markdown_to_html }}
+                                        </td>
+                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                            {{ statement_check.final_state_display }}<br>
+                                            {{ statement_check.final_notes|markdown_to_html }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' %}
