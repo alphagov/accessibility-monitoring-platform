@@ -265,6 +265,53 @@ ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
 }
 
 
+class AccessibilityStatementCheck:
+    """Accessibility statement check"""
+
+    field_name_prefix: str
+    valid_value: str
+    label: str
+    initial_state: str
+    initial_state_display: str
+    initial_notes: str
+    final_state: str
+    final_state_display: str
+    final_notes: str
+
+    def __init__(self, field_name_prefix: str, audit: "Audit"):
+        self.field_name_prefix = field_name_prefix
+        self.valid_value = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+            field_name_prefix, ""
+        )
+        self.label = Audit._meta.get_field(f"{field_name_prefix}_state").verbose_name
+        self.initial_state = getattr(audit, f"{field_name_prefix}_state")
+        self.initial_state_display = getattr(
+            audit, f"get_{field_name_prefix}_state_display"
+        )()
+        self.initial_notes = getattr(audit, f"{field_name_prefix}_notes")
+        self.final_state = getattr(audit, f"audit_retest_{field_name_prefix}_state")
+        self.final_state_display = getattr(
+            audit, f"get_audit_retest_{field_name_prefix}_state_display"
+        )()
+        self.final_notes = getattr(audit, f"audit_retest_{field_name_prefix}_notes")
+
+    @property
+    def initially_invalid(self):
+        return self.valid_value and self.initial_state != self.valid_value
+
+    @property
+    def finally_fixed(self):
+        return (
+            self.valid_value
+            and self.initial_state != self.valid_value
+            and self.final_state == self.valid_value
+        )
+
+    @property
+    def finally_invalid(self):
+        return self.initially_invalid and not self.finally_fixed
+
+
 class Audit(VersionModel):
     """
     Model for test
@@ -301,40 +348,46 @@ class Audit(VersionModel):
     accessibility_statement_backup_url = models.TextField(default="", blank=True)
     accessibility_statement_backup_url_date = models.DateField(null=True, blank=True)
     declaration_state = models.CharField(
+        "Declaration",
         max_length=20,
         choices=DECLARATION_STATE_CHOICES,
         default=DECLARATION_STATE_DEFAULT,
     )
     declaration_notes = models.TextField(default="", blank=True)
     scope_state = models.CharField(
-        max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
+        "Scope", max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
     )
     scope_notes = models.TextField(default="", blank=True)
     compliance_state = models.CharField(
+        "Compliance Status",
         max_length=20,
         choices=COMPLIANCE_STATE_CHOICES,
         default=COMPLIANCE_STATE_DEFAULT,
     )
     compliance_notes = models.TextField(default="", blank=True)
     non_regulation_state = models.CharField(
+        "Non-accessible Content - non compliance with regulations",
         max_length=20,
         choices=NON_REGULATION_STATE_CHOICES,
         default=NON_REGULATION_STATE_DEFAULT,
     )
     non_regulation_notes = models.TextField(default="", blank=True)
     disproportionate_burden_state = models.CharField(
+        "Non-accessible Content - disproportionate burden",
         max_length=20,
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
         default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
     )
     disproportionate_burden_notes = models.TextField(default="", blank=True)
     content_not_in_scope_state = models.CharField(
+        "Non-accessible Content - the content is not within the scope of the applicable legislation",
         max_length=20,
         choices=CONTENT_NOT_IN_SCOPE_STATE_CHOICES,
         default=CONTENT_NOT_IN_SCOPE_STATE_DEFAULT,
     )
     content_not_in_scope_notes = models.TextField(default="", blank=True)
     preparation_date_state = models.CharField(
+        "Preparation Date",
         max_length=20,
         choices=PREPARATION_DATE_STATE_CHOICES,
         default=PREPARATION_DATE_STATE_DEFAULT,
@@ -344,30 +397,42 @@ class Audit(VersionModel):
 
     # Accessibility statement 2
     method_state = models.CharField(
-        max_length=20, choices=METHOD_STATE_CHOICES, default=METHOD_STATE_DEFAULT
+        "Method",
+        max_length=20,
+        choices=METHOD_STATE_CHOICES,
+        default=METHOD_STATE_DEFAULT,
     )
     method_notes = models.TextField(default="", blank=True)
     review_state = models.CharField(
-        max_length=20, choices=REVIEW_STATE_CHOICES, default=REVIEW_STATE_DEFAULT
+        "Review",
+        max_length=20,
+        choices=REVIEW_STATE_CHOICES,
+        default=REVIEW_STATE_DEFAULT,
     )
     review_notes = models.TextField(default="", blank=True)
     feedback_state = models.CharField(
-        max_length=20, choices=FEEDBACK_STATE_CHOICES, default=FEEDBACK_STATE_DEFAULT
+        "Feedback",
+        max_length=20,
+        choices=FEEDBACK_STATE_CHOICES,
+        default=FEEDBACK_STATE_DEFAULT,
     )
     feedback_notes = models.TextField(default="", blank=True)
     contact_information_state = models.CharField(
+        "Contact Information",
         max_length=20,
         choices=CONTACT_INFORMATION_STATE_CHOICES,
         default=CONTACT_INFORMATION_STATE_DEFAULT,
     )
     contact_information_notes = models.TextField(default="", blank=True)
     enforcement_procedure_state = models.CharField(
+        "Enforcement Procedure",
         max_length=20,
         choices=ENFORCEMENT_PROCEDURE_STATE_CHOICES,
         default=ENFORCEMENT_PROCEDURE_STATE_DEFAULT,
     )
     enforcement_procedure_notes = models.TextField(default="", blank=True)
     access_requirements_state = models.CharField(
+        "Access Requirements",
         max_length=20,
         choices=ACCESS_REQUIREMENTS_STATE_CHOICES,
         default=ACCESS_REQUIREMENTS_STATE_DEFAULT,
@@ -680,35 +745,39 @@ class Audit(VersionModel):
         return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
 
     @property
+    def accessibility_statement_checks(self) -> List[AccessibilityStatementCheck]:
+        return [
+            AccessibilityStatementCheck(field_name_prefix=field_name_prefix, audit=self)
+            for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES
+        ]
+
+    @property
     def accessibility_statement_initially_invalid_checks_count(self):
-        initially_invalid_count: int = 0
-        for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
-            valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-                field_name_prefix
-            )
-            if valid_value:
-                initial_field_name: str = f"{field_name_prefix}_state"
-                initial_value: str = getattr(self, initial_field_name)
-                if initial_value != valid_value:
-                    initially_invalid_count += 1
-        return initially_invalid_count
+        return len(
+            [
+                statement_check
+                for statement_check in self.accessibility_statement_checks
+                if statement_check.initially_invalid
+            ]
+        )
 
     @property
     def fixed_accessibility_statement_checks_count(self):
-        fixed_count: int = 0
-        for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
-            valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-                field_name_prefix
-            )
-            if valid_value:
-                initial_field_name: str = f"{field_name_prefix}_state"
-                initial_value: str = getattr(self, initial_field_name)
-                if initial_value != valid_value:
-                    final_field_name: str = f"audit_retest_{field_name_prefix}_state"
-                    final_value: str = getattr(self, final_field_name)
-                    if final_value == valid_value:
-                        fixed_count += 1
-        return fixed_count
+        return len(
+            [
+                statement_check
+                for statement_check in self.accessibility_statement_checks
+                if statement_check.finally_fixed
+            ]
+        )
+
+    @property
+    def finally_invalid_accessibility_statement_checks(self):
+        return [
+            statement_check
+            for statement_check in self.accessibility_statement_checks
+            if statement_check.finally_invalid
+        ]
 
 
 class Page(models.Model):
