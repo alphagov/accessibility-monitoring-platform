@@ -73,7 +73,9 @@
                     WCAG errors have been fixed
                 </p>
                 <p class="govuk-body">
-                    {{ number_fixed_statement_errors }} of {{ number_statement_errors }}
+                    {{ case.audit.fixed_accessibility_statement_checks_count }}
+                    of
+                    {{ case.audit.accessibility_statement_initially_invalid_checks_count }}
                     statement errors have been fixed
                 </p>
                 {% if show_failures_by_page %}

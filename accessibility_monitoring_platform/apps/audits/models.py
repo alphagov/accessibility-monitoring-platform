@@ -62,29 +62,56 @@ TEST_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEST_TYPE_AXE, "Axe"),
     (TEST_TYPE_PDF, "PDF"),
 ]
-DECLARATION_STATE_DEFAULT: str = "not-present"
-DECLARATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
-    (DECLARATION_STATE_DEFAULT, "Not included"),
-    ("other", "Other"),
-]
 SCOPE_STATE_DEFAULT: str = "not-present"
+SCOPE_STATE_VALID: str = "present"
 SCOPE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
+    (SCOPE_STATE_VALID, "Present and correct"),
     (SCOPE_STATE_DEFAULT, "Not included"),
     ("incomplete", "Does not cover entire website"),
     ("other", "Other"),
 ]
+FEEDBACK_STATE_DEFAULT: str = "not-present"
+FEEDBACK_STATE_VALID: str = "present"
+FEEDBACK_STATE_CHOICES: List[Tuple[str, str]] = [
+    (FEEDBACK_STATE_VALID, "Present"),
+    ("incomplete", "Present but missing detail"),
+    (FEEDBACK_STATE_DEFAULT, "Not present"),
+    ("other", "Other (Please specify)"),
+]
+CONTACT_INFORMATION_STATE_DEFAULT: str = "not-present"
+CONTACT_INFORMATION_VALID: str = "present"
+CONTACT_INFORMATION_STATE_CHOICES: List[Tuple[str, str]] = [
+    (CONTACT_INFORMATION_VALID, "Present"),
+    ("incomplete", "Present but missing detail"),
+    (CONTACT_INFORMATION_STATE_DEFAULT, "Not present"),
+    ("other", "Other (Please specify)"),
+]
+ENFORCEMENT_PROCEDURE_STATE_DEFAULT: str = "not-present"
+ENFORCEMENT_PROCEDURE_VALID: str = "present"
+ENFORCEMENT_PROCEDURE_STATE_CHOICES: List[Tuple[str, str]] = [
+    (ENFORCEMENT_PROCEDURE_VALID, "Present"),
+    (ENFORCEMENT_PROCEDURE_STATE_DEFAULT, "Not included"),
+    ("other", "Other (Please specify)"),
+]
+DECLARATION_STATE_DEFAULT: str = "not-present"
+DECLARATION_STATE_VALID: str = "present"
+DECLARATION_STATE_CHOICES: List[Tuple[str, str]] = [
+    (DECLARATION_STATE_VALID, "Present and correct"),
+    (DECLARATION_STATE_DEFAULT, "Not included"),
+    ("other", "Other"),
+]
 COMPLIANCE_STATE_DEFAULT: str = "not-present"
+COMPLIANCE_STATE_VALID: str = "present"
 COMPLIANCE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
+    (COMPLIANCE_STATE_VALID, "Present and correct"),
     ("incorrect", "Present but incorrect"),
     (COMPLIANCE_STATE_DEFAULT, "Not present"),
     ("other", "Other (Please specify)"),
 ]
 NON_REGULATION_STATE_DEFAULT: str = "not-present"
+NON_REGULATION_VALID: str = "present"
 NON_REGULATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
+    (NON_REGULATION_VALID, "Present and correct"),
     ("incorrect", "Present but incorrect"),
     (NON_REGULATION_STATE_DEFAULT, "Not present"),
     ("n/a", "N/A"),
@@ -97,57 +124,42 @@ DISPROPORTIONATE_BURDEN_STATE_CHOICES: List[Tuple[str, str]] = [
     ("no-assessment", "Claim with no assessment"),
 ]
 CONTENT_NOT_IN_SCOPE_STATE_DEFAULT: str = "not-present"
+CONTENT_NOT_IN_SCOPE_VALID: str = "present"
 CONTENT_NOT_IN_SCOPE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
+    (CONTENT_NOT_IN_SCOPE_VALID, "Present and correct"),
     ("incorrect", "Present but incorrect"),
     (CONTENT_NOT_IN_SCOPE_STATE_DEFAULT, "Not present"),
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
 ]
 PREPARATION_DATE_STATE_DEFAULT: str = "not-present"
+PREPARATION_DATE_VALID: str = "present"
 PREPARATION_DATE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present"),
+    (PREPARATION_DATE_VALID, "Present"),
     (PREPARATION_DATE_STATE_DEFAULT, "Not included"),
     ("other", "Other (Please specify)"),
 ]
-METHOD_STATE_DEFAULT: str = "not-present"
-METHOD_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present"),
-    ("incomplete", "Present but missing detail"),
-    (METHOD_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
 REVIEW_STATE_DEFAULT: str = "not-present"
+REVIEW_STATE_VALID: str = "present"
 REVIEW_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present and correct"),
+    (REVIEW_STATE_VALID, "Present and correct"),
     ("out-of-date", "Present but out of date"),
     (REVIEW_STATE_DEFAULT, "Not included"),
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
 ]
-FEEDBACK_STATE_DEFAULT: str = "not-present"
-FEEDBACK_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present"),
+METHOD_STATE_DEFAULT: str = "not-present"
+METHOD_STATE_VALID: str = "present"
+METHOD_STATE_CHOICES: List[Tuple[str, str]] = [
+    (METHOD_STATE_VALID, "Present"),
     ("incomplete", "Present but missing detail"),
-    (FEEDBACK_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-CONTACT_INFORMATION_STATE_DEFAULT: str = "not-present"
-CONTACT_INFORMATION_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present"),
-    ("incomplete", "Present but missing detail"),
-    (CONTACT_INFORMATION_STATE_DEFAULT, "Not present"),
-    ("other", "Other (Please specify)"),
-]
-ENFORCEMENT_PROCEDURE_STATE_DEFAULT: str = "not-present"
-ENFORCEMENT_PROCEDURE_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("present", "Present"),
-    (ENFORCEMENT_PROCEDURE_STATE_DEFAULT, "Not included"),
+    (METHOD_STATE_DEFAULT, "Not present"),
     ("other", "Other (Please specify)"),
 ]
 ACCESS_REQUIREMENTS_STATE_DEFAULT: str = "req-not-met"
+ACCESS_REQUIREMENTS_VALID: str = "req-met"
 ACCESS_REQUIREMENTS_STATE_CHOICES: List[Tuple[str, str]] = [
-    ("req-met", "Meets requirements"),
+    (ACCESS_REQUIREMENTS_VALID, "Meets requirements"),
     (ACCESS_REQUIREMENTS_STATE_DEFAULT, "Does not meet requirements"),
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
@@ -220,6 +232,36 @@ REPORT_NEXT_ISSUE_TEXT: Dict[str, str] = {
     "report_next_statement_not_right": "They have a statement but it is not quite right",
     "report_next_statement_matches": "Their statement matches",
     "report_next_disproportionate_burden": "Disproportionate burden",
+}
+ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
+    "scope",
+    "feedback",
+    "contact_information",
+    "enforcement_procedure",
+    "declaration",
+    "compliance",
+    "non_regulation",
+    "disproportionate_burden",
+    "content_not_in_scope",
+    "preparation_date",
+    "review",
+    "method",
+    "access_requirements",
+]
+ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
+    "scope": SCOPE_STATE_VALID,
+    "feedback": FEEDBACK_STATE_VALID,
+    "contact_information": CONTACT_INFORMATION_VALID,
+    "enforcement_procedure": ENFORCEMENT_PROCEDURE_VALID,
+    "declaration": DECLARATION_STATE_VALID,
+    "compliance": COMPLIANCE_STATE_VALID,
+    "non_regulation": NON_REGULATION_VALID,
+    "disproportionate_burden": "",
+    "content_not_in_scope": CONTENT_NOT_IN_SCOPE_VALID,
+    "preparation_date": PREPARATION_DATE_VALID,
+    "review": REVIEW_STATE_VALID,
+    "method": METHOD_STATE_VALID,
+    "access_requirements": ACCESS_REQUIREMENTS_VALID,
 }
 
 
@@ -636,6 +678,37 @@ class Audit(VersionModel):
     @property
     def unfixed_check_results(self):
         return self.failed_check_results.exclude(retest_state=RETEST_CHECK_RESULT_FIXED)
+
+    @property
+    def accessibility_statement_initially_invalid_checks_count(self):
+        initially_invalid_count: int = 0
+        for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
+            valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+                field_name_prefix
+            )
+            if valid_value:
+                initial_field_name: str = f"{field_name_prefix}_state"
+                initial_value: str = getattr(self, initial_field_name)
+                if initial_value != valid_value:
+                    initially_invalid_count += 1
+        return initially_invalid_count
+
+    @property
+    def fixed_accessibility_statement_checks_count(self):
+        fixed_count: int = 0
+        for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
+            valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+                field_name_prefix
+            )
+            if valid_value:
+                initial_field_name: str = f"{field_name_prefix}_state"
+                initial_value: str = getattr(self, initial_field_name)
+                if initial_value != valid_value:
+                    final_field_name: str = f"audit_retest_{field_name_prefix}_state"
+                    final_value: str = getattr(self, final_field_name)
+                    if final_value == valid_value:
+                        fixed_count += 1
+        return fixed_count
 
 
 class Page(models.Model):

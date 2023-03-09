@@ -22,6 +22,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
+from ..audits.models import ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES
 
 from ..notifications.utils import add_notification, read_notification
 from ..reports.utils import get_report_visits_metrics
@@ -919,40 +920,42 @@ class CaseOutstandingIssuesDetailView(DetailView):
                     group_by_attr="wcag_definition",
                 )
 
-        number_statement_errors: int = 0
-        number_fixed_statement_errors: int = 0
         if case.audit:
             statement_checks: List[Dict[str, str]] = []
-            for prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
-                original_state: str = getattr(
-                    case.audit, f"get_{prefix}_state_display"
-                )()
-                if original_state not in [
-                    "Present",
-                    "Present and correct",
-                    "Meets requirements",
-                ]:
-                    number_statement_errors += 1
-                final_state: str = getattr(
-                    case.audit, f"get_audit_retest_{prefix}_state_display"
-                )()
-                if final_state in ["Present and correct", "Meets requirements"]:
-                    number_fixed_statement_errors += 1
-                    continue
-                statement_checks.append(
-                    {
-                        "name": statement_fields[f"{prefix}_state"].label,
-                        "original_state": original_state,
-                        "original_notes": getattr(case.audit, f"{prefix}_notes"),
-                        "final_state": final_state,
-                        "final_notes": getattr(
-                            case.audit, f"audit_retest_{prefix}_notes"
-                        ),
-                    }
+            for field_name_prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
+                valid_value: str = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+                    field_name_prefix
                 )
+                original_state: str = getattr(case.audit, f"{field_name_prefix}_state")
+                final_state: str = getattr(
+                    case.audit, f"audit_retest_{field_name_prefix}_state"
+                )
+                if (
+                    valid_value
+                    and original_state != valid_value
+                    and final_state != valid_value
+                ):
+                    statement_checks.append(
+                        {
+                            "name": statement_fields[
+                                f"{field_name_prefix}_state"
+                            ].label,
+                            "original_state": getattr(
+                                case.audit, f"get_{field_name_prefix}_state_display"
+                            )(),
+                            "original_notes": getattr(
+                                case.audit, f"{field_name_prefix}_notes"
+                            ),
+                            "final_state": getattr(
+                                case.audit,
+                                f"get_audit_retest_{field_name_prefix}_state_display",
+                            )(),
+                            "final_notes": getattr(
+                                case.audit, f"audit_retest_{field_name_prefix}_notes"
+                            ),
+                        }
+                    )
             context["statement_checks"] = statement_checks
-        context["number_statement_errors"] = number_statement_errors
-        context["number_fixed_statement_errors"] = number_fixed_statement_errors
 
         return context
 
