@@ -355,7 +355,10 @@ class Audit(VersionModel):
     )
     declaration_notes = models.TextField(default="", blank=True)
     scope_state = models.CharField(
-        "Scope", max_length=20, choices=SCOPE_STATE_CHOICES, default=SCOPE_STATE_DEFAULT
+        verbose_name="Scope",
+        max_length=20,
+        choices=SCOPE_STATE_CHOICES,
+        default=SCOPE_STATE_DEFAULT,
     )
     scope_notes = models.TextField(default="", blank=True)
     compliance_state = models.CharField(

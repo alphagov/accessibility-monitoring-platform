@@ -117,11 +117,13 @@
                     {% endfor %}
                 {% endif %}
                 <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header govuk-!-width-one-half">Original test</th>
-                            <th scope="col" class="govuk-table__header govuk-!-width-one-half">12-week retest</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
+                            <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
                         </tr>
                     </thead>
                     <tbody class="govuk-table__body">
@@ -145,6 +147,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' %}
