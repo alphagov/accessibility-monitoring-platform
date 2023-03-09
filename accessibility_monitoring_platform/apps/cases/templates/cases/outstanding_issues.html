@@ -27,54 +27,60 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-s">Sort WCAG errors</h2>
                 <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
-                    View by {% if show_failures_by_page %}WCAG type{% else %}page{% endif %}
+                    Group by {% if show_failures_by_page %}WCAG error{% else %}page{% endif %}
                 </a>
-                <h2 class="govuk-heading-s">WCAG errors</h2>
+                <h2 class="govuk-heading-m">Content</h2>
                 <ul class="govuk-list">
-                {% if show_failures_by_page %}
-                    {% for page, failures in audit_failures_by_page.items %}
-                        {% if page.unfixed_check_results %}
+                    {% if show_failures_by_page %}
+                        {% for page, failures in audit_failures_by_page.items %}
+                            {% if page.unfixed_check_results %}
+                                <li>
+                                    <a href="#page-{{ page.id }}" rel="noreferrer noopener" class="govuk-link">
+                                        {{ page }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for wcag_definition, failures in audit_failures_by_wcag.items %}
                             <li>
-                                <a href="#page-{{ page.id }}" rel="noreferrer noopener" class="govuk-link">
-                                    {{ page }}
+                                <a href="#wcag-{{ wcag_definition.id }}" rel="noreferrer noopener" class="govuk-link">
+                                    {{ wcag_definition.name }}
                                 </a>
                             </li>
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    {% for wcag_definition, failures in audit_failures_by_wcag.items %}
-                        <li>
-                            <a href="#wcag-{{ wcag_definition.id }}" rel="noreferrer noopener" class="govuk-link">
-                                {{ wcag_definition.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <li>
+                        <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
+                            Statement comparison
+                        </a>
+                    </li>
                 </ul>
-                <h2 class="govuk-heading-s">Statement errors</h2>
+                <h2 class="govuk-heading-m">Overview</h2>
                 <p class="govuk-body">
-                    <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
-                        Statement comparison
-                    </a>
-                </p>
-                <h2 class="govuk-heading-s">Overview</h2>
-                <p class="govuk-body">
-                    {{ case.audit.fixed_check_results.count|intcomma }}
-                    of {{ case.audit.failed_check_results.count|intcomma }}
+                    {% if case.audit.fixed_check_results %}
+                        {{ case.audit.fixed_check_results.count|intcomma }}
+                    {% else %}
+                        0
+                    {% endif %}
+                    of
+                    {% if case.audit.failed_check_results %}
+                        {{ case.audit.failed_check_results.count|intcomma }}
+                    {% else %}
+                        0
+                    {% endif %}
                     WCAG errors have been fixed
                 </p>
                 <p class="govuk-body">
-                    {{ number_fixed_statement_errors }}
-                    of 13
+                    {{ number_fixed_statement_errors }} of {{ number_statement_errors }}
                     statement errors have been fixed
                 </p>
                 {% if show_failures_by_page %}
                     {% for page, failures in audit_failures_by_page.items %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <h2 id="page-{{ page.id }}" class="govuk-heading-m">{{ page }}</h2>
+                                <h2 id="page-{{ page.id }}" class="govuk-heading-l">{{ page }}</h2>
                                 <table class="govuk-table">
                                     <tbody class="govuk-table__body">
                                         {% for failure in failures %}
@@ -108,7 +114,7 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-                <h2 id="statement-comparison" class="govuk-heading-m">Statement comparison</h2>
+                <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">

@@ -906,40 +906,53 @@ class CaseOutstandingIssuesDetailView(DetailView):
         show_failures_by_page: bool = not view_url_param == "WCAG view"
         context["show_failures_by_page"] = show_failures_by_page
 
-        if show_failures_by_page:
-            context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-                items=case.audit.unfixed_check_results, group_by_attr="page"  # type: ignore
-            )
-        else:
-            context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-                items=case.audit.unfixed_check_results.order_by(  # type: ignore
-                    "wcag_definition__name"
-                ),
-                group_by_attr="wcag_definition",
-            )
+        if case.audit and case.audit.unfixed_check_results:
+            if show_failures_by_page:
+                context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                    items=case.audit.unfixed_check_results, group_by_attr="page"
+                )
+            else:
+                context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                    items=case.audit.unfixed_check_results.order_by(
+                        "wcag_definition__name"
+                    ),
+                    group_by_attr="wcag_definition",
+                )
 
-        statement_checks: List[Dict[str, str]] = []
+        number_statement_errors: int = 0
         number_fixed_statement_errors: int = 0
-        for prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
-            final_state: str = getattr(
-                case.audit, f"get_audit_retest_{prefix}_state_display"
-            )()
-            if final_state in ["Present and correct", "Meets requirements"]:
-                number_fixed_statement_errors += 1
-                continue
-            statement_checks.append(
-                {
-                    "name": statement_fields[f"{prefix}_state"].label,
-                    "original_state": getattr(
-                        case.audit, f"get_{prefix}_state_display"
-                    )(),
-                    "original_notes": getattr(case.audit, f"{prefix}_notes"),
-                    "final_state": final_state,
-                    "final_notes": getattr(case.audit, f"audit_retest_{prefix}_notes"),
-                }
-            )
+        if case.audit:
+            statement_checks: List[Dict[str, str]] = []
+            for prefix in ACCESSIBILITY_STATEMENT_CHECK_PREFIXES:
+                original_state: str = getattr(
+                    case.audit, f"get_{prefix}_state_display"
+                )()
+                if original_state not in [
+                    "Present",
+                    "Present and correct",
+                    "Meets requirements",
+                ]:
+                    number_statement_errors += 1
+                final_state: str = getattr(
+                    case.audit, f"get_audit_retest_{prefix}_state_display"
+                )()
+                if final_state in ["Present and correct", "Meets requirements"]:
+                    number_fixed_statement_errors += 1
+                    continue
+                statement_checks.append(
+                    {
+                        "name": statement_fields[f"{prefix}_state"].label,
+                        "original_state": original_state,
+                        "original_notes": getattr(case.audit, f"{prefix}_notes"),
+                        "final_state": final_state,
+                        "final_notes": getattr(
+                            case.audit, f"audit_retest_{prefix}_notes"
+                        ),
+                    }
+                )
+            context["statement_checks"] = statement_checks
+        context["number_statement_errors"] = number_statement_errors
         context["number_fixed_statement_errors"] = number_fixed_statement_errors
-        context["statement_checks"] = statement_checks
 
         return context
 
