@@ -18,6 +18,7 @@ from django.urls import reverse
 from ...notifications.models import Notification
 from ...s3_read_write.models import S3Report
 from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
+from ...audits.tests.test_models import create_audit_and_check_results
 from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
@@ -480,6 +481,10 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-qa-process", "<li>QA process</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
+        (
+            "cases:outstanding-issues",
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
+        ),
     ],
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
@@ -3131,3 +3136,59 @@ def test_case_details_contents_hides_link_to_12_week_retest_when_testing_methodo
             12-week retest</a>""",
         html=True,
     )
+
+
+def test_outstanding_issues(admin_client):
+    """
+    Test out standing issues page renders according to URL parameters.
+    """
+    audit: Audit = create_audit_and_check_results()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Group by WCAG error")
+    assertNotContains(response, "Group by Page")
+    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertNotContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG+view")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Group by WCAG error")
+    assertContains(response, "Group by page")
+    assertNotContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+    response: HttpResponse = admin_client.get(f"{url}?view=Page+view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Group by WCAG error")
+    assertNotContains(response, "Group by page")
+    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertNotContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+
+def test_outstanding_issues_overview(admin_client):
+    """
+    Test out standing issues page shows overview.
+    """
+    audit: Audit = create_audit_and_check_results()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "0 of 3 WCAG errors have been fixed", html=True)
+    assertContains(response, "0 of 12 statement errors have been fixed", html=True)
