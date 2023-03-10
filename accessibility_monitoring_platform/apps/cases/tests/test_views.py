@@ -938,10 +938,11 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<a href="{ACCESSIBILITY_STATEMENT_URL}"
-            rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to accessibility statement
-        </a>""",
+        f"""<p class="govuk-body-m">
+            <a href="{ACCESSIBILITY_STATEMENT_URL}" target="_blank" class="govuk-link">
+                Open accessibility statement page
+            </a>
+        </p>""",
         html=True,
     )
 

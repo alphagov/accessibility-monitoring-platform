@@ -32,7 +32,7 @@
         </li>
     {% endif %}
     <li>
-        {% if case.audit.accessibility_statement_page.url %}
+        {% if case.audit.accessibility_statement_page.url and not case.audit.accessibility_statement_page.not_found %}
             <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Link to accessibility statement
             </a>
