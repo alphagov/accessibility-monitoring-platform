@@ -285,6 +285,27 @@ def test_accessibility_statement_initially_found():
 
 
 @pytest.mark.django_db
+def test_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found.
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+
+    assert audit.accessibility_statement_found is False
+
+    page.url = "https://example.com/statement"
+    page.save()
+
+    assert audit.accessibility_statement_found is True
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    assert audit.accessibility_statement_found is False
+
+
+@pytest.mark.django_db
 def test_twelve_week_accessibility_statement_found():
     """
     Test that an accessibility statement was found on 12-week retest.

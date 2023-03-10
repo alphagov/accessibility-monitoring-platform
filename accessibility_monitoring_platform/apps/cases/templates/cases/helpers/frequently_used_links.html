@@ -32,8 +32,12 @@
         </li>
     {% endif %}
     <li>
-        {% if case.audit.accessibility_statement_page.url and not case.audit.accessibility_statement_page.not_found %}
+        {% if case.audit.accessibility_statement_found %}
             <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to {{ case.audit.accessibility_statement_page|lower }}
+            </a>
+        {% elif case.audit.twelve_week_accessibility_statement_found %}
+            <a href="{{ case.audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                 Link to accessibility statement
             </a>
         {% else %}
@@ -41,9 +45,9 @@
         {% endif %}
     </li>
     {% if in_testing_ui %}
-    <li>
-        <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-            Markdown cheatsheet</a>
-    </li>
+        <li>
+            <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                Markdown cheatsheet</a>
+        </li>
     {% endif %}
 </ul>

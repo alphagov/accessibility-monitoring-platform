@@ -709,6 +709,14 @@ class Audit(VersionModel):
         return page is not None and page.url != "" and page.not_found == BOOLEAN_FALSE
 
     @property
+    def accessibility_statement_found(self):
+        return (
+            self.accessibility_statement_page is not None
+            and self.accessibility_statement_page.url != ""
+            and self.accessibility_statement_page.not_found == BOOLEAN_FALSE
+        )
+
+    @property
     def twelve_week_accessibility_statement_found(self):
         return self.twelve_week_accessibility_statement_url != ""
 
