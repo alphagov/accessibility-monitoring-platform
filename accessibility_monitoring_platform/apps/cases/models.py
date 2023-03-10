@@ -561,8 +561,6 @@ class Case(VersionModel):
 
         return date(1970, 1, 1)
 
-        return date(1970, 1, 1)
-
     @property
     def next_action_due_date_tense(self) -> str:
         today: date = date.today()

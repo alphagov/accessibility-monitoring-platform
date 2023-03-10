@@ -1,0 +1,46 @@
+<h2 class="govuk-heading-m">Overview</h2>
+<div class="amp-left-border">
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Date created</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">Unknown</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{% if case.auditor %}{{ case.auditor.get_full_name }}{% else %}None{% endif %}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Status</h2>
+    <ul class="govuk-list amp-margin-bottom-10">
+        <li>{{ case.get_status_display }}</li>
+        <li>
+            <a href="{% url 'cases:status-workflow' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                View status workflow
+            </a>
+        </li>
+    </ul>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Full URL</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        <a href="{{ case.home_page_url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+        {{ case.home_page_url }}
+        </a>
+    </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Organisation</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.organisation_name }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">
+        Reminder
+        {% if case.reminder %} due {{ case.reminder.due_date|amp_date }}{% endif %}
+    </h2>
+    {% if case.reminder %}
+        <div class="amp-report-wrapper">
+            {{ case.reminder.description|markdown_to_html }}
+        </div>
+        <p class="govuk-body-m amp-margin-bottom-10">
+            (<a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit
+            </a>)
+        </p>
+    {% else %}
+        <p class="govuk-body-m amp-margin-bottom-10">
+            <a href="{% url 'reminders:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Create reminder
+            </a>
+        </p>
+    {% endif %}
+    </div>
