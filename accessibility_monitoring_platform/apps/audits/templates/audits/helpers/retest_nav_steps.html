@@ -23,35 +23,5 @@
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
         {% include './nav_step.html' with edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
     </ul>
-    <h2 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h2>
-    <ul class="govuk-list">
-        <li>
-            <a href="{{ audit.case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to website
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
-                Link to case view
-            </a>
-        </li>
-        {% if audit.case.zendesk_url %}
-            <li>
-                <a href="{{ audit.case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Zendesk
-                </a>
-            </li>
-        {% endif %}
-        {% if audit.case.trello_url %}
-            <li>
-                <a href="{{ audit.case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                    Trello
-                </a>
-            </li>
-        {% endif %}
-        <li>
-            <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                Markdown cheatsheet</a>
-        </li>
-    </ul>
+    {% include 'cases/helpers/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
 </nav>

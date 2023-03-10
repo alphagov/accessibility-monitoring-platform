@@ -22,12 +22,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
-from ..audits.models import (
-    ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
-    ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES,
-)
 
 from ..notifications.utils import add_notification, read_notification
+
 from ..reports.utils import get_report_visits_metrics
 
 from ..comments.forms import CommentCreateForm

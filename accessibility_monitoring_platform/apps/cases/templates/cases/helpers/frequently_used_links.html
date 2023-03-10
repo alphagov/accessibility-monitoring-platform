@@ -10,6 +10,13 @@
             Link to website
         </a>
     </li>
+    {% if in_testing_ui %}
+        <li>
+            <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                Link to case view
+            </a>
+        </li>
+    {% endif %}
     {% if case.zendesk_url %}
         <li>
             <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -33,4 +40,10 @@
             No accessibility statement
         {% endif %}
     </li>
+    {% if in_testing_ui %}
+    <li>
+        <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+            Markdown cheatsheet</a>
+    </li>
+    {% endif %}
 </ul>

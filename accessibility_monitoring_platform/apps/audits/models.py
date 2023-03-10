@@ -117,10 +117,11 @@ NON_REGULATION_STATE_CHOICES: List[Tuple[str, str]] = [
     ("n/a", "N/A"),
     ("other", "Other (Please specify)"),
 ]
-DISPROPORTIONATE_BURDEN_STATE_DEFAULT: str = "no-claim"
+DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM: str = "no-claim"
+DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT: str = "assessment"
 DISPROPORTIONATE_BURDEN_STATE_CHOICES: List[Tuple[str, str]] = [
-    (DISPROPORTIONATE_BURDEN_STATE_DEFAULT, "No claim"),
-    ("assessment", "Claim with assessment"),
+    (DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM, "No claim"),
+    (DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT, "Claim with assessment"),
     ("no-assessment", "Claim with no assessment"),
 ]
 CONTENT_NOT_IN_SCOPE_STATE_DEFAULT: str = "not-present"
@@ -249,19 +250,22 @@ ACCESSIBILITY_STATEMENT_CHECK_PREFIXES: List[str] = [
     "access_requirements",
 ]
 ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
-    "scope": SCOPE_STATE_VALID,
-    "feedback": FEEDBACK_STATE_VALID,
-    "contact_information": CONTACT_INFORMATION_VALID,
-    "enforcement_procedure": ENFORCEMENT_PROCEDURE_VALID,
-    "declaration": DECLARATION_STATE_VALID,
-    "compliance": COMPLIANCE_STATE_VALID,
-    "non_regulation": NON_REGULATION_VALID,
-    "disproportionate_burden": "",
-    "content_not_in_scope": CONTENT_NOT_IN_SCOPE_VALID,
-    "preparation_date": PREPARATION_DATE_VALID,
-    "review": REVIEW_STATE_VALID,
-    "method": METHOD_STATE_VALID,
-    "access_requirements": ACCESS_REQUIREMENTS_VALID,
+    "scope": [SCOPE_STATE_VALID],
+    "feedback": [FEEDBACK_STATE_VALID],
+    "contact_information": [CONTACT_INFORMATION_VALID],
+    "enforcement_procedure": [ENFORCEMENT_PROCEDURE_VALID],
+    "declaration": [DECLARATION_STATE_VALID],
+    "compliance": [COMPLIANCE_STATE_VALID],
+    "non_regulation": [NON_REGULATION_VALID],
+    "disproportionate_burden": [
+        DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
+        DISPROPORTIONATE_BURDEN_STATE_ASSESSMENT,
+    ],
+    "content_not_in_scope": [CONTENT_NOT_IN_SCOPE_VALID],
+    "preparation_date": [PREPARATION_DATE_VALID],
+    "review": [REVIEW_STATE_VALID],
+    "method": [METHOD_STATE_VALID],
+    "access_requirements": [ACCESS_REQUIREMENTS_VALID],
 }
 
 
@@ -280,8 +284,8 @@ class AccessibilityStatementCheck:
 
     def __init__(self, field_name_prefix: str, audit: "Audit"):
         self.field_name_prefix = field_name_prefix
-        self.valid_value = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
-            field_name_prefix, ""
+        self.valid_values = ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES.get(
+            field_name_prefix, []
         )
         self.label = Audit._meta.get_field(f"{field_name_prefix}_state").verbose_name
         self.initial_state = getattr(audit, f"{field_name_prefix}_state")
@@ -297,19 +301,19 @@ class AccessibilityStatementCheck:
 
     @property
     def initially_invalid(self):
-        return self.valid_value and self.initial_state != self.valid_value
+        return self.valid_values and self.initial_state not in self.valid_values
 
     @property
     def finally_fixed(self):
         return (
-            self.valid_value
-            and self.initial_state != self.valid_value
-            and self.final_state == self.valid_value
+            self.valid_values
+            and self.initial_state not in self.valid_values
+            and self.final_state in self.valid_values
         )
 
     @property
     def finally_invalid(self):
-        return self.initially_invalid and not self.finally_fixed
+        return self.valid_values and self.final_state not in self.valid_values
 
 
 class Audit(VersionModel):
@@ -379,7 +383,7 @@ class Audit(VersionModel):
         "Non-accessible Content - disproportionate burden",
         max_length=20,
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
-        default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
+        default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
     )
     disproportionate_burden_notes = models.TextField(default="", blank=True)
     content_not_in_scope_state = models.CharField(
@@ -571,7 +575,7 @@ class Audit(VersionModel):
     audit_retest_disproportionate_burden_state = models.CharField(
         max_length=20,
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
-        default=DISPROPORTIONATE_BURDEN_STATE_DEFAULT,
+        default=DISPROPORTIONATE_BURDEN_STATE_NO_CLAIM,
     )
     audit_retest_disproportionate_burden_notes = models.TextField(
         default="", blank=True

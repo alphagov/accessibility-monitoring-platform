@@ -312,7 +312,7 @@ def test_accessibility_statement_check():
     )
 
     assert accessibility_statement_check.field_name_prefix == "scope"
-    assert accessibility_statement_check.valid_value == "present"
+    assert accessibility_statement_check.valid_values == ["present"]
     assert accessibility_statement_check.label == "Scope"
     assert accessibility_statement_check.initial_state == "not-present"
     assert accessibility_statement_check.initial_state_display == "Not included"
