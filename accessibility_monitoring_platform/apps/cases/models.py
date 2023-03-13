@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone as datetime_timezone
 import re
 from typing import List, Optional, Tuple
 
@@ -782,6 +782,7 @@ class Case(VersionModel):
     def last_edited(self):
         """Return when case or related data was last changed"""
         updated_times: List[datetime] = [self.created, self.updated]
+        # import pdb; pdb.set_trace()
 
         for contact in self.contact_set.all():
             updated_times.append(contact.created)
@@ -793,7 +794,7 @@ class Case(VersionModel):
                     self.audit.date_of_test.year,
                     self.audit.date_of_test.month,
                     self.audit.date_of_test.day,
-                    tzinfo=timezone.utc,
+                    tzinfo=datetime_timezone.utc,
                 )
             )
             updated_times.append(self.audit.updated)
@@ -804,7 +805,7 @@ class Case(VersionModel):
 
         for comment in self.comment_case.all():
             updated_times.append(comment.created_date)
-            updated_times.append(comment.updated_date)
+            updated_times.append(comment.updated)
 
         for reminder in self.reminder_case.all():
             updated_times.append(reminder.updated)

@@ -1,7 +1,10 @@
 """Models for comment and comment history"""
 from typing import List
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+
 from accessibility_monitoring_platform.apps.cases.models import Case
 
 
@@ -24,12 +27,15 @@ class Comment(models.Model):
     )
     body = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
-    updated = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering: List[str] = ["created_date"]
 
     def __str__(self) -> str:
         return f"Comment {self.body} by {self.user}"
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
