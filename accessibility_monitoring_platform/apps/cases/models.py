@@ -584,7 +584,7 @@ class Case(VersionModel):
         if self.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
-            self.case_completed == "complete-no-send"
+            self.case_completed == CASE_COMPLETED_NO_SEND
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
         ):
             return "complete"
