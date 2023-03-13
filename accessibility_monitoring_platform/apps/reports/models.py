@@ -77,6 +77,7 @@ class Report(VersionModel):
         blank=True,
         null=True,
     )
+    updated = models.DateTimeField(blank=True, null=True)
     report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
     report_rebuilt = models.DateTimeField(blank=True, null=True)
 
@@ -93,6 +94,7 @@ class Report(VersionModel):
         now = timezone.now()
         if not self.created:
             self.created = now
+        self.updated = now
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:

@@ -233,6 +233,7 @@ class Audit(VersionModel):
     )
     unpublished_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
@@ -547,10 +548,11 @@ class Audit(VersionModel):
             != self.__original_audit_retest_accessibility_statement_backup_url
         ):
             self.audit_retest_accessibility_statement_backup_url_date = timezone.now()
-        super().save(*args, **kwargs)
         self.__original_accessibility_statement_backup_url = (
             self.accessibility_statement_backup_url
         )
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
 
     @property
     def report_accessibility_issues(self) -> List[str]:
@@ -656,12 +658,17 @@ class Page(models.Model):
     retest_complete_date = models.DateField(null=True, blank=True)
     retest_page_missing_date = models.DateField(null=True, blank=True)
     retest_notes = models.TextField(default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
@@ -748,6 +755,7 @@ class CheckResult(models.Model):
         default=RETEST_CHECK_RESULT_DEFAULT,
     )
     retest_notes = models.TextField(default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
 
     @property
     def dict_for_retest(self) -> Dict[str, str]:
@@ -762,3 +770,7 @@ class CheckResult(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.page} | {self.wcag_definition}")
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)

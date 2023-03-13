@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import re
 from typing import List, Optional, Tuple
 
@@ -291,6 +291,7 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    updated = models.DateTimeField(null=True, blank=True)
 
     # Case details page
     created = models.DateTimeField(blank=True)
@@ -521,6 +522,7 @@ class Case(VersionModel):
             self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
+        self.updated = now
         super().save(*args, **kwargs)
 
     @property
@@ -776,6 +778,45 @@ class Case(VersionModel):
             return result.group(1)
         return None
 
+    @property
+    def last_edited(self):
+        """Return when case or related data was last changed"""
+        updated_times: List[datetime] = [self.created, self.updated]
+
+        for contact in self.contact_set.all():
+            updated_times.append(contact.created)
+            updated_times.append(contact.updated)
+
+        if self.audit is not None:
+            updated_times.append(
+                datetime(
+                    self.audit.date_of_test.year,
+                    self.audit.date_of_test.month,
+                    self.audit.date_of_test.day,
+                    tzinfo=timezone.utc,
+                )
+            )
+            updated_times.append(self.audit.updated)
+            for page in self.audit.page_audit.all():
+                updated_times.append(page.updated)
+            for check_result in self.audit.checkresult_audit.all():
+                updated_times.append(check_result.updated)
+
+        for comment in self.comment_case.all():
+            updated_times.append(comment.created_date)
+            updated_times.append(comment.updated_date)
+
+        for reminder in self.reminder_case.all():
+            updated_times.append(reminder.updated)
+
+        if self.report is not None:
+            updated_times.append(self.report.updated)
+
+        for s3_report in self.s3report_set.all():
+            updated_times.append(s3_report.created)
+
+        return max([updated for updated in updated_times if updated is not None])
+
 
 class Contact(models.Model):
     """
@@ -792,6 +833,7 @@ class Contact(models.Model):
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -801,6 +843,8 @@ class Contact(models.Model):
         return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs) -> None:
+        now = timezone.now()
+        self.updated = now
         if not self.id:
             self.created = timezone.now()
         super().save(*args, **kwargs)

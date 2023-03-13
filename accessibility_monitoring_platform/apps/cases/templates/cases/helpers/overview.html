@@ -3,7 +3,7 @@
     <h2 class="govuk-heading-s amp-margin-bottom-5">Date created</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">Unknown</p>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{% if case.auditor %}{{ case.auditor.get_full_name }}{% else %}None{% endif %}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Status</h2>
