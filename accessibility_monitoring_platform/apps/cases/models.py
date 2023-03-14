@@ -514,7 +514,7 @@ class Case(VersionModel):
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
+        now: datetime = timezone.now()
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
@@ -666,7 +666,7 @@ class Case(VersionModel):
 
     @property
     def in_report_correspondence_progress(self) -> str:
-        now = date.today()
+        now: date = date.today()
         seven_days_ago = now - timedelta(days=7)
         if (
             self.report_followup_week_1_due_date
@@ -708,7 +708,7 @@ class Case(VersionModel):
 
     @property
     def twelve_week_correspondence_progress(self) -> str:
-        now = date.today()
+        now: date = date.today()
         seven_days_ago = now - timedelta(days=5)
         if (
             self.twelve_week_1_week_chaser_due_date
@@ -781,8 +781,7 @@ class Case(VersionModel):
     @property
     def last_edited(self):
         """Return when case or related data was last changed"""
-        updated_times: List[datetime] = [self.created, self.updated]
-        # import pdb; pdb.set_trace()
+        updated_times: List[Optional[datetime]] = [self.created, self.updated]
 
         for contact in self.contact_set.all():
             updated_times.append(contact.created)
@@ -844,8 +843,7 @@ class Contact(models.Model):
         return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
-        self.updated = now
+        self.updated = timezone.now()
         if not self.id:
             self.created = timezone.now()
         super().save(*args, **kwargs)

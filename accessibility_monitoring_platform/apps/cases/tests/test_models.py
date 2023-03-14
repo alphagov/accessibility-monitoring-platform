@@ -36,6 +36,22 @@ DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
 DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
 
 
+@pytest.fixture
+def last_edited_case() -> Case:
+    """Pytest fixture case for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
+        return Case.objects.create()
+
+
+@pytest.fixture
+def last_edited_audit(last_edited_case: Case) -> Audit:
+    """Pytest fixture audit for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        return Audit.objects.create(
+            case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
+        )
+
+
 @pytest.mark.django_db
 def test_case_created_timestamp_is_populated():
     """Test the Case created field is populated the first time the Case is saved"""
@@ -344,166 +360,135 @@ def test_previous_case_number(previous_case_url, previous_case_number):
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_case():
+def test_case_last_edited_from_case(last_edited_case: Case):
     """Test the case last edited date found on Case"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
-    assert case.last_edited == DATETIME_CASE_CREATED
+    assert last_edited_case.last_edited == DATETIME_CASE_CREATED
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_UPDATED)):
-        case.save()
+        last_edited_case.save()
 
-    assert case.last_edited == DATETIME_CASE_UPDATED
+    assert last_edited_case.last_edited == DATETIME_CASE_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_contact():
+def test_case_last_edited_from_contact(last_edited_case: Case):
     """Test the case last edited date found on Contact"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_CREATED)
     ):
-        contact: Contact = Contact.objects.create(case=case)
+        contact: Contact = Contact.objects.create(case=last_edited_case)
 
-    assert case.last_edited == DATETIME_CONTACT_CREATED
+    assert last_edited_case.last_edited == DATETIME_CONTACT_CREATED
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
     ):
         contact.save()
 
-    assert case.last_edited == DATETIME_CONTACT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_CONTACT_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_audit():
+def test_case_last_edited_from_audit(last_edited_case: Case, last_edited_audit: Audit):
     """Test the case last edited date found on Audit"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
-        audit: Audit = Audit.objects.create(case=case, date_of_test=DATE_AUDIT_CREATED)
-
-    assert case.last_edited == DATETIME_AUDIT_CREATED
+    assert last_edited_case.last_edited == DATETIME_AUDIT_CREATED
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
-        audit.save()
+        last_edited_audit.save()
 
-    assert case.last_edited == DATETIME_AUDIT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_AUDIT_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_page():
+def test_case_last_edited_from_page(last_edited_case: Case, last_edited_audit: Audit):
     """Test the case last edited date found on Page"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
-        audit: Audit = Audit.objects.create(case=case, date_of_test=DATE_AUDIT_CREATED)
-
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
-        page: Page = Page.objects.create(audit=audit)
+        page: Page = Page.objects.create(audit=last_edited_audit)
 
-    assert case.last_edited == DATETIME_PAGE_CREATED
+    assert last_edited_case.last_edited == DATETIME_PAGE_CREATED
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
         page.save()
 
-    assert case.last_edited == DATETIME_PAGE_UPDATED
+    assert last_edited_case.last_edited == DATETIME_PAGE_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_check_result():
+def test_case_last_edited_from_check_result(
+    last_edited_case: Case, last_edited_audit: Audit
+):
     """Test the case last edited date found on CheckResult"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
-        audit: Audit = Audit.objects.create(case=case, date_of_test=DATE_AUDIT_CREATED)
-
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
-        page: Page = Page.objects.create(audit=audit)
+        page: Page = Page.objects.create(audit=last_edited_audit)
 
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
     ):
         check_result: CheckResult = CheckResult.objects.create(
-            audit=audit, page=page, type=TEST_TYPE_AXE, wcag_definition=wcag_definition
+            audit=last_edited_audit,
+            page=page,
+            type=TEST_TYPE_AXE,
+            wcag_definition=wcag_definition,
         )
 
-    assert case.last_edited == DATETIME_CHECK_RESULT_CREATED
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_CREATED
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
     ):
         check_result.save()
 
-    assert case.last_edited == DATETIME_CHECK_RESULT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_comment():
+def test_case_last_edited_from_comment(last_edited_case: Case):
     """Test the case last edited date found on Comment"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
     ):
-        comment: Comment = Comment.objects.create(case=case)
+        comment: Comment = Comment.objects.create(case=last_edited_case)
 
-    assert case.last_edited == DATETIME_COMMENT_CREATED
+    assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_UPDATED)
     ):
         comment.save()
 
-    assert case.last_edited == DATETIME_COMMENT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_COMMENT_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_reminder():
+def test_case_last_edited_from_reminder(last_edited_case: Case):
     """Test the case last edited date found on Reminder"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_REMINDER_UPDATED)
     ):
-        Reminder.objects.create(case=case, due_date=REMINDER_DUE_DATE)
+        Reminder.objects.create(case=last_edited_case, due_date=REMINDER_DUE_DATE)
 
-    assert case.last_edited == DATETIME_REMINDER_UPDATED
+    assert last_edited_case.last_edited == DATETIME_REMINDER_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_report():
+def test_case_last_edited_from_report(last_edited_case: Case):
     """Test the case last edited date found on Report"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_REPORT_UPDATED)):
-        Report.objects.create(case=case)
+        Report.objects.create(case=last_edited_case)
 
-    assert case.last_edited == DATETIME_REPORT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_REPORT_UPDATED
 
 
 @pytest.mark.django_db
-def test_case_last_edited_from_s3_report():
+def test_case_last_edited_from_s3_report(last_edited_case: Case):
     """Test the case last edited date found on S3Report"""
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
-        case: Case = Case.objects.create()
-
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_S3REPORT_UPDATED)
     ):
-        S3Report.objects.create(case=case, version=0)
+        S3Report.objects.create(case=last_edited_case, version=0)
 
-    assert case.last_edited == DATETIME_S3REPORT_UPDATED
+    assert last_edited_case.last_edited == DATETIME_S3REPORT_UPDATED
 
 
 @pytest.mark.django_db

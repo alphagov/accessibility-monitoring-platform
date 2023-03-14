@@ -1,6 +1,7 @@
 """
 Models - reports
 """
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
@@ -91,7 +92,7 @@ class Report(VersionModel):
         return str(f"{self.case} | {amp_format_datetime(self.created)}")
 
     def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
+        now: datetime = timezone.now()
         if not self.created:
             self.created = now
         self.updated = now
