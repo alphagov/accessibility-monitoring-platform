@@ -1,0 +1,53 @@
+<h3 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h3>
+<ul class="govuk-list">
+    <li>
+        <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link">
+            View outstanding issues
+        </a>
+    </li>
+    <li>
+        <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            Link to website
+        </a>
+    </li>
+    {% if in_testing_ui %}
+        <li>
+            <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                Link to case view
+            </a>
+        </li>
+    {% endif %}
+    {% if case.zendesk_url %}
+        <li>
+            <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Zendesk
+            </a>
+        </li>
+    {% endif %}
+    {% if case.trello_url %}
+        <li>
+            <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Trello
+            </a>
+        </li>
+    {% endif %}
+    <li>
+        {% if case.audit.accessibility_statement_found %}
+            <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to {{ case.audit.accessibility_statement_page|lower }}
+            </a>
+        {% elif case.audit.twelve_week_accessibility_statement_found %}
+            <a href="{{ case.audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Link to accessibility statement
+            </a>
+        {% else %}
+            No accessibility statement
+        {% endif %}
+    </li>
+    {% if in_testing_ui %}
+        <li>
+            <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                Markdown cheatsheet</a>
+        </li>
+    {% endif %}
+</ul>

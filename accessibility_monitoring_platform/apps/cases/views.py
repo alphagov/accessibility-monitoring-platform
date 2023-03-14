@@ -21,7 +21,10 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
+from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
+
 from ..notifications.utils import add_notification, read_notification
+
 from ..reports.utils import get_report_visits_metrics
 
 from ..comments.forms import CommentCreateForm
@@ -34,6 +37,7 @@ from ..common.utils import (
     record_model_update_event,
     record_model_create_event,
     check_dict_for_truthy_values,
+    list_to_dictionary_of_lists,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -97,6 +101,10 @@ ADVANCED_SEARCH_FIELDS: List[str] = [
     "is_complaint",
     "enforcement_body",
 ]
+statement_fields = {
+    **AuditStatement1UpdateForm().fields,
+    **AuditStatement2UpdateForm().fields,
+}
 
 
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Case]:
@@ -872,6 +880,36 @@ class CaseStatusWorkflowDetailView(DetailView):
     model: Type[Case] = Case
     context_object_name: str = "case"
     template_name: str = "cases/status_workflow.html"
+
+
+class CaseOutstandingIssuesDetailView(DetailView):
+    model: Type[Case] = Case
+    context_object_name: str = "case"
+    template_name: str = "cases/outstanding_issues.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
+
+        view_url_param: Union[str, None] = self.request.GET.get("view")
+        show_failures_by_page: bool = not view_url_param == "WCAG view"
+        context["show_failures_by_page"] = show_failures_by_page
+
+        if case.audit and case.audit.unfixed_check_results:
+            if show_failures_by_page:
+                context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+                    items=case.audit.unfixed_check_results, group_by_attr="page"
+                )
+            else:
+                context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
+                    items=case.audit.unfixed_check_results.order_by(
+                        "wcag_definition__name"
+                    ),
+                    group_by_attr="wcag_definition",
+                )
+
+        return context
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:
