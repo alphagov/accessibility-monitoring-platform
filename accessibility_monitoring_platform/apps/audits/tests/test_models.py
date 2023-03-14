@@ -2,7 +2,9 @@
 Tests for cases models
 """
 import pytest
+from datetime import datetime, timezone
 from typing import List
+from unittest.mock import patch, Mock
 
 from django.db.models.query import QuerySet
 
@@ -36,6 +38,9 @@ WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 WCAG_DESCRIPTION: str = "WCAG definition description"
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
 INITIAL_NOTES: str = "Initial notes"
 FINAL_NOTES: str = "Final notes"
 
@@ -318,6 +323,49 @@ def test_twelve_week_accessibility_statement_found():
     audit.twelve_week_accessibility_statement_url = "https://example.com/statement"
 
     assert audit.twelve_week_accessibility_statement_found is True
+
+
+@pytest.mark.django_db
+def test_audit_updated_updated():
+    """Test the audit updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        audit.save()
+
+    assert audit.updated == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_page_updated_updated():
+    """Test the page updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
+        page.save()
+
+    assert page.updated == DATETIME_PAGE_UPDATED
+
+
+@pytest.mark.django_db
+def test_check_result_updated_updated():
+    """Test the check result updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit, page=page, type=TEST_TYPE_AXE, wcag_definition=wcag_definition
+    )
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        check_result.save()
+
+    assert check_result.updated == DATETIME_CHECK_RESULT_UPDATED
 
 
 def test_accessibility_statement_check():

@@ -49,6 +49,7 @@ def test_reminder_export_as_csv(admin_client):
         "due_date",
         "description",
         "is_deleted",
+        "updated",
     ]
     assert rows[0]["due_date"] == str(today)
     assert rows[0]["description"] == REMINDER_DESCRIPTION_2

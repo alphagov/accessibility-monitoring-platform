@@ -2,15 +2,54 @@
 Tests for cases models
 """
 import pytest
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import List
+from unittest.mock import patch, Mock
 
+from ...audits.models import Audit, CheckResult, Page, WcagDefinition, TEST_TYPE_AXE
 from ...comments.models import Comment
+from ...reminders.models import Reminder
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
 from ..models import Case, Contact
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
 ORGANISATION_NAME: str = "Organisation name"
+DATETIME_HISTORIC: datetime = datetime(2020, 9, 15, tzinfo=timezone.utc)
+DATETIME_CASE_CREATED: datetime = datetime(2021, 9, 15, tzinfo=timezone.utc)
+DATETIME_CASE_UPDATED: datetime = datetime(2021, 9, 16, tzinfo=timezone.utc)
+DATETIME_CONTACT_CREATED: datetime = datetime(2021, 9, 17, tzinfo=timezone.utc)
+DATETIME_CONTACT_UPDATED: datetime = datetime(2021, 9, 18, tzinfo=timezone.utc)
+DATE_AUDIT_CREATED: date = date(2021, 9, 19)
+DATETIME_AUDIT_CREATED: datetime = datetime(2021, 9, 19, tzinfo=timezone.utc)
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
+DATETIME_PAGE_CREATED: datetime = datetime(2021, 9, 21, tzinfo=timezone.utc)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_CREATED: datetime = datetime(2021, 9, 23, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
+DATETIME_COMMENT_CREATED: datetime = datetime(2021, 9, 25, tzinfo=timezone.utc)
+DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
+REMINDER_DUE_DATE: date = date(2022, 1, 1)
+DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=timezone.utc)
+DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
+DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
+
+
+@pytest.fixture
+def last_edited_case() -> Case:
+    """Pytest fixture case for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
+        return Case.objects.create()
+
+
+@pytest.fixture
+def last_edited_audit(last_edited_case: Case) -> Audit:
+    """Pytest fixture audit for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        return Audit.objects.create(
+            case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
+        )
 
 
 @pytest.mark.django_db
@@ -315,6 +354,152 @@ def test_qa_comments():
 )
 def test_previous_case_number(previous_case_url, previous_case_number):
     """Test previous case number derived from url"""
-    case = Case(previous_case_url=previous_case_url)
+    case: Case = Case(previous_case_url=previous_case_url)
 
     assert case.previous_case_number == previous_case_number
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_case(last_edited_case: Case):
+    """Test the case last edited date found on Case"""
+    assert last_edited_case.last_edited == DATETIME_CASE_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_UPDATED)):
+        last_edited_case.save()
+
+    assert last_edited_case.last_edited == DATETIME_CASE_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_contact(last_edited_case: Case):
+    """Test the case last edited date found on Contact"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_CREATED)
+    ):
+        contact: Contact = Contact.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_CONTACT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
+    ):
+        contact.save()
+
+    assert last_edited_case.last_edited == DATETIME_CONTACT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_audit(last_edited_case: Case, last_edited_audit: Audit):
+    """Test the case last edited date found on Audit"""
+    assert last_edited_case.last_edited == DATETIME_AUDIT_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        last_edited_audit.save()
+
+    assert last_edited_case.last_edited == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_page(last_edited_case: Case, last_edited_audit: Audit):
+    """Test the case last edited date found on Page"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
+        page: Page = Page.objects.create(audit=last_edited_audit)
+
+    assert last_edited_case.last_edited == DATETIME_PAGE_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
+        page.save()
+
+    assert last_edited_case.last_edited == DATETIME_PAGE_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_check_result(
+    last_edited_case: Case, last_edited_audit: Audit
+):
+    """Test the case last edited date found on CheckResult"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
+        page: Page = Page.objects.create(audit=last_edited_audit)
+
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
+    ):
+        check_result: CheckResult = CheckResult.objects.create(
+            audit=last_edited_audit,
+            page=page,
+            type=TEST_TYPE_AXE,
+            wcag_definition=wcag_definition,
+        )
+
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        check_result.save()
+
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_comment(last_edited_case: Case):
+    """Test the case last edited date found on Comment"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
+    ):
+        comment: Comment = Comment.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_UPDATED)
+    ):
+        comment.save()
+
+    assert last_edited_case.last_edited == DATETIME_COMMENT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_reminder(last_edited_case: Case):
+    """Test the case last edited date found on Reminder"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_REMINDER_UPDATED)
+    ):
+        Reminder.objects.create(case=last_edited_case, due_date=REMINDER_DUE_DATE)
+
+    assert last_edited_case.last_edited == DATETIME_REMINDER_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_report(last_edited_case: Case):
+    """Test the case last edited date found on Report"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_REPORT_UPDATED)):
+        Report.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_REPORT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_s3_report(last_edited_case: Case):
+    """Test the case last edited date found on S3Report"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_S3REPORT_UPDATED)
+    ):
+        S3Report.objects.create(case=last_edited_case, version=0)
+
+    assert last_edited_case.last_edited == DATETIME_S3REPORT_UPDATED
+
+
+@pytest.mark.django_db
+def test_contact_updated_updated():
+    """Test the contact updated field is updated"""
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
+    ):
+        contact.save()
+
+    assert contact.updated == DATETIME_CONTACT_UPDATED
