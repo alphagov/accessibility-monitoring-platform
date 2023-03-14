@@ -312,7 +312,7 @@ def test_case_list_view_date_range_filters(admin_client):
         sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
     )
 
-    url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
