@@ -296,8 +296,11 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_date_range_filters(admin_client):
-    """Test that the case list view page can be filtered by date range"""
+def test_case_list_view_sent_to_enforcement_body_sent_date_filters(admin_client):
+    """
+    Test that the case list view page can be filtered by date range on sent to
+    enforcement body sent date.
+    """
     included_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
     )
@@ -314,6 +317,35 @@ def test_case_list_view_date_range_filters(admin_client):
     )
 
     url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_audit_date_of_test_filters(admin_client):
+    """
+    Test that the case list view page can be filtered by date range on audit
+    date of test.
+    """
+    included_audit_date_of_test: datetime = datetime(
+        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    excluded_audit_date_of_test: datetime = datetime(
+        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    Audit.objects.create(case=included_case, date_of_test=included_audit_date_of_test)
+    Audit.objects.create(case=excluded_case, date_of_test=excluded_audit_date_of_test)
+
+    url_parameters = "date_type=audit_case__date_of_test&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
