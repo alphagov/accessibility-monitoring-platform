@@ -42,6 +42,7 @@ const loggedInUrls = [
   '/cases/1/edit-twelve-week-correspondence/',
   '/cases/1/twelve-week-correspondence-email/',
   '/cases/1/edit-twelve-week-retest/',
+  '/cases/1/outstanding-issues/',
   '/cases/1/view/',
   '/cases/create/',
   '/common/contact/',
