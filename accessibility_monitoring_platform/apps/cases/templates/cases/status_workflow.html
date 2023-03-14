@@ -169,7 +169,22 @@
                     </li>
                 </ul>
 
-                <h2 class="govuk-heading-s">Complete</h2>
+                <h2 class="govuk-heading-s amp-margin-bottom-0">Complete</h2>
+                <ul class="govuk-list">
+                    <li>
+                        <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Case complete needs to be 'Case should not be sent to the equality body'
+                        </a>
+                        {% if case.case_close_complete_date %}&check;{% endif %}
+                    </li>
+                    <li>or</li>
+                    <li>
+                        <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Equality body pursuing this case? needs to be 'Yes, completed'
+                        </a>
+                        {% if case.enforcement_correspondence_complete_date %}&check;{% endif %}
+                    </li>
+                </ul>
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' %}
