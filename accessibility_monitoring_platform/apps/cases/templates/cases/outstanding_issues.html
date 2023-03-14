@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}{{ case.organisation_name }} | Outstanding issues{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li    >
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Outstanding issues
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Outstanding issues' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
+                    Group by {% if show_failures_by_page %}WCAG error{% else %}page{% endif %}
+                </a>
+                <h2 class="govuk-heading-m">Content</h2>
+                <ul class="govuk-list">
+                    {% if show_failures_by_page %}
+                        {% for page, failures in audit_failures_by_page.items %}
+                            {% if page.unfixed_check_results %}
+                                <li>
+                                    <a href="#page-{{ page.id }}" rel="noreferrer noopener" class="govuk-link">
+                                        {{ page }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+                            <li>
+                                <a href="#wcag-{{ wcag_definition.id }}" rel="noreferrer noopener" class="govuk-link">
+                                    {{ wcag_definition.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    <li>
+                        <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
+                            Statement comparison
+                        </a>
+                    </li>
+                </ul>
+                <h2 class="govuk-heading-m">Overview</h2>
+                <p class="govuk-body">
+                    {% if case.audit.fixed_check_results %}
+                        {{ case.audit.fixed_check_results.count|intcomma }}
+                    {% else %}
+                        0
+                    {% endif %}
+                    of
+                    {% if case.audit.failed_check_results %}
+                        {{ case.audit.failed_check_results.count|intcomma }}
+                    {% else %}
+                        0
+                    {% endif %}
+                    WCAG errors have been fixed
+                </p>
+                <p class="govuk-body">
+                    {{ case.audit.fixed_accessibility_statement_checks_count }}
+                    of
+                    {{ case.audit.accessibility_statement_initially_invalid_checks_count }}
+                    statement errors have been fixed
+                </p>
+                {% if show_failures_by_page %}
+                    {% for page, failures in audit_failures_by_page.items %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <h2 id="page-{{ page.id }}" class="govuk-heading-l">{{ page }}</h2>
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        {% for failure in failures %}
+                                            <tr class="govuk-table__row ">
+                                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.wcag_definition.name }}</th>
+                                                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <h3 class="govuk-heading-m"></h3>
+                                <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m">{{ wcag_definition.name }}</h2>
+                                <table class="govuk-table">
+                                    <tbody class="govuk-table__body">
+                                        {% for failure in failures %}
+                                            <tr class="govuk-table__row ">
+                                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ failure.page }}</th>
+                                                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ failure.notes|markdown_to_html }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
+                                    <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for statement_check in case.audit.finally_invalid_accessibility_statement_checks %}
+                                    <tr>
+                                        <td class="amp-width-one-half amp-padding-top-10">
+                                            <b>{{ statement_check.label }}</b>
+                                        </td>
+                                        <td class="amp-width-one-half amp-padding-top-10"></td>
+                                    </tr>
+                                    <tr class="govuk-table__row">
+                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                            {{ statement_check.initial_state_display }}<br>
+                                            {{ statement_check.initial_notes|markdown_to_html }}
+                                        </td>
+                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                            {{ statement_check.final_state_display }}<br>
+                                            {{ statement_check.final_notes|markdown_to_html }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'cases/helpers/nav_steps.html' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
