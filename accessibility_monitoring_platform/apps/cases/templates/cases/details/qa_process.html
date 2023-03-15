@@ -14,10 +14,91 @@
         {% endif %}
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-case-accordion">
     <tbody class="govuk-table__body">
-        {% for row in qa_process_rows %}
-            {% include 'cases/helpers/detail_row.html' with row=row %}
-        {% endfor %}
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Report ready to be reviewed
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_report_review_status_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                QA Auditor
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.reviewer.get_full_name }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Report draft
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {% include 'cases/helpers/report_link_draft.html' %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Comments
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Report approved?
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {{ case.get_report_approved_status_display }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Published report
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">
+                {% if case.report.latest_s3_report %}
+                    <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        View final HTML report
+                    </a>
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+        </tr>
+        {% if case.report_methodology != 'platform' %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                    Link to final ODT report
+                </th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if case.report_final_odt_url %}
+                        <a href="{{ case.report_final_odt_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            Final draft (ODT)
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                    Link to final PDF report
+                </th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if case.report_final_pdf_url %}
+                        <a href="{{ case.report_final_pdf_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            Final draft (PDF)
+                        </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+            </tr>
+    {% endif %}
     </tbody>
 </table>

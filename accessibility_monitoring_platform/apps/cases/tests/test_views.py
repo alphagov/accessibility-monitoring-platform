@@ -1722,7 +1722,7 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{reverse("cases:case-list")}?auditor={ user_id }" rel="noreferrer noopener" class="govuk-link">
                     Joe Bloggs
@@ -1746,7 +1746,7 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
@@ -1770,7 +1770,8 @@ def test_case_details_includes_link_to_report(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+            Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Final draft (PDF)
@@ -1794,7 +1795,7 @@ def test_case_details_includes_no_link_to_report(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
@@ -1804,7 +1805,6 @@ def test_case_details_includes_no_link_to_report(admin_client):
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit reminder",
         "Edit case details",
         "Edit testing details",
         "Edit report details",
@@ -1839,7 +1839,6 @@ def test_case_details_shows_edit_links(
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit reminder",
         "Edit equality body summary",
         "Edit post case summary",
     ],
@@ -2451,7 +2450,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">
-                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
                     Report publisher
                 </a>
             </div>
@@ -3113,7 +3112,9 @@ def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Link to test results
+            </th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,

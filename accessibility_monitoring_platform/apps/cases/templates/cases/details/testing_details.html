@@ -14,12 +14,12 @@
         {% endif %}
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-case-accordion">
     <tbody class="govuk-table__body">
         {% if case.testing_methodology == "platform" %}
             {% if case.audit %}
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header amp-width-one-half">Link to test</th>
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test</th>
                     <td class="govuk-table__cell amp-width-one-half">
                         <a
                             href="{% url 'audits:audit-detail' case.audit.id %}"
@@ -40,46 +40,46 @@
                 </p>
             {% endif %}
         {% else %}
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {% if case.test_results_url %}
-                    <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
-                {% else %}
-                    None
-                {% endif %}
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test results</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {% if case.test_results_url %}
+                        <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                    </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Test status</th>
+                <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                    Initial accessibility statement decision
+                </th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ case.get_accessibility_statement_state_display }}
                 </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Test status</th>
-            <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">
-                Initial accessibility statement decision
-            </th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {{ case.get_accessibility_statement_state_display }}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Accessibility statement notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                {{ case.accessibility_statement_notes|markdown_to_html }}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial compliance decision</th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {{ case.get_is_website_compliant_display }}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance notes</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                {{ case.compliance_decision_notes|markdown_to_html }}
-            </td>
-        </tr>
-{% endif %}
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Accessibility statement notes</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                    {{ case.accessibility_statement_notes|markdown_to_html }}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial compliance decision</th>
+                <td class="govuk-table__cell amp-width-one-half">
+                    {{ case.get_is_website_compliant_display }}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
+                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                    {{ case.compliance_decision_notes|markdown_to_html }}
+                </td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>

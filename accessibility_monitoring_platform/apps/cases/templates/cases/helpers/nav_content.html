@@ -3,7 +3,7 @@
                     {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if edit_name %}
                     |
-                    <a href="{% url edit_name case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a id="edit-{{ id }}" href="{% url edit_name case.id %}" class="govuk-link govuk-link--no-visited-state">
                         Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% endif %}
                 {% if complete %}&check;{% endif %}

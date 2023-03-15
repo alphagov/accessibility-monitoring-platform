@@ -187,11 +187,6 @@ class CaseDetailView(DetailView):
             else []
         )
 
-        qa_process_rows: List[FieldLabelAndValue] = get_rows(
-            form=CaseQAProcessUpdateForm(),
-            excluded_fields=excluded_fields,
-        )
-
         if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
             context.update(get_report_visits_metrics(self.object))
 
@@ -199,7 +194,6 @@ class CaseDetailView(DetailView):
             form=CaseDetailUpdateForm()
         )
         context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
-        context["qa_process_rows"] = qa_process_rows
         context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())
         context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())
         context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())

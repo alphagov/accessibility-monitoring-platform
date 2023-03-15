@@ -1,32 +1,32 @@
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Test created</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Test created</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.audit.date_of_test|amp_date }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Screen size</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Screen size</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_screen_size_display }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Exemptions</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Exemptions</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.audit.get_exemptions_state_display }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Exemptions notes</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Exemptions notes</th>
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.audit.exemptions_notes|markdown_to_html }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance decision</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance decision</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.get_is_website_compliant_display }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Initial website compliance notes</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance_decision_notes|markdown_to_html }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance decision</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial accessibility statement compliance decision</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_display }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Initial accessibility statement compliance notes</th>
+    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial accessibility statement compliance notes</th>
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.accessibility_statement_notes|markdown_to_html }}</td>
 </tr>

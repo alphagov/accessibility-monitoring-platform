@@ -109,7 +109,7 @@
                 {% include 'cases/helpers/overview.html' %}
             </div>
         </div>
-        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-case">
+        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
             <div class="govuk-accordion__section">
                 <div class="govuk-accordion__section-header">
                     <h2 id="case-details" class="govuk-accordion__section-heading">
@@ -122,7 +122,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-details">
+                <div id="accordion-content-case-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-details">
                     {% include 'cases/details/case_details.html' %}
                 </div>
             </div>
@@ -138,7 +138,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
+                <div id="accordion-content-test-results" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
                     {% include 'cases/details/testing_details.html' %}
                 </div>
             </div>
@@ -154,7 +154,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-details">
+                <div id="accordion-content-report-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-details">
                     {% include 'cases/details/report_details.html' %}
                 </div>
             </div>
@@ -170,7 +170,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-qa-process">
+                <div id="accordion-content-qa-process" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-qa-process">
                     {% include 'cases/details/qa_process.html' %}
                 </div>
             </div>
@@ -186,7 +186,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-contact-details">
+                <div id="accordion-content-contact-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-contact-details">
                     {% include 'cases/details/contact_details.html' %}
                 </div>
             </div>
@@ -202,7 +202,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-correspondence">
+                <div id="accordion-content-report-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-correspondence">
                     {% include 'cases/details/report_correspondence.html' %}
                 </div>
             </div>
@@ -218,7 +218,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-correspondence">
+                <div id="accordion-content-twelve-week-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-correspondence">
                     {% include 'cases/details/twelve_week_correspondence.html' %}
                 </div>
             </div>
@@ -235,7 +235,7 @@
                             </span>
                         </h2>
                     </div>
-                    <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
+                    <div id="accordion-content-twelve-week-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
                         {% include 'cases/details/retesting_details.html' %}
                     </div>
                 </div>
@@ -252,7 +252,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-review-changes">
+                <div id="accordion-content-review-changes" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-review-changes">
                     {% include 'cases/details/review_changes.html' %}
                 </div>
             </div>
@@ -269,7 +269,7 @@
                             </span>
                         </h2>
                     </div>
-                    <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-website">
+                    <div id="accordion-content-final-website" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-website">
                         {% include 'cases/details/final_website.html' %}
                     </div>
                 </div>
@@ -285,7 +285,7 @@
                             </span>
                         </h2>
                     </div>
-                    <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-statement">
+                    <div id="accordion-content-final-statement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-statement">
                         {% include 'cases/details/final_statement.html' %}
                     </div>
                 </div>
@@ -302,7 +302,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-close">
+                <div id="accordion-content-case-close" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-close">
                     {% include 'cases/details/case_close.html' %}
                 </div>
             </div>
@@ -318,7 +318,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
                     {% include 'cases/details/equality_bodies_correspondence.html' %}
                 </div>
             </div>
@@ -334,7 +334,7 @@
                         </span>
                     </h2>
                 </div>
-                <div id="accordion-content-testing-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
+                <div id="accordion-content-post-case" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
                     {% include 'cases/details/post_case.html' %}
                 </div>
             </div>
