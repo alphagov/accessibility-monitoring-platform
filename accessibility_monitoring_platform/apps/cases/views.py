@@ -86,7 +86,7 @@ from .utils import (
 ONE_WEEK_IN_DAYS = 7
 FOUR_WEEKS_IN_DAYS = 4 * ONE_WEEK_IN_DAYS
 TWELVE_WEEKS_IN_DAYS = 12 * ONE_WEEK_IN_DAYS
-ADVANCED_SEARCH_FIELDS: List[str] = [
+TRUTHY_SEARCH_FIELDS: List[str] = [
     "sort_by",
     "status",
     "auditor",
@@ -245,7 +245,7 @@ class CaseListView(ListView):
         }
 
         context["advanced_search_open"] = check_dict_for_truthy_values(
-            dictionary=get_without_page, keys_to_check=ADVANCED_SEARCH_FIELDS
+            dictionary=get_without_page, keys_to_check=TRUTHY_SEARCH_FIELDS
         )
         context["form"] = self.form
         context["url_parameters"] = urllib.parse.urlencode(get_without_page)
