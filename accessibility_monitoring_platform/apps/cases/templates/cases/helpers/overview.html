@@ -1,0 +1,92 @@
+<h2 class="govuk-heading-m">Overview</h2>
+<div class="amp-left-border">
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Date created</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.created|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Last edited</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{% if case.auditor %}{{ case.auditor.get_full_name }}{% else %}None{% endif %}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Status</h2>
+    <ul class="govuk-list amp-margin-bottom-10">
+        <li>{{ case.get_status_display }}</li>
+        <li>
+            {% if case.status == 'unassigned-case' %}
+                <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to case details
+                </a>
+            {% elif case.status == 'test-in-progress' %}
+                <a href="{% url 'cases:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to testing details
+                </a>
+            {% elif case.status == 'report-in-progress' %}
+                <a href="{% url 'cases:edit-report-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to report details
+                </a>
+            {% elif case.status == 'unassigned-qa-case' or case.status == 'qa-in-progress' %}
+                <a href="{% url 'cases:edit-qa-process' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to QA process
+                </a>
+            {% elif case.status == 'report-ready-to-send' %}
+                <a href="{% url 'cases:edit-contact-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to contact details
+                </a>
+            {% elif case.status == 'in-report-correspondence' %}
+                <a href="{% url 'cases:edit-report-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to report correspondence
+                </a>
+            {% elif case.status == 'in-probation-period' or case.status == 'in-12-week-correspondence' %}
+                <a href="{% url 'cases:edit-twelve-week-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to 12-week correspondence
+                </a>
+            {% elif case.status == 'reviewing-changes' %}
+                <a href="{% url 'cases:edit-review-changes' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to reviewing changes
+                </a>
+            {% elif case.status == 'final-decision-due' or case.status == 'case-closed-waiting-to-be-sent' %}
+                <a href="{% url 'cases:edit-case-close' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to closing the case
+                </a>
+            {% elif case.status == 'case-closed-sent-to-equalities-body' or case.status == 'in-correspondence-with-equalities-body' %}
+                <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to equality body summary
+                </a>
+            {% elif case.status == 'complete' %}
+                <a href="{% url 'cases:edit-post-case' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to post case summary
+                </a>
+            {% else %}
+                <a href="{% url 'cases:edit-case-details' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    Go to case details
+                </a>
+            {% endif %}
+        </li>
+    </ul>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Full URL</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        <a href="{{ case.home_page_url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+        {{ case.home_page_url }}
+        </a>
+    </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Organisation</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.organisation_name }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">
+        Reminder
+        {% if case.reminder %} due {{ case.reminder.due_date|amp_date }}{% endif %}
+    </h2>
+    {% if case.reminder %}
+        <div class="amp-report-wrapper">
+            {{ case.reminder.description|markdown_to_html }}
+        </div>
+        <p class="govuk-body-m amp-margin-bottom-10">
+            (<a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit
+            </a>)
+        </p>
+    {% else %}
+        <p class="govuk-body-m amp-margin-bottom-10">
+            <a href="{% url 'reminders:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Create reminder
+            </a>
+        </p>
+    {% endif %}
+    </div>

@@ -20,7 +20,6 @@ class ExportCsvMixin:
     """Mixin which adds csv export django admin action"""
 
     def export_as_csv(self, request, queryset):  # pylint: disable=unused-argument
-
         meta = self.model._meta  # pylint: disable=protected-access
         field_names = [field.name for field in meta.fields]
 
@@ -81,7 +80,7 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for IssueReport model"""
 
     readonly_fields = ["page_url", "page_title", "description", "created", "created_by"]
-    search_fields = ["page_url", "page_title", "description"]
+    search_fields = ["page_url", "page_title", "description", "trello_ticket"]
     list_display = ["page_title", "created_by", "created", "complete", "description"]
     list_filter = ["complete", "created_by"]
     fieldsets = (
