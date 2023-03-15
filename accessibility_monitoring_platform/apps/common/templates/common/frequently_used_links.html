@@ -48,11 +48,11 @@
     <li>
         {% if case.audit.accessibility_statement_found %}
             <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to {{ case.audit.accessibility_statement_page|lower }}
+                View {{ case.audit.accessibility_statement_page|lower }}
             </a>
         {% elif case.audit.twelve_week_accessibility_statement_found %}
             <a href="{{ case.audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to accessibility statement
+                View accessibility statement
             </a>
         {% else %}
             No accessibility statement
