@@ -1996,7 +1996,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to website
+                View website
             </a>
         </li>""",
         html=True,
