@@ -139,7 +139,11 @@
                     </h2>
                 </div>
                 <div id="accordion-content-test-results" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
-                    {% include 'cases/details/testing_details.html' %}
+                    {% if case.audit %}
+                        {% include 'cases/details/testing_details.html' with audit=case.audit %}
+                    {% else %}
+                        <p class="govuk-body-m">No test exists</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="govuk-accordion__section">
@@ -236,7 +240,11 @@
                         </h2>
                     </div>
                     <div id="accordion-content-twelve-week-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
-                        {% include 'cases/details/retesting_details.html' %}
+                        {% if case.audit %}
+                            {% include 'cases/details/retesting_details.html' with audit=case.audit %}
+                        {% else %}
+                            <p class="govuk-body-m">No test exists</p>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}

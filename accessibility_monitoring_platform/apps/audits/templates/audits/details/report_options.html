@@ -1,13 +1,15 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="audit-report-options" class="govuk-heading-l">Report options</h2>
+    <div class="govuk-grid-column-one-half">
+        <h2 id="audit-report-options" class="govuk-heading-{% if on_case_view %}s{% else %}l{% endif %}">
+            Report options
+        </h2>
     </div>
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-half">
         <div class="govuk-button-group amp-flex-end">
             <a href="{% url 'audits:edit-audit-report-options' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit report options
+                Edit {% if on_case_view %}test &gt; {% endif %}report options
             </a>
         </div>
     </div>

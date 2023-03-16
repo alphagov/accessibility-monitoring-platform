@@ -21,8 +21,19 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
-
+from ..audits.forms import (
+    AuditStatement1UpdateForm,
+    AuditStatement2UpdateForm,
+    CaseFinalWebsiteDecisionUpdateForm,
+    CaseFinalStatementDecisionUpdateForm,
+)
+from ..audits.utils import (
+    get_audit_metadata_rows,
+    get_website_decision_rows,
+    get_audit_statement_rows,
+    get_statement_decision_rows,
+    get_audit_report_options_rows,
+)
 from ..notifications.utils import add_notification, read_notification
 
 from ..reports.utils import get_report_visits_metrics
@@ -167,11 +178,12 @@ class CaseDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
         context["contacts"] = self.object.contact_set.filter(is_deleted=False)
         case_details_prefix: List[FieldLabelAndValue] = [
             FieldLabelAndValue(
                 label="Date created",
-                value=self.object.created,
+                value=case.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),
@@ -200,6 +212,33 @@ class CaseDetailView(DetailView):
         context["enforcement_body_correspondence_rows"] = get_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
+
+        if case.audit:
+            # Test UI
+            context["audit_metadata_rows"] = get_audit_metadata_rows(audit=case.audit)
+            context["website_decision_rows"] = get_website_decision_rows(
+                audit=case.audit
+            )
+            context["audit_statement_rows"] = get_audit_statement_rows(audit=case.audit)
+            context["statement_decision_rows"] = get_statement_decision_rows(
+                audit=case.audit
+            )
+            context["audit_report_options_rows"] = get_audit_report_options_rows(
+                audit=case.audit
+            )
+
+            # Retest UI
+            get_rows: Callable = partial(extract_form_labels_and_values, instance=case)
+            context["audit_retest_metadata_rows"] = get_audit_metadata_rows(
+                audit=case.audit
+            )
+            context["audit_retest_website_decision_rows"] = get_rows(
+                form=CaseFinalWebsiteDecisionUpdateForm()
+            )
+            context["audit_retest_statement_decision_rows"] = get_rows(
+                form=CaseFinalStatementDecisionUpdateForm()
+            )
+
         return context
 
 
