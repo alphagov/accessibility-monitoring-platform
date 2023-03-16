@@ -1357,7 +1357,7 @@ def test_section_complete_check_displayed_in_platform_testing_methodology(
             <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
             |
-            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
             &check;
