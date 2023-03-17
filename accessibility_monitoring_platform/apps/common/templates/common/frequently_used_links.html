@@ -1,13 +1,27 @@
 <h3 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h3>
 <ul class="govuk-list">
     <li>
-        <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link">
+        <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
             View outstanding issues
         </a>
     </li>
     <li>
+        <a href="{% url 'cases:twelve-week-correspondence-email' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            View email template
+        </a>
+    </li>
+    <li>
+        {% if case.report.latest_s3_report %}
+            <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View published report
+            </a>
+        {% else %}
+            No published report
+        {% endif %}
+    </li>
+    <li>
         <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-            Link to website
+            View website
         </a>
     </li>
     {% if in_testing_ui %}
@@ -34,11 +48,11 @@
     <li>
         {% if case.audit.accessibility_statement_found %}
             <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to {{ case.audit.accessibility_statement_page|lower }}
+                View {{ case.audit.accessibility_statement_page|lower }}
             </a>
         {% elif case.audit.twelve_week_accessibility_statement_found %}
             <a href="{{ case.audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to accessibility statement
+                View accessibility statement
             </a>
         {% else %}
             No accessibility statement
@@ -47,7 +61,8 @@
     {% if in_testing_ui %}
         <li>
             <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                Markdown cheatsheet</a>
+                Markdown cheatsheet
+            </a>
         </li>
     {% endif %}
 </ul>
