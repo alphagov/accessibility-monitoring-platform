@@ -1,16 +1,30 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-        <h2 id="audit-retest-metadata" class="govuk-heading-{% if on_case_view %}s{% else %}l{% endif %}">12-week test metadata</h2>
-    </div>
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit 12-week test {% if on_case_view %}&gt; 12-week test {% endif %}metadata
-            </a>
+    {% if on_view_case %}
+        <div class="govuk-grid-column-full">
+            <p id="audit-retest-metadata" class="govuk-body-m">
+                <b>12-week test metadata</b>
+                |
+                <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit 12-week test &gt; 12-week test metadata
+                </a>
+            </p>
         </div>
-    </div>
+    {% else %}
+        <div class="govuk-grid-column-one-half">
+            <h2 id="audit-retest-metadata" class="govuk-heading-l">12-week test metadata</h2>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit 12-week test metadata
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 <table class="govuk-table">
     <tbody class="govuk-table__body">

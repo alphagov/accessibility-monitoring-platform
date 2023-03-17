@@ -1,18 +1,32 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-        <h2 id="audit-retest-statement" class="govuk-heading-{% if on_case_view %}s{% else %}l{% endif %}">
-            12-week accessibility statement
-        </h2>
-    </div>
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit 12-week {% if on_case_view %}test &gt; 12-week {% endif %}accessibility statement
-            </a>
+    {% if on_view_case %}
+        <div class="govuk-grid-column-full">
+            <p id="audit-retest-statement" class="govuk-body-m">
+                <b>12-week accessibility statement</b>
+                |
+                <a href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit 12-week retest &gt; 12-week accessibility statement
+                </a>
+            </p>
         </div>
-    </div>
+    {% else %}
+        <div class="govuk-grid-column-one-half">
+            <h2 id="audit-retest-statement" class="govuk-heading-l">
+                12-week accessibility statement
+            </h2>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit 12-week accessibility statement
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
     <table class="govuk-table">

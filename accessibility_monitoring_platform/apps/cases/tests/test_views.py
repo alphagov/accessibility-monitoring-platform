@@ -1805,18 +1805,18 @@ def test_case_details_includes_no_link_to_report(admin_client):
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit case details",
+        "edit-case-details",
         #        "Edit testing details",
-        "Edit report details",
-        "Edit QA process",
-        "Edit contact details",
-        "Edit report correspondence",
-        "Edit 12-week correspondence",
+        "edit-report-details",
+        "edit-qa-process",
+        "edit-contact-details",
+        "edit-report-correspondence",
+        "edit-twelve-week-correspondence",
         #        "Edit 12-week retest",
-        "Edit reviewing changes",
-        "Edit closing the case",
-        "Edit equality body summary",
-        "Edit post case summary",
+        "edit-review-changes",
+        "edit-case-close",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links(
@@ -1839,8 +1839,8 @@ def test_case_details_shows_edit_links(
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit equality body summary",
-        "Edit post case summary",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links_when_spreadsheet(

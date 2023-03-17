@@ -9,7 +9,7 @@
             <li>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
                     {% for page in audit.testable_pages %}
-                        {% if on_case_view %}
+                        {% if on_view_case %}
                             {% include './nav_content.html' with anchor=page.anchor edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
                         {% else %}
                             {% include './nav_content.html' with edit_name='audits:edit-audit-page-checks' name=page complete=page.complete_date %}
@@ -23,7 +23,7 @@
         {% include './nav_content.html' with anchor="audit-statement" edit_name='audits:edit-audit-statement-2' name='Accessibility statement 2' complete=audit.audit_statement_2_complete_date %}
         {% include './nav_content.html' with anchor="statement-decision" edit_name='audits:edit-statement-decision' name='Accessibility statement compliance decision' complete=audit.audit_statement_decision_complete_date %}
         {% include './nav_content.html' with anchor="audit-report-options" edit_name='audits:edit-audit-report-options' name='Report options' complete=audit.audit_report_options_complete_date %}
-        {% if on_case_view %}{% else %}
+        {% if on_view_case %}{% else %}
             {% include './nav_content.html' with anchor="" edit_name='audits:edit-audit-summary' name='Test summary' complete=audit.audit_summary_complete_date %}
         {% endif %}
         {% if audit.case.report_methodology == 'odt' %}

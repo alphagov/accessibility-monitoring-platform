@@ -1,16 +1,30 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-        <h2 id="audit-statement" class="govuk-heading-{% if on_case_view %}s{% else %}l{% endif %}">
-            Accessibility statement
-        </h2>
-    </div>
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">Edit {% if on_case_view %}test &gt; {% endif %}accessibility statement</a>
+    {% if on_view_case %}
+        <div class="govuk-grid-column-full">
+            <p id="audit-statement"  class="govuk-body-m">
+                <b>Accessibility statement</b>
+                |
+                <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit test &gt; accessibility statement
+                </a>
+            </p>
         </div>
-    </div>
+    {% else %}
+        <div class="govuk-grid-column-one-half">
+            <h2 id="audit-statement" class="govuk-heading-l">
+                Accessibility statement
+            </h2>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">Edit accessibility statement</a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% if audit.accessibility_statement_initially_found %}
     <table class="govuk-table">

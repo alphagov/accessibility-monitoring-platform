@@ -1,35 +1,33 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-s">Testing details</h2>
-    </div>
-    <div class="govuk-grid-column-one-third">
-        {% if case.testing_methodology == "platform" %}
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-test-results' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit testing details
-            </a>
-        </div>
-        {% endif %}
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Testing details</b>
+            {% if case.testing_methodology == "platform" %}
+                |
+                <a href="{% url 'cases:edit-test-results' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit
+                </a>
+            {% endif %}
+        </p>
     </div>
 </div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        {% include 'audits/helpers/nav_contents.html' with on_case_view=True %}
+        {% include 'audits/helpers/nav_contents.html' with on_view_case=True %}
         {% include 'audits/details/metadata.html' with on_view_case=True %}
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-                <h2 id="audit-pages" class="govuk-heading-s">Test pages</h2>
-            </div>
-            <div class="govuk-grid-column-one-half">
-                <div class="govuk-button-group amp-flex-end">
+            <div class="govuk-grid-column-full">
+                <p id="audit-pages" class="govuk-body-m">
+                    <b>Test pages</b>
+                    |
                     <a href="{% url 'audits:edit-audit-pages' audit.id %}"
                         class="govuk-link govuk-link--no-visited-state"
                         rel="noreferrer noopener">
-                        Edit test &gt; test pages
+                        Edit test &gt; pages
                     </a>
-                </div>
+                </p>
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -50,36 +48,39 @@
         </div>
         {% for page in audit.testable_pages %}
             <div class="govuk-grid-row">
-                <div class="govuk-grid-column-one-half">
-                    <h2 id="{{ page.anchor }}" class="govuk-heading-s">{{ page }} test</h2>
-                </div>
-                <div class="govuk-grid-column-one-half">
-                    <div class="govuk-button-group amp-flex-end">
+                <div class="govuk-grid-column-full">
+                    <p id="{{ page.anchor }}" class="govuk-body-m">
+                        <b>{{ page }} test</b>
+                        |
                         <a href="{% url 'audits:edit-audit-page-checks' page.id %}"
                             class="govuk-link govuk-link--no-visited-state"
                             rel="noreferrer noopener">
-                            Edit test &gt; {{ page|lower }} test
+                            Edit test &gt; {{ page|lower }}
                         </a>
-                    </div>
+                    </p>
                 </div>
             </div>
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">
-                    {% for check_result in page.failed_check_results %}
-                        <tr class="govuk-table__row ">
-                            <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
-                            <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if page.failed_check_results %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        {% for check_result in page.failed_check_results %}
+                            <tr class="govuk-table__row ">
+                                <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
+                                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="govuk-body-m">No errors found</p>
+            {% endif %}
         {% endfor %}
-        {% include 'audits/details/website_decision.html' with on_case_view=True %}
-        {% include 'audits/details/statement.html' with on_case_view=True %}
-        {% include 'audits/details/statement_decision.html' with on_case_view=True %}
-        {% include 'audits/details/report_options.html' with on_case_view=True %}
+        {% include 'audits/details/website_decision.html' with on_view_case=True %}
+        {% include 'audits/details/statement.html' with on_view_case=True %}
+        {% include 'audits/details/statement_decision.html' with on_view_case=True %}
+        {% include 'audits/details/report_options.html' with on_view_case=True %}
         {% if audit.case.report_methodology == 'odt' %}
-            {% include 'audits/details/report_text.html' with on_case_view=True %}
+            {% include 'audits/details/report_text.html' with on_view_case=True %}
         {% endif %}
     </div>
 </div>

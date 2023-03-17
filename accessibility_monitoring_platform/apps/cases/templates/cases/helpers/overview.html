@@ -78,9 +78,9 @@
             {{ case.reminder.description|markdown_to_html }}
         </div>
         <p class="govuk-body-m amp-margin-bottom-10">
-            (<a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                Edit
-            </a>)
+            <a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit reminder
+            </a>
         </p>
     {% else %}
         <p class="govuk-body-m amp-margin-bottom-10">
