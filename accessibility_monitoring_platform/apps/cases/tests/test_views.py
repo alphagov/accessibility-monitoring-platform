@@ -2008,9 +2008,11 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-post-case"),
     ],
 )
-def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):
+def test_frequently_used_links_displayed_in_edit(
+    useful_link, edit_url_name, admin_client
+):
     """
-    Test that the useful links are displayed on all edit pages
+    Test that the frequently used links are displayed on all edit pages
     """
     case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
     setattr(case, useful_link, f"https://{useful_link}.com")
@@ -2028,7 +2030,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to website
+                View website
             </a>
         </li>""",
         html=True,
@@ -3243,3 +3245,26 @@ def test_outstanding_issues_overview(admin_client):
 
     assertContains(response, "0 of 3 WCAG errors have been fixed", html=True)
     assertContains(response, "0 of 12 statement errors have been fixed", html=True)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    ["cases:case-detail", "cases:edit-case-details"],
+)
+def test_frequently_used_links_displayed(url_name, admin_client):
+    """
+    Test that the frequently used links are displayed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Frequently used links")
+    assertContains(response, "View outstanding issues")
+    assertContains(response, "View email template")
+    assertContains(response, "No published report")
+    assertContains(response, "View website")

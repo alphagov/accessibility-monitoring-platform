@@ -22,4 +22,5 @@
         {% include './nav_content.html' with anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
         {% include './nav_content.html' with anchor='audit-retest-statement-decision' edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
     </ul>
+    {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
 </nav>
