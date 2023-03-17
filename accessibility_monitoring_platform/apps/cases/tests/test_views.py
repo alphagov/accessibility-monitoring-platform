@@ -822,6 +822,24 @@ def test_add_qa_comment(admin_client, admin_user):
     assert event.type == EVENT_TYPE_MODEL_CREATE
 
 
+def test_add_comment_button_redirects_to_add_comment(admin_client):
+    """Test pressing add comment button redirects to add comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
+        {
+            "add_comment": "Add comment",
+            "version": case.version,
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:add-qa-comment", kwargs={"case_id": case.id})}'
+    )
+
+
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
     """Test adding a QA comment redirects to QA process page"""
     case: Case = Case.objects.create()
