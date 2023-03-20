@@ -29,7 +29,7 @@
     {% endif %}
 </div>
 {% if audit.accessibility_statement_initially_found or audit.twelve_week_accessibility_statement_found %}
-    <table class="govuk-table">
+    <table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
         <tbody class="govuk-table__body">
             {% if audit.twelve_week_accessibility_statement_found %}
                 <tr class="govuk-table__row">

@@ -28,7 +28,7 @@
         </div>
     {% endif %}
 </div>
-<table class="govuk-table">
+<table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
     <tbody class="govuk-table__body">
         {% for row in audit_report_options_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}

@@ -32,7 +32,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <table class="govuk-table">
+                <table class="govuk-table amp-case-accordion">
                     <tbody class="govuk-table__body">
                         {% for page in audit.testable_pages %}
                             <tr class="govuk-table__row ">
@@ -61,7 +61,7 @@
                 </div>
             </div>
             {% if page.failed_check_results %}
-                <table class="govuk-table">
+                <table class="govuk-table amp-case-accordion">
                     <tbody class="govuk-table__body">
                         {% for check_result in page.failed_check_results %}
                             <tr class="govuk-table__row ">
