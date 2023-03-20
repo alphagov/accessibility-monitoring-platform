@@ -1,20 +1,5 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <p class="govuk-body-m">
-            <b>Testing details</b>
-            {% if case.testing_methodology == "platform" %}
-                |
-                <a href="{% url 'cases:edit-test-results' case.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit
-                </a>
-            {% endif %}
-        </p>
-    </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
         {% include 'audits/helpers/nav_contents.html' with on_view_case=True %}
         {% include 'audits/details/metadata.html' with on_view_case=True %}
         <div class="govuk-grid-row">
@@ -39,7 +24,11 @@
                                 <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">
                                     {{ page }}
                                 </th>
-                                <td class="govuk-table__cell amp-width-one-half">{{ page.url }}</td>
+                                <td class="govuk-table__cell amp-width-one-half">
+                                    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                        {{ page.url }}
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

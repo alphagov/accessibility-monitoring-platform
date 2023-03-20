@@ -611,10 +611,12 @@ class AuditSummaryUpdateView(AuditUpdateView):
                 items=audit.failed_check_results, group_by_attr="wcag_definition"
             )
 
-        get_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
-        context["audit_statement_rows"] = get_rows(
+        get_audit_rows: Callable = partial(
+            extract_form_labels_and_values, instance=audit
+        )
+        context["audit_statement_rows"] = get_audit_rows(
             form=AuditStatement1UpdateForm()
-        ) + get_rows(form=AuditStatement2UpdateForm())
+        ) + get_audit_rows(form=AuditStatement2UpdateForm())
 
         return context
 
@@ -667,14 +669,14 @@ class AuditRetestDetailView(DetailView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         audit: Audit = self.object
 
-        get_rows: Callable = partial(
+        get_case_rows: Callable = partial(
             extract_form_labels_and_values, instance=audit.case
         )
         context["audit_retest_metadata_rows"] = get_audit_metadata_rows(audit=audit)
-        context["audit_retest_website_decision_rows"] = get_rows(
+        context["audit_retest_website_decision_rows"] = get_case_rows(
             form=CaseFinalWebsiteDecisionUpdateForm()
         )
-        context["audit_retest_statement_decision_rows"] = get_rows(
+        context["audit_retest_statement_decision_rows"] = get_case_rows(
             form=CaseFinalStatementDecisionUpdateForm()
         )
 

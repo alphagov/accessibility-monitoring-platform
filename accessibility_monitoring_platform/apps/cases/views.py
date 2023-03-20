@@ -189,27 +189,25 @@ class CaseDetailView(DetailView):
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),
         ]
 
-        get_rows: Callable = partial(
+        get_case_rows: Callable = partial(
             extract_form_labels_and_values, instance=self.object
-        )
-
-        excluded_fields: List[str] = (
-            ["report_final_odt_url", "report_final_pdf_url"]
-            if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM
-            else []
         )
 
         if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
             context.update(get_report_visits_metrics(self.object))
 
-        context["case_details_rows"] = case_details_prefix + get_rows(
+        context["case_details_rows"] = case_details_prefix + get_case_rows(
             form=CaseDetailUpdateForm()
         )
-        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
-        context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())
-        context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())
-        context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())
-        context["enforcement_body_correspondence_rows"] = get_rows(
+        context["report_details_rows"] = get_case_rows(
+            form=CaseReportDetailsUpdateForm()
+        )
+        context["review_changes_rows"] = get_case_rows(
+            form=CaseReviewChangesUpdateForm()
+        )
+        context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
+        context["post_case_rows"] = get_case_rows(form=PostCaseUpdateForm())
+        context["enforcement_body_correspondence_rows"] = get_case_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
 
@@ -228,14 +226,13 @@ class CaseDetailView(DetailView):
             )
 
             # Retest UI
-            get_rows: Callable = partial(extract_form_labels_and_values, instance=case)
             context["audit_retest_metadata_rows"] = get_audit_metadata_rows(
                 audit=case.audit
             )
-            context["audit_retest_website_decision_rows"] = get_rows(
+            context["audit_retest_website_decision_rows"] = get_case_rows(
                 form=CaseFinalWebsiteDecisionUpdateForm()
             )
-            context["audit_retest_statement_decision_rows"] = get_rows(
+            context["audit_retest_statement_decision_rows"] = get_case_rows(
                 form=CaseFinalStatementDecisionUpdateForm()
             )
 

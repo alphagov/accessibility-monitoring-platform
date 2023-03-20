@@ -1,18 +1,5 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <p class="govuk-body-m">
-            <b>12-week retest</b>
-            |
-            <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit
-            </a>
-        </p>
-    </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
         {% include 'audits/helpers/retest_nav_contents.html' with on_view_case=True %}
         {% include 'audits/details/retest_metadata.html' with on_view_case=True %}
         {% if audit.case.psb_response %}

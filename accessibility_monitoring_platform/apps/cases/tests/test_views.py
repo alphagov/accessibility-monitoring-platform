@@ -1248,48 +1248,45 @@ def test_preferred_contact_not_displayed(admin_client):
     assertNotContains(response, "Preferred contact")
 
 
-# def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
-#     admin_client,
-# ):
-#     """
-#     Test that audit details shows link to create when no audit exists
-#     """
-#     case: Case = Case.objects.create()
+def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
+    admin_client,
+):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create()
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:case-detail", kwargs={"pk": case.id}),
-#     )
-#     assert response.status_code == 200
-#     assertContains(response, "A test does not exist for this case.")
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, "No test exists")
 
 
-# @pytest.mark.parametrize(
-#     "audit_table_row",
-#     [
-#         ("Link to test"),
-#         ("Test created"),
-#         ("Screen size"),
-#         ("Exemptions"),
-#         ("Exemptions notes"),
-#         ("Initial website compliance decision"),
-#         ("Initial website compliance notes"),
-#         ("Initial accessibility statement compliance decision"),
-#         ("Initial accessibility statement compliance notes"),
-#     ],
-# )
-# def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
-#     admin_client, audit_table_row
-# ):
-#     """
-#     Test that audit details shows link to create when no audit exists
-#     """
-#     case: Case = Case.objects.create()
-#     Audit.objects.create(case=case)
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:case-detail", kwargs={"pk": case.id}),
-#     )
-#     assert response.status_code == 200
-#     assertContains(response, audit_table_row)
+@pytest.mark.parametrize(
+    "audit_table_row",
+    [
+        ("Screen size"),
+        ("Exemptions"),
+        ("Initial website compliance decision"),
+        ("Initial website compliance notes"),
+        ("Initial accessibility statement compliance decision"),
+        ("Initial accessibility statement compliance notes"),
+    ],
+)
+def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
+    admin_client, audit_table_row
+):
+    """
+    Test that audit details shows link to create when no audit exists
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, audit_table_row)
 
 
 def test_report_details_shows_link_to_create_report_when_no_report_exists_and_report_is_platform(
@@ -1856,13 +1853,13 @@ def test_case_details_includes_no_link_to_report(admin_client):
     "edit_link_label",
     [
         "edit-case-details",
-        #        "Edit testing details",
+        "edit-test-results",
         "edit-report-details",
         "edit-qa-process",
         "edit-contact-details",
         "edit-report-correspondence",
         "edit-twelve-week-correspondence",
-        #        "Edit 12-week retest",
+        "edit-twelve-week-retest",
         "edit-review-changes",
         "edit-case-close",
         "edit-enforcement-body-correspondence",
