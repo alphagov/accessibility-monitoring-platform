@@ -139,10 +139,57 @@
                     </h2>
                 </div>
                 <div id="accordion-content-test-results" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
-                    {% if case.audit %}
-                        {% include 'cases/details/testing_details.html' with audit=case.audit %}
+                    {% if case.testing_methodology == "platform" %}
+                        {% if case.audit %}
+                            {% include 'cases/details/testing_details.html' with audit=case.audit %}
+                        {% else %}
+                            <p class="govuk-body-m">No test exists</p>
+                        {% endif %}
                     {% else %}
-                        <p class="govuk-body-m">No test exists</p>
+                        <table class="govuk-table amp-case-accordion">
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test results</th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {% if case.test_results_url %}
+                                            <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                        </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Test status</th>
+                                    <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                                        Initial accessibility statement decision
+                                    </th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {{ case.get_accessibility_statement_state_display }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Accessibility statement notes</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                        {{ case.accessibility_statement_notes|markdown_to_html }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial compliance decision</th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {{ case.get_is_website_compliant_display }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                        {{ case.compliance_decision_notes|markdown_to_html }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     {% endif %}
                 </div>
             </div>

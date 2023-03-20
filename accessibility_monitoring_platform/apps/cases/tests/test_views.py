@@ -3144,30 +3144,30 @@ def test_navigation_links_hidden_when_spreadsheet_testing(
     )
 
 
-# def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
-#     """
-#     Test case details hides link to test results when URL not present
-#     when testing methodology is spreadsheet.
-#     """
-#     case: Case = Case.objects.create(
-#         testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
-#     )
+def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
+    """
+    Test case details hides link to test results when URL not present
+    when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
 
-#     response: HttpResponse = admin_client.get(
-#         reverse("cases:case-detail", kwargs={"pk": case.id}),
-#     )
-#     assert response.status_code == 200
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
 
-#     assertContains(
-#         response,
-#         """<tr class="govuk-table__row">
-#             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-#                 Link to test results
-#             </th>
-#             <td class="govuk-table__cell amp-width-one-half">None</td>
-#         </tr>""",
-#         html=True,
-#     )
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Link to test results
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
+        </tr>""",
+        html=True,
+    )
 
 
 def test_case_details_contents_hides_link_to_12_week_retest_when_testing_methodology_spreadsheet(
