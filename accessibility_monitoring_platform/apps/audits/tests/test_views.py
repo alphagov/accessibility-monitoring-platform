@@ -1658,3 +1658,33 @@ def test_update_audit_checks_case_version(url_name, admin_client):
         </div>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:audit-detail",
+        "audits:edit-audit-metadata",
+        "audits:audit-retest-detail",
+        "audits:edit-audit-retest-statement-2",
+    ],
+)
+def test_frequently_used_links_displayed(url_name, admin_client):
+    """
+    Test that the frequently used links are displayed
+    """
+    audit: Audit = create_audit()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Frequently used links")
+    assertContains(response, "View outstanding issues")
+    assertContains(response, "View email template")
+    assertContains(response, "No published report")
+    assertContains(response, "View website")
+    assertContains(response, "Link to case view")
+    assertContains(response, "Markdown cheatsheet")

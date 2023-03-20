@@ -22,4 +22,5 @@
             {% include './nav_content.html' with anchor="audit-report-text" edit_name='audits:edit-audit-report-text' name='Report text' complete=audit.audit_report_text_complete_date %}
         {% endif %}
     </ul>
+    {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
 </nav>

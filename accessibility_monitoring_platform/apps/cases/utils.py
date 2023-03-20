@@ -3,6 +3,7 @@ Utility functions for cases app
 """
 
 from collections import namedtuple
+import copy
 import csv
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -37,8 +38,6 @@ CASE_FIELD_AND_FILTER_NAMES: List[Tuple[str, str]] = [
     ("auditor", "auditor_id"),
     ("reviewer", "reviewer_id"),
     ("status", "status"),
-    ("date_start", "sent_to_enforcement_body_sent_date__gte"),
-    ("date_end", "sent_to_enforcement_body_sent_date__lte"),
     ("sector", "sector_id"),
 ]
 
@@ -436,9 +435,16 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
     sort_by: str = DEFAULT_SORT
 
     if hasattr(form, "cleaned_data"):
+        field_and_filter_names: List[Tuple[str, str]] = copy.copy(
+            CASE_FIELD_AND_FILTER_NAMES
+        )
+        if "date_type" in form.cleaned_data:
+            date_range_field: str = form.cleaned_data["date_type"]
+            field_and_filter_names.append(("date_start", f"{date_range_field}__gte"))
+            field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
         filters: Dict[str, Any] = build_filters(
             cleaned_data=form.cleaned_data,
-            field_and_filter_names=CASE_FIELD_AND_FILTER_NAMES,
+            field_and_filter_names=field_and_filter_names,
         )
         sort_by: str = form.cleaned_data.get("sort_by", DEFAULT_SORT)
         if form.cleaned_data.get("case_search"):

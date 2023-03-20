@@ -296,8 +296,11 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_date_range_filters(admin_client):
-    """Test that the case list view page can be filtered by date range"""
+def test_case_list_view_sent_to_enforcement_body_sent_date_filters(admin_client):
+    """
+    Test that the case list view page can be filtered by date range on sent to
+    enforcement body sent date.
+    """
     included_sent_to_enforcement_body_sent_date: datetime = datetime(
         year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
     )
@@ -313,7 +316,36 @@ def test_case_list_view_date_range_filters(admin_client):
         sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
     )
 
-    url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_audit_date_of_test_filters(admin_client):
+    """
+    Test that the case list view page can be filtered by date range on audit
+    date of test.
+    """
+    included_audit_date_of_test: datetime = datetime(
+        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    excluded_audit_date_of_test: datetime = datetime(
+        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    Audit.objects.create(case=included_case, date_of_test=included_audit_date_of_test)
+    Audit.objects.create(case=excluded_case, date_of_test=excluded_audit_date_of_test)
+
+    url_parameters = "date_type=audit_case__date_of_test&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
@@ -820,6 +852,24 @@ def test_add_qa_comment(admin_client, admin_user):
     event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
 
     assert event.type == EVENT_TYPE_MODEL_CREATE
+
+
+def test_add_comment_button_redirects_to_add_comment(admin_client):
+    """Test pressing add comment button redirects to add comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
+        {
+            "add_comment": "Add comment",
+            "version": case.version,
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:add-qa-comment", kwargs={"case_id": case.id})}'
+    )
 
 
 def test_add_qa_comment_redirects_to_qa_process(admin_client):
@@ -1976,9 +2026,11 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-post-case"),
     ],
 )
-def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):
+def test_frequently_used_links_displayed_in_edit(
+    useful_link, edit_url_name, admin_client
+):
     """
-    Test that the useful links are displayed on all edit pages
+    Test that the frequently used links are displayed on all edit pages
     """
     case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
     setattr(case, useful_link, f"https://{useful_link}.com")
@@ -1996,7 +2048,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to website
+                View website
             </a>
         </li>""",
         html=True,
@@ -3211,3 +3263,26 @@ def test_outstanding_issues_overview(admin_client):
 
     assertContains(response, "0 of 3 WCAG errors have been fixed", html=True)
     assertContains(response, "0 of 12 statement errors have been fixed", html=True)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    ["cases:case-detail", "cases:edit-case-details"],
+)
+def test_frequently_used_links_displayed(url_name, admin_client):
+    """
+    Test that the frequently used links are displayed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Frequently used links")
+    assertContains(response, "View outstanding issues")
+    assertContains(response, "View email template")
+    assertContains(response, "No published report")
+    assertContains(response, "View website")

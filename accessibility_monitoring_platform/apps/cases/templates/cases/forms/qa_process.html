@@ -68,10 +68,15 @@
                                     </span>
                                 </summary>
                                 <div class="govuk-details__text">
-                                    <p class="govuk-body-m">
-                                        <a href="{% url 'cases:add-qa-comment' case.id %}" class="govuk-button govuk-button--secondary amp-margin-bottom-0">
-                                            Add comment</a>
-                                    </p>
+                                    <div class="govuk-button-group">
+                                        <input
+                                            type="submit"
+                                            value="Add comment"
+                                            name="add_comment"
+                                            class="govuk-button govuk-button--secondary"
+                                            data-module="govuk-button"
+                                        />
+                                    </div>
                                     {% for comment in case.qa_comments %}
                                         {% include "comments/helpers/comment.html" %}
                                         {% if request.user == comment.user  %}
