@@ -377,6 +377,38 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
 ]
+EXPECTED_RETEST_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not known",
+        label="12-week website compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="12-week website compliance decision notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
+]
+EXPECTED_RETEST_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not selected",
+        label="12-week accessibility statement compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="12-week accessibility statement compliance notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
+]
 
 
 def create_audit_and_wcag() -> Audit:
@@ -478,8 +510,11 @@ def test_get_website_decision_rows():
 def test_get_audit_statement_rows():
     """Test audit statement rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
-
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
     assert get_audit_statement_rows(audit=audit) == EXPECTED_AUDIT_STATEMENT_ROWS
+    assert context["audit_statement_rows"] == EXPECTED_AUDIT_STATEMENT_ROWS
 
 
 @pytest.mark.django_db
@@ -497,10 +532,13 @@ def test_get_statement_decision_rows():
 def test_get_audit_report_options_rows():
     """Test audit report options rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
-
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
+    assert context["audit_report_options_rows"] == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
 
 
 @pytest.mark.django_db
@@ -768,3 +806,31 @@ def test_get_retest_view_tables_context():
 
     assert "audit_retest_website_decision_rows" in context
     assert "audit_retest_statement_decision_rows" in context
+
+
+@pytest.mark.django_db
+def test_audit_retest_website_decision_rows():
+    """Test view 12-week retest website decision rows correct"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
+        case=audit.case
+    )
+
+    assert (
+        context["audit_retest_website_decision_rows"]
+        == EXPECTED_RETEST_WEBSITE_DECISION_ROWS
+    )
+
+
+@pytest.mark.django_db
+def test_audit_retest_statement_decision_rows():
+    """Test view 12-week retest website decision rows correct"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
+        case=audit.case
+    )
+
+    assert (
+        context["audit_retest_statement_decision_rows"]
+        == EXPECTED_RETEST_STATEMENT_DECISION_ROWS
+    )

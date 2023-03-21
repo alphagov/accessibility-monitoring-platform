@@ -113,6 +113,30 @@ def add_user_to_auditor_groups(user: User) -> None:
     qa_auditor_group.user_set.add(user)
 
 
+def test_view_case_includes_tests(admin_client):
+    """
+    Test that the View case display test and 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Test metadata")
+    assertContains(response, "Date of test")
+    assertContains(response, "Initial accessibility statement compliance decision")
+
+    assertContains(response, "12-week test metadata")
+    assertContains(response, "Retest date")
+    assertContains(
+        response,
+        "The statement assessment is not visible, as no statement was found during the initial test.",
+    )
+
+
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     """Test that deleted Contacts are not included in context"""
     case: Case = Case.objects.create()
