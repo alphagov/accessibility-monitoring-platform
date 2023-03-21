@@ -24,16 +24,9 @@ from django.views.generic.list import ListView
 from ..audits.forms import (
     AuditStatement1UpdateForm,
     AuditStatement2UpdateForm,
-    CaseFinalWebsiteDecisionUpdateForm,
-    CaseFinalStatementDecisionUpdateForm,
 )
-from ..audits.utils import (
-    get_audit_metadata_rows,
-    get_website_decision_rows,
-    get_audit_statement_rows,
-    get_statement_decision_rows,
-    get_audit_report_options_rows,
-)
+from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
+
 from ..notifications.utils import add_notification, read_notification
 
 from ..reports.utils import get_report_visits_metrics
@@ -212,29 +205,11 @@ class CaseDetailView(DetailView):
         )
 
         if case.audit:
-            # Test UI
-            context["audit_metadata_rows"] = get_audit_metadata_rows(audit=case.audit)
-            context["website_decision_rows"] = get_website_decision_rows(
-                audit=case.audit
-            )
-            context["audit_statement_rows"] = get_audit_statement_rows(audit=case.audit)
-            context["statement_decision_rows"] = get_statement_decision_rows(
-                audit=case.audit
-            )
-            context["audit_report_options_rows"] = get_audit_report_options_rows(
-                audit=case.audit
-            )
-
-            # Retest UI
-            context["audit_retest_metadata_rows"] = get_audit_metadata_rows(
-                audit=case.audit
-            )
-            context["audit_retest_website_decision_rows"] = get_case_rows(
-                form=CaseFinalWebsiteDecisionUpdateForm()
-            )
-            context["audit_retest_statement_decision_rows"] = get_case_rows(
-                form=CaseFinalStatementDecisionUpdateForm()
-            )
+            return {
+                **get_test_view_tables_context(audit=case.audit),
+                **get_retest_view_tables_context(case=case),
+                **context,
+            }
 
         return context
 

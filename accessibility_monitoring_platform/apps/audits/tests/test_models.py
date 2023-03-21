@@ -158,6 +158,17 @@ def test_page_string():
 
 
 @pytest.mark.django_db
+def test_page_anchor():
+    """
+    Test Page anchor string
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.every_page[0]
+
+    assert page.anchor == f"test-page-{page.id}"
+
+
+@pytest.mark.django_db
 def test_audit_failed_check_results_returns_only_failed_checks():
     """
     Test failed_check_results attribute of audit returns only check results where failed is "yes".
