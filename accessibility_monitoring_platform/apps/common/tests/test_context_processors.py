@@ -4,7 +4,7 @@ Test context processor of common app
 import pytest
 from pytest_django.asserts import assertContains
 
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from django.contrib.auth.models import User
 from django.http.response import HttpResponse
@@ -81,5 +81,10 @@ def test_platform_page_template_context():
 
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0
-    assert platform_page_context["custom_frequently_used_links"][0].label == LINK_LABEL
-    assert platform_page_context["custom_frequently_used_links"][0].url == LINK_URL
+
+    assert len(platform_page_context["custom_frequently_used_links"]) == 1
+    custom_frequently_used_links: List[FrequentlyUsedLink] = platform_page_context[
+        "custom_frequently_used_links"
+    ][0]
+    assert custom_frequently_used_links.label == LINK_LABEL
+    assert custom_frequently_used_links.url == LINK_URL
