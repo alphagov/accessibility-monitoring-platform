@@ -14,23 +14,22 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Edit frequently used links</h1>
+                {% for form in links_formset %}
+                    {% include 'common/error_summary.html' %}
+                {% endfor %}
                 <form method="post" action="{% url 'common:edit-frequently-used-links' %}">
                     {% csrf_token %}
                     {{ links_formset.management_form }}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
                         {% if links_formset.forms %}
-                            {% for link_form in links_formset %}
+                            {% for form in links_formset %}
                                 <tr class="govuk-table__row">
                                     <td class="govuk-table__cell">
                                         <div class="govuk-grid-row">
                                             <div class="govuk-grid-column-full">
-                                                <h2 id="link-{{ link_form.instance.id }}" class="govuk-heading-m">Custom link {{ forloop.counter }}</h2>
-                                                {% include 'common/form_errors.html' with errors=link_form.non_field_errors %}
-                                                {% include 'common/form_hidden_fields.html' with hidden_fields=link_form.hidden_fields %}
-                                                {% for field in link_form.visible_fields %}
-                                                    {% include 'common/amp_field.html' %}
-                                                {% endfor %}
+                                                <h2 id="link-{{ form.instance.id }}" class="govuk-heading-m">Custom link {{ forloop.counter }}</h2>
+                                                {% include 'common/amp_form_snippet.html' %}
                                             </div>
                                             {% if link_form.instance.id %}
                                                 <div class="govuk-grid-column-full">

@@ -11,11 +11,13 @@ from django.http.response import HttpResponse
 
 from ..context_processors import platform_page
 from ..forms import AMPTopMenuForm
-from ...common.models import Platform
+from ...common.models import FrequentlyUsedLink, Platform
 from ...common.utils import get_platform_settings
 
 ORGANISATION_NAME: str = "Organisation name two"
 USER_FIRST_NAME: str = "Userone"
+LINK_LABEL: str = "Custom link"
+LINK_URL: str = "https://example.com/custom-link"
 
 
 class MockRequest:
@@ -67,6 +69,7 @@ def test_platform_page_template_context():
     platform settings added to context.
     """
     user: User = User.objects.create(first_name=USER_FIRST_NAME)
+    FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
     mock_request = MockRequest(
         path="/",
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
@@ -78,3 +81,5 @@ def test_platform_page_template_context():
 
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_reminders"] == 0
+    assert platform_page_context["custom_frequently_used_links"][0].label == LINK_LABEL
+    assert platform_page_context["custom_frequently_used_links"][0].url == LINK_URL
