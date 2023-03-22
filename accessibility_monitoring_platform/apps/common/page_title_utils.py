@@ -54,6 +54,7 @@ PAGE_TITLES_BY_URL = {
     "/cases/create/": "Create case",
     "/common/contact/": "Contact admin",
     "/common/edit-active-qa-auditor/": "Active QA auditor",
+    "/common/edit-frequently-used-links/": "Edit frequently used links",
     "/common/markdown-cheatsheet/": "Markdown cheatsheet",
     "/common/more-information/": "More information about monitoring",
     "/common/metrics-case/": "Case metrics",

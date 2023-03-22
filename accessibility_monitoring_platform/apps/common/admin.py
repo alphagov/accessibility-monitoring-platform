@@ -13,6 +13,7 @@ from .models import (
     ChangeToPlatform,
     Sector,
     UserCacheUniqueHash,
+    FrequentlyUsedLink,
 )
 
 
@@ -115,9 +116,16 @@ class UserCacheUniqueHashAdmin(admin.ModelAdmin):
     list_filter = ["user", "fingerprint_hash"]
 
 
+class FrequentlyUsedLinksAdmin(admin.ModelAdmin):
+    """ "Django admin configuration for FrequentlyUsedLink model"""
+
+    list_display = ["label", "url", "is_deleted"]
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
 admin.site.register(ChangeToPlatform)
 admin.site.register(Sector)
 admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
+admin.site.register(FrequentlyUsedLink, FrequentlyUsedLinksAdmin)

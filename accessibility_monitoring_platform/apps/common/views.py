@@ -1,7 +1,7 @@
 """
 Common views
 """
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
@@ -9,6 +9,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone as django_timezone
@@ -29,7 +30,13 @@ from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
 
 from .chart import LineChart, build_yearly_metric_chart
-from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
+from .forms import (
+    AMPContactAdminForm,
+    AMPIssueReportForm,
+    ActiveQAAuditorUpdateForm,
+    FrequentlyUsedLinkFormset,
+    FrequentlyUsedLinkOneExtraFormset,
+)
 from .metrics import (
     Timeseries,
     TimeseriesDatapoint,
@@ -42,9 +49,14 @@ from .metrics import (
     convert_timeseries_pair_to_ratio,
     convert_timeseries_to_cumulative,
 )
-from .models import IssueReport, Platform, ChangeToPlatform
+from .models import FrequentlyUsedLink, IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
-from .utils import get_platform_settings
+from .utils import (
+    get_id_from_button_name,
+    get_platform_settings,
+    record_model_update_event,
+    record_model_create_event,
+)
 
 
 class ContactAdminView(FormView):
@@ -612,3 +624,68 @@ class MetricsReportTemplateView(TemplateView):
         }
 
         return {**extra_context, **context}
+
+
+class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
+    """
+    Update list of frequently used links
+    """
+
+    template_name: str = "common/settings/frequently_used_links.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            links_formset = FrequentlyUsedLinkFormset(self.request.POST)
+        else:
+            links: QuerySet[FrequentlyUsedLink] = FrequentlyUsedLink.objects.filter(
+                is_deleted=False
+            )
+            if "add_link" in self.request.GET:
+                links_formset = FrequentlyUsedLinkOneExtraFormset(queryset=links)
+            else:
+                links_formset = FrequentlyUsedLinkFormset(queryset=links)
+        context["links_formset"] = links_formset
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        links_formset = context["links_formset"]
+        if links_formset.is_valid():
+            links: List[FrequentlyUsedLink] = links_formset.save(commit=False)
+            for link in links:
+                if not link.id:
+                    link.save()
+                    record_model_create_event(user=self.request.user, model_object=link)
+                else:
+                    record_model_update_event(user=self.request.user, model_object=link)
+                    link.save()
+        else:
+            return self.render_to_response(
+                self.get_context_data(links_formset=links_formset)
+            )
+        link_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="remove_link_",
+            querydict=request.POST,
+        )
+        if link_id_to_delete is not None:
+            link_to_delete: FrequentlyUsedLink = FrequentlyUsedLink.objects.get(
+                id=link_id_to_delete
+            )
+            link_to_delete.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=link_to_delete
+            )
+            link_to_delete.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        url: str = reverse_lazy("common:edit-frequently-used-links")
+        if "add_link" in self.request.POST:
+            return f"{url}?add_link=true#link-None"
+        return url
