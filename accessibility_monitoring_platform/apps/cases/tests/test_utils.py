@@ -307,7 +307,7 @@ def test_download_feedback_survey_cases():
         column.column_name
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
     ]
-    assert csv_body == [["1", "", "16/12/2022", "", ""]]
+    assert csv_body == [["1", "", "16/12/2022", "", "", ""]]
 
 
 @pytest.mark.django_db
