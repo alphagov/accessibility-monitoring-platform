@@ -114,6 +114,9 @@ AuditExtraPageFormset: Any = forms.modelformset_factory(
 AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=1
 )
+AuditExtraPageFormsetTwoExtra: Any = forms.modelformset_factory(
+    Page, AuditExtraPageUpdateForm, extra=2
+)
 
 
 class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
