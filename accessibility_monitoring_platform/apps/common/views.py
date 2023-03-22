@@ -631,7 +631,7 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
     Update list of frequently used links
     """
 
-    template_name: str = "common/settings/frequently_used_links.html"
+    template_name: str = "common/settings/edit_frequently_used_links.html"
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Get context data for template rendering"""
