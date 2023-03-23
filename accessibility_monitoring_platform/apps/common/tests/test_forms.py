@@ -115,10 +115,27 @@ def test_amp_date_checkbox_widget_html_uses_govuk_classes():
 def test_amp_date_widget_html_uses_govuk_classes():
     """Check AMPDateWidget renders the expected HTML"""
     widget: AMPDateWidget = AMPDateWidget()
-    import pdb
-
-    pdb.set_trace()
     assertHTMLEqual(widget.render("name", None), EXPECTED_DATE_WIDGET_HTML)
+
+
+def test_amp_date_widget_html_includes_populate_today_control():
+    """Check AMPDateWidget renders the expected controls"""
+    widget: AMPDateWidget = AMPDateWidget()
+    html: str = widget.render("name", None)
+    assert "Populate with today's date" in html
+    assert "Populate date with one week from today" not in html
+    assert "Populate date with four weeks from today" not in html
+    assert "Populate date with 12 weeks from today" not in html
+
+
+def test_amp_date_widget_html_includes_populate_future_dates_controls():
+    """Check AMPDateWidget renders the expected controls"""
+    widget: AMPDateWidget = AMPDateWidget(attrs={"future_populate": True})
+    html: str = widget.render("name", None)
+    assert "Populate with today's date" not in html
+    assert "Populate date with one week from today" in html
+    assert "Populate date with four weeks from today" in html
+    assert "Populate date with 12 weeks from today" in html
 
 
 @pytest.mark.parametrize(
