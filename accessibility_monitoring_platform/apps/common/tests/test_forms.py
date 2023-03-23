@@ -123,19 +123,27 @@ def test_amp_date_widget_html_includes_populate_today_control():
     widget: AMPDateWidget = AMPDateWidget()
     html: str = widget.render("name", None)
     assert "Populate with today's date" in html
+    assert "amp-populate-date-today" in html
     assert "Populate date with one week from today" not in html
+    assert "amp-populate-date-1-week" not in html
     assert "Populate date with four weeks from today" not in html
+    assert "amp-populate-date-4-weeks" not in html
     assert "Populate date with 12 weeks from today" not in html
+    assert "amp-populate-date-124-weeks" not in html
 
 
 def test_amp_date_widget_html_includes_populate_future_dates_controls():
     """Check AMPDateWidget renders the expected controls"""
-    widget: AMPDateWidget = AMPDateWidget(attrs={"future_populate": True})
+    widget: AMPDateWidget = AMPDateWidget(attrs={"populate_with_future_dates": True})
     html: str = widget.render("name", None)
     assert "Populate with today's date" not in html
+    assert "amp-populate-date-today" not in html
     assert "Populate date with one week from today" in html
+    assert "amp-populate-date-1-week" in html
     assert "Populate date with four weeks from today" in html
+    assert "amp-populate-date-4-weeks" in html
     assert "Populate date with 12 weeks from today" in html
+    assert "amp-populate-date-12-weeks" in html
 
 
 @pytest.mark.parametrize(

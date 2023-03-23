@@ -21,7 +21,7 @@ class ReminderForm(forms.ModelForm):
     due_date = AMPDateField(
         label="Date of reminder",
         required=True,
-        widget=AMPDateWidget(attrs={"future_populate": True}),
+        widget=AMPDateWidget(attrs={"populate_with_future_dates": True}),
     )
     description = AMPTextField(label="Description", required=True)
 
