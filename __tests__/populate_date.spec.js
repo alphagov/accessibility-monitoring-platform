@@ -15,13 +15,14 @@ document.body.innerHTML = `
 <input type="number" name="report_sent_date_0" value="31" pattern="[0-9]*" inputmode="numeric" id="${dayId}">
 <input type="number" name="report_sent_date_1" value="3" pattern="[0-9]*" inputmode="numeric" id="${monthId}">
 <input type="number" name="report_sent_date_2" value="2022" pattern="[0-9]*" inputmode="numeric" id="${yearId}">
-<span class="amp-populate-date" tabindex="0" dayfieldid="${dayId}" monthfieldid="${monthId}" yearfieldid="${yearId}">
+<span id="control-id" class="amp-populate-date-today" tabindex="0" dayfieldid="${dayId}" monthfieldid="${monthId}" yearfieldid="${yearId}">
     Populate with today's date
 </span>`
 
 const {
   populateWithDate,
-  keypressPopulateWithDate
+  keypressPopulateWithDate,
+  addPopulateDateListeners
 } = require('../common/static/js/populate_date')
 
 beforeEach(() => {
@@ -33,7 +34,8 @@ beforeEach(() => {
 describe('test populate date functions are present', () => {
   it.each([
     populateWithDate,
-    keypressPopulateWithDate
+    keypressPopulateWithDate,
+    addPopulateDateListeners
   ])('%p is a function', (functionFromModule) => {
     expect(typeof functionFromModule).toBe('function')
   })
@@ -66,5 +68,12 @@ describe('test keypressPopulateWithDate', () => {
     expect(document.getElementById(dayId).value).toEqual('')
     expect(document.getElementById(monthId).value).toEqual('')
     expect(document.getElementById(yearId).value).toEqual('')
+  })
+})
+
+describe('test addPopulateDateListeners', () => {
+  test('listeners added to control element', () => {
+    const populateDateWithTodayElement = document.getElementById('control-id')
+    addPopulateDateListeners(populateDateWithTodayElement)
   })
 })

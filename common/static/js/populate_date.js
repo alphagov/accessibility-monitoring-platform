@@ -20,7 +20,7 @@ function keypressPopulateWithDate (event, dayId, monthId, yearId, daysOffset=0) 
   }
 }
 
-function addEvents (dateElement, daysOffset=0) {
+function addPopulateDateListeners (dateElement, daysOffset=0) {
   const dayFieldId = dateElement.getAttribute('dayFieldId')
   const monthFieldId = dateElement.getAttribute('monthFieldId')
   const yearFieldId = dateElement.getAttribute('yearFieldId')
@@ -36,31 +36,32 @@ function addEvents (dateElement, daysOffset=0) {
 const populateDateWithTodayElements = document.getElementsByClassName('amp-populate-date-today')
 
 Array.from(populateDateWithTodayElements).forEach(function (populateDateElement) {
-  addEvents(populateDateElement)
+  addPopulateDateListeners(populateDateElement)
 })
 
 const populateDateWithOneWeekElements = document.getElementsByClassName('amp-populate-date-1-week')
 
 Array.from(populateDateWithOneWeekElements).forEach(function (populateDateElement) {
   const daysOffset = oneWeekInDays
-  addEvents(populateDateElement, daysOffset)
+  addPopulateDateListeners(populateDateElement, daysOffset)
 })
 
 const populateDateWithFourWeeksElements = document.getElementsByClassName('amp-populate-date-4-weeks')
 
 Array.from(populateDateWithFourWeeksElements).forEach(function (populateDateElement) {
   const daysOffset = fourWeeksInDays
-  addEvents(populateDateElement, daysOffset)
+  addPopulateDateListeners(populateDateElement, daysOffset)
 })
 
 const populateDateWithTwelveWeeksElements = document.getElementsByClassName('amp-populate-date-12-weeks')
 
 Array.from(populateDateWithTwelveWeeksElements).forEach(function (populateDateElement) {
   const daysOffset = twelveWeeksInDays
-  addEvents(populateDateElement, daysOffset)
+  addPopulateDateListeners(populateDateElement, daysOffset)
 })
 
 module.exports = {
   populateWithDate,
-  keypressPopulateWithDate
+  keypressPopulateWithDate,
+  addPopulateDateListeners
 }
