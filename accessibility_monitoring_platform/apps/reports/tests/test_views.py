@@ -209,6 +209,51 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
+def test_edit_report_shows_visit_numbers(admin_client):
+    """Test that the edit report page shows the numbers of visits"""
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+    case: Case = report.case
+
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+    )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
+    )
+    ReportVisitsMetrics.objects.create(
+        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
+    )
+    response: HttpResponse = admin_client.get(
+        reverse("reports:edit-report", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                3
+                (<a href="{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+            </td>
+        </tr>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Unique visitors to report</th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                2
+                (<a href="{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+            </td>
+        </tr>""",
+        html=True,
+    )
+
+
 def test_report_details_page_shows_notification(admin_client):
     """
     Test that the report details page shows a notification advising user to
