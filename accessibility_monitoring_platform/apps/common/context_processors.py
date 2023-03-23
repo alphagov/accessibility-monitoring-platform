@@ -7,7 +7,7 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.utils import timezone
 
-from ..common.models import Platform
+from ..common.models import FrequentlyUsedLink, Platform
 from ..common.utils import get_platform_settings
 from ..reminders.utils import get_number_of_reminders_for_user
 from ..overdue.utils import get_overdue_cases
@@ -30,4 +30,7 @@ def platform_page(
         "number_of_reminders": get_number_of_reminders_for_user(user=request.user),
         "number_of_overdue": len(get_overdue_cases(user_request=request.user) or []),
         "django_settings": settings,
+        "custom_frequently_used_links": FrequentlyUsedLink.objects.filter(
+            is_deleted=False
+        ),
     }

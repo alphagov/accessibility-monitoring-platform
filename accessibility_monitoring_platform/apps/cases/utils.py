@@ -409,6 +409,10 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Closing the case date", field_name="compliance_email_sent_date"
     ),
+    ColumnAndFieldNames(
+        column_name="Enforcement recommendation notes",
+        field_name="recommendation_notes",
+    ),
 ]
 
 

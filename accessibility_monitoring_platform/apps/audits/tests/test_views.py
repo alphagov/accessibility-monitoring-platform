@@ -586,6 +586,42 @@ def test_standard_pages_appear_on_pages_page(admin_client):
     assertContains(response, """<h2 class="govuk-heading-m">A Form</h2>""", html=True)
 
 
+def test_two_extra_pages_appear_on_pages_page(admin_client):
+    """
+    Test that two extra pages appear on the pages page when no extra pages
+    have yet been created.
+    """
+    audit: Audit = create_audit_and_pages()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
+    )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<h2 id="extra-page-1" class="govuk-heading-m">Page 1</h2>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<h2 id="extra-page-2" class="govuk-heading-m">Page 2</h2>""",
+        html=True,
+    )
+
+    Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA)
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        """<h2 id="extra-page-2" class="govuk-heading-m">Page 2</h2>""",
+        html=True,
+    )
+
+
 def test_add_extra_page_form_appears(admin_client):
     """
     Test that pressing the save and create additional page button adds an extra page form

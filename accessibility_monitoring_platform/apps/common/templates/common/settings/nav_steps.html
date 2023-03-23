@@ -55,4 +55,12 @@
                 More information</a>
         {% endif %}
     </p>
+    <p class="govuk-body-m">
+        {% if current == 'common:edit-frequently-used-links' %}
+            Edit frequently used links
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-frequently-used-links' %}">
+                Edit frequently used links</a>
+        {% endif %}
+    </p>
 </nav>
