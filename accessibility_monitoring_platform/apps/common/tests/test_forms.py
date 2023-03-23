@@ -45,49 +45,37 @@ EXPECTED_CHECKBOX_WIDGET_HTML: str = """
 
 EXPECTED_DATE_WIDGET_HTML: str = """
 <div class="govuk-date-input">
-        <div class="govuk-date-input__item">
-            <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label">Day</label>
-                <input
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                    type="number"
-                    name="name_0"
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                    pattern="[0-9]*"
-                    inputmode="numeric">
-            </div>
+    <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label">
+                Day
+            </label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="number" name="name_0" class="govuk-input govuk-date-input__input govuk-input--width-2" pattern="[0-9]*" inputmode="numeric" />
         </div>
-        <div class="govuk-date-input__item">
-            <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label">Month</label>
-                <input
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                    type="number"
-                    name="name_1"
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                    pattern="[0-9]*"
-                    inputmode="numeric">
-            </div>
+    </div>
+
+    <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label">
+                Month
+            </label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="number" name="name_1" class="govuk-input govuk-date-input__input govuk-input--width-2" pattern="[0-9]*" inputmode="numeric" />
         </div>
-        <div class="govuk-date-input__item">
-            <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label">Year</label>
-                <input
-                    class="govuk-input govuk-date-input__input govuk-input--width-4"
-                    type="number"
-                    name="name_2"
-                    class="govuk-input govuk-date-input__input govuk-input--width-4"
-                    pattern="[0-9]*"
-                    inputmode="numeric">
-            </div>
+    </div>
+
+    <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+            <label class="govuk-label govuk-date-input__label">
+                Year
+            </label>
+            <input class="govuk-input govuk-date-input__input govuk-input--width-4" type="number" name="name_2" class="govuk-input govuk-date-input__input govuk-input--width-4" pattern="[0-9]*" inputmode="numeric" />
         </div>
+    </div>
 </div>
+
 <p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
-    <span class="amp-control amp-populate-date" tabIndex="0"
-        dayFieldId=""
-        monthFieldId=""
-        yearFieldId="">
-        Populate with today's date
+    <span class="amp-control amp-populate-date-today" tabIndex="0" dayFieldId="" monthFieldId="" yearFieldId="">
+        Populate with today\'s date
     </span>
 </p>"""
 
@@ -127,6 +115,9 @@ def test_amp_date_checkbox_widget_html_uses_govuk_classes():
 def test_amp_date_widget_html_uses_govuk_classes():
     """Check AMPDateWidget renders the expected HTML"""
     widget: AMPDateWidget = AMPDateWidget()
+    import pdb
+
+    pdb.set_trace()
     assertHTMLEqual(widget.render("name", None), EXPECTED_DATE_WIDGET_HTML)
 
 
