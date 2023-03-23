@@ -75,13 +75,9 @@
     </h2>
     {% if case.reminder %}
         <div class="amp-report-wrapper">
-            {{ case.reminder.description|markdown_to_html }}
+            {{ case.reminder.description }}
+            (<a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
         </div>
-        <p class="govuk-body-m amp-margin-bottom-10">
-            (<a href="{% url 'reminders:edit-reminder' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                Edit
-            </a>)
-        </p>
     {% else %}
         <p class="govuk-body-m amp-margin-bottom-10">
             <a href="{% url 'reminders:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">

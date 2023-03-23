@@ -1,20 +1,35 @@
-{% if form.errors %}
+{% if form.errors or formset.errors %}
     <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
         <h2 class="govuk-error-summary__title" id="error-summary-title">
             There is a problem
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                {% for error in form.non_field_errors %}
-                    <li class="govuk-error-message">{{ error }}</li>
-                {% endfor %}
-                {% for field in form.visible_fields %}
-                    {% for error in field.errors%}
-                        <li>
-                            <a href="#{{ field.auto_id }}-label">{{ error }}</a>
-                        </li>
+                {% if formset %}
+                    {% for form in formset %}
+                        {% for error in form.non_field_errors %}
+                            <li class="govuk-error-message">{{ error }}</li>
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            {% for error in field.errors%}
+                                <li>
+                                    <a href="#{{ field.auto_id }}-label">{{ error }}</a>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor%}
+                {% else %}
+                    {% for error in form.non_field_errors %}
+                        <li class="govuk-error-message">{{ error }}</li>
                     {% endfor %}
-                {% endfor %}
+                    {% for field in form.visible_fields %}
+                        {% for error in field.errors%}
+                            <li>
+                                <a href="#{{ field.auto_id }}-label">{{ error }}</a>
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
             </ul>
         </div>
     </div>

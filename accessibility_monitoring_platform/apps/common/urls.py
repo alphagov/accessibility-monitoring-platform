@@ -18,6 +18,7 @@ from .views import (
     MetricsCaseTemplateView,
     MetricsPolicyTemplateView,
     MetricsReportTemplateView,
+    FrequentlyUsedLinkFormsetTemplateView,
 )
 
 app_name: str = "common"
@@ -55,6 +56,11 @@ urlpatterns: List[URLPattern] = [
         "more-information/",
         login_required(MoreInformationTemplateView.as_view()),
         name="more-information",
+    ),
+    path(
+        "edit-frequently-used-links/",
+        login_required(FrequentlyUsedLinkFormsetTemplateView.as_view()),
+        name="edit-frequently-used-links",
     ),
     path(
         "metrics-case/",

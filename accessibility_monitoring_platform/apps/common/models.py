@@ -200,3 +200,16 @@ class UserCacheUniqueHash(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.PROTECT, primary_key=True)
     fingerprint_hash = models.IntegerField(default=0, blank=True)
+
+
+class FrequentlyUsedLink(models.Model):
+    """
+    Model for frequently used links
+    """
+
+    label = models.TextField(default="", blank=True)
+    url = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return str(f"{self.label}: {self.url}")

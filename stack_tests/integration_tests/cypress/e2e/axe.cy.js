@@ -47,6 +47,7 @@ const loggedInUrls = [
   '/cases/create/',
   '/common/contact/',
   '/common/edit-active-qa-auditor/',
+  '/common/edit-active-qa-auditor/',
   '/common/markdown-cheatsheet/',
   '/common/more-information/',
   '/common/metrics-case/',

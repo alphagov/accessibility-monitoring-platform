@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import IssueReport, Platform
+from .models import FrequentlyUsedLink, IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -428,3 +428,27 @@ class ActiveQAAuditorUpdateForm(forms.ModelForm):
         fields = [
             "active_qa_auditor",
         ]
+
+
+class FrequentlyUsedLinkUpdateForm(forms.ModelForm):
+    """
+    Form for updating a frequently used link
+    """
+
+    label = AMPCharFieldWide(label="Label")
+    url = AMPURLField(label="URL")
+
+    class Meta:
+        model = FrequentlyUsedLink
+        fields = [
+            "label",
+            "url",
+        ]
+
+
+FrequentlyUsedLinkFormset: Any = forms.modelformset_factory(
+    FrequentlyUsedLink, FrequentlyUsedLinkUpdateForm, extra=0
+)
+FrequentlyUsedLinkOneExtraFormset: Any = forms.modelformset_factory(
+    FrequentlyUsedLink, FrequentlyUsedLinkUpdateForm, extra=1
+)
