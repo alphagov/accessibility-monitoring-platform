@@ -6,7 +6,7 @@
             <a href="{% url 'audits:edit-audit-pages' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                {% if on_view_case %}Edit test &gt; pages{% else %}Edit{% endif %}
+                Edit{% if on_view_case %} test &gt; pages{% endif %}
             </a>
         </p>
     </div>

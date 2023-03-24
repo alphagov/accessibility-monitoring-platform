@@ -11,7 +11,15 @@ from ...comments.models import Comment
 from ...reminders.models import Reminder
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
-from ..models import Case, Contact
+from ..models import (
+    Case,
+    Contact,
+    IS_WEBSITE_COMPLIANT_DEFAULT,
+    WEBSITE_STATE_FINAL_DEFAULT,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+)
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
@@ -503,3 +511,65 @@ def test_contact_updated_updated():
         contact.save()
 
     assert contact.updated == DATETIME_CONTACT_UPDATED
+
+
+@pytest.mark.parametrize(
+    "is_website_compliant, website_state_final, expected_result",
+    [
+        (IS_WEBSITE_COMPLIANT_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not selected"),
+        (IS_WEBSITE_COMPLIANT_DEFAULT, "compliant", "Compliant"),
+        (IS_WEBSITE_COMPLIANT_DEFAULT, "partially-compliant", "Partially compliant"),
+        (IS_WEBSITE_COMPLIANT_COMPLIANT, WEBSITE_STATE_FINAL_DEFAULT, "Compliant"),
+        ("not-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Not compliant"),
+        ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
+        ("other", WEBSITE_STATE_FINAL_DEFAULT, "Other"),
+    ],
+)
+def test_website_compliance_display(
+    is_website_compliant, website_state_final, expected_result
+):
+    """Test website compliance is derived correctly"""
+    case: Case = Case(
+        is_website_compliant=is_website_compliant,
+        website_state_final=website_state_final,
+    )
+
+    assert case.website_compliance_display == expected_result
+
+
+@pytest.mark.parametrize(
+    "accessibility_statement_state, accessibility_statement_state_final, expected_result",
+    [
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            "Compliant",
+        ),
+        ("not-compliant", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not compliant"),
+        ("not-found", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not found"),
+        ("other", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Other"),
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            "Not selected",
+        ),
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+            "Compliant",
+        ),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-compliant", "Not compliant"),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-found", "Not found"),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "other", "Other"),
+    ],
+)
+def test_accessibility_statement_compliance_display(
+    accessibility_statement_state, accessibility_statement_state_final, expected_result
+):
+    """Test accessibility statement compliance is derived correctly"""
+    case: Case = Case(
+        accessibility_statement_state=accessibility_statement_state,
+        accessibility_statement_state_final=accessibility_statement_state_final,
+    )
+
+    assert case.accessibility_statement_compliance_display == expected_result

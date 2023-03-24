@@ -17,20 +17,7 @@
                     </p>
                 </div>
             </div>
-            {% if page.failed_check_results %}
-                <table class="govuk-table amp-accordion-table">
-                    <tbody class="govuk-table__body">
-                        {% for check_result in page.failed_check_results %}
-                            <tr class="govuk-table__row ">
-                                <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">{{ check_result.wcag_definition }}</th>
-                                <td class="govuk-table__cell amp-width-one-half amp-notes">{{ check_result.notes|markdown_to_html }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="govuk-body-m">No errors found</p>
-            {% endif %}
+            {% include 'audits/details/page_check_results.html' %}
         {% endfor %}
         {% include 'audits/details/website_decision.html' with on_view_case=True %}
         {% include 'audits/details/statement.html' with on_view_case=True %}
