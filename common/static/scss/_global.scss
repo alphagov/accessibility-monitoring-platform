@@ -309,7 +309,7 @@ img, .amp-max-width-100 {
     }
 }
 
-.case-dashboard > tbody > tr:last-child {
+.amp-case-accordion > tbody > tr:last-child {
     th, td {
         border-bottom: none;
     }
@@ -745,4 +745,8 @@ svg {
 .amp-left-border {
     padding-left: 10px;
     border-left: 3px solid #b1b4b6;
+}
+
+.amp-font-weight-normal {
+    font-weight: 400;
 }

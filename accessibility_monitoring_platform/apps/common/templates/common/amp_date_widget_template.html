@@ -20,11 +20,38 @@
         </div>
     {% endfor %}
 </div>
-<p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
-    <span class="amp-control amp-populate-date" tabIndex="0"
-        dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
-        monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
-        yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
-        Populate with today's date
-    </span>
-</p>
+{% if widget.attrs.populate_with_future_dates %}
+    <p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
+        <span class="amp-control amp-populate-date-1-week" tabIndex="0"
+            dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
+            monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
+            yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
+            Populate date with one week from today
+        </span>
+    </p>
+    <p class="govuk-body-m amp-margin-top-0 amp-margin-bottom-0">
+        <span class="amp-control amp-populate-date-4-weeks" tabIndex="0"
+            dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
+            monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
+            yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
+            Populate date with four weeks from today
+        </span>
+    </p>
+    <p class="govuk-body-m amp-margin-top-0 amp-margin-bottom-0">
+        <span class="amp-control amp-populate-date-12-weeks" tabIndex="0"
+            dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
+            monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
+            yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
+            Populate date with 12 weeks from today
+        </span>
+    </p>
+{% else %}
+    <p class="govuk-body-m amp-margin-top-10 amp-margin-bottom-0">
+        <span class="amp-control amp-populate-date-today" tabIndex="0"
+            dayFieldId="{{ widget.subwidgets.0.attrs.id }}"
+            monthFieldId="{{ widget.subwidgets.1.attrs.id }}"
+            yearFieldId="{{ widget.subwidgets.2.attrs.id }}">
+            Populate with today's date
+        </span>
+    </p>
+{% endif %}

@@ -1,18 +1,17 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="enforcement-body-correspondence" class="govuk-heading-l">Equality body summary</h2>
-    </div>
-    <div class="govuk-grid-column-one-third">
-        <div class="govuk-button-group amp-flex-end">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Equality body summary</b>
+            |
             <a href="{% url 'cases:edit-enforcement-body-correspondence' case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit equality body summary
+                Edit
             </a>
-        </div>
+        </p>
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-case-accordion">
     <tbody class="govuk-table__body">
         {% for row in enforcement_body_correspondence_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}

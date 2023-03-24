@@ -862,6 +862,10 @@ class Page(models.Model):
             check_result.wcag_definition: check_result for check_result in check_results
         }
 
+    @property
+    def anchor(self):
+        return f"test-page-{self.id}"
+
 
 class WcagDefinition(models.Model):
     """
