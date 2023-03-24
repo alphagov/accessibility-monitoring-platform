@@ -21,7 +21,11 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from ..audits.forms import AuditStatement1UpdateForm, AuditStatement2UpdateForm
+from ..audits.forms import (
+    AuditStatement1UpdateForm,
+    AuditStatement2UpdateForm,
+)
+from ..audits.utils import get_test_view_tables_context, get_retest_view_tables_context
 
 from ..notifications.utils import add_notification, read_notification
 
@@ -167,45 +171,46 @@ class CaseDetailView(DetailView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add undeleted contacts to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = self.object
         context["contacts"] = self.object.contact_set.filter(is_deleted=False)
         case_details_prefix: List[FieldLabelAndValue] = [
             FieldLabelAndValue(
                 label="Date created",
-                value=self.object.created,
+                value=case.created,
                 type=FieldLabelAndValue.DATE_TYPE,
             ),
             FieldLabelAndValue(label="Status", value=self.object.get_status_display()),
         ]
 
-        get_rows: Callable = partial(
+        get_case_rows: Callable = partial(
             extract_form_labels_and_values, instance=self.object
-        )
-
-        excluded_fields: List[str] = (
-            ["report_final_odt_url", "report_final_pdf_url"]
-            if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM
-            else []
-        )
-
-        qa_process_rows: List[FieldLabelAndValue] = get_rows(
-            form=CaseQAProcessUpdateForm(),
-            excluded_fields=excluded_fields,
         )
 
         if self.object.report_methodology == REPORT_METHODOLOGY_PLATFORM:
             context.update(get_report_visits_metrics(self.object))
 
-        context["case_details_rows"] = case_details_prefix + get_rows(
+        context["case_details_rows"] = case_details_prefix + get_case_rows(
             form=CaseDetailUpdateForm()
         )
-        context["report_details_rows"] = get_rows(form=CaseReportDetailsUpdateForm())
-        context["qa_process_rows"] = qa_process_rows
-        context["review_changes_rows"] = get_rows(form=CaseReviewChangesUpdateForm())
-        context["case_close_rows"] = get_rows(form=CaseCloseUpdateForm())
-        context["post_case_rows"] = get_rows(form=PostCaseUpdateForm())
-        context["enforcement_body_correspondence_rows"] = get_rows(
+        context["report_details_rows"] = get_case_rows(
+            form=CaseReportDetailsUpdateForm()
+        )
+        context["review_changes_rows"] = get_case_rows(
+            form=CaseReviewChangesUpdateForm()
+        )
+        context["case_close_rows"] = get_case_rows(form=CaseCloseUpdateForm())
+        context["post_case_rows"] = get_case_rows(form=PostCaseUpdateForm())
+        context["enforcement_body_correspondence_rows"] = get_case_rows(
             form=CaseEnforcementBodyCorrespondenceUpdateForm()
         )
+
+        if case.audit:
+            return {
+                **get_test_view_tables_context(audit=case.audit),
+                **get_retest_view_tables_context(case=case),
+                **context,
+            }
+
         return context
 
 

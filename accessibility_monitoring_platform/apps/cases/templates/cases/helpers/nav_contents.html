@@ -2,15 +2,6 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <div class="amp-left-border">
         <ul class="govuk-list amp-margin-bottom-5">
-            <li>
-                <a href="#case-reminder" class="govuk-link govuk-link--no-visited-state">Reminder</a>
-                |
-                <a href="{% if case.reminder %}{% url 'reminders:edit-reminder' case.reminder.id %}{% else %}{% url "reminders:reminder-create" case.id %}{% endif %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit
-                </a>
-            </li>
             {% if case.testing_methodology == "platform" %}
                 {% include './nav_content.html' with id='case-details' edit_name='cases:edit-case-details' name='Case details' complete=case.case_details_complete_date %}
                 {% include './nav_content.html' with id='test-results' edit_name='cases:edit-test-results' name='Testing details' complete=case.testing_details_complete_date %}

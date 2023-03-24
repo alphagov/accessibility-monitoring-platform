@@ -20,7 +20,7 @@ describe('View case', () => {
   })
 
   it('can edit case details', () => {
-    cy.contains('a', 'Edit case details').click()
+    cy.get('#edit-case-details').click()
     cy.get('#id_auditor').select('Auditor')
     cy.get('[name="psb_location"]').check('uk_wide')
     cy.get('[name="notes"]').clear().type(caseDetailsNote)
@@ -32,19 +32,19 @@ describe('View case', () => {
   })
 
   it('can edit testing details', () => {
-    cy.contains('a', 'Edit testing details').click()
+    cy.get('#edit-test-results').click()
     cy.get('[name="testing_details_complete_date"]').click()
     cy.contains('Save').click()
   })
 
   it('can edit report details', () => {
-    cy.contains('a', 'Edit report details').click()
+    cy.get('#edit-report-details').click()
     cy.get('[name="reporting_details_complete_date"]').click()
     cy.contains('Save').click()
   })
 
   it('can edit QA process', () => {
-    cy.contains('a', 'Edit QA process').click()
+    cy.get('#edit-qa-process').click()
     cy.get('[name="report_review_status"]').check('ready-to-review')
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="qa_process_complete_date"]').click()
@@ -53,7 +53,7 @@ describe('View case', () => {
   })
 
   it('can edit contact details', () => {
-    cy.contains('a', 'Edit contact details').click()
+    cy.get('#edit-contact-details').click()
     cy.get('[name="form-0-name"]').clear().type(contactName)
     cy.get('[name="form-0-email"]').clear().type(contactEmail)
     cy.get('[name="contact_details_complete_date"]').click()
@@ -64,7 +64,7 @@ describe('View case', () => {
   })
 
   it('can edit report correspondence', () => {
-    cy.contains('a', 'Edit report correspondence').click()
+    cy.get('#edit-report-correspondence').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="report_followup_week_1_sent_date"]').click()
     cy.get('[name="report_followup_week_4_sent_date"]').click()
@@ -78,7 +78,7 @@ describe('View case', () => {
   })
 
   it('can edit 12-week correspondence', () => {
-    cy.contains('a', 'Edit 12-week correspondence').click()
+    cy.get('#edit-twelve-week-correspondence').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="twelve_week_1_week_chaser_sent_date"]').click()
     cy.get('[name="twelve_week_correspondence_notes"]').clear().type(twelveWeekCorrespondenceNote)
@@ -90,13 +90,13 @@ describe('View case', () => {
   })
 
   it('can edit 12-week retest', () => {
-    cy.contains('a', 'Edit 12-week retest').click()
+    cy.get('#edit-twelve-week-retest').click()
     cy.get('[name="twelve_week_retest_complete_date"]').click()
     cy.contains('Save').click()
   })
 
   it('can edit reviewing changes', () => {
-    cy.contains('a', 'Edit reviewing changes').click()
+    cy.get('#edit-review-changes').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="psb_progress_notes"]').clear().type(psbProgressNote)
     cy.get('[name="is_ready_for_final_decision"]').check('yes')
@@ -107,7 +107,7 @@ describe('View case', () => {
   })
 
   it('can edit closing the case', () => {
-    cy.contains('a', 'Edit closing the case').click()
+    cy.get('#edit-case-close').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="recommendation_for_enforcement"]').check('no-further-action')
     cy.get('[name="recommendation_notes"]').clear().type(recommendationNote)
@@ -119,7 +119,7 @@ describe('View case', () => {
   })
 
   it('can edit equality body summary', () => {
-    cy.contains('a', 'Edit equality body summary').click()
+    cy.get('#edit-enforcement-body-correspondence').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="enforcement_body_pursuing"]').check('yes-completed')
     cy.get('[name="enforcement_body_correspondence_notes"]').clear().type(equalityBodyCorrespondenceNote)
@@ -130,7 +130,7 @@ describe('View case', () => {
   })
 
   it('can edit post case summary', () => {
-    cy.contains('a', 'Edit post case summary').click()
+    cy.get('#edit-post-case').click()
     cy.get('[name="post_case_notes"]').clear().type(postCaseNote)
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="psb_appeal_notes"]').clear().type(psbAppealNote)
@@ -142,7 +142,7 @@ describe('View case', () => {
   })
 
   it('can see status workflow page', () => {
-    cy.contains('a', 'Edit post case summary').click()
+    cy.get('#edit-post-case').click()
     cy.contains('View status workflow').click()
     cy.title().should('eq', `${organisationName} | Status workflow`)
   })

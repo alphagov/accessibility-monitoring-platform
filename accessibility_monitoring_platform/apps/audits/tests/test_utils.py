@@ -34,15 +34,14 @@ from ..utils import (
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
-    get_audit_metadata_rows,
-    get_website_decision_rows,
     get_audit_statement_rows,
-    get_statement_decision_rows,
     get_audit_report_options_rows,
     get_next_page_url,
     get_next_retest_page_url,
     other_page_failed_check_results,
     report_data_updated,
+    get_test_view_tables_context,
+    get_retest_view_tables_context,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -378,6 +377,38 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
 ]
+EXPECTED_RETEST_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not known",
+        label="12-week website compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="12-week website compliance decision notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
+]
+EXPECTED_RETEST_STATEMENT_DECISION_ROWS: List[FieldLabelAndValue] = [
+    FieldLabelAndValue(
+        value="Not selected",
+        label="12-week accessibility statement compliance decision",
+        type="text",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
+        value="",
+        label="12-week accessibility statement compliance notes",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
+]
 
 
 def create_audit_and_wcag() -> Audit:
@@ -452,11 +483,14 @@ def test_create_mandatory_pages_for_new_audit():
 def test_get_audit_metadata_rows():
     """Test audit metadata rows returned for display on View test page"""
     audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
 
-    assert [field.value for field in get_audit_metadata_rows(audit=audit)] == [
+    assert [field.value for field in context["audit_metadata_rows"]] == [
         field.value for field in EXPECTED_AUDIT_METADATA_ROWS
     ]
-    assert [field.label for field in get_audit_metadata_rows(audit=audit)] == [
+    assert [field.label for field in context["audit_metadata_rows"]] == [
         field.label for field in EXPECTED_AUDIT_METADATA_ROWS
     ]
 
@@ -465,34 +499,46 @@ def test_get_audit_metadata_rows():
 def test_get_website_decision_rows():
     """Test website decision rows returned for display on View test page"""
     audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
 
-    assert get_website_decision_rows(audit=audit) == EXPECTED_WEBSITE_DECISION_ROWS
+    assert context["website_decision_rows"] == EXPECTED_WEBSITE_DECISION_ROWS
 
 
 @pytest.mark.django_db
 def test_get_audit_statement_rows():
     """Test audit statement rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
-
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
     assert get_audit_statement_rows(audit=audit) == EXPECTED_AUDIT_STATEMENT_ROWS
+    assert context["audit_statement_rows"] == EXPECTED_AUDIT_STATEMENT_ROWS
 
 
 @pytest.mark.django_db
 def test_get_statement_decision_rows():
     """Test statement decision rows returned for display on View test page"""
     audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
 
-    assert get_statement_decision_rows(audit=audit) == EXPECTED_STATEMENT_DECISION_ROWS
+    assert context["statement_decision_rows"] == EXPECTED_STATEMENT_DECISION_ROWS
 
 
 @pytest.mark.django_db
 def test_get_audit_report_options_rows():
     """Test audit report options rows returned for display on View test page"""
     audit: Audit = create_audit_and_wcag()
-
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
     assert (
         get_audit_report_options_rows(audit=audit) == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
     )
+    assert context["audit_report_options_rows"] == EXPECTED_AUDIT_REPORT_OPTIONS_ROWS
 
 
 @pytest.mark.django_db
@@ -733,3 +779,58 @@ def test_report_data_updated():
 
     assert audit.unpublished_report_data_updated_time is not None
     assert audit.published_report_data_updated_time is not None
+
+
+@pytest.mark.django_db
+def test_get_test_view_tables_context():
+    """Test view test tables context returned"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
+        audit=audit
+    )
+
+    assert "audit_metadata_rows" in context
+    assert "website_decision_rows" in context
+    assert "audit_statement_rows" in context
+    assert "statement_decision_rows" in context
+    assert "audit_report_options_rows" in context
+
+
+@pytest.mark.django_db
+def test_get_retest_view_tables_context():
+    """Test view 12-week retest tables context returned"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
+        case=audit.case
+    )
+
+    assert "audit_retest_website_decision_rows" in context
+    assert "audit_retest_statement_decision_rows" in context
+
+
+@pytest.mark.django_db
+def test_audit_retest_website_decision_rows():
+    """Test view 12-week retest website decision rows correct"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
+        case=audit.case
+    )
+
+    assert (
+        context["audit_retest_website_decision_rows"]
+        == EXPECTED_RETEST_WEBSITE_DECISION_ROWS
+    )
+
+
+@pytest.mark.django_db
+def test_audit_retest_statement_decision_rows():
+    """Test view 12-week retest website decision rows correct"""
+    audit, _ = create_audit_and_user()
+    context: Dict[str, List[FieldLabelAndValue]] = get_retest_view_tables_context(
+        case=audit.case
+    )
+
+    assert (
+        context["audit_retest_statement_decision_rows"]
+        == EXPECTED_RETEST_STATEMENT_DECISION_ROWS
+    )

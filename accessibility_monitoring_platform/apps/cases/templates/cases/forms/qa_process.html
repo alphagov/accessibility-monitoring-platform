@@ -41,23 +41,7 @@
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Link to report draft</b></label>
                                 <div class="govuk-hint">
-                                    {% if case.report_methodology == 'platform' %}
-                                        {% if case.report %}
-                                            <a href="{% url 'reports:report-publisher' case.report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                                Report publisher
-                                            </a>
-                                        {% else %}
-                                            None
-                                        {% endif %}
-                                    {% else %}
-                                        {% if case.report_draft_url %}
-                                            <a href="{{ case.report_draft_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                                Link to report draft
-                                            </a>
-                                        {% else %}
-                                            None
-                                        {% endif %}
-                                    {% endif %}
+                                    {% include 'cases/helpers/report_link_draft.html' %}
                                 </div>
                             </div>
                             <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>

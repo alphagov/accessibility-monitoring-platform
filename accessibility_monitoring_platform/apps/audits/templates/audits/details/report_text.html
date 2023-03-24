@@ -1,16 +1,32 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="audit-report-text" class="govuk-heading-l">Report text</h2>
-    </div>
-    <div class="govuk-grid-column-one-third">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'audits:edit-audit-report-text' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit report text
-            </a>
+    {% if on_view_case %}
+        <div class="govuk-grid-column-full">
+            <p id="audit-report-text" class="govuk-body-m">
+                <b>Report text</b>
+                |
+                <a href="{% url 'audits:edit-audit-report-text' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit test &gt; report text
+                </a>
+            </p>
         </div>
-    </div>
+    {% else %}
+        <div class="govuk-grid-column-one-half">
+            <h2 id="audit-report-text" class="govuk-heading-l">
+                Report text
+            </h2>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'audits:edit-audit-report-text' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit report text
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">

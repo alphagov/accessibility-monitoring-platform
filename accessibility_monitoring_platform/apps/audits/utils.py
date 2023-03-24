@@ -2,12 +2,15 @@
 Utilities for audits app
 """
 
-from typing import Dict, List, Union
+from functools import partial
+from typing import Callable, Dict, List, Union
 from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+
+from ..cases.models import Case
 
 from ..common.utils import record_model_create_event, record_model_update_event
 from ..common.form_extract_utils import (
@@ -22,6 +25,8 @@ from .forms import (
     CaseStatementDecisionUpdateForm,
     AuditReportOptionsUpdateForm,
     CheckResultForm,
+    CaseFinalWebsiteDecisionUpdateForm,
+    CaseFinalStatementDecisionUpdateForm,
 )
 from .models import (
     Audit,
@@ -44,24 +49,6 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 }
 
 
-def get_audit_metadata_rows(audit: Audit) -> List[FieldLabelAndValue]:
-    """Build Test view page table rows from audit metadata"""
-    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=audit,
-        form=AuditMetadataUpdateForm(),
-    )
-    return rows
-
-
-def get_website_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
-    """Build Test view page table rows from website decision"""
-    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=audit.case,
-        form=CaseWebsiteDecisionUpdateForm(),
-    )
-    return rows
-
-
 def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit statement checks"""
     statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
@@ -75,15 +62,6 @@ def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return (
         statement_1_rows + statement_2_rows[1:]
     )  # Skip first field as it echoes first form
-
-
-def get_statement_decision_rows(audit: Audit) -> List[FieldLabelAndValue]:
-    """Build Test view page table rows from statement decision"""
-    rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=audit.case,
-        form=CaseStatementDecisionUpdateForm(),
-    )
-    return rows
 
 
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
@@ -124,6 +102,36 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         + report_next_issues_rows
         + [report_options_notes]
     )
+
+
+def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndValue]]:
+    """Get context for test view tables"""
+    get_audit_rows: Callable = partial(extract_form_labels_and_values, instance=audit)
+    get_case_rows: Callable = partial(
+        extract_form_labels_and_values, instance=audit.case
+    )
+    return {
+        "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
+        "website_decision_rows": get_case_rows(form=CaseWebsiteDecisionUpdateForm()),
+        "audit_statement_rows": get_audit_statement_rows(audit=audit),
+        "statement_decision_rows": get_case_rows(
+            form=CaseStatementDecisionUpdateForm()
+        ),
+        "audit_report_options_rows": get_audit_report_options_rows(audit=audit),
+    }
+
+
+def get_retest_view_tables_context(case: Case) -> Dict[str, List[FieldLabelAndValue]]:
+    """Get context for 12-week retest view tables"""
+    get_case_rows: Callable = partial(extract_form_labels_and_values, instance=case)
+    return {
+        "audit_retest_website_decision_rows": get_case_rows(
+            form=CaseFinalWebsiteDecisionUpdateForm()
+        ),
+        "audit_retest_statement_decision_rows": get_case_rows(
+            form=CaseFinalStatementDecisionUpdateForm()
+        ),
+    }
 
 
 def create_or_update_check_results_for_page(

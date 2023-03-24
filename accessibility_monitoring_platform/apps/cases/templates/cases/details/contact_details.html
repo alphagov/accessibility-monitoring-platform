@@ -1,27 +1,26 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="contact-details" class="govuk-heading-l">Contact details</h2>
-    </div>
-    <div class="govuk-grid-column-one-third">
-        {% if case.testing_methodology == "platform" %}
-            <div class="govuk-button-group amp-flex-end">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Contact details</b>
+            {% if case.testing_methodology == "platform" %}
+                |
                 <a href="{% url 'cases:edit-contact-details' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
-                    Edit contact details
+                    Edit
                 </a>
-            </div>
-        {% endif %}
+            {% endif %}
+        </p>
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-case-accordion">
     <tbody class="govuk-table__body">
         {% for contact in contacts %}
         <tr class="govuk-table__row">
             <td class="govuk-table__cell">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-half">
-                        <h3 class="govuk-heading-s">Contact name</h3>
+                        <p class="govuk-body-m">Contact name</p>
                     </div>
                     <div class="govuk-grid-column-one-half amp-padding-left-0">
                         <p class="govuk-body-m">{{ contact.name }}</p>
@@ -29,7 +28,7 @@
                 </div>
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-half">
-                        <h3 class="govuk-heading-s">Job title</h3>
+                        <p class="govuk-body-m">Job title</p>
                     </div>
                     <div class="govuk-grid-column-one-half amp-padding-left-0">
                         <p class="govuk-body-m">{{ contact.job_title }}</p>
@@ -37,7 +36,7 @@
                 </div>
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-half">
-                        <h3 class="govuk-heading-s">Email</h3>
+                        <p class="govuk-body-m">Email</p>
                     </div>
                     <div class="govuk-grid-column-one-half amp-padding-left-0">
                         <p class="govuk-body-m">{{ contact.email }}</p>
@@ -46,7 +45,7 @@
                 {% if contacts.count > 1 %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-one-half">
-                            <h3 class="govuk-heading-s">Preferred contact</h3>
+                            <p class="govuk-body-m">Preferred contact</p>
                         </div>
                         <div class="govuk-grid-column-one-half amp-padding-left-0">
                             <p class="govuk-body-m">{{ contact.get_preferred_display }}</p>
@@ -55,7 +54,7 @@
                 {% endif %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-half">
-                        <h3 class="govuk-heading-s">Notes</h3>
+                        <p class="govuk-body-m">Notes</p>
                     </div>
                     <div class="govuk-grid-column-one-half amp-padding-left-0">
                         {% if contact.notes %}{{ contact.notes|markdown_to_html }}{% endif %}

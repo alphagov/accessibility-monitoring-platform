@@ -113,6 +113,30 @@ def add_user_to_auditor_groups(user: User) -> None:
     qa_auditor_group.user_set.add(user)
 
 
+def test_view_case_includes_tests(admin_client):
+    """
+    Test that the View case display test and 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Test metadata")
+    assertContains(response, "Date of test")
+    assertContains(response, "Initial accessibility statement compliance decision")
+
+    assertContains(response, "12-week test metadata")
+    assertContains(response, "Retest date")
+    assertContains(
+        response,
+        "The statement assessment is not visible, as no statement was found during the initial test.",
+    )
+
+
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
     """Test that deleted Contacts are not included in context"""
     case: Case = Case.objects.create()
@@ -1260,17 +1284,14 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
         reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(response, "A test does not exist for this case.")
+    assertContains(response, "No test exists")
 
 
 @pytest.mark.parametrize(
     "audit_table_row",
     [
-        ("Link to test"),
-        ("Test created"),
         ("Screen size"),
         ("Exemptions"),
-        ("Exemptions notes"),
         ("Initial website compliance decision"),
         ("Initial website compliance notes"),
         ("Initial accessibility statement compliance decision"),
@@ -1407,7 +1428,7 @@ def test_section_complete_check_displayed_in_platform_testing_methodology(
             <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
             |
-            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
             &check;
@@ -1772,7 +1793,7 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{reverse("cases:case-list")}?auditor={ user_id }" rel="noreferrer noopener" class="govuk-link">
                     Joe Bloggs
@@ -1796,7 +1817,7 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
@@ -1820,7 +1841,8 @@ def test_case_details_includes_link_to_report(admin_client):
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+            Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Final draft (PDF)
@@ -1844,7 +1866,7 @@ def test_case_details_includes_no_link_to_report(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
@@ -1854,19 +1876,18 @@ def test_case_details_includes_no_link_to_report(admin_client):
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit reminder",
-        "Edit case details",
-        "Edit testing details",
-        "Edit report details",
-        "Edit QA process",
-        "Edit contact details",
-        "Edit report correspondence",
-        "Edit 12-week correspondence",
-        "Edit 12-week retest",
-        "Edit reviewing changes",
-        "Edit closing the case",
-        "Edit equality body summary",
-        "Edit post case summary",
+        "edit-case-details",
+        "edit-test-results",
+        "edit-report-details",
+        "edit-qa-process",
+        "edit-contact-details",
+        "edit-report-correspondence",
+        "edit-twelve-week-correspondence",
+        "edit-twelve-week-retest",
+        "edit-review-changes",
+        "edit-case-close",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links(
@@ -1889,9 +1910,8 @@ def test_case_details_shows_edit_links(
 @pytest.mark.parametrize(
     "edit_link_label",
     [
-        "Edit reminder",
-        "Edit equality body summary",
-        "Edit post case summary",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
     ],
 )
 def test_case_details_shows_edit_links_when_spreadsheet(
@@ -2503,7 +2523,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">
-                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
                     Report publisher
                 </a>
             </div>
@@ -3165,7 +3185,9 @@ def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to test results</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Link to test results
+            </th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,

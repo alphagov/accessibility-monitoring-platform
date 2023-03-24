@@ -1,18 +1,34 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="audit-report-options" class="govuk-heading-l">Report options</h2>
-    </div>
-    <div class="govuk-grid-column-one-third">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'audits:edit-audit-report-options' audit.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit report options
-            </a>
+    {% if on_view_case %}
+        <div class="govuk-grid-column-full">
+            <p id="audit-report-options" class="govuk-body-m">
+                <b>Report options</b>
+                |
+                <a href="{% url 'audits:edit-audit-report-options' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit test &gt; report options
+                </a>
+            </p>
         </div>
-    </div>
+    {% else %}
+        <div class="govuk-grid-column-one-half">
+            <h2 id="audit-report-options" class="govuk-heading-l">
+                Report options
+            </h2>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-button-group amp-flex-end">
+                <a href="{% url 'audits:edit-audit-report-options' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit report options
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
-<table class="govuk-table">
+<table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
     <tbody class="govuk-table__body">
         {% for row in audit_report_options_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}

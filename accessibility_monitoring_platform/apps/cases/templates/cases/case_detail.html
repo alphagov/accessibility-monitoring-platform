@@ -109,27 +109,289 @@
                 {% include 'cases/helpers/overview.html' %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% include 'cases/details/reminders.html' %}
-                {% include 'cases/details/case_details.html' %}
-                {% include 'cases/details/testing_details.html' %}
-                {% include 'cases/details/report_details.html' %}
-                {% include 'cases/details/qa_process.html' %}
-                {% include 'cases/details/contact_details.html' %}
-                {% include 'cases/details/report_correspondence.html' %}
-                {% include 'cases/details/twelve_week_correspondence.html' %}
-                {% if case.testing_methodology == 'platform' %}
-                    {% include 'cases/details/retesting_details.html' %}
-                {% endif %}
-                {% include 'cases/details/review_changes.html' %}
-                {% if case.testing_methodology != 'platform' %}
-                    {% include 'cases/details/final_website.html' %}
-                    {% include 'cases/details/final_statement.html' %}
-                {% endif %}
-                {% include 'cases/details/case_close.html' %}
-                {% include 'cases/details/equality_bodies_correspondence.html' %}
-                {% include 'cases/details/post_case.html' %}
+        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="case-details" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-case-details">
+                            Case details
+                            {% if case.case_details_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-case-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-details">
+                    {% include 'cases/details/case_details.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="test-results" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-test-results">
+                            Testing details
+                            {% if case.testing_details_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-test-results" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-test-results">
+                    {% if case.testing_methodology == "platform" %}
+                        {% if case.audit %}
+                            {% include 'cases/details/testing_details.html' with audit=case.audit %}
+                        {% else %}
+                            <p class="govuk-body-m">No test exists</p>
+                        {% endif %}
+                    {% else %}
+                        <table class="govuk-table amp-case-accordion">
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test results</th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {% if case.test_results_url %}
+                                            <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                        </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Test status</th>
+                                    <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                                        Initial accessibility statement decision
+                                    </th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {{ case.get_accessibility_statement_state_display }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Accessibility statement notes</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                        {{ case.accessibility_statement_notes|markdown_to_html }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial compliance decision</th>
+                                    <td class="govuk-table__cell amp-width-one-half">
+                                        {{ case.get_is_website_compliant_display }}
+                                    </td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
+                                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                        {{ case.compliance_decision_notes|markdown_to_html }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="report-details" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-report-details">
+                            Report details
+                            {% if case.reporting_details_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-report-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-details">
+                    {% include 'cases/details/report_details.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="qa-process" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-qa-process">
+                            QA process
+                            {% if case.qa_process_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-qa-process" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-qa-process">
+                    {% include 'cases/details/qa_process.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="contact-details" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-contact-details">
+                            Contact details
+                            {% if case.contact_details_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-contact-details" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-contact-details">
+                    {% include 'cases/details/contact_details.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="report-correspondence" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-report-correspondence">
+                            Report correspondence
+                            {% if case.report_correspondence_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-report-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-report-correspondence">
+                    {% include 'cases/details/report_correspondence.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="twelve-week-correspondence" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-correspondence">
+                            12-week correspondence
+                            {% if case.twelve_week_correspondence_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-twelve-week-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-correspondence">
+                    {% include 'cases/details/twelve_week_correspondence.html' %}
+                </div>
+            </div>
+            {% if case.testing_methodology == 'platform' %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="twelve-week-retest" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-retest">
+                                12-week retest
+                                {% if case.twelve_week_retest_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-twelve-week-retest" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-twelve-week-retest">
+                        {% if case.audit %}
+                            {% include 'cases/details/retesting_details.html' with audit=case.audit %}
+                        {% else %}
+                            <p class="govuk-body-m">No test exists</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="review-changes" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-review-changes">
+                            Reviewing changes
+                            {% if case.review_changes_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-review-changes" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-review-changes">
+                    {% include 'cases/details/review_changes.html' %}
+                </div>
+            </div>
+            {% if case.testing_methodology != 'platform' %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="final-website" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-final-website">
+                                Final website compliance decision
+                                {% if case.final_website_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-final-website" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-website">
+                        {% include 'cases/details/final_website.html' %}
+                    </div>
+                </div>
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="final-statement" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-final-statement">
+                                Final accessibility statement compliance decision
+                                {% if case.final_statement_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-final-statement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-final-statement">
+                        {% include 'cases/details/final_statement.html' %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="case-close" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-case-close">
+                            Closing the case
+                            {% if case.case_close_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-case-close" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-case-close">
+                    {% include 'cases/details/case_close.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="enforcement-body-correspondence" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-enforcement-body-correspondence">
+                            Equality body summary
+                            {% if case.enforcement_correspondence_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-enforcement-body-correspondence" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-enforcement-body-correspondence">
+                    {% include 'cases/details/equality_bodies_correspondence.html' %}
+                </div>
+            </div>
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="post-case" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-post-case">
+                            Post case summary
+                            {% if case.post_case_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-post-case" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-post-case">
+                    {% include 'cases/details/post_case.html' %}
+                </div>
             </div>
         </div>
     </main>
