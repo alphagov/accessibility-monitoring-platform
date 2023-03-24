@@ -2,39 +2,7 @@
     <div class="govuk-grid-column-full">
         {% include 'audits/helpers/nav_contents.html' with on_view_case=True %}
         {% include 'audits/details/metadata.html' with on_view_case=True %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <p id="audit-pages" class="govuk-body-m">
-                    <b>Test pages</b>
-                    |
-                    <a href="{% url 'audits:edit-audit-pages' audit.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                        rel="noreferrer noopener">
-                        Edit test &gt; pages
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <table class="govuk-table amp-case-accordion">
-                    <tbody class="govuk-table__body">
-                        {% for page in audit.testable_pages %}
-                            <tr class="govuk-table__row ">
-                                <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">
-                                    {{ page }}
-                                </th>
-                                <td class="govuk-table__cell amp-width-one-half">
-                                    <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                                        {{ page.url }}
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% include 'audits/details/pages.html' with on_view_case=True %}
         {% for page in audit.testable_pages %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
@@ -50,7 +18,7 @@
                 </div>
             </div>
             {% if page.failed_check_results %}
-                <table class="govuk-table amp-case-accordion">
+                <table class="govuk-table amp-accordion-table">
                     <tbody class="govuk-table__body">
                         {% for check_result in page.failed_check_results %}
                             <tr class="govuk-table__row ">

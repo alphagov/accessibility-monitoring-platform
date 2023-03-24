@@ -60,12 +60,6 @@ pre {
     background-color: #000;
 }
 
-.view-test-accordion-table > tbody > tr:last-child {
-    th, td {
-        border-bottom: none;
-    }
-}
-
 div#report-text {
     font-family: arial,sans-serif;
     font-size: 12pt;
@@ -309,7 +303,7 @@ img, .amp-max-width-100 {
     }
 }
 
-.amp-case-accordion > tbody > tr:last-child {
+.amp-accordion-table > tbody > tr:last-child {
     th, td {
         border-bottom: none;
     }

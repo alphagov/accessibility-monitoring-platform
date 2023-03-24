@@ -1,34 +1,17 @@
 <div class="govuk-grid-row">
-    {% if on_view_case %}
-        <div class="govuk-grid-column-full">
-            <p id="website-decision" class="govuk-body-m">
-                <b>Website compliance decision</b>
-                |
-                <a href="{% url 'audits:edit-website-decision' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit test &gt; website compliance decision
-                </a>
-            </p>
-        </div>
-    {% else %}
-        <div class="govuk-grid-column-one-half">
-            <h2 id="website-decision" class="govuk-heading-l">
-                Website compliance decision
-            </h2>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <div class="govuk-button-group amp-flex-end">
-                <a href="{% url 'audits:edit-website-decision' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit website compliance decision
-                </a>
-            </div>
-        </div>
-    {% endif %}
+    <div class="govuk-grid-column-full">
+        <p id="website-decision" class="govuk-body-m">
+            <b>Website compliance decision</b>
+            |
+            <a href="{% url 'audits:edit-website-decision' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                {% if on_view_case %}Edit test &gt; website compliance decision{% else %}Edit{% endif %}
+            </a>
+        </p>
+    </div>
 </div>
-<table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
+<table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
         {% for row in website_decision_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}

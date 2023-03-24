@@ -1,32 +1,17 @@
 <div class="govuk-grid-row">
-    {% if on_view_case %}
-        <div class="govuk-grid-column-full">
-            <p class="govuk-body-m">
-                <b>Test metadata</b>
-                |
-                <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit test &gt; metadata
-                </a>
-            </p>
-        </div>
-    {% else %}
-        <div class="govuk-grid-column-two-thirds">
-            <h2 id="audit-metadata" class="govuk-heading-l">Test metadata</h2>
-        </div>
-        <div class="govuk-grid-column-one-third">
-            <div class="govuk-button-group amp-flex-end">
-                <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit test metadata
-                </a>
-            </div>
-        </div>
-    {% endif %}
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Test metadata</b>
+            |
+            <a href="{% url 'audits:edit-audit-metadata' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                {% if on_view_case %}Edit test &gt; metadata{% else %}Edit{% endif %}
+            </a>
+        </p>
+    </div>
 </div>
-<table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
+<table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
         {% for row in audit_metadata_rows %}
             {% include 'cases/helpers/detail_row.html' with row=row %}
