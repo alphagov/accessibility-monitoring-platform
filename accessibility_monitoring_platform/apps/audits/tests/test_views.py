@@ -938,7 +938,7 @@ def test_statement_details_hidden_when_no_statement_page(
     [
         (
             "audits:audit-retest-detail",
-            "Retest non-accessible content - non compliance with regulations state",
+            "Non-accessible content - non compliance with regulations",
         ),
         (
             "audits:edit-audit-retest-statement-1",

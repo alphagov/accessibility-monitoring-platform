@@ -1,32 +1,17 @@
 <div class="govuk-grid-row">
-    {% if on_view_case %}
-        <div class="govuk-grid-column-full">
-            <p id="audit-retest-metadata" class="govuk-body-m">
-                <b>12-week test metadata</b>
-                |
-                <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit 12-week test &gt; 12-week test metadata
-                </a>
-            </p>
-        </div>
-    {% else %}
-        <div class="govuk-grid-column-one-half">
-            <h2 id="audit-retest-metadata" class="govuk-heading-l">12-week test metadata</h2>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <div class="govuk-button-group amp-flex-end">
-                <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit 12-week test metadata
-                </a>
-            </div>
-        </div>
-    {% endif %}
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>12-week test metadata</b>
+            |
+            <a href="{% url 'audits:edit-audit-retest-metadata' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit{% if on_view_case %} 12-week test &gt; 12-week test metadata{% endif %}
+            </a>
+        </p>
+    </div>
 </div>
-<table class="govuk-table{% if on_view_case %} amp-accordion-table{% endif %}">
+<table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Retest date</th>
