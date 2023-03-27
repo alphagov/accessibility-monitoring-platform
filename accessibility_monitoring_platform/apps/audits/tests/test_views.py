@@ -157,7 +157,7 @@ def test_audit_detail_shows_number_of_errors(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "PDF - 2")
+    assertContains(response, "PDF (2)")
 
 
 def test_audit_detail_shows_12_week_statement(admin_client):

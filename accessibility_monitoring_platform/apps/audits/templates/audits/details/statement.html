@@ -1,33 +1,18 @@
 <div class="govuk-grid-row">
-    {% if on_view_case %}
-        <div class="govuk-grid-column-full">
-            <p id="audit-statement"  class="govuk-body-m">
-                <b>Accessibility statement</b>
-                |
-                <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit test &gt; accessibility statement
-                </a>
-            </p>
-        </div>
-    {% else %}
-        <div class="govuk-grid-column-one-half">
-            <h2 id="audit-statement" class="govuk-heading-l">
-                Accessibility statement
-            </h2>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <div class="govuk-button-group amp-flex-end">
-                <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">Edit accessibility statement</a>
-            </div>
-        </div>
-    {% endif %}
+    <div class="govuk-grid-column-full">
+        <p id="audit-statement"  class="govuk-body-m">
+            <b>Accessibility statement</b>
+            |
+            <a href="{% url 'audits:edit-audit-statement-1' audit.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+                rel="noreferrer noopener">
+                Edit{% if on_view_case %} test &gt; accessibility statement{% endif %}
+            </a>
+        </p>
+    </div>
 </div>
 {% if audit.accessibility_statement_initially_found %}
-    <table class="govuk-table{% if on_view_case %} amp-case-accordion{% endif %}">
+    <table class="govuk-table amp-accordion-table">
         <tbody class="govuk-table__body">
             {% for row in audit_statement_rows %}
                 {% include 'cases/helpers/detail_row.html' with row=row %}

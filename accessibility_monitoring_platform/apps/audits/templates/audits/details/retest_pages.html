@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     {% if page.failed_check_results %}
-                        <table class="govuk-table view-test-accordion-table">
+                        <table class="govuk-table amp-accordion-table">
                             {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.failed_check_results %}
                         </table>
                     {% else %}
