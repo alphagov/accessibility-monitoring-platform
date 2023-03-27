@@ -16,7 +16,7 @@
                         </ul>
                     </li>
                 {% endif %}
-                {% include './nav_content.html' with edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
+                {% include './nav_content.html' with id='edit-audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
                 {% include './nav_content.html' with id='edit-audit-retest-website-decision' anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
             {% endif %}
             {% include './nav_content.html' with id='edit-audit-retest-statement-1' anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
