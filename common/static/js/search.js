@@ -90,13 +90,19 @@ function buildSearchStructure(element) {
   }
 }
 
-const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
-  element => ['H2', 'H3', 'TR', 'P'].includes(element.tagName)
-)
-Array.from(searchScopeElements).forEach(function (searchScopeElement) {
-  buildSearchStructure(searchScopeElement)
-})
-console.log('searchStructure', searchStructure)
+let stateCheck = setInterval(() => {
+  // Check dom is ready before collecting search data
+  if (document.readyState === 'complete') {
+    clearInterval(stateCheck);
+    const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
+      element => ['H2', 'H3', 'TR', 'P'].includes(element.tagName)
+    )
+    Array.from(searchScopeElements).forEach(function (searchScopeElement) {
+      buildSearchStructure(searchScopeElement)
+    })
+    console.log('searchStructure', searchStructure)
+    }
+}, 100);
 
 module.exports = {
   search,
