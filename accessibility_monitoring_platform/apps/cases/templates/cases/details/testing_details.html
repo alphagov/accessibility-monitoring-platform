@@ -1,7 +1,9 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         {% include 'audits/helpers/nav_contents.html' with on_view_case=True %}
-        {% include 'audits/details/metadata.html' with on_view_case=True %}
+        <div{% if case.audit %} data-search-target="{% url 'audits:edit-audit-metadata' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/metadata.html' with on_view_case=True %}
+        </div>
         {% include 'audits/details/pages.html' with on_view_case=True %}
         {% for page in audit.testable_pages %}
             <div class="govuk-grid-row">
