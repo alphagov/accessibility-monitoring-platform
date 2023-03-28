@@ -817,6 +817,21 @@ class Case(VersionModel):
 
         return max([updated for updated in updated_times if updated is not None])
 
+    @property
+    def website_compliance_display(self):
+        if self.website_state_final == WEBSITE_STATE_FINAL_DEFAULT:
+            return self.get_is_website_compliant_display()
+        return self.get_website_state_final_display()
+
+    @property
+    def accessibility_statement_compliance_display(self):
+        if (
+            self.accessibility_statement_state_final
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        ):
+            return self.get_accessibility_statement_state_display()
+        return self.get_accessibility_statement_state_final_display()
+
 
 class Contact(models.Model):
     """

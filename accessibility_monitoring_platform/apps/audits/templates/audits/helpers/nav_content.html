@@ -9,7 +9,7 @@
                 {% if page %}
                     <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="content-page-link">
                 {% elif audit %}
-                    <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    <a id="{{ id }}" href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
                 {% else %}
                     None
                 {% endif %}
