@@ -8,9 +8,17 @@ function search() {
   const regex = new RegExp(searchElement.value, 'ig')
   const matches = searchStructure.filter(item => regex.test(item.text))
   let results = ''
-  matches.forEach(result => results += `<tr class="govuk-table__row"><td class="govuk-table__cell">${result.text.replaceAll(regex, '<b>$&</b>')}: <a href="${result.target}">${result.target}</a></td></tr>`)
+  matches.forEach(result => results += `<tr class="govuk-table__row">
+      <td class="govuk-table__cell">
+        <b>${searchElement.value}</b> found in <a href="${result.target}">${result.target}</a>
+        <br><br>
+        <pre>${result.text.trim().replaceAll(regex, '<b>$&</b>')}</pre>
+      </td>
+    </tr>`)
   const resultsElement = document.getElementById('search-results')
-  resultsElement.innerHTML = `<table class="govuk-table"><tbody class="govuk-table__body">${results}</tbody></table>`
+  resultsElement.innerHTML = `
+    <p class="govuk-body">Found ${matches.length} results for <b>${searchElement.value}</b></p>
+    <table class="govuk-table"><tbody class="govuk-table__body">${results}</tbody></table>`
   resultsElement.hidden = false
   const scopeElement = document.getElementById('search-scope')
   scopeElement.hidden = true
@@ -74,35 +82,33 @@ const clearSearchElement = document.getElementById('clear-inside-search')
 addClearSearchListeners(clearSearchElement)
 
 function buildSearchStructure(element) {
-  if (element.innerText) {
-    const innerText = element.innerText
+  if (element.textContent) {
+    const textContent = element.textContent
     let parentElement = element.parentElement
     while (parentElement) {
-      if (parentElement.dataset && parentElement.dataset.searchTarget) {
+      if (parentElement.dataset.searchTarget !== undefined) {
         break
       }
       parentElement = parentElement.parentElement
     }
     if (parentElement) {
       const searchTarget = parentElement.dataset.searchTarget
-      searchStructure.push({text: innerText, target: searchTarget})
+      searchStructure.push({text: textContent, target: searchTarget})
+    } else {
+      console.log('Target URL not found', element.textContent, element)
     }
+  } else {
+    console.log('No textContent', element.textContent, element)
   }
 }
 
-let stateCheck = setInterval(() => {
-  // Check dom is ready before collecting search data
-  if (document.readyState === 'complete') {
-    clearInterval(stateCheck);
-    const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
-      element => ['H2', 'H3', 'TR', 'P'].includes(element.tagName)
-    )
-    Array.from(searchScopeElements).forEach(function (searchScopeElement) {
-      buildSearchStructure(searchScopeElement)
-    })
-    console.log('searchStructure', searchStructure)
-    }
-}, 100);
+const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
+  element => ['H2', 'H3', 'TH', 'TD', 'P'].includes(element.tagName)
+)
+Array.from(searchScopeElements).forEach(function (searchScopeElement) {
+  buildSearchStructure(searchScopeElement)
+})
+console.log('searchStructure', searchStructure)
 
 module.exports = {
   search,
