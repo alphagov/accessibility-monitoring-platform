@@ -70,12 +70,26 @@
                     {% else %}
                         0
                     {% endif %}
+                    {% if case.audit.failed_check_results %}
+                        ({% widthratio case.audit.fixed_check_results.count case.audit.failed_check_results.count 100 %}%)
+                    {% endif %}
                     WCAG errors have been fixed
                 </p>
                 <p class="govuk-body">
-                    {{ case.audit.fixed_accessibility_statement_checks_count }}
+                    {% if case.audit.fixed_accessibility_statement_checks_count %}
+                        {{ case.audit.fixed_accessibility_statement_checks_count }}
+                    {% else %}
+                        0
+                    {% endif %}
                     of
-                    {{ case.audit.accessibility_statement_initially_invalid_checks_count }}
+                    {% if case.audit.accessibility_statement_initially_invalid_checks_count %}
+                        {{ case.audit.accessibility_statement_initially_invalid_checks_count }}
+                    {% else %}
+                        0
+                    {% endif %}
+                    {% if case.audit.accessibility_statement_initially_invalid_checks_count %}
+                        ({% widthratio case.audit.fixed_accessibility_statement_checks_count case.audit.accessibility_statement_initially_invalid_checks_count 100 %}%)
+                    {% endif %}
                     statement errors have been fixed
                 </p>
                 {% if show_failures_by_page %}
