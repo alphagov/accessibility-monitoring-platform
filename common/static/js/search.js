@@ -12,7 +12,7 @@ function search() {
       <td class="govuk-table__cell">
         <b>${searchElement.value}</b> found in <a href="${result.target}">${result.target}</a>
         <br><br>
-        ${result.text.trim().replaceAll(regex, '<b>$&</b>')}
+        ${result.text.trim().replaceAll('<', '&lt;').replaceAll(regex, '<b>$&</b>')}
       </td>
     </tr>`)
   const resultsElement = document.getElementById('search-results')
