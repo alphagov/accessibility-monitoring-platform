@@ -11,7 +11,7 @@ xmltodict
 Markdown
 moto
 django-axes
-django-two-factor-auth
+django-two-factor-auth==1.14.0
 phonenumbers
 django-csp
 pytest-django
