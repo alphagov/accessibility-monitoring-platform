@@ -12,7 +12,7 @@ function search() {
       <td class="govuk-table__cell">
         <b>${searchElement.value}</b> found in <a href="${result.target}">${result.target}</a>
         <br><br>
-        <pre>${result.text.trim().replaceAll(regex, '<b>$&</b>')}</pre>
+        ${result.text.trim().replaceAll(regex, '<b>$&</b>')}
       </td>
     </tr>`)
   const resultsElement = document.getElementById('search-results')
@@ -103,7 +103,7 @@ function buildSearchStructure(element) {
 }
 
 const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
-  element => ['H2', 'H3', 'TH', 'TD', 'P'].includes(element.tagName)
+  element => ['TR', 'P'].includes(element.tagName)
 )
 Array.from(searchScopeElements).forEach(function (searchScopeElement) {
   buildSearchStructure(searchScopeElement)
