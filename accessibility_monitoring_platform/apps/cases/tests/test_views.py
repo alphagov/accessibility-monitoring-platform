@@ -16,9 +16,21 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...notifications.models import Notification
+
 from ...s3_read_write.models import S3Report
-from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
+
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    PAGE_TYPE_STATEMENT,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_HOME,
+    RETEST_CHECK_RESULT_FIXED,
+    SCOPE_STATE_VALID,
+)
 from ...audits.tests.test_models import create_audit_and_check_results
+
 from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
@@ -28,6 +40,7 @@ from ...common.models import (
     EVENT_TYPE_MODEL_UPDATE,
 )
 from ...common.utils import amp_format_date
+
 from ...reports.models import Report
 
 from ..models import (
@@ -3283,8 +3296,46 @@ def test_outstanding_issues_overview(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "0 of 3 WCAG errors have been fixed", html=True)
-    assertContains(response, "0 of 12 statement errors have been fixed", html=True)
+    assertContains(response, "0 of 3 (0%) WCAG errors have been fixed", html=True)
+    assertContains(response, "0 of 12 (0%) statement errors have been fixed", html=True)
+
+
+def test_outstanding_issues_overview_percentage(admin_client):
+    """
+    Test out standing issues page shows overview percentages calculated
+    correctly.
+    """
+    audit: Audit = create_audit_and_check_results()
+    audit.audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.save()
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    check_result: CheckResult = home_page.all_check_results[0]
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "1 of 3 (33%) WCAG errors have been fixed", html=True)
+    assertContains(response, "1 of 12 (8%) statement errors have been fixed", html=True)
+
+
+def test_outstanding_issues_overview_percentages_new_case(admin_client):
+    """
+    Test out standing issues page shows overview percentages not included
+    for brand new case (with no tests)
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "0 of 0 WCAG errors have been fixed", html=True)
+    assertContains(response, "0 of 0 statement errors have been fixed", html=True)
 
 
 @pytest.mark.parametrize(
