@@ -7,19 +7,23 @@ function search() {
   const searchElement = document.getElementById('id_search_in_case')
   if (searchElement.value !== '') {
     const regex = new RegExp(searchElement.value, 'ig')
+    const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchElement.value}`, 'ig')
     const matches = searchStructure.filter(item => regex.test(item.text))
     let results = ''
-    matches.forEach(result => results += `<tr class="govuk-table__row">
-        <td class="govuk-table__cell">
-          <b>${result.targetPageName}</b> | <a href="${result.targetUrl}">${result.targetLabel}</a>
-          <br><br>
-          ${result.text.trim().replaceAll('<', '&lt;').replaceAll(regex, '<b>$&</b>')}
-        </td>
-      </tr>`)
+    matches.forEach(result => results += `<div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <p class="govuk-body">
+          <b>${result.targetPageName}</b> | <a href="${result.targetUrl}" class="govuk-link govuk-link--no-visited-state">${result.targetLabel}</a>
+        </p>
+        <table class="govuk-table"><tbody class="govuk-table__body">
+        ${result.html.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
+        </tbody></table>
+      </div>
+    </div>`)
     const resultsElement = document.getElementById('search-results')
     resultsElement.innerHTML = `
       <p class="govuk-body">Found ${matches.length} results for <b>${searchElement.value}</b></p>
-      <table class="govuk-table"><tbody class="govuk-table__body">${results}</tbody></table>`
+      ${results}`
     resultsElement.hidden = false
   } else {
     const resultsElement = document.getElementById('search-results')
@@ -91,9 +95,11 @@ addClearSearchListeners(clearSearchElement)
 function buildSearchStructure(element) {
   if (element.textContent) {
     const textContent = element.textContent
+    const innerHTML = element.innerHTML
     if (element.dataset.searchTargetUrl !== undefined) {
       searchStructure.push({
         text: textContent,
+        html: innerHTML,
         targetUrl: element.dataset.searchTargetUrl,
         targetLabel: element.dataset.searchTargetLabel,
         targetPageName: element.dataset.searchTargetPageName
@@ -110,6 +116,7 @@ function buildSearchStructure(element) {
         const searchTargetUrl = parentElement.dataset.searchTargetUrl
         searchStructure.push({
           text: textContent,
+          html: innerHTML,
           targetUrl: parentElement.dataset.searchTargetUrl,
           targetLabel: parentElement.dataset.searchTargetLabel,
           targetPageName: parentElement.dataset.searchTargetPageName
@@ -123,9 +130,7 @@ function buildSearchStructure(element) {
   }
 }
 
-const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
-  element => ['TR'].includes(element.tagName)
-)
+const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('TR'))
 Array.from(searchScopeElements).forEach(function (searchScopeElement) {
   buildSearchStructure(searchScopeElement)
 })
