@@ -49,21 +49,6 @@ MANUAL_CHECK_SUB_TYPE_LABELS: Dict[str, str] = {
 }
 
 
-def get_audit_statement_rows(audit: Audit) -> List[FieldLabelAndValue]:
-    """Build Test view page table rows from audit statement checks"""
-    statement_1_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=audit,
-        form=AuditStatement1UpdateForm(),
-    )
-    statement_2_rows: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=audit,
-        form=AuditStatement2UpdateForm(),
-    )
-    return (
-        statement_1_rows + statement_2_rows[1:]
-    )  # Skip first field as it echoes first form
-
-
 def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     """Build Test view page table rows from audit report options"""
     accessibility_statement_state_row: FieldLabelAndValue = FieldLabelAndValue(
@@ -113,7 +98,8 @@ def get_test_view_tables_context(audit: Audit) -> Dict[str, List[FieldLabelAndVa
     return {
         "audit_metadata_rows": get_audit_rows(form=AuditMetadataUpdateForm()),
         "website_decision_rows": get_case_rows(form=CaseWebsiteDecisionUpdateForm()),
-        "audit_statement_rows": get_audit_statement_rows(audit=audit),
+        "audit_statement_1_rows": get_audit_rows(form=AuditStatement1UpdateForm()),
+        "audit_statement_2_rows": get_audit_rows(form=AuditStatement2UpdateForm()),
         "statement_decision_rows": get_case_rows(
             form=CaseStatementDecisionUpdateForm()
         ),
