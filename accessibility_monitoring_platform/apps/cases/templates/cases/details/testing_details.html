@@ -1,14 +1,14 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         {% include 'audits/helpers/nav_contents.html' with on_view_case=True %}
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-audit-metadata' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Test metadata" data-search-target-label="Edit test > Test metadata" data-search-target-url="{% url 'audits:edit-audit-metadata' case.audit.id %}"{% endif %}>
             {% include 'audits/details/metadata.html' with on_view_case=True %}
         </div>
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-audit-pages' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Pages" data-search-target-label="Edit test > Pages" data-search-target-url="{% url 'audits:edit-audit-pages' case.audit.id %}"{% endif %}>
             {% include 'audits/details/pages.html' with on_view_case=True %}
         </div>
         {% for page in audit.testable_pages %}
-            <div data-search-target="{% url 'audits:edit-audit-page-checks' page.id %}">
+            <div data-search-target-page-name="{{ page }} test" data-search-target-label="Edit test > {{ page }}" data-search-target-url="{% url 'audits:edit-audit-page-checks' page.id %}">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
                         <p id="{{ page.anchor }}" class="govuk-body-m">
@@ -25,16 +25,16 @@
                 {% include 'audits/details/page_check_results.html' %}
             </div>
         {% endfor %}
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-website-decision' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Website compliance decision" data-search-target-label="Edit test > Website compliance decision" data-search-target-url="{% url 'audits:edit-website-decision' case.audit.id %}"{% endif %}>
             {% include 'audits/details/website_decision.html' with on_view_case=True %}
         </div>
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-audit-statement-1' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Accessibility statement Pt. 1" data-search-target-label="Edit test > Accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-statement-1' case.audit.id %}"{% endif %}>
             {% include 'audits/details/statement.html' with on_view_case=True %}
         </div>
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-statement-decision' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Accessibility statement compliance decision" data-search-target-label="Edit test > Accessibility statement compliance decision" data-search-target-url="{% url 'audits:edit-statement-decision' case.audit.id %}"{% endif %}>
             {% include 'audits/details/statement_decision.html' with on_view_case=True %}
         </div>
-        <div{% if case.audit %} data-search-target="{% url 'audits:edit-audit-report-options' case.audit.id %}"{% endif %}>
+        <div{% if case.audit %} data-search-target-page-name="Report options" data-search-target-label="Edit test > Report options" data-search-target-url="{% url 'audits:edit-audit-report-options' case.audit.id %}"{% endif %}>
             {% include 'audits/details/report_options.html' with on_view_case=True %}
         </div>
         {% if audit.case.report_methodology == 'odt' %}

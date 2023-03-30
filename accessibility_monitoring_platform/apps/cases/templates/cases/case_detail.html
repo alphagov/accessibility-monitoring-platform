@@ -138,9 +138,9 @@
             </div>
         </div>
         <div id="search-results"></div>
-        <div id="search-scope" data-search-target="{% url 'cases:case-detail' case.id %}">
+        <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{% url 'cases:case-detail' case.id %}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-case-details' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Case details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-details' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="case-details" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-case-details">
@@ -156,7 +156,7 @@
                         {% include 'cases/details/case_details.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" {% if case.audit %}data-search-target="{% url 'audits:audit-detail' case.audit.id %}"{% endif %}>
+                <div class="govuk-accordion__section" {% if case.audit %}data-search-target-page-name="View test" data-search-target-label="View test" data-search-target-url="{% url 'audits:audit-detail' case.audit.id %}"{% endif %}>
                     <div class="govuk-accordion__section-header">
                         <h2 id="test-results" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-test-results">
@@ -176,7 +176,7 @@
                                 <p class="govuk-body-m">No test exists</p>
                             {% endif %}
                         {% else %}
-                            <table class="govuk-table amp-accordion-table" data-search-target="{% url 'cases:edit-test-results' case.id %}">
+                            <table class="govuk-table amp-accordion-table" data-search-target-page-name="Testing details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-test-results' case.id %}">
                                 <tbody class="govuk-table__body">
                                     <tr class="govuk-table__row">
                                         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test results</th>
@@ -223,7 +223,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-report-details' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Report details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-report-details' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="report-details" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-report-details">
@@ -239,7 +239,7 @@
                         {% include 'cases/details/report_details.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-qa-process' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="QA process" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-qa-process' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="qa-process" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-qa-process">
@@ -255,7 +255,7 @@
                         {% include 'cases/details/qa_process.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-contact-details' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Contact details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-contact-details' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="contact-details" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-contact-details">
@@ -271,7 +271,7 @@
                         {% include 'cases/details/contact_details.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-report-correspondence' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Report correspondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-report-correspondence' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="report-correspondence" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-report-correspondence">
@@ -287,7 +287,7 @@
                         {% include 'cases/details/report_correspondence.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="12-week correspondence" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="twelve-week-correspondence" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-correspondence">
@@ -304,7 +304,7 @@
                     </div>
                 </div>
                 {% if case.testing_methodology == 'platform' %}
-                    <div class="govuk-accordion__section"{% if case.audit %} data-search-target="{% url 'audits:audit-retest-detail' case.audit.id %}"{% endif %}>
+                    <div class="govuk-accordion__section"{% if case.audit %} data-search-target-page-name="View 12-week test" data-search-target-label="View 12-week test" data-search-target-url="{% url 'audits:audit-retest-detail' case.audit.id %}"{% endif %}>
                         <div class="govuk-accordion__section-header">
                             <h2 id="twelve-week-retest" class="govuk-accordion__section-heading">
                                 <span class="govuk-accordion__section-button" id="accordion-heading-twelve-week-retest">
@@ -325,7 +325,7 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-review-changes' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Reviewing changes" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-review-changes' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="review-changes" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-review-changes">
@@ -375,7 +375,7 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-case-close' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Closing the case" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-close' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="case-close" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-case-close">
@@ -391,7 +391,7 @@
                         {% include 'cases/details/case_close.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Equality body summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-enforcement-body-correspondence' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="enforcement-body-correspondence" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-enforcement-body-correspondence">
@@ -407,7 +407,7 @@
                         {% include 'cases/details/equality_bodies_correspondence.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" data-search-target="{% url 'cases:edit-post-case' case.id %}">
+                <div class="govuk-accordion__section" data-search-target-page-name="Post case summary" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-post-case' case.id %}">
                     <div class="govuk-accordion__section-header">
                         <h2 id="post-case" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-post-case">

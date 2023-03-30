@@ -5,21 +5,27 @@ let searchStructure = []
 
 function search() {
   const searchElement = document.getElementById('id_search_in_case')
-  const regex = new RegExp(searchElement.value, 'ig')
-  const matches = searchStructure.filter(item => regex.test(item.text))
-  let results = ''
-  matches.forEach(result => results += `<tr class="govuk-table__row">
-      <td class="govuk-table__cell">
-        <b>${searchElement.value}</b> found in <a href="${result.target}">${result.target}</a>
-        <br><br>
-        ${result.text.trim().replaceAll('<', '&lt;').replaceAll(regex, '<b>$&</b>')}
-      </td>
-    </tr>`)
-  const resultsElement = document.getElementById('search-results')
-  resultsElement.innerHTML = `
-    <p class="govuk-body">Found ${matches.length} results for <b>${searchElement.value}</b></p>
-    <table class="govuk-table"><tbody class="govuk-table__body">${results}</tbody></table>`
-  resultsElement.hidden = false
+  if (searchElement.value !== '') {
+    const regex = new RegExp(searchElement.value, 'ig')
+    const matches = searchStructure.filter(item => regex.test(item.text))
+    let results = ''
+    matches.forEach(result => results += `<tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+          <b>${result.targetPageName}</b> | <a href="${result.targetUrl}">${result.targetLabel}</a>
+          <br><br>
+          ${result.text.trim().replaceAll('<', '&lt;').replaceAll(regex, '<b>$&</b>')}
+        </td>
+      </tr>`)
+    const resultsElement = document.getElementById('search-results')
+    resultsElement.innerHTML = `
+      <p class="govuk-body">Found ${matches.length} results for <b>${searchElement.value}</b></p>
+      <table class="govuk-table"><tbody class="govuk-table__body">${results}</tbody></table>`
+    resultsElement.hidden = false
+  } else {
+    const resultsElement = document.getElementById('search-results')
+    resultsElement.innerHTML = `<p class="govuk-body">No search string entered</p>`
+    resultsElement.hidden = false
+  }
   const scopeElement = document.getElementById('search-scope')
   scopeElement.hidden = true
 }
@@ -57,6 +63,7 @@ function clearSearch() {
   searchElement.value = ''
   const resultsElement = document.getElementById('search-results')
   resultsElement.hidden = true
+  resultsElement.innerHTML = ''
   const scopeElement = document.getElementById('search-scope')
   scopeElement.hidden = false
 }
@@ -84,18 +91,32 @@ addClearSearchListeners(clearSearchElement)
 function buildSearchStructure(element) {
   if (element.textContent) {
     const textContent = element.textContent
-    let parentElement = element.parentElement
-    while (parentElement) {
-      if (parentElement.dataset.searchTarget !== undefined) {
-        break
-      }
-      parentElement = parentElement.parentElement
-    }
-    if (parentElement) {
-      const searchTarget = parentElement.dataset.searchTarget
-      searchStructure.push({text: textContent, target: searchTarget})
+    if (element.dataset.searchTargetUrl !== undefined) {
+      searchStructure.push({
+        text: textContent,
+        targetUrl: element.dataset.searchTargetUrl,
+        targetLabel: element.dataset.searchTargetLabel,
+        targetPageName: element.dataset.searchTargetPageName
+      })
     } else {
-      console.log('Target URL not found', element.textContent, element)
+      let parentElement = element.parentElement
+      while (parentElement) {
+        if (parentElement.dataset.searchTargetUrl !== undefined) {
+          break
+        }
+        parentElement = parentElement.parentElement
+      }
+      if (parentElement) {
+        const searchTargetUrl = parentElement.dataset.searchTargetUrl
+        searchStructure.push({
+          text: textContent,
+          targetUrl: parentElement.dataset.searchTargetUrl,
+          targetLabel: parentElement.dataset.searchTargetLabel,
+          targetPageName: parentElement.dataset.searchTargetPageName
+        })
+      } else {
+        console.log('Target URL not found', element.textContent, element)
+      }
     }
   } else {
     console.log('No textContent', element.textContent, element)
@@ -103,7 +124,7 @@ function buildSearchStructure(element) {
 }
 
 const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('*')).filter(
-  element => ['TR', 'P'].includes(element.tagName)
+  element => ['TR'].includes(element.tagName)
 )
 Array.from(searchScopeElements).forEach(function (searchScopeElement) {
   buildSearchStructure(searchScopeElement)
