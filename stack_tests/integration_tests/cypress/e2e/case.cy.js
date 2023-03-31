@@ -22,10 +22,10 @@ describe('View case', () => {
   it('can search within case', () => {
     cy.get('[name="search_in_case"]').clear().type('date')
     cy.get('#search-in-case').click()
-    cy.contains('Found 13 results for date')
+    cy.contains('Found 14 results for date')
     cy.contains('Date of test')
     cy.get('#clear-search-in-case').click()
-    cy.contains('Found 13 results for date').should('not.exist')
+    cy.contains('Found 14 results for date').should('not.exist')
   })
 
   it('does not search within case for empty-string', () => {
