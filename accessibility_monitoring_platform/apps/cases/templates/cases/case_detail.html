@@ -65,44 +65,7 @@
         </div>
         {% include 'cases/helpers/case_title.html' %}
         {% include 'cases/helpers/messages.html' %}
-        {% include 'reports/helpers/pending_published_rebuild_notification.html' %}
-        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' %}
-        {% include 'cases/helpers/compliant_website_notification.html' %}
-        {% include 'cases/helpers/historic_case_notification.html' %}
-        {% if case.is_deactivated %}
-            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-case-deactivated" data-module="govuk-notification-banner">
-                <div class="govuk-notification-banner__header">
-                  <h2 class="govuk-notification-banner__title" id="banner-title-case-deactivated">
-                    Important
-                  </h2>
-                </div>
-                <div class="govuk-notification-banner__content">
-                    <h3 class="govuk-notification-banner__heading">
-                        This case was deactivated on {{ case.deactivate_date|amp_date }}.
-                    </h3>
-                    {% if case.deactivate_notes %}
-                        <p class="govuk-body">Reason why:</p>
-                        <ul class="govuk-list govuk-list--bullet">
-                            <li>{{ case.deactivate_notes|markdown_to_html }}</li>
-                        </ul>
-                    {% endif %}
-                    <p class="govuk-body">
-                        Go to
-                        <a class="govuk-notification-banner__link" href="{% url 'cases:reactivate-case' case.id %}">Case > Reactivate case</a>
-                        to reactivate the case.
-                    </p>
-                </div>
-            </div>
-        {% endif %}
-        {% if case.no_psb_contact == 'yes' %}
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive">Warning</span>
-                    Public sector body is unresponsive and has been moved to equalities bodies correspondence
-                </strong>
-            </div>
-        {% endif %}
+        {% include 'cases/details/case_detail_notifications.html' %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 {% include 'cases/helpers/nav_contents.html' %}
@@ -111,33 +74,7 @@
                 {% include 'cases/helpers/overview.html' %}
             </div>
         </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h2 class="govuk-heading-l">Search inside case</h2>
-                <div class="govuk-form-group">
-                    <input type="text" name="search_in_case" placeholder="Search" class="govuk-input" id="id_search_in_case">
-                </div>
-                <div class="govuk-button-group">
-                    <input
-                        id="search-in-case"
-                        type="submit"
-                        value="Search inside case"
-                        name="search_inside_case"
-                        class="govuk-button"
-                        data-module="govuk-button"
-                    />
-                    <input
-                        id="clear-search-in-case"
-                        type="submit"
-                        value="Clear search"
-                        name="clear_search_inside_case"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    />
-                </div>
-            </div>
-        </div>
-        <div id="search-results"></div>
+        {% include 'cases/details/search_in_case.html' %}
         <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{% url 'cases:case-detail' case.id %}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 <div class="govuk-accordion__section" data-search-target-page-name="Case details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-details' case.id %}">
@@ -176,50 +113,7 @@
                                 <p class="govuk-body-m">No test exists</p>
                             {% endif %}
                         {% else %}
-                            <table class="govuk-table amp-accordion-table" data-search-target-page-name="Testing details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-test-results' case.id %}">
-                                <tbody class="govuk-table__body">
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to test results</th>
-                                        <td class="govuk-table__cell amp-width-one-half">
-                                            {% if case.test_results_url %}
-                                                <a href="{{ case.test_results_url }}" class="govuk-link">Monitor document</a>
-                                            {% else %}
-                                                None
-                                            {% endif %}
-                                            </td>
-                                    </tr>
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Test status</th>
-                                        <td class="govuk-table__cell amp-width-one-half">{{ case.get_test_status_display }}</td>
-                                    </tr>
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                                            Initial accessibility statement decision
-                                        </th>
-                                        <td class="govuk-table__cell amp-width-one-half">
-                                            {{ case.get_accessibility_statement_state_display }}
-                                        </td>
-                                    </tr>
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Accessibility statement notes</th>
-                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                            {{ case.accessibility_statement_notes|markdown_to_html }}
-                                        </td>
-                                    </tr>
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial compliance decision</th>
-                                        <td class="govuk-table__cell amp-width-one-half">
-                                            {{ case.get_is_website_compliant_display }}
-                                        </td>
-                                    </tr>
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
-                                        <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                            {{ case.compliance_decision_notes|markdown_to_html }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            {% include 'cases/details/spreadsheet_test.html' %}
                         {% endif %}
                     </div>
                 </div>

@@ -36,8 +36,7 @@ document.body.innerHTML = `
 </div>
 <div id="extra" data-search-target-page-name="${extraTargetPageName}"
     data-search-target-label="${extraTargetLabel}"
-    data-search-target-url="${extraTargetUrl}">Extra</div>
-`
+    data-search-target-url="${extraTargetUrl}">Extra</div>`
 
 const {
   addClearSearchListeners,
@@ -65,7 +64,7 @@ describe('test cases search in case functions are present', () => {
 })
 
 beforeEach(() => {
-    clearSearch()
+  clearSearch()
 })
 
 describe('test addSearchListeners', () => {
