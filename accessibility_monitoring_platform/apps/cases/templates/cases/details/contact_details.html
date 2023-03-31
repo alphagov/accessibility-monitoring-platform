@@ -28,9 +28,7 @@
                     <td class="govuk-table__cell amp-width-one-half">{{ contact.job_title }}</td>
                 </tr>
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell amp-width-one-half">
-                        Contact {{ forloop.counter }} Email
-                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">Contact {{ forloop.counter }} Email</td>
                     <td class="govuk-table__cell amp-width-one-half">{{ contact.email }}</td>
                 </tr>
                 {% if contacts.count > 1 %}
@@ -42,9 +40,7 @@
                     </tr>
                 {% endif %}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell amp-width-one-half">
-                        Contact {{ forloop.counter }} Notes
-                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">Contact {{ forloop.counter }} Notes</td>
                     <td class="govuk-table__cell amp-width-one-half">{{ contact.notes|markdown_to_html }}</td>
                 </tr>
             {% endfor %}

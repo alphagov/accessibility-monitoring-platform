@@ -26,7 +26,7 @@ document.body.innerHTML = `
     data-search-target-label="${defaultTargetLabel}"
     data-search-target-url="${defaultTargetUrl}">
     <table>
-    <tr><td>Date one: 1 April 2022</td></tr>
+    <tr id="element-with-target-ancestor"><td>Date one: 1 April 2022</td></tr>
     <tr><td>Note: Updated</td></tr>
     <tr data-search-target-page-name="${rowTargetPageName}"
             data-search-target-label="${rowTargetLabel}"
@@ -36,56 +36,74 @@ document.body.innerHTML = `
 </div>
 <div id="extra" data-search-target-page-name="${extraTargetPageName}"
     data-search-target-label="${extraTargetLabel}"
-    data-search-target-url="${extraTargetUrl}">Extra</div>`
+    data-search-target-url="${extraTargetUrl}">Extra</div>
+<div id="element-without-target-ancestor"></div>`
 
 const {
-  addClearSearchListeners,
-  addSearchListeners,
-  buildSearchStructure,
-  clearSearch,
-  keypressClearSearch,
-  keypressSearch,
-  search,
-  searchStructure
+  addClearSearchInCaseListeners,
+  addSearchInCaseListeners,
+  findParentElementWithSearchTargetAttributes,
+  getSearchableFromElement,
+  clearSearchInCase,
+  keypressClearSearchInCase,
+  keypressSearchInCase,
+  searchInCase,
+  searchables
 } = require('../common/static/js/cases_search_in_case')
+
+beforeEach(() => {
+  clearSearchInCase()
+})
 
 describe('test cases search in case functions are present', () => {
   it.each([
-    addClearSearchListeners,
-    addSearchListeners,
-    buildSearchStructure,
-    clearSearch,
-    keypressClearSearch,
-    keypressSearch,
-    search
+    addClearSearchInCaseListeners,
+    addSearchInCaseListeners,
+    findParentElementWithSearchTargetAttributes,
+    getSearchableFromElement,
+    clearSearchInCase,
+    keypressClearSearchInCase,
+    keypressSearchInCase,
+    searchInCase
   ])('%p is a function', (functionFromModule) => {
     expect(typeof functionFromModule).toBe('function')
   })
 })
 
-beforeEach(() => {
-  clearSearch()
-})
-
-describe('test addSearchListeners', () => {
+describe('test addSearchInCaseListeners', () => {
   test('listeners added to control element', () => {
     const searchControlElement = document.getElementById('search-in-case')
-    addSearchListeners(searchControlElement)
+    addSearchInCaseListeners(searchControlElement)
   })
 })
 
-describe('test addClearSearchListeners', () => {
+describe('test addClearSearchInCaseListeners', () => {
   test('listeners added to control element', () => {
     const clearSearchControlElement = document.getElementById('clear-search-in-case')
-    addClearSearchListeners(clearSearchControlElement)
+    addClearSearchInCaseListeners(clearSearchControlElement)
   })
 })
 
-describe('test buildSearchStructure', () => {
+describe('test findParentElementWithSearchTargetAttributes', () => {
+  test('element with ancestor containing search target attributes not found', () => {
+    const element = document.getElementById('element-without-target-ancestor')
+    expect(findParentElementWithSearchTargetAttributes(element)).toBe(null)
+  })
+
+  test('returns element with search target attributes not found', () => {
+    const element = document.getElementById('element-with-target-ancestor')
+    const parent = findParentElementWithSearchTargetAttributes(element)
+    expect(parent.dataset.searchTargetUrl).toBe(defaultTargetUrl)
+    expect(parent.dataset.searchTargetLabel).toBe(defaultTargetLabel)
+    expect(parent.dataset.searchTargetPageName).toBe(defaultTargetPageName)
+})
+})
+
+describe('test getSearchableFromElement', () => {
   test('searchable data found and stored in object', () => {
     const searchableElement = document.getElementById('extra')
-    buildSearchStructure(searchableElement)
-    const result = searchStructure.slice(-1)[0]
+    getSearchableFromElement(searchableElement)
+    const result = searchables.slice(-1)[0]
     expect(result).toEqual({
         text: 'Extra',
         html: 'Extra',
@@ -96,40 +114,40 @@ describe('test buildSearchStructure', () => {
   })
 })
 
-describe('test clearSearch', () => {
+describe('test clearSearchInCase', () => {
   test('clear search text, hide results and show searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
-    search()
+    searchInCase()
     expect(document.getElementById('search-results').hidden).toEqual(false)
     expect(document.getElementById('search-scope').hidden).toEqual(true)
-    clearSearch()
+    clearSearchInCase()
     expect(document.getElementById('id_search_in_case').value).toEqual('')
     expect(document.getElementById('search-results').hidden).toEqual(true)
     expect(document.getElementById('search-scope').hidden).toEqual(false)
   })
 })
 
-describe('test keypressClearSearch', () => {
+describe('test keypressClearSearchInCase', () => {
   test('clear search text, hide results and show searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
-    search()
+    searchInCase()
     expect(document.getElementById('search-results').hidden).toEqual(false)
     expect(document.getElementById('search-scope').hidden).toEqual(true)
     const mockEvent = { preventDefault: jest.fn, code: 'Space' }
-    keypressClearSearch(mockEvent)
+    keypressClearSearchInCase(mockEvent)
     expect(document.getElementById('id_search_in_case').value).toEqual('')
     expect(document.getElementById('search-results').hidden).toEqual(true)
     expect(document.getElementById('search-scope').hidden).toEqual(false)
   })
 })
 
-describe('test keypressSearch', () => {
+describe('test keypressSearchInCase', () => {
   test('search for text, show results and hide searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
     expect(document.getElementById('search-results').hidden).toEqual(true)
     expect(document.getElementById('search-scope').hidden).toEqual(false)
     const mockEvent = { preventDefault: jest.fn, code: 'Enter' }
-    keypressSearch(mockEvent)
+    keypressSearchInCase(mockEvent)
     expect(document.getElementById('id_search_in_case').value).toEqual('date')
     expect(document.getElementById('search-results').hidden).toEqual(false)
     expect(document.getElementById('search-scope').hidden).toEqual(true)
@@ -141,13 +159,14 @@ describe('test search', () => {
     document.getElementById('id_search_in_case').value = 'date'
     expect(document.getElementById('search-results').hidden).toEqual(true)
     expect(document.getElementById('search-scope').hidden).toEqual(false)
-    search()
+    searchInCase()
     const resultsElement = document.getElementById('search-results')
     expect(document.getElementById('id_search_in_case').value).toEqual('date')
     expect(resultsElement.hidden).toEqual(false)
     expect(document.getElementById('search-scope').hidden).toEqual(true)
     expect(resultsElement.textContent).toContain('Found 2 results for date')
-    expect(resultsElement.textContent).toContain(`${defaultTargetPageName} | ${defaultTargetLabel}`)
+    expect(resultsElement.textContent).toContain(defaultTargetPageName)
+    expect(resultsElement.textContent).toContain(defaultTargetLabel)
     expect(resultsElement.innerHTML).toContain(defaultTargetUrl)
     expect(resultsElement.textContent).toContain('Date one: 1 April 2022')
     expect(resultsElement.textContent).toContain('Note: Updated')
@@ -155,10 +174,11 @@ describe('test search', () => {
 
   test('search finds element-specific results', () => {
     document.getElementById('id_search_in_case').value = 'scope'
-    search()
+    searchInCase()
     const resultsElement = document.getElementById('search-results')
     expect(resultsElement.textContent).toContain('Found 1 result for scope')
-    expect(resultsElement.textContent).toContain(`${rowTargetPageName} | ${rowTargetLabel}`)
+    expect(resultsElement.textContent).toContain(rowTargetPageName)
+    expect(resultsElement.textContent).toContain(rowTargetLabel)
     expect(resultsElement.innerHTML).toContain(rowTargetUrl)
     expect(resultsElement.textContent).toContain('Scope: Everything')
   })

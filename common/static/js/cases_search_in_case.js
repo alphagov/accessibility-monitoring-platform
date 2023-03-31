@@ -1,149 +1,167 @@
 /*
 Search for lables and text inside case UI.
 */
-let searchStructure = []
 
-function search() {
-  const searchElement = document.getElementById('id_search_in_case')
-  if (searchElement.value !== '') {
-    const regex = new RegExp(searchElement.value, 'ig')
-    const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchElement.value}`, 'ig')
-    const matches = searchStructure.filter(item => regex.test(item.text))
-    let results = ''
-    matches.forEach(result => results += `<div class="govuk-grid-row">
+function Searchable({text, html, targetUrl, targetLabel, targetPageName} = {}) {
+  this.text = text
+  this.html = html
+  this.targetUrl = targetUrl
+  this.targetLabel = targetLabel
+  this.targetPageName = targetPageName
+}
+
+let searchables = []
+
+function searchInCase() {
+  const searchInputElement = document.getElementById('id_search_in_case')
+  const searchResultsElement = document.getElementById('search-results')
+  if (searchInputElement.value !== '') {
+    const textRegex = new RegExp(searchInputElement.value, 'ig')
+    const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchInputElement.value}`, 'ig')
+    const matchingSearchables = searchables.filter(searchable => textRegex.test(searchable.text))
+    let resultsString = ''
+    matchingSearchables.forEach(searchable => resultsString += `
+    <div class="govuk-grid-row">
       <div class="govuk-grid-column-full">
         <p class="govuk-body">
-          <b>${result.targetPageName}</b> | <a href="${result.targetUrl}" class="govuk-link govuk-link--no-visited-state">${result.targetLabel}</a>
+          <b>${searchable.targetPageName}</b> |
+          <a href="${searchable.targetUrl}" class="govuk-link govuk-link--no-visited-state">
+            ${searchable.targetLabel}
+          </a>
         </p>
-        <table class="govuk-table"><tbody class="govuk-table__body">
-        ${result.html.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
-        </tbody></table>
+        <table class="govuk-table">
+          <tbody class="govuk-table__body">
+            ${searchable.html.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
+          </tbody>
+        </table>
       </div>
     </div>`)
-    const resultsElement = document.getElementById('search-results')
-    const pluralResults = matches.length == 1 ? '' : 's'
-    resultsElement.innerHTML = `
-      <p class="govuk-body">Found ${matches.length} result${pluralResults} for <b>${searchElement.value}</b></p>
-      ${results}`
-    resultsElement.hidden = false
+    const resultsLabel = matchingSearchables.length == 1 ? 'result' : 'results'
+    searchResultsElement.innerHTML = `
+      <p class="govuk-body">
+        Found ${matchingSearchables.length} ${resultsLabel} for <b>${searchInputElement.value}</b>
+      </p>
+      ${resultsString}`
   } else {
-    const resultsElement = document.getElementById('search-results')
-    resultsElement.innerHTML = `<p class="govuk-body">No search string entered</p>`
-    resultsElement.hidden = false
+    searchResultsElement.innerHTML = `<p class="govuk-body">No search string entered</p>`
   }
-  const scopeElement = document.getElementById('search-scope')
-  scopeElement.hidden = true
+  searchResultsElement.hidden = false
+  const searchScopeElement = document.getElementById('search-scope')
+  searchScopeElement.hidden = true
 }
 
-function keypressSearch (event) {
+function keypressSearchInCase (event) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.preventDefault()
-    search()
+    searchInCase()
   }
 }
 
-function addSearchListeners(element) {
+function addSearchInCaseListeners(element) {
   element.onclick = function () {
-    search()
+    searchInCase()
   }
   element.onkeypress = function () {
     // eslint-disable-next-line no-undef
-    keypressSearch(event)
+    keypressSearchInCase(event)
   }
 }
 
-const searchElement = document.getElementById('search-in-case')
-addSearchListeners(searchElement)
+const searchInCaseButtonElement = document.getElementById('search-in-case')
+addSearchInCaseListeners(searchInCaseButtonElement)
 
-const searchInput = document.getElementById('id_search_in_case');
-searchInput.addEventListener("keypress", function(event) {
+const searchInCaseInput = document.getElementById('id_search_in_case');
+searchInCaseInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter") {
     event.preventDefault();
-    search()
+    searchInCase()
   }
 });
 
-function clearSearch() {
-  const searchElement = document.getElementById('id_search_in_case')
-  searchElement.value = ''
-  const resultsElement = document.getElementById('search-results')
-  resultsElement.hidden = true
-  resultsElement.innerHTML = ''
-  const scopeElement = document.getElementById('search-scope')
-  scopeElement.hidden = false
+function clearSearchInCase() {
+  const searchInputElement = document.getElementById('id_search_in_case')
+  searchInputElement.value = ''
+  const searchResultsElement = document.getElementById('search-results')
+  searchResultsElement.hidden = true
+  searchResultsElement.innerHTML = ''
+  const searchScopeElement = document.getElementById('search-scope')
+  searchScopeElement.hidden = false
 }
 
-function keypressClearSearch(event) {
+function keypressClearSearchInCase(event) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.preventDefault()
-    clearSearch()
+    clearSearchInCase()
   }
 }
 
-function addClearSearchListeners(element) {
+function addClearSearchInCaseListeners(element) {
   element.onclick = function () {
-    clearSearch()
+    clearSearchInCase()
   }
   element.onkeypress = function () {
     // eslint-disable-next-line no-undef
-    keypressClearSearch(event)
+    keypressClearSearchInCase(event)
   }
 }
 
-const clearSearchElement = document.getElementById('clear-search-in-case')
-addClearSearchListeners(clearSearchElement)
+const clearSearchButtonElement = document.getElementById('clear-search-in-case')
+addClearSearchInCaseListeners(clearSearchButtonElement)
 
-function buildSearchStructure(element) {
+function findParentElementWithSearchTargetAttributes(element) {
+  let parentElement = element.parentElement
+  while (parentElement) {
+    if (parentElement.dataset.searchTargetUrl !== undefined) {
+      break
+    }
+    parentElement = parentElement.parentElement
+  }
+  return parentElement
+}
+
+function getSearchableFromElement(element) {
   if (element.textContent) {
     const textContent = element.textContent
     const innerHTML = element.innerHTML
     if (element.dataset.searchTargetUrl !== undefined) {
-      searchStructure.push({
+      searchables.push(new Searchable({
         text: textContent,
         html: innerHTML,
         targetUrl: element.dataset.searchTargetUrl,
         targetLabel: element.dataset.searchTargetLabel,
         targetPageName: element.dataset.searchTargetPageName
-      })
+      }))
     } else {
-      let parentElement = element.parentElement
-      while (parentElement) {
-        if (parentElement.dataset.searchTargetUrl !== undefined) {
-          break
-        }
-        parentElement = parentElement.parentElement
-      }
-      if (parentElement) {
+      let parentElement = findParentElementWithSearchTargetAttributes(element)
+      if (parentElement !== null) {
         const searchTargetUrl = parentElement.dataset.searchTargetUrl
-        searchStructure.push({
+        searchables.push(new Searchable({
           text: textContent,
           html: innerHTML,
           targetUrl: parentElement.dataset.searchTargetUrl,
           targetLabel: parentElement.dataset.searchTargetLabel,
           targetPageName: parentElement.dataset.searchTargetPageName
-        })
-      } else {
-        console.log('Target URL not found', element.textContent, element)
+        }))
       }
     }
-  } else {
-    console.log('No textContent', element.textContent, element)
   }
 }
 
-const searchScopeElements = Array.from(document.getElementById('search-scope').getElementsByTagName('TR'))
+const searchScopeElements = Array.from(
+  document.getElementById('search-scope').getElementsByTagName('TR')
+)
 Array.from(searchScopeElements).forEach(function (searchScopeElement) {
-  buildSearchStructure(searchScopeElement)
+  getSearchableFromElement(searchScopeElement)
 })
-console.log('searchStructure', searchStructure)
 
 module.exports = {
-  addClearSearchListeners,
-  addSearchListeners,
-  buildSearchStructure,
-  clearSearch,
-  keypressClearSearch,
-  keypressSearch,
-  search,
-  searchStructure
+  addClearSearchInCaseListeners,
+  addSearchInCaseListeners,
+  findParentElementWithSearchTargetAttributes,
+  getSearchableFromElement,
+  clearSearchInCase,
+  keypressClearSearchInCase,
+  keypressSearchInCase,
+  searchInCase,
+  searchables
 }
