@@ -1,5 +1,5 @@
 /*
-Search for lables and text inside case UI.
+Search for labels and text content in case UI.
 */
 
 function Searchable({text, html, targetUrl, targetLabel, targetPageName} = {}) {
@@ -11,6 +11,52 @@ function Searchable({text, html, targetUrl, targetLabel, targetPageName} = {}) {
 }
 
 let searchables = []
+
+function findParentElementWithSearchTargetAttributes(element) {
+  let parentElement = element.parentElement
+  while (parentElement) {
+    if (parentElement.dataset.searchTargetUrl !== undefined) {
+      break
+    }
+    parentElement = parentElement.parentElement
+  }
+  return parentElement
+}
+
+function getSearchableFromElement(element) {
+  if (element.textContent) {
+    const textContent = element.textContent
+    const innerHTML = element.innerHTML
+    if (element.dataset.searchTargetUrl !== undefined) {
+      searchables.push(new Searchable({
+        text: textContent,
+        html: innerHTML,
+        targetUrl: element.dataset.searchTargetUrl,
+        targetLabel: element.dataset.searchTargetLabel,
+        targetPageName: element.dataset.searchTargetPageName
+      }))
+    } else {
+      let parentElement = findParentElementWithSearchTargetAttributes(element)
+      if (parentElement !== null && parentElement !== undefined) {
+        const searchTargetUrl = parentElement.dataset.searchTargetUrl
+        searchables.push(new Searchable({
+          text: textContent,
+          html: innerHTML,
+          targetUrl: parentElement.dataset.searchTargetUrl,
+          targetLabel: parentElement.dataset.searchTargetLabel,
+          targetPageName: parentElement.dataset.searchTargetPageName
+        }))
+      }
+    }
+  }
+}
+
+const searchScopeElements = Array.from(
+  document.getElementById('search-scope').getElementsByTagName('TR')
+)
+Array.from(searchScopeElements).forEach(function (searchScopeElement) {
+  getSearchableFromElement(searchScopeElement)
+})
 
 function searchInCase() {
   const searchInputElement = document.getElementById('id_search_in_case')
@@ -50,6 +96,14 @@ function searchInCase() {
   searchScopeElement.hidden = true
 }
 
+const searchInCaseInput = document.getElementById('id_search_in_case');
+searchInCaseInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchInCase()
+  }
+});
+
 function keypressSearchInCase (event) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.preventDefault()
@@ -69,14 +123,6 @@ function addSearchInCaseListeners(element) {
 
 const searchInCaseButtonElement = document.getElementById('search-in-case')
 addSearchInCaseListeners(searchInCaseButtonElement)
-
-const searchInCaseInput = document.getElementById('id_search_in_case');
-searchInCaseInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    searchInCase()
-  }
-});
 
 function clearSearchInCase() {
   const searchInputElement = document.getElementById('id_search_in_case')
@@ -107,52 +153,6 @@ function addClearSearchInCaseListeners(element) {
 
 const clearSearchButtonElement = document.getElementById('clear-search-in-case')
 addClearSearchInCaseListeners(clearSearchButtonElement)
-
-function findParentElementWithSearchTargetAttributes(element) {
-  let parentElement = element.parentElement
-  while (parentElement) {
-    if (parentElement.dataset.searchTargetUrl !== undefined) {
-      break
-    }
-    parentElement = parentElement.parentElement
-  }
-  return parentElement
-}
-
-function getSearchableFromElement(element) {
-  if (element.textContent) {
-    const textContent = element.textContent
-    const innerHTML = element.innerHTML
-    if (element.dataset.searchTargetUrl !== undefined) {
-      searchables.push(new Searchable({
-        text: textContent,
-        html: innerHTML,
-        targetUrl: element.dataset.searchTargetUrl,
-        targetLabel: element.dataset.searchTargetLabel,
-        targetPageName: element.dataset.searchTargetPageName
-      }))
-    } else {
-      let parentElement = findParentElementWithSearchTargetAttributes(element)
-      if (parentElement !== null) {
-        const searchTargetUrl = parentElement.dataset.searchTargetUrl
-        searchables.push(new Searchable({
-          text: textContent,
-          html: innerHTML,
-          targetUrl: parentElement.dataset.searchTargetUrl,
-          targetLabel: parentElement.dataset.searchTargetLabel,
-          targetPageName: parentElement.dataset.searchTargetPageName
-        }))
-      }
-    }
-  }
-}
-
-const searchScopeElements = Array.from(
-  document.getElementById('search-scope').getElementsByTagName('TR')
-)
-Array.from(searchScopeElements).forEach(function (searchScopeElement) {
-  getSearchableFromElement(searchScopeElement)
-})
 
 module.exports = {
   addClearSearchInCaseListeners,
