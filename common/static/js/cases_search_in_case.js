@@ -1,5 +1,5 @@
 /*
-Search for text and target url.
+Search for lables and text inside case UI.
 */
 let searchStructure = []
 
@@ -21,8 +21,9 @@ function search() {
       </div>
     </div>`)
     const resultsElement = document.getElementById('search-results')
+    const pluralResults = matches.length == 1 ? '' : 's'
     resultsElement.innerHTML = `
-      <p class="govuk-body">Found ${matches.length} results for <b>${searchElement.value}</b></p>
+      <p class="govuk-body">Found ${matches.length} result${pluralResults} for <b>${searchElement.value}</b></p>
       ${results}`
     resultsElement.hidden = false
   } else {
@@ -51,7 +52,7 @@ function addSearchListeners(element) {
   }
 }
 
-const searchElement = document.getElementById('inside-search')
+const searchElement = document.getElementById('search-in-case')
 addSearchListeners(searchElement)
 
 const searchInput = document.getElementById('id_search_in_case');
@@ -72,7 +73,7 @@ function clearSearch() {
   scopeElement.hidden = false
 }
 
-function keypressClearSearch() {
+function keypressClearSearch(event) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.preventDefault()
     clearSearch()
@@ -89,7 +90,7 @@ function addClearSearchListeners(element) {
   }
 }
 
-const clearSearchElement = document.getElementById('clear-inside-search')
+const clearSearchElement = document.getElementById('clear-search-in-case')
 addClearSearchListeners(clearSearchElement)
 
 function buildSearchStructure(element) {
@@ -137,7 +138,12 @@ Array.from(searchScopeElements).forEach(function (searchScopeElement) {
 console.log('searchStructure', searchStructure)
 
 module.exports = {
+  addClearSearchListeners,
+  addSearchListeners,
+  buildSearchStructure,
+  clearSearch,
+  keypressClearSearch,
+  keypressSearch,
   search,
-  clearSearchElement,
-  addSearchListeners
+  searchStructure
 }

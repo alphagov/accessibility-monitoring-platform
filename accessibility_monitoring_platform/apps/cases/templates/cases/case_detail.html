@@ -119,7 +119,7 @@
                 </div>
                 <div class="govuk-button-group">
                     <input
-                        id="inside-search"
+                        id="search-in-case"
                         type="submit"
                         value="Search inside case"
                         name="search_inside_case"
@@ -127,10 +127,10 @@
                         data-module="govuk-button"
                     />
                     <input
-                        id="clear-inside-search"
+                        id="clear-search-in-case"
                         type="submit"
                         value="Clear search"
-                        name="clear_search"
+                        name="clear_search_inside_case"
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     />
@@ -430,5 +430,5 @@
 {% endblock %}
 
 {% block extrascript %}
-<script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/cases_search_in_case.js' %}"></script>
 {% endblock %}
