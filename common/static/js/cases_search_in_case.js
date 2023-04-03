@@ -88,21 +88,22 @@ function searchInCase() {
         Found ${matchingSearchables.length} ${resultsLabel} for <b>${searchInputElement.value}</b>
       </p>
       ${resultsString}`
+    searchResultsElement.style.display = 'block'
+    const searchScopeElement = document.getElementById('search-scope')
+    searchScopeElement.style.display = 'none'
   } else {
-    searchResultsElement.innerHTML = `<p class="govuk-body">No search string entered</p>`
+    clearSearchInCase()
   }
-  searchResultsElement.hidden = false
-  const searchScopeElement = document.getElementById('search-scope')
-  searchScopeElement.hidden = true
 }
 
-const searchInCaseInput = document.getElementById('id_search_in_case');
-searchInCaseInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
+function addOninputSearchInCaseListener(element) {
+  element.oninput = function () {
     searchInCase()
   }
-});
+}
+
+const searchInputElement = document.getElementById('id_search_in_case');
+addOninputSearchInCaseListener(searchInputElement)
 
 function keypressSearchInCase (event) {
   if (event.code === 'Enter' || event.code === 'Space') {
@@ -128,10 +129,10 @@ function clearSearchInCase() {
   const searchInputElement = document.getElementById('id_search_in_case')
   searchInputElement.value = ''
   const searchResultsElement = document.getElementById('search-results')
-  searchResultsElement.hidden = true
   searchResultsElement.innerHTML = ''
+  searchResultsElement.style.display = 'none'
   const searchScopeElement = document.getElementById('search-scope')
-  searchScopeElement.hidden = false
+  searchScopeElement.style.display = 'block'
 }
 
 function keypressClearSearchInCase(event) {
@@ -156,6 +157,7 @@ addClearSearchInCaseListeners(clearSearchButtonElement)
 
 module.exports = {
   addClearSearchInCaseListeners,
+  addOninputSearchInCaseListener,
   addSearchInCaseListeners,
   findParentElementWithSearchTargetAttributes,
   getSearchableFromElement,

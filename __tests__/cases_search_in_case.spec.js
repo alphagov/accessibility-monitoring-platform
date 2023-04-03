@@ -13,7 +13,7 @@ const rowTargetLabel = 'Row page label'
 const rowTargetUrl = 'https://example.com/row'
 
 document.body.innerHTML = `
-<input type="text" name="search_in_case" placeholder="Search"
+<input id="id_search_in_case" type="text" name="search_in_case" placeholder="Search"
     class="govuk-input" id="id_search_in_case">
 <input id="search-in-case" type="submit" value="Search inside case"
     name="search_inside_case" class="govuk-button" data-module="govuk-button">
@@ -41,6 +41,7 @@ document.body.innerHTML = `
 
 const {
   addClearSearchInCaseListeners,
+  addOninputSearchInCaseListener,
   addSearchInCaseListeners,
   findParentElementWithSearchTargetAttributes,
   getSearchableFromElement,
@@ -58,6 +59,7 @@ beforeEach(() => {
 describe('test cases search in case functions are present', () => {
   it.each([
     addClearSearchInCaseListeners,
+    addOninputSearchInCaseListener,
     addSearchInCaseListeners,
     findParentElementWithSearchTargetAttributes,
     getSearchableFromElement,
@@ -74,6 +76,13 @@ describe('test addSearchInCaseListeners', () => {
   test('listeners added to control element', () => {
     const searchControlElement = document.getElementById('search-in-case')
     addSearchInCaseListeners(searchControlElement)
+  })
+})
+
+describe('test addOninputSearchInCaseListener', () => {
+  test('listeners added to control element', () => {
+    const searchControlElement = document.getElementById('id_search_in_case')
+    addOninputSearchInCaseListener(searchControlElement)
   })
 })
 
@@ -118,12 +127,12 @@ describe('test clearSearchInCase', () => {
   test('clear search text, hide results and show searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
     searchInCase()
-    expect(document.getElementById('search-results').hidden).toEqual(false)
-    expect(document.getElementById('search-scope').hidden).toEqual(true)
+    expect(document.getElementById('search-results').style.display).toEqual('block')
+    expect(document.getElementById('search-scope').style.display).toEqual('none')
     clearSearchInCase()
     expect(document.getElementById('id_search_in_case').value).toEqual('')
-    expect(document.getElementById('search-results').hidden).toEqual(true)
-    expect(document.getElementById('search-scope').hidden).toEqual(false)
+    expect(document.getElementById('search-results').style.display).toEqual('none')
+    expect(document.getElementById('search-scope').style.display).toEqual('block')
   })
 })
 
@@ -131,39 +140,39 @@ describe('test keypressClearSearchInCase', () => {
   test('clear search text, hide results and show searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
     searchInCase()
-    expect(document.getElementById('search-results').hidden).toEqual(false)
-    expect(document.getElementById('search-scope').hidden).toEqual(true)
+    expect(document.getElementById('search-results').style.display).toEqual('block')
+    expect(document.getElementById('search-scope').style.display).toEqual('none')
     const mockEvent = { preventDefault: jest.fn, code: 'Space' }
     keypressClearSearchInCase(mockEvent)
     expect(document.getElementById('id_search_in_case').value).toEqual('')
-    expect(document.getElementById('search-results').hidden).toEqual(true)
-    expect(document.getElementById('search-scope').hidden).toEqual(false)
+    expect(document.getElementById('search-results').style.display).toEqual('none')
+    expect(document.getElementById('search-scope').style.display).toEqual('block')
   })
 })
 
 describe('test keypressSearchInCase', () => {
   test('search for text, show results and hide searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
-    expect(document.getElementById('search-results').hidden).toEqual(true)
-    expect(document.getElementById('search-scope').hidden).toEqual(false)
+    expect(document.getElementById('search-results').style.display).toEqual('none')
+    expect(document.getElementById('search-scope').style.display).toEqual('block')
     const mockEvent = { preventDefault: jest.fn, code: 'Enter' }
     keypressSearchInCase(mockEvent)
     expect(document.getElementById('id_search_in_case').value).toEqual('date')
-    expect(document.getElementById('search-results').hidden).toEqual(false)
-    expect(document.getElementById('search-scope').hidden).toEqual(true)
+    expect(document.getElementById('search-results').style.display).toEqual('block')
+    expect(document.getElementById('search-scope').style.display).toEqual('none')
   })
 })
 
 describe('test search', () => {
   test('search for text, show results and hide searchable scope', () => {
     document.getElementById('id_search_in_case').value = 'date'
-    expect(document.getElementById('search-results').hidden).toEqual(true)
-    expect(document.getElementById('search-scope').hidden).toEqual(false)
+    expect(document.getElementById('search-results').style.display).toEqual('none')
+    expect(document.getElementById('search-scope').style.display).toEqual('block')
     searchInCase()
     const resultsElement = document.getElementById('search-results')
     expect(document.getElementById('id_search_in_case').value).toEqual('date')
-    expect(resultsElement.hidden).toEqual(false)
-    expect(document.getElementById('search-scope').hidden).toEqual(true)
+    expect(resultsElement.style.display).toEqual('block')
+    expect(document.getElementById('search-scope').style.display).toEqual('none')
     expect(resultsElement.textContent).toContain('Found 2 results for date')
     expect(resultsElement.textContent).toContain(defaultTargetPageName)
     expect(resultsElement.textContent).toContain(defaultTargetLabel)
