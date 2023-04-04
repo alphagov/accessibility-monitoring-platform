@@ -64,19 +64,6 @@
                 </div>
             </div>
         </div>
-        {% include 'reports/helpers/pending_published_rebuild_notification.html' with case=report.case %}
-        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=report.case %}
-        {% if report.case.report_review_status == 'not-started' %}
-            {% include 'reports/helpers/qa_process_notification.html' %}
-        {% elif report.case.report_approved_status != 'yes' %}
-            {% include 'reports/helpers/awaiting_approval_notification.html' %}
-        {% endif %}
-        {% if report.case.report_approved_status == 'yes' and not report.latest_s3_report %}
-            {% include 'reports/helpers/publish_notification.html' %}
-        {% endif %}
-        {% if report.latest_s3_report %}
-            {% include 'reports/helpers/s3_report_notification.html' %}
-        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
                 {% include 'reports/helpers/nav_contents.html' %}

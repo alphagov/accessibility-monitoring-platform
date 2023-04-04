@@ -1,0 +1,37 @@
+<h2 class="govuk-heading-s amp-margin-bottom-5">Next step for publishing report</h2>
+<ul class="govuk-list amp-margin-bottom-10">
+    {% if report.case.report_review_status == 'not-started' %}
+        <p class="govuk-body amp-margin-bottom-0">Mark the report as ready to review</0>
+        <p class="govuk-body">
+            <a href="{% url 'cases:edit-qa-process' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to QA process
+            </a>
+        </p>
+    {% elif report.case.status == 'unassigned-qa-case' or report.case.status == 'qa-in-progress' %}
+        <p class="govuk-body amp-margin-bottom-0">The report is waiting to be reviewed</p>
+        <p class="govuk-body">
+            <a href="{% url 'cases:edit-qa-process' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Go to QA process
+            </a>
+        </p>
+    {% elif report.case.report_approved_status == 'yes' and not report.latest_s3_report %}
+        <p class="govuk-body amp-margin-bottom-0">The report has been approved and is ready to be published</p>
+        <p class="govuk-body">
+            <a href="{% url 'reports:report-confirm-publish' report.id %}" class="govuk-link govuk-link--no-visited-state">
+                Publish HTML report
+            </a>
+        </p>
+    {% elif report.latest_s3_report %}
+        <p class="govuk-body amp-margin-bottom-0">
+            The report has been published. View the
+            <a href="{{ report.case.published_report_url }}"  class="govuk-link">
+                final HTML report
+            </a>
+        </p>
+        <p class="govuk-body">
+            <a href="{% url 'cases:edit-report-details' report.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Return to Case &gt; Report details
+            </a>
+        </p>
+    {% endif %}
+</ul>
