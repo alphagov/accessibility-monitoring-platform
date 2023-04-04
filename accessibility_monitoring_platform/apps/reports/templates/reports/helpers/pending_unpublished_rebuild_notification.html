@@ -1,0 +1,23 @@
+{% if case.report and case.report.report_rebuilt < case.audit.unpublished_report_data_updated_time %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-unpublished-rebuild" data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title" id="banner-title-unpublished-rebuild">
+                        Important
+                    </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <h3 class="govuk-notification-banner__heading full-max-width">
+                        Data in the case has changed and information in the report is out of date.
+                    </h3>
+                    <p class="govuk-body">To update the report with the most up to date data, reset the report.</p>
+                    <p class="govuk-body">
+                        Go to
+                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-refresh' case.report.id %}">
+                            Case > Report > Report reset</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
