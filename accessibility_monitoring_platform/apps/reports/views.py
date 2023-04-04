@@ -274,6 +274,7 @@ class ReportPublisherTemplateView(ReportTemplateView):
         context: Dict[str, Any] = super().get_context_data(*args, **kwargs)
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
+        context.update(get_report_visits_metrics(report.case))
         context["s3_report"] = report.latest_s3_report
         context["html_report"] = template.render(context, self.request)
         return context

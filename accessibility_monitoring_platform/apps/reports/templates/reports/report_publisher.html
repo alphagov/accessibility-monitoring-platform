@@ -77,7 +77,17 @@
         {% if report.latest_s3_report %}
             {% include 'reports/helpers/s3_report_notification.html' %}
         {% endif %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                {% include 'reports/helpers/nav_contents.html' %}
+            </div>
+            <div class="govuk-grid-column-one-half">
+                {% include 'reports/helpers/overview.html' %}
+            </div>
+        </div>
     </main>
-    {% include 'reports_common/accessibility_report_container.html' %}
+    <div id="report-start">
+        {% include 'reports_common/accessibility_report_container.html' %}
+    </div>
 </div>
 {% endblock %}

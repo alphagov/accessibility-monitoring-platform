@@ -132,6 +132,10 @@ class Report(VersionModel):
     def top_level_sections(self) -> QuerySet["BaseTemplate"]:
         return self.section_set.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
 
+    @property
+    def issues_sections(self) -> QuerySet["BaseTemplate"]:
+        return self.section_set.filter(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
+
 
 class BaseTemplate(VersionModel):
     """
