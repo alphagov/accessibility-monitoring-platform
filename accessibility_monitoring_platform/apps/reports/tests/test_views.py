@@ -9,6 +9,7 @@ from moto import mock_s3
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
@@ -23,6 +24,8 @@ from ...cases.models import (
     REPORT_APPROVED_STATUS_APPROVED,
     REPORT_READY_TO_REVIEW,
     CASE_EVENT_CREATE_REPORT,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
 )
 from ...s3_read_write.models import S3Report
 
@@ -254,10 +257,9 @@ def test_edit_report_shows_visit_numbers(admin_client):
     )
 
 
-def test_report_details_page_shows_notification(admin_client):
+def test_report_details_page_shows_read_to_review(admin_client):
     """
-    Test that the report details page shows a notification advising user to
-    mark report as ready to review
+    Test that the report details page shows report is ready to review
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -271,7 +273,7 @@ def test_report_details_page_shows_notification(admin_client):
 
     assertContains(
         response,
-        "If this report is ready to be reviewed, mark 'Report ready to be reviewed' in QA process.",
+        "Mark the report as ready to review",
     )
 
 
@@ -511,12 +513,17 @@ def test_edit_report_wrapper_page_staff_user(client, django_user_model):
 
 def test_report_details_page_shows_report_awaiting_approval(admin_client):
     """
-    Test that the report details page shows a notification advising user to
-    mark report as ready to review
+    Test that the report details page tells user to review report
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     case: Case = report.case
+    user = User.objects.create()
+    case.home_page_url = "https://www.website.com"
+    case.organisation_name = "org name"
+    case.auditor = user
+    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+    case.is_website_compliant = IS_WEBSITE_COMPLIANT_COMPLIANT
     case.report_review_status = REPORT_READY_TO_REVIEW
     case.save()
 
@@ -528,7 +535,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 
     assertContains(
         response,
-        "The report is waiting to be approved by the QA auditor.",
+        "The report is waiting to be reviewed",
     )
 
 
@@ -575,46 +582,6 @@ def test_unpublished_report_data_updated_notification_shown(path_name, admin_cli
     assertContains(
         response,
         "Data in the case has changed and information in the report is out of date.",
-    )
-
-
-@mock_s3
-def test_published_report_data_updated_notification_shown(admin_client):
-    """
-    Test notification shown when report data (test result) more recent
-    than latest report publish.
-    """
-    report: Report = create_report()
-    audit: Audit = report.case.audit
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publish", kwargs=report_pk_kwargs), follow=True
-    )
-
-    assert response.status_code == 200
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs), follow=True
-    )
-
-    assert response.status_code == 200
-    assertNotContains(
-        response,
-        "Data in the case has changed since the report was published.",
-    )
-
-    audit.published_report_data_updated_time = timezone.now() + timedelta(hours=1)
-    audit.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:report-publisher", kwargs=report_pk_kwargs), follow=True
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        "Data in the case has changed since the report was published.",
     )
 
 

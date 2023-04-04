@@ -17,7 +17,7 @@ describe('Report publisher', () => {
   })
 
   it('contains link to latest published HTML report', () => {
-    cy.contains('latest published HTML report')
+    cy.contains('View latest published HTML report')
       .should('have.attr', 'href')
       .then((href) => {
         expect(href).to.include('/reports/96b1afce-a445-42c3-961c-7708aba196f3')

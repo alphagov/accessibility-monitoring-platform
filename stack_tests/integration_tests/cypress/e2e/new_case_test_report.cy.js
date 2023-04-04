@@ -83,8 +83,8 @@ describe('Create case, tests and report', () => {
     cy.contains('Create report').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('The report needs to be approved by a QA auditor before it can be published.')
-    cy.contains('Case > QA process').click()
+    cy.contains('Mark the report as ready to review')
+    cy.contains('Go to QA process').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA process`)
     cy.get('[name="report_review_status"]').check('ready-to-review')
@@ -96,7 +96,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Go to Case > Report publisher').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report publisher`)
-    cy.contains('The report has been approved and is ready to publish.')
+    cy.contains('The report has been approved and is ready to be published')
     cy.contains('Publish HTML report').click()
 
     cy.title().should('eq', `${newOrganisationName} | Publish report`)
