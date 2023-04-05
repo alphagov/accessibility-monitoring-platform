@@ -12,11 +12,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 1,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:38.927Z",
         "name": "Introduction",
         "template_type": "markdown",
@@ -25,11 +23,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 2,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:38.961Z",
         "name": "How accessible the website is",
         "template_type": "markdown",
@@ -38,11 +34,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 3,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:38.966Z",
         "name": "How we checked",
         "template_type": "markdown",
@@ -51,11 +45,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 4,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:38.970Z",
         "name": "Pages we checked",
         "template_type": "urls",
@@ -64,11 +56,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 5,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.003Z",
         "name": "The issues we found",
         "template_type": "issues-intro",
@@ -77,11 +67,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 6,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.029Z",
         "name": "Home page issues",
         "template_type": "issues",
@@ -90,11 +78,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 7,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.036Z",
         "name": "Your accessibility statement",
         "template_type": "markdown",
@@ -103,11 +89,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 8,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.042Z",
         "name": "What to do next",
         "template_type": "markdown",
@@ -116,11 +100,9 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 9,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.048Z",
         "name": "Enforcement",
         "template_type": "markdown",
@@ -129,42 +111,14 @@
     }
 },
 {
-    "model": "reports.section",
+    "model": "reports.basetemplate",
     "pk": 10,
     "fields": {
-        "version": 1,
-        "report": 1,
         "created": "2022-09-06T12:26:39.053Z",
         "name": "Contact and more information",
         "template_type": "markdown",
         "content": "This test was conducted by the Government Digital Service on behalf of the Minister of the Cabinet Office as part of their obligations to monitor the accessibility of public sector websites in the United Kingdom.\n\nAs the monitoring body we cannot offer specific advice on approaches or general accessibility queries other than questions directly related to the items in this report.\n\nAny questions about this report can be sent to [accessibility-monitoring@digital.cabinet-office.gov.uk](mailto:accessibility-monitoring@digital.cabinet-office.gov.uk).\n\nFurther information on guidance and tools for digital accessibility can be found at [https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility](https://www.gov.uk/guidance/guidance-and-tools-for-digital-accessibility).\n\nHelp with accessibility auditing and publishing an accessibility statement can be found at [https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement](https://www.gov.uk/guidance/make-your-website-or-app-accessible-and-publish-an-accessibility-statement).",
         "position": 10
-    }
-},
-{
-    "model": "reports.tablerow",
-    "pk": 1,
-    "fields": {
-        "version": 1,
-        "section": 4,
-        "created": "2022-09-06T12:26:38.984Z",
-        "is_deleted": false,
-        "cell_content_1": "Home",
-        "cell_content_2": "[https://example.com](https://example.com)",
-        "row_number": 1
-    }
-},
-{
-    "model": "reports.tablerow",
-    "pk": 2,
-    "fields": {
-        "version": 1,
-        "section": 6,
-        "created": "2022-09-06T12:26:39.034Z",
-        "is_deleted": false,
-        "cell_content_1": "[WCAG 1.4.3 Contrast (Minimum)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)\n\nPoor colour contrast makes it difficult for someone with sight loss to see the content properly. If there is a big difference between the background and foreground colours it should be much easier to see the difference between them.\n",
-        "cell_content_2": "Error detail text",
-        "row_number": 1
     }
 }
 ]

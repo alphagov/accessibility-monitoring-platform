@@ -36,7 +36,7 @@
    </p>
     <p class="govuk-body amp-margin-bottom-10">
         {{ number_of_unique_visitors|intcomma }} unique visitors
-        (<a href="{% url 'reports:report-metrics-view' report.id %}" class="govuk-link govuk-link--no-visited-state">View report logs</a>)
+        (<a href="{% url 'reports:report-metrics-view' report.id %}?showing=unique-visitors" class="govuk-link govuk-link--no-visited-state">View report logs</a>)
     </p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Notes</h2>
     <div class="amp-report-wrapper">

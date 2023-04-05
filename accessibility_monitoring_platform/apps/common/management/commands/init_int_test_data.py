@@ -20,8 +20,6 @@ from ....reports.models import (
     ReportVisitsMetrics,
     BaseTemplate,
     ReportWrapper,
-    Section,
-    TableRow,
 )
 from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
@@ -81,8 +79,6 @@ class Command(BaseCommand):
                 ReportWrapper,
                 ReportFeedback,
                 ReportVisitsMetrics,
-                TableRow,
-                Section,
                 Report,
             ]
         )

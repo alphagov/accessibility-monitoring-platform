@@ -4,10 +4,12 @@
     <nav aria-label="Table of contents">
         <h2 id="contents">Contents</h2>
         <ul>
-            {% for section in report.top_level_sections %}
-                <li>
-                    <a href="#{{ section.anchor }}">{{ section.name }}</a>
-                </li>
+            {% for section in sections %}
+                {% if section.template_type != 'issues' %}
+                    <li>
+                        <a href="#{{ section.anchor }}">{{ section.name }}</a>
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
     </nav>
