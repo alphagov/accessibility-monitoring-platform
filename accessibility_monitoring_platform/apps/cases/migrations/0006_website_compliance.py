@@ -23,7 +23,6 @@ UPDATE cases_case
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0005_statement_state_data"),
     ]

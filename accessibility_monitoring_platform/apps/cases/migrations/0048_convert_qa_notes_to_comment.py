@@ -65,7 +65,6 @@ def convert_comments_to_qa_notes(
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0047_alter_case_qa_status"),
         ("comments", "0008_delete_commenthistory"),

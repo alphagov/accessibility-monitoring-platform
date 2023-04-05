@@ -32,7 +32,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("reports", "0001_add_report_generator"),
     ]
