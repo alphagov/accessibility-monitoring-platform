@@ -3,16 +3,15 @@
     <div class="amp-left-border">
         <ul class="govuk-list">
             {% include './nav_content.html' with anchor='report-start' name='Start of report' %}
-            {% for section in report.top_level_sections %}
-                {% include './nav_content.html' with anchor=section.anchor name=section.name %}
-                {% if section.template_type == 'issues-intro' %}
+            {% for section in sections %}
+                {% if section.template_type == 'issues' %}
                     <li>
-                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                        {% for issues_section in report.issues_sections %}
-                            {% include './nav_content.html' with anchor=issues_section.anchor name=issues_section.name %}
-                        {% endfor %}
+                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
+                            {% include './nav_content.html' with anchor=section.anchor name=section.name %}
                         </ul>
                     </li>
+                {% else %}
+                    {% include './nav_content.html' with anchor=section.anchor name=section.name %}
                 {% endif %}
             {% endfor %}
         </ul>

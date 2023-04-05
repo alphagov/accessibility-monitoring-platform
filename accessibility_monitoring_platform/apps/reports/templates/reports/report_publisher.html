@@ -35,31 +35,10 @@
                         Publish HTML report
                     </a>
                     <a
-                        href="{% url 'audits:audit-detail' report.case.audit.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
+                        href="{% url 'cases:edit-report-details' report.case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
                     >
-                        Edit test
-                    </a>
-                    <a
-                        href="{% url 'reports:edit-report' report.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Edit report
-                    </a>
-                    <a
-                        href="{% url 'reports:report-confirm-refresh' report.id %}?return_to=report-publisher"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--warning"
-                        data-module="govuk-button"
-                    >
-                        Reset report
+                        Return to case &gt; report details
                     </a>
                 </div>
             </div>

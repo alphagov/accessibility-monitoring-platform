@@ -61,10 +61,8 @@ const loggedInUrls = [
   '/reminders/reminder-list/',
   '/reports/edit-report-wrapper/',
   '/reports/1/report-publisher/',
-  '/reports/1/edit-report/',
   '/reports/1/edit-report-metadata/',
   '/reports/1/report-metrics-view/',
-  '/reports/sections/1/edit-section/',
   '/user/1/edit-user/'
 ]
 

@@ -32,11 +32,10 @@
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>
-        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=page.audit.case %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/page_check_filters.html' with page='test' %}
-                <form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
+                <form method="post" action="accessibility_monitoring_platform/apps/audits/templates/audits/forms/report_options.html{% url 'audits:edit-audit-page-checks' page.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-one-half">

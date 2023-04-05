@@ -2,20 +2,14 @@
 """
 Utilities for reports app
 """
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 from django.db.models import QuerySet
-from django.http import HttpRequest
 from django.template import Context, Template
-from django.utils import timezone
 from django.utils.text import slugify
 
 from ..cases.models import Case
 
-from ..common.utils import (
-    get_id_from_button_name,
-    record_model_update_event,
-)
 from ..audits.models import Page, PAGE_TYPE_PDF, WcagDefinition
 
 from .models import (

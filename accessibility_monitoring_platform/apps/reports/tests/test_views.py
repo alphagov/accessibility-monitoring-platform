@@ -30,18 +30,9 @@ from ...cases.models import (
 from ...s3_read_write.models import S3Report
 
 from ..models import (
+    BaseTemplate,
     Report,
-    TableRow,
-    Section,
     ReportVisitsMetrics,
-    TEMPLATE_TYPE_URLS,
-    TEMPLATE_TYPE_ISSUES_TABLE,
-)
-from ..utils import (
-    DELETE_ROW_BUTTON_PREFIX,
-    UNDELETE_ROW_BUTTON_PREFIX,
-    MOVE_ROW_UP_BUTTON_PREFIX,
-    MOVE_ROW_DOWN_BUTTON_PREFIX,
 )
 
 SECTION_NAME: str = "Section name"
@@ -62,10 +53,10 @@ def create_report() -> Report:
     return report
 
 
-def create_section(report: Report) -> Section:
+def create_section() -> BaseTemplate:
     """Create section in report"""
-    return Section.objects.create(
-        report=report, name=SECTION_NAME, content=SECTION_CONTENT, position=1
+    return BaseTemplate.objects.create(
+        name=SECTION_NAME, content=SECTION_CONTENT, position=1
     )
 
 
@@ -117,28 +108,6 @@ def test_create_report_creates_case_event(admin_client):
     assert case_event.message == "Created report"
 
 
-@pytest.mark.parametrize(
-    "return_to, expected_redirect",
-    [
-        ("edit-report", "reports:edit-report"),
-        ("report-publisher", "reports:report-publisher"),
-        ("", "reports:report-publisher"),
-    ],
-)
-def test_rebuild_report_redirects(return_to, expected_redirect, admin_client):
-    """Test that report rebuild redirects correctly"""
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-
-    response: HttpResponse = admin_client.get(
-        f"{reverse('reports:report-rebuild', kwargs=report_pk_kwargs)}?return_to={return_to}",
-    )
-
-    assert response.status_code == 302
-
-    assert response.url == reverse(expected_redirect, kwargs=report_pk_kwargs)
-
-
 @mock_s3
 def test_publish_report_redirects(admin_client):
     """
@@ -184,13 +153,8 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:edit-report", ">Edit report</h1>"),
         ("reports:edit-report-metadata", ">Report metadata</h1>"),
         ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
-        (
-            "reports:report-confirm-refresh",
-            ">Are you sure you want to reset the report?</h1>",
-        ),
         (
             "reports:report-confirm-publish",
             "Unable to publish report without QA approval",
@@ -201,7 +165,7 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    create_section(report)
+    create_section()
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs=report_pk_kwargs)
@@ -212,58 +176,13 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
-def test_edit_report_shows_visit_numbers(admin_client):
-    """Test that the edit report page shows the numbers of visits"""
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    case: Case = report.case
-
-    ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
-    )
-    ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=1234, fingerprint_codename=FIRST_CODENAME
-    )
-    ReportVisitsMetrics.objects.create(
-        case=case, fingerprint_hash=5678, fingerprint_codename=SECOND_CODENAME
-    )
-    response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report", kwargs=report_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                3
-                (<a href="{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
-            </td>
-        </tr>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Unique visitors to report</th>
-            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                2
-                (<a href="{reverse("reports:report-metrics-view", kwargs=report_pk_kwargs)}?showing=unique-visitors" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
-            </td>
-        </tr>""",
-        html=True,
-    )
-
-
-def test_report_details_page_shows_read_to_review(admin_client):
+def test_report_publisher_page_shows_ready_to_review(admin_client):
     """
     Test that the report details page shows report is ready to review
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    create_section(report)
+    create_section()
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publisher", kwargs=report_pk_kwargs)
@@ -277,22 +196,6 @@ def test_report_details_page_shows_read_to_review(admin_client):
     )
 
 
-def test_section_edit_page_loads(admin_client):
-    """Test that the edit section page loads"""
-    report: Report = create_report()
-    section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, section.name)
-
-
-@pytest.mark.django_db
 def test_report_edit_metadata_save_stays_on_page(admin_client):
     """
     Test that pressing the save button on report edit metadata stays on the same page
@@ -313,9 +216,8 @@ def test_report_edit_metadata_save_stays_on_page(admin_client):
     assert response.url == url
 
 
-@pytest.mark.django_db
-def test_report_edit_metadata_redirects_to_details(admin_client):
-    """Test that report edit metadata redirects to report details on save"""
+def test_report_edit_metadata_redirects_to_publisher(admin_client):
+    """Test that report edit metadata redirects to report publisher on save"""
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
@@ -329,96 +231,7 @@ def test_report_edit_metadata_redirects_to_details(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)
-
-
-@pytest.mark.django_db
-def test_report_edit_section_save_button_stays_on_page(admin_client):
-    """Test pressing save button on report edit section stays on page"""
-    report: Report = create_report()
-    section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-    url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "version": section.version,
-            "template_type": "markdown",
-            "save": "Button value",
-            "form-TOTAL_FORMS": 0,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == url
-
-
-@pytest.mark.django_db
-def test_report_edit_section_redirects_to_details(admin_client):
-    """Test that report edit section redirects to report details on save"""
-    report: Report = create_report()
-    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-    url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "version": section.version,
-            "template_type": "markdown",
-            "save_exit": "Button value",
-            "form-TOTAL_FORMS": 0,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == reverse("reports:edit-report", kwargs=report_pk_kwargs)
-
-
-@pytest.mark.parametrize(
-    "button_prefix",
-    [
-        DELETE_ROW_BUTTON_PREFIX,
-        UNDELETE_ROW_BUTTON_PREFIX,
-        MOVE_ROW_UP_BUTTON_PREFIX,
-        MOVE_ROW_DOWN_BUTTON_PREFIX,
-    ],
-)
-@pytest.mark.django_db
-def test_report_edit_section_stays_on_page_on_row_button_pressed(
-    button_prefix, admin_client
-):
-    """Test that report edit section stays on page when row-related button pressed"""
-    report: Report = create_report()
-    section: Section = create_section(report)
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-    table_row: TableRow = TableRow.objects.create(section=section, row_number=1)
-    table_row_id: int = table_row.id
-    url: str = reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "version": section.version,
-            "template_type": "markdown",
-            f"{button_prefix}{table_row_id}": "Button value",
-            "form-TOTAL_FORMS": 0,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-        },
-    )
-
-    assert response.status_code == 302
-    assert response.url == f"{url}#row-{table_row_id}"
+    assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)
 
 
 def test_unapproved_report_confirm_publish_asks_for_approval(admin_client):
@@ -539,52 +352,6 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     )
 
 
-@pytest.mark.parametrize(
-    "path_name",
-    [
-        "cases:case-detail",
-        "cases:edit-case-details",
-        "cases:edit-test-results",
-        "cases:edit-report-details",
-        "cases:edit-qa-process",
-    ],
-)
-def test_unpublished_report_data_updated_notification_shown(path_name, admin_client):
-    """
-    Test notification shown when report data (test result) more recent
-    than latest report rebuild.
-    """
-    report: Report = create_report()
-    report.report_rebuilt = timezone.now()
-    report.save()
-    audit: Audit = report.case.audit
-    case_pk_kwargs: Dict[str, int] = {"pk": report.case.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs=case_pk_kwargs), follow=True
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(
-        response,
-        "Data in the case has changed and information in the report is out of date.",
-    )
-
-    audit.unpublished_report_data_updated_time = timezone.now() + timedelta(hours=1)
-    audit.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse(path_name, kwargs=case_pk_kwargs), follow=True
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        "Data in the case has changed and information in the report is out of date.",
-    )
-
-
 def test_report_metrics_displays_in_report_logs(admin_client):
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
@@ -627,106 +394,3 @@ def test_report_metrics_displays_in_report_logs(admin_client):
     assertContains(response, SECOND_CODENAME)
     assertContains(response, "Viewing 1 visits")
     assertContains(response, "View all visits")
-
-
-def test_issues_section_edit_page_contains_warning(admin_client):
-    """
-    Test that the edit section page for issues contains a warning to
-    make changes in testing UI.
-    """
-    report: Report = create_report()
-    audit_pk_kwargs: Dict[str, int] = {"pk": report.case.audit.id}  # type: ignore
-    test_details_url: str = reverse("audits:audit-detail", kwargs=audit_pk_kwargs)
-    section: Section = create_section(report)
-    section.template_type = TEMPLATE_TYPE_ISSUES_TABLE
-    section.save()
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<strong class="govuk-warning-text__text">
-            <span class="govuk-warning-text__assistive">Warning</span>
-            Edit test data in the
-            <a href="{test_details_url}" class="govuk-link govuk-link--no-visited-state">
-                testing application</a>
-        </strong>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "section_type,table_header_1,table_header_2",
-    [
-        (TEMPLATE_TYPE_URLS, "Page Name", "URL"),
-        (
-            TEMPLATE_TYPE_ISSUES_TABLE,
-            "Issue and description",
-            "Where the issue was found",
-        ),
-    ],
-)
-def test_section_edit_page_tables_use_hidden_labels(
-    section_type, table_header_1, table_header_2, admin_client
-):
-    """
-    Test that the edit section page for report pages with tables
-    contain visually hidden labels in their tables.
-    """
-    report: Report = create_report()
-    section: Section = create_section(report)
-    section.template_type = section_type
-    section.save()
-    section_pk_kwargs: Dict[str, int] = {"pk": section.id}
-    TableRow.objects.create(section=section, row_number=1)
-
-    response: HttpResponse = admin_client.get(
-        reverse("reports:edit-report-section", kwargs=section_pk_kwargs)
-    )
-
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label
-                id="id_form-0-cell_content_1-label"
-                class="govuk-visually-hidden"
-                for="id_form-0-cell_content_1">
-                {table_header_1} 1
-            </label>
-            <textarea
-                name="form-0-cell_content_1"
-                cols="40"
-                rows="4"
-                class="govuk-textarea"
-                id="id_form-0-cell_content_1">
-            </textarea>
-        </div>""",
-        html=True,
-    )
-
-    assertContains(
-        response,
-        f"""<div class="govuk-form-group">
-            <label
-                id="id_form-0-cell_content_2-label"
-                class="govuk-visually-hidden"
-                for="id_form-0-cell_content_2">
-                {table_header_2} 1
-            </label>
-            <textarea
-                name="form-0-cell_content_2"
-                cols="40"
-                rows="4"
-                class="govuk-textarea"
-                id="id_form-0-cell_content_2">
-            </textarea>
-        </div>""",
-        html=True,
-    )

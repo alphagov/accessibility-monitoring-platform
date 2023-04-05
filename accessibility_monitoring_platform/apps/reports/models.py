@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import QuerySet
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
@@ -128,14 +127,6 @@ class Report(VersionModel):
         """The most recently published report"""
         return self.case.s3report_set.filter(latest_published=True).last()
 
-    @property
-    def top_level_sections(self) -> QuerySet["BaseTemplate"]:
-        return self.section_set.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
-
-    @property
-    def issues_sections(self) -> QuerySet["BaseTemplate"]:
-        return self.section_set.filter(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
-
 
 class BaseTemplate(VersionModel):
     """
@@ -156,65 +147,6 @@ class BaseTemplate(VersionModel):
 
     def __str__(self) -> str:
         return str(f"{self.name}" f" (position {self.position})")
-
-
-class Section(VersionModel):
-    """
-    Model for section of report
-    """
-
-    report = models.ForeignKey(
-        Report,
-        on_delete=models.PROTECT,
-    )
-    created = models.DateTimeField(auto_now_add=True)
-    name = models.TextField()
-    template_type = models.CharField(
-        max_length=20, choices=TEMPLATE_TYPE_CHOICES, default=TEMPLATE_TYPE_DEFAULT
-    )
-    content = models.TextField(default="", blank=True)
-    position = models.IntegerField()
-    new_page = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["report", "position"]
-
-    def __str__(self) -> str:
-        return str(f"{self.report} - {self.name} (position {self.position})")
-
-    @property
-    def anchor(self) -> str:
-        return f"report-section-{self.id}"
-
-    @property
-    def has_table(self):
-        return self.tablerow_set.count() > 0
-
-    @property
-    def visible_table_rows(self):
-        return self.tablerow_set.filter(is_deleted=False)
-
-
-class TableRow(VersionModel):
-    """
-    Model for row of table in report
-    """
-
-    section = models.ForeignKey(
-        Section,
-        on_delete=models.CASCADE,
-    )
-    created = models.DateTimeField(auto_now_add=True)
-    is_deleted = models.BooleanField(default=False)
-    cell_content_1 = models.TextField(default="", blank=True)
-    cell_content_2 = models.TextField(default="", blank=True)
-    row_number = models.IntegerField()
-
-    class Meta:
-        ordering = ["section", "row_number"]
-
-    def __str__(self) -> str:
-        return str(f"{self.section}: Table row {self.row_number}")
 
 
 class ReportVisitsMetrics(models.Model):

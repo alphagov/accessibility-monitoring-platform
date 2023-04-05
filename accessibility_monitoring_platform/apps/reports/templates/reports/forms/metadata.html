@@ -18,9 +18,6 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report publisher</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'reports:edit-report' report.id %}">Edit report</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
                 Report metadata
             </li>
         </ol>
@@ -71,10 +68,10 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'reports:edit-report' report.id %}"
+                                href="{% url 'reports:report-publisher' report.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
-                                Cancel and return to edit report
+                                Cancel and return to report publisher
                             </a>
                         </div>
                     </div>

@@ -66,22 +66,6 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     return redirect(reverse("reports:report-publisher", kwargs={"pk": report.id}))
 
 
-class ReportDetailView(DetailView):
-    """
-    View of details of a single report
-    """
-
-    model: Type[Report] = Report
-    context_object_name: str = "report"
-    template_name: str = "reports/report_edit.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add report visits metrics context"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context.update(get_report_visits_metrics(self.object.case))
-        return context
-
-
 class ReportUpdateView(UpdateView):
     """
     View to update report
@@ -116,7 +100,7 @@ class ReportMetadataUpdateView(ReportUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_exit" in self.request.POST:
             report_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("reports:edit-report", kwargs=report_pk)
+            return reverse("reports:report-publisher", kwargs=report_pk)
         return super().get_success_url()
 
 
@@ -149,14 +133,6 @@ class ReportPublisherTemplateView(ReportTemplateView):
         return context
 
 
-class ReportConfirmRefreshTemplateView(ReportTemplateView):
-    """
-    View to confirm refreshing the report
-    """
-
-    template_name: str = "reports/report_confirm_refresh.html"
-
-
 class ReportConfirmPublishTemplateView(ReportTemplateView):
     """
     View to confirm publishing the report
@@ -180,7 +156,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
-    context = {"report": report}
+    context = {"report": report, "sections": build_report_sections(report=report)}
     html: str = template.render(context, request)
     published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
     for s3_report in published_s3_reports:
