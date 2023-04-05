@@ -141,6 +141,8 @@ class BaseTemplate(VersionModel):
     content = models.TextField(default="", blank=True)
     position = models.IntegerField()
     new_page = models.BooleanField(default=True)
+    editable_url_name = models.TextField(default="", blank=True)
+    editable_url_label = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["position", "-id"]

@@ -7,11 +7,23 @@
                 {% if section.template_type == 'issues' %}
                     <li>
                         <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
-                            {% include './nav_content.html' with anchor=section.anchor name=section.name %}
+                            <li>
+                                <a href="#{{ section.anchor }}" class="govuk-link govuk-link--no-visited-state">
+                                    {{ section.name }}</a>
+                                | <a href="{% url section.editable_url_name section.editable_id  %}" class="govuk-link govuk-link--no-visited-state">
+                                    {{ section.editable_url_label }}</a>
+                            </li>
                         </ul>
                     </li>
                 {% else %}
-                    {% include './nav_content.html' with anchor=section.anchor name=section.name %}
+                    <li>
+                        <a href="#{{ section.anchor }}" class="govuk-link govuk-link--no-visited-state">
+                            {{ section.name }}</a>
+                        {% if section.editable_url_name %}
+                            | <a href="{% url section.editable_url_name section.editable_id  %}" class="govuk-link govuk-link--no-visited-state">
+                                {{ section.editable_url_label }}</a>
+                        {% endif %}
+                    </li>
                 {% endif %}
             {% endfor %}
         </ul>

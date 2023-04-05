@@ -2,7 +2,7 @@
 """
 Utilities for reports app
 """
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from django.db.models import QuerySet
 from django.template import Context, Template
@@ -39,12 +39,25 @@ class Section:
     Class for section of report
     """
 
-    def __init__(self, name, template_type, content, position, new_page=False):
+    def __init__(
+        self,
+        name,
+        template_type,
+        content,
+        position,
+        editable_url_name,
+        editable_url_label,
+        editable_id=None,
+        new_page=False,
+    ):
         self.name = name
         self.template_type = template_type
         self.content = content
         self.position = position
         self.new_page = new_page
+        self.editable_url_name = editable_url_name
+        self.editable_url_label = editable_url_label
+        self.editable_id = editable_id
         self.table_rows = []
 
     @property
@@ -93,12 +106,19 @@ def build_report_sections(report: Report) -> List[Section]:
     for base_template in top_level_base_templates:
         template: Template = Template(base_template.content)
         section_position += 1
+        if base_template.editable_url_name and report.case.audit:
+            editable_id: int = report.case.audit.id
+        else:
+            editable_id: Optional[int] = None
         section: Section = Section(
             name=base_template.name,
             template_type=base_template.template_type,
             content=template.render(context=context),
             position=section_position,
             new_page=base_template.new_page,
+            editable_url_name=base_template.editable_url_name,
+            editable_url_label=base_template.editable_url_label,
+            editable_id=editable_id,
         )
         if report.case.audit:
             if section.template_type == TEMPLATE_TYPE_URLS:
@@ -121,6 +141,9 @@ def build_report_sections(report: Report) -> List[Section]:
                         content=issues_table_template.render(context=page_context),
                         position=section_position,
                         new_page=issues_table_base_template.new_page,
+                        editable_url_name="audits:edit-audit-page-checks",
+                        editable_url_label=f"Edit test > {page}",
+                        editable_id=page.id,
                     )
                     page_section.table_rows = build_issue_table_rows(
                         page=page,
