@@ -18,7 +18,6 @@ def undo_cleanup(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0038_rename_suspend_date_case_deactivate_date_and_more"),
     ]

@@ -13,7 +13,7 @@
     </nav>
 </div>
 
-{% for section in report.section_set.all %}
+{% for section in sections %}
     <br />
     <h2 id="{{ section.anchor }}"{% if section.new_page %} class="amp-new-page"{% endif %}>
         {{ section.name }}
@@ -23,10 +23,10 @@
     {% else %}
         {{ section.content|markdown_to_html }}
     {% endif %}
-    {% if section.template_type == 'urls' and section.visible_table_rows.all %}
+    {% if section.template_type == 'urls' and section.table_rows %}
         {% include 'reports_common/helpers/table_urls.html' %}
     {% endif %}
-    {% if section.template_type == 'issues' and section.visible_table_rows.all %}
+    {% if section.template_type == 'issues' and section.table_rows %}
         {% include 'reports_common/helpers/table_issues.html' with table_number=forloop.counter %}
     {% endif %}
 {% endfor %}

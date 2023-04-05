@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0040_alter_case_status"),
         ("reports", "0011_reset_base_template_data"),

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0016_case_twelve_week_correspondence_notes"),
     ]

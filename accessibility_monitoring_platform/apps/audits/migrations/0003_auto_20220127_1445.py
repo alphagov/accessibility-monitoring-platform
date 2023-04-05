@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0022_auto_20220127_1444"),
         ("audits", "0002_populate_wcag_definitions"),

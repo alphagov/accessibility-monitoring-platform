@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0032_remove_case_enforcement_body_interested_and_more"),
     ]

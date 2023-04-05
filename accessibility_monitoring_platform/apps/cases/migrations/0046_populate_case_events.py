@@ -209,7 +209,6 @@ def delete_case_events(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0045_caseevent"),
     ]

@@ -9,10 +9,8 @@ from django.urls.resolvers import URLPattern
 from .views import (
     create_report,
     ReportConfirmRefreshTemplateView,
-    rebuild_report,
     ReportDetailView,
     ReportMetadataUpdateView,
-    SectionUpdateView,
     ReportPublisherTemplateView,
     ReportConfirmPublishTemplateView,
     publish_report,
@@ -33,11 +31,6 @@ urlpatterns: List[URLPattern] = [
         name="report-confirm-refresh",
     ),
     path(
-        "<int:pk>/report-rebuild/",
-        login_required(rebuild_report),
-        name="report-rebuild",
-    ),
-    path(
         "<int:pk>/report-publisher/",
         login_required(ReportPublisherTemplateView.as_view()),
         name="report-publisher",
@@ -51,11 +44,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-report-metadata/",
         login_required(ReportMetadataUpdateView.as_view()),
         name="edit-report-metadata",
-    ),
-    path(
-        "sections/<int:pk>/edit-section/",
-        login_required(SectionUpdateView.as_view()),
-        name="edit-report-section",
     ),
     path(
         "<int:pk>/report-confirm-publish/",

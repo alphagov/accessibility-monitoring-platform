@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0025_remove_case_twelve_week_4_week_chaser_sent_date_and_more"),
     ]

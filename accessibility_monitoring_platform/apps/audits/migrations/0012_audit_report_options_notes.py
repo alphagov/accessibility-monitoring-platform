@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0011_alter_audit_audit_retest_review_state_and_more"),
     ]
