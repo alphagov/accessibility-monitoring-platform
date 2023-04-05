@@ -883,9 +883,6 @@ class AuditRetestStatement1UpdateForm(VersionForm):
     Form for retesting accessibility statement 1 checks
     """
 
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement, only if not compliant",
-    )
     audit_retest_scope_state = AMPChoiceRadioField(
         label="",
         choices=SCOPE_STATE_CHOICES,
@@ -927,7 +924,6 @@ class AuditRetestStatement1UpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_scope_state",
             "audit_retest_scope_notes",
             "audit_retest_feedback_state",
@@ -951,9 +947,6 @@ class AuditRetestStatement2UpdateForm(VersionForm):
     Form for retesting accessibility statement 2 checks
     """
 
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement, only if not compliant",
-    )
     audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
         label="",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
@@ -990,7 +983,6 @@ class AuditRetestStatement2UpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_disproportionate_burden_state",
             "audit_retest_disproportionate_burden_notes",
             "audit_retest_content_not_in_scope_state",
@@ -1012,12 +1004,16 @@ class AuditRetestStatementDecisionUpdateForm(VersionForm):
     Form for retesting statement decision
     """
 
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to 12-week saved accessibility statement, only if not compliant",
+    )
     audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
+            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_statement_decision_complete_date",
         ]
 
