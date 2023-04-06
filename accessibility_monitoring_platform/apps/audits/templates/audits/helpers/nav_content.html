@@ -1,9 +1,9 @@
             <li>
                 {% if anchor %}
                     <a href="#{{ anchor_prefix }}{{ anchor }}" class="govuk-link govuk-link--no-visited-state">
-                        {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                        {{ name }}{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
-                    {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                    {{ name }}{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% endif %}
                 |
                 {% if page or audit %}
@@ -12,7 +12,7 @@
                     {% else %}
                        <a id="{{ id }}" href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
                     {% endif %}
-                    Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                    Edit{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
                     None
                 {% endif %}

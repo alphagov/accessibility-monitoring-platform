@@ -15,9 +15,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 
-from ...audits.models import (
-    Audit,
-)
+from ...audits.models import Audit
+from ...audits.utils import report_data_updated
 from ...cases.models import (
     Case,
     CaseEvent,
@@ -174,6 +173,175 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assert response.status_code == 200
 
     assertContains(response, expected_header)
+
+
+def test_report_next_step_for_not_started(admin_client):
+    """
+    Test report next step for report review not started
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Mark the report as ready to review")
+    assertContains(response, "Go to QA process")
+
+
+def test_report_next_step_for_case_unassigned_qa(admin_client):
+    """
+    Test report next step for unassigned qa case
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        report_review_status=REPORT_READY_TO_REVIEW,
+    )
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report is waiting to be reviewed")
+    assertContains(response, "Go to QA process")
+
+
+def test_report_next_step_for_case_qa_in_progress(admin_client):
+    """
+    Test report next step for case in qa in progress
+    """
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        report_review_status=REPORT_READY_TO_REVIEW,
+    )
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report is waiting to be reviewed")
+    assertContains(response, "Go to QA process")
+
+
+def test_report_next_step_for_case_report_approved(admin_client):
+    """
+    Test report next step for case report approved status is 'yes'
+    """
+    case: Case = Case.objects.create(
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+    )
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "The report has been approved and is ready to be published"
+    )
+    assertContains(response, "Publish HTML report")
+
+
+def test_report_next_step_for_published_report_out_of_date(admin_client):
+    """
+    Test report next step for published report is out of date
+    """
+    case: Case = Case.objects.create(
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+    )
+    audit: Audit = Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    report_data_updated(audit=audit)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        "The platform has identified changes to the test since publishing the report.",
+    )
+    assertContains(response, "Republish the report")
+
+
+def test_report_next_step_for_published_report(admin_client):
+    """
+    Test report next step for published report
+    """
+    case: Case = Case.objects.create(
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+    )
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report has been published.")
+    assertContains(response, "Return to Case &gt; Report details")
+
+
+def test_report_next_step_default(admin_client):
+    """
+    Test report next stepdefault
+    """
+    case: Case = Case.objects.create(
+        report_review_status=REPORT_READY_TO_REVIEW,
+        report_approved_status="in-progress",
+    )
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "The report is not yet ready")
+    assertContains(response, "Go to Testing details")
 
 
 def test_report_publisher_page_shows_ready_to_review(admin_client):

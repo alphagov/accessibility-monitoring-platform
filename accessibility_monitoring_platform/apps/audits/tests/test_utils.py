@@ -542,8 +542,8 @@ def test_get_audit_report_options_rows():
 
 
 @pytest.mark.django_db
-def test_create_or_update_check_results_for_page():
-    """Test create and update of check results for a page"""
+def test_update_check_results_for_page():
+    """Test update of check results for a page"""
     audit: Audit = create_audit_and_check_results()
     page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
 
@@ -572,6 +572,8 @@ def test_create_or_update_check_results_for_page():
     check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
     check_results_formset.is_valid()
 
+    assert audit.published_report_data_updated_time is None
+
     create_or_update_check_results_for_page(
         user=audit.case.auditor,
         page=page_home,
@@ -581,14 +583,66 @@ def test_create_or_update_check_results_for_page():
     updated_check_result: CheckResult = CheckResult.objects.get(
         page=page_home, type=TEST_TYPE_MANUAL
     )
+
+    assert updated_check_result.check_result_state == CHECK_RESULT_ERROR
+    assert updated_check_result.notes == UPDATED_NOTE
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)
+
+    assert updated_audit.published_report_data_updated_time is not None
+
+
+@pytest.mark.django_db
+def test_create_check_results_for_page():
+    """Test create of check results for a page"""
+    audit: Audit = create_audit_and_check_results()
+    page_home: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+
+    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
+
+    number_of_forms: int = len(check_results) + 1
+    formset_data: Dict[str, Union[int, str]] = {
+        "form-TOTAL_FORMS": number_of_forms,
+        "form-INITIAL_FORMS": number_of_forms,
+        "form-MIN_NUM_FORMS": 0,
+        "form-MAX_NUM_FORMS": 1000,
+    }
+    for count, check_result in enumerate(check_results):
+        formset_data[f"form-{count}-wcag_definition"] = check_result.wcag_definition.id
+        formset_data[
+            f"form-{count}-check_result_state"
+        ] = check_result.check_result_state
+        formset_data[f"form-{count}-notes"] = check_result.notes
+
+    new_form_index: int = len(check_results)
+    new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    formset_data[f"form-{new_form_index}-wcag_definition"] = new_wcag_definition.id
+    formset_data[f"form-{new_form_index}-check_result_state"] = CHECK_RESULT_ERROR
+    formset_data[f"form-{new_form_index}-notes"] = NEW_CHECK_NOTE
+
+    check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
+    check_results_formset.is_valid()
+
+    assert audit.published_report_data_updated_time is None
+
+    create_or_update_check_results_for_page(
+        user=audit.case.auditor,
+        page=page_home,
+        check_result_forms=check_results_formset.forms,
+    )
+
     new_check_result: CheckResult = CheckResult.objects.get(
         page=page_home, type=TEST_TYPE_AXE
     )
 
-    assert updated_check_result.check_result_state == CHECK_RESULT_ERROR
-    assert updated_check_result.notes == UPDATED_NOTE
     assert new_check_result.check_result_state == CHECK_RESULT_ERROR
     assert new_check_result.notes == NEW_CHECK_NOTE
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)
+
+    assert updated_audit.published_report_data_updated_time is not None
 
 
 @pytest.mark.django_db
