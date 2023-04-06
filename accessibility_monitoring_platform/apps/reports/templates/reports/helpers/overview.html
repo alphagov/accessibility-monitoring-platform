@@ -2,16 +2,6 @@
 
 <h2 class="govuk-heading-m">Overview</h2>
 <div class="amp-left-border">
-    <h2 class="govuk-heading-s amp-margin-bottom-5">Published report</h2>
-    <p class="govuk-body amp-margin-bottom-10">
-        {% if report.latest_s3_report %}
-            <a href="{{ report.case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                View latest published HTML report
-            </a>
-        {% else %}
-            A report has not been published.
-        {% endif %}
-    </p>
     {% include 'reports/helpers/overview_status.html' %}
     <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
     <p class="govuk-body amp-margin-bottom-10">
@@ -42,7 +32,7 @@
     <div class="amp-report-wrapper">
         {{ report.notes|markdown_to_html }}
         <p class="govuk-body amp-margin-bottom-10">
-            <a href="{% url 'reports:edit-report-metadata' report.id %}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{% url 'reports:edit-report-notes' report.id %}" class="govuk-link govuk-link--no-visited-state">
                 {% if report.notes %}
                     Edit notes</a>
                 {% else %}

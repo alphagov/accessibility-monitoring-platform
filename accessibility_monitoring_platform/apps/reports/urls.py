@@ -8,7 +8,7 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 from .views import (
     create_report,
-    ReportMetadataUpdateView,
+    ReportNotesUpdateView,
     ReportPublisherTemplateView,
     ReportConfirmPublishTemplateView,
     publish_report,
@@ -29,9 +29,9 @@ urlpatterns: List[URLPattern] = [
         name="report-publisher",
     ),
     path(
-        "<int:pk>/edit-report-metadata/",
-        login_required(ReportMetadataUpdateView.as_view()),
-        name="edit-report-metadata",
+        "<int:pk>/edit-report-notes/",
+        login_required(ReportNotesUpdateView.as_view()),
+        name="edit-report-notes",
     ),
     path(
         "<int:pk>/report-confirm-publish/",

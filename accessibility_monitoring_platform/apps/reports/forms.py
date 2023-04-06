@@ -18,9 +18,9 @@ from ..common.forms import (
 )
 
 
-class ReportMetadataUpdateForm(VersionForm):
+class ReportNotesUpdateForm(VersionForm):
     """
-    Form for editing report metadata
+    Form for editing report notes
     """
 
     notes = AMPTextField(label="Notes")

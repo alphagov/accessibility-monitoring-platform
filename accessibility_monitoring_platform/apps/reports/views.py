@@ -25,7 +25,7 @@ from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
 
 from .forms import (
-    ReportMetadataUpdateForm,
+    ReportNotesUpdateForm,
     ReportWrapperUpdateForm,
 )
 from .models import (
@@ -88,12 +88,12 @@ class ReportUpdateView(UpdateView):
         return self.request.path
 
 
-class ReportMetadataUpdateView(ReportUpdateView):
+class ReportNotesUpdateView(ReportUpdateView):
     """
-    View to update report metadata
+    View to update report notes
     """
 
-    form_class: Type[ReportMetadataUpdateForm] = ReportMetadataUpdateForm
+    form_class: Type[ReportNotesUpdateForm] = ReportNotesUpdateForm
     template_name: str = "reports/forms/metadata.html"
 
     def get_success_url(self) -> str:

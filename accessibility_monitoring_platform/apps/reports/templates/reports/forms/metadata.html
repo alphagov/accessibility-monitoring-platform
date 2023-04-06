@@ -2,7 +2,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ report.case.organisation_name }} | Report metadata{% endblock %}
+{% block title %}{{ report.case.organisation_name }} | Report notes{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -18,38 +18,23 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'reports:report-publisher' report.id %}">Report publisher</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Report metadata
+                Notes
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='Report metadata' case=report.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='Notes' case=report.case %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'reports:edit-report-metadata' report.id %}">
+                <form method="post" action="{% url 'reports:edit-report-notes' report.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Date of report creation</b></label>
-                                <div class="govuk-hint">{{ report.created|amp_date }}</div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Link to test</b></label>
-                                <div class="govuk-hint">
-                                    <a
-                                        href="{% url 'audits:audit-detail' report.case.audit.id %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
-                                        Initial test
-                                    </a>
-                                </div>
-                            </div>
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
@@ -62,7 +47,7 @@
                             />
                             <input
                                 type="submit"
-                                value="Save and return to report view"
+                                value="Save and return to report publisher"
                                 name="save_exit"
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"

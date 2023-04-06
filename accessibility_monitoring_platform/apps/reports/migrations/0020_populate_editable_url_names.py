@@ -23,10 +23,8 @@ def populate_editable_url_names(apps, schema_editor):  # pylint: disable=unused-
         statement_base_template = BaseTemplate.objects.get(
             name="Your accessibility statement"
         )
-        statement_base_template.editable_url_name = "audits:edit-statement-decision"
-        statement_base_template.editable_url_label = (
-            "Edit test > Accessibility statement compliance decision"
-        )
+        statement_base_template.editable_url_name = "audits:edit-audit-report-options"
+        statement_base_template.editable_url_label = "Edit test > Report options"
         statement_base_template.save()
         what_next_base_template = BaseTemplate.objects.get(name="What to do next")
         what_next_base_template.editable_url_name = "audits:edit-audit-report-options"

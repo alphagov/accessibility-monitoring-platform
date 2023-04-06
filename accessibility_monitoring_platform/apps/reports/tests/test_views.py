@@ -61,7 +61,7 @@ def create_section() -> BaseTemplate:
 
 
 def test_create_report_redirects(admin_client):
-    """Test that report create redirects to report metadata"""
+    """Test that report create redirects to report publisher"""
     case: Case = Case.objects.create()
     path_kwargs: Dict[str, int] = {"case_id": case.id}
 
@@ -153,7 +153,7 @@ def test_report_published_message_shown(admin_client):
 @pytest.mark.parametrize(
     "path_name, expected_header",
     [
-        ("reports:edit-report-metadata", ">Report metadata</h1>"),
+        ("reports:edit-report-notes", ">Notes</h1>"),
         ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
         (
             "reports:report-confirm-publish",
@@ -196,13 +196,13 @@ def test_report_publisher_page_shows_ready_to_review(admin_client):
     )
 
 
-def test_report_edit_metadata_save_stays_on_page(admin_client):
+def test_report_edit_notes_save_stays_on_page(admin_client):
     """
-    Test that pressing the save button on report edit metadata stays on the same page
+    Test that pressing the save button on report edit notes stays on the same page
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
+    url: str = reverse("reports:edit-report-notes", kwargs=report_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
         url,
@@ -216,11 +216,11 @@ def test_report_edit_metadata_save_stays_on_page(admin_client):
     assert response.url == url
 
 
-def test_report_edit_metadata_redirects_to_publisher(admin_client):
-    """Test that report edit metadata redirects to report publisher on save"""
+def test_report_edit_notes_redirects_to_publisher(admin_client):
+    """Test that report edit notes redirects to report publisher on save"""
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    url: str = reverse("reports:edit-report-metadata", kwargs=report_pk_kwargs)
+    url: str = reverse("reports:edit-report-notes", kwargs=report_pk_kwargs)
 
     response: HttpResponse = admin_client.post(
         url,
