@@ -307,6 +307,5 @@ def other_page_failed_check_results(
 def report_data_updated(audit: Audit) -> None:
     """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
-    audit.unpublished_report_data_updated_time = now
     audit.published_report_data_updated_time = now
     audit.save()

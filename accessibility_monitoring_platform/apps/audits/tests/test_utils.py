@@ -772,12 +772,10 @@ def test_report_data_updated():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
-    assert audit.unpublished_report_data_updated_time is None
     assert audit.published_report_data_updated_time is None
 
     report_data_updated(audit=audit)
 
-    assert audit.unpublished_report_data_updated_time is not None
     assert audit.published_report_data_updated_time is not None
 
 

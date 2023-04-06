@@ -1111,7 +1111,6 @@ def test_report_options_field_updates_report_content(
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    assert audit.unpublished_report_data_updated_time is None
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
@@ -1130,10 +1129,8 @@ def test_report_options_field_updates_report_content(
     updated_audit: Audit = Audit.objects.get(id=audit.id)
 
     if report_content_update:
-        assert updated_audit.unpublished_report_data_updated_time is not None
         assert updated_audit.published_report_data_updated_time is not None
     else:
-        assert updated_audit.unpublished_report_data_updated_time is None
         assert updated_audit.published_report_data_updated_time is None
 
 
