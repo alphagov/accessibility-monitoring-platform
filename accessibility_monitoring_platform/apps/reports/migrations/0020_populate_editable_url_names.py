@@ -7,28 +7,33 @@ def populate_editable_url_names(apps, schema_editor):  # pylint: disable=unused-
     """Populate editable_url_names in base templates"""
     # pylint: disable=invalid-name
     BaseTemplate = apps.get_model("reports", "BaseTemplate")
-    website_base_template = BaseTemplate.objects.get(
-        name="How accessible the website is"
-    )
-    website_base_template.editable_url_name = "audits:edit-website-decision"
-    website_base_template.editable_url_label = "Edit test > Website compliance decision"
-    website_base_template.save()
-    pages_base_template = BaseTemplate.objects.get(name="Pages we checked")
-    pages_base_template.editable_url_name = "audits:edit-audit-pages"
-    pages_base_template.editable_url_label = "Edit test > Pages"
-    pages_base_template.save()
-    statement_base_template = BaseTemplate.objects.get(
-        name="Your accessibility statement"
-    )
-    statement_base_template.editable_url_name = "audits:edit-statement-decision"
-    statement_base_template.editable_url_label = (
-        "Edit test > Accessibility statement compliance decision"
-    )
-    statement_base_template.save()
-    what_next_base_template = BaseTemplate.objects.get(name="What to do next")
-    what_next_base_template.editable_url_name = "audits:edit-audit-report-options"
-    what_next_base_template.editable_url_label = "Edit test > Report options"
-    what_next_base_template.save()
+    try:
+        website_base_template = BaseTemplate.objects.get(
+            name="How accessible the website is"
+        )
+        website_base_template.editable_url_name = "audits:edit-website-decision"
+        website_base_template.editable_url_label = (
+            "Edit test > Website compliance decision"
+        )
+        website_base_template.save()
+        pages_base_template = BaseTemplate.objects.get(name="Pages we checked")
+        pages_base_template.editable_url_name = "audits:edit-audit-pages"
+        pages_base_template.editable_url_label = "Edit test > Pages"
+        pages_base_template.save()
+        statement_base_template = BaseTemplate.objects.get(
+            name="Your accessibility statement"
+        )
+        statement_base_template.editable_url_name = "audits:edit-statement-decision"
+        statement_base_template.editable_url_label = (
+            "Edit test > Accessibility statement compliance decision"
+        )
+        statement_base_template.save()
+        what_next_base_template = BaseTemplate.objects.get(name="What to do next")
+        what_next_base_template.editable_url_name = "audits:edit-audit-report-options"
+        what_next_base_template.editable_url_label = "Edit test > Report options"
+        what_next_base_template.save()
+    except BaseTemplate.DoesNotExist:
+        pass
 
 
 def remove_editable_url_names(apps, schema_editor):  # pylint: disable=unused-argument

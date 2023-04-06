@@ -41,14 +41,14 @@ class Section:
 
     def __init__(
         self,
-        name,
-        template_type,
-        content,
-        position,
-        editable_url_name,
-        editable_url_label,
-        editable_id=None,
-        new_page=False,
+        name: str,
+        template_type: str,
+        content: str,
+        position: int,
+        editable_url_name: str,
+        editable_url_label: str,
+        editable_id: Optional[int] = None,
+        new_page: bool = False,
     ):
         self.name = name
         self.template_type = template_type
@@ -68,17 +68,13 @@ class Section:
     def has_table(self):
         return len(self.table_rows) > 0
 
-    # @property
-    # def visible_table_rows(self):
-    #     return self.tablerow_set.filter(is_deleted=False)
-
 
 class TableRow:
     """
     Class for row of table in report
     """
 
-    def __init__(self, cell_content_1, cell_content_2, row_number):
+    def __init__(self, cell_content_1: str, cell_content_2: str, row_number: int):
         self.cell_content_1 = cell_content_1
         self.cell_content_2 = cell_content_2
         self.row_number = row_number

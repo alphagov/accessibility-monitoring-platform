@@ -48,6 +48,8 @@ def test_base_template_export_as_csv(admin_client):
         "content",
         "position",
         "new_page",
+        "editable_url_name",
+        "editable_url_label",
     ]
     assert rows[1][3] == BASE_TEMPLATE_NAME_1
     assert rows[1][5] == BASE_TEMPLATE_CONTENT_1
