@@ -176,6 +176,7 @@ def create_or_update_check_results_for_page(
                 notes=notes,
             )
             record_model_create_event(user=user, model_object=check_result)
+            report_data_updated(audit=page.audit)
 
 
 def get_all_possible_check_results_for_page(
