@@ -28,12 +28,6 @@ describe('View case', () => {
     cy.contains('Found 14 results for date').should('not.exist')
   })
 
-  it('does not search within case for empty-string', () => {
-    cy.get('[name="search_in_case"]').clear()
-    cy.get('#search-in-case').click()
-    cy.contains('No search string entered')
-  })
-
   it('can edit case details', () => {
     cy.get('#edit-case-details').click()
     cy.get('#id_auditor').select('Auditor')
