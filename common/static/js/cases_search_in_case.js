@@ -2,9 +2,9 @@
 Search for labels and text content in case UI.
 */
 
-function Searchable({text, html, targetUrl, targetLabel, targetPageName} = {}) {
+function Searchable({text, childElements, targetUrl, targetLabel, targetPageName} = {}) {
   this.text = text
-  this.html = html
+  this.childElements = childElements
   this.targetUrl = targetUrl
   this.targetLabel = targetLabel
   this.targetPageName = targetPageName
@@ -26,11 +26,10 @@ function findParentElementWithSearchTargetAttributes(element) {
 function getSearchableFromElement(element) {
   if (element.textContent) {
     const textContent = element.textContent
-    const innerHTML = element.innerHTML
     if (element.dataset.searchTargetUrl !== undefined) {
       searchables.push(new Searchable({
         text: textContent,
-        html: innerHTML,
+        childElements: Array.from(element.children),
         targetUrl: element.dataset.searchTargetUrl,
         targetLabel: element.dataset.searchTargetLabel,
         targetPageName: element.dataset.searchTargetPageName
@@ -41,7 +40,7 @@ function getSearchableFromElement(element) {
         const searchTargetUrl = parentElement.dataset.searchTargetUrl
         searchables.push(new Searchable({
           text: textContent,
-          html: innerHTML,
+          childElements: Array.from(element.children),
           targetUrl: parentElement.dataset.searchTargetUrl,
           targetLabel: parentElement.dataset.searchTargetLabel,
           targetPageName: parentElement.dataset.searchTargetPageName
@@ -66,22 +65,26 @@ function searchInCase() {
     const notInsideHTMLTagRegex = new RegExp(`(?<!<[^>]*)${searchInputElement.value}`, 'ig')
     const matchingSearchables = searchables.filter(searchable => textRegex.test(searchable.text))
     let resultsString = ''
-    matchingSearchables.forEach(searchable => resultsString += `
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-full">
-        <p class="govuk-body">
-          <b>${searchable.targetPageName}</b> |
-          <a href="${searchable.targetUrl}" class="govuk-link govuk-link--no-visited-state">
-            ${searchable.targetLabel}
-          </a>
-        </p>
-        <table class="govuk-table">
-          <tbody class="govuk-table__body">
-            ${searchable.html.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
-          </tbody>
-        </table>
-      </div>
-    </div>`)
+    matchingSearchables.forEach(searchable => {
+      let childElementsString = ''
+      searchable.childElements.forEach(childElement => childElementsString += `
+        <div class="govuk-body amp-margin-bottom-5">
+          ${childElement.innerHTML.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
+        </div>`
+      )
+      resultsString += `
+        <div class="govuk-grid-row amp-margin-bottom-30">
+          <div class="govuk-grid-column-full">
+            <p class="govuk-body amp-margin-bottom-5">
+              <b>${searchable.targetPageName}</b> |
+              <a href="${searchable.targetUrl}" class="govuk-link govuk-link--no-visited-state">
+                ${searchable.targetLabel}
+              </a>
+            </p>
+            ${childElementsString}
+          </div>
+        </div>`
+    })
     const resultsLabel = matchingSearchables.length == 1 ? 'result' : 'results'
     searchResultsElement.innerHTML = `
       <p class="govuk-body">

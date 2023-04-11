@@ -36,7 +36,7 @@ document.body.innerHTML = `
 </div>
 <div id="extra" data-search-target-page-name="${extraTargetPageName}"
     data-search-target-label="${extraTargetLabel}"
-    data-search-target-url="${extraTargetUrl}">Extra</div>
+    data-search-target-url="${extraTargetUrl}"><p>Extra</p></div>
 <div id="element-without-target-ancestor"></div>`
 
 const {
@@ -113,9 +113,11 @@ describe('test getSearchableFromElement', () => {
     const searchableElement = document.getElementById('extra')
     getSearchableFromElement(searchableElement)
     const result = searchables.slice(-1)[0]
+    const childElement = document.createElement('p')
+    childElement.innerHTML = 'Extra'
     expect(result).toEqual({
         text: 'Extra',
-        html: 'Extra',
+        childElements: [childElement],
         targetUrl: extraTargetUrl,
         targetLabel: extraTargetLabel,
         targetPageName: extraTargetPageName
