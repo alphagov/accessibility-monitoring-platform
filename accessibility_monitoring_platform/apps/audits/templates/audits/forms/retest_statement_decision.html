@@ -35,6 +35,7 @@
                 {% include 'audits/helpers/end_of_test.html' %}
                 <form method="post" action="{% url 'audits:edit-audit-retest-statement-decision' audit.id %}">
                     {% csrf_token %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% if audit.twelve_week_accessibility_statement_found %}
@@ -43,8 +44,14 @@
                                 {% include 'cases/helpers/view_initial_decision.html' with case=audit.case %}
                             {% endif %}
                             {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=1 %}
+                            {% if audit.accessibility_statement_initially_found %}
+                                {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                                {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                                    <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
+                                {% endif %}
+                            {% endif %}
                             {% include 'common/amp_form_snippet.html' with form=case_form %}
-                            {% include 'common/amp_form_snippet.html' %}
+                            {% include 'common/amp_field.html' with field=form.audit_retest_statement_decision_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input

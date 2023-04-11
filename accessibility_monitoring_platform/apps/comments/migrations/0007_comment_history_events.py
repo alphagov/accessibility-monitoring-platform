@@ -49,7 +49,6 @@ def delete_comment_events(apps, schema_editor):  # pylint: disable=unused-argume
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("comments", "0006_alter_comment_options_remove_comment_page_and_more"),
         ("contenttypes", "0002_remove_content_type_name"),

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0042_alter_case_report_methodology_and_more"),
         ("audits", "0017_delete_dups"),

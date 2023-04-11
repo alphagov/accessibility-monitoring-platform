@@ -11,7 +11,6 @@ UPDATE cases_case
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0006_website_compliance"),
     ]
