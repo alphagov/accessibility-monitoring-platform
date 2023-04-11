@@ -10,7 +10,7 @@ function Searchable({text, childElements, targetUrl, targetLabel, targetPageName
   this.targetPageName = targetPageName
 }
 
-let searchables = []
+const searchables = []
 
 function findParentElementWithSearchTargetAttributes(element) {
   let parentElement = element.parentElement
@@ -35,7 +35,7 @@ function getSearchableFromElement(element) {
         targetPageName: element.dataset.searchTargetPageName
       }))
     } else {
-      let parentElement = findParentElementWithSearchTargetAttributes(element)
+      const parentElement = findParentElementWithSearchTargetAttributes(element)
       if (parentElement !== null && parentElement !== undefined) {
         const searchTargetUrl = parentElement.dataset.searchTargetUrl
         searchables.push(new Searchable({
