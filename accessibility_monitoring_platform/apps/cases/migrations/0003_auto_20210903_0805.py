@@ -22,7 +22,6 @@ FLAGS_AND_DATES = [
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0002_auto_20210903_0800"),
     ]

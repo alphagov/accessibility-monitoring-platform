@@ -11,7 +11,6 @@ UPDATE cases_case SET accessibility_statement_state_final = 'not-compliant' WHER
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0004_auto_20210903_0831"),
     ]

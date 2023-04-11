@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("reports", "0003_remove_report_ready_for_qa"),
         ("cases", "0027_report_generator"),

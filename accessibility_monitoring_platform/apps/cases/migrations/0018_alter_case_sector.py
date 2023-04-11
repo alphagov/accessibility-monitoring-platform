@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("common", "0007_auto_20211022_0851"),
         ("cases", "0017_remove_case_service_name"),

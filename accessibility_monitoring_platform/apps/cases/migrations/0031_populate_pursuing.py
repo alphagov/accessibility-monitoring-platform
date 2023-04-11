@@ -21,7 +21,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0030_case_enforcement_body_pursuing"),
     ]
