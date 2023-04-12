@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0009_audit_accessibility_statement_backup_url_date_and_more"),
     ]

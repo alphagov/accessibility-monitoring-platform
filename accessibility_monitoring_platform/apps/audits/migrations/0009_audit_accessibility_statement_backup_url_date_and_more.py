@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0008_audit_audit_retest_metadata_notes"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0013_audit_accessibility_statement_eass_link"),
     ]

@@ -42,7 +42,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0016_page_is_form"),
     ]

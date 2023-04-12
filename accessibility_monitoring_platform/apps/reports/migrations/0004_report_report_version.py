@@ -6,7 +6,6 @@ from ..models import REPORT_VERSION_DEFAULT
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("reports", "0003_remove_report_ready_for_qa"),
     ]

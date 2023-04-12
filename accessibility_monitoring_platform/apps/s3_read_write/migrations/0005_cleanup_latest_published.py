@@ -25,7 +25,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("s3_read_write", "0004_rename_deprecated_s3report_latest_published_and_more"),
     ]
