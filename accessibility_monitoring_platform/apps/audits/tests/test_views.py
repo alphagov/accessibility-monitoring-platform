@@ -1034,17 +1034,13 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "email, notes, new_contact_expected",
+    "email, new_contact_expected",
     [
-        ("", "", False),
-        ("email", "", True),
-        ("", "notes", True),
-        ("email", "notes", True),
+        ("", False),
+        ("email", True),
     ],
 )
-def test_statement_update_one_adds_contact(
-    email, notes, new_contact_expected, admin_client
-):
+def test_statement_update_one_adds_contact(email, new_contact_expected, admin_client):
     """Test that a contact can be added from the statement update one view"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
@@ -1054,7 +1050,6 @@ def test_statement_update_one_adds_contact(
         {
             "version": audit.version,
             "add_contact_email": email,
-            "add_contact_notes": notes,
             "save": "Button value",
         },
     )
@@ -1067,7 +1062,6 @@ def test_statement_update_one_adds_contact(
         assert len(contacts) == 1
         contact: Contact = contacts[0]
         assert contact.email == email
-        assert contact.notes == notes
     else:
         assert len(contacts) == 0
 

@@ -846,7 +846,6 @@ class Contact(models.Model):
     preferred = models.CharField(
         max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
     )
-    notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
