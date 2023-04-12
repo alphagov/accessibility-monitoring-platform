@@ -388,6 +388,7 @@ class Case(VersionModel):
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
+    contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page

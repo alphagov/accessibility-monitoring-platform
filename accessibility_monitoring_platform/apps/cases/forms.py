@@ -339,12 +339,14 @@ class CaseContactsUpdateForm(VersionForm):
     Form for updating test results
     """
 
+    contact_notes = AMPTextField(label="Contact detail notes")
     contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "contact_notes",
             "contact_details_complete_date",
         ]
 
