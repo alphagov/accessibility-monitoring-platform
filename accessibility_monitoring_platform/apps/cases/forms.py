@@ -310,10 +310,6 @@ class CaseContactUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
-    )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -321,8 +317,6 @@ class CaseContactUpdateForm(forms.ModelForm):
             "name",
             "job_title",
             "email",
-            "preferred",
-            "notes",
         ]
 
 
