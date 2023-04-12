@@ -34,7 +34,6 @@ from ..utils import (
     create_mandatory_pages_for_new_audit,
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
-    get_audit_statement_rows,
     get_audit_report_options_rows,
     get_next_page_url,
     get_next_retest_page_url,
@@ -104,106 +103,6 @@ EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
         value="",
         label="Initial website compliance notes",
         type="notes",
-        extra_label="",
-        external_url=True,
-    ),
-]
-EXPECTED_AUDIT_STATEMENT_ROWS: List[FieldLabelAndValue] = [
-    FieldLabelAndValue(
-        value="",
-        label="Link to saved accessibility statement",
-        type="url",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not included",
-        label="Scope",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Feedback",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Contact Information",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not included",
-        label="Enforcement Procedure",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not included",
-        label="Declaration",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Compliance Status",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Non-accessible Content - non compliance with regulations",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="No claim",
-        label="Non-accessible Content - disproportionate burden",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Non-accessible Content - the content is not within the scope of the applicable legislation",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not included",
-        label="Preparation Date",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not included",
-        label="Review",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Not present",
-        label="Method",
-        type="text",
-        extra_label="",
-        external_url=True,
-    ),
-    FieldLabelAndValue(
-        value="Does not meet requirements",
-        label="Access Requirements",
-        type="text",
         extra_label="",
         external_url=True,
     ),
@@ -507,17 +406,6 @@ def test_get_website_decision_rows():
 
 
 @pytest.mark.django_db
-def test_get_audit_statement_rows():
-    """Test audit statement rows returned for display on View test page"""
-    audit: Audit = create_audit_and_wcag()
-    context: Dict[str, List[FieldLabelAndValue]] = get_test_view_tables_context(
-        audit=audit
-    )
-    assert get_audit_statement_rows(audit=audit) == EXPECTED_AUDIT_STATEMENT_ROWS
-    assert context["audit_statement_rows"] == EXPECTED_AUDIT_STATEMENT_ROWS
-
-
-@pytest.mark.django_db
 def test_get_statement_decision_rows():
     """Test statement decision rows returned for display on View test page"""
     audit, _ = create_audit_and_user()
@@ -791,7 +679,8 @@ def test_get_test_view_tables_context():
 
     assert "audit_metadata_rows" in context
     assert "website_decision_rows" in context
-    assert "audit_statement_rows" in context
+    assert "audit_statement_1_rows" in context
+    assert "audit_statement_2_rows" in context
     assert "statement_decision_rows" in context
     assert "audit_report_options_rows" in context
 

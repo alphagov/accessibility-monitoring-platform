@@ -1,12 +1,12 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <p class="govuk-body-m">
-            <b>12-week accessibility statement</b>
+        <p id="audit-retest-statement-1" class="govuk-body-m">
+            <b>12-week accessibility statement P1. 1</b>
             |
             <a href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
                 class="govuk-link govuk-link--no-visited-state"
                 rel="noreferrer noopener">
-                Edit{% if on_view_case %} 12-week retest &gt; 12-week accessibility statement{% endif %}
+                Edit{% if on_view_case %} 12-week retest &gt; 12-week accessibility statement Pt. 1{% endif %}
             </a>
         </p>
     </div>
@@ -56,30 +56,6 @@
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Non-accessible content - non compliance with regulations</th>
                 <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_non_regulation_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Non-accessible content - disproportionate burden</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_disproportionate_burden_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Non-accessible content - the content is not within the scope of the applicable legislation</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_content_not_in_scope_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Preparation date</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_preparation_date_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Review</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_review_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Method</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_method_state_display }}</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Access requirements</th>
-                <td class="govuk-table__cell amp-width-one-half">{{ audit.get_audit_retest_access_requirements_state_display }}</td>
             </tr>
         </tbody>
     </table>
