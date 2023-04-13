@@ -427,6 +427,25 @@ class AuditStatementDecisionUpdateForm(VersionForm):
         ]
 
 
+class AuditStatementOverviewUpdateForm(VersionForm):
+    """
+    Form for editing statement overview
+    """
+
+    accessibility_statement_backup_url = AMPURLField(
+        label="Link to saved accessibility statement",
+    )
+    audit_statement_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "accessibility_statement_backup_url",
+            "audit_statement_overview_complete_date",
+        ]
+
+
 class CaseStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision

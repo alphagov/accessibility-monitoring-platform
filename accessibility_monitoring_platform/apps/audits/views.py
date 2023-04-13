@@ -52,6 +52,7 @@ from .forms import (
     AuditStatement2UpdateForm,
     AuditStatementDecisionUpdateForm,
     CaseStatementDecisionUpdateForm,
+    AuditStatementOverviewUpdateForm,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
@@ -493,6 +494,24 @@ class AuditWebsiteDecisionUpdateView(AuditCaseUpdateView):
             audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
         return super().get_success_url()
+
+
+class AuditStatementOverviewFormView(AuditUpdateView):
+    """
+    View to update statement overview check results
+    """
+
+    form_class: Type[
+        AuditStatementOverviewUpdateForm
+    ] = AuditStatementOverviewUpdateForm
+    template_name: str = "audits/forms/statement_overview.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        # if "save_continue" in self.request.POST:
+        #     page: Page = self.page
+        #     return get_next_statement_url(audit=audit, current_page=page)
+        return self.request.path
 
 
 class AuditStatement1UpdateView(AuditUpdateView):

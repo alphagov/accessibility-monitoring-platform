@@ -552,6 +552,32 @@ class Audit(VersionModel):
     report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement checking overview
+    audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking website
+    audit_statement_website_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking compliance
+    audit_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking non-accessible content
+    audit_statement_non_accessible_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking preparation
+    audit_statement_preparation_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking feedback
+    audit_statement_feedback_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking enforcement
+    audit_statement_enforcement_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking other
+    audit_statement_other_complete_date = models.DateField(null=True, blank=True)
+
     # Report text
     audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
