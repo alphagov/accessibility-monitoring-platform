@@ -268,6 +268,33 @@ ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
     "access_requirements": [ACCESS_REQUIREMENTS_VALID],
 }
 
+STATEMENT_CHECK_TYPE_OVERVIEW: str = "overview"
+STATEMENT_CHECK_TYPE_WEBSITE: str = "website"
+STATEMENT_CHECK_TYPE_COMPLIANCE: str = "compliance"
+STATEMENT_CHECK_TYPE_NON_ACCESSIBLE: str = "non-accessible"
+STATEMENT_CHECK_TYPE_PREPARATION: str = "preparation"
+STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
+STATEMENT_CHECK_TYPE_ENFORCEMENT: str = "enforcement"
+STATEMENT_CHECK_TYPE_OTHER: str = "other"
+STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
+    (STATEMENT_CHECK_TYPE_WEBSITE, "Accessibility statement for [website.com]"),
+    (STATEMENT_CHECK_TYPE_COMPLIANCE, "Compliance status"),
+    (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non accessible content overview"),
+    (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
+    (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and contact information"),
+    (STATEMENT_CHECK_TYPE_ENFORCEMENT, "Enforcement procedure"),
+    (STATEMENT_CHECK_TYPE_OTHER, "Other"),
+]
+STATEMENT_CHECK_YES: str = "yes"
+STATEMENT_CHECK_NO: str = "no"
+STATEMENT_CHECK_NOT_TESTED: str = "not-tested"
+STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
+    (STATEMENT_CHECK_YES, "Yes"),
+    (STATEMENT_CHECK_NO, "No"),
+    (STATEMENT_CHECK_NOT_TESTED, "Not tested"),
+]
+
 
 class AccessibilityStatementCheck:
     """Accessibility statement check"""
@@ -943,3 +970,57 @@ class CheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+
+class StatementCheck(models.Model):
+    """
+    Model for accessibilty statement-specific checks
+    """
+
+    type = models.CharField(
+        max_length=20,
+        choices=STATEMENT_CHECK_TYPE_CHOICES,
+        default=STATEMENT_CHECK_TYPE_OTHER,
+    )
+    label = models.TextField(default="", blank=True)
+    success_criteria = models.TextField(default="", blank=True)
+    report_text = models.TextField(default="", blank=True)
+    position = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["position", "id"]
+
+    def __str__(self) -> str:
+        if self.success_criteria:
+            return str(
+                f"{self.label}: {self.success_criteria} ({self.get_type_display()})"
+            )
+        return f"{self.label} ({self.get_type_display()})"
+
+
+class StatementCheckResult(models.Model):
+    """
+    Model for accessibility statement-specific check result
+    """
+
+    audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    statement_check = models.ForeignKey(StatementCheck, on_delete=models.PROTECT)
+    type = models.CharField(
+        max_length=20,
+        choices=STATEMENT_CHECK_TYPE_CHOICES,
+        default=STATEMENT_CHECK_TYPE_OTHER,
+    )
+    check_result = models.CharField(
+        max_length=10,
+        choices=STATEMENT_CHECK_CHOICES,
+        default=STATEMENT_CHECK_NOT_TESTED,
+    )
+    report_comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:
+        return str(f"{self.audit} | {self.statement_check}")
