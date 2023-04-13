@@ -506,7 +506,7 @@ class AuditStatement1UpdateView(AuditUpdateView):
         if "add_contact_email" in form.changed_data:
             contact: Contact = Contact.objects.create(
                 case=self.object.case,
-                email=form.cleaned_data.get("add_contact_email", ""),
+                email=form.cleaned_data["add_contact_email"],
                 created_by=self.request.user,
             )
             record_model_create_event(user=self.request.user, model_object=contact)
