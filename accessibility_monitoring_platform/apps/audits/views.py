@@ -81,6 +81,7 @@ from .utils import (
     create_or_update_check_results_for_page,
     get_all_possible_check_results_for_page,
     create_mandatory_pages_for_new_audit,
+    create_statement_checks_for_new_audit,
     get_next_page_url,
     get_next_retest_page_url,
     other_page_failed_check_results,
@@ -127,6 +128,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     audit: Audit = Audit.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=audit)
     create_mandatory_pages_for_new_audit(audit=audit)
+    create_statement_checks_for_new_audit(audit=audit)
     CaseEvent.objects.create(
         case=case,
         done_by=request.user,

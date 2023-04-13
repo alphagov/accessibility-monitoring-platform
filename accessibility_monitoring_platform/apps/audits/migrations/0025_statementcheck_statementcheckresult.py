@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "check_result",
+                    "statement_check_result",
                     models.CharField(
                         choices=[
                             ("yes", "Yes"),

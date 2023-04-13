@@ -154,7 +154,7 @@ def populate_statement_checks(apps, schema_editor):  # pylint: disable=unused-ar
     """Populate statement check base templates"""
     # pylint: disable=invalid-name
     StatementCheck = apps.get_model("audits", "StatementCheck")
-    for count, type_and_label in enumerate(TYPES_AND_LABELS):
+    for count, type_and_label in enumerate(TYPES_AND_LABELS, start=1):
         StatementCheck.objects.create(
             type=type_and_label["type"],
             label=type_and_label["label"],

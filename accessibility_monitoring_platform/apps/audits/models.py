@@ -1011,7 +1011,7 @@ class StatementCheckResult(models.Model):
         choices=STATEMENT_CHECK_TYPE_CHOICES,
         default=STATEMENT_CHECK_TYPE_OTHER,
     )
-    check_result = models.CharField(
+    statement_check_result = models.CharField(
         max_length=10,
         choices=STATEMENT_CHECK_CHOICES,
         default=STATEMENT_CHECK_NOT_TESTED,
