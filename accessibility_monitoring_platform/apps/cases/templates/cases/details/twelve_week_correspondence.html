@@ -31,28 +31,28 @@
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_12_due_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">12-week update requested</th>
-            <td class="govuk-table__cell">{{ case.twelve_week_update_requested_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week update requested</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.twelve_week_update_requested_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">1-week followup due</th>
-            <td class="govuk-table__cell">{{ case.twelve_week_1_week_chaser_due_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">1-week followup due</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.twelve_week_1_week_chaser_due_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">1-week followup sent</th>
-            <td class="govuk-table__cell">{{ case.twelve_week_1_week_chaser_sent_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">1-week followup sent</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.twelve_week_1_week_chaser_sent_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">12-week update received</th>
-            <td class="govuk-table__cell">{{ case.twelve_week_correspondence_acknowledged_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week update received</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.twelve_week_correspondence_acknowledged_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">No response to 12-week deadline</th>
-            <td class="govuk-table__cell">{{ case.get_twelve_week_response_state_display }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">No response to 12-week deadline</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.get_twelve_week_response_state_display }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal">12-week correspondence notes</th>
-            <td class="govuk-table__cell amp-notes">{{ case.twelve_week_correspondence_notes|markdown_to_html }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week correspondence notes</th>
+            <td class="govuk-table__cell amp-notes amp-width-one-half">{{ case.twelve_week_correspondence_notes|markdown_to_html }}</td>
         </tr>
     </tbody>
 </table>
