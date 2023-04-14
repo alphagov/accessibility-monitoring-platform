@@ -858,6 +858,40 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
 
     @property
+    def website_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_WEBSITE)
+
+    @property
+    def compliance_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_COMPLIANCE)
+
+    @property
+    def non_accessible_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_PREPARATION
+        )
+
+    @property
+    def feedback_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_FEEDBACK)
+
+    @property
+    def enforcement_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_ENFORCEMENT
+        )
+
+    @property
+    def other_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OTHER)
+
+    @property
     def failed_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
             statement_check_result=STATEMENT_CHECK_NO

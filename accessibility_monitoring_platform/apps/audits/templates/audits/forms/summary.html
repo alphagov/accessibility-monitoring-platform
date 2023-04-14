@@ -115,14 +115,13 @@
                                 </tr>
                             </thead>
                             <tbody class="govuk-table__body">
-                                {% for statement_check_result in audit.statement_check_results %}
+                                {% for statement_check_result in audit.failed_statement_check_results %}
                                     <tr class="govuk-table__row ">
                                         <td class="govuk-table__cell amp-width-one-half">
                                             {{ statement_check_result.get_type_display }}
                                         </td>
                                         <td class="govuk-table__cell amp-width-one-half">
-                                            {{ statement_check_result.statement_check.label }}
-                                            <i>{{ statement_check_result.get_statement_check_result_display }}</i>
+                                            {{ statement_check_result.statement_check.report_text }}
                                             {% if statement_check_result.report_comment  %}
                                                 <br><br>Auditors comment:
                                                 {{ statement_check_result.report_comment }}
