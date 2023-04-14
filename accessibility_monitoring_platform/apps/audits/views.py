@@ -88,6 +88,13 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_TYPE_WEBSITE,
+    STATEMENT_CHECK_TYPE_COMPLIANCE,
+    STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
+    STATEMENT_CHECK_TYPE_PREPARATION,
+    STATEMENT_CHECK_TYPE_FEEDBACK,
+    STATEMENT_CHECK_TYPE_ENFORCEMENT,
+    STATEMENT_CHECK_TYPE_OTHER,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -507,21 +514,10 @@ class AuditWebsiteDecisionUpdateView(AuditCaseUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementOverviewFormView(AuditUpdateView):
+class AuditStatementCheckingView(AuditUpdateView):
     """
-    View to update statement overview check results
+    View to do statement checks as part of an audit
     """
-
-    form_class: Type[
-        AuditStatementOverviewUpdateForm
-    ] = AuditStatementOverviewUpdateForm
-    template_name: str = "audits/forms/statement_overview.html"
-    statement_check_type: str
-
-    def setup(self, request, *args, **kwargs):
-        """Add audit and page objects to view"""
-        super().setup(request, *args, **kwargs)
-        self.statement_check_type = STATEMENT_CHECK_TYPE_OVERVIEW
 
     def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Populate context data for template rendering"""
@@ -559,6 +555,18 @@ class AuditStatementOverviewFormView(AuditUpdateView):
 
         return super().form_valid(form)
 
+
+class AuditStatementOverviewFormView(AuditStatementCheckingView):
+    """
+    View to update statement overview check results
+    """
+
+    form_class: Type[
+        AuditStatementOverviewUpdateForm
+    ] = AuditStatementOverviewUpdateForm
+    template_name: str = "audits/forms/statement_overview.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
+
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
@@ -571,13 +579,14 @@ class AuditStatementOverviewFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementWebsiteFormView(AuditUpdateView):
+class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     """
     View to update statement website check results
     """
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
     template_name: str = "audits/forms/statement_website.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -587,7 +596,7 @@ class AuditStatementWebsiteFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementComplianceFormView(AuditUpdateView):
+class AuditStatementComplianceFormView(AuditStatementCheckingView):
     """
     View to update statement compliance check results
     """
@@ -596,6 +605,7 @@ class AuditStatementComplianceFormView(AuditUpdateView):
         AuditStatementComplianceUpdateForm
     ] = AuditStatementComplianceUpdateForm
     template_name: str = "audits/forms/statement_compliance.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -605,7 +615,7 @@ class AuditStatementComplianceFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementNonAccessibleFormView(AuditUpdateView):
+class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     """
     View to update statement non-accessible check results
     """
@@ -614,6 +624,7 @@ class AuditStatementNonAccessibleFormView(AuditUpdateView):
         AuditStatementNonAccessibleUpdateForm
     ] = AuditStatementNonAccessibleUpdateForm
     template_name: str = "audits/forms/statement_non_accessible.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -623,7 +634,7 @@ class AuditStatementNonAccessibleFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementPreparationFormView(AuditUpdateView):
+class AuditStatementPreparationFormView(AuditStatementCheckingView):
     """
     View to update statement preparation check results
     """
@@ -632,6 +643,7 @@ class AuditStatementPreparationFormView(AuditUpdateView):
         AuditStatementPreparationUpdateForm
     ] = AuditStatementPreparationUpdateForm
     template_name: str = "audits/forms/statement_preparation.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -641,7 +653,7 @@ class AuditStatementPreparationFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementFeedbackFormView(AuditUpdateView):
+class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     """
     View to update statement feedback check results
     """
@@ -650,6 +662,7 @@ class AuditStatementFeedbackFormView(AuditUpdateView):
         AuditStatementFeedbackUpdateForm
     ] = AuditStatementFeedbackUpdateForm
     template_name: str = "audits/forms/statement_feedback.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -659,7 +672,7 @@ class AuditStatementFeedbackFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementEnforcementFormView(AuditUpdateView):
+class AuditStatementEnforcementFormView(AuditStatementCheckingView):
     """
     View to update statement enforcement check results
     """
@@ -668,6 +681,7 @@ class AuditStatementEnforcementFormView(AuditUpdateView):
         AuditStatementEnforcementUpdateForm
     ] = AuditStatementEnforcementUpdateForm
     template_name: str = "audits/forms/statement_enforcement.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_ENFORCEMENT
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
@@ -677,13 +691,14 @@ class AuditStatementEnforcementFormView(AuditUpdateView):
         return super().get_success_url()
 
 
-class AuditStatementOtherFormView(AuditUpdateView):
+class AuditStatementOtherFormView(AuditStatementCheckingView):
     """
     View to update statement other check results
     """
 
     form_class: Type[AuditStatementOtherUpdateForm] = AuditStatementOtherUpdateForm
     template_name: str = "audits/forms/statement_other.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_OTHER
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
