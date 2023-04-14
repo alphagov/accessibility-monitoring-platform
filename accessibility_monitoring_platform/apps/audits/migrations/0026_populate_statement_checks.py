@@ -173,7 +173,7 @@ An accessibility statement for the website was found but we found the following 
 Accessibility statement section:
 
 {% for statement_check_result in audit.website_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -182,7 +182,7 @@ Accessibility statement section:
 Compliance status section:
 
 {% for statement_check_result in audit.compliance_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -191,7 +191,7 @@ Compliance status section:
 Non accessible content overview section:
 
 {% for statement_check_result in audit.non_accessible_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -200,7 +200,7 @@ Non accessible content overview section:
 Preparation of this accessibility statement section:
 
 {% for statement_check_result in audit.preparation_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -209,7 +209,7 @@ Preparation of this accessibility statement section:
 Feedback and contact information section:
 
 {% for statement_check_result in audit.feedback_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -218,7 +218,7 @@ Feedback and contact information section:
 Enforcement procedure section:
 
 {% for statement_check_result in audit.enforcement_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -227,7 +227,7 @@ Enforcement procedure section:
 Other issues we found:
 
 {% for statement_check_result in audit.other_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% endif %}
@@ -236,7 +236,7 @@ Other issues we found:
 Issues we found:
 
 {% for statement_check_result in audit.overview_failed_statement_check_results %}
-* {{ statement_check_result.statement_check.report_text }}  
+* {{ statement_check_result.statement_check.report_text }}
 {{ statement_check_result.report_comment }}
 {% endfor %}
 {% else %}
@@ -271,11 +271,14 @@ def populate_statement_checks(apps, schema_editor):  # pylint: disable=unused-ar
             position=count,
         )
     BaseTemplate = apps.get_model("reports", "BaseTemplate")
-    statement_base_template = BaseTemplate.objects.get(
-        name="Your accessibility statement"
-    )
-    statement_base_template.content = STATEMENT_BASE_TEMPLATE_CONTENT_NEW
-    statement_base_template.save()
+    try:
+        statement_base_template = BaseTemplate.objects.get(
+            name="Your accessibility statement"
+        )
+        statement_base_template.content = STATEMENT_BASE_TEMPLATE_CONTENT_NEW
+        statement_base_template.save()
+    except BaseTemplate.DoesNotExist:
+        pass
 
 
 def remove_statement_checks(apps, schema_editor):  # pylint: disable=unused-argument
