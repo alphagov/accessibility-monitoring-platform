@@ -53,6 +53,13 @@ from .forms import (
     AuditStatementDecisionUpdateForm,
     CaseStatementDecisionUpdateForm,
     AuditStatementOverviewUpdateForm,
+    AuditStatementWebsiteUpdateForm,
+    AuditStatementComplianceUpdateForm,
+    AuditStatementNonAccessibleUpdateForm,
+    AuditStatementPreparationUpdateForm,
+    AuditStatementFeedbackUpdateForm,
+    AuditStatementEnforcementUpdateForm,
+    AuditStatementOtherUpdateForm,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
@@ -508,10 +515,132 @@ class AuditStatementOverviewFormView(AuditUpdateView):
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        # if "save_continue" in self.request.POST:
-        #     page: Page = self.page
-        #     return get_next_statement_url(audit=audit, current_page=page)
-        return self.request.path
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-website", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementWebsiteFormView(AuditUpdateView):
+    """
+    View to update statement website check results
+    """
+
+    form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
+    template_name: str = "audits/forms/statement_website.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-compliance", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementComplianceFormView(AuditUpdateView):
+    """
+    View to update statement compliance check results
+    """
+
+    form_class: Type[
+        AuditStatementComplianceUpdateForm
+    ] = AuditStatementComplianceUpdateForm
+    template_name: str = "audits/forms/statement_compliance.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-non-accessible", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementNonAccessibleFormView(AuditUpdateView):
+    """
+    View to update statement non-accessible check results
+    """
+
+    form_class: Type[
+        AuditStatementNonAccessibleUpdateForm
+    ] = AuditStatementNonAccessibleUpdateForm
+    template_name: str = "audits/forms/statement_non_accessible.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-preparation", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementPreparationFormView(AuditUpdateView):
+    """
+    View to update statement preparation check results
+    """
+
+    form_class: Type[
+        AuditStatementPreparationUpdateForm
+    ] = AuditStatementPreparationUpdateForm
+    template_name: str = "audits/forms/statement_preparation.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-feedback", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementFeedbackFormView(AuditUpdateView):
+    """
+    View to update statement feedback check results
+    """
+
+    form_class: Type[
+        AuditStatementFeedbackUpdateForm
+    ] = AuditStatementFeedbackUpdateForm
+    template_name: str = "audits/forms/statement_feedback.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-enforcement", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementEnforcementFormView(AuditUpdateView):
+    """
+    View to update statement enforcement check results
+    """
+
+    form_class: Type[
+        AuditStatementEnforcementUpdateForm
+    ] = AuditStatementEnforcementUpdateForm
+    template_name: str = "audits/forms/statement_enforcement.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-statement-other", kwargs=audit_pk)
+        return super().get_success_url()
+
+
+class AuditStatementOtherFormView(AuditUpdateView):
+    """
+    View to update statement other check results
+    """
+
+    form_class: Type[AuditStatementOtherUpdateForm] = AuditStatementOtherUpdateForm
+    template_name: str = "audits/forms/statement_other.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse("audits:edit-audit-summary", kwargs=audit_pk)
+        return super().get_success_url()
 
 
 class AuditStatement1UpdateView(AuditUpdateView):

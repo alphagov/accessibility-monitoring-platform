@@ -446,6 +446,111 @@ class AuditStatementOverviewUpdateForm(VersionForm):
         ]
 
 
+class AuditStatementWebsiteUpdateForm(VersionForm):
+    """
+    Form for editing statement website
+    """
+
+    audit_statement_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_website_complete_date",
+        ]
+
+
+class AuditStatementComplianceUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance
+    """
+
+    audit_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_compliance_complete_date",
+        ]
+
+
+class AuditStatementNonAccessibleUpdateForm(VersionForm):
+    """
+    Form for editing statement non-accessible
+    """
+
+    audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_non_accessible_complete_date",
+        ]
+
+
+class AuditStatementPreparationUpdateForm(VersionForm):
+    """
+    Form for editing statement preparation
+    """
+
+    audit_statement_preparation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_preparation_complete_date",
+        ]
+
+
+class AuditStatementFeedbackUpdateForm(VersionForm):
+    """
+    Form for editing statement feedback
+    """
+
+    audit_statement_feedback_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_feedback_complete_date",
+        ]
+
+
+class AuditStatementEnforcementUpdateForm(VersionForm):
+    """
+    Form for editing statement enforcement
+    """
+
+    audit_statement_enforcement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_enforcement_complete_date",
+        ]
+
+
+class AuditStatementOtherUpdateForm(VersionForm):
+    """
+    Form for editing statement other
+    """
+
+    audit_statement_other_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_other_complete_date",
+        ]
+
+
 class CaseStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
