@@ -850,12 +850,74 @@ class Audit(VersionModel):
         ]
 
     @property
+    def statement_check_results(self) -> bool:
+        return self.statementcheckresult_set.filter(is_deleted=False)
+
+    @property
+    def overview_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
+
+    @property
+    def failed_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            statement_check_result=STATEMENT_CHECK_NO
+        )
+
+    @property
+    def overview_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_OVERVIEW
+        )
+
+    @property
+    def website_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_WEBSITE
+        )
+
+    @property
+    def compliance_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_COMPLIANCE
+        )
+
+    @property
+    def non_accessible_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_PREPARATION
+        )
+
+    @property
+    def feedback_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_FEEDBACK
+        )
+
+    @property
+    def enforcement_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_ENFORCEMENT
+        )
+
+    @property
+    def other_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_OTHER
+        )
+
+    @property
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed"""
         return (
-            self.statementcheckresult_set.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
-            .exclude(statement_check_result=STATEMENT_CHECK_YES)
-            .count()
+            self.overview_statement_check_results.exclude(
+                statement_check_result=STATEMENT_CHECK_YES
+            ).count()
             == 0
         )
 
