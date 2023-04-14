@@ -77,6 +77,7 @@ from .forms import (
     CaseFinalStatementDecisionUpdateForm,
     WcagDefinitionSearchForm,
     WcagDefinitionCreateUpdateForm,
+    StatementCheckResultFormset,
 )
 from .models import (
     Audit,
@@ -84,6 +85,9 @@ from .models import (
     WcagDefinition,
     CheckResult,
     PAGE_TYPE_FORM,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -512,6 +516,48 @@ class AuditStatementOverviewFormView(AuditUpdateView):
         AuditStatementOverviewUpdateForm
     ] = AuditStatementOverviewUpdateForm
     template_name: str = "audits/forms/statement_overview.html"
+    statement_check_type: str
+
+    def setup(self, request, *args, **kwargs):
+        """Add audit and page objects to view"""
+        super().setup(request, *args, **kwargs)
+        self.statement_check_type = STATEMENT_CHECK_TYPE_OVERVIEW
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            statement_check_results_formset: StatementCheckResultFormset = (
+                StatementCheckResultFormset(self.request.POST)
+            )
+        else:
+            statement_check_results_formset: StatementCheckResultFormset = (
+                StatementCheckResultFormset(
+                    queryset=StatementCheckResult.objects.filter(
+                        audit=self.object, type=self.statement_check_type
+                    )
+                )
+            )
+
+        context["statement_check_results_formset"] = statement_check_results_formset
+
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+
+        statement_check_results_formset: StatementCheckResultFormset = context[
+            "statement_check_results_formset"
+        ]
+        if statement_check_results_formset.is_valid():
+            for statement_check_results_form in statement_check_results_formset.forms:
+                statement_check_results_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

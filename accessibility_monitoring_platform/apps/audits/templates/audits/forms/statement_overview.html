@@ -40,11 +40,32 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-							{% if audit.accessibility_statement_initially_found %}
-								{% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
-							{% endif %}
+                            {% if audit.accessibility_statement_initially_found %}
+                                {% include 'common/amp_field_link_button.html' with field=form.accessibility_statement_backup_url %}
+                                {% if audit.accessibility_statement_backup_url_date %}
+                                    <p class="govuk-body amp-margin-top-minus-20"> Added {{ audit.accessibility_statement_backup_url_date }} </p>
+                                {% endif %}
+                            {% else %}
+                                {% include 'audits/helpers/no_statement_warning.html' %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {{ statement_check_results_formset.management_form }}
+                    {% for statement_check_result_form in statement_check_results_formset %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
+                                {% include 'audits/helpers/statement_check_result_field.html' with field=statement_check_result_form.statement_check_result %}
+                                {% include 'common/amp_field.html' with field=statement_check_result_form.report_comment %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'common/amp_field.html' with field=form.audit_statement_overview_complete_date %}
                         </div>
+                    </div>
+                    <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_continue_cancel.html' %}
                         </div>

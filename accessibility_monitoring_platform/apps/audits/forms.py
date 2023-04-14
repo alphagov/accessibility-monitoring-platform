@@ -53,6 +53,9 @@ from .models import (
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
     TEST_TYPE_CHOICES,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -425,6 +428,31 @@ class AuditStatementDecisionUpdateForm(VersionForm):
             "version",
             "audit_statement_decision_complete_date",
         ]
+
+
+class StatementCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single statement check
+    """
+
+    statement_check_result = AMPChoiceRadioField(
+        label="",
+        choices=STATEMENT_CHECK_CHOICES,
+        widget=AMPRadioSelectWidget(),
+    )
+    report_comment = AMPTextField(label="Comments for report")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = [
+            "statement_check_result",
+            "report_comment",
+        ]
+
+
+StatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, StatementCheckResultForm, extra=0
+)
 
 
 class AuditStatementOverviewUpdateForm(VersionForm):
