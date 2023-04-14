@@ -31,6 +31,10 @@ from ..models import (
     RETEST_CHECK_RESULT_FIXED,
     ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
     SCOPE_STATE_VALID,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_YES,
 )
 
 PAGE_NAME = "Page name"
@@ -59,6 +63,17 @@ def create_audit_and_pages() -> Audit:
     ]:
         Page.objects.create(audit=audit, page_type=page_type)
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
+    return audit
+
+
+def create_audit_and_statement_checks() -> Audit:
+    """Create an audit with all types of statement checks"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    for statement_check in StatementCheck.objects.all():
+        StatementCheckResult.objects.create(
+            audit=audit, type=statement_check.type, statement_check=statement_check
+        )
     return audit
 
 
@@ -576,3 +591,27 @@ def test_audit_accessibility_statement_finally_invalid():
     audit.audit_retest_scope_state = SCOPE_STATE_VALID
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
+
+
+@pytest.mark.django_db
+def test_all_overview_statement_checks_have_passed():
+    """
+    Tests an audit has all statement checks on overview set to yes.
+    """
+    audit: Audit = create_audit_and_statement_checks()
+    overview_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit,
+            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+        )
+    )
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    for overview_statement_check_result in overview_statement_check_results:
+        overview_statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        overview_statement_check_result.save()
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.all_overview_statement_checks_have_passed is True

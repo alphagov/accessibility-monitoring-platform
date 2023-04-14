@@ -849,6 +849,16 @@ class Audit(VersionModel):
             if statement_check.finally_invalid
         ]
 
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed"""
+        return (
+            self.statementcheckresult_set.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
+            .exclude(statement_check_result=STATEMENT_CHECK_YES)
+            .count()
+            == 0
+        )
+
 
 class Page(models.Model):
     """
