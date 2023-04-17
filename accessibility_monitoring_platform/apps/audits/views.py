@@ -65,6 +65,7 @@ from .forms import (
     Audit12WeekStatementUpdateForm,
     AuditRetestStatement1UpdateForm,
     AuditRetestStatement2UpdateForm,
+    AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
     WcagDefinitionSearchForm,
@@ -859,6 +860,26 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
 
     form_class: Type[AuditRetestStatement2UpdateForm] = AuditRetestStatement2UpdateForm
     template_name: str = "audits/forms/retest_statement_2.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse(
+                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+            )
+        return super().get_success_url()
+
+
+class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
+    """
+    View to retest statement comparison
+    """
+
+    form_class: Type[
+        AuditRetestStatementComparisonUpdateForm
+    ] = AuditRetestStatementComparisonUpdateForm
+    template_name: str = "audits/forms/retest_statement_comparison.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
