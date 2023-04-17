@@ -166,6 +166,7 @@
                 </div>
             </div>
 
+            {% if audit.accessibility_statement_initially_found %}
             <div class="govuk-accordion__section ">
                 <div class="govuk-accordion__section-header">
                     <h2 id="audit-retest-statement-comparison" class="govuk-accordion__section-heading">
@@ -182,6 +183,7 @@
                     {% include 'audits/details/retest_statement_comparison.html' %}
                 </div>
             </div>
+            {% endif %}
 
             <div class="govuk-accordion__section ">
                 <div class="govuk-accordion__section-header">

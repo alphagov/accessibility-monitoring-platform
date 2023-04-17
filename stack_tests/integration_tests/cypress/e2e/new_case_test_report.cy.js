@@ -147,6 +147,9 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement Pt. 2`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement compliance decision`)
     cy.contains('Save and exit').click()
 
