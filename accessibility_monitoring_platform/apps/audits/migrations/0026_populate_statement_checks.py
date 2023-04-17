@@ -165,91 +165,109 @@ STATEMENT_BASE_TEMPLATE_CONTENT_NEW: str = """As part of the regulations you mus
 
 {% if audit.statement_check_results %}
 
-{% if audit.website_failed_statement_check_results or audit.compliance_failed_statement_check_results or audit.non_accessible_failed_statement_check_results or audit.preparation_failed_statement_check_results or audit.feedback_failed_statement_check_results or audit.enforcement_failed_statement_check_results or audit.other_failed_statement_check_results %}
+    {% if audit.website_failed_statement_check_results or audit.compliance_failed_statement_check_results or audit.non_accessible_failed_statement_check_results or audit.preparation_failed_statement_check_results or audit.feedback_failed_statement_check_results or audit.enforcement_failed_statement_check_results or audit.other_failed_statement_check_results %}
 
 An accessibility statement for the website was found but we found the following issues. The issues have been separated by section.
 
-{% if audit.website_failed_statement_check_results %}
+        {% if audit.website_failed_statement_check_results %}
 Accessibility statement section:
 
-{% for statement_check_result in audit.website_failed_statement_check_results %}
+            {% for statement_check_result in audit.website_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.compliance_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.compliance_failed_statement_check_results %}
 Compliance status section:
 
-{% for statement_check_result in audit.compliance_failed_statement_check_results %}
+            {% for statement_check_result in audit.compliance_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.non_accessible_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.non_accessible_failed_statement_check_results %}
 Non accessible content overview section:
 
-{% for statement_check_result in audit.non_accessible_failed_statement_check_results %}
+            {% for statement_check_result in audit.non_accessible_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.preparation_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.preparation_failed_statement_check_results %}
 Preparation of this accessibility statement section:
 
-{% for statement_check_result in audit.preparation_failed_statement_check_results %}
+            {% for statement_check_result in audit.preparation_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.feedback_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.feedback_failed_statement_check_results %}
 Feedback and contact information section:
 
-{% for statement_check_result in audit.feedback_failed_statement_check_results %}
+            {% for statement_check_result in audit.feedback_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.enforcement_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.enforcement_failed_statement_check_results %}
 Enforcement procedure section:
 
-{% for statement_check_result in audit.enforcement_failed_statement_check_results %}
+            {% for statement_check_result in audit.enforcement_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% if audit.other_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+        {% if audit.other_failed_statement_check_results %}
 Other issues we found:
 
-{% for statement_check_result in audit.other_failed_statement_check_results %}
+            {% for statement_check_result in audit.other_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% endif %}
 
-{% elif audit.overview_failed_statement_check_results %}
+    {{ statement_check_result.report_comment }}
+
+            {% endfor %}
+        {% endif %}
+
+    {% elif audit.overview_failed_statement_check_results %}
 Issues we found:
 
-{% for statement_check_result in audit.overview_failed_statement_check_results %}
+        {% for statement_check_result in audit.overview_failed_statement_check_results %}
 * {{ statement_check_result.statement_check.report_text }}
-{{ statement_check_result.report_comment }}
-{% endfor %}
-{% else %}
+
+    {{ statement_check_result.report_comment }}
+
+        {% endfor %}
+    {% else %}
 EVERYTHING IS FINE, NOTHING TO SEE HERE, MOVE ALONG.
-{% endif %}
+    {% endif %}
 
 {% else %}
 {{ audit.get_accessibility_statement_state_display }}
 
-{% for issue in audit.report_accessibility_issues %}
-* {{ issue }}{% if issue == 'mandatory wording is missing' %}
-{{ audit.accessibility_statement_missing_mandatory_wording_notes }}{% endif %}
-{% endfor %}
+    {% for issue in audit.report_accessibility_issues %}
+* {{ issue }}
+        {% if issue == 'mandatory wording is missing' %}
+    {{ audit.accessibility_statement_missing_mandatory_wording_notes }}
+        {% endif %}
+    {% endfor %}
 
 More information about accessibility statements can be found at [https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps).
 
