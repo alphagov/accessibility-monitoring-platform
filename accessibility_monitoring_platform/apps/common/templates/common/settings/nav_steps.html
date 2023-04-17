@@ -32,6 +32,14 @@
         {% endif %}
     </p>
     <p class="govuk-body-m">
+        {% if current == 'audits:statement-check-list' %}
+            Statement issues editor
+        {% else %}
+            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:statement-check-list' %}">
+                Statement issues editor</a>
+        {% endif %}
+    </p>
+    <p class="govuk-body-m">
         {% if current == 'common:platform-history' %}
             Platform version history
         {% else %}

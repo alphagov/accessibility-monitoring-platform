@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Statement issues editor{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/settings/breadcrumbs.html' with current='Statement issues editor' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'common/settings/nav_steps.html' with current='audits:statement-check-list' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement issues editor</h1>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-three-quarters">
+                        <p class="govuk-body-m">
+                            Statement issues editor changes how the statement issues are displayed
+                            in the testing UI and the report.
+                        </p>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter">
+                        <a
+                            href="{% url 'audits:statement-check-create' %}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button float-right"
+                            data-module="govuk-button"
+                        >
+                            Create
+                        </a>
+                    </div>
+                </div>
+                <form method="get" action="{% url 'audits:statement-check-list' %}">
+                    <span class="govuk-visually-hidden">Search statement issues:</span>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-form-group">
+                            {{ statement_check_search_form.statement_check_search }}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Search"
+                                name="search"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:statement-check-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <p class="govuk-body-m">
+                    Displaying {{ paginator.count }}
+                    Statement check{% if paginator.count != 1 %}s{% endif %}.
+                </p>
+                {% include "common/pagination_controls.html" %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                    {% for statement_check in statement_checks %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                <div class="govuk-grid-row">
+                                    <div class="govuk-grid-column-three-quarters">
+                                        <h2 class="govuk-heading-m">{{ statement_check.label }}</h2>
+                                    </div>
+                                    <div class="govuk-grid-column-one-quarter">
+                                        <div class="govuk-button-group amp-flex-end">
+                                            <a
+                                                href="{% url 'audits:statement-check-update' statement_check.id %}"
+                                                class="govuk-link govuk-link--no-visited-state"
+                                            >
+                                                Edit
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="govuk-body-m amp-label">Statement section</p>
+                                <p class="govuk-body-m">
+                                    {{ statement_check.get_type_display }}
+                                </p>
+                                <p class="govuk-body-m amp-label">Success criteria</p>
+                                <p class="govuk-body-m">
+                                    {% if statement_check.success_criteria %}
+                                        {{ statement_check.success_criteria }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
+                                <p class="govuk-body-m amp-label">Report text</p>
+                                <p class="govuk-body-m">
+                                    {% if statement_check.report_text %}
+                                        {{ statement_check.report_text }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% include "common/pagination_controls.html" %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

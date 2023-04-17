@@ -78,6 +78,8 @@ from .forms import (
     WcagDefinitionSearchForm,
     WcagDefinitionCreateUpdateForm,
     StatementCheckResultFormset,
+    StatementCheckSearchForm,
+    StatementCheckCreateUpdateForm,
 )
 from .models import (
     Audit,
@@ -1242,3 +1244,90 @@ def clear_published_report_data_updated_time(
         reverse("cases:case-detail", kwargs={"pk": audit.case.id}),
     )
     return redirect(redirect_destination)
+
+
+class StatementCheckListView(ListView):
+    """
+    View of list of statement checks
+    """
+
+    model: Type[StatementCheck] = StatementCheck
+    template_name: str = "audits/statement_check_list.html"
+    context_object_name: str = "statement_checks"
+    paginate_by: int = 10
+
+    def get(self, request, *args, **kwargs):
+        """Populate filter form"""
+        if self.request.GET:
+            self.statement_check_search_form: StatementCheckSearchForm = (
+                StatementCheckSearchForm(self.request.GET)
+            )
+            self.statement_check_search_form.is_valid()
+        else:
+            self.statement_check_search_form = StatementCheckSearchForm()
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self) -> QuerySet[StatementCheck]:
+        """Add filters to queryset"""
+        if self.statement_check_search_form.errors:
+            return StatementCheck.objects.none()
+
+        if hasattr(self.statement_check_search_form, "cleaned_data"):
+            search_str: Optional[
+                str
+            ] = self.statement_check_search_form.cleaned_data.get(
+                "statement_check_search"
+            )
+
+            if search_str:
+                return StatementCheck.objects.filter(
+                    Q(  # pylint: disable=unsupported-binary-operation
+                        label__icontains=search_str
+                    )
+                    | Q(type__icontains=search_str)
+                    | Q(success_criteria__icontains=search_str)
+                    | Q(report_text__icontains=search_str)
+                )
+
+        return StatementCheck.objects.all()
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        context["statement_check_search_form"] = self.statement_check_search_form
+
+        get_without_page: Dict[str, Union[str, List[object]]] = {
+            key: value for (key, value) in self.request.GET.items() if key != "page"
+        }
+        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        return context
+
+
+class StatementCheckCreateView(CreateView):
+    """
+    View to create a statement check
+    """
+
+    model: Type[StatementCheck] = StatementCheck
+    form_class: Type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
+    template_name: str = "audits/forms/statement_check_create.html"
+    context_object_name: str = "statement_check"
+
+    def get_success_url(self) -> str:
+        """Return to list of statement checks"""
+        return reverse("audits:statement-check-list")
+
+
+class StatementCheckUpdateView(UpdateView):
+    """
+    View to update a WCAG definition
+    """
+
+    model: Type[StatementCheck] = StatementCheck
+    form_class: Type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
+    template_name: str = "audits/forms/statement_check_update.html"
+    context_object_name: str = "statement_check"
+
+    def get_success_url(self) -> str:
+        """Return to list of WCAG definitions"""
+        return reverse("audits:wcag-definition-list")

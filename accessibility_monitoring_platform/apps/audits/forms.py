@@ -56,6 +56,7 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_CHOICES,
+    STATEMENT_CHECK_TYPE_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -1226,4 +1227,41 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
             "url_on_w3",
             "description",
             "report_boilerplate",
+        ]
+
+
+class StatementCheckSearchForm(forms.Form):
+    """
+    Form for searching for statement checks
+    """
+
+    statement_check_search = AMPCharFieldWide(
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input",
+                "placeholder": "Search term",
+            }
+        )
+    )
+
+
+class StatementCheckCreateUpdateForm(forms.ModelForm):
+    """
+    Form for creating statement check
+    """
+
+    label = AMPCharFieldWide(label="Name", required=True)
+    type = AMPChoiceField(
+        label="Statement section", choices=STATEMENT_CHECK_TYPE_CHOICES
+    )
+    success_criteria = AMPCharFieldWide(label="Success criteria")
+    report_text = AMPCharFieldWide(label="Report text")
+
+    class Meta:
+        model = StatementCheck
+        fields: List[str] = [
+            "label",
+            "type",
+            "success_criteria",
+            "report_text",
         ]

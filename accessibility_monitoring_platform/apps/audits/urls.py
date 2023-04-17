@@ -39,6 +39,9 @@ from .views import (
     WcagDefinitionListView,
     WcagDefinitionCreateView,
     WcagDefinitionUpdateView,
+    StatementCheckListView,
+    StatementCheckCreateView,
+    StatementCheckUpdateView,
     create_audit,
     delete_page,
     restore_page,
@@ -232,5 +235,20 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/clear-outdated-published-report-warning/",
         login_required(clear_published_report_data_updated_time),
         name="clear-outdated-published-report-warning",
+    ),
+    path(
+        "statement-check-list/",
+        login_required(StatementCheckListView.as_view()),
+        name="statement-check-list",
+    ),
+    path(
+        "statement-check-create/",
+        login_required(StatementCheckCreateView.as_view()),
+        name="statement-check-create",
+    ),
+    path(
+        "<int:pk>/edit-statement-check/",
+        login_required(StatementCheckUpdateView.as_view()),
+        name="statement-check-update",
     ),
 ]
