@@ -1,4 +1,4 @@
-<div class="govuk-grid-row">
+<div {% if on_view_case %}id="audit-retest-statement-comparison" {% endif %}class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <p class="govuk-body-m">
             <b>12-week accessibility statement comparison</b>
@@ -11,4 +11,4 @@
         </p>
     </div>
 </div>
-{% include 'audits/helpers/statement_comparison.html' %}
+{% include 'audits/helpers/statement_comparison.html' with in_accordion=True %}
