@@ -166,6 +166,25 @@
                 </div>
             </div>
 
+            {% if audit.accessibility_statement_initially_found %}
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-comparison" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-comparison">
+                            12-week accessibility statement comparison
+                            {% if audit.audit_retest_statement_comparison_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-comparison" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-comparison">
+                    {% include 'audits/details/retest_statement_comparison.html' %}
+                </div>
+            </div>
+            {% endif %}
+
             <div class="govuk-accordion__section ">
                 <div class="govuk-accordion__section-header">
                     <h2 id="audit-retest-statement-decision" class="govuk-accordion__section-heading">
