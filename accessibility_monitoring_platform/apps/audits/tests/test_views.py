@@ -406,6 +406,16 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-audit-retest-statement-2",
             "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+        (
+            "audits:edit-audit-retest-statement-comparison",
+            "save",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+        (
+            "audits:edit-audit-retest-statement-comparison",
+            "save_continue",
             "audits:edit-audit-retest-statement-decision",
         ),
         (
