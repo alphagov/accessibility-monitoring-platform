@@ -467,7 +467,7 @@ class AuditStatementOverviewUpdateForm(VersionForm):
     audit_statement_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Case
+        model = Audit
         fields: List[str] = [
             "version",
             "accessibility_statement_backup_url",
@@ -1149,6 +1149,46 @@ class AuditRetestStatement2UpdateForm(VersionForm):
             "audit_retest_access_requirements_state",
             "audit_retest_access_requirements_notes",
             "audit_retest_statement_2_complete_date",
+        ]
+
+
+class RetestStatementCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single statement check retest
+    """
+
+    retest_check_result = AMPChoiceRadioField(
+        label="",
+        choices=STATEMENT_CHECK_CHOICES,
+        widget=AMPRadioSelectWidget(),
+    )
+    retest_comment = AMPTextField(label="Retest comments")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = [
+            "retest_check_result",
+            "retest_comment",
+        ]
+
+
+RetestStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, RetestStatementCheckResultForm, extra=0
+)
+
+
+class AuditRetestStatementOverviewUpdateForm(VersionForm):
+    """
+    Form for editing statement overview
+    """
+
+    audit_retest_statement_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_overview_complete_date",
         ]
 
 

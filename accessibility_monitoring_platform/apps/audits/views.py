@@ -73,6 +73,8 @@ from .forms import (
     Audit12WeekStatementUpdateForm,
     AuditRetestStatement1UpdateForm,
     AuditRetestStatement2UpdateForm,
+    RetestStatementCheckResultFormset,
+    AuditRetestStatementOverviewUpdateForm,
     AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
@@ -1036,7 +1038,10 @@ class AuditRetestWebsiteDecisionUpdateView(AuditCaseUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
+            if audit.uses_statement_checks:
+                return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
             return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -1088,6 +1093,73 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
             return reverse(
                 "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
             )
+        return super().get_success_url()
+
+
+class AuditRetestStatementCheckingView(AuditUpdateView):
+    """
+    View to do statement checks as part of an audit retest
+    """
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            retest_statement_check_results_formset: RetestStatementCheckResultFormset = RetestStatementCheckResultFormset(
+                self.request.POST
+            )
+        else:
+            retest_statement_check_results_formset: RetestStatementCheckResultFormset = RetestStatementCheckResultFormset(
+                queryset=StatementCheckResult.objects.filter(
+                    audit=self.object, type=self.statement_check_type
+                )
+            )
+
+        context[
+            "retest_statement_check_results_formset"
+        ] = retest_statement_check_results_formset
+
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+
+        retest_statement_check_results_formset: RetestStatementCheckResultFormset = (
+            context["retest_statement_check_results_formset"]
+        )
+        if retest_statement_check_results_formset.is_valid():
+            for (
+                retest_statement_check_results_form
+            ) in retest_statement_check_results_formset.forms:
+                retest_statement_check_results_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+
+class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
+    """
+    View to update statement overview check results retest
+    """
+
+    form_class: Type[
+        AuditRetestStatementOverviewUpdateForm
+    ] = AuditRetestStatementOverviewUpdateForm
+    template_name: str = "audits/forms/retest_statement_overview.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit: Audit = self.object
+            audit_pk: Dict[str, int] = {"pk": audit.id}
+            if audit.all_overview_statement_checks_have_passed:
+                return reverse("audits:edit-statement-website", kwargs=audit_pk)
+            else:
+                return reverse("audits:edit-audit-summary", kwargs=audit_pk)
         return super().get_success_url()
 
 

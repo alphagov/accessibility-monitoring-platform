@@ -681,6 +681,44 @@ class Audit(VersionModel):
     audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
     audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement checking overview
+    audit_retest_statement_overview_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking website
+    audit_retest_statement_website_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking compliance
+    audit_retest_statement_compliance_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking non-accessible content
+    audit_retest_statement_non_accessible_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking preparation
+    audit_retest_statement_preparation_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking feedback
+    audit_retest_statement_feedback_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking enforcement
+    audit_retest_statement_enforcement_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking other
+    audit_retest_statement_other_complete_date = models.DateField(null=True, blank=True)
+
     # Retest statement comparison
     audit_retest_statement_comparison_complete_date = models.DateField(
         null=True, blank=True
@@ -1157,6 +1195,12 @@ class StatementCheckResult(models.Model):
         default=STATEMENT_CHECK_NOT_TESTED,
     )
     report_comment = models.TextField(default="", blank=True)
+    retest_check_result = models.CharField(
+        max_length=10,
+        choices=STATEMENT_CHECK_CHOICES,
+        default=STATEMENT_CHECK_NOT_TESTED,
+    )
+    retest_comment = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
