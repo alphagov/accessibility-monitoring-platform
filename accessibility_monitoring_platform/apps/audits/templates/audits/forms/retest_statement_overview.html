@@ -2,7 +2,7 @@
 
 {% load l10n %}
 
-{% block title %}{{ audit.case.organisation_name }} | 12-week statement overview{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | 12-week accessibility statement overview{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -18,14 +18,14 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                12-week statement overview
+                12-week accessibility statement overview
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% include "cases/helpers/edit_header.html" with page_heading='12-week statement overview' case=audit.case %}
+                {% include "cases/helpers/edit_header.html" with page_heading='12-week accessibility statement overview' case=audit.case %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -45,7 +45,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-audit-retest-website-decision' %}
+                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-retest-statement-overview' %}
             </div>
         </div>
     </main>
