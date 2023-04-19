@@ -57,16 +57,7 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-is_website_compliant"]').check('not-compliant')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement Pt. 1`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement Pt. 2`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement compliance decision`)
-    cy.contains('Save and continue').click()
-
-    cy.title().should('eq', `${newOrganisationName} | Report options`)
+    cy.title().should('eq', `${newOrganisationName} | Statement overview`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)

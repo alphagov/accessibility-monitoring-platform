@@ -9,7 +9,13 @@ from django.core.management.base import BaseCommand
 from django.db import connection, models
 
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
-from ....audits.models import Audit, CheckResult, Page, WcagDefinition
+from ....audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    StatementCheckResult,
+)
 from ....cases.models import Case, CaseEvent, Contact
 from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
@@ -59,7 +65,14 @@ class Command(BaseCommand):
         """Reset database for integration tests"""
 
         delete_from_models(
-            [CheckResult, Page, Audit, WcagDefinition, UserCacheUniqueHash]
+            [
+                StatementCheckResult,
+                CheckResult,
+                Page,
+                Audit,
+                WcagDefinition,
+                UserCacheUniqueHash,
+            ]
         )
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
