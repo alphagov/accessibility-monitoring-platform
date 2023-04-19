@@ -858,6 +858,10 @@ class Audit(VersionModel):
         return self.statementcheckresult_set.filter(is_deleted=False)
 
     @property
+    def uses_statement_checks(self) -> bool:
+        return self.statement_check_results.count() > 0
+
+    @property
     def overview_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
 

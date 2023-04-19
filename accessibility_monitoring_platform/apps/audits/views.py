@@ -514,7 +514,7 @@ class AuditWebsiteDecisionUpdateView(AuditCaseUpdateView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            if audit.accessibility_statement_checks:
+            if audit.uses_statement_checks:
                 return reverse("audits:edit-statement-overview", kwargs=audit_pk)
             return reverse("audits:edit-audit-statement-1", kwargs=audit_pk)
         return super().get_success_url()
