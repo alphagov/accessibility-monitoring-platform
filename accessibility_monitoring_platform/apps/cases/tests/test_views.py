@@ -333,27 +333,30 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_sent_to_enforcement_body_sent_date_filters(admin_client):
+@pytest.mark.parametrize(
+    "filter_field_name",
+    ["sent_to_enforcement_body_sent_date", "case_updated_date"],
+)
+def test_case_list_view_date_filters(filter_field_name, admin_client):
     """
-    Test that the case list view page can be filtered by date range on sent to
-    enforcement body sent date.
+    Test that the case list view page can be filtered by date range on a field.
     """
-    included_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(
+        included_case,
+        filter_field_name,
+        datetime(year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    included_case.save()
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    setattr(
+        excluded_case,
+        filter_field_name,
+        datetime(year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    Case.objects.create(
-        organisation_name="Included",
-        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
-    )
-    Case.objects.create(
-        organisation_name="Excluded",
-        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
-    )
+    excluded_case.save()
 
-    url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = f"date_type={filter_field_name}&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
