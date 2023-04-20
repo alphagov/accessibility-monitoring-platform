@@ -4,8 +4,6 @@ Test utility functions of reports app
 import pytest
 from typing import List, Set
 
-from django.template import Context, Template
-
 from ...audits.models import (
     Audit,
     CheckResult,
@@ -21,15 +19,13 @@ from ...cases.models import Case
 from ..models import (
     TEMPLATE_TYPE_ISSUES_TABLE,
     Report,
-    BaseTemplate,
     ReportVisitsMetrics,
 )
 from ..utils import (
-    Section,
+    IssueTable,
     TableRow,
-    build_report_sections,
+    build_issues_tables,
     build_issue_table_rows,
-    build_url_table_rows,
     get_report_visits_metrics,
 )
 
@@ -39,52 +35,6 @@ PDF_PAGE_NAME: str = "PDF name"
 HOME_PAGE_URL: str = "https://example.com/home"
 PDF_PAGE_URL: str = "https://example.com/pdf"
 CHECK_RESULT_NOTES: str = "Check results note <span>including HTML</span>"
-
-
-@pytest.mark.django_db
-def test_build_report_sections():
-    """Test build_report_sections uses BaseTemplates to build sections"""
-    top_level_base_templates: List[BaseTemplate] = list(
-        BaseTemplate.objects.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
-    )
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    context: Context = Context({"audit": audit})
-    report: Report = Report.objects.create(case=case)
-
-    sections: List[Section] = build_report_sections(report=report)
-
-    assert len(top_level_base_templates) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
-    assert len(sections) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
-
-    for section, base_template in zip(sections, top_level_base_templates):
-        assert section.name == base_template.name
-        assert section.template_type == base_template.template_type
-        assert section.position == base_template.position
-
-        template: Template = Template(base_template.content)
-        assert section.content == template.render(context=context)
-
-
-@pytest.mark.django_db
-def test_build_url_table_rows():
-    """Test url table rows built for page"""
-    case: Case = Case.objects.create()
-    audit: Audit = Audit.objects.create(case=case)
-    Page.objects.create(
-        audit=audit,
-        name=HOME_PAGE_NAME,
-        page_type=PAGE_TYPE_HOME,
-        url=HOME_PAGE_URL,
-    )
-    report: Report = Report.objects.create(case=case)
-
-    table_rows: List[TableRow] = build_url_table_rows(report=report)
-
-    assert len(table_rows) == 1
-
-    assert HOME_PAGE_NAME in table_rows[0].cell_content_1
-    assert HOME_PAGE_URL in table_rows[0].cell_content_2
 
 
 @pytest.mark.django_db
@@ -157,11 +107,11 @@ def test_report_boilerplate_shown_only_once():
         check_result_state=CHECK_RESULT_ERROR,
     )
 
-    sections: List[Section] = build_report_sections(report=report)
+    issues_tables: List[IssueTable] = build_issues_tables(report=report)
 
     table_rows: List[TableRow] = []
-    for section in sections:
-        for table_row in section.table_rows:
+    for issues_table in issues_tables:
+        for table_row in issues_table.rows:
             if wcag_definition.name in table_row.cell_content_1:
                 table_rows.append(table_row)
 
@@ -174,8 +124,8 @@ def test_report_boilerplate_shown_only_once():
 
 
 @pytest.mark.django_db
-def test_generate_report_content_issues_table_sections():
-    """Test report contains issues table sections for each page"""
+def test_generate_report_content_issues_tables():
+    """Test report contains issues tables for each page"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     Page.objects.create(
@@ -192,18 +142,12 @@ def test_generate_report_content_issues_table_sections():
     )
     report: Report = Report.objects.create(case=case)
 
-    sections: List[Section] = build_report_sections(report=report)
+    issues_tables: List[IssueTable] = build_issues_tables(report=report)
 
-    issues_table_sections: List[Section] = [
-        section
-        for section in sections
-        if section.template_type == TEMPLATE_TYPE_ISSUES_TABLE
-    ]
+    assert len(issues_tables) == 2
 
-    assert len(issues_table_sections) == 2
-
-    assert issues_table_sections[0].name == f"{HOME_PAGE_NAME} page issues"
-    assert issues_table_sections[1].name == f"{PDF_PAGE_NAME} issues"
+    assert issues_tables[0].page.name == HOME_PAGE_NAME
+    assert issues_tables[1].page.name == PDF_PAGE_NAME
 
 
 @pytest.mark.django_db

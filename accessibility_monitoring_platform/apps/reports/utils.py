@@ -4,21 +4,14 @@ Utilities for reports app
 """
 from typing import Dict, List, Optional, Set
 
-from django.db.models import QuerySet
 from django.template import Context, Template
 from django.utils.text import slugify
 
 from ..cases.models import Case
 
-from ..audits.models import Page, PAGE_TYPE_PDF, WcagDefinition
+from ..audits.models import Page, WcagDefinition
 
-from .models import (
-    Report,
-    BaseTemplate,
-    TEMPLATE_TYPE_URLS,
-    TEMPLATE_TYPE_ISSUES_INTRO,
-    TEMPLATE_TYPE_ISSUES_TABLE,
-)
+from .models import Report
 
 WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """{% if wcag_definition.url_on_w3 %}[{{ wcag_definition.name }}]({{ wcag_definition.url_on_w3 }}){% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% else %}{{ wcag_definition.name }}{% if wcag_definition.description and wcag_definition.type != 'manual' %}: {% endif %}{% endif %}{% if wcag_definition.description and wcag_definition.type != 'manual' %}{{ wcag_definition.description|safe }}.{% endif %}
 {% if first_use_of_wcag_definition %}
@@ -80,86 +73,41 @@ class TableRow:
         self.row_number = row_number
 
 
-def build_issues_tables(report: Report) -> List[List[TableRow]]:
+class IssueTable:
+    """
+    Class for issue table in
+    """
+
+    def __init__(self, page: Page, rows: List[TableRow]):
+        self.page = page
+        self.rows = rows
+
+    @property
+    def anchor(self) -> str:
+        return f"issues-{slugify(self.page)}"
+
+
+def build_issues_tables(report: Report) -> List[IssueTable]:
     """
     Generate content of issues tables for report.
 
     Args:
         report (Report): Report for which content is generated.
     """
-    issues_tables: List[List[TableRow]] = []
+    issues_tables: List[IssueTable] = []
     if report.case.audit:
         used_wcag_definitions: Set[WcagDefinition] = set()
         for page in report.case.audit.testable_pages:
             issues_tables.append(
-                build_issue_table_rows(
+                IssueTable(
                     page=page,
-                    used_wcag_definitions=used_wcag_definitions,
+                    rows=build_issue_table_rows(
+                        page=page,
+                        used_wcag_definitions=used_wcag_definitions,
+                    ),
                 )
             )
     return issues_tables
-
-    top_level_base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.exclude(
-        template_type=TEMPLATE_TYPE_ISSUES_TABLE
-    )
-    issues_table_base_template: BaseTemplate = BaseTemplate.objects.get(
-        template_type=TEMPLATE_TYPE_ISSUES_TABLE
-    )
-    context: Context = Context({"audit": report.case.audit})
-    issues_table_template: Template = Template(issues_table_base_template.content)
-    section_position: int = 0
-    used_wcag_definitions: Set[WcagDefinition] = set()
-    sections: List[Section] = []
-
-    for base_template in top_level_base_templates:
-        template: Template = Template(base_template.content)
-        section_position += 1
-        if base_template.editable_url_name and report.case.audit:
-            editable_id: int = report.case.audit.id
-        else:
-            editable_id: Optional[int] = None
-        section: Section = Section(
-            name=base_template.name,
-            template_type=base_template.template_type,
-            content=template.render(context=context),
-            position=section_position,
-            new_page=base_template.new_page,
-            editable_url_name=base_template.editable_url_name,
-            editable_url_label=base_template.editable_url_label,
-            editable_id=editable_id,
-        )
-        if report.case.audit:
-            if section.template_type == TEMPLATE_TYPE_ISSUES_INTRO:
-                # Create an issues table section for each testable page
-                sections.append(section)
-                for page in report.case.audit.testable_pages:
-                    page_context: Context = Context({"page": page})
-                    section_position += 1
-                    section_name: str = (
-                        f"{page} page issues"
-                        if page.page_type != PAGE_TYPE_PDF
-                        else f"{page} issues"
-                    )
-                    page_section: Section = Section(
-                        name=section_name,
-                        template_type=TEMPLATE_TYPE_ISSUES_TABLE,
-                        content=issues_table_template.render(context=page_context),
-                        position=section_position,
-                        new_page=issues_table_base_template.new_page,
-                        editable_url_name="audits:edit-audit-page-checks",
-                        editable_url_label=f"Edit test > {page}",
-                        editable_id=page.id,
-                    )
-                    page_section.table_rows = build_issue_table_rows(
-                        page=page,
-                        used_wcag_definitions=used_wcag_definitions,
-                    )
-                    sections.append(page_section)
-            else:
-                sections.append(section)
-        else:
-            sections.append(section)
-    return sections
 
 
 def build_issue_table_rows(

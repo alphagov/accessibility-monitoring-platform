@@ -29,13 +29,9 @@ from ...cases.models import (
 from ...s3_read_write.models import S3Report
 
 from ..models import (
-    BaseTemplate,
     Report,
     ReportVisitsMetrics,
 )
-
-SECTION_NAME: str = "Section name"
-SECTION_CONTENT: str = "I am section content"
 
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
@@ -50,13 +46,6 @@ def create_report() -> Report:
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
-
-
-def create_section() -> BaseTemplate:
-    """Create section in report"""
-    return BaseTemplate.objects.create(
-        name=SECTION_NAME, content=SECTION_CONTENT, position=1
-    )
 
 
 def test_create_report_redirects(admin_client):
@@ -153,7 +142,10 @@ def test_report_published_message_shown(admin_client):
     "path_name, expected_header",
     [
         ("reports:edit-report-notes", ">Notes</h1>"),
-        ("reports:report-publisher", f"<p>{SECTION_CONTENT}</p>"),
+        (
+            "reports:report-publisher",
+            "<li>which parts of your website we looked at</li>",
+        ),
         (
             "reports:report-confirm-publish",
             "Unable to publish report without QA approval",
@@ -164,7 +156,6 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    create_section()
 
     response: HttpResponse = admin_client.get(
         reverse(path_name, kwargs=report_pk_kwargs)
@@ -350,7 +341,6 @@ def test_report_publisher_page_shows_ready_to_review(admin_client):
     """
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
-    create_section()
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publisher", kwargs=report_pk_kwargs)

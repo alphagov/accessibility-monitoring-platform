@@ -2,7 +2,29 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <div class="amp-left-border">
         <ul class="govuk-list">
-            {% include './nav_content.html' with anchor='report-start' name='Start of report' %}
+            {% include './nav_content.html' with anchor='report-section-1' name='Introduction' %}
+            {% include './nav_content.html' with anchor='report-section-2' name='How accessible the website is' %}
+            {% include './nav_content.html' with anchor='report-section-3' name='How we checked' %}
+            {% include './nav_content.html' with anchor='report-section-4' name='Pages we checked' %}
+            <li>
+                <a href="#report-section-5" class="govuk-link govuk-link--no-visited-state">
+                    The issues we found</a>
+                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
+                    {% for issues_table in issues_tables %}
+                        <li>
+                            <a href="#{{ issues_table.anchor }}" class="govuk-link govuk-link--no-visited-state">
+                                {{ issues_table.page }}</a>
+                            | <a href="{% url 'audits:edit-audit-page-checks' issues_table.page.id  %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit test &gt; {{ issues_table.page }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% include './nav_content.html' with anchor='report-section-6' name='Your accessibility statement' %}
+            {% include './nav_content.html' with anchor='report-section-7' name='What to do next' %}
+            {% include './nav_content.html' with anchor='report-section-8' name='Enforcement' %}
+            {% include './nav_content.html' with anchor='report-section-9' name='Contact and more information' %}
+
             {% for section in sections %}
                 {% if section.template_type == 'issues' %}
                     <li>

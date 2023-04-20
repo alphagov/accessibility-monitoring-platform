@@ -128,29 +128,6 @@ class Report(VersionModel):
         return self.case.s3report_set.filter(latest_published=True).last()
 
 
-class BaseTemplate(VersionModel):
-    """
-    Model for base template (for new reports)
-    """
-
-    created = models.DateTimeField(auto_now_add=True)
-    name = models.TextField()
-    template_type = models.CharField(
-        max_length=20, choices=TEMPLATE_TYPE_CHOICES, default=TEMPLATE_TYPE_DEFAULT
-    )
-    content = models.TextField(default="", blank=True)
-    position = models.IntegerField()
-    new_page = models.BooleanField(default=True)
-    editable_url_name = models.TextField(default="", blank=True)
-    editable_url_label = models.TextField(default="", blank=True)
-
-    class Meta:
-        ordering = ["position", "-id"]
-
-    def __str__(self) -> str:
-        return str(f"{self.name}" f" (position {self.position})")
-
-
 class ReportVisitsMetrics(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     case = models.ForeignKey(
