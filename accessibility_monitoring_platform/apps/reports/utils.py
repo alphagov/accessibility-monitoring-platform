@@ -80,13 +80,25 @@ class TableRow:
         self.row_number = row_number
 
 
-def build_report_sections(report: Report) -> List[Section]:
+def build_issues_tables(report: Report) -> List[List[TableRow]]:
     """
-    Generate content of report sections.
+    Generate content of issues tables for report.
 
     Args:
         report (Report): Report for which content is generated.
     """
+    issues_tables: List[List[TableRow]] = []
+    if report.case.audit:
+        used_wcag_definitions: Set[WcagDefinition] = set()
+        for page in report.case.audit.testable_pages:
+            issues_tables.append(
+                build_issue_table_rows(
+                    page=page,
+                    used_wcag_definitions=used_wcag_definitions,
+                )
+            )
+    return issues_tables
+
     top_level_base_templates: QuerySet[BaseTemplate] = BaseTemplate.objects.exclude(
         template_type=TEMPLATE_TYPE_ISSUES_TABLE
     )
@@ -117,10 +129,7 @@ def build_report_sections(report: Report) -> List[Section]:
             editable_id=editable_id,
         )
         if report.case.audit:
-            if section.template_type == TEMPLATE_TYPE_URLS:
-                section.table_rows = build_url_table_rows(report=report)
-                sections.append(section)
-            elif section.template_type == TEMPLATE_TYPE_ISSUES_INTRO:
+            if section.template_type == TEMPLATE_TYPE_ISSUES_INTRO:
                 # Create an issues table section for each testable page
                 sections.append(section)
                 for page in report.case.audit.testable_pages:
@@ -151,20 +160,6 @@ def build_report_sections(report: Report) -> List[Section]:
         else:
             sections.append(section)
     return sections
-
-
-def build_url_table_rows(report: Report) -> List[TableRow]:
-    """Build url table row data for a testable page in the report"""
-    table_rows: List[TableRow] = []
-    for row_number, page in enumerate(report.case.audit.testable_pages, start=1):  # type: ignore
-        table_rows.append(
-            TableRow(
-                cell_content_1=str(page),
-                cell_content_2=f"[{page.url}]({page.url})",
-                row_number=row_number,
-            )
-        )
-    return table_rows
 
 
 def build_issue_table_rows(

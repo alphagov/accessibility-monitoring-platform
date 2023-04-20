@@ -4,16 +4,144 @@
     <nav aria-label="Table of contents">
         <h2 id="contents">Contents</h2>
         <ul>
-            {% for section in sections %}
-                {% if section.template_type != 'issues' %}
-                    <li>
-                        <a href="#{{ section.anchor }}">{{ section.name }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
+            <li><a href="#report-section-1">Introduction</a></li>
+            <li><a href="#report-section-2">How accessible the website is</a></li>
+            <li><a href="#report-section-3">How we checked</a></li>
+            <li><a href="#report-section-4">Pages we checked</a></li>
+            <li><a href="#report-section-5">The issues we found</a></li>
+            <li><a href="#report-section-6">Your accessibility statement</a></li>
+            <li><a href="#report-section-7">What to do next</a></li>
+            <li><a href="#report-section-8">Enforcement</a></li>
+            <li><a href="#report-section-9">Contact and more information</a></li>
         </ul>
     </nav>
 </div>
+
+<br />
+<h2 id="report-section-1" class="amp-new-page">Introduction</h2>
+<p>
+    Website accessibility regulations came into force on 23 September 2018.
+    The regulations mean that public sector bodies now have a legal obligation to
+    meet accessibility requirements for their websites.
+</p>
+<p>
+    To check how well the public sector are meeting the requirements, the Government
+    Digital Service (part of the Cabinet Office) has been monitoring a sample of
+    public sector websites.
+</p>
+<p>
+    You’ve been sent this report because
+    <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
+    is one of the websites we’ve monitored. This document explains:
+</p>
+<ul>
+    <li>which parts of your website we looked at</li>
+    <li>how we checked the accessibility of those pages</li>
+    <li>the accessibility issues found and how important they are</li>
+    <li>what you need to do next to fix the issues</li>
+</ul>
+<p>
+    You can
+    <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">read more about the web accessibility regulations</a>.
+</p>
+
+<br />
+<h2 id="report-section-2" class="amp-new-page">How accessible the website is</h2>
+<p>
+    We checked <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a> on
+    {{ audit.date_of_test|date:"j F Y" }}
+    against the
+    <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG) 2.1 AA</a>
+    standard.
+</p>
+<p>
+    {% if audit.case.is_website_compliant == 'not-compliant' %}
+        Based on our testing, this site is not compliant with WCAG 2.1 AA.
+        This means there are some things which would cause significant barriers
+        to users with certain accessibility needs.
+    {% elif audit.case.is_website_compliant == 'partially-compliant' %}
+        Based on our testing, this site is partially compliant with WCAG 2.1 AA.
+        This means there are some things which are not fully accessible.
+    {% elif audit.case.is_website_compliant == 'compliant' %}
+        Based on our testing, this site is compliant with WCAG 2.1 AA.
+        This means no serious or critical issues were found during our testing.
+        We run basic tests on a small part of your website so we can't say for
+        certain that your entire site will meet the regulations.
+    {% endif %}
+</p>
+
+<br />
+<h2 id="report-section-3" class="amp-new-page">How we checked</h2>
+<p>
+    We use a mixture of simple manual checks and automated tests to find only
+    the most common barriers to users with accessibility needs.
+    We would expect your organisation to fully audit the website to find any
+    other accessibility issues.
+</p>
+<p>
+    Manual checks included using each page without a mouse, viewing the page at
+    different zoom settings, and simulating viewing the page on a small screen.
+</p>
+<p>
+    The automated tests were completed using the latest version of
+    <a href="https://www.deque.com/axe/">Axe</a>.
+</p>
+<p>
+    Tests were completed using different settings in the Google Chrome browser
+    on Mac OSX with a {{ audit.get_screen_size_display }} screen.
+</p>
+
+<br />
+<h2 id="report-section-4" class="amp-new-page">Pages we checked</h2>
+<table id="urls-table">
+    <caption class="govuk-visually-hidden">Page name and URLs of the pages we checked</caption>
+    <thead>
+        <tr>
+            <th id="name">Page Name</th>
+            <th id="url">URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for page in audit.testable_pages %}
+            <tr valign="top" >
+                <td headers="name">{{ page }}</td>
+                <td headers="url"><a href="{{ page.url }}">{{ page.url }}</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br />
+<h2 id="report-section-5" class="amp-new-page">The issues we found</h2>
+<p>
+    Only serious accessibility issues on the sample of pages we tested are
+    listed in this report – these will cause problems for users with access
+    needs when using your website. There are likely to be smaller errors which
+    will make things more difficult for some users. You must carry out your own
+    audit to find and fix issues.
+</p>
+
+{% for issues_table in issues_tables %}
+    <table id="issues-table-{{ forloop.counter }}">
+        <caption class="govuk-visually-hidden">Names and URLs of pages we checked</caption>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th id="issue-{{ forloop.counter }}">Issue and description</th>
+                <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in issues_table.rows %}
+                <tr valign="top">
+                    <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
+                    <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                    <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}
 
 {% for section in sections %}
     <br />

@@ -34,7 +34,7 @@ from .models import (
     ReportVisitsMetrics,
 )
 from .utils import (
-    build_report_sections,
+    build_issue_tables,
     get_report_visits_metrics,
 )
 
@@ -127,8 +127,9 @@ class ReportPublisherTemplateView(ReportTemplateView):
         report: Report = context["report"]
         template: Template = loader.get_template(report.template_path)
         context.update(get_report_visits_metrics(report.case))
+
         context["s3_report"] = report.latest_s3_report
-        context["sections"] = build_report_sections(report=report)
+        context["issue_tables"] = build_issue_tables(report=report)
         context["html_report"] = template.render(context, self.request)
         return context
 
@@ -156,7 +157,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
-    context = {"report": report, "sections": build_report_sections(report=report)}
+    context = {"report": report, "issue_tables": build_issue_tables(report=report)}
     html: str = template.render(context, request)
     published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
     for s3_report in published_s3_reports:
