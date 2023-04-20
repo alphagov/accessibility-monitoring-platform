@@ -66,6 +66,7 @@ ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICE
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("audit_case__date_of_test", "Date test started"),
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
+    ("case_updated_date", "Case updated"),
 ]
 
 
