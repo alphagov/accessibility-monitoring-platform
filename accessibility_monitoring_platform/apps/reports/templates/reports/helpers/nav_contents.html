@@ -3,9 +3,9 @@
     <div class="amp-left-border">
         <ul class="govuk-list">
             {% include './nav_content.html' with anchor='report-section-1' name='Introduction' %}
-            {% include './nav_content.html' with anchor='report-section-2' name='How accessible the website is' %}
+            {% include './nav_content.html' with anchor='report-section-2' name='How accessible the website is' edit_url='audits:edit-website-decision' edit_label='Edit test > Website compliance decision' %}
             {% include './nav_content.html' with anchor='report-section-3' name='How we checked' %}
-            {% include './nav_content.html' with anchor='report-section-4' name='Pages we checked' %}
+            {% include './nav_content.html' with anchor='report-section-4' name='Pages we checked' edit_url='audits:edit-audit-pages' edit_label='Edit test > Pages' %}
             <li>
                 <a href="#report-section-5" class="govuk-link govuk-link--no-visited-state">
                     The issues we found</a>
@@ -20,8 +20,8 @@
                     {% endfor %}
                 </ul>
             </li>
-            {% include './nav_content.html' with anchor='report-section-6' name='Your accessibility statement' %}
-            {% include './nav_content.html' with anchor='report-section-7' name='What to do next' %}
+            {% include './nav_content.html' with anchor='report-section-6' name='Your accessibility statement' edit_url='audits:edit-audit-report-options' edit_label='Edit test > Report options' %}
+            {% include './nav_content.html' with anchor='report-section-7' name='What to do next'  edit_url='audits:edit-audit-report-options' edit_label='Edit test > Report options' %}
             {% include './nav_content.html' with anchor='report-section-8' name='Enforcement' %}
             {% include './nav_content.html' with anchor='report-section-9' name='Contact and more information' %}
 
