@@ -627,6 +627,10 @@ class Audit(VersionModel):
     audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
     audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
 
+    # Retest statement comparison
+    audit_retest_statement_comparison_complete_date = models.DateField(
+        null=True, blank=True
+    )
     # Retest statement decision
     audit_retest_statement_decision_complete_date = models.DateField(
         null=True, blank=True

@@ -19,6 +19,15 @@ describe('View case', () => {
     cy.visit('/cases/1/view')
   })
 
+  it('can search within case', () => {
+    cy.get('[name="search_in_case"]').clear().type('report sent')
+    cy.get('#search-in-case').click()
+    cy.contains('Found 1 result for report sent')
+    cy.contains('Report sent')
+    cy.get('#clear-search-in-case').click()
+    cy.contains('Found 1 result for report sent').should('not.exist')
+  })
+
   it('can edit case details', () => {
     cy.get('#edit-case-details').click()
     cy.get('#id_auditor').select('Auditor')
