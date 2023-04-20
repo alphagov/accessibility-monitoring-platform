@@ -849,6 +849,7 @@ class Contact(models.Model):
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
