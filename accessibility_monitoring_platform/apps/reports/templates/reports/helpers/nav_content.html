@@ -6,8 +6,7 @@
                     {{ name }}
                 {% endif %}
                 {% if edit_url %}
-                    |
-                    <a href="{% url edit_url report.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    | <a href="{% url edit_url report.case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
                         {{ edit_label }}</a>
                 {% endif %}
             </li>

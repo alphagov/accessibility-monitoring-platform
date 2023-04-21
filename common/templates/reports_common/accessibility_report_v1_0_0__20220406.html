@@ -4,21 +4,21 @@
     <nav aria-label="Table of contents">
         <h2 id="contents">Contents</h2>
         <ul>
-            <li><a href="#report-section-1">Introduction</a></li>
-            <li><a href="#report-section-2">How accessible the website is</a></li>
-            <li><a href="#report-section-3">How we checked</a></li>
-            <li><a href="#report-section-4">Pages we checked</a></li>
-            <li><a href="#report-section-5">The issues we found</a></li>
-            <li><a href="#report-section-6">Your accessibility statement</a></li>
-            <li><a href="#report-section-7">What to do next</a></li>
-            <li><a href="#report-section-8">Enforcement</a></li>
-            <li><a href="#report-section-9">Contact and more information</a></li>
+            <li><a href="#report-introduction">Introduction</a></li>
+            <li><a href="#report-how-accessible-the-website-is">How accessible the website is</a></li>
+            <li><a href="#report-how-we-checked">How we checked</a></li>
+            <li><a href="#report-pages-we-checked">Pages we checked</a></li>
+            <li><a href="#report-the-issues-we-found">The issues we found</a></li>
+            <li><a href="#report-your-accessibility-statement">Your accessibility statement</a></li>
+            <li><a href="#report-what-to-do-next">What to do next</a></li>
+            <li><a href="#report-enforcement">Enforcement</a></li>
+            <li><a href="#report-contact-and-more-information">Contact and more information</a></li>
         </ul>
     </nav>
 </div>
 
 <br />
-<h2 id="report-section-1" class="amp-new-page">Introduction</h2>
+<h2 id="report-introduction" class="amp-new-page">Introduction</h2>
 <p>
     Website accessibility regulations came into force on 23 September 2018.
     The regulations mean that public sector bodies now have a legal obligation to
@@ -46,7 +46,7 @@
 </p>
 
 <br />
-<h2 id="report-section-2" class="amp-new-page">How accessible the website is</h2>
+<h2 id="report-how-accessible-the-website-is" class="amp-new-page">How accessible the website is</h2>
 <p>
     We checked <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a> on
     {{ audit.date_of_test|date:"j F Y" }}
@@ -71,7 +71,7 @@
 </p>
 
 <br />
-<h2 id="report-section-3" class="amp-new-page">How we checked</h2>
+<h2 id="report-how-we-checked" class="amp-new-page">How we checked</h2>
 <p>
     We use a mixture of simple manual checks and automated tests to find only
     the most common barriers to users with accessibility needs.
@@ -92,9 +92,9 @@
 </p>
 
 <br />
-<h2 id="report-section-4" class="amp-new-page">Pages we checked</h2>
+<h2 id="report-pages-we-checked" class="amp-new-page">Pages we checked</h2>
 <table id="urls-table">
-    <caption class="govuk-visually-hidden">Page name and URLs of the pages we checked</caption>
+    <caption class="govuk-visually-hidden">Names and URLs of the pages we checked</caption>
     <thead>
         <tr>
             <th id="name">Page Name</th>
@@ -112,7 +112,7 @@
 </table>
 
 <br />
-<h2 id="report-section-5" class="amp-new-page">The issues we found</h2>
+<h2 id="report-the-issues-we-found" class="amp-new-page">The issues we found</h2>
 <p>
     Only serious accessibility issues on the sample of pages we tested are
     listed in this report – these will cause problems for users with access
@@ -124,29 +124,27 @@
 {% for issues_table in issues_tables %}
     <br />
     <h2 id="{{ issues_table.anchor }}" class="amp-new-page">
-        {{ issues_table.page }}
-        {% if issues_table.page.page_type != 'pdf' %}page{% endif %}
-        issues
+        {{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues
     </h2>
     <p>
         <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
     </p>
     {% if issues_table.rows %}
-        <table>
-            <caption class="govuk-visually-hidden">Names and URLs of pages we checked</caption>
+        <table id="issues-table-{{ forloop.counter }}">
+            <caption class="govuk-visually-hidden">Issues found on page</caption>
             <thead>
                 <tr>
                     <th>#</th>
-                    <th id="issue-{{ forloop.counter }}">Issue and description</th>
-                    <th id="where-found-{{ forloop.counter }}">Where the issue was found</th>
+                    <th id="issue-{{ issues_table.anchor }}">Issue and description</th>
+                    <th id="where-found-{{ issues_table.anchor }}">Where the issue was found</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in issues_table.rows %}
                     <tr valign="top">
                         <td><span class="govuk-visually-hidden">Issue:</span>{{ row.row_number }}</td>
-                        <td headers="issue-{{ forloop.counter }}">{{ row.cell_content_1|markdown_to_html }}</td>
-                        <td headers="where-found-{{ forloop.counter }}">{{ row.cell_content_2|markdown_to_html }}</td>
+                        <td headers="issue-{{ issues_table.anchor }}">{{ row.cell_content_1|markdown_to_html }}</td>
+                        <td headers="where-found-{{ issues_table.anchor }}">{{ row.cell_content_2|markdown_to_html }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -157,7 +155,7 @@
 {% endfor %}
 
 <br />
-<h2 id="report-section-6" class="amp-new-page">Your accessibility statement</h2>
+<h2 id="report-your-accessibility-statement" class="amp-new-page">Your accessibility statement</h2>
 <p>
     As part of the regulations you must publish an accessibility statement.
 </p>
@@ -186,7 +184,7 @@
 </p>
 
 <br />
-<h2 id="report-section-7" class="amp-new-page">What to do next</h2>
+<h2 id="report-what-to-do-next" class="amp-new-page">What to do next</h2>
 <p>
     It is a requirement of The Public Sector Bodies (Websites and Mobile
     Applications) (No. 2) Accessibility Regulations 2018 that public sector
@@ -237,7 +235,7 @@
 {% endif %}
 
 <br />
-<h2 id="report-section-8" class="amp-new-page">Enforcement</h2>
+<h2 id="report-enforcement" class="amp-new-page">Enforcement</h2>
 <p>
     On behalf of the Minister for the Cabinet Office we provide the
     {% if audit.case.enforcement_body == 'ehrc' %}
@@ -267,7 +265,7 @@
 </p>
 
 <br />
-<h2 id="report-section-9" class="amp-new-page">Contact and more information</h2>
+<h2 id="report-contact-and-more-information" class="amp-new-page">Contact and more information</h2>
 <p>
     This test was conducted by the Government Digital Service on behalf of the
     Minister of the Cabinet Office as part of their obligations to monitor the

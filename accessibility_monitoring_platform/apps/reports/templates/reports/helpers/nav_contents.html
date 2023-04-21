@@ -2,12 +2,13 @@
     <h2 class="govuk-heading-m">Contents</h2>
     <div class="amp-left-border">
         <ul class="govuk-list">
-            {% include './nav_content.html' with anchor='report-section-1' name='Introduction' %}
-            {% include './nav_content.html' with anchor='report-section-2' name='How accessible the website is' edit_url='audits:edit-website-decision' edit_label='Edit test > Website compliance decision' %}
-            {% include './nav_content.html' with anchor='report-section-3' name='How we checked' %}
-            {% include './nav_content.html' with anchor='report-section-4' name='Pages we checked' edit_url='audits:edit-audit-pages' edit_label='Edit test > Pages' %}
+            {% include './nav_content.html' with anchor='report-start' name='Start of report' %}
+            {% include './nav_content.html' with anchor='report-introduction' name='Introduction' %}
+            {% include './nav_content.html' with anchor='report-how-accessible-the-website-is' name='How accessible the website is' edit_url='audits:edit-website-decision' edit_label='Edit test &gt; Website compliance decision' %}
+            {% include './nav_content.html' with anchor='report-how-we-checked' name='How we checked' %}
+            {% include './nav_content.html' with anchor='report-pages-we-checked' name='Pages we checked' edit_url='audits:edit-audit-pages' edit_label='Edit test &gt; Pages' %}
             <li>
-                <a href="#report-section-5" class="govuk-link govuk-link--no-visited-state">
+                <a href="#report-the-issues-we-found" class="govuk-link govuk-link--no-visited-state">
                     The issues we found</a>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
                     {% for issues_table in issues_tables %}
@@ -20,10 +21,10 @@
                     {% endfor %}
                 </ul>
             </li>
-            {% include './nav_content.html' with anchor='report-section-6' name='Your accessibility statement' edit_url='audits:edit-audit-report-options' edit_label='Edit test > Report options' %}
-            {% include './nav_content.html' with anchor='report-section-7' name='What to do next'  edit_url='audits:edit-audit-report-options' edit_label='Edit test > Report options' %}
-            {% include './nav_content.html' with anchor='report-section-8' name='Enforcement' %}
-            {% include './nav_content.html' with anchor='report-section-9' name='Contact and more information' %}
+            {% include './nav_content.html' with anchor='report-your-accessibility-statement' name='Your accessibility statement' edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
+            {% include './nav_content.html' with anchor='report-what-to-do-next' name='What to do next'  edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
+            {% include './nav_content.html' with anchor='report-enforcement' name='Enforcement' %}
+            {% include './nav_content.html' with anchor='report-contact-and-more-information' name='Contact and more information' %}
 
             {% for section in sections %}
                 {% if section.template_type == 'issues' %}
