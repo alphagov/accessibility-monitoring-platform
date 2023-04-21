@@ -195,6 +195,7 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_case_rows(
             form=CaseReportDetailsUpdateForm()
         )
+        context["contact_rows"] = get_case_rows(form=CaseContactsUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
         )
