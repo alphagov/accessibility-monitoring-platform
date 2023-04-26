@@ -11,7 +11,6 @@ INSERT INTO common_platform (id, active_qa_auditor_id) VALUES (1, NULL)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("common", "0006_event"),

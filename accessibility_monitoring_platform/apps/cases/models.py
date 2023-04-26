@@ -1,7 +1,7 @@
 """
 Models - cases
 """
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone as datetime_timezone
 import re
 from typing import List, Optional, Tuple
 
@@ -208,12 +208,15 @@ CASE_COMPLETED_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_CASE_COMPLETED, "Case still in progress"),
 ]
 
-QA_STATUS_DEFAULT: str = "unknown"
+QA_STATUS_UNKNOWN: str = "unknown"
+QA_STATUS_UNASSIGNED: str = "unassigned-qa-case"
+QA_STATUS_IN_QA: str = "in-qa"
+QA_STATUS_QA_APPROVED: str = "qa-approved"
 QA_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (QA_STATUS_DEFAULT, "Unknown"),
-    ("unassigned_qa_case", "Unassigned QA case"),
-    ("in_qa", "In QA"),
-    ("qa_approved", "QA approved"),
+    (QA_STATUS_UNKNOWN, "Unknown"),
+    (QA_STATUS_UNASSIGNED, "Unassigned QA case"),
+    (QA_STATUS_IN_QA, "In QA"),
+    (QA_STATUS_QA_APPROVED, "QA approved"),
 ]
 
 ENFORCEMENT_BODY_PURSUING_NO: str = "no"
@@ -245,6 +248,36 @@ PSB_LOCATION_CHOICES: List[Tuple[str, str]] = [
 MAX_LENGTH_OF_FORMATTED_URL = 25
 PSB_APPEAL_WINDOW_IN_DAYS = 28
 
+CASE_EVENT_TYPE_CREATE: str = "create"
+CASE_EVENT_AUDITOR: str = "auditor"
+CASE_EVENT_CREATE_AUDIT: str = "create_audit"
+CASE_EVENT_CREATE_REPORT: str = "create_report"
+CASE_EVENT_READY_FOR_QA: str = "ready_for_qa"
+CASE_EVENT_QA_AUDITOR: str = "qa_auditor"
+CASE_EVENT_APPROVE_REPORT: str = "approve_report"
+CASE_EVENT_START_RETEST: str = "retest"
+CASE_EVENT_READY_FOR_FINAL_DECISION: str = "read_for_final_decision"
+CASE_EVENT_CASE_COMPLETED: str = "completed"
+CASE_EVENT_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (CASE_EVENT_TYPE_CREATE, "Create"),
+    (CASE_EVENT_AUDITOR, "Change of auditor"),
+    (CASE_EVENT_CREATE_AUDIT, "Start test"),
+    (CASE_EVENT_CREATE_REPORT, "Create report"),
+    (CASE_EVENT_READY_FOR_QA, "Report readiness for QA"),
+    (CASE_EVENT_QA_AUDITOR, "Change of QA auditor"),
+    (CASE_EVENT_APPROVE_REPORT, "Report approval"),
+    (CASE_EVENT_START_RETEST, "Start retest"),
+    (CASE_EVENT_READY_FOR_FINAL_DECISION, "Ready for final decision"),
+    (CASE_EVENT_CASE_COMPLETED, "Completed"),
+]
+CLOSED_CASE_STATUSES: List[str] = [
+    "case-closed-sent-to-equalities-body",
+    "complete",
+    "case-closed-waiting-to-be-sent",
+    "in-correspondence-with-equalities-body",
+    "deactivated",
+]
+
 
 class Case(VersionModel):
     """
@@ -258,6 +291,7 @@ class Case(VersionModel):
         blank=True,
         null=True,
     )
+    updated = models.DateTimeField(null=True, blank=True)
 
     # Case details page
     created = models.DateTimeField(blank=True)
@@ -354,6 +388,7 @@ class Case(VersionModel):
     qa_process_complete_date = models.DateField(null=True, blank=True)
 
     # Contact details page
+    contact_notes = models.TextField(default="", blank=True)
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
@@ -457,6 +492,7 @@ class Case(VersionModel):
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
+    enforcement_retest_document_url = models.TextField(default="", blank=True)
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
@@ -466,20 +502,20 @@ class Case(VersionModel):
 
     # Dashboard page
     qa_status = models.CharField(
-        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_DEFAULT
+        max_length=200, choices=QA_STATUS_CHOICES, default=QA_STATUS_UNKNOWN
     )
 
     class Meta:
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.organisation_name} | #{self.id}")  # type: ignore
+        return str(f"{self.organisation_name} | #{self.id}")
 
     def get_absolute_url(self) -> str:
         return reverse("cases:case-detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
+        now: datetime = timezone.now()
         if not self.created:
             self.created = now
             self.domain = extract_domain_from_url(self.home_page_url)
@@ -487,6 +523,7 @@ class Case(VersionModel):
             self.completed_date = now
         self.status = self.set_status()
         self.qa_status = self.set_qa_status()
+        self.updated = now
         super().save(*args, **kwargs)
 
     @property
@@ -500,7 +537,9 @@ class Case(VersionModel):
 
     @property
     def title(self) -> str:
-        return str(f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}")  # type: ignore
+        return str(
+            f"{self.organisation_name} | {self.formatted_home_page_url} | #{self.id}"
+        )
 
     @property
     def next_action_due_date(self) -> Optional[date]:
@@ -536,13 +575,17 @@ class Case(VersionModel):
 
     @property
     def reminder(self):
-        return self.reminder_case.filter(is_deleted=False).first()  # type: ignore
+        return self.reminder_case.filter(is_deleted=False).first()
+
+    @property
+    def qa_comments(self):
+        return self.comment_case.filter(hidden=False).order_by("-created_date")
 
     def set_status(self) -> str:  # noqa: C901
         if self.is_deactivated:
             return STATUS_DEACTIVATED
         elif (
-            self.case_completed == "complete-no-send"
+            self.case_completed == CASE_COMPLETED_NO_SEND
             or self.enforcement_body_pursuing == ENFORCEMENT_BODY_PURSUING_YES_COMPLETED
         ):
             return "complete"
@@ -609,22 +652,22 @@ class Case(VersionModel):
             and self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return STATUS_READY_TO_QA
+            return QA_STATUS_UNASSIGNED
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "in-qa"
+            return QA_STATUS_IN_QA
         elif (
             self.report_review_status == REPORT_READY_TO_REVIEW
             and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "qa-approved"
-        return "unknown"
+            return QA_STATUS_QA_APPROVED
+        return QA_STATUS_UNKNOWN
 
     @property
     def in_report_correspondence_progress(self) -> str:
-        now = date.today()
+        now: date = date.today()
         seven_days_ago = now - timedelta(days=7)
         if (
             self.report_followup_week_1_due_date
@@ -666,7 +709,7 @@ class Case(VersionModel):
 
     @property
     def twelve_week_correspondence_progress(self) -> str:
-        now = date.today()
+        now: date = date.today()
         seven_days_ago = now - timedelta(days=5)
         if (
             self.twelve_week_1_week_chaser_due_date
@@ -694,7 +737,7 @@ class Case(VersionModel):
 
     @property
     def contact_exists(self) -> bool:
-        return Contact.objects.filter(case_id=self.id).exists()  # type: ignore
+        return Contact.objects.filter(case_id=self.id).exists()
 
     @property
     def psb_appeal_deadline(self) -> Optional[date]:
@@ -711,14 +754,14 @@ class Case(VersionModel):
     @property
     def audit(self):
         try:
-            return self.audit_case  # type: ignore
+            return self.audit_case
         except ObjectDoesNotExist:
             return None
 
     @property
     def report(self):
         try:
-            return self.report_case  # type: ignore
+            return self.report_case
         except ObjectDoesNotExist:
             return None
 
@@ -728,6 +771,67 @@ class Case(VersionModel):
             return f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{self.report.latest_s3_report.guid}"
         else:
             return ""
+
+    @property
+    def previous_case_number(self):
+        result = re.search(r".*/cases/(\d+)/view.*", self.previous_case_url)
+        if result:
+            return result.group(1)
+        return None
+
+    @property
+    def last_edited(self):
+        """Return when case or related data was last changed"""
+        updated_times: List[Optional[datetime]] = [self.created, self.updated]
+
+        for contact in self.contact_set.all():
+            updated_times.append(contact.created)
+            updated_times.append(contact.updated)
+
+        if self.audit is not None:
+            updated_times.append(
+                datetime(
+                    self.audit.date_of_test.year,
+                    self.audit.date_of_test.month,
+                    self.audit.date_of_test.day,
+                    tzinfo=datetime_timezone.utc,
+                )
+            )
+            updated_times.append(self.audit.updated)
+            for page in self.audit.page_audit.all():
+                updated_times.append(page.updated)
+            for check_result in self.audit.checkresult_audit.all():
+                updated_times.append(check_result.updated)
+
+        for comment in self.comment_case.all():
+            updated_times.append(comment.created_date)
+            updated_times.append(comment.updated)
+
+        for reminder in self.reminder_case.all():
+            updated_times.append(reminder.updated)
+
+        if self.report is not None:
+            updated_times.append(self.report.updated)
+
+        for s3_report in self.s3report_set.all():
+            updated_times.append(s3_report.created)
+
+        return max([updated for updated in updated_times if updated is not None])
+
+    @property
+    def website_compliance_display(self):
+        if self.website_state_final == WEBSITE_STATE_FINAL_DEFAULT:
+            return self.get_is_website_compliant_display()
+        return self.get_website_state_final_display()
+
+    @property
+    def accessibility_statement_compliance_display(self):
+        if (
+            self.accessibility_statement_state_final
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+        ):
+            return self.get_accessibility_statement_state_display()
+        return self.get_accessibility_statement_state_final_display()
 
 
 class Contact(models.Model):
@@ -742,9 +846,10 @@ class Contact(models.Model):
     preferred = models.CharField(
         max_length=20, choices=PREFERRED_CHOICES, default=PREFERRED_DEFAULT
     )
-    notes = models.TextField(default="", blank=True)
     created = models.DateTimeField()
     created_by = models.CharField(max_length=200, default="", blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -754,6 +859,31 @@ class Contact(models.Model):
         return str(f"Contact {self.name} {self.email}")
 
     def save(self, *args, **kwargs) -> None:
-        if not self.id:  # type: ignore
+        self.updated = timezone.now()
+        if not self.id:
             self.created = timezone.now()
         super().save(*args, **kwargs)
+
+
+class CaseEvent(models.Model):
+    """
+    Model to records events on a case
+    """
+
+    case = models.ForeignKey(Case, on_delete=models.PROTECT)
+    event_type = models.CharField(
+        max_length=100, choices=CASE_EVENT_TYPE_CHOICES, default=CASE_EVENT_TYPE_CREATE
+    )
+    message = models.TextField(default="Created case", blank=True)
+    done_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="case_event_done_by_user",
+    )
+    event_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["event_time"]
+
+    def __str__(self) -> str:
+        return str(f"{self.case.organisation_name}: {self.message}")

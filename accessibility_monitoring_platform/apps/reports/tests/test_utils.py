@@ -54,7 +54,7 @@ HOME_PAGE_NAME: str = "Home name"
 PDF_PAGE_NAME: str = "PDF name"
 HOME_PAGE_URL: str = "https://example.com/home"
 PDF_PAGE_URL: str = "https://example.com/pdf"
-CHECK_RESULT_NOTES: str = "Check results note"
+CHECK_RESULT_NOTES: str = "Check results note <span>including HTML</span>"
 
 
 class MockRequest:
@@ -83,7 +83,7 @@ def test_generate_report_content():
 
     generate_report_content(report=report)
 
-    top_level_sections: List[Section] = list(report.top_level_sections)  # type: ignore
+    top_level_sections: List[Section] = list(report.top_level_sections)
 
     assert len(top_level_base_templates) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
     assert len(top_level_sections) == NUMBER_OF_TOP_LEVEL_BASE_TEMPLATES
@@ -134,7 +134,7 @@ def test_create_issue_table_rows():
     )
     report: Report = Report.objects.create(case=case)
     section: Section = Section.objects.create(report=report, position=1)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(  # type: ignore
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
         type=TEST_TYPE_PDF
     ).first()
     CheckResult.objects.create(
@@ -179,7 +179,7 @@ def test_report_boilerplate_shown_only_once():
         url=PDF_PAGE_URL,
     )
     report: Report = Report.objects.create(case=case)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(  # type: ignore
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
         type=TEST_TYPE_PDF
     ).first()
     CheckResult.objects.create(
@@ -230,7 +230,7 @@ def test_generate_report_content_issues_table_sections():
 
     generate_report_content(report=report)
 
-    issues_table_sections: QuerySet[Section] = report.section_set.filter(  # type: ignore
+    issues_table_sections: QuerySet[Section] = report.section_set.filter(
         template_type=TEMPLATE_TYPE_ISSUES_TABLE
     )
 
@@ -297,11 +297,11 @@ def test_check_for_buttons_by_name(
 def test_delete_table_row(rf):
     """Test delete_table_row marks table row as deleted"""
     table_row: TableRow = create_table_row()
-    table_row_id: int = table_row.id  # type: ignore
+    table_row_id: int = table_row.id
     request: HttpRequest = rf.post(
         "/", {f"{DELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"}
     )
-    user: User = User.objects.create_user(  # type: ignore
+    user: User = User.objects.create_user(
         username="mockuser", email="mockuser@…", password="secret"
     )
     request.user = user
@@ -318,11 +318,11 @@ def test_delete_table_row(rf):
 def test_undelete_table_row(rf):
     """Test undelete_table_row marks table row as not deleted"""
     table_row: TableRow = create_table_row()
-    table_row_id: int = table_row.id  # type: ignore
+    table_row_id: int = table_row.id
     request: HttpRequest = rf.post(
         "/", {f"{UNDELETE_ROW_BUTTON_PREFIX}{table_row_id}": "Button"}
     )
-    user: User = User.objects.create_user(  # type: ignore
+    user: User = User.objects.create_user(
         username="mockuser", email="mockuser@…", password="secret"
     )
     request.user = user
@@ -340,7 +340,7 @@ def test_undelete_table_row(rf):
 def test_move_table_row_up(rf):
     """Test move_table_row_up swaps table row's position with the previous"""
     table_row: TableRow = create_table_row()
-    table_row_id: int = table_row.id  # type: ignore
+    table_row_id: int = table_row.id
     table_row.row_number = ORIGINAL_ROW_POSITION
     table_row.save()
     previous_row: TableRow = TableRow.objects.create(
@@ -354,7 +354,7 @@ def test_move_table_row_up(rf):
     move_table_row_up(request=request, section=table_row.section)
 
     updated_table_row: TableRow = TableRow.objects.get(id=table_row_id)
-    updated_previous_row: TableRow = TableRow.objects.get(id=previous_row.id)  # type: ignore
+    updated_previous_row: TableRow = TableRow.objects.get(id=previous_row.id)
 
     assert updated_table_row.row_number == PREVIOUS_ROW_POSITION
     assert updated_previous_row.row_number == ORIGINAL_ROW_POSITION
@@ -364,7 +364,7 @@ def test_move_table_row_up(rf):
 def test_move_table_row_down(rf):
     """Test move_table_row_down swaps table row's position with the next"""
     table_row: TableRow = create_table_row()
-    table_row_id: int = table_row.id  # type: ignore
+    table_row_id: int = table_row.id
     table_row.row_number = ORIGINAL_ROW_POSITION
     table_row.save()
     next_row: TableRow = TableRow.objects.create(
@@ -378,7 +378,7 @@ def test_move_table_row_down(rf):
     move_table_row_down(request=request, section=table_row.section)
 
     updated_table_row: TableRow = TableRow.objects.get(id=table_row_id)
-    updated_next_row: TableRow = TableRow.objects.get(id=next_row.id)  # type: ignore
+    updated_next_row: TableRow = TableRow.objects.get(id=next_row.id)
 
     assert updated_table_row.row_number == NEXT_ROW_POSITION
     assert updated_next_row.row_number == ORIGINAL_ROW_POSITION

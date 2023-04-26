@@ -1,6 +1,6 @@
             <li>
                 {% if anchor %}
-                    <a href="#{{ anchor }}" class="govuk-link govuk-link--no-visited-state">
+                    <a href="#{{ anchor_prefix }}{{ anchor }}" class="govuk-link govuk-link--no-visited-state">
                         {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
                     {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
@@ -8,8 +8,10 @@
                 |
                 {% if page %}
                     <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="content-page-link">
+                {% elif audit %}
+                    <a id="{{ id }}" href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
                 {% else %}
-                    <a href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    None
                 {% endif %}
                         Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if complete %}&check;{% endif %}

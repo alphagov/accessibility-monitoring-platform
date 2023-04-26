@@ -4,7 +4,7 @@ Test - common utility functions
 from typing import Dict, List, Tuple, Union
 import pytest
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from ...audits.models import Audit
 from ...cases.models import Case
@@ -18,6 +18,8 @@ from ..metrics import (
     count_statement_issues,
     group_timeseries_data_by_month,
     build_html_table,
+    convert_timeseries_pair_to_ratio,
+    convert_timeseries_to_cumulative,
     FIRST_COLUMN_HEADER,
 )
 
@@ -342,7 +344,7 @@ def test_calculate_metric_progress(
 )
 def test_count_statement_issues(audits: List[Audit], expected_result: Tuple[int, int]):
     """Test counting issues and fixed issues for accessibility statments"""
-    assert count_statement_issues(audits=audits) == expected_result  # type: ignore
+    assert count_statement_issues(audits=audits) == expected_result
 
 
 @pytest.mark.django_db
@@ -363,9 +365,45 @@ def test_group_timeseries_data_by_month():
         date_column_name="case_details_complete_date",
         start_date=datetime(2022, 1, 1),
     ) == [
-        TimeseriesDatapoint(datetime=date(2022, 1, 1), value=3),  # type: ignore
-        TimeseriesDatapoint(datetime=date(2022, 2, 1), value=2),  # type: ignore
-        TimeseriesDatapoint(datetime=date(2022, 4, 1), value=1),  # type: ignore
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 1, 1, tzinfo=timezone.utc), value=3
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 2, 1, tzinfo=timezone.utc), value=2
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 3, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 4, 1, tzinfo=timezone.utc), value=1
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 5, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 6, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 7, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 8, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 9, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 10, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 11, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2022, 12, 1, tzinfo=timezone.utc), value=0
+        ),
+        TimeseriesDatapoint(
+            datetime=datetime(2023, 1, 1, tzinfo=timezone.utc), value=0
+        ),
     ]
 
 
@@ -433,3 +471,59 @@ def test_build_html_table(
 ):
     """Test merging multiple data series into a single HTML table context"""
     assert build_html_table(columns=columns) == expected_result
+
+
+def test_convert_timeseries_pair_to_ratio():
+    """
+    Test merging two timeseries into one containing the ratios of the values
+    in both.
+    """
+    partial_timeseries: Timeseries = Timeseries(
+        label="Partial",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=2),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=3),
+        ],
+    )
+    total_timeseries: Timeseries = Timeseries(
+        label="Total",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=2),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=4),
+        ],
+    )
+    assert convert_timeseries_pair_to_ratio(
+        label="Ratios",
+        partial_timeseries=partial_timeseries,
+        total_timeseries=total_timeseries,
+    ) == Timeseries(
+        label="Ratios",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=50),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=66),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=75),
+        ],
+    )
+
+
+def test_convert_timeseries_to_cumulative():
+    """Test converting the datapoints of a timeseries to be cumulative"""
+    assert convert_timeseries_to_cumulative(
+        Timeseries(
+            label="Label",
+            datapoints=[
+                TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+                TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=3),
+                TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=5),
+            ],
+        )
+    ) == Timeseries(
+        label="Label",
+        datapoints=[
+            TimeseriesDatapoint(datetime=datetime(2022, 1, 1), value=1),
+            TimeseriesDatapoint(datetime=datetime(2022, 2, 1), value=4),
+            TimeseriesDatapoint(datetime=datetime(2022, 3, 1), value=9),
+        ],
+    )

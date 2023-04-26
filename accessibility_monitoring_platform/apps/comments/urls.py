@@ -1,31 +1,18 @@
 """
-URLS for comment section
+URLS for comments
 """
+from typing import List
 
-from django.urls import path
 from django.contrib.auth.decorators import login_required
-from accessibility_monitoring_platform.apps.comments.views import (
-    CreateCaseCommentFormView,
-    CommentEditView,
-    CommentDeleteView,
-)
+from django.urls import path
+from django.urls.resolvers import URLPattern
+from .views import QACommentUpdateView
 
-
-app_name = "comments"
-urlpatterns = [
+app_name: str = "comments"
+urlpatterns: List[URLPattern] = [
     path(
-        "<int:case_id>/create-case-comment/",
-        login_required(CreateCaseCommentFormView.as_view()),
-        name="create-case-comment",
-    ),
-    path(
-        "<int:pk>/remove-comment/",
-        login_required(CommentDeleteView.as_view()),
-        name="remove-comment",
-    ),
-    path(
-        "<int:pk>/edit-comment/",
-        login_required(CommentEditView.as_view()),
-        name="edit-comment",
+        "<int:pk>/edit-qa-comment/",
+        login_required(QACommentUpdateView.as_view()),
+        name="edit-qa-comment",
     ),
 ]

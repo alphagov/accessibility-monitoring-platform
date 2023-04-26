@@ -2,14 +2,62 @@
 Tests for cases models
 """
 import pytest
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import List
+from unittest.mock import patch, Mock
 
-from ..models import Case, Contact
+from ...audits.models import Audit, CheckResult, Page, WcagDefinition, TEST_TYPE_AXE
+from ...comments.models import Comment
+from ...reminders.models import Reminder
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
+from ..models import (
+    Case,
+    Contact,
+    IS_WEBSITE_COMPLIANT_DEFAULT,
+    WEBSITE_STATE_FINAL_DEFAULT,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+    ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+)
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
 ORGANISATION_NAME: str = "Organisation name"
+DATETIME_HISTORIC: datetime = datetime(2020, 9, 15, tzinfo=timezone.utc)
+DATETIME_CASE_CREATED: datetime = datetime(2021, 9, 15, tzinfo=timezone.utc)
+DATETIME_CASE_UPDATED: datetime = datetime(2021, 9, 16, tzinfo=timezone.utc)
+DATETIME_CONTACT_CREATED: datetime = datetime(2021, 9, 17, tzinfo=timezone.utc)
+DATETIME_CONTACT_UPDATED: datetime = datetime(2021, 9, 18, tzinfo=timezone.utc)
+DATE_AUDIT_CREATED: date = date(2021, 9, 19)
+DATETIME_AUDIT_CREATED: datetime = datetime(2021, 9, 19, tzinfo=timezone.utc)
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
+DATETIME_PAGE_CREATED: datetime = datetime(2021, 9, 21, tzinfo=timezone.utc)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_CREATED: datetime = datetime(2021, 9, 23, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
+DATETIME_COMMENT_CREATED: datetime = datetime(2021, 9, 25, tzinfo=timezone.utc)
+DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
+REMINDER_DUE_DATE: date = date(2022, 1, 1)
+DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=timezone.utc)
+DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
+DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
+
+
+@pytest.fixture
+def last_edited_case() -> Case:
+    """Pytest fixture case for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_CREATED)):
+        return Case.objects.create()
+
+
+@pytest.fixture
+def last_edited_audit(last_edited_case: Case) -> Audit:
+    """Pytest fixture audit for testing last edited timestamp values"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        return Audit.objects.create(
+            case=last_edited_case, date_of_test=DATE_AUDIT_CREATED
+        )
 
 
 @pytest.mark.django_db
@@ -30,7 +78,7 @@ def test_case_created_timestamp_is_not_updated():
     updated_organisation_name: str = "updated organisation name"
     case.organisation_name = updated_organisation_name
     case.save()
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.organisation_name == updated_organisation_name
     assert updated_case.created == original_created_timestamp
@@ -49,7 +97,7 @@ def test_case_renders_as_organisation_name_bar_id():
     """Test the Case string is organisation_name | id"""
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
-    assert str(case) == f"{case.organisation_name} | #{case.id}"  # type: ignore
+    assert str(case) == f"{case.organisation_name} | #{case.id}"
 
 
 @pytest.mark.django_db
@@ -59,7 +107,10 @@ def test_case_title_is_organisation_name_bar_domain_bar_id():
         home_page_url=HOME_PAGE_URL, organisation_name=ORGANISATION_NAME
     )
 
-    assert case.title == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"  # type: ignore
+    assert (
+        case.title
+        == f"{case.organisation_name} | {case.formatted_home_page_url} | #{case.id}"
+    )
 
 
 @pytest.mark.django_db
@@ -71,7 +122,7 @@ def test_case_completed_timestamp_is_updated_on_completion():
 
     case.case_completed = "no-action"
     case.save()
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
 
     assert updated_case.completed_date is not None
     assert isinstance(updated_case.completed_date, datetime)
@@ -97,7 +148,7 @@ def test_contact_created_timestamp_is_not_updated():
     updated_name: str = "updated name"
     contact.name = updated_name
     contact.save()
-    updated_contact: Contact = Contact.objects.get(pk=contact.id)  # type: ignore
+    updated_contact: Contact = Contact.objects.get(pk=contact.id)
 
     assert updated_contact.name == updated_name
     assert updated_contact.created == original_created_timestamp
@@ -112,8 +163,8 @@ def test_most_recently_created_contact_returned_first():
 
     contacts: List[Contact] = list(Contact.objects.filter(case=case))
 
-    assert contacts[0].id == contact2.id  # type: ignore
-    assert contacts[1].id == contact1.id  # type: ignore
+    assert contacts[0].id == contact2.id
+    assert contacts[1].id == contact1.id
 
 
 @pytest.mark.django_db
@@ -128,9 +179,9 @@ def test_preferred_contact_returned_first():
 
     contacts: List[Contact] = list(Contact.objects.filter(case=case))
 
-    assert contacts[0].id == preferred_contact.id  # type: ignore
-    assert contacts[1].id == contact2.id  # type: ignore
-    assert contacts[2].id == contact1.id  # type: ignore
+    assert contacts[0].id == preferred_contact.id
+    assert contacts[1].id == contact2.id
+    assert contacts[2].id == contact1.id
 
 
 @pytest.mark.parametrize(
@@ -282,3 +333,243 @@ def test_case_save_increments_version():
     case.save()
 
     assert case.version == old_version + 1
+
+
+@pytest.mark.django_db
+def test_qa_comments():
+    """
+    Test the QA comments are returned in most recently created order
+    """
+    case: Case = Case.objects.create()
+    Comment.objects.create(case=case, hidden=True)
+    comment1: Comment = Comment.objects.create(case=case)
+    comment2: Comment = Comment.objects.create(case=case)
+
+    comments: List[Contact] = case.qa_comments
+
+    assert len(comments) == 2
+    assert comments[0].id == comment2.id
+    assert comments[1].id == comment1.id
+
+
+@pytest.mark.parametrize(
+    "previous_case_url, previous_case_number",
+    [
+        ("https://...gov.uk/cases/191/view/", "191"),
+        ("", None),
+        ("https://...gov.uk/audits/191/view/", None),
+    ],
+)
+def test_previous_case_number(previous_case_url, previous_case_number):
+    """Test previous case number derived from url"""
+    case: Case = Case(previous_case_url=previous_case_url)
+
+    assert case.previous_case_number == previous_case_number
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_case(last_edited_case: Case):
+    """Test the case last edited date found on Case"""
+    assert last_edited_case.last_edited == DATETIME_CASE_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_CASE_UPDATED)):
+        last_edited_case.save()
+
+    assert last_edited_case.last_edited == DATETIME_CASE_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_contact(last_edited_case: Case):
+    """Test the case last edited date found on Contact"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_CREATED)
+    ):
+        contact: Contact = Contact.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_CONTACT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
+    ):
+        contact.save()
+
+    assert last_edited_case.last_edited == DATETIME_CONTACT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_audit(last_edited_case: Case, last_edited_audit: Audit):
+    """Test the case last edited date found on Audit"""
+    assert last_edited_case.last_edited == DATETIME_AUDIT_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        last_edited_audit.save()
+
+    assert last_edited_case.last_edited == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_page(last_edited_case: Case, last_edited_audit: Audit):
+    """Test the case last edited date found on Page"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
+        page: Page = Page.objects.create(audit=last_edited_audit)
+
+    assert last_edited_case.last_edited == DATETIME_PAGE_CREATED
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
+        page.save()
+
+    assert last_edited_case.last_edited == DATETIME_PAGE_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_check_result(
+    last_edited_case: Case, last_edited_audit: Audit
+):
+    """Test the case last edited date found on CheckResult"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
+        page: Page = Page.objects.create(audit=last_edited_audit)
+
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
+    ):
+        check_result: CheckResult = CheckResult.objects.create(
+            audit=last_edited_audit,
+            page=page,
+            type=TEST_TYPE_AXE,
+            wcag_definition=wcag_definition,
+        )
+
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        check_result.save()
+
+    assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_comment(last_edited_case: Case):
+    """Test the case last edited date found on Comment"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
+    ):
+        comment: Comment = Comment.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_UPDATED)
+    ):
+        comment.save()
+
+    assert last_edited_case.last_edited == DATETIME_COMMENT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_reminder(last_edited_case: Case):
+    """Test the case last edited date found on Reminder"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_REMINDER_UPDATED)
+    ):
+        Reminder.objects.create(case=last_edited_case, due_date=REMINDER_DUE_DATE)
+
+    assert last_edited_case.last_edited == DATETIME_REMINDER_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_report(last_edited_case: Case):
+    """Test the case last edited date found on Report"""
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_REPORT_UPDATED)):
+        Report.objects.create(case=last_edited_case)
+
+    assert last_edited_case.last_edited == DATETIME_REPORT_UPDATED
+
+
+@pytest.mark.django_db
+def test_case_last_edited_from_s3_report(last_edited_case: Case):
+    """Test the case last edited date found on S3Report"""
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_S3REPORT_UPDATED)
+    ):
+        S3Report.objects.create(case=last_edited_case, version=0)
+
+    assert last_edited_case.last_edited == DATETIME_S3REPORT_UPDATED
+
+
+@pytest.mark.django_db
+def test_contact_updated_updated():
+    """Test the contact updated field is updated"""
+    case: Case = Case.objects.create()
+    contact: Contact = Contact.objects.create(case=case)
+
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CONTACT_UPDATED)
+    ):
+        contact.save()
+
+    assert contact.updated == DATETIME_CONTACT_UPDATED
+
+
+@pytest.mark.parametrize(
+    "is_website_compliant, website_state_final, expected_result",
+    [
+        (IS_WEBSITE_COMPLIANT_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not selected"),
+        (IS_WEBSITE_COMPLIANT_DEFAULT, "compliant", "Compliant"),
+        (IS_WEBSITE_COMPLIANT_DEFAULT, "partially-compliant", "Partially compliant"),
+        (IS_WEBSITE_COMPLIANT_COMPLIANT, WEBSITE_STATE_FINAL_DEFAULT, "Compliant"),
+        ("not-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Not compliant"),
+        ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
+        ("other", WEBSITE_STATE_FINAL_DEFAULT, "Other"),
+    ],
+)
+def test_website_compliance_display(
+    is_website_compliant, website_state_final, expected_result
+):
+    """Test website compliance is derived correctly"""
+    case: Case = Case(
+        is_website_compliant=is_website_compliant,
+        website_state_final=website_state_final,
+    )
+
+    assert case.website_compliance_display == expected_result
+
+
+@pytest.mark.parametrize(
+    "accessibility_statement_state, accessibility_statement_state_final, expected_result",
+    [
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            "Compliant",
+        ),
+        ("not-compliant", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not compliant"),
+        ("not-found", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not found"),
+        ("other", ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Other"),
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            "Not selected",
+        ),
+        (
+            ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
+            ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+            "Compliant",
+        ),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-compliant", "Not compliant"),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "not-found", "Not found"),
+        (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "other", "Other"),
+    ],
+)
+def test_accessibility_statement_compliance_display(
+    accessibility_statement_state, accessibility_statement_state_final, expected_result
+):
+    """Test accessibility statement compliance is derived correctly"""
+    case: Case = Case(
+        accessibility_statement_state=accessibility_statement_state,
+        accessibility_statement_state_final=accessibility_statement_state_final,
+    )
+
+    assert case.accessibility_statement_compliance_display == expected_result

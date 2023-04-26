@@ -60,12 +60,6 @@ pre {
     background-color: #000;
 }
 
-.view-test-accordion-table > tbody > tr:last-child {
-    th, td {
-        border-bottom: none;
-    }
-}
-
 div#report-text {
     font-family: arial,sans-serif;
     font-size: 12pt;
@@ -193,12 +187,24 @@ img, .amp-max-width-100 {
     margin-bottom: 15px;
 }
 
+.amp-margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
 .amp-margin-bottom-40 {
     margin-bottom: 40px;
 }
 
 .amp-margin-left-10 {
     margin-left: 10px;
+}
+
+.amp-margin-right-0 {
+    margin-right: 0 !important;
+}
+
+.amp-margin-right-5 {
+    margin-right: 5px !important;
 }
 
 .amp-margin-top-0 {
@@ -217,12 +223,20 @@ img, .amp-max-width-100 {
     padding-top: 0;
 }
 
+.amp-padding-top-10 {
+    padding-top: 10px;
+}
+
 .amp-padding-left-0 {
     padding-left: 0;
 }
 
 .amp-padding-left-10 {
     padding-left: 10px;
+}
+
+.amp-padding-right-0 {
+    padding-right: 0;
 }
 
 .amp-padding-right-20 {
@@ -249,60 +263,8 @@ img, .amp-max-width-100 {
     display: none;
 }
 
-// For use in common/static/js/audits_check_filter.js
-
-.filter-div-manual {
-    display: none;
-}
-
-.filter-div-pdf {
-    display: none;
-}
-
-.filter-div-axe {
-    display: none;
-}
-
-.filter-div-error-found {
-    display: none;
-}
-
-.filter-div-no-issue {
-    display: none;
-}
-
-.filter-div-not-tested {
-    display: none;
-}
-
-.text-filter {
-    display: none;
-}
-
-// For use in common/static/js/audits_retest_check_filter.js
-
-.filter-div-fixed {
-    display: none;
-}
-
-.filter-div-broken {
-    display: none;
-}
-
-.filter-div-not-retested {
-    display: none;
-}
-
-.text-filter {
-    display: none;
-}
-
 // Case-specific styles
 
-.cases-search-background {
-    background-color: #F2F2F1;
-    margin-right: 0px;
-}
 .cases-bigger-link {
     font-size: x-large;
     color: #2F80ED;
@@ -341,7 +303,7 @@ img, .amp-max-width-100 {
     }
 }
 
-.case-dashboard > tbody > tr:last-child {
+.amp-accordion-table > tbody > tr:last-child {
     th, td {
         border-bottom: none;
     }
@@ -458,6 +420,21 @@ img, .amp-max-width-100 {
     span,
     a {
       padding: 0 10 0 0;
+    }
+}
+
+// Fos use in test check results filtering
+
+.amp-filter-form {
+    margin: 0 0 10px 0;
+    padding: 10px 0 0 0;
+
+    h2, .govuk-form-group {
+        margin-bottom: 10px;
+    }
+
+    .govuk-fieldset__legend, .govuk-fieldset__legend--l {
+        margin-bottom: 0;
     }
 }
 
@@ -757,4 +734,17 @@ img, .amp-max-width-100 {
 
 svg {
     font-family: "GDS Transport",arial,sans-serif;
+}
+
+.amp-bottom-border {
+    border-bottom: 1px solid #b1b4b6;
+}
+
+.amp-left-border {
+    padding-left: 10px;
+    border-left: 3px solid #b1b4b6;
+}
+
+.amp-font-weight-normal {
+    font-weight: 400;
 }

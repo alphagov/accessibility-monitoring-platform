@@ -74,7 +74,7 @@ def test_extract_form_labels_and_values():
     )
 
     labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()  # type: ignore
+        instance=case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 6
@@ -85,7 +85,7 @@ def test_extract_form_labels_and_values():
         label=SECTOR_LABEL, value=sector.name
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -104,12 +104,13 @@ def test_extract_form_labels_and_values():
 
 def test_extract_form_labels_and_values_with_no_values_set():
     """
-    Test extraction of labels from form and values from case when there are no values populated.
+    Test extraction of labels from form and values from case when
+    there are no values populated.
     """
     case: Case = Case()
 
     labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=case, form=CaseForm()  # type: ignore
+        instance=case, form=CaseForm()
     )
 
     assert len(labels_and_values) == 5
@@ -118,7 +119,7 @@ def test_extract_form_labels_and_values_with_no_values_set():
         label=SECTOR_LABEL, value="Unknown"
     )
     assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=case.get_test_type_display()  # type: ignore
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
     )
     assert labels_and_values[3] == FieldLabelAndValue(
         label=HOME_PAGE_URL_LABEL,
@@ -128,4 +129,27 @@ def test_extract_form_labels_and_values_with_no_values_set():
     assert labels_and_values[4] == FieldLabelAndValue(
         label=REPORT_SENT_ON_LABEL,
         value=None,
+    )
+
+
+def test_extract_form_labels_and_values_can_exclude_fields():
+    """
+    Test fields can be excluded from extraction of labels from form and values
+    from case.
+    """
+    case: Case = Case()
+
+    labels_and_values: List[FieldLabelAndValue] = extract_form_labels_and_values(
+        instance=case,
+        form=CaseForm(),
+        excluded_fields=["home_page_url", "report_sent_date"],
+    )
+
+    assert len(labels_and_values) == 3
+    assert labels_and_values[0] == FieldLabelAndValue(label=AUDITOR_LABEL, value=None)
+    assert labels_and_values[1] == FieldLabelAndValue(
+        label=SECTOR_LABEL, value="Unknown"
+    )
+    assert labels_and_values[2] == FieldLabelAndValue(
+        label=TEST_TYPE_LABEL, value=case.get_test_type_display()
     )

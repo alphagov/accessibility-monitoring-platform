@@ -1,0 +1,19 @@
+{% load humanize %}
+
+<h2 class="govuk-heading-m">Overview</h2>
+<div class="amp-left-border">
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Test created</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.date_of_test|amp_date }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Auditor</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{% if audit.case.auditor %}{{ audit.case.auditor.get_full_name }}{% else %}None{% endif %}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Website compliance</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.website_compliance_display }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Statement compliance</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.case.accessibility_statement_compliance_display }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Number of WCAG issues</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ audit.failed_check_results.count|intcomma }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Number of statement issues</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        {{ audit.accessibility_statement_initially_invalid_checks_count }}
+    </p>
+    </div>

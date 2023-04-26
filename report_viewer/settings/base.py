@@ -54,6 +54,7 @@ CSRF_TRUSTED_ORIGINS.append("http://localhost:3000")  # BrowserSync needs this t
 
 INSTALLED_APPS = [
     "report_viewer.apps.viewer",
+    "accessibility_monitoring_platform.apps.comments",
     "accessibility_monitoring_platform.apps.common",
     "accessibility_monitoring_platform.apps.cases",
     "accessibility_monitoring_platform.apps.s3_read_write",

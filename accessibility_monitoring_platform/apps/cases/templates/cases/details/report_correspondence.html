@@ -1,45 +1,77 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="report-correspondence" class="govuk-heading-l">Report correspondence</h2>
-    </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-report-correspondence' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit report correspondence
-            </a>
-        </div>
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Report correspondence</b>
+            {% if case.testing_methodology == "platform" %}
+                |
+                <a href="{% url 'cases:edit-report-correspondence' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit
+                </a>
+            {% endif %}
+        </p>
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Report sent on</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Public sector body is unresponsive
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.get_no_psb_contact_display }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report sent on</th>
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_sent_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">1-week followup due</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report visits</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <span class="govuk-hint">
+                    {% if case.report %}
+                        {{ number_of_visits }}
+                        (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
+                    {% else %}
+                        None
+                    {% endif %}
+                </span>
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Unique report visits</th>
+            <td class="govuk-table__cell amp-width-one-half">
+                <span class="govuk-hint">
+                    {% if case.report %}
+                        {{ number_of_unique_visitors }}
+                        (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)                </span>
+                    {% else %}
+                        None
+                    {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">1-week followup due</th>
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_1_due_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">1-week followup sent</th>
-            <td class="govuk-table__cell">{{ case.report_followup_week_1_sent_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">1-week followup sent</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_1_sent_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">4-week followup due</th>
-            <td class="govuk-table__cell">{{ case.report_followup_week_4_due_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">4-week followup due</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_4_due_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">4-week followup sent</th>
-            <td class="govuk-table__cell">{{ case.report_followup_week_4_sent_date|amp_date }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">4-week followup sent</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.report_followup_week_4_sent_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Report acknowledged</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report acknowledged</th>
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_acknowledged_date|amp_date }}</td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Zendesk ticket URL</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Zendesk ticket URL</th>
             <td class="govuk-table__cell amp-width-one-half">
                 {% if case.zendesk_url %}
                     <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -51,8 +83,8 @@
             </td>
         </tr>
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header">Correspondence notes</th>
-            <td class="govuk-table__cell amp-notes">{{ case.correspondence_notes|markdown_to_html }}</td>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Correspondence notes</th>
+            <td class="govuk-table__cell amp-notes amp-width-one-half">{{ case.correspondence_notes|markdown_to_html }}</td>
 
         </tr>
     </tbody>

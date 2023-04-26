@@ -5,6 +5,7 @@ from typing import (
     Any,
     ClassVar,
     List,
+    Optional,
     Type,
     Union,
 )
@@ -16,7 +17,6 @@ from django.db import models
 from .forms import AMPTextField, AMPURLField
 from .models import Sector
 
-CONTACT_FIELDS = ["contact_email", "contact_notes"]
 EXCLUDED_FIELDS = [
     "version",
     "case_details_complete_date",
@@ -38,8 +38,6 @@ EXCLUDED_FIELDS = [
     "axe_checks_complete_date",
     "case_close_complete_date",
     "contact_details_complete_date",
-    "final_statement_complete_date",
-    "final_website_complete_date",
     "post_case_complete_date",
     "review_changes_complete_date",
     "twelve_week_correspondence_complete_date",
@@ -73,11 +71,16 @@ class FieldLabelAndValue:
 def extract_form_labels_and_values(  # noqa: C901
     instance: models.Model,
     form: Type[forms.Form],
+    excluded_fields: Optional[List[str]] = None,
 ) -> List[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: List[FieldLabelAndValue] = []
+    if excluded_fields is None:
+        excluded_fields = []
     for field_name, field in form.fields.items():
         if field_name in EXCLUDED_FIELDS:
+            continue
+        if field_name in excluded_fields:
             continue
         type_of_value: str = FieldLabelAndValue.TEXT_TYPE
         value: Any = getattr(instance, field_name)

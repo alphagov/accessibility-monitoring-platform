@@ -15,10 +15,10 @@ def get_number_of_reminders_for_user(user: User) -> int:
     Check that the user is not anonymous (i.e. logged in) and return the
     number of their reminders which are due or overdue.
     """
-    if user.id:  # type: ignore
+    if user.id:
         today: date = date.today()
         return Reminder.objects.filter(
-            is_deleted=False, user=user, due_date__lte=today
+            is_deleted=False, case__auditor=user, due_date__lte=today
         ).count()
     return 0
 

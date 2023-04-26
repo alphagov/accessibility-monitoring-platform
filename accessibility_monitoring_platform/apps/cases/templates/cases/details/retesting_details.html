@@ -1,34 +1,64 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="twelve-week-retest" class="govuk-heading-l">12-week retest</h2>
-    </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-twelve-week-retest' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit 12-week retest
-            </a>
+    <div class="govuk-grid-column-full">
+        {% include 'audits/helpers/retest_nav_contents.html' with on_view_case=True %}
+        <div{% if case.audit %} data-search-target-page-name="12-week test metadata" data-search-target-label="Edit 12-week test > 12-week test metadata" data-search-target-url="{% url 'audits:edit-audit-retest-metadata'
+case.audit.id %}"{% endif %}>
+            {% include 'audits/details/retest_metadata.html' with on_view_case=True %}
+        </div>
+        {% if audit.case.psb_response %}
+            {% for page in audit.testable_pages %}
+                <div data-search-target-page-name="{{ page }} 12-week retest" data-search-target-label="Edit 12-week test > {{ page }}" data-search-target-url="{% url 'audits:edit-audit-retest-page-checks' page.id %}">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            <p id="retest-{{ page.anchor }}" class="govuk-body-m">
+                                <b>12-week {{ page }} retest</b>
+                                |
+                                <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                    rel="noreferrer noopener">
+                                    Edit 12-week retest &gt; Retesting {{ page }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    {% if page.retest_page_missing_date %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m">
+                                    This page has been removed by the organisation.
+                                </p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                {% if page.failed_check_results %}
+                                    <table class="govuk-table amp-accordion-table">
+                                        {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.failed_check_results %}
+                                    </table>
+                                {% else %}
+                                    <p class="govuk-body-m">There are no recorded errors on this page</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div{% if case.audit %} data-search-target-page-name="12-week website compliance decision" data-search-target-label="Edit 12-week test > 12-week website compliance decision" data-search-target-url="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/retest_website_decision.html' with on_view_case=True %}
+            </div>
+        {% endif %}
+        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 1" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-retest-statement-1' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/retest_statement_1.html' with on_view_case=True %}
+        </div>
+        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 2" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/retest_statement_2.html' with on_view_case=True %}
+        </div>
+        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement comparison" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/retest_statement_comparison.html' with on_view_case=True in_accordion=True %}
+        </div>
+        <div{% if case.audit %} data-search-target-page-name="12-week statement compliance decision" data-search-target-label="Edit 12-week test > 12-week statement compliance decision" data-search-target-url="{% url 'audits:edit-audit-retest-statement-decision' case.audit.id %}"{% endif %}>
+            {% include 'audits/details/retest_statement_decision.html' with on_view_case=True %}
         </div>
     </div>
 </div>
-<table class="govuk-table">
-    <tbody class="govuk-table__body">
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to retest</th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {% if case.audit.retest_date %}
-                    <a
-                        href="{% url 'audits:audit-retest-detail' case.audit.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                    >
-                        View retest
-                    </a>
-                {% else %}
-                    None
-                {% endif %}
-            </td>
-        </tr>
-        {% include 'cases/helpers/retest.html' %}
-</tbody>
-</table>

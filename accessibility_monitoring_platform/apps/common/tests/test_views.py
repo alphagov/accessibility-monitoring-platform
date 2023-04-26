@@ -8,18 +8,22 @@ from unittest.mock import patch, Mock
 from pytest_django.asserts import assertContains, assertNotContains
 
 from django.conf import settings
+from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit, CheckResult, Page, WcagDefinition
 from ...cases.models import (
     Case,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
 )
 from ...s3_read_write.models import S3Report
-from ..models import Platform
+from ...reports.models import ReportVisitsMetrics
+
+from ..models import FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
 
 EMAIL_SUBJECT: str = "Email subject"
@@ -29,90 +33,117 @@ target="_blank"
 class="govuk-link govuk-link--no-visited-state">report</a>"""
 METRIC_OVER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
-    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
-        stroke="currentColor" stroke-width="3" fill="none">
-            <line x1="20" y1="5" x2="20" y2="35"/>
-            <line x1="20" y1="5" x2="30" y2="10"/>
-            <line x1="20" y1="5" x2="10" y2="10"/>
-        </svg>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <svg alt="Up arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <defs id="defs874" />
+        <g transform="matrix(0,-0.02890173,-0.02890173,0,16.661851,42.167634)" id="g868" style="stroke-width:34.6">
+            <path
+                fill="currentColor"
+                d="M 1113,284 763,-66 H 442 L 676,168 H 75 V 400 H 676 L 442,633 h 321 z"
+                id="path866"
+                style="stroke-width:897.871" />
+        </g>
+    </svg>
     Projected {percentage_difference}% over December ({number_last_month} {lowercase_label})
 </p>"""
 METRIC_UNDER_THIS_MONTH: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_this_month}</b></span>
-    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"
-        stroke="currentColor" stroke-width="3" fill="none">
-            <line x1="20" y1="5" x2="20" y2="35"/>
-            <line x1="20" y1="35" x2="30" y2="30"/>
-            <line x1="20" y1="35" x2="10" y2="30"/>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <svg alt="Down arrow" version="1.1" viewBox="-10 0 36.936421 40.000004" id="svg870" width="36.93642" height="40.000004"
+        xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <defs id="defs874" />
+            <g transform="matrix(0,0.02890173,0.02890173,0,0.27456977,7.8323783)"
+                id="g868" style="stroke-width:34.6">
+                    <path
+                        fill="currentColor"
+                        d="M 1113,284 763,-66 H 442 L 676,168 H 75 V 400 H 676 L 442,633 h 321 z"
+                        id="path866"
+                        style="stroke-width:897.871" />
+        </g>
     </svg>
     Projected {percentage_difference}% under December ({number_last_month} {lowercase_label})
 </p>"""
 METRIC_YEARLY_TABLE: str = """<table id="{table_id}" class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-            <th scope="col" class="govuk-table__header govuk-!-width-one-third">Count</th>
+            <th scope="col" class="govuk-table__header">Month</th>
+            <th scope="col" class="govuk-table__header govuk-table__header--numeric">{column_header}</th>
         </tr>
     </thead>
     <tbody class="govuk-table__body">
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    November 2021
-                </td>
-                <td class="govuk-table__cell">1</td>
+                <td class="govuk-table__cell">January 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
             </tr>
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    December 2021
-                </td>
-                <td class="govuk-table__cell">2</td>
+                <td class="govuk-table__cell">February 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
             </tr>
-
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                    January 2022
-                </td>
-                <td class="govuk-table__cell">1</td>
+                <td class="govuk-table__cell">March 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
             </tr>
-
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">April 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">May 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">June 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">July 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">August 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">September 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">October 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">0</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">November 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">December 2021</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
+            </tr>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">January 2022</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+            </tr>
     </tbody>
 </table>"""
 POLICY_PROGRESS_METRIC: str = """<p id="{id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48 amp-padding-right-20"><b>{percentage}%</b></span>
     {partial_count} out of {total_count}
 </p>"""
-POLICY_YEARLY_METRIC_STATE: str = """<div id="{table_view_id}" class="amp-preview govuk-details__text">
-    <table id="{table_id}" class="govuk-table">
-        <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">Month</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_2}</th>
-                <th scope="col" class="govuk-table__header govuk-!-width-one-third">{column_name_3}</th>
-            </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
-                        November 2021
-                    </td>
-                    <td class="govuk-table__cell">2</td>
-                    <td class="govuk-table__cell">1</td>
-                </tr>
-
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
-                        December 2021
-                    </td>
-                    <td class="govuk-table__cell">4</td>
-                    <td class="govuk-table__cell">2</td>
-                </tr>
-
-        </tbody>
-    </table>
-</div>"""
+ACCEPTABLE_WEBSITES_ROW: str = """<tr class="govuk-table__row">
+    <td class="govuk-table__cell">December 2021</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
+</tr>"""
+COMPLIANT_STATEMENTS_ROW: str = """<tr class="govuk-table__row">
+    <td class="govuk-table__cell">December 2021</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">4</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">1</td>
+    <td class="govuk-table__cell govuk-table__cell--numeric">2</td>
+</tr>"""
+LINK_LABEL: str = "Custom frequently used link"
+LINK_URL: str = "https://example.com/custom-link"
 
 
 @pytest.mark.parametrize(
@@ -159,7 +190,7 @@ def test_contact_admin_page_sends_email(subject, message, admin_client, mailoutb
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("dashboard:home")  # type: ignore
+    assert response.url == reverse("dashboard:home")
 
     if subject or message:
         assert len(mailoutbox) == 1
@@ -310,16 +341,20 @@ def test_case_progress_metric_under(
 
 
 @pytest.mark.parametrize(
-    "table_id, case_field",
+    "label, table_id, case_field",
     [
-        ("cases-created-over-the-last-year", "created"),
-        ("tests-completed-over-the-last-year", "testing_details_complete_date"),
-        ("reports-sent-over-the-last-year", "report_sent_date"),
-        ("cases-completed-over-the-last-year", "completed_date"),
+        ("Cases created", "cases-created-over-the-last-year", "created"),
+        (
+            "Tests completed",
+            "tests-completed-over-the-last-year",
+            "testing_details_complete_date",
+        ),
+        ("Reports sent", "reports-sent-over-the-last-year", "report_sent_date"),
+        ("Cases completed", "cases-completed-over-the-last-year", "completed_date"),
     ],
 )
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
+def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_client):
     """
     Test case yearly metric table values.
     """
@@ -335,7 +370,7 @@ def test_case_yearly_metric(mock_timezone, table_id, case_field, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_YEARLY_TABLE.format(table_id=table_id),
+        METRIC_YEARLY_TABLE.format(column_header=label, table_id=table_id),
         html=True,
     )
 
@@ -524,14 +559,19 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+        case=case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    fixed_case: Case = Case.objects.create(
+    initially_compliant_website_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        case=initially_compliant_website_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
@@ -563,12 +603,7 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(
-            table_view_id="table-view-1",
-            table_id="state-of-websites-after-retest-in-last-year",
-            column_name_2="Closed",
-            column_name_3="Fixed",
-        ),
+        ACCEPTABLE_WEBSITES_ROW,
         html=True,
     )
 
@@ -576,20 +611,26 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
 def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     """
-    Test policy yearly metric table values for accessibility statement state
+    Test policy yearly metric table values for accessibility statement state.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
     Audit.objects.create(
-        case=case, retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc)
+        case=case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
-    fixed_case: Case = Case.objects.create(
+    initally_compliant_statement_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
-        case=fixed_case, retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc)
+        case=initally_compliant_statement_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     case: Case = Case.objects.create(case_completed="complete-no-send")
@@ -598,6 +639,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
@@ -610,6 +652,7 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     fixed_case: Case = Case.objects.create(
         case_completed="complete-no-send",
+        recommendation_for_enforcement=RECOMMENDATION_NO_ACTION,
         accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
     Audit.objects.create(
@@ -621,44 +664,30 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        POLICY_YEARLY_METRIC_STATE.format(
-            table_view_id="table-view-2",
-            table_id="state-of-accessibility-statements-after-retest-in-last-year",
-            column_name_2="Closed",
-            column_name_3="Compliant",
-        ),
+        COMPLIANT_STATEMENTS_ROW,
         html=True,
     )
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_progress_metric_over(mock_timezone, admin_client):
+def test_report_published_progress_metric_over(mock_timezone, admin_client):
     """
-    Test report progress metric, which is over this month, is calculated and
+    Test published reports progress metric, which is over this month, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
 
-    case: Case = Case.objects.create()
-
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for created_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch(
+            "django.utils.timezone.now",
+            Mock(return_value=created_date),
+        ):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -677,37 +706,25 @@ def test_report_progress_metric_over(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_progress_metric_under(mock_timezone, admin_client):
+def test_report_published_progress_metric_under(mock_timezone, admin_client):
     """
-    Test report progress metric, which is under this month, is calculated and
+    Test published reports progress metric, which is under this month, is calculated and
     displayed correctly.
     """
     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for created_date in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch(
+            "django.utils.timezone.now",
+            Mock(return_value=created_date),
+        ):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
@@ -726,45 +743,130 @@ def test_report_progress_metric_under(mock_timezone, admin_client):
 
 
 @patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_yearly_metric(mock_timezone, admin_client):
+def test_report_viewed_progress_metric_over(mock_timezone, admin_client):
     """
-    Test report yearly metric table values.
+    Test reports viewed progress metric, which is over this month, is calculated and
+    displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
 
     case: Case = Case.objects.create()
 
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 11, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 5, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2021, 12, 6, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=datetime(2022, 1, 1, tzinfo=timezone.utc)),
-    ):
-        case: Case = Case.objects.create()
-        S3Report.objects.create(case=case, version=1, latest_published=True)
+    for created_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=created_date)):
+            case: Case = Case.objects.create()
+            ReportVisitsMetrics.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
 
     assert response.status_code == 200
     assertContains(
         response,
-        METRIC_YEARLY_TABLE.format(table_id="reports-published-over-the-last-year"),
+        METRIC_OVER_THIS_MONTH.format(
+            metric_id="report-views",
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label="report views",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_acknowledged_progress_metric_over(mock_timezone, admin_client):
+    """
+    Test report acknowledged progress metric, which is over this month, is calculated and
+    displayed correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+
+    for acknowledged_date in [
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        Case.objects.create(report_acknowledged_date=acknowledged_date)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_OVER_THIS_MONTH.format(
+            metric_id="reports-acknowledged",
+            number_this_month=1,
+            percentage_difference=55,
+            number_last_month=2,
+            lowercase_label="reports acknowledged",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_published_yearly_metric(mock_timezone, admin_client):
+    """
+    Test report published yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    for creation_time in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
+            case: Case = Case.objects.create()
+            S3Report.objects.create(case=case, version=1, latest_published=True)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_YEARLY_TABLE.format(
+            column_header="Published reports",
+            table_id="reports-published-over-the-last-year",
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
+def test_report_viewed_yearly_metric(mock_timezone, admin_client):
+    """
+    Test report published yearly metric table values.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    case: Case = Case.objects.create()
+
+    for creation_time in [
+        datetime(2021, 11, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=timezone.utc),
+        datetime(2021, 12, 6, tzinfo=timezone.utc),
+        datetime(2022, 1, 1, tzinfo=timezone.utc),
+    ]:
+        with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
+            case: Case = Case.objects.create()
+            ReportVisitsMetrics.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        METRIC_YEARLY_TABLE.format(
+            column_header="Report views", table_id="reports-views-over-the-last-year"
+        ),
         html=True,
     )
 
@@ -790,3 +892,85 @@ def test_report_open_cases_metric(mock_timezone, admin_client):
         </p>""",
         html=True,
     )
+
+
+@pytest.mark.django_db
+def test_frequently_used_link_shown(admin_client):
+    """Test custom frequently used link is displayed"""
+    case: Case = Case.objects.create()
+    FrequentlyUsedLink.objects.create(label=LINK_LABEL, url=LINK_URL)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
+
+    assert response.status_code == 200
+    assertContains(response, LINK_LABEL)
+    assertContains(response, LINK_URL)
+
+
+def test_add_frequently_used_link_form_appears(admin_client):
+    """Test that pressing the add link button adds a new link form"""
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-frequently-used-links"),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "add_link": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "Custom link 1")
+
+
+def test_add_frequently_used_link(admin_client):
+    """Test adding a frequently used link"""
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-frequently-used-links"),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-label": LINK_LABEL,
+            "form-0-url": LINK_URL,
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    links: QuerySet[FrequentlyUsedLink] = FrequentlyUsedLink.objects.all()
+    assert links.count() == 1
+    assert links[0].label == LINK_LABEL
+    assert links[0].url == LINK_URL
+
+
+def test_delete_frequently_used_link(admin_client):
+    """Test that pressing the remove link button deletes the link"""
+    link: FrequentlyUsedLink = FrequentlyUsedLink.objects.create(
+        label=LINK_LABEL, url=LINK_URL
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("common:edit-frequently-used-links"),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            f"remove_link_{link.id}": "Button value",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "No frequently used links have been entered")
+
+    link_on_database = FrequentlyUsedLink.objects.get(pk=link.id)
+    assert link_on_database.is_deleted is True

@@ -1,37 +1,67 @@
 /*
 Populate date field with today.
 */
+const oneWeekInDays = 7
+const fourWeeksInDays = oneWeekInDays * 4
+const twelveWeeksInDays = oneWeekInDays * 12
 
-function populateWithTodaysDate (dayId, monthId, yearId) {
-  const today = new Date()
-  document.getElementById(dayId).value = today.getDate()
-  document.getElementById(monthId).value = today.getMonth() + 1 // January is 0!
-  document.getElementById(yearId).value = today.getFullYear()
+function populateWithDate (dayId, monthId, yearId, daysOffset=0) {
+  const targetDate = new Date()
+  targetDate.setDate(targetDate.getDate() + daysOffset);
+  document.getElementById(dayId).value = targetDate.getDate()
+  document.getElementById(monthId).value = targetDate.getMonth() + 1 // January is 0!
+  document.getElementById(yearId).value = targetDate.getFullYear()
 }
 
-function keypressPopulateWithTodaysDate (event, dayId, monthId, yearId) {
+function keypressPopulateWithDate (event, dayId, monthId, yearId, daysOffset=0) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.preventDefault()
-    populateWithTodaysDate(dayId, monthId, yearId)
+    populateWithDate(dayId, monthId, yearId, daysOffset)
   }
 }
 
-const populateDateElements = document.getElementsByClassName('amp-populate-date')
-
-Array.from(populateDateElements).forEach(function (populateDateElement) {
-  const dayFieldId = populateDateElement.getAttribute('dayFieldId')
-  const monthFieldId = populateDateElement.getAttribute('monthFieldId')
-  const yearFieldId = populateDateElement.getAttribute('yearFieldId')
-  populateDateElement.onclick = function () {
-    populateWithTodaysDate(dayFieldId, monthFieldId, yearFieldId)
+function addPopulateDateListeners (dateElement, daysOffset=0) {
+  const dayFieldId = dateElement.getAttribute('dayFieldId')
+  const monthFieldId = dateElement.getAttribute('monthFieldId')
+  const yearFieldId = dateElement.getAttribute('yearFieldId')
+  dateElement.onclick = function () {
+    populateWithDate(dayFieldId, monthFieldId, yearFieldId, daysOffset)
   }
-  populateDateElement.onkeypress = function () {
+  dateElement.onkeypress = function () {
     // eslint-disable-next-line no-undef
-    keypressPopulateWithTodaysDate(event, dayFieldId, monthFieldId, yearFieldId)
+    keypressPopulateWithDate(event, dayFieldId, monthFieldId, yearFieldId, daysOffset)
   }
+}
+
+const populateDateWithTodayElements = document.getElementsByClassName('amp-populate-date-today')
+
+Array.from(populateDateWithTodayElements).forEach(function (populateDateElement) {
+  addPopulateDateListeners(populateDateElement)
+})
+
+const populateDateWithOneWeekElements = document.getElementsByClassName('amp-populate-date-1-week')
+
+Array.from(populateDateWithOneWeekElements).forEach(function (populateDateElement) {
+  const daysOffset = oneWeekInDays
+  addPopulateDateListeners(populateDateElement, daysOffset)
+})
+
+const populateDateWithFourWeeksElements = document.getElementsByClassName('amp-populate-date-4-weeks')
+
+Array.from(populateDateWithFourWeeksElements).forEach(function (populateDateElement) {
+  const daysOffset = fourWeeksInDays
+  addPopulateDateListeners(populateDateElement, daysOffset)
+})
+
+const populateDateWithTwelveWeeksElements = document.getElementsByClassName('amp-populate-date-12-weeks')
+
+Array.from(populateDateWithTwelveWeeksElements).forEach(function (populateDateElement) {
+  const daysOffset = twelveWeeksInDays
+  addPopulateDateListeners(populateDateElement, daysOffset)
 })
 
 module.exports = {
-  populateWithTodaysDate,
-  keypressPopulateWithTodaysDate
+  populateWithDate,
+  keypressPopulateWithDate,
+  addPopulateDateListeners
 }

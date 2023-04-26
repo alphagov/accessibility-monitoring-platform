@@ -16,8 +16,22 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 from ...notifications.models import Notification
+
 from ...s3_read_write.models import S3Report
-from ...audits.models import Audit, Page, PAGE_TYPE_STATEMENT, PAGE_TYPE_CONTACT
+
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    PAGE_TYPE_STATEMENT,
+    PAGE_TYPE_CONTACT,
+    PAGE_TYPE_HOME,
+    RETEST_CHECK_RESULT_FIXED,
+    SCOPE_STATE_VALID,
+)
+from ...audits.tests.test_models import create_audit_and_check_results
+
+from ...comments.models import Comment
 from ...common.models import (
     BOOLEAN_TRUE,
     Event,
@@ -25,8 +39,8 @@ from ...common.models import (
     EVENT_TYPE_MODEL_CREATE,
     EVENT_TYPE_MODEL_UPDATE,
 )
-from ...common.utils import get_field_names_for_export
 from ...common.utils import amp_format_date
+
 from ...reports.models import Report
 
 from ..models import (
@@ -34,6 +48,7 @@ from ..models import (
     REPORT_METHODOLOGY_PLATFORM,
     TESTING_METHODOLOGY_SPREADSHEET,
     Case,
+    CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
@@ -42,6 +57,16 @@ from ..models import (
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
+    CASE_EVENT_TYPE_CREATE,
+    CASE_EVENT_CASE_COMPLETED,
+    CASE_COMPLETED_NO_SEND,
+)
+from ..utils import (
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    COLUMNS_FOR_EQUALITY_BODY,
+    EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY,
+    CASE_COLUMNS_FOR_EXPORT,
+    CONTACT_COLUMNS_FOR_EXPORT,
 )
 from ..views import (
     ONE_WEEK_IN_DAYS,
@@ -74,19 +99,55 @@ COMPLIANCE_DECISION_NOTES: str = "Compliant decision note"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility Statement note"
 TODAY: date = date.today()
 DRAFT_REPORT_URL: str = "https://draft-report-url.com"
-case_fields_to_export_str: str = ",".join(get_field_names_for_export(Case))
+case_feedback_survey_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+)
+case_equality_body_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
+)
+case_columns_to_export_str: str = ",".join(
+    column.column_name
+    for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
+)
 ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
+QA_COMMENT_BODY: str = "QA comment body"
 
 
 def add_user_to_auditor_groups(user: User) -> None:
     auditor_group: Group = Group.objects.create(name="Auditor")
     historic_auditor_group: Group = Group.objects.create(name="Historic auditor")
     qa_auditor_group: Group = Group.objects.create(name="QA auditor")
-    auditor_group.user_set.add(user)  # type: ignore
-    historic_auditor_group.user_set.add(user)  # type: ignore
-    qa_auditor_group.user_set.add(user)  # type: ignore
+    auditor_group.user_set.add(user)
+    historic_auditor_group.user_set.add(user)
+    qa_auditor_group.user_set.add(user)
+
+
+def test_view_case_includes_tests(admin_client):
+    """
+    Test that the View case display test and 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, "Test metadata")
+    assertContains(response, "Date of test")
+    assertContains(response, "Initial accessibility statement compliance decision")
+
+    assertContains(response, "12-week test metadata")
+    assertContains(response, "Retest date")
+    assertContains(
+        response,
+        "The statement assessment is not visible, as no statement was found during the initial test.",
+    )
 
 
 def test_case_detail_view_leaves_out_deleted_contact(admin_client):
@@ -102,7 +163,9 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
         is_deleted=True,
     )
 
-    response: HttpResponse = admin_client.get(reverse("cases:case-detail", kwargs={"pk": case.id}))  # type: ignore
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
     assert set(response.context["contacts"]) == set([undeleted_contact])
@@ -122,7 +185,9 @@ def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -132,10 +197,14 @@ def test_case_list_view_filters_by_case_number(admin_client):
     included_case: Case = Case.objects.create(organisation_name="Included")
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-list')}?search={included_case.id}")  # type: ignore
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?search={included_case.id}"
+    )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -150,7 +219,9 @@ def test_case_list_view_filters_by_psb_location(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -166,7 +237,9 @@ def test_case_list_view_filters_by_sector_name(admin_client):
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -193,7 +266,9 @@ def test_case_list_view_string_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -217,11 +292,13 @@ def test_case_list_view_user_filters(field_name, url_parameter_name, admin_clien
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}"  # type: ignore
+        f"{reverse('cases:case-list')}?{url_parameter_name}={user.id}"
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -249,35 +326,74 @@ def test_case_list_view_user_unassigned_filters(
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_date_range_filters(admin_client):
-    """Test that the case list view page can be filtered by date range"""
-    included_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+@pytest.mark.parametrize(
+    "filter_field_name",
+    ["sent_to_enforcement_body_sent_date", "case_updated_date"],
+)
+def test_case_list_view_date_filters(filter_field_name, admin_client):
+    """
+    Test that the case list view page can be filtered by date range on a field.
+    """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(
+        included_case,
+        filter_field_name,
+        datetime(year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    included_case.save()
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    setattr(
+        excluded_case,
+        filter_field_name,
+        datetime(year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    Case.objects.create(
-        organisation_name="Included",
-        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
-    )
-    Case.objects.create(
-        organisation_name="Excluded",
-        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
-    )
+    excluded_case.save()
 
-    url_parameters = "date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = f"date_type={filter_field_name}&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
+
+
+def test_case_list_view_audit_date_of_test_filters(admin_client):
+    """
+    Test that the case list view page can be filtered by date range on audit
+    date of test.
+    """
+    included_audit_date_of_test: datetime = datetime(
+        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    excluded_audit_date_of_test: datetime = datetime(
+        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    )
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    Audit.objects.create(case=included_case, date_of_test=included_audit_date_of_test)
+    Audit.objects.create(case=excluded_case, date_of_test=excluded_audit_date_of_test)
+
+    url_parameters = "date_type=audit_case__date_of_test&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-list')}?{url_parameters}"
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
 
@@ -293,13 +409,35 @@ def test_case_list_view_sector_filter(admin_client):
     Case.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
-        f"{reverse('cases:case-list')}?sector={sector.id}"  # type: ignore
+        f"{reverse('cases:case-list')}?sector={sector.id}"
     )
 
     assert response.status_code == 200
-    assertContains(response, '<h2 class="govuk-heading-m">1 cases found</h2>')
+    assertContains(
+        response, '<p class="govuk-body-m govuk-!-font-weight-bold">1 case found</p>'
+    )
     assertContains(response, "Included")
     assertNotContains(response, "Excluded")
+
+
+def test_case_feedback_survey_export_list_view(admin_client):
+    """Test that the case feedback survey export list view returns csv data"""
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-feedback-survey-cases")
+    )
+
+    assert response.status_code == 200
+    assertContains(response, case_feedback_survey_columns_to_export_str)
+
+
+def test_case_equality_body_export_list_view(admin_client):
+    """Test that the case equality body export list view returns csv data"""
+    response: HttpResponse = admin_client.get(
+        reverse("cases:export-equality-body-cases")
+    )
+
+    assert response.status_code == 200
+    assertContains(response, case_equality_body_columns_to_export_str)
 
 
 def test_case_export_list_view(admin_client):
@@ -307,7 +445,31 @@ def test_case_export_list_view(admin_client):
     response: HttpResponse = admin_client.get(reverse("cases:case-export-list"))
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
+
+
+@pytest.mark.parametrize(
+    "export_view_name",
+    [
+        "cases:export-equality-body-cases",
+        "cases:case-export-list",
+        "cases:export-feedback-survey-cases",
+    ],
+)
+def test_case_export_view_filters_by_search(export_view_name, admin_client):
+    """
+    Test that the case exports can be filtered by search from top menu
+    """
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    Case.objects.create(organisation_name="Excluded")
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse(export_view_name)}?search={included_case.id}"
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Included")
+    assertNotContains(response, "Excluded")
 
 
 def test_case_export_list_view_respects_filters(admin_client):
@@ -317,7 +479,9 @@ def test_case_export_list_view_respects_filters(admin_client):
     Case.objects.create(organisation_name="Included", auditor=user)
     Case.objects.create(organisation_name="Excluded")
 
-    response: HttpResponse = admin_client.get(f"{reverse('cases:case-export-list')}?auditor={user.id}")  # type: ignore
+    response: HttpResponse = admin_client.get(
+        f"{reverse('cases:case-export-list')}?auditor={user.id}"
+    )
 
     assert response.status_code == 200
     assertContains(response, "Included")
@@ -329,17 +493,17 @@ def test_case_export_single_view(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-export-single", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:case-export-single", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
-    assertContains(response, case_fields_to_export_str)
+    assertContains(response, case_columns_to_export_str)
 
 
 def test_deactivate_case_view(admin_client):
     """Test that deactivate case view deactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk: Dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:deactivate-case", kwargs=case_pk),
@@ -350,9 +514,9 @@ def test_deactivate_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.is_deactivated
     assert case_from_db.deactivate_date == TODAY
@@ -362,7 +526,7 @@ def test_deactivate_case_view(admin_client):
 def test_reactivate_case_view(admin_client):
     """Test that reactivate case view reactivates the case"""
     case: Case = Case.objects.create()
-    case_pk: Dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk: Dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.post(
         reverse("cases:reactivate-case", kwargs=case_pk),
@@ -372,9 +536,9 @@ def test_reactivate_case_view(admin_client):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse("cases:case-detail", kwargs=case_pk)  # type: ignore
+    assert response.url == reverse("cases:case-detail", kwargs=case_pk)
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert not case_from_db.is_deactivated
 
@@ -407,13 +571,19 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
         ("cases:edit-qa-process", "<li>QA process</li>"),
         ("cases:edit-contact-details", "<li>Contact details</li>"),
         ("cases:edit-report-correspondence", "<li>Report correspondence</li>"),
+        (
+            "cases:outstanding-issues",
+            '<h1 class="govuk-heading-xl amp-margin-bottom-15">Outstanding issues</h1>',
+        ),
     ],
 )
 def test_case_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the case-specific view page loads"""
     case: Case = Case.objects.create()
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs={"pk": case.id}))  # type: ignore
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs={"pk": case.id})
+    )
 
     assert response.status_code == 200
 
@@ -473,7 +643,7 @@ def test_create_case_redirects_based_on_button_pressed(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url  # type: ignore
+    assert response.url == expected_redirect_url
 
 
 @pytest.mark.django_db
@@ -531,7 +701,56 @@ def test_create_case_can_create_duplicate_cases(
     )
 
     assert response.status_code == 302
-    assert response.url == expected_redirect_url  # type: ignore
+    assert response.url == expected_redirect_url
+
+
+def test_create_case_creates_case_event(admin_client):
+    """Test that a successful case create also creates a case event"""
+    response: HttpResponse = admin_client.post(
+        reverse("cases:case-create"),
+        {
+            "home_page_url": HOME_PAGE_URL,
+            "enforcement_body": "ehrc",
+            "save_exit": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+
+    case: Case = Case.objects.get(home_page_url=HOME_PAGE_URL)
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_TYPE_CREATE
+    assert case_event.message == "Created case"
+
+
+def test_updating_case_creates_case_event(admin_client):
+    """
+    Test that updating a case (changing case completed) creates a case event
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-case-close", kwargs={"pk": case.id}),
+        {
+            "case_completed": CASE_COMPLETED_NO_SEND,
+            "version": case.version,
+            "save": "Button value",
+        },
+    )
+    assert response.status_code == 302
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(case=case)
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CASE_EVENT_CASE_COMPLETED
+    assert (
+        case_event.message
+        == "Case completed changed from 'Case still in progress' to 'Case should not be sent to the equality body'"
+    )
 
 
 @pytest.mark.parametrize(
@@ -635,7 +854,7 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse(case_edit_path, kwargs={"pk": case.id}),  # type: ignore
+        reverse(case_edit_path, kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -648,9 +867,65 @@ def test_platform_case_edit_redirects_based_on_button_pressed(
         },
     )
     assert response.status_code == 302
+    assert response.url == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'
+
+
+def test_add_qa_comment(admin_client, admin_user):
+    """Test adding a QA comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+            "body": QA_COMMENT_BODY,
+        },
+    )
+    assert response.status_code == 302
+
+    comment: Comment = Comment.objects.get(case=case)
+
+    assert comment.body == QA_COMMENT_BODY
+    assert comment.user == admin_user
+
+    content_type: ContentType = ContentType.objects.get_for_model(Comment)
+    event: Event = Event.objects.get(content_type=content_type, object_id=comment.id)
+
+    assert event.type == EVENT_TYPE_MODEL_CREATE
+
+
+def test_add_comment_button_redirects_to_add_comment(admin_client):
+    """Test pressing add comment button redirects to add comment"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
+        {
+            "add_comment": "Add comment",
+            "version": case.version,
+        },
+    )
+    assert response.status_code == 302
     assert (
-        response.url  # type: ignore
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}'  # type: ignore
+        response.url
+        == f'{reverse("cases:add-qa-comment", kwargs={"case_id": case.id})}'
+    )
+
+
+def test_add_qa_comment_redirects_to_qa_process(admin_client):
+    """Test adding a QA comment redirects to QA process page"""
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:add-qa-comment", kwargs={"case_id": case.id}),
+        {
+            "save_return": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
     )
 
 
@@ -659,7 +934,7 @@ def test_add_contact_form_appears(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -679,7 +954,7 @@ def test_add_contact(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -708,51 +983,22 @@ def test_delete_contact(admin_client):
     contact: Contact = Contact.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",  # type: ignore
+            f"remove_contact_{contact.id}": "Button value",
         },
         follow=True,
     )
     assert response.status_code == 200
     assertContains(response, "No contacts have been entered")
 
-    contact_on_database = Contact.objects.get(pk=contact.id)  # type: ignore
+    contact_on_database = Contact.objects.get(pk=contact.id)
     assert contact_on_database.is_deleted is True
-
-
-def test_preferred_contact_not_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact?")
-
-
-def test_preferred_contact_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact?")
 
 
 def test_link_to_accessibility_statement_displayed(admin_client):
@@ -766,15 +1012,16 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<a href="{ACCESSIBILITY_STATEMENT_URL}"
-            rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to accessibility statement
-        </a>""",
+        f"""<p class="govuk-body-m">
+            <a href="{ACCESSIBILITY_STATEMENT_URL}" target="_blank" class="govuk-link">
+                Open accessibility statement page
+            </a>
+        </p>""",
         html=True,
     )
 
@@ -787,7 +1034,7 @@ def test_link_to_accessibility_statement_not_displayed(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, "No accessibility statement")
@@ -798,7 +1045,7 @@ def test_updating_report_sent_date(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -809,7 +1056,7 @@ def test_updating_report_sent_date(admin_client):
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_due_date == ONE_WEEK_FOLLOWUP_DUE_DATE
     assert case_from_db.report_followup_week_4_due_date == FOUR_WEEK_FOLLOWUP_DUE_DATE
@@ -829,7 +1076,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -840,7 +1087,7 @@ def test_report_followup_due_dates_not_changed(admin_client):
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_due_date != OTHER_DATE
     assert case_from_db.report_followup_week_4_due_date != OTHER_DATE
@@ -856,7 +1103,7 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     case: Case = Case.objects.create(report_sent_date=OTHER_DATE)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_sent_date_0": REPORT_SENT_DATE.day,
             "report_sent_date_1": REPORT_SENT_DATE.month,
@@ -867,7 +1114,7 @@ def test_report_followup_due_dates_not_changed_if_repot_sent_date_already_set(
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_due_date is not None
     assert case_from_db.report_followup_week_4_due_date is not None
@@ -883,7 +1130,7 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -908,7 +1155,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
@@ -918,7 +1165,7 @@ def test_setting_report_followup_populates_sent_dates(admin_client):
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_sent_date == TODAY
     assert case_from_db.report_followup_week_4_sent_date == TODAY
@@ -932,7 +1179,7 @@ def test_setting_report_followup_does_not_update_sent_dates(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "report_followup_week_1_sent_date": "on",
             "report_followup_week_4_sent_date": "on",
@@ -942,7 +1189,7 @@ def test_setting_report_followup_does_not_update_sent_dates(admin_client):
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_sent_date == OTHER_DATE
     assert case_from_db.report_followup_week_4_sent_date == OTHER_DATE
@@ -956,7 +1203,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "save": "Button value",
@@ -964,7 +1211,7 @@ def test_unsetting_report_followup_sent_dates(admin_client):
     )
     assert response.status_code == 302
 
-    case_from_db: Case = Case.objects.get(pk=case.id)  # type: ignore
+    case_from_db: Case = Case.objects.get(pk=case.id)
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
@@ -998,20 +1245,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_preferred_contact_not_displayed(admin_client):
-    """
-    Test that the preferred contact is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact")
-
-
 def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
     admin_client,
 ):
@@ -1021,20 +1254,17 @@ def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_plat
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    assertContains(response, "A test does not exist for this case.")
+    assertContains(response, "No test exists")
 
 
 @pytest.mark.parametrize(
     "audit_table_row",
     [
-        ("Link to test"),
-        ("Test created"),
         ("Screen size"),
         ("Exemptions"),
-        ("Exemptions notes"),
         ("Initial website compliance decision"),
         ("Initial website compliance notes"),
         ("Initial accessibility statement compliance decision"),
@@ -1050,7 +1280,7 @@ def test_audit_shows_table_when_audit_exists_and_audit_is_platform(
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, audit_table_row)
@@ -1065,7 +1295,7 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
@@ -1093,25 +1323,10 @@ def test_report_shows_table_when_report_exists_and_report_is_platform(
     Audit.objects.create(case=case)
     Report.objects.create(case=case)
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(response, audit_table_row)
-
-
-def test_preferred_contact_displayed(admin_client):
-    """
-    Test that the preferred contact is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact")
 
 
 @pytest.mark.parametrize(
@@ -1147,7 +1362,7 @@ def test_preferred_contact_displayed(admin_client):
         ("post_case_complete_date", "Post case summary", "edit-post-case"),
     ],
 )
-def test_section_complete_check_displayed_in_contents_platform_methodology(
+def test_section_complete_check_displayed_in_platform_testing_methodology(
     flag_name, section_name, edit_url_name, admin_client
 ):
     """
@@ -1157,10 +1372,10 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
     case: Case = Case.objects.create()
     setattr(case, flag_name, TODAY)
     case.save()
-    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})  # type: ignore
+    edit_url: str = reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1171,7 +1386,7 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
             <a href="#{edit_url_name[5:]}" class="govuk-link govuk-link--no-visited-state">
             {section_name}<span class="govuk-visually-hidden">complete</span></a>
             |
-            <a href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
+            <a id="{edit_url_name}" href="{edit_url}" class="govuk-link govuk-link--no-visited-state">
                 Edit<span class="govuk-visually-hidden">complete</span>
             </a>
             &check;
@@ -1183,6 +1398,26 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
 @pytest.mark.parametrize(
     "flag_name, section_name, section_id",
     [
+        ("case_details_complete_date", "Case details", "case-details"),
+        ("testing_details_complete_date", "Testing details", "test-results"),
+        ("reporting_details_complete_date", "Report details", "report-details"),
+        ("qa_process_complete_date", "QA process", "qa-process"),
+        ("contact_details_complete_date", "Contact details", "contact-details"),
+        (
+            "report_correspondence_complete_date",
+            "Report correspondence",
+            "report-correspondence",
+        ),
+        (
+            "twelve_week_correspondence_complete_date",
+            "12-week correspondence",
+            "twelve-week-correspondence",
+        ),
+        (
+            "review_changes_complete_date",
+            "Reviewing changes",
+            "review-changes",
+        ),
         (
             "final_website_complete_date",
             "Final website compliance decision",
@@ -1193,9 +1428,14 @@ def test_section_complete_check_displayed_in_contents_platform_methodology(
             "Final accessibility statement compliance decision",
             "final-statement",
         ),
+        (
+            "case_close_complete_date",
+            "Closing the case",
+            "case-close",
+        ),
     ],
 )
-def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
+def test_section_complete_check_displayed_in_testing_spreadsheet_methodology(
     flag_name, section_name, section_id, admin_client
 ):
     """
@@ -1209,7 +1449,7 @@ def test_section_complete_check_displayed_in_contents_spreadsheet_methodology(
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1282,7 +1522,7 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse(step_url, kwargs={"pk": case.id}),  # type: ignore
+        reverse(step_url, kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1304,14 +1544,16 @@ def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     case: Case = Case.objects.create(testing_methodology="platform")
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
 
     assertContains(response, "This case does not have a test.")
 
-    edit_test_results_url: str = reverse("cases:edit-test-results", kwargs={"pk": case.id})  # type: ignore
+    edit_test_results_url: str = reverse(
+        "cases:edit-test-results", kwargs={"pk": case.id}
+    )
     assertContains(
         response,
         f"""<a href="{edit_test_results_url}"
@@ -1333,7 +1575,7 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     audit: Audit = Audit.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1341,7 +1583,9 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     assertContains(response, "This case does not have a retest.")
     assertContains(response, "Click Start retest to move to the testing environment.")
 
-    start_retest_url: str = reverse("audits:audit-retest-start", kwargs={"pk": audit.id})  # type: ignore
+    start_retest_url: str = reverse(
+        "audits:audit-retest-start", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{start_retest_url}"
@@ -1364,12 +1608,14 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
     audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
 
-    view_retest_url: str = reverse("audits:audit-retest-detail", kwargs={"pk": audit.id})  # type: ignore
+    view_retest_url: str = reverse(
+        "audits:audit-retest-detail", kwargs={"pk": audit.id}
+    )
     assertContains(
         response,
         f"""<a href="{view_retest_url}"
@@ -1390,7 +1636,7 @@ def test_case_review_changes_view_contains_link_to_test_results_url(admin_client
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1412,7 +1658,7 @@ def test_case_review_changes_view_contains_no_link_to_test_results_url(admin_cli
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1434,7 +1680,7 @@ def test_case_review_changes_view_contains_no_mention_of_spreadsheet_if_platform
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-review-changes", kwargs={"pk": case.id})  # type: ignore
+        reverse("cases:edit-review-changes", kwargs={"pk": case.id})
     )
 
     assert response.status_code == 200
@@ -1453,11 +1699,13 @@ def test_calculate_report_followup_dates():
     case: Case = Case()
     report_sent_date: date = date(2020, 1, 1)
 
-    updated_case = calculate_report_followup_dates(case=case, report_sent_date=report_sent_date)  # type: ignore
+    updated_case = calculate_report_followup_dates(
+        case=case, report_sent_date=report_sent_date
+    )
 
-    assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)  # type: ignore
-    assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)  # type: ignore
-    assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)  # type: ignore
+    assert updated_case.report_followup_week_1_due_date == date(2020, 1, 8)
+    assert updated_case.report_followup_week_4_due_date == date(2020, 1, 29)
+    assert updated_case.report_followup_week_12_due_date == date(2020, 3, 25)
 
 
 def test_calculate_twelve_week_chaser_dates():
@@ -1468,10 +1716,10 @@ def test_calculate_twelve_week_chaser_dates():
     twelve_week_update_requested_date: date = date(2020, 1, 1)
 
     updated_case = calculate_twelve_week_chaser_dates(
-        case=case, twelve_week_update_requested_date=twelve_week_update_requested_date  # type: ignore
+        case=case, twelve_week_update_requested_date=twelve_week_update_requested_date
     )
 
-    assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)  # type: ignore
+    assert updated_case.twelve_week_1_week_chaser_due_date == date(2020, 1, 8)
 
 
 @pytest.mark.parametrize(
@@ -1496,14 +1744,14 @@ def test_case_details_includes_link_to_auditors_cases(admin_client):
     case: Case = Case.objects.create(auditor=user)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
-    user_id: int = user.id  # type: ignore
+    user_id: int = user.id
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{reverse("cases:case-list")}?auditor={ user_id }" rel="noreferrer noopener" class="govuk-link">
                     Joe Bloggs
@@ -1521,13 +1769,13 @@ def test_case_details_has_no_link_to_auditors_cases_if_no_auditor(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Auditor</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Auditor</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
@@ -1539,16 +1787,20 @@ def test_case_details_includes_link_to_report(admin_client):
     Test that the case details page contains a link to the report
     """
     report_final_pdf_url: str = "https://report-final-pdf-url.com"
-    case: Case = Case.objects.create(report_final_pdf_url=report_final_pdf_url)
+    case: Case = Case.objects.create(
+        report_methodology=REPORT_METHODOLOGY_ODT,
+        report_final_pdf_url=report_final_pdf_url,
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
         response,
         f"""<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+            Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <a href="{report_final_pdf_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     Final draft (PDF)
@@ -1563,20 +1815,115 @@ def test_case_details_includes_no_link_to_report(admin_client):
     """
     Test that the case details page contains no link to the report if none is set
     """
-    case: Case = Case.objects.create()
+    case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
     assertContains(
         response,
         """<tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__header amp-width-one-half">Link to final PDF report</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to final PDF report</th>
             <td class="govuk-table__cell amp-width-one-half">None</td>
         </tr>""",
         html=True,
     )
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "edit-case-details",
+        "edit-test-results",
+        "edit-report-details",
+        "edit-qa-process",
+        "edit-contact-details",
+        "edit-report-correspondence",
+        "edit-twelve-week-correspondence",
+        "edit-twelve-week-retest",
+        "edit-review-changes",
+        "edit-case-close",
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
+    ],
+)
+def test_case_details_shows_edit_links(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details show edit links when testing methodology is platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, edit_link_label)
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "edit-enforcement-body-correspondence",
+        "edit-post-case",
+    ],
+)
+def test_case_details_shows_edit_links_when_spreadsheet(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details show edit links when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(response, edit_link_label)
+
+
+@pytest.mark.parametrize(
+    "edit_link_label",
+    [
+        "Edit case details",
+        "Edit testing details",
+        "Edit report details",
+        "Edit QA process",
+        "Edit contact details",
+        "Edit report correspondence",
+        "Edit 12-week correspondence",
+        "Edit 12-week retest",
+        "Edit reviewing changes",
+        "Edit closing the case",
+    ],
+)
+def test_case_details_hides_edit_links_when_spreadsheet(
+    edit_link_label,
+    admin_client,
+):
+    """
+    Test case details does not show edit links when testing methodology is
+    spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertNotContains(response, edit_link_label)
 
 
 def test_status_change_message_shown(admin_client):
@@ -1587,9 +1934,9 @@ def test_status_change_message_shown(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-case-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-case-details", kwargs={"pk": case.id}),
         {
-            "auditor": user.id,  # type: ignore
+            "auditor": user.id,
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "version": case.version,
@@ -1618,7 +1965,7 @@ def test_qa_process_approval_notifies_auditor(rf):
         username="johnsmith", first_name="John", last_name="Smith"
     )
     request = rf.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_approved_status": REPORT_APPROVED_STATUS_APPROVED,
@@ -1627,7 +1974,7 @@ def test_qa_process_approval_notifies_auditor(rf):
     )
     request.user = request_user
 
-    response: HttpResponse = CaseQAProcessUpdateView.as_view()(request, pk=case.id)  # type: ignore
+    response: HttpResponse = CaseQAProcessUpdateView.as_view()(request, pk=case.id)
 
     assert response.status_code == 302
 
@@ -1657,16 +2004,18 @@ def test_qa_process_approval_notifies_auditor(rf):
         ("zendesk_url", "edit-post-case"),
     ],
 )
-def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client):
+def test_frequently_used_links_displayed_in_edit(
+    useful_link, edit_url_name, admin_client
+):
     """
-    Test that the useful links are displayed on all edit pages
+    Test that the frequently used links are displayed on all edit pages
     """
     case: Case = Case.objects.create(home_page_url="https://home_page_url.com")
     setattr(case, useful_link, f"https://{useful_link}.com")
     case.save()
 
     response: HttpResponse = admin_client.get(
-        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),  # type: ignore
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1677,7 +2026,7 @@ def test_useful_links_displayed_in_edit(useful_link, edit_url_name, admin_client
         response,
         """<li>
             <a href="https://home_page_url.com" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                Link to website
+                View website
             </a>
         </li>""",
         html=True,
@@ -1730,7 +2079,7 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
         {
             "report_approved_status": "yes",
             "version": case.version,
@@ -1739,30 +2088,38 @@ def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
     )
 
     assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)  # type: ignore
+    updated_case: Case = Case.objects.get(pk=case.id)
     assert updated_case.reviewer == admin_user
 
 
 @pytest.mark.django_db
-def test_create_case_also_creates_event(admin_client):
-    """Test that create case also creates event"""
+def test_create_case_with_duplicates_shows_previous_url_field(admin_client):
+    """
+    Test that create case with duplicates found shows URL to previous case field
+    """
+    Case.objects.create(
+        home_page_url=HOME_PAGE_URL,
+        organisation_name="other organisation name",
+    )
+    Case.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url="other_url",
+    )
+
     response: HttpResponse = admin_client.post(
-        f"{reverse('cases:case-create')}?allow_duplicate_cases=True",
+        reverse("cases:case-create"),
         {
             "home_page_url": HOME_PAGE_URL,
             "enforcement_body": "ehrc",
             "organisation_name": ORGANISATION_NAME,
-            "save_exit": "Button value",
         },
     )
 
-    assert response.status_code == 302
-
-    case: Case = Case.objects.get(pk=1)
-    content_type: ContentType = ContentType.objects.get_for_model(Case)
-    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)  # type: ignore
-
-    assert event.type == EVENT_TYPE_MODEL_CREATE
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "If the website has been previously audited, include a link to the case below",
+    )
 
 
 def test_updating_case_create_event(admin_client):
@@ -1770,7 +2127,7 @@ def test_updating_case_create_event(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "version": case.version,
             "report_correspondence_complete_date": "on",
@@ -1780,7 +2137,7 @@ def test_updating_case_create_event(admin_client):
     assert response.status_code == 302
 
     content_type: ContentType = ContentType.objects.get_for_model(Case)
-    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)  # type: ignore
+    event: Event = Event.objects.get(content_type=content_type, object_id=case.id)
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
 
@@ -1790,7 +2147,7 @@ def test_add_contact_also_creates_event(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1812,7 +2169,7 @@ def test_add_contact_also_creates_event(admin_client):
     contact: Contact = list(contacts)[0]
 
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)  # type: ignore
+    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
     assert event.type == EVENT_TYPE_MODEL_CREATE
 
@@ -1823,21 +2180,21 @@ def test_delete_contact_adds_update_event(admin_client):
     contact: Contact = Contact.objects.create(case=case)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "version": case.version,
-            f"remove_contact_{contact.id}": "Button value",  # type: ignore
+            f"remove_contact_{contact.id}": "Button value",
         },
         follow=True,
     )
     assert response.status_code == 200
 
     content_type: ContentType = ContentType.objects.get_for_model(Contact)
-    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)  # type: ignore
+    event: Event = Event.objects.get(content_type=content_type, object_id=contact.id)
 
     assert event.type == EVENT_TYPE_MODEL_UPDATE
 
@@ -1857,7 +2214,7 @@ def test_links_to_contact_and_accessibility_pages_shown(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1875,7 +2232,7 @@ def test_links_to_contact_and_accessibility_pages_not_shown(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -1889,7 +2246,7 @@ def test_update_case_checks_version(admin_client):
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
         {
             "version": case.version - 1,
             "save": "Button value",
@@ -1942,7 +2299,7 @@ def test_platform_shows_notification_if_fully_compliant(
     )
 
     response: HttpResponse = admin_client.get(
-        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),  # type: ignore
+        reverse(f"cases:{edit_url_name}", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -1974,7 +2331,7 @@ def test_case_details_shows_link_to_report(
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -1990,10 +2347,12 @@ def test_platform_report_correspondence_shows_link_to_report_if_none_published(
     """
     case: Case = Case.objects.create()
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -2017,7 +2376,7 @@ def test_non_platform_qa_process_shows_no_link_to_draft_report(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2042,7 +2401,7 @@ def test_non_platform_qa_process_shows_link_to_draft_report(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2069,7 +2428,7 @@ def test_non_platform_report_correspondence_shows_no_link_to_report(admin_client
     Report.objects.create(case=case)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
     )
     assert response.status_code == 200
 
@@ -2086,7 +2445,7 @@ def test_platform_qa_process_shows_no_link_to_preview_report(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2108,10 +2467,12 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
     case: Case = Case.objects.create()
 
     report: Report = Report.objects.create(case=case)
-    report_publisher_url: str = reverse("reports:report-publisher", kwargs={"pk": report.id})  # type: ignore
+    report_publisher_url: str = reverse(
+        "reports:report-publisher", kwargs={"pk": report.id}
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2120,7 +2481,7 @@ def test_platform_qa_process_shows_link_to_preview_report(admin_client):
         f"""<div class="govuk-form-group">
             <label class="govuk-label"><b>Link to report draft</b></label>
             <div class="govuk-hint">
-                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                <a href="{report_publisher_url}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
                     Report publisher
                 </a>
             </div>
@@ -2138,11 +2499,11 @@ def test_platform_qa_process_shows_link_to_publish_report(admin_client):
 
     report: Report = Report.objects.create(case=case)
     report_confirm_publish_url: str = reverse(
-        "reports:report-confirm-publish", kwargs={"pk": report.id}  # type: ignore
+        "reports:report-confirm-publish", kwargs={"pk": report.id}
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2176,7 +2537,7 @@ def test_platform_qa_process_shows_link_to_s3_report(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2204,7 +2565,7 @@ def test_non_platform_qa_process_shows_final_report_fields(admin_client):
     case: Case = Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2220,12 +2581,29 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
     assertNotContains(response, "Link to final PDF report")
     assertNotContains(response, "Link to final ODT report")
+
+
+def test_qa_process_opens_discussion(admin_client):
+    """
+    Test that the QA process page opens the discussion details element
+    by default.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response, '<details class="govuk-details" data-module="govuk-details" open>'
+    )
 
 
 def test_report_corespondence_shows_link_to_create_report(admin_client):
@@ -2234,10 +2612,12 @@ def test_report_corespondence_shows_link_to_create_report(admin_client):
     if one does not exist.
     """
     case: Case = Case.objects.create()
-    report_details_url: str = reverse("cases:edit-report-details", kwargs={"pk": case.id})  # type: ignore
+    report_details_url: str = reverse(
+        "cases:edit-report-details", kwargs={"pk": case.id}
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-report-correspondence", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2261,7 +2641,7 @@ def test_twelve_week_correspondence_psb_contact(admin_client):
     case: Case = Case.objects.create()
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2287,7 +2667,7 @@ def test_twelve_week_correspondence_no_psb_contact(admin_client):
     case: Case = Case.objects.create(no_psb_contact=BOOLEAN_TRUE)
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),  # type: ignore
+        reverse("cases:edit-twelve-week-correspondence", kwargs={"pk": case.id}),
     )
 
     assert response.status_code == 200
@@ -2311,7 +2691,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
     when an auditor is assigned.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
 
     response: HttpResponse = admin_client.get(
         reverse("cases:status-workflow", kwargs=case_pk_kwargs),
@@ -2448,7 +2828,7 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
     only when the linked action's value has been set.
     """
     case: Case = Case.objects.create()
-    case_pk_kwargs: Dict[str, int] = {"pk": case.id}  # type: ignore
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
     link_url: str = reverse(path_name, kwargs=case_pk_kwargs)
 
     response: HttpResponse = admin_client.get(
@@ -2482,3 +2862,445 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
                 {label}</a>&check;</li>""",
         html=True,
     )
+
+
+def test_case_steps_shown_when_platform_testing(admin_client):
+    """
+    Test case steps shown when testing methodology is platform.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
+        html=True,
+    )
+
+
+def test_case_steps_hidden_when_testing_spreadsheet(admin_client):
+    """
+    Test case details not showm edit links when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-enforcement-body-correspondence", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Post case</h2>""",
+        html=True,
+    )
+    assertNotContains(
+        response,
+        """<h2 class="govuk-heading-m amp-margin-bottom-5">Case steps</h2>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
+            "Case details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-test-results",
+            "Testing details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-details",
+            "Report details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-qa-process",
+            "QA process",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-contact-details",
+            "Contact details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-correspondence",
+            "Report correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-correspondence",
+            "12-week correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-retest",
+            "12-week retest",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-review-changes",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
+            "Closing the case",
+        ),
+        (
+            "cases:edit-post-case",
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body summary",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-post-case",
+            "Post case summary",
+        ),
+    ],
+)
+def test_navigation_links_shown_when_platform_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test case steps' navigation links are shown when testing methodology is
+    platform.
+    """
+    case: Case = Case.objects.create()
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-post-case",
+            "cases:edit-enforcement-body-correspondence",
+            "Equality body summary",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-post-case",
+            "Post case summary",
+        ),
+    ],
+)
+def test_navigation_links_shown_when_spreadsheet_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test correct case steps' navigation links are shown when testing methodology
+    is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "edit_case_url_name, nav_link_name,nav_link_label",
+    [
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-details",
+            "Case details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-test-results",
+            "Testing details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-details",
+            "Report details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-qa-process",
+            "QA process",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-contact-details",
+            "Contact details",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-report-correspondence",
+            "Report correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-correspondence",
+            "12-week correspondence",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-twelve-week-retest",
+            "12-week retest",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-review-changes",
+            "Reviewing changes",
+        ),
+        (
+            "cases:edit-enforcement-body-correspondence",
+            "cases:edit-case-close",
+            "Closing the case",
+        ),
+    ],
+)
+def test_navigation_links_hidden_when_spreadsheet_testing(
+    edit_case_url_name,
+    nav_link_name,
+    nav_link_label,
+    admin_client,
+):
+    """
+    Test correct case steps' navigation links are not hodden when testing
+    methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+    nav_link_url: str = reverse(nav_link_name, kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(
+        reverse(edit_case_url_name, kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        f"""<a href="{nav_link_url}" class="govuk-link govuk-link--no-visited-state">{nav_link_label}</a>""",
+        html=True,
+    )
+
+
+def test_case_details_hides_link_to_test_results_when_not_present(admin_client):
+    """
+    Test case details hides link to test results when URL not present
+    when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create(
+        testing_methodology=TESTING_METHODOLOGY_SPREADSHEET
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                Link to test results
+            </th>
+            <td class="govuk-table__cell amp-width-one-half">None</td>
+        </tr>""",
+        html=True,
+    )
+
+
+def test_case_details_contents_hides_link_to_12_week_retest_when_testing_methodology_spreadsheet(
+    admin_client,
+):
+    """
+    Test case details hides contents link to 12-week retest
+    when testing methodology is spreadsheet.
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<a href="#twelve-week-retest" class="govuk-link govuk-link--no-visited-state">
+            12-week retest</a>""",
+        html=True,
+    )
+
+    case.testing_methodology = TESTING_METHODOLOGY_SPREADSHEET
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+
+    assertNotContains(
+        response,
+        """<a href="#twelve-week-retest" class="govuk-link govuk-link--no-visited-state">
+            12-week retest</a>""",
+        html=True,
+    )
+
+
+def test_outstanding_issues(admin_client):
+    """
+    Test out standing issues page renders according to URL parameters.
+    """
+    audit: Audit = create_audit_and_check_results()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Group by WCAG error")
+    assertNotContains(response, "Group by Page")
+    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertNotContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+    response: HttpResponse = admin_client.get(f"{url}?view=WCAG+view")
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Group by WCAG error")
+    assertContains(response, "Group by page")
+    assertNotContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+    response: HttpResponse = admin_client.get(f"{url}?view=Page+view")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Group by WCAG error")
+    assertNotContains(response, "Group by page")
+    assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
+    assertNotContains(
+        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+    )
+
+
+def test_outstanding_issues_overview(admin_client):
+    """
+    Test out standing issues page shows overview.
+    """
+    audit: Audit = create_audit_and_check_results()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "0 of 3 (0%) WCAG errors have been fixed", html=True)
+    assertContains(response, "0 of 12 (0%) statement errors have been fixed", html=True)
+
+
+def test_outstanding_issues_overview_percentage(admin_client):
+    """
+    Test out standing issues page shows overview percentages calculated
+    correctly.
+    """
+    audit: Audit = create_audit_and_check_results()
+    audit.audit_retest_scope_state = SCOPE_STATE_VALID
+    audit.save()
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    check_result: CheckResult = home_page.all_check_results[0]
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "1 of 3 (33%) WCAG errors have been fixed", html=True)
+    assertContains(response, "1 of 12 (8%) statement errors have been fixed", html=True)
+
+
+def test_outstanding_issues_overview_percentages_new_case(admin_client):
+    """
+    Test out standing issues page shows overview percentages not included
+    for brand new case (with no tests)
+    """
+    case: Case = Case.objects.create()
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "0 of 0 WCAG errors have been fixed", html=True)
+    assertContains(response, "0 of 0 statement errors have been fixed", html=True)
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    ["cases:case-detail", "cases:edit-case-details"],
+)
+def test_frequently_used_links_displayed(url_name, admin_client):
+    """
+    Test that the frequently used links are displayed
+    """
+    case: Case = Case.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Frequently used links")
+    assertContains(response, "View outstanding issues")
+    assertContains(response, "View email template")
+    assertContains(response, "No published report")
+    assertContains(response, "View website")

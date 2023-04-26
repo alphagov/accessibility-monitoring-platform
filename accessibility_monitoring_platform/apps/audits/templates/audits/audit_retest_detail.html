@@ -43,19 +43,163 @@
         {% endif %}
         {% include "cases/helpers/messages.html" %}
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% if audit.audit_retest_website_decision_complete_date and audit.audit_retest_statement_decision_complete_date %}
+        {% if audit.audit_retest_website_decision_complete_date and audit.audit_retest_statement_decision_complete_date %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
                     {% include 'audits/helpers/end_of_test.html' %}
-                {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
                 {% include 'audits/helpers/retest_nav_contents.html' %}
-                {% include 'audits/details/retest_metadata.html' %}
-                {% if audit.case.psb_response %}
-                    {% include 'audits/details/retest_pages.html' %}
-                    {% include 'audits/details/retest_website_decision.html' %}
+            </div>
+            <div class="govuk-grid-column-one-half">
+                {% include 'audits/helpers/retest_overview.html' %}
+            </div>
+        </div>
+        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-metadata" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-metadata">
+                            12-week test metadata
+                            {% if audit.audit_retest_metadata_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-metadata" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-metadata">
+                    {% include 'audits/details/retest_metadata.html' %}
+                </div>
+            </div>
+
+            {% for page in audit.testable_pages %}
+                {% if page.failed_check_results %}
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="retest-{{ page.anchor }}" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-section-header{{ forloop.counter0 }}">
+                                    {{ page }} ({{ page.failed_check_results|length }})
+                                    {% if page.complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-{{ forloop.counter0 }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-section-{{ forloop.counter0 }}">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p id="{{ page.anchor }}" class="govuk-body-m">
+                                        <b>{{ page }} test</b>
+                                        |
+                                        <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% if page.failed_check_results %}
+                                <table class="govuk-table amp-accordion-table">
+                                    {% include 'audits/helpers/retest_page_comparison.html' with check_results=page.failed_check_results %}
+                                </table>
+                            {% endif %}
+                        </div>
+                    </div>
                 {% endif %}
-                {% include 'audits/details/retest_statement.html' %}
-                {% include 'audits/details/retest_statement_decision.html' %}
+            {% endfor %}
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-website-decision" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-website-decision">
+                            12-week website compliance decision
+                            {% if audit.audit_retest_website_decision_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-website-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-website-decision">
+                    {% include 'audits/details/retest_website_decision.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-1" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-1">
+                            12-week accessibility statement assessment Pt. 1
+                            {% if audit.audit_retest_statement_1_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-1">
+                    {% include 'audits/details/retest_statement_1.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-2" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-2">
+                            12-week accessibility statement assessment Pt. 2
+                            {% if audit.audit_retest_statement_2_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-2">
+                    {% include 'audits/details/retest_statement_2.html' %}
+                </div>
+            </div>
+
+            {% if audit.accessibility_statement_initially_found %}
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-comparison" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-comparison">
+                            12-week accessibility statement comparison
+                            {% if audit.audit_retest_statement_comparison_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-comparison" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-comparison">
+                    {% include 'audits/details/retest_statement_comparison.html' %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-retest-statement-decision" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-retest-statement-decision">
+                            12-week accessibility statement compliance decision
+                            {% if audit.audit_retest_statement_decision_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-retest-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-retest-statement-decision">
+                    {% include 'audits/details/retest_statement_decision.html' %}
+                </div>
             </div>
         </div>
     </main>

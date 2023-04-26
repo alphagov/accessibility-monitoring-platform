@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ audit.case.organisation_name }} | Append accessibility statement{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week test</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Append accessibility statement
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Append accessibility statement' case=audit.case %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{% url 'audits:edit-audit-12-week-statement' audit.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                            {% include 'common/amp_field.html' with field=form.twelve_week_accessibility_statement_url %}
+                            {% include 'common/amp_field_link_button.html' with field=form.audit_retest_accessibility_statement_backup_url %}
+                            {% if audit.audit_retest_accessibility_statement_backup_url_date %}
+                                <p class="govuk-body amp-margin-top-minus-20">Added {{ audit.audit_retest_accessibility_statement_backup_url_date }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and return"
+                                name="save_return"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:edit-audit-retest-statement-1' audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/retest_nav_steps.html' with current_page='audits:edit-audit-retest-statement-1' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/common_field_link_button.js' %}"></script>
+{% endblock %}

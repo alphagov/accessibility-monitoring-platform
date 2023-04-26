@@ -2,7 +2,9 @@
 Tests for reports models
 """
 import pytest
-from datetime import datetime
+
+from datetime import datetime, timezone
+from unittest.mock import patch, Mock
 
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
@@ -17,6 +19,7 @@ from ..models import (
 )
 
 DOMAIN: str = "example.com"
+DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
 
 
 @pytest.mark.django_db
@@ -37,7 +40,7 @@ def test_report_created_timestamp_is_not_updated():
 
     original_created_timestamp: datetime = report.created
     report.save()
-    updated_report: Report = Report.objects.get(pk=case.id)  # type: ignore
+    updated_report: Report = Report.objects.get(pk=case.id)
 
     assert updated_report.created == original_created_timestamp
 
@@ -49,7 +52,7 @@ def test_section_has_anchor():
     report: Report = Report.objects.create(case=case)
     section: Section = Section.objects.create(report=report, position=1)
 
-    assert section.anchor == f"report-section-{section.id}"  # type: ignore
+    assert section.anchor == f"report-section-{section.id}"
 
 
 @pytest.mark.django_db
@@ -153,3 +156,15 @@ def test_report_feedback_returns_string():
         "What went wrong: text"
     )
     assert str(report_feedback) == expected_result
+
+
+@pytest.mark.django_db
+def test_report_updated_updated():
+    """Test the report updated field is updated"""
+    case: Case = Case.objects.create()
+    report: Report = Report.objects.create(case=case)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_REPORT_UPDATED)):
+        report.save()
+
+    assert report.updated == DATETIME_REPORT_UPDATED

@@ -23,10 +23,11 @@ from django.urls import reverse
         ("post", reverse("cases:edit-report-correspondence", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-no-psb-response", kwargs={"pk": 1})),
         ("post", reverse("cases:edit-report-followup-due-dates", kwargs={"pk": 1})),
+        ("get", reverse("cases:outstanding-issues", kwargs={"pk": 1})),
     ],
 )
 def test_login_required(method, url, client):
     response: HttpResponse = getattr(client, method)(url)
 
     assert response.status_code == 302
-    assert response.url == f"/account/login/?next={url}"  # type: ignore
+    assert response.url == f"/account/login/?next={url}"

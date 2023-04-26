@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audits", "0018_remove_audit_is_deleted_alter_audit_case"),
     ]

@@ -9,7 +9,8 @@ from django.urls.resolvers import URLPattern
 from accessibility_monitoring_platform.apps.cases.views import (
     export_cases,
     export_single_case,
-    export_ehrc_cases,
+    export_equality_body_cases,
+    export_feedback_suvey_cases,
     CaseCreateView,
     CaseContactFormsetUpdateView,
     CaseDetailView,
@@ -18,6 +19,7 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseTestResultsUpdateView,
     CaseReportDetailsUpdateView,
     CaseQAProcessUpdateView,
+    QACommentCreateView,
     CaseReportCorrespondenceUpdateView,
     CaseReportFollowupDueDatesUpdateView,
     CaseNoPSBResponseUpdateView,
@@ -32,15 +34,21 @@ from accessibility_monitoring_platform.apps.cases.views import (
     CaseDeactivateUpdateView,
     CaseReactivateUpdateView,
     CaseStatusWorkflowDetailView,
+    CaseOutstandingIssuesDetailView,
 )
 
 app_name: str = "cases"
 urlpatterns: List[URLPattern] = [
     path("", login_required(CaseListView.as_view()), name="case-list"),
     path(
-        "export-as-ehrc-csv/",
-        login_required(export_ehrc_cases),
-        name="export-ehrc-cases",
+        "export-feedback-survey-cases-csv/",
+        login_required(export_feedback_suvey_cases),
+        name="export-feedback-survey-cases",
+    ),
+    path(
+        "export-as-equality-body-csv/",
+        login_required(export_equality_body_cases),
+        name="export-equality-body-cases",
     ),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),
     path(
@@ -71,6 +79,11 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-qa-process/",
         login_required(CaseQAProcessUpdateView.as_view()),
         name="edit-qa-process",
+    ),
+    path(
+        "<int:case_id>/add-qa-comment/",
+        login_required(QACommentCreateView.as_view()),
+        name="add-qa-comment",
     ),
     path(
         "<int:pk>/edit-contact-details/",
@@ -146,5 +159,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/status-workflow/",
         login_required(CaseStatusWorkflowDetailView.as_view()),
         name="status-workflow",
+    ),
+    path(
+        "<int:pk>/outstanding-issues/",
+        login_required(CaseOutstandingIssuesDetailView.as_view()),
+        name="outstanding-issues",
     ),
 ]

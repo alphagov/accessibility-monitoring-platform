@@ -54,7 +54,7 @@ def generate_report_content(report: Report) -> None:
     issues_table_base_template: BaseTemplate = BaseTemplate.objects.get(
         template_type=TEMPLATE_TYPE_ISSUES_TABLE
     )
-    report.section_set.all().delete()  # type: ignore
+    report.section_set.all().delete()
     context: Context = Context({"audit": report.case.audit})
     issues_table_template: Template = Template(issues_table_base_template.content)
     section_position: int = 0
@@ -159,7 +159,7 @@ def delete_table_row(request: HttpRequest) -> Optional[int]:
     if table_row_id_to_delete is not None:
         table_row_to_delete: TableRow = TableRow.objects.get(id=table_row_id_to_delete)
         table_row_to_delete.is_deleted = True
-        record_model_update_event(user=request.user, model_object=table_row_to_delete)  # type: ignore
+        record_model_update_event(user=request.user, model_object=table_row_to_delete)
         table_row_to_delete.save()
         return table_row_id_to_delete
 
@@ -181,7 +181,7 @@ def undelete_table_row(request: HttpRequest) -> Optional[int]:
             id=table_row_id_to_undelete
         )
         table_row_to_undelete.is_deleted = False
-        record_model_update_event(user=request.user, model_object=table_row_to_undelete)  # type: ignore
+        record_model_update_event(user=request.user, model_object=table_row_to_undelete)
         table_row_to_undelete.save()
         return table_row_id_to_undelete
 
@@ -204,7 +204,7 @@ def move_table_row_up(request: HttpRequest, section: Section) -> Optional[int]:
         )
         original_row_number: int = table_row_to_move_up.row_number
         table_row_to_swap_with: Optional[TableRow] = (
-            section.tablerow_set.filter(row_number__lt=original_row_number)  # type: ignore
+            section.tablerow_set.filter(row_number__lt=original_row_number)
             .order_by("-row_number")
             .first()
         )
@@ -233,7 +233,7 @@ def move_table_row_down(request: HttpRequest, section: Section) -> Optional[int]
             id=table_row_id_to_move_down
         )
         original_row_number: int = table_row_to_move_down.row_number
-        table_row_to_swap_with: Optional[TableRow] = section.tablerow_set.filter(  # type: ignore
+        table_row_to_swap_with: Optional[TableRow] = section.tablerow_set.filter(
             row_number__gt=original_row_number
         ).first()
         if table_row_to_swap_with:
@@ -265,6 +265,10 @@ def check_for_buttons_by_name(request: HttpRequest, section: Section) -> Optiona
 def get_report_visits_metrics(case: Case) -> Dict[str, str]:
     """Returns the visit metrics for reports"""
     return {
-        "number_of_visits": case.reportvisitsmetrics_set.all().count(),  # type: ignore
-        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list("fingerprint_hash").distinct().count(),  # type: ignore
+        "number_of_visits": case.reportvisitsmetrics_set.all().count(),
+        "number_of_unique_visitors": case.reportvisitsmetrics_set.values_list(
+            "fingerprint_hash"
+        )
+        .distinct()
+        .count(),
     }

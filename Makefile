@@ -13,7 +13,7 @@ init:
 
 freeze_requirements: # Pin all requirements including sub dependencies into requirements.txt
 	pip install --upgrade pip-tools
-	pip-compile requirements.in
+	pip-compile --upgrade requirements.in
 
 clean_local:
 	docker-compose down

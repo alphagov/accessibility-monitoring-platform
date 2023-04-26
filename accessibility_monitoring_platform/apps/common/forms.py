@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import IssueReport, Platform
+from .models import FrequentlyUsedLink, IssueReport, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -26,7 +26,7 @@ class VersionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        version_on_form: int = int(cleaned_data.get("version", 0))  # type: ignore
+        version_on_form: int = int(cleaned_data.get("version", 0))
         if version_on_form != self.instance.version:
             self.add_error(
                 None,
@@ -285,7 +285,7 @@ class AMPAuditorModelChoiceField(AMPModelChoiceField):
 
     def label_from_instance(self, obj):
         """Return full name from user"""
-        return obj.get_full_name()  # type: ignore
+        return obj.get_full_name()
 
 
 class AMPQAAuditorModelChoiceField(AMPAuditorModelChoiceField):
@@ -428,3 +428,27 @@ class ActiveQAAuditorUpdateForm(forms.ModelForm):
         fields = [
             "active_qa_auditor",
         ]
+
+
+class FrequentlyUsedLinkUpdateForm(forms.ModelForm):
+    """
+    Form for updating a frequently used link
+    """
+
+    label = AMPCharFieldWide(label="Label")
+    url = AMPURLField(label="URL")
+
+    class Meta:
+        model = FrequentlyUsedLink
+        fields = [
+            "label",
+            "url",
+        ]
+
+
+FrequentlyUsedLinkFormset: Any = forms.modelformset_factory(
+    FrequentlyUsedLink, FrequentlyUsedLinkUpdateForm, extra=0
+)
+FrequentlyUsedLinkOneExtraFormset: Any = forms.modelformset_factory(
+    FrequentlyUsedLink, FrequentlyUsedLinkUpdateForm, extra=1
+)

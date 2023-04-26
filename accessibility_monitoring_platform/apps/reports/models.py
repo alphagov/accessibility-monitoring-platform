@@ -1,6 +1,7 @@
 """
 Models - reports
 """
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth.models import User
@@ -77,6 +78,7 @@ class Report(VersionModel):
         blank=True,
         null=True,
     )
+    updated = models.DateTimeField(blank=True, null=True)
     report_version = models.TextField(default=REPORT_VERSION_DEFAULT)
     report_rebuilt = models.DateTimeField(blank=True, null=True)
 
@@ -87,12 +89,13 @@ class Report(VersionModel):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str(f"{self.case} | {amp_format_datetime(self.created)}")  # type: ignore
+        return str(f"{self.case} | {amp_format_datetime(self.created)}")
 
     def save(self, *args, **kwargs) -> None:
-        now = timezone.now()
+        now: datetime = timezone.now()
         if not self.created:
             self.created = now
+        self.updated = now
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
@@ -123,11 +126,11 @@ class Report(VersionModel):
     @property
     def latest_s3_report(self) -> Optional[S3Report]:
         """The most recently published report"""
-        return self.case.s3report_set.filter(latest_published=True).last()  # type: ignore
+        return self.case.s3report_set.filter(latest_published=True).last()
 
     @property
     def top_level_sections(self) -> QuerySet["BaseTemplate"]:
-        return self.section_set.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)  # type: ignore
+        return self.section_set.exclude(template_type=TEMPLATE_TYPE_ISSUES_TABLE)
 
 
 class BaseTemplate(VersionModel):
@@ -177,15 +180,15 @@ class Section(VersionModel):
 
     @property
     def anchor(self) -> str:
-        return f"report-section-{self.id}"  # type: ignore
+        return f"report-section-{self.id}"
 
     @property
     def has_table(self):
-        return self.tablerow_set.count() > 0  # type: ignore
+        return self.tablerow_set.count() > 0
 
     @property
     def visible_table_rows(self):
-        return self.tablerow_set.filter(is_deleted=False)  # type: ignore
+        return self.tablerow_set.filter(is_deleted=False)
 
 
 class TableRow(VersionModel):

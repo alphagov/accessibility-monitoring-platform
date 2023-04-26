@@ -55,13 +55,12 @@
             <div class="govuk-grid-column-full report-contents-{{report.report_version}}">
                 {% include 'reports/helpers/nav_contents.html' %}
                 {% include 'reports/details/metadata.html' %}
-                {% include 'reports/details/report_visits_logs.html' %}
                 {% for section in report.section_set.all %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-two-thirds">
                             <h2 id="{{ section.anchor }}" class="govuk-heading-l">{{ section.name }}</h2>
                         </div>
-                        <div class="govuk-grid-column-one-thirds">
+                        <div class="govuk-grid-column-one-third">
                             <div class="govuk-button-group flex-row-reverse">
                                 <a href="{% url 'reports:edit-report-section' section.id %}"
                                     class="govuk-link govuk-link--no-visited-state"

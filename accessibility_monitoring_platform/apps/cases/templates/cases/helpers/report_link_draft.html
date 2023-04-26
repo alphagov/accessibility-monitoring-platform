@@ -1,0 +1,17 @@
+{% if case.report_methodology == 'platform' %}
+    {% if case.report %}
+        <a href="{% url 'reports:report-publisher' case.report.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+            Report publisher
+        </a>
+    {% else %}
+        None
+    {% endif %}
+{% else %}
+    {% if case.report_draft_url %}
+        <a href="{{ case.report_draft_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            Link to report draft
+        </a>
+    {% else %}
+        None
+    {% endif %}
+{% endif %}

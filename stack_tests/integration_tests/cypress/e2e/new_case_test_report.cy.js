@@ -10,7 +10,6 @@ describe('Create case, tests and report', () => {
   })
 
   it('can follow case lifecycle', () => {
-    Cypress.Cookies.preserveOnce('sessionid')
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search')
@@ -77,7 +76,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Case').click()
 
     cy.title().should('eq', `${newOrganisationName} | View case`)
-    cy.contains('Edit report details').click()
+    cy.get('#edit-report-details').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.contains('This case currently does not have a report.')
@@ -109,7 +108,7 @@ describe('Create case, tests and report', () => {
 
     cy.contains('Case').click()
     cy.contains('View case').click()
-    cy.contains('Edit report details').click()
+    cy.get('#edit-report-details').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report details`)
     cy.contains('Save and continue').click()
@@ -148,12 +147,15 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement Pt. 2`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement compliance decision`)
     cy.contains('Save and exit').click()
 
     cy.title().should('eq', `${newOrganisationName} | View 12-week test`)
     cy.contains('Case').click()
-    cy.contains('.govuk-link', 'Edit 12-week retest').click()
+    cy.get('#edit-twelve-week-retest').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week retest`)
     cy.contains('Save and continue').click()

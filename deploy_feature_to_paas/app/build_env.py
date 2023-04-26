@@ -271,7 +271,7 @@ class BuildEnv:
                 aws_secret_access_key=aws_credentials["aws_secret_access_key"],
             )
 
-            bucket = s3_resource.Bucket(aws_credentials["bucket_name"])  # type: ignore
+            bucket = s3_resource.Bucket(aws_credentials["bucket_name"])
             bucket.objects.all().delete()
 
             os.system(

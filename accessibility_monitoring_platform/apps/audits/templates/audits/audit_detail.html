@@ -50,18 +50,183 @@
         {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=audit.case %}
 
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
+            <div class="govuk-grid-column-one-half">
                 {% include 'audits/helpers/nav_contents.html' %}
-                {% include 'audits/details/metadata.html' %}
-                {% include 'audits/details/pages.html' %}
-                {% include 'audits/details/website_decision.html' %}
-                {% include 'audits/details/statement.html' %}
-                {% include 'audits/details/statement_decision.html' %}
-                {% include 'audits/details/report_options.html' %}
-                {% if audit.case.report_methodology == 'odt' %}
-                    {% include 'audits/details/report_text.html' %}
-                {% endif %}
             </div>
+            <div class="govuk-grid-column-one-half">
+                {% include 'audits/helpers/overview.html' %}
+            </div>
+        </div>
+        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-metadata" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-metadata">
+                            Test metadata
+                            {% if audit.audit_metadata_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-metadata" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-metadata">
+                    {% include 'audits/details/metadata.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-pages" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-pages">
+                            Pages
+                            {% if audit.audit_pages_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-pages" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-pages">
+                    {% include 'audits/details/pages.html' %}
+                </div>
+            </div>
+
+            {% for page in audit.testable_pages %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="{{ page.anchor }}" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-section-header{{ forloop.counter0 }}">
+                                {{ page }} ({{ page.failed_check_results|length }})
+                                {% if page.complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-{{ forloop.counter0 }}" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-section-{{ forloop.counter0 }}">
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p id="{{ page.anchor }}" class="govuk-body-m">
+                                    <b>{{ page }} test</b>
+                                    |
+                                    <a href="{% url 'audits:edit-audit-page-checks' page.id %}"
+                                        class="govuk-link govuk-link--no-visited-state"
+                                        rel="noreferrer noopener">
+                                        Edit
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        {% include 'audits/details/page_check_results.html' %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="website-decision" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-website-decision">
+                            Website compliance decision
+                            {% if audit.audit_website_decision_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-website-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-website-decision">
+                    {% include 'audits/details/website_decision.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-statement-1" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-1">
+                            Accessibility statement Pt. 1
+                            {% if audit.audit_statement_1_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-statement-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-1">
+                    {% include 'audits/details/statement_1.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-statement-2" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-2">
+                            Accessibility statement Pt. 2
+                            {% if audit.audit_statement_2_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-statement-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-2">
+                    {% include 'audits/details/statement_2.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="statement-decision" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-statement-decision">
+                            Accessibility statement compliance decision
+                            {% if audit.audit_statement_decision_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-statement-decision">
+                    {% include 'audits/details/statement_decision.html' %}
+                </div>
+            </div>
+
+            <div class="govuk-accordion__section">
+                <div class="govuk-accordion__section-header">
+                    <h2 id="audit-report-options" class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-report-options">
+                            Report options
+                            {% if audit.audit_report_options_complete_date %}
+                                <span class="govuk-visually-hidden">complete</span>
+                                &check;
+                            {% endif %}
+                        </span>
+                    </h2>
+                </div>
+                <div id="accordion-content-audit-report-options" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-report-options">
+                    {% include 'audits/details/report_options.html' %}
+                </div>
+            </div>
+            {% if audit.case.report_methodology == 'odt' %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="audit-report-text" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-report-text">
+                                Report text
+                                {% if audit.audit_report_text_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-report-text" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-report-text">
+                        {% include 'audits/details/report_text.html' %}
+                    </div>
+                </div>
+            {% endif%}
         </div>
     </main>
 </div>

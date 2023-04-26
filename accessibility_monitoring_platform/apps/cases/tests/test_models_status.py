@@ -5,7 +5,11 @@ import pytest
 
 from datetime import datetime
 
+from pytest_django.asserts import assertContains
+
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.urls import reverse
 
 from ..models import (
     Case,
@@ -21,8 +25,15 @@ from ..models import (
 )
 
 
-@pytest.mark.django_db
-def test_case_status_deactivated():
+def check_for_status_specific_link(admin_client, case: Case, expected_link_label: str):
+    response: HttpResponse = admin_client.get(
+        reverse("cases:case-detail", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, expected_link_label)
+
+
+def test_case_status_deactivated(admin_client):
     """Test case status returns deactivated"""
     case = Case.objects.create(
         home_page_url="https://www.website.com",
@@ -31,9 +42,12 @@ def test_case_status_deactivated():
     )
     assert case.status == "deactivated"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to case details"
+    )
 
-@pytest.mark.django_db
-def test_case_status_unassigned():
+
+def test_case_status_unassigned(admin_client):
     """Test case status returns unassigned-case"""
     case = Case.objects.create(
         home_page_url="https://www.website.com",
@@ -41,9 +55,12 @@ def test_case_status_unassigned():
     )
     assert case.status == "unassigned-case"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to case details"
+    )
 
-@pytest.mark.django_db
-def test_case_status_test_in_progress():
+
+def test_case_status_test_in_progress(admin_client):
     """Test case status returns test-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -53,9 +70,12 @@ def test_case_status_test_in_progress():
     )
     assert case.status == "test-in-progress"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to testing details"
+    )
 
-@pytest.mark.django_db
-def test_case_status_report_in_progress():
+
+def test_case_status_report_in_progress(admin_client):
     """Test case status returns report-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -67,9 +87,12 @@ def test_case_status_report_in_progress():
     )
     assert case.status == "report-in-progress"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to report details"
+    )
 
-@pytest.mark.django_db
-def test_case_status_qa_in_progress():
+
+def test_case_status_qa_in_progress(admin_client):
     """Test case status returns qa-in-progress"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -82,9 +105,12 @@ def test_case_status_qa_in_progress():
     )
     assert case.status == "qa-in-progress"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to QA process"
+    )
 
-@pytest.mark.django_db
-def test_case_status_report_ready_to_send():
+
+def test_case_status_report_ready_to_send(admin_client):
     """Test case status returns report-ready-to-send"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -98,9 +124,12 @@ def test_case_status_report_ready_to_send():
     )
     assert case.status == "report-ready-to-send"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to contact details"
+    )
 
-@pytest.mark.django_db
-def test_case_status_in_report_correspondence():
+
+def test_case_status_in_report_correspondence(admin_client):
     """Test case status returns in-report-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -115,9 +144,12 @@ def test_case_status_in_report_correspondence():
     )
     assert case.status == "in-report-correspondence"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to report correspondence"
+    )
 
-@pytest.mark.django_db
-def test_case_status_in_probation_period():
+
+def test_case_status_in_probation_period(admin_client):
     """Test case status returns in-probation-period"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -133,9 +165,12 @@ def test_case_status_in_probation_period():
     )
     assert case.status == "in-probation-period"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to 12-week correspondence"
+    )
 
-@pytest.mark.django_db
-def test_case_status_in_12_week_correspondence():
+
+def test_case_status_in_12_week_correspondence(admin_client):
     """Test case status returns in-12-week-correspondence"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -152,9 +187,12 @@ def test_case_status_in_12_week_correspondence():
     )
     assert case.status == "in-12-week-correspondence"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to 12-week correspondence"
+    )
 
-@pytest.mark.django_db
-def test_case_status_reviewing_changes():
+
+def test_case_status_reviewing_changes(admin_client):
     """Test case status returns reviewing-changes"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -172,9 +210,12 @@ def test_case_status_reviewing_changes():
     )
     assert case.status == "reviewing-changes"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to reviewing changes"
+    )
 
-@pytest.mark.django_db
-def test_case_status_final_decision_due():
+
+def test_case_status_final_decision_due(admin_client):
     """Test case status returns final-decision-due"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -193,9 +234,12 @@ def test_case_status_final_decision_due():
     )
     assert case.status == "final-decision-due"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to closing the case"
+    )
 
-@pytest.mark.django_db
-def test_case_status_case_closed_waiting_to_be_sent():
+
+def test_case_status_case_closed_waiting_to_be_sent(admin_client):
     """Test case status returns case-closed-waiting-to-be-sent"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -214,9 +258,12 @@ def test_case_status_case_closed_waiting_to_be_sent():
     )
     assert case.status == "case-closed-waiting-to-be-sent"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to closing the case"
+    )
 
-@pytest.mark.django_db
-def test_case_status_case_closed_sent_to_equality_bodies():
+
+def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
     """Test case status returns case-closed-sent-to-equalities-body"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -236,9 +283,12 @@ def test_case_status_case_closed_sent_to_equality_bodies():
     )
     assert case.status == "case-closed-sent-to-equalities-body"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to equality body summary"
+    )
 
-@pytest.mark.django_db
-def test_case_status_in_correspondence_with_equalities_body():
+
+def test_case_status_in_correspondence_with_equalities_body(admin_client):
     """Test case status returns in-correspondence-with-equalities-body"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -259,9 +309,12 @@ def test_case_status_in_correspondence_with_equalities_body():
     )
     assert case.status == "in-correspondence-with-equalities-body"
 
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to equality body summary"
+    )
 
-@pytest.mark.django_db
-def test_case_status_equality_bodies_complete():
+
+def test_case_status_equality_bodies_complete(admin_client):
     """Test case status returns complete"""
     user = User.objects.create()
     case = Case.objects.create(
@@ -281,6 +334,10 @@ def test_case_status_equality_bodies_complete():
         enforcement_body_pursuing=ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
     )
     assert case.status == "complete"
+
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Go to post case summary"
+    )
 
 
 @pytest.mark.django_db

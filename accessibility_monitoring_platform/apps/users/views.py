@@ -51,7 +51,7 @@ class UserCreateView(CreateView):
         NotificationSetting.objects.create(user=user)
 
         login(self.request, user, backend="django.contrib.auth.backends.ModelBackend")
-        record_model_create_event(user=self.request.user, model_object=user)  # type: ignore
+        record_model_create_event(user=self.request.user, model_object=user)
         return HttpResponseRedirect(reverse("dashboard:home"))
 
 
@@ -68,14 +68,14 @@ class UserUpdateView(UpdateView):
     def get_form_kwargs(self):
         """Pass user to form"""
         kwargs = super().get_form_kwargs()
-        user: User = self.object  # type: ignore
+        user: User = self.object
         kwargs.update({"user": user})
         return kwargs
 
     def get_form(self):
         """Populate enable_2fs and email_notifications fields"""
         form = super().get_form()
-        user: User = self.object  # type: ignore
+        user: User = self.object
         if checks_if_2fa_is_enabled(user=user):
             form.fields["enable_2fa"].initial = BOOLEAN_TRUE
         else:
@@ -89,12 +89,12 @@ class UserUpdateView(UpdateView):
     def form_valid(self, form: UserUpdateForm):
         """Process contents of valid form"""
         user: User = User.objects.get(
-            id=self.object.id  # type: ignore
+            id=self.object.id
         )  # Ignore password field in form
 
         user.first_name = form.cleaned_data["first_name"]
         user.last_name = form.cleaned_data["last_name"]
-        record_model_update_event(user=self.request.user, model_object=user)  # type: ignore
+        record_model_update_event(user=self.request.user, model_object=user)
         user.save()
 
         notification_setting: NotificationSetting = NotificationSetting.objects.get(
@@ -111,6 +111,4 @@ class UserUpdateView(UpdateView):
         email_device.save()
 
         messages.success(self.request, "Successfully saved details!")
-        return HttpResponseRedirect(
-            reverse("users:edit-user", kwargs={"pk": user.id})  # type: ignore
-        )
+        return HttpResponseRedirect(reverse("users:edit-user", kwargs={"pk": user.id}))

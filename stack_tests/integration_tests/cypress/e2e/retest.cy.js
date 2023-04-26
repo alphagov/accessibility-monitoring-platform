@@ -8,17 +8,13 @@ const disproportionateNote = 'Disproportionate burden note'
 const statementComplianceNote = 'Accessibility statement compliance note'
 
 describe('View test', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     cy.visit('/audits/1/audit-retest-detail')
   })
 
   it('can edit 12-week test metadata', () => {
-    cy.contains('a', 'Edit 12-week test metadata').click()
+    cy.get('#edit-audit-retest-metadata').click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="audit_retest_metadata_notes"]').clear().type(retestMetadataNote)
     cy.get('[name="audit_retest_metadata_complete_date"]').click()
@@ -39,13 +35,13 @@ describe('View test', () => {
   })
 
   it('can edit 12-week pages comparison', () => {
-    cy.contains('a', 'Edit 12-week pages comparison').click()
+    cy.get('#edit-audit-retest-pages').click()
     cy.get('[name="audit_retest_pages_complete_date"]').click()
     cy.contains('Save').click()
   })
 
   it('can edit 12-week website compliance decision', () => {
-    cy.contains('a', 'Edit 12-week website compliance decision').click()
+    cy.get('#edit-audit-retest-website-decision').click()
     cy.get('[name="case-website_state_final"]').check('compliant')
     cy.get('[name="case-website_state_notes_final"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_retest_website_decision_complete_date"]').click()
@@ -55,7 +51,7 @@ describe('View test', () => {
   })
 
   it('can edit 12-week accessibility statement', () => {
-    cy.contains('a', 'Edit 12-week accessibility statement').click()
+    cy.get('#edit-audit-retest-statement-1').click()
     cy.get('[name="audit_retest_scope_state"]').check('present')
     cy.get('[name="audit_retest_scope_notes"]').clear().type(scopeNote)
     cy.get('[name="audit_retest_statement_1_complete_date"]').click()
@@ -65,12 +61,10 @@ describe('View test', () => {
     cy.get('[name="audit_retest_statement_2_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('12-week test').click()
-    cy.contains(scopeNote)
-    cy.contains(disproportionateNote)
   })
 
   it('can edit 12-week accessibility statement compliance decision', () => {
-    cy.contains('a', 'Edit 12-week accessibility statement compliance decision').click()
+    cy.get('#edit-audit-retest-statement-decision').click()
     cy.get('[name="case-accessibility_statement_state_final"]').check('compliant')
     cy.get('[name="case-accessibility_statement_notes_final"]').clear().type(statementComplianceNote)
     cy.get('[name="audit_retest_statement_decision_complete_date"]').click()

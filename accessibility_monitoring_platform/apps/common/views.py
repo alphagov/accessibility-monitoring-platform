@@ -1,7 +1,7 @@
 """
 Common views
 """
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
@@ -9,6 +9,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone as django_timezone
@@ -19,14 +20,23 @@ from django.views.generic.list import ListView
 from ..audits.models import Audit, CheckResult
 from ..cases.models import (
     Case,
+    IS_WEBSITE_COMPLIANT_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
+    CLOSED_CASE_STATUSES,
 )
 from ..s3_read_write.models import S3Report
+from ..reports.models import ReportVisitsMetrics
 
 from .chart import LineChart, build_yearly_metric_chart
-from .forms import AMPContactAdminForm, AMPIssueReportForm, ActiveQAAuditorUpdateForm
+from .forms import (
+    AMPContactAdminForm,
+    AMPIssueReportForm,
+    ActiveQAAuditorUpdateForm,
+    FrequentlyUsedLinkFormset,
+    FrequentlyUsedLinkOneExtraFormset,
+)
 from .metrics import (
     Timeseries,
     TimeseriesDatapoint,
@@ -36,19 +46,17 @@ from .metrics import (
     calculate_metric_progress,
     count_statement_issues,
     build_html_table,
+    convert_timeseries_pair_to_ratio,
+    convert_timeseries_to_cumulative,
 )
-from .models import IssueReport, Platform, ChangeToPlatform
+from .models import FrequentlyUsedLink, IssueReport, Platform, ChangeToPlatform
 from .page_title_utils import get_page_title
-from .utils import get_platform_settings
-
-CLOSED_CASE_STATUSES: List[str] = [
-    "case-closed-sent-to-equalities-body",
-    "complete",
-    "case-closed-waiting-to-be-sent",
-    "in-correspondence-with-equalities-body",
-    "deactivated",
-    "deleted",
-]
+from .utils import (
+    get_id_from_button_name,
+    get_platform_settings,
+    record_model_update_event,
+    record_model_create_event,
+)
 
 
 class ContactAdminView(FormView):
@@ -71,7 +79,7 @@ class ContactAdminView(FormView):
             email: EmailMessage = EmailMessage(
                 subject=subject,
                 body=message,
-                from_email=self.request.user.email,  # type: ignore
+                from_email=self.request.user.email,
                 to=[settings.CONTACT_ADMIN_EMAIL],
             )
             email.send()
@@ -110,7 +118,7 @@ class IssueReportView(FormView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         issue_report: IssueReport = form.save(commit=False)
-        issue_report.created_by = self.request.user  # type: ignore
+        issue_report.created_by = self.request.user
         issue_report.save()
         self.send_mail(issue_report)
         return redirect(issue_report.page_url)
@@ -123,7 +131,7 @@ class IssueReportView(FormView):
 URL: https://{self.request.get_host()}{issue_report.page_url}
 
 {issue_report.description}""",
-            from_email=self.request.user.email,  # type: ignore
+            from_email=self.request.user.email,
             to=[settings.CONTACT_ADMIN_EMAIL],
         )
         email.send()
@@ -264,33 +272,24 @@ class MetricsCaseTemplateView(TemplateView):
         ] = []
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
         for label, date_column_name in [
-            ("Cases created over the last year", "created"),
-            ("Tests completed over the last year", "testing_details_complete_date"),
-            ("Reports sent over the last year", "report_sent_date"),
-            ("Cases completed over the last year", "completed_date"),
+            ("Cases created", "created"),
+            ("Tests completed", "testing_details_complete_date"),
+            ("Reports sent", "report_sent_date"),
+            ("Cases completed", "completed_date"),
         ]:
-            datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
-                queryset=Case.objects,
-                date_column_name=date_column_name,
-                start_date=start_date,
+            timeseries: Timeseries = Timeseries(
+                label=label,
+                datapoints=group_timeseries_data_by_month(
+                    queryset=Case.objects,
+                    date_column_name=date_column_name,
+                    start_date=start_date,
+                ),
             )
-            columns: List[Timeseries] = [
-                Timeseries(
-                    label="Count",
-                    datapoints=group_timeseries_data_by_month(
-                        queryset=Case.objects,
-                        date_column_name=date_column_name,
-                        start_date=start_date,
-                    ),
-                )
-            ]
             yearly_metrics.append(
                 {
-                    "label": label,
-                    "html_table": build_html_table(columns=columns),
-                    "chart": build_yearly_metric_chart(
-                        lines=[Timeseries(datapoints=datapoints)]
-                    ),
+                    "label": f"{label} over the last year",
+                    "html_table": build_html_table(columns=[timeseries]),
+                    "chart": build_yearly_metric_chart(lines=[timeseries]),
                 }
             )
 
@@ -391,74 +390,116 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
             retest_date__gte=thirteen_month_start_date
         )
-        thirteen_month_fixed_audits: QuerySet[
+        thirteen_month_website_initial_compliant: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
+            case__is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT
+        )
+        thirteen_month_statement_initial_compliant: QuerySet[
+            Audit
+        ] = thirteen_month_retested_audits.filter(
+            case__accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+        )
+        thirteen_month_final_no_action: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
             case__recommendation_for_enforcement=RECOMMENDATION_NO_ACTION
         )
-        thirteen_month_closed_audits: QuerySet[
-            Audit
-        ] = thirteen_month_retested_audits.filter(
-            Q(  # pylint: disable=unsupported-binary-operation
-                case__status="case-closed-sent-to-equalities-body"
-            )
-            | Q(case__status="complete")
-            | Q(case__status="case-closed-waiting-to-be-sent")
-            | Q(case__status="in-correspondence-with-equalities-body")
-        )
-
-        fixed_audits_by_month: Timeseries = Timeseries(
-            label="Fixed",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_fixed_audits,
-                date_column_name="retest_date",
-                start_date=thirteen_month_start_date,
-            ),
-        )
-        closed_audits_by_month: Timeseries = Timeseries(
-            label="Closed",
-            datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_closed_audits,
-                date_column_name="retest_date",
-                start_date=thirteen_month_start_date,
-            ),
-        )
-
-        thirteen_month_compliant_audits: QuerySet[
+        thirteen_month_statement_final_compliant: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
             case__accessibility_statement_state_final=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
         )
 
-        compliant_audits_by_month: Timeseries = Timeseries(
-            label="Compliant",
+        retested_by_month: Timeseries = Timeseries(
+            label="Cases",
             datapoints=group_timeseries_data_by_month(
-                queryset=thirteen_month_compliant_audits,
+                queryset=thirteen_month_retested_audits,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        website_initial_compliant_by_month: Timeseries = Timeseries(
+            label="Initially acceptable",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_website_initial_compliant,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        statement_initial_compliant_by_month: Timeseries = Timeseries(
+            label="Initially compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_statement_initial_compliant,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        final_no_action_by_month: Timeseries = Timeseries(
+            label="Finally acceptable",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_final_no_action,
+                date_column_name="retest_date",
+                start_date=thirteen_month_start_date,
+            ),
+        )
+        statement_final_compliant_by_month: Timeseries = Timeseries(
+            label="Finally compliant",
+            datapoints=group_timeseries_data_by_month(
+                queryset=thirteen_month_statement_final_compliant,
                 date_column_name="retest_date",
                 start_date=thirteen_month_start_date,
             ),
         )
 
+        website_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Initial",
+            partial_timeseries=website_initial_compliant_by_month,
+            total_timeseries=retested_by_month,
+        )
+        website_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Final",
+            partial_timeseries=final_no_action_by_month,
+            total_timeseries=retested_by_month,
+        )
+        statement_initial_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Initial",
+            partial_timeseries=statement_initial_compliant_by_month,
+            total_timeseries=retested_by_month,
+        )
+        statement_final_ratio: Timeseries = convert_timeseries_pair_to_ratio(
+            label="Final",
+            partial_timeseries=statement_final_compliant_by_month,
+            total_timeseries=retested_by_month,
+        )
+
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
-                "label": "State of websites after retest in last year",
+                "label": "Proportion of websites which are acceptable",
                 "html_table": build_html_table(
-                    columns=[closed_audits_by_month, fixed_audits_by_month],
+                    columns=[
+                        retested_by_month,
+                        website_initial_compliant_by_month,
+                        final_no_action_by_month,
+                    ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[closed_audits_by_month, fixed_audits_by_month]
+                    lines=[website_initial_ratio, website_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
             {
-                "label": "State of accessibility statements after retest in last year",
+                "label": "Proportion of accessibility statements which are compliant",
                 "html_table": build_html_table(
-                    columns=[closed_audits_by_month, compliant_audits_by_month],
+                    columns=[
+                        retested_by_month,
+                        statement_initial_compliant_by_month,
+                        statement_final_compliant_by_month,
+                    ],
                 ),
                 "chart": build_yearly_metric_chart(
-                    lines=[
-                        closed_audits_by_month,
-                        compliant_audits_by_month,
-                    ]
+                    lines=[statement_initial_ratio, statement_final_ratio],
+                    y_axis_percent=True,
                 ),
             },
         ]
@@ -515,28 +556,63 @@ class MetricsReportTemplateView(TemplateView):
                 .filter(latest_published=True)
                 .count(),
             ),
+            calculate_current_month_progress(
+                now=now,
+                label="Report views",
+                this_month_value=ReportVisitsMetrics.objects.filter(
+                    created__gte=first_of_this_month
+                ).count(),
+                last_month_value=ReportVisitsMetrics.objects.filter(
+                    created__gte=first_of_last_month,
+                )
+                .filter(created__lt=first_of_this_month)
+                .count(),
+            ),
+            calculate_current_month_progress(
+                now=now,
+                label="Reports acknowledged",
+                this_month_value=Case.objects.filter(
+                    report_acknowledged_date__gte=first_of_this_month
+                ).count(),
+                last_month_value=Case.objects.filter(
+                    report_acknowledged_date__gte=first_of_last_month,
+                )
+                .filter(report_acknowledged_date__lt=first_of_this_month)
+                .count(),
+            ),
         ]
 
         start_date: datetime = datetime(now.year - 1, now.month, 1, tzinfo=timezone.utc)
-        datapoints: List[TimeseriesDatapoint] = group_timeseries_data_by_month(
-            queryset=S3Report.objects.filter(latest_published=True),
-            date_column_name="created",
-            start_date=start_date,
+        published_reports_by_month: Timeseries = Timeseries(
+            label="Published reports",
+            datapoints=group_timeseries_data_by_month(
+                queryset=S3Report.objects.filter(latest_published=True),
+                date_column_name="created",
+                start_date=start_date,
+            ),
         )
-        columns: List[Timeseries] = [
-            Timeseries(
-                label="Count",
-                datapoints=datapoints,
-            )
-        ]
+        report_views_by_month: Timeseries = Timeseries(
+            label="Report views",
+            datapoints=group_timeseries_data_by_month(
+                queryset=ReportVisitsMetrics.objects,
+                date_column_name="created",
+                start_date=start_date,
+            ),
+        )
+
         yearly_metrics: List[Dict[str, Union[str, TimeseriesHtmlTable, LineChart]]] = [
             {
                 "label": "Reports published over the last year",
-                "html_table": build_html_table(columns=columns),
+                "html_table": build_html_table(columns=[published_reports_by_month]),
                 "chart": build_yearly_metric_chart(
-                    lines=[Timeseries(datapoints=datapoints)]
+                    lines=[convert_timeseries_to_cumulative(published_reports_by_month)]
                 ),
-            }
+            },
+            {
+                "label": "Reports views over the last year",
+                "html_table": build_html_table(columns=[report_views_by_month]),
+                "chart": build_yearly_metric_chart(lines=[report_views_by_month]),
+            },
         ]
 
         extra_context: Dict[str, Any] = {
@@ -548,3 +624,68 @@ class MetricsReportTemplateView(TemplateView):
         }
 
         return {**extra_context, **context}
+
+
+class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
+    """
+    Update list of frequently used links
+    """
+
+    template_name: str = "common/settings/edit_frequently_used_links.html"
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            links_formset = FrequentlyUsedLinkFormset(self.request.POST)
+        else:
+            links: QuerySet[FrequentlyUsedLink] = FrequentlyUsedLink.objects.filter(
+                is_deleted=False
+            )
+            if "add_link" in self.request.GET:
+                links_formset = FrequentlyUsedLinkOneExtraFormset(queryset=links)
+            else:
+                links_formset = FrequentlyUsedLinkFormset(queryset=links)
+        context["links_formset"] = links_formset
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: Tuple[str], **kwargs: Dict[str, Any]
+    ) -> Union[HttpResponseRedirect, HttpResponse]:
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        links_formset = context["links_formset"]
+        if links_formset.is_valid():
+            links: List[FrequentlyUsedLink] = links_formset.save(commit=False)
+            for link in links:
+                if not link.id:
+                    link.save()
+                    record_model_create_event(user=self.request.user, model_object=link)
+                else:
+                    record_model_update_event(user=self.request.user, model_object=link)
+                    link.save()
+        else:
+            return self.render_to_response(
+                self.get_context_data(links_formset=links_formset)
+            )
+        link_id_to_delete: Optional[int] = get_id_from_button_name(
+            button_name_prefix="remove_link_",
+            querydict=request.POST,
+        )
+        if link_id_to_delete is not None:
+            link_to_delete: FrequentlyUsedLink = FrequentlyUsedLink.objects.get(
+                id=link_id_to_delete
+            )
+            link_to_delete.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=link_to_delete
+            )
+            link_to_delete.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Remain on current page on save"""
+        url: str = reverse_lazy("common:edit-frequently-used-links")
+        if "add_link" in self.request.POST:
+            return f"{url}?add_link=true#link-None"
+        return url

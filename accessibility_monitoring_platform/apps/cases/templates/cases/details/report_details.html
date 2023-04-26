@@ -1,23 +1,24 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 id="report-details" class="govuk-heading-l">Report details</h2>
-    </div>
-    <div class="govuk-grid-column-one-thirds">
-        <div class="govuk-button-group amp-flex-end">
-            <a href="{% url 'cases:edit-report-details' case.id %}"
-                class="govuk-link govuk-link--no-visited-state"
-                rel="noreferrer noopener">
-                Edit report details
-            </a>
-        </div>
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            <b>Report details</b>
+            {% if case.testing_methodology == "platform" %}
+                |
+                <a href="{% url 'cases:edit-report-details' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit
+                </a>
+            {% endif %}
+        </p>
     </div>
 </div>
-<table class="govuk-table">
+<table class="govuk-table amp-accordion-table">
     <tbody class="govuk-table__body">
         {% if case.report_methodology == 'platform' %}
             {% if case.report %}
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header amp-width-one-half">Link to report</th>
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Link to report</th>
                     <td class="govuk-table__cell amp-width-one-half">
                         {% if case.report %}
                             <a
@@ -32,11 +33,7 @@
                     </td>
                 </tr>
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
-                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header amp-width-one-half">View final HTML report</th>
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">View final HTML report</th>
                     <td class="govuk-table__cell amp-width-one-half amp-notes">
                         {% if case.report.latest_s3_report %}
                             <a id="latest_s3_report" href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -49,20 +46,24 @@
                 </tr>
                 {% if case.report and case.testing_methodology == "platform" %}
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header amp-width-one-half">Report views</th>
-                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report views</th>
+                        <td class="govuk-table__cell amp-width-one-half">
                             {{ number_of_visits  }}
                             (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
                         </td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header amp-width-one-half">Unique visitors to report</th>
-                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Unique visitors to report</th>
+                        <td class="govuk-table__cell amp-width-one-half">
                             {{ number_of_unique_visitors  }}
                             (<a href="{% url 'reports:report-metrics-view' case.report.id %}" class="govuk-link govuk-link--no-visited-state">View visits log</a>)
                         </td>
                     </tr>
                 {% endif %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Notes</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.report.notes|markdown_to_html }}</td>
+                </tr>
             {% else %}
                 <p class="govuk-body">
                     A report does not exist for this case. Create a report in

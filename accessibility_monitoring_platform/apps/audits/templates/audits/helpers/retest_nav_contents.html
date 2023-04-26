@@ -1,25 +1,33 @@
 <nav role="navigation" class="amp-margin-bottom-40">
-    <h2 class="govuk-heading-m">Contents</h2>
-    <ul class="govuk-list">
-        {% include './nav_content.html' with anchor='audit-retest-metadata' edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
-        {% if audit.case.psb_response %}
-            {% if audit.testable_pages %}
-                <li>
-                    Pages:
-                    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                        {% for page in audit.testable_pages %}
-                            {% if page.failed_check_results %}
-                                {% include './nav_content.html' with edit_name='audits:edit-audit-retest-page-checks' name=page complete=page.retest_complete_date %}
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </li>
+    {% if not on_view_case %}<h2 class="govuk-heading-m">Contents</h2>{% endif %}
+    <div class="amp-left-border">
+        <ul class="govuk-list">
+            {% include './nav_content.html' with id='edit-audit-retest-metadata' anchor='audit-retest-metadata' edit_name='audits:edit-audit-retest-metadata' name='12-week test metadata' complete=audit.audit_retest_metadata_complete_date %}
+            {% if audit.case.psb_response %}
+                {% if audit.testable_pages %}
+                    <li>
+                        Pages:
+                        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
+                            {% for page in audit.testable_pages %}
+                                {% if page.failed_check_results %}
+                                    {% include './nav_content.html' with anchor=page.anchor anchor_prefix='retest-' edit_name='audits:edit-audit-retest-page-checks' name=page complete=page.retest_complete_date %}
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
+                {% include './nav_content.html' with id='edit-audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
+                {% include './nav_content.html' with id='edit-audit-retest-website-decision' anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
             {% endif %}
-            {% include './nav_content.html' with anchor='audit-retest-pages' edit_name='audits:edit-audit-retest-pages' name='12-week pages comparison' complete=audit.audit_retest_pages_complete_date %}
-            {% include './nav_content.html' with anchor='audit-retest-website-decision' edit_name='audits:edit-audit-retest-website-decision' name='12-week website compliance decision' complete=audit.audit_retest_website_decision_complete_date %}
+            {% include './nav_content.html' with id='edit-audit-retest-statement-1' anchor='audit-retest-statement-1' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
+            {% include './nav_content.html' with id='edit-audit-retest-statement-2' anchor='audit-retest-statement-2' edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
+            {% if audit.accessibility_statement_initially_found %}
+                {% include './nav_content.html' with id='edit-audit-retest-statement-comparison' anchor='audit-retest-statement-comparison' edit_name='audits:edit-audit-retest-statement-comparison' name='12-week accessibility statement comparison' complete=audit.audit_retest_statement_comparison_complete_date %}
+            {% endif %}
+            {% include './nav_content.html' with id='edit-audit-retest-statement-decision' anchor='audit-retest-statement-decision' edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
+        </ul>
+        {% if not on_view_case %}
+            {% include 'common/frequently_used_links.html' with in_testing_ui='true' case=audit.case %}
         {% endif %}
-        {% include './nav_content.html' with anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
-        {% include './nav_content.html' with anchor='audit-retest-statement' edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
-        {% include './nav_content.html' with anchor='audit-retest-statement-decision' edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
-    </ul>
+    </div>
 </nav>

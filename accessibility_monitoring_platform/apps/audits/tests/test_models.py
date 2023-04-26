@@ -2,7 +2,9 @@
 Tests for cases models
 """
 import pytest
+from datetime import datetime, timezone
 from typing import List
+from unittest.mock import patch, Mock
 
 from django.db.models.query import QuerySet
 
@@ -25,6 +27,10 @@ from ..models import (
     CHECK_RESULT_ERROR,
     CHECK_RESULT_NO_ERROR,
     RETEST_CHECK_RESULT_DEFAULT,
+    AccessibilityStatementCheck,
+    RETEST_CHECK_RESULT_FIXED,
+    ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
+    SCOPE_STATE_VALID,
 )
 
 PAGE_NAME = "Page name"
@@ -32,6 +38,11 @@ WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 WCAG_DESCRIPTION: str = "WCAG definition description"
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
+INITIAL_NOTES: str = "Initial notes"
+FINAL_NOTES: str = "Final notes"
 
 
 def create_audit_and_pages() -> Audit:
@@ -64,7 +75,7 @@ def create_audit_and_check_results() -> Audit:
     )
 
     audit: Audit = create_audit_and_pages()
-    pages: QuerySet[Page] = audit.page_audit.all()  # type: ignore
+    pages: QuerySet[Page] = audit.page_audit.all()
 
     for page in pages:
         check_result_state: str = (
@@ -128,7 +139,7 @@ def test_audit_testable_pages_returns_expected_page():
     )
 
     assert len(audit.testable_pages) == 1
-    assert audit.testable_pages[0].id == testable_page.id  # type: ignore
+    assert audit.testable_pages[0].id == testable_page.id
 
 
 @pytest.mark.django_db
@@ -144,6 +155,17 @@ def test_page_string():
     page.name = PAGE_NAME
 
     assert str(page) == PAGE_NAME
+
+
+@pytest.mark.django_db
+def test_page_anchor():
+    """
+    Test Page anchor string
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.every_page[0]
+
+    assert page.anchor == f"test-page-{page.id}"
 
 
 @pytest.mark.django_db
@@ -225,7 +247,7 @@ def test_check_result_returns_id_and_fields_for_retest():
     check_result: CheckResult = home_page.all_check_results[0]
 
     assert check_result.dict_for_retest == {
-        "id": check_result.id,  # type: ignore
+        "id": check_result.id,
         "retest_state": RETEST_CHECK_RESULT_DEFAULT,
         "retest_notes": "",
     }
@@ -250,29 +272,307 @@ def test_wcag_definition_strings():
 
 
 @pytest.mark.django_db
-def test_accessibility_statement_found():
+def test_accessibility_statement_initially_found():
     """
-    Test that an accessibility statement was found.
+    Test that an accessibility statement was initially found.
     """
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
 
     # No page
-    assert audit.accessibility_statement_found is False
+    assert audit.accessibility_statement_initially_found is False
 
     page: Page = Page.objects.create(audit=audit, page_type=PAGE_TYPE_STATEMENT)
 
     # No URL
-    assert audit.accessibility_statement_found is False
+    assert audit.accessibility_statement_initially_found is False
 
     page.url = "https://example.com"
     page.save()
 
     # Not found flag not set
-    assert audit.accessibility_statement_found is True
+    assert audit.accessibility_statement_initially_found is True
 
     page.not_found = BOOLEAN_TRUE
     page.save()
 
     # Not found flag set
+    assert audit.accessibility_statement_initially_found is False
+
+
+@pytest.mark.django_db
+def test_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found.
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+
     assert audit.accessibility_statement_found is False
+
+    page.url = "https://example.com/statement"
+    page.save()
+
+    assert audit.accessibility_statement_found is True
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    assert audit.accessibility_statement_found is False
+
+
+@pytest.mark.django_db
+def test_twelve_week_accessibility_statement_found():
+    """
+    Test that an accessibility statement was found on 12-week retest.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.twelve_week_accessibility_statement_found is False
+
+    audit.twelve_week_accessibility_statement_url = "https://example.com/statement"
+
+    assert audit.twelve_week_accessibility_statement_found is True
+
+
+@pytest.mark.django_db
+def test_audit_updated_updated():
+    """Test the audit updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        audit.save()
+
+    assert audit.updated == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_page_updated_updated():
+    """Test the page updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
+        page.save()
+
+    assert page.updated == DATETIME_PAGE_UPDATED
+
+
+@pytest.mark.django_db
+def test_check_result_updated_updated():
+    """Test the check result updated field is updated"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit, page=page, type=TEST_TYPE_AXE, wcag_definition=wcag_definition
+    )
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        check_result.save()
+
+    assert check_result.updated == DATETIME_CHECK_RESULT_UPDATED
+
+
+def test_accessibility_statement_check():
+    """
+    Test that an accessibility statement check has the expected attributes.
+    """
+    audit: Audit = Audit(
+        scope_notes=INITIAL_NOTES, audit_retest_scope_notes=FINAL_NOTES
+    )
+
+    accessibility_statement_check: AccessibilityStatementCheck = (
+        AccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
+    )
+
+    assert accessibility_statement_check.field_name_prefix == "scope"
+    assert accessibility_statement_check.valid_values == ["present"]
+    assert accessibility_statement_check.label == "Scope"
+    assert accessibility_statement_check.initial_state == "not-present"
+    assert accessibility_statement_check.initial_state_display == "Not included"
+    assert accessibility_statement_check.initial_notes == INITIAL_NOTES
+    assert accessibility_statement_check.final_state == "not-present"
+    assert accessibility_statement_check.final_state_display == "Not included"
+    assert accessibility_statement_check.final_notes == FINAL_NOTES
+    assert accessibility_statement_check.initially_invalid is True
+    assert accessibility_statement_check.finally_fixed is False
+    assert accessibility_statement_check.finally_invalid is True
+
+
+@pytest.mark.parametrize(
+    "audit_field_name, audit_field_value, expected_value",
+    [
+        ("scope_state", "present", False),
+        ("scope_state", "not-present", True),
+        ("scope_state", "incomplete", True),
+        ("scope_state", "other", True),
+    ],
+)
+def test_accessibility_statement_check_initially_valid(
+    audit_field_name, audit_field_value, expected_value
+):
+    """
+    Test that an accessibility statement check has the expected value for
+    initially invalid.
+    """
+    audit: Audit = Audit()
+    setattr(audit, audit_field_name, audit_field_value)
+
+    accessibility_statement_check: AccessibilityStatementCheck = (
+        AccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
+    )
+
+    assert accessibility_statement_check.initially_invalid == expected_value
+
+
+@pytest.mark.parametrize(
+    "audit_field_name, audit_field_value, expected_value",
+    [
+        ("audit_retest_scope_state", "present", True),
+        ("audit_retest_scope_state", "not-present", False),
+        ("audit_retest_scope_state", "incomplete", False),
+        ("audit_retest_scope_state", "other", False),
+    ],
+)
+def test_accessibility_statement_check_finally_fixed(
+    audit_field_name, audit_field_value, expected_value
+):
+    """
+    Test that an accessibility statement check has the expected value for
+    finally fixed.
+    """
+    audit: Audit = Audit()
+    setattr(audit, audit_field_name, audit_field_value)
+
+    accessibility_statement_check: AccessibilityStatementCheck = (
+        AccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
+    )
+
+    assert accessibility_statement_check.finally_fixed == expected_value
+
+
+@pytest.mark.parametrize(
+    "audit_field_name, audit_field_value, expected_value",
+    [
+        ("audit_retest_scope_state", "present", False),
+        ("audit_retest_scope_state", "not-present", True),
+        ("audit_retest_scope_state", "incomplete", True),
+        ("audit_retest_scope_state", "other", True),
+    ],
+)
+def test_accessibility_statement_check_finally_invalid(
+    audit_field_name, audit_field_value, expected_value
+):
+    """
+    Test that an accessibility statement check has the expected value for
+    finally invalid.
+    """
+    audit: Audit = Audit()
+    setattr(audit, audit_field_name, audit_field_value)
+
+    accessibility_statement_check: AccessibilityStatementCheck = (
+        AccessibilityStatementCheck(field_name_prefix="scope", audit=audit)
+    )
+
+    assert accessibility_statement_check.finally_invalid == expected_value
+
+
+@pytest.mark.django_db
+def test_audit_fixed_check_results():
+    """
+    Test that fixed_check_results returns the expected values.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert audit.fixed_check_results.count() == 0
+
+    home_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    check_result: CheckResult = home_page.all_check_results[0]
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)
+
+    assert updated_audit.fixed_check_results.count() == 1
+    assert updated_audit.fixed_check_results[0].id == check_result.id
+
+
+@pytest.mark.django_db
+def test_audit_unfixed_check_results():
+    """
+    Test that unfixed_check_results returns the expected values.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert audit.unfixed_check_results.count() == 3
+
+    check_result: CheckResult = audit.unfixed_check_results[0]
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)
+
+    assert updated_audit.unfixed_check_results.count() == 2
+
+
+def test_audit_accessibility_statement_checks():
+    """
+    Test that an audit has the expected accessibility statement checks.
+    """
+    audit: Audit = Audit()
+
+    assert len(audit.accessibility_statement_checks) == 13
+
+    for count, field_name_prefix in enumerate(ACCESSIBILITY_STATEMENT_CHECK_PREFIXES):
+        assert (
+            audit.accessibility_statement_checks[count].field_name_prefix
+            == field_name_prefix
+        )
+
+
+def test_audit_accessibility_statement_initially_invalid_count():
+    """
+    Test that an audit has the expected number of initially invalid
+    accessibility statement checks.
+    """
+    audit: Audit = Audit()
+
+    assert audit.accessibility_statement_initially_invalid_checks_count == 12
+
+    audit.scope_state = SCOPE_STATE_VALID
+
+    assert audit.accessibility_statement_initially_invalid_checks_count == 11
+
+
+def test_audit_accessibility_statement_fixed_count():
+    """
+    Test that an audit has the expected number of fixed accessibility statement
+    checks.
+    """
+    audit: Audit = Audit()
+
+    assert audit.fixed_accessibility_statement_checks_count == 0
+
+    audit.audit_retest_scope_state = SCOPE_STATE_VALID
+
+    assert audit.fixed_accessibility_statement_checks_count == 1
+
+
+def test_audit_accessibility_statement_finally_invalid():
+    """
+    Test that an audit has the expected finally invalid accessibility statement
+    checks.
+    """
+    audit: Audit = Audit()
+
+    assert len(audit.finally_invalid_accessibility_statement_checks) == 12
+
+    audit.audit_retest_scope_state = SCOPE_STATE_VALID
+
+    assert len(audit.finally_invalid_accessibility_statement_checks) == 11

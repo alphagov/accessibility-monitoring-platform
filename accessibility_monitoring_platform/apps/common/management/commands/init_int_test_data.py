@@ -10,8 +10,8 @@ from django.db import connection, models
 
 from accessibility_monitoring_platform.apps.common.models import UserCacheUniqueHash
 from ....audits.models import Audit, CheckResult, Page, WcagDefinition
-from ....cases.models import Case, Contact
-from ....comments.models import Comment, CommentHistory
+from ....cases.models import Case, CaseEvent, Contact
+from ....comments.models import Comment
 from ....notifications.models import Notification, NotificationSetting
 from ....reminders.models import Reminder
 from ....reports.models import (
@@ -64,7 +64,7 @@ class Command(BaseCommand):
         delete_from_tables(
             ["axes_accesslog", "axes_accessattempt", "axes_accessfailurelog"]
         )  # Axes (access)
-        delete_from_models([CommentHistory, Comment])
+        delete_from_models([Comment])
         delete_from_models([Notification, NotificationSetting])
         delete_from_tables(
             [
@@ -87,7 +87,7 @@ class Command(BaseCommand):
             ]
         )
         delete_from_models([Reminder])
-        delete_from_models([Contact, Case])
+        delete_from_models([Contact, CaseEvent, Case])
         delete_from_models(
             [ChangeToPlatform, Event, IssueReport, Platform, Sector]
         )  # Common

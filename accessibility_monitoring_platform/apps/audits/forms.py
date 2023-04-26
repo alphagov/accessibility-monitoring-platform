@@ -1,7 +1,7 @@
 """
 Forms - checks (called tests by users)
 """
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from django import forms
 
@@ -55,6 +55,16 @@ from .models import (
     TEST_TYPE_CHOICES,
 )
 
+CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
+    ("", "All"),
+]
+TEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = CHECK_RESULT_STATE_CHOICES + [("", "All")]
+RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: List[
+    Tuple[str, str]
+] = RETEST_CHECK_RESULT_STATE_CHOICES + [("", "All")]
+
 
 class AuditMetadataUpdateForm(VersionForm):
     """
@@ -103,6 +113,9 @@ AuditExtraPageFormset: Any = forms.modelformset_factory(
 )
 AuditExtraPageFormsetOneExtra: Any = forms.modelformset_factory(
     Page, AuditExtraPageUpdateForm, extra=1
+)
+AuditExtraPageFormsetTwoExtra: Any = forms.modelformset_factory(
+    Page, AuditExtraPageUpdateForm, extra=2
 )
 
 
@@ -179,35 +192,25 @@ class CheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
-    manual = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Manual tests"})
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
-    axe = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Axe tests"})
-    )
-    pdf = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "PDF"})
-    )
-    error_found = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Error found"})
-    )
-    no_issue = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "No issue"})
-    )
-    not_tested = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not tested"})
+    state_filter = AMPChoiceRadioField(
+        label="Test state",
+        choices=TEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
 
     class Meta:
         model = Page
         fields: List[str] = [
             "name",
-            "manual",
-            "axe",
-            "pdf",
-            "error_found",
-            "no_issue",
-            "not_tested",
+            "type_filter",
+            "state_filter",
         ]
 
 
@@ -323,7 +326,6 @@ class AuditStatement1UpdateForm(VersionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["add_contact_email"] = AMPCharFieldWide(label="Email")
-        self.fields["add_contact_notes"] = AMPTextField(label="Notes")
 
     class Meta:
         model = Audit
@@ -768,23 +770,25 @@ class RetestCheckResultFilterForm(forms.Form):
     """
 
     name = AMPCharFieldWide(label="Filter WCAG tests, category, or grouping")
-    fixed = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Fixed"})
+    type_filter = AMPChoiceRadioField(
+        label="Type of WCAG error",
+        choices=CHECK_RESULT_TYPE_FILTER_CHOICES,
+        initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
-    not_fixed = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not fixed"})
-    )
-    not_retested = AMPChoiceCheckboxField(
-        label="", widget=AMPChoiceCheckboxWidget(attrs={"label": "Not retested"})
+    state_filter = AMPChoiceRadioField(
+        label="Retest state",
+        choices=RETEST_CHECK_RESULT_STATE_FILTER_CHOICES,
+        initial="",
+        widget=AMPRadioSelectWidget(attrs={"horizontal": True}),
     )
 
     class Meta:
         model = Page
         fields: List[str] = [
             "name",
-            "fixed",
-            "not_fixed",
-            "not_retested",
+            "type_filter",
+            "state_filter",
         ]
 
 
@@ -850,14 +854,34 @@ class CaseFinalWebsiteDecisionUpdateForm(VersionForm):
         ]
 
 
+class Audit12WeekStatementUpdateForm(VersionForm):
+    """
+    Form to add a statement at 12-weeks (no initial statement)
+    """
+
+    twelve_week_accessibility_statement_url = AMPURLField(
+        label="Link to accessibility statement",
+        help_text="Blank out to remove appended statement",
+    )
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to backup accessibility statement",
+        help_text="Blank out to remove appended statement",
+    )
+
+    class Meta:
+        model = Audit
+        fields = [
+            "version",
+            "twelve_week_accessibility_statement_url",
+            "audit_retest_accessibility_statement_backup_url",
+        ]
+
+
 class AuditRetestStatement1UpdateForm(VersionForm):
     """
     Form for retesting accessibility statement 1 checks
     """
 
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement, only if not compliant",
-    )
     audit_retest_scope_state = AMPChoiceRadioField(
         label="",
         choices=SCOPE_STATE_CHOICES,
@@ -899,7 +923,6 @@ class AuditRetestStatement1UpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_scope_state",
             "audit_retest_scope_notes",
             "audit_retest_feedback_state",
@@ -923,9 +946,6 @@ class AuditRetestStatement2UpdateForm(VersionForm):
     Form for retesting accessibility statement 2 checks
     """
 
-    audit_retest_accessibility_statement_backup_url = AMPURLField(
-        label="Link to 12-week saved accessibility statement, only if not compliant",
-    )
     audit_retest_disproportionate_burden_state = AMPChoiceRadioField(
         label="",
         choices=DISPROPORTIONATE_BURDEN_STATE_CHOICES,
@@ -962,7 +982,6 @@ class AuditRetestStatement2UpdateForm(VersionForm):
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_disproportionate_burden_state",
             "audit_retest_disproportionate_burden_notes",
             "audit_retest_content_not_in_scope_state",
@@ -979,17 +998,36 @@ class AuditRetestStatement2UpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementDecisionUpdateForm(VersionForm):
+class AuditRetestStatementComparisonUpdateForm(VersionForm):
     """
-    Form for retesting statement swcision
+    Form for retesting statement comparison
     """
 
+    audit_retest_statement_comparison_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_comparison_complete_date",
+        ]
+
+
+class AuditRetestStatementDecisionUpdateForm(VersionForm):
+    """
+    Form for retesting statement decision
+    """
+
+    audit_retest_accessibility_statement_backup_url = AMPURLField(
+        label="Link to 12-week saved accessibility statement, only if not compliant",
+    )
     audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
+            "audit_retest_accessibility_statement_backup_url",
             "audit_retest_statement_decision_complete_date",
         ]
 

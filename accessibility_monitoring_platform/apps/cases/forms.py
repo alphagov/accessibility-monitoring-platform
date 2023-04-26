@@ -10,13 +10,13 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.utils.safestring import mark_safe
 
 from ..common.forms import (
     VersionForm,
     AMPChoiceCheckboxWidget,
     AMPModelChoiceField,
     AMPAuditorModelChoiceField,
-    AMPCharField,
     AMPCharFieldWide,
     AMPTextField,
     AMPChoiceField,
@@ -49,21 +49,24 @@ from .models import (
 status_choices = STATUS_CHOICES
 status_choices.insert(0, ("", "All"))
 
-DEFAULT_SORT: str = "-id"
+DEFAULT_SORT: str = ""
 SORT_CHOICES: List[Tuple[str, str]] = [
     (DEFAULT_SORT, "Newest"),
     ("id", "Oldest"),
     ("organisation_name", "Alphabetic"),
 ]
-IS_COMPLAINT_DEFAULT: str = ""
+NO_FILTER: str = ""
 IS_COMPLAINT_CHOICES: List[Tuple[str, str]] = [
-    (IS_COMPLAINT_DEFAULT, "All"),
+    (NO_FILTER, "All"),
     ("no", "No complaints"),
     ("yes", "Only complaints"),
 ]
+ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICES
 
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
+    ("audit_case__date_of_test", "Date test started"),
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
+    ("case_updated_date", "Case updated"),
 ]
 
 
@@ -74,7 +77,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> List[Tuple[str, str]]
         ("none", "Unassigned"),
     ]
     for user in user_query.order_by("first_name", "last_name"):
-        user_choices_with_none.append((user.id, user.get_full_name()))  # type: ignore
+        user_choices_with_none.append((user.id, user.get_full_name()))
     return user_choices_with_none
 
 
@@ -84,9 +87,7 @@ class CaseSearchForm(AMPDateRangeForm):
     """
 
     sort_by = AMPChoiceField(label="Sort by", choices=SORT_CHOICES)
-    case_search = AMPCharField(
-        label="Search", help_text="Matches on URL, organisation, sector or location"
-    )
+    case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=status_choices)
@@ -97,6 +98,9 @@ class CaseSearchForm(AMPDateRangeForm):
     is_complaint = AMPChoiceField(
         label="Filter complaints", choices=IS_COMPLAINT_CHOICES
     )
+    enforcement_body = AMPChoiceField(
+        label="Enforcement body", choices=ENFORCEMENT_BODY_FILTER_CHOICES
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -104,8 +108,8 @@ class CaseSearchForm(AMPDateRangeForm):
         auditor_choices: List[Tuple[str, str]] = get_search_user_choices(
             User.objects.filter(groups__name="Historic auditor")
         )
-        self.fields["auditor"].choices = auditor_choices  # type: ignore
-        self.fields["reviewer"].choices = auditor_choices  # type: ignore
+        self.fields["auditor"].choices = auditor_choices
+        self.fields["reviewer"].choices = auditor_choices
 
 
 class CaseCreateForm(forms.ModelForm):
@@ -126,6 +130,10 @@ class CaseCreateForm(forms.ModelForm):
         choices=PSB_LOCATION_CHOICES,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    previous_case_url = AMPURLField(
+        label="URL to previous case",
+        help_text="If the website has been previously audited, include a link to the case below",
+    )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
         choices=BOOLEAN_CHOICES,
@@ -142,6 +150,7 @@ class CaseCreateForm(forms.ModelForm):
             "enforcement_body",
             "psb_location",
             "sector",
+            "previous_case_url",
             "is_complaint",
         ]
 
@@ -176,7 +185,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sector"].empty_label = "Unknown"  # type: ignore
+        self.fields["sector"].empty_label = "Unknown"
 
     def clean_previous_case_url(self):
         """Check url contains case number"""
@@ -277,7 +286,6 @@ class CaseQAProcessUpdateForm(VersionForm):
         choices=REPORT_APPROVED_STATUS_CHOICES,
         help_text="This field affects the case status",
     )
-    reviewer_notes = AMPTextField(label="QA notes")
     report_final_odt_url = AMPURLField(label="Link to final ODT report")
     report_final_pdf_url = AMPURLField(label="Link to final PDF report")
     qa_process_complete_date = AMPDatePageCompleteField()
@@ -289,7 +297,6 @@ class CaseQAProcessUpdateForm(VersionForm):
             "report_review_status",
             "reviewer",
             "report_approved_status",
-            "reviewer_notes",
             "report_final_odt_url",
             "report_final_pdf_url",
             "qa_process_complete_date",
@@ -304,10 +311,6 @@ class CaseContactUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
-    )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -315,8 +318,6 @@ class CaseContactUpdateForm(forms.ModelForm):
             "name",
             "job_title",
             "email",
-            "preferred",
-            "notes",
         ]
 
 
@@ -333,12 +334,14 @@ class CaseContactsUpdateForm(VersionForm):
     Form for updating test results
     """
 
+    contact_notes = AMPTextField(label="Contact detail notes")
     contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "contact_notes",
             "contact_details_complete_date",
         ]
 
@@ -524,7 +527,13 @@ class CaseCloseUpdateForm(VersionForm):
         label="Recommendation for equality body",
         choices=RECOMMENDATION_CHOICES,
     )
-    recommendation_notes = AMPTextField(label="Enforcement recommendation notes")
+    recommendation_notes = AMPTextField(
+        label="Enforcement recommendation notes",
+        help_text=mark_safe(
+            '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
+            " with notes from Summary of progress made from public sector body"
+        ),
+    )
     case_completed = AMPChoiceRadioField(
         label="Case completed",
         choices=CASE_COMPLETED_CHOICES,
@@ -582,6 +591,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
+    enforcement_retest_document_url = AMPURLField(label="External retest document")
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -591,6 +601,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
+            "enforcement_retest_document_url",
             "enforcement_correspondence_complete_date",
         ]
 

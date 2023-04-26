@@ -22,7 +22,7 @@
         </div>
         {% if reminders %}
             {% include "common/pagination_controls.html" %}
-            <table class="govuk-table case-dashboard">
+            <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
                         <th scope="col" class="govuk-table__header amp-width-one-quarter">Date</th>
@@ -42,11 +42,14 @@
                                     {{ reminder.case.organisation_name }}
                                 </a>
                             </td>
-                            <td class="govuk-table__cell amp-width-one-quarter">{{ reminder.description }}</td>
+                            <td class="govuk-table__cell amp-width-one-quarter amp-notes">
+                                {{ reminder.description }}
+                                (<a href="{% url 'reminders:edit-reminder' reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+                            </td>
                             <td class="govuk-table__cell amp-width-one-quarter">
+
                                 <a href="{% url 'reminders:delete-reminder' reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                                    Delete reminder
-                                </a>
+                                    Delete reminder</a>
                             </td>
                         </tr>
                     {% endfor %}

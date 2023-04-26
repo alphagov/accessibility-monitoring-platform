@@ -25,10 +25,9 @@ def test_user_has_no_reminders():
 def test_user_has_reminder_due_today():
     """User has a reminder due today"""
     user: User = User.objects.create()
-    case = Case.objects.create()
+    case = Case.objects.create(auditor=user)
     Reminder.objects.create(
         due_date=date.today(),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
@@ -39,10 +38,9 @@ def test_user_has_reminder_due_today():
 def test_user_has_reminder_overdue():
     """User has an overdue reminder"""
     user: User = User.objects.create()
-    case = Case.objects.create()
+    case = Case.objects.create(auditor=user)
     Reminder.objects.create(
         due_date=date(2020, 1, 1),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
@@ -53,16 +51,14 @@ def test_user_has_reminder_overdue():
 def test_user_has_due_and_overdue_reminders():
     """User has reminders due today and in the past"""
     user: User = User.objects.create()
-    case = Case.objects.create()
+    case = Case.objects.create(auditor=user)
     Reminder.objects.create(
         due_date=date(2020, 1, 1),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
     Reminder.objects.create(
         due_date=date(2020, 1, 1),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
@@ -73,18 +69,16 @@ def test_user_has_due_and_overdue_reminders():
 def test_deleted_reminders_not_counted():
     """User has deleted reminders which are not counted"""
     user: User = User.objects.create()
-    case = Case.objects.create()
+    case = Case.objects.create(auditor=user)
     Reminder.objects.create(
         is_deleted=True,
         due_date=date(2020, 1, 1),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
     Reminder.objects.create(
         is_deleted=True,
         due_date=date(2020, 1, 1),
-        user=user,
         case=case,
         description=REMINDER_DESCRIPTION,
     )
@@ -94,7 +88,7 @@ def test_deleted_reminders_not_counted():
 @pytest.mark.django_db
 def test_add_reminder_context_data():
     case: Case = Case.objects.create(organisation_name=ORGANISATION_NAME)
-    assert add_reminder_context_data(context={}, case_id=case.id) == {  # type: ignore
+    assert add_reminder_context_data(context={}, case_id=case.id) == {
         "case": case,
         "page_heading": "Reminder",
         "page_title": "Organisation Name | Reminder",

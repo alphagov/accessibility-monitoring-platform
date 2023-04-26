@@ -1,0 +1,75 @@
+<h3 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h3>
+<ul class="govuk-list">
+    <li>
+        <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            View outstanding issues
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'cases:twelve-week-correspondence-email' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+            View email template
+        </a>
+    </li>
+    <li>
+        {% if case.report.latest_s3_report %}
+            <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View published report
+            </a>
+        {% else %}
+            No published report
+        {% endif %}
+    </li>
+    <li>
+        <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+            View website
+        </a>
+    </li>
+    {% if in_testing_ui %}
+        <li>
+            <a href="{% url 'cases:case-detail' case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                Link to case view
+            </a>
+        </li>
+    {% endif %}
+    {% if case.zendesk_url %}
+        <li>
+            <a href="{{ case.zendesk_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Zendesk
+            </a>
+        </li>
+    {% endif %}
+    {% if case.trello_url %}
+        <li>
+            <a href="{{ case.trello_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                Trello
+            </a>
+        </li>
+    {% endif %}
+    <li>
+        {% if case.audit.accessibility_statement_found %}
+            <a href="{{ case.audit.accessibility_statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View {{ case.audit.accessibility_statement_page|lower }}
+            </a>
+        {% elif case.audit.twelve_week_accessibility_statement_found %}
+            <a href="{{ case.audit.twelve_week_accessibility_statement_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View accessibility statement
+            </a>
+        {% else %}
+            No accessibility statement
+        {% endif %}
+    </li>
+    {% if in_testing_ui %}
+        <li>
+            <a href="{% url 'common:markdown-cheatsheet' %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                Markdown cheatsheet
+            </a>
+        </li>
+    {% endif %}
+    {% for custom_frequently_used_link in custom_frequently_used_links %}
+        <li>
+            <a href="{{ custom_frequently_used_link.url }}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                {{ custom_frequently_used_link.label }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

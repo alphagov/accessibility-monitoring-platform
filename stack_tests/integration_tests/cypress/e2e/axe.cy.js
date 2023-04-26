@@ -42,9 +42,11 @@ const loggedInUrls = [
   '/cases/1/edit-twelve-week-correspondence/',
   '/cases/1/twelve-week-correspondence-email/',
   '/cases/1/edit-twelve-week-retest/',
+  '/cases/1/outstanding-issues/',
   '/cases/1/view/',
   '/cases/create/',
   '/common/contact/',
+  '/common/edit-active-qa-auditor/',
   '/common/edit-active-qa-auditor/',
   '/common/markdown-cheatsheet/',
   '/common/more-information/',
@@ -77,8 +79,7 @@ const axeConfig = {
 
 describe('Axe core checks', () => {
   it('logged in urls', () => {
-    cy.login()
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
     loggedInUrls.forEach(url => {
       cy.visit(url)
       cy.injectAxe()

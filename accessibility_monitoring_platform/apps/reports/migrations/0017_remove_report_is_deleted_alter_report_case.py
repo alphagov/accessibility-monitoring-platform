@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cases", "0042_alter_case_report_methodology_and_more"),
         ("reports", "0016_basetemplate_new_page_section_new_page"),

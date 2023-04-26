@@ -1,58 +1,56 @@
 /* global cy before Cypress */
 
-const organisationName = 'Met Office'
+const organisationName = 'Doncaster College'
 
 describe('View case', () => {
-  before(() => {
-    cy.login()
-  })
-
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('sessionid')
+    cy.session('login', cy.login, {cacheAcrossSpecs: true})
+    cy.visit('/')
   })
 
   it('can edit case details', () => {
-    cy.get('[name="search"]').clear().type(`${organisationName}{enter}`)
+    cy.visit('/cases/')
+    cy.get('[name="case_search"]').clear().type(`${organisationName}{enter}`)
     cy.contains(organisationName).click()
     cy.title().should('eq', `${organisationName} | View case`)
-
-    cy.contains('Edit case details').click()
+    
+    cy.get('[id="edit-case-details"]').click()
     cy.title().should('eq', `${organisationName} | Case details`)
     cy.contains('Case').click()
 
-    cy.contains('Edit testing details').click()
+    cy.get('[id="edit-test-results"]').click()
     cy.title().should('eq', `${organisationName} | Testing details`)
     cy.contains('Case').click()
 
-    cy.contains('Edit report details').click()
+    cy.get('[id="edit-qa-process"]').click()
+    cy.title().should('eq', `${organisationName} | QA process`)
+    cy.contains('Case').click()
+
+    cy.get('[id="edit-report-details"]').click()
     cy.title().should('eq', `${organisationName} | Report details`)
     cy.contains('Case').click()
 
-    cy.contains('Edit contact details').click()
+    cy.get('[id="edit-contact-details"]').click()
     cy.title().should('eq', `${organisationName} | Contact details`)
     cy.contains('Case').click()
 
-    cy.contains('Edit report correspondence').click()
+    cy.get('[id="edit-report-correspondence"]').click()
     cy.title().should('eq', `${organisationName} | Report correspondence`)
     cy.contains('Case').click()
 
-    cy.contains('Edit reviewing changes').click()
+    cy.get('[id="edit-review-changes"]').click()
     cy.title().should('eq', `${organisationName} | Reviewing changes`)
     cy.contains('Case').click()
 
-    cy.contains('Edit final accessibility statement compliance decision').click()
-    cy.title().should('eq', `${organisationName} | Final accessibility statement compliance decision`)
-    cy.contains('Case').click()
-
-    cy.contains('Edit closing the case').click()
+    cy.get('[id="edit-case-close"]').click()
     cy.title().should('eq', `${organisationName} | Closing the case`)
     cy.contains('Case').click()
 
-    cy.contains('Edit post case summary').click()
-    cy.title().should('eq', `${organisationName} | Post case summary`)
+    cy.get('[id="edit-enforcement-body-correspondence"]').click()
+    cy.title().should('eq', `${organisationName} | Equality body summary`)
     cy.contains('Case').click()
 
-    cy.contains('Edit equality body summary').click()
-    cy.title().should('eq', `${organisationName} | Equality body summary`)
+    cy.get('[id="edit-post-case"]').click()
+    cy.title().should('eq', `${organisationName} | Post case summary`)
   })
 })
