@@ -19,10 +19,10 @@
             {% if audit.all_overview_statement_checks_have_passed %}
                 <li>
                     <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-website' name='Accessibility statement for [website]' complete=audit.audit_statement_website_complete_date %}
+                        {% include './nav_step.html' with edit_name='audits:edit-statement-website' name='Accessibility statement information' complete=audit.audit_statement_website_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-statement-compliance' name='Compliance status' complete=audit.audit_statement_compliance_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-non-accessible' name='Non accessible content overview' complete=audit.audit_statement_non_accessible_complete_date %}
-                        {% include './nav_step.html' with edit_name='audits:edit-statement-preparation' name='Preparation of this accessibility statement' complete=audit.audit_statement_preparation_complete_date %}
+                        {% include './nav_step.html' with edit_name='audits:edit-statement-non-accessible' name='Non accessible content' complete=audit.audit_statement_non_accessible_complete_date %}
+                        {% include './nav_step.html' with edit_name='audits:edit-statement-preparation' name='Statement preparation' complete=audit.audit_statement_preparation_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-statement-feedback' name='Feedback and contact information' complete=audit.audit_statement_feedback_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-statement-enforcement' name='Enforcement procedure' complete=audit.audit_statement_enforcement_complete_date %}
                         {% include './nav_step.html' with edit_name='audits:edit-statement-other' name='Other' complete=audit.audit_statement_other_complete_date %}

@@ -2,150 +2,192 @@
 
 from django.db import migrations
 
-TYPES_AND_LABELS = [
+QUESTIONS = [
     {
         "type": "overview",
-        "label": "An accessibility was page found for the website?",
+        "label": "Is there an accessibility page?",
+        "success_criteria": "An accessibility page is found on the website",
+        "report_text": "No accessibility page or statement was found on the website.",
     },
     {
         "type": "overview",
-        "label": "The accessibility page includes a statement?",
+        "label": "Does the accessibility page include a statement?",
+        "success_criteria": "The accessibility page includes some some statement wording.",
+        "report_text": "The accessibility page does not include an accessibility statement in the correct format.",
     },
     {
         "type": "website",
-        "label": "Accessibility statement scope is included?",
+        "label": 'Is the page titled "Accessibility statement"?',
+        "success_criteria": "The main heading is Accessibility Statement or Accessibility Statement for [x]",
+        "report_text": 'The title and main heading of the page should be "Accessibility statement for [name of website]"',
     },
     {
         "type": "website",
-        "label": "The section is named correctly?",
+        "label": "Is there an accessibility commitment?",
+        "success_criteria": "A commitment to make the site accessible is found",
+        "report_text": "There is no commitment to make the website accessible, as required in the model accessibility statement.",
     },
     {
         "type": "website",
-        "label": "Accessibility section includes commitment to making the website accessible?",
+        "label": "Does the commitment use the correct wording?",
+        "success_criteria": "The text is: [Name of organisation] is committed to making its [website(s)/mobile application(s), as appropriate] accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
+        "report_text": "The wording of the commitment to make the website accessible is incorrect.",
     },
     {
         "type": "website",
-        "label": "The statement includes scope of statement?",
-    },
-    {
-        "type": "website",
-        "label": "The scope covers entire website?",
+        "label": "Is there a scope for the accessibility statement?",
+        "success_criteria": "The statement is clear about what it applies to.",
+        "report_text": "There is no scope included for the statement.",
     },
     {
         "type": "compliance",
-        "label": "Compliance status section is included?",
+        "label": "Is there a heading for compliance status?",
+        "success_criteria": "There is a heading for compliance status",
+        "report_text": 'A heading for "Compliance status" was not found',
     },
     {
         "type": "compliance",
-        "label": "Section is named correctly?",
+        "label": "Is the compliance status heading worded correctly?",
+        "success_criteria": 'The heading is "Compliance status"',
+        "report_text": 'The heading for "Compliance status" is not worded correctly',
     },
     {
         "type": "compliance",
-        "label": "The compliance status given?",
+        "label": "Is 1 of the 3 compliance status options included?",
+        "success_criteria": "A compliance status option is included",
+        "report_text": "The statement does not include the compliance status, as required in the model accessibility statement.",
     },
     {
         "type": "compliance",
-        "label": "The compliance status is correct?",
+        "label": "Is the compliance status option correct?",
+        "success_criteria": "The correct status option has been included",
+        "report_text": "The wrong compliance status is included in the statement.",
     },
     {
         "type": "non-accessible",
-        "label": "The non-compliance list includes all errors found in the test? (or is not required)",
+        "label": "Is there a heading for non-accessible content?",
+        "success_criteria": "A heading for non-accessible content is included (if needed)",
+        "report_text": 'A heading for "Non-accessible content" was not found.',
     },
     {
         "type": "non-accessible",
-        "label": "The non-compliance list gives enough information? (or is not required)",
+        "label": "Is any non-compliant content found in the testing listed?",
+        "success_criteria": "Non-compliant content is listed.",
+        "report_text": "The non-accessible content is not listed in the statement.",
     },
     {
         "type": "non-accessible",
-        "label": "Disproportionate burden claim is correct? (which includes no claim)",
+        "label": "Is non-compliant content correct and complete?",
+        "success_criteria": "Non-compliant content is correct and complete.",
+        "report_text": "The non-accessible content is not correct or complete.",
     },
     {
         "type": "non-accessible",
-        "label": "Disproportionate burden claim has sufficient information? (or is not required)",
+        "label": "Is disproportionate burden content listed?",
+        "success_criteria": "Disproportionate burden is listed.",
+        "report_text": "The content where disproportionate burden is claimed is not listed in the statement.",
     },
     {
         "type": "non-accessible",
-        "label": "Out-of-scope claim is correct and sufficient? (or is not required)",
+        "label": "Is disproportionate burden content correct and complete?",
+        "success_criteria": "Disproportionate burden content is correct and complete.",
+        "report_text": "The content where disproportionate burden is claimed is not correct or complete.",
+    },
+    {
+        "type": "non-accessible",
+        "label": "Is content not within the scope of the regulations listed?",
+        "success_criteria": "Content not within the scope of the regulations are listed.",
+        "report_text": "Content not within the scope of the regulations is not listed in the statement.",
+    },
+    {
+        "type": "non-accessible",
+        "label": "Is content not within the scope of the regulations correct and complete?",
+        "success_criteria": "Content not within the scope of the regulations is correct and complete.",
+        "report_text": "Content not within the scope of the regulations is not correct or complete.",
     },
     {
         "type": "preparation",
-        "label": "Preparation of this accessibility statement section is included?",
+        "label": "Is there a heading for preparation of this accessibility statement?",
+        "success_criteria": "There is a heading for preparation of this accessibility statement.",
+        "report_text": 'A heading for "Preparation of this accessibility statement" was not found.',
     },
     {
         "type": "preparation",
-        "label": "Section is named correctly?",
+        "label": "Is there a date for the statement preparation?",
+        "success_criteria": "There is a date for statement preparation.",
+        "report_text": "A statement preparation date was not included.",
     },
     {
         "type": "preparation",
-        "label": "Includes preparation date?",
+        "label": "Is there a date for the last review of the statement?",
+        "success_criteria": "There is a date for the last statement review.",
+        "report_text": "A statement review date was not included.",
     },
     {
         "type": "preparation",
-        "label": "Preparation date is less than one year old?",
+        "label": "Is the statement review or preparation date within the last year?",
+        "success_criteria": "The statement has not been reviewed in the last year.",
+        "report_text": "The statement has not been reviewed in the last year and is out-of-date.",
     },
     {
         "type": "preparation",
-        "label": "Includes review date?",
-    },
-    {
-        "type": "preparation",
-        "label": "Review date is in date?",
-    },
-    {
-        "type": "preparation",
-        "label": "Includes method to test the website?",
-    },
-    {
-        "type": "preparation",
-        "label": "Assessment method is suitable?",
+        "label": "Is there information about the method used to prepare the statement?",
+        "success_criteria": "The method used to prepare the statement is not included.",
+        "report_text": "The statement does not included the method used to prepare the statement.",
     },
     {
         "type": "feedback",
-        "label": "Feedback and contact information section is included ?",
+        "label": "Is there a heading for feedback and contact information?",
+        "success_criteria": "There is a heading for feedback and contact information.",
+        "report_text": 'A heading for "Feedback and contact information" was not found.',
     },
     {
         "type": "feedback",
-        "label": "Section is named correctly?",
+        "label": "Is the heading for feedback and contact information worded correctly?",
+        "success_criteria": 'The heading is "Feedback and contact information"',
+        "report_text": 'The heading for "Feedback and contact information" is not worded correctly.',
     },
     {
         "type": "feedback",
-        "label": "Includes description of feedback approach?",
-    },
-    {
-        "type": "feedback",
-        "label": "Includes contact details of entities responsible for accessibility?",
-    },
-    {
-        "type": "feedback",
-        "label": "There is sufficient information for contact details?",
+        "label": "Is there contact information for the organisation?",
+        "success_criteria": "There is an email address or contact form.",
+        "report_text": "There is no contact information to report accessibility issues.",
     },
     {
         "type": "enforcement",
-        "label": "Enforcement procedure section is included?",
+        "label": "Is there a heading for enforcement procedure?",
+        "success_criteria": "There is a heading for enforcement procedure.",
+        "report_text": 'A heading for "Enforcement procedure" is not found.',
     },
     {
         "type": "enforcement",
-        "label": "Section is named correctly?",
+        "label": "Is the heading for enforcement procedure worded correctly?",
+        "success_criteria": 'The heading is "Enforcement procedure".',
+        "report_text": 'The heading for "Enforcement procedure" is not worded correctly.',
     },
     {
         "type": "enforcement",
-        "label": "Includes sufficient information about enforcement procedure?",
+        "label": "If GB: does the content mention EHRC?",
+        "success_criteria": "The content mentions EHRC as the enforcement body.",
+        "report_text": "The statement should say that EHRC are responsible for enforcing the regulations.",
     },
     {
         "type": "enforcement",
-        "label": "Includes link to EASS or ECHR website?",
+        "label": "If NI: does the content mention ECNI?",
+        "success_criteria": "The content mentions ECNI as the enforcement body.",
+        "report_text": "The statement should say that ECNI are responsible for enforcing the regulations.",
     },
     {
-        "type": "other",
-        "label": "Statement is a HTML page?",
+        "type": "enforcement",
+        "label": "If GB: is there a link to EASS?",
+        "success_criteria": "There is a line about contacting EASS and this is linked.",
+        "report_text": "There should be a link to the EASS website for complaints.",
     },
     {
-        "type": "other",
-        "label": "Statement is accessibile from the homepage?",
-    },
-    {
-        "type": "other",
-        "label": "Statement is accessible on every page?",
+        "type": "enforcement",
+        "label": "If NI: is there a link to ECNI?",
+        "success_criteria": "There is a line about contacting ECNI and this is linked.",
+        "report_text": "There should be a link to the ECNI website for complaints.",
     },
 ]
 
@@ -237,12 +279,12 @@ def populate_statement_checks(apps, schema_editor):  # pylint: disable=unused-ar
     """Populate statement checks and update base template"""
     # pylint: disable=invalid-name
     StatementCheck = apps.get_model("audits", "StatementCheck")
-    for count, type_and_label in enumerate(TYPES_AND_LABELS, start=1):
+    for count, question in enumerate(QUESTIONS, start=1):
         StatementCheck.objects.create(
-            type=type_and_label["type"],
-            label=type_and_label["label"],
-            success_criteria=f"This is where success criteria will go {count}",
-            report_text=f"This is where the report text will go {count}",
+            type=question["type"],
+            label=question["label"],
+            success_criteria=question["success_criteria"],
+            report_text=question["report_text"],
             position=count,
         )
     BaseTemplate = apps.get_model("reports", "BaseTemplate")
