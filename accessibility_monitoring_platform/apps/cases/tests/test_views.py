@@ -333,27 +333,30 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_sent_to_enforcement_body_sent_date_filters(admin_client):
+@pytest.mark.parametrize(
+    "filter_field_name",
+    ["sent_to_enforcement_body_sent_date", "case_updated_date"],
+)
+def test_case_list_view_date_filters(filter_field_name, admin_client):
     """
-    Test that the case list view page can be filtered by date range on sent to
-    enforcement body sent date.
+    Test that the case list view page can be filtered by date range on a field.
     """
-    included_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(
+        included_case,
+        filter_field_name,
+        datetime(year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    included_case.save()
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    setattr(
+        excluded_case,
+        filter_field_name,
+        datetime(year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    Case.objects.create(
-        organisation_name="Included",
-        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
-    )
-    Case.objects.create(
-        organisation_name="Excluded",
-        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
-    )
+    excluded_case.save()
 
-    url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = f"date_type={filter_field_name}&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
@@ -998,35 +1001,6 @@ def test_delete_contact(admin_client):
     assert contact_on_database.is_deleted is True
 
 
-def test_preferred_contact_not_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact?")
-
-
-def test_preferred_contact_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact?")
-
-
 def test_link_to_accessibility_statement_displayed(admin_client):
     """
     Test that the link to the accessibility statement is displayed.
@@ -1271,20 +1245,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_preferred_contact_not_displayed(admin_client):
-    """
-    Test that the preferred contact is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact")
-
-
 def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
     admin_client,
 ):
@@ -1367,21 +1327,6 @@ def test_report_shows_table_when_report_exists_and_report_is_platform(
     )
     assert response.status_code == 200
     assertContains(response, audit_table_row)
-
-
-def test_preferred_contact_displayed(admin_client):
-    """
-    Test that the preferred contact is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact")
 
 
 @pytest.mark.parametrize(

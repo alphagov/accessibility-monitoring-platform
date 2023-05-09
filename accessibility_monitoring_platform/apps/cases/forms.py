@@ -66,6 +66,7 @@ ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICE
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("audit_case__date_of_test", "Date test started"),
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
+    ("case_updated_date", "Case updated"),
 ]
 
 
@@ -310,10 +311,6 @@ class CaseContactUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
-    )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -321,8 +318,6 @@ class CaseContactUpdateForm(forms.ModelForm):
             "name",
             "job_title",
             "email",
-            "preferred",
-            "notes",
         ]
 
 
@@ -339,12 +334,14 @@ class CaseContactsUpdateForm(VersionForm):
     Form for updating test results
     """
 
+    contact_notes = AMPTextField(label="Contact detail notes")
     contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "contact_notes",
             "contact_details_complete_date",
         ]
 

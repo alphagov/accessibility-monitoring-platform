@@ -330,7 +330,6 @@ class AuditStatement1UpdateForm(VersionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["add_contact_email"] = AMPCharFieldWide(label="Email")
-        self.fields["add_contact_notes"] = AMPTextField(label="Notes")
 
     class Meta:
         model = Audit
