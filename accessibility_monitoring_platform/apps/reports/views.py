@@ -160,7 +160,7 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     )
     context = {
         "report": report,
-        "issue_tables": build_issues_tables(report=report),
+        "issues_tables": build_issues_tables(report=report),
         "audit": report.case.audit,
     }
     html: str = template.render(context, request)
