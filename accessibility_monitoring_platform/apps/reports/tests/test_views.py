@@ -3,7 +3,6 @@ Tests for reports views
 """
 import pytest
 from typing import Dict
-from datetime import timedelta
 
 from moto import mock_s3
 
@@ -13,9 +12,16 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils import timezone
 
-from ...audits.models import Audit
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    PAGE_TYPE_HOME,
+    TEST_TYPE_AXE,
+    CHECK_RESULT_ERROR,
+)
 from ...audits.utils import report_data_updated
 from ...cases.models import (
     Case,
@@ -32,6 +38,10 @@ from ..models import (
     Report,
     ReportVisitsMetrics,
 )
+
+WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
+HOME_PAGE_URL: str = "https://example.com"
+CHECK_RESULTS_NOTES: str = "I am an error note"
 
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
@@ -104,6 +114,7 @@ def test_publish_report_redirects(admin_client):
     report: Report = create_report()
     report_pk_kwargs: Dict[str, int] = {"pk": report.id}
     number_of_s3_reports: int = S3Report.objects.filter(case=report.case).count()
+    assert number_of_s3_reports == 0
 
     response: HttpResponse = admin_client.get(
         reverse("reports:report-publish", kwargs=report_pk_kwargs),
@@ -112,11 +123,47 @@ def test_publish_report_redirects(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse("reports:report-publisher", kwargs=report_pk_kwargs)
-    assert S3Report.objects.filter(case=report.case).count() == number_of_s3_reports + 1
+    assert S3Report.objects.filter(case=report.case).count() == 1
     assert (
         S3Report.objects.filter(case=report.case).filter(latest_published=True).count()
         == 1
     )
+
+
+@mock_s3
+def test_published_report_includes_errors(admin_client):
+    """
+    Test that published report cotains the test results
+    """
+    report: Report = create_report()
+    audit: Audit = report.case.audit
+    page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+        notes=CHECK_RESULTS_NOTES,
+    )
+
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publish", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    s3_report: S3Report = S3Report.objects.get(case=report.case)
+
+    assert HOME_PAGE_URL in s3_report.html
+    assert WCAG_TYPE_AXE_NAME in s3_report.html
+    assert CHECK_RESULTS_NOTES in s3_report.html
 
 
 @mock_s3
