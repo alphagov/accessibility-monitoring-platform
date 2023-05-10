@@ -506,15 +506,13 @@ class AuditStatement1UpdateView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        if (
-            "add_contact_email" in form.changed_data
-            or "add_contact_notes" in form.changed_data
-        ):
-            Contact.objects.create(
+        if "add_contact_email" in form.changed_data:
+            contact: Contact = Contact.objects.create(
                 case=self.object.case,
-                email=form.cleaned_data.get("add_contact_email", ""),
-                notes=form.cleaned_data.get("add_contact_notes", ""),
+                email=form.cleaned_data["add_contact_email"],
+                created_by=self.request.user,
             )
+            record_model_create_event(user=self.request.user, model_object=contact)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
