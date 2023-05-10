@@ -158,7 +158,11 @@ def publish_report(request: HttpRequest, pk: int) -> HttpResponse:
     template: Template = loader.get_template(
         f"""reports_common/accessibility_report_{report.report_version}.html"""
     )
-    context = {"report": report, "issue_tables": build_issues_tables(report=report)}
+    context = {
+        "report": report,
+        "issue_tables": build_issues_tables(report=report),
+        "audit": report.case.audit,
+    }
     html: str = template.render(context, request)
     published_s3_reports: QuerySet[S3Report] = S3Report.objects.filter(case=report.case)
     for s3_report in published_s3_reports:
