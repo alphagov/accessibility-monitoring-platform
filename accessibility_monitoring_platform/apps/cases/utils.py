@@ -396,10 +396,10 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Reason why (deactivated)", field_name="deactivate_notes"
     ),
     ColumnAndFieldNames(column_name="QA status", field_name="qa_status"),
+    ColumnAndFieldNames(column_name="Contact detail notes", field_name="contact_notes"),
 ]
 CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(column_name="Contact email", field_name="email"),
-    ColumnAndFieldNames(column_name="Contact notes", field_name="notes"),
 ]
 FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(column_name="Case no.", field_name="id"),
@@ -413,6 +413,7 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Enforcement recommendation notes",
         field_name="recommendation_notes",
     ),
+    ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),
 ]
 
 
