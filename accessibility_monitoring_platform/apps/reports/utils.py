@@ -2,14 +2,14 @@
 """
 Utilities for reports app
 """
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Union
 
 from django.template import Context, Template
 from django.utils.text import slugify
 
 from ..cases.models import Case
 
-from ..audits.models import Page, WcagDefinition
+from ..audits.models import Audit, Page, WcagDefinition
 
 from .models import Report
 
@@ -140,6 +140,17 @@ def build_issue_table_rows(
             )
         )
     return table_rows
+
+
+def build_report_context(
+    report: Report,
+) -> Dict[str, Union[Report, List[IssueTable], Audit]]:
+    """Return context used to render report"""
+    return {
+        "report": report,
+        "issues_tables": build_issues_tables(report=report),
+        "audit": report.case.audit,
+    }
 
 
 def get_report_visits_metrics(case: Case) -> Dict[str, str]:

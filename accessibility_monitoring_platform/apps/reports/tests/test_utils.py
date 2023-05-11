@@ -2,7 +2,7 @@
 Test utility functions of reports app
 """
 import pytest
-from typing import List, Set
+from typing import Any, Dict, List, Set
 
 from ...audits.models import (
     Audit,
@@ -26,6 +26,7 @@ from ..utils import (
     TableRow,
     build_issues_tables,
     build_issue_table_rows,
+    build_report_context,
     get_report_visits_metrics,
 )
 
@@ -151,7 +152,24 @@ def test_generate_report_content_issues_tables():
 
 
 @pytest.mark.django_db
+def test_build_report_context():
+    """Test context to render report built"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+
+    report_context: Dict[str, Any] = build_report_context(report=report)
+
+    assert report_context == {
+        "audit": audit,
+        "issues_tables": [],
+        "report": report,
+    }
+
+
+@pytest.mark.django_db
 def test_report_visits_metrics():
+    """Test report visits metrics calculated"""
     case: Case = Case.objects.create()
     res = get_report_visits_metrics(case)
     assert res["number_of_visits"] == 0
