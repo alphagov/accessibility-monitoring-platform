@@ -158,7 +158,7 @@ RECOMMENDATION_DEFAULT: str = "unknown"
 RECOMMENDATION_NO_ACTION: str = "no-further-action"
 RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     (RECOMMENDATION_NO_ACTION, "No further action"),
-    ("other", "No recommendation made"),
+    ("other", "For enforcement consideration"),
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
