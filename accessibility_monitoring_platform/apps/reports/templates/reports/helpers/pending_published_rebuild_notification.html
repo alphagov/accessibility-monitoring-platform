@@ -13,14 +13,9 @@
                     </h3>
                     <p class="govuk-body">To update the published report:</p>
                     <ul class="govuk-list govuk-list--bullet">
-                        <li>Reset the report</li>
                         <li>Review the report</li>
                         <li>Publish a new report</li>
                     </ul>
-                    <p class="govuk-body">
-                        Go to
-                        <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-refresh' case.report.id %}">
-                            Case > Report > Report reset</a></p>
                     <p class="govuk-body">
                         Go to
                         <a class="govuk-notification-banner__link" href="{% url 'reports:report-confirm-publish' case.report.id %}">
