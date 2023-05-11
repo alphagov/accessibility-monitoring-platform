@@ -24,10 +24,7 @@ from ....reports.models import (
     Report,
     ReportFeedback,
     ReportVisitsMetrics,
-    BaseTemplate,
     ReportWrapper,
-    Section,
-    TableRow,
 )
 from ....s3_read_write.models import S3Report
 from ....users.models import AllowedEmail
@@ -90,12 +87,9 @@ class Command(BaseCommand):
         delete_from_models([S3Report])
         delete_from_models(
             [
-                BaseTemplate,
                 ReportWrapper,
                 ReportFeedback,
                 ReportVisitsMetrics,
-                TableRow,
-                Section,
                 Report,
             ]
         )
@@ -108,7 +102,6 @@ class Command(BaseCommand):
         delete_from_models([AllowedEmail])
 
         load_fixture("wcag_definition")
-        load_fixture("base_template")  # Report
         load_fixture("report_wrapper")  # Report UI text
         load_fixture("sector")
         load_fixture("allowed_email")

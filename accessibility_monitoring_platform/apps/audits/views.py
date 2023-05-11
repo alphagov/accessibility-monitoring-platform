@@ -279,6 +279,8 @@ class AuditCaseUpdateView(AuditUpdateView):
         if form.is_valid() and case_form.is_valid():
             form.save()
             case_form.save()
+            if "is_website_compliant" in case_form.changed_data:
+                report_data_updated(audit=self.object)
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(

@@ -1,18 +1,20 @@
             <li>
                 {% if anchor %}
                     <a href="#{{ anchor_prefix }}{{ anchor }}" class="govuk-link govuk-link--no-visited-state">
-                        {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+                        {{ name }}{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
-                    {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+                    {{ name }}{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}
                 {% endif %}
                 |
-                {% if page %}
-                    <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="content-page-link">
-                {% elif audit %}
-                    <a id="{{ id }}" href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                {% if page or audit %}
+                    {% if page %}
+                        <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="content-page-link">
+                    {% else %}
+                       <a id="{{ id }}" href="{% url edit_name audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {% endif %}
+                    Edit{% if complete %} <span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% else %}
                     None
                 {% endif %}
-                        Edit{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
                 {% if complete %}&check;{% endif %}
             </li>
