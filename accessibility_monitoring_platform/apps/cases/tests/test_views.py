@@ -29,7 +29,7 @@ from ...audits.models import (
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
 )
-from ...audits.tests.test_models import create_audit_and_check_results
+from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
 from ...comments.models import Comment
 from ...common.models import (
@@ -3304,3 +3304,23 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View email template")
     assertContains(response, "No published report")
     assertContains(response, "View website")
+
+
+def test_email_template_contains_issues(admin_client):
+    """
+    Test email template contains issues.
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page.url = "https://example.com"
+    page.save()
+    Report.objects.create(case=audit.case)
+    url: str = reverse(
+        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, ERROR_NOTES)

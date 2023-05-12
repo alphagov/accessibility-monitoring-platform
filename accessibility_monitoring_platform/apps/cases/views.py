@@ -48,6 +48,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
 )
 from ..common.utils import amp_format_date
+from ..reports.utils import build_issues_tables
 from .models import (
     Case,
     Contact,
@@ -734,7 +735,9 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["case"] = get_object_or_404(Case, id=kwargs.get("pk"))
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["issues_tables"] = build_issues_tables(report=case.report)
         return context
 
 
