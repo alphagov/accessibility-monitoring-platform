@@ -553,6 +553,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_deadline_not_complete_wording = AMPTextField(
+        label="Wording for missed deadline"
+    )
     accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
@@ -563,6 +566,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
                 ]
             }
         ),
+    )
+    accessibility_statement_deadline_not_sufficient_wording = AMPTextField(
+        label="Wording for insufficient deadline"
     )
     accessibility_statement_out_of_date = AMPChoiceCheckboxField(
         label="",
@@ -676,7 +682,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_needs_more_re_disproportionate",
             "accessibility_statement_needs_more_re_accessibility",
             "accessibility_statement_deadline_not_complete",
+            "accessibility_statement_deadline_not_complete_wording",
             "accessibility_statement_deadline_not_sufficient",
+            "accessibility_statement_deadline_not_sufficient_wording",
             "accessibility_statement_out_of_date",
             "accessibility_statement_eass_link",
             "accessibility_statement_template_update",

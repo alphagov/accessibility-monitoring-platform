@@ -483,8 +483,16 @@ class Audit(VersionModel):
     accessibility_statement_deadline_not_complete = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    accessibility_statement_deadline_not_complete_wording = models.TextField(
+        default="it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+        blank=True,
+    )
     accessibility_statement_deadline_not_sufficient = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_deadline_not_sufficient_wording = models.TextField(
+        default="it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
+        blank=True,
     )
     accessibility_statement_out_of_date = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
@@ -673,11 +681,20 @@ class Audit(VersionModel):
 
     @property
     def report_accessibility_issues(self) -> List[str]:
-        return [
-            value
-            for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
-            if getattr(self, key) == BOOLEAN_TRUE
-        ]
+        issues: List[str] = []
+        for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
+            if getattr(self, key) == BOOLEAN_TRUE:
+                if key == "accessibility_statement_deadline_not_complete":
+                    issues.append(
+                        self.accessibility_statement_deadline_not_complete_wording
+                    )
+                elif key == "accessibility_statement_deadline_not_sufficient":
+                    issues.append(
+                        self.accessibility_statement_deadline_not_sufficient_wording
+                    )
+                else:
+                    issues.append(value)
+        return issues
 
     @property
     def deleted_pages(self):
