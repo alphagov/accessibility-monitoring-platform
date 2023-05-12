@@ -45,6 +45,7 @@ INITIAL_NOTES: str = "Initial notes"
 FINAL_NOTES: str = "Final notes"
 INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
 INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
+ERROR_NOTES: str = "Error notes"
 
 
 def create_audit_and_pages() -> Audit:
@@ -59,7 +60,7 @@ def create_audit_and_pages() -> Audit:
         PAGE_TYPE_PDF,
         PAGE_TYPE_FORM,
     ]:
-        Page.objects.create(audit=audit, page_type=page_type)
+        Page.objects.create(audit=audit, page_type=page_type, url="https://example.com")
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
     return audit
 
@@ -101,6 +102,7 @@ def create_audit_and_check_results() -> Audit:
                     check_result_state=check_result_state,
                     type=wcag_definition.type,
                     wcag_definition=wcag_definition,
+                    notes=ERROR_NOTES,
                 )
 
     return audit

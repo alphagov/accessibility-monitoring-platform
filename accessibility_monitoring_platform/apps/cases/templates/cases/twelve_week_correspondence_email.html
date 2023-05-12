@@ -103,14 +103,9 @@
                     and provide an update on the Accessibility statement.
                     <br>
                     <br>
-                    {% for section in case.report.section_set.all %}
-                        {% if section.template_type == 'issues' and section.visible_table_rows.all %}
-                            <h2>{{ section.name }}</h2>
-                            {% if section.template_type == 'html' %}
-                                {{ section.content|safe }}
-                            {% else %}
-                                {{ section.content|markdown_to_html }}
-                            {% endif %}
+                    {% for issues_table in issues_tables %}
+                        {% if issues_table.rows %}
+                            <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
                             <table id="email-issues-table-{{ forloop.counter }}">
                                 <thead>
                                     <tr>
@@ -121,7 +116,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for row in section.visible_table_rows.all %}
+                                    {% for row in issues_table.rows %}
                                         <tr valign="top">
                                             <td width=1%>{{ forloop.counter }}</td>
                                             <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
