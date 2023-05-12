@@ -3311,6 +3311,9 @@ def test_email_template_contains_issues(admin_client):
     Test email template contains issues.
     """
     audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page.url = "https://example.com"
+    page.save()
     Report.objects.create(case=audit.case)
     url: str = reverse(
         "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}

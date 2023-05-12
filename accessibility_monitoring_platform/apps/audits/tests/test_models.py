@@ -60,7 +60,7 @@ def create_audit_and_pages() -> Audit:
         PAGE_TYPE_PDF,
         PAGE_TYPE_FORM,
     ]:
-        Page.objects.create(audit=audit, page_type=page_type, url="https://example.com")
+        Page.objects.create(audit=audit, page_type=page_type)
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
     return audit
 
