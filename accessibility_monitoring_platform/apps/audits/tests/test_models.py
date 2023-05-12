@@ -43,6 +43,8 @@ DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
 DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
 INITIAL_NOTES: str = "Initial notes"
 FINAL_NOTES: str = "Final notes"
+INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
+INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
 
 
 def create_audit_and_pages() -> Audit:
@@ -576,3 +578,24 @@ def test_audit_accessibility_statement_finally_invalid():
     audit.audit_retest_scope_state = SCOPE_STATE_VALID
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
+
+
+def test_report_accessibility_issues():
+    """Test the accessibility issues includes user-edited text"""
+    audit: Audit = Audit(
+        accessibility_statement_deadline_not_complete_wording=INCOMPLETE_DEADLINE_TEXT,
+        accessibility_statement_deadline_not_sufficient_wording=INSUFFICIENT_DEADLINE_TEXT,
+    )
+
+    assert audit.report_accessibility_issues == []
+
+    audit.accessibility_statement_deadline_not_complete = BOOLEAN_TRUE
+
+    assert audit.report_accessibility_issues == [INCOMPLETE_DEADLINE_TEXT]
+
+    audit.accessibility_statement_deadline_not_sufficient = BOOLEAN_TRUE
+
+    assert audit.report_accessibility_issues == [
+        INCOMPLETE_DEADLINE_TEXT,
+        INSUFFICIENT_DEADLINE_TEXT,
+    ]
