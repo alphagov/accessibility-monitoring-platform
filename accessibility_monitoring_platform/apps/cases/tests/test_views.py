@@ -922,7 +922,7 @@ def test_add_qa_comment_redirects_to_qa_process(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?#qa-discussion'
     )
 
 
@@ -2584,23 +2584,6 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assert response.status_code == 200
     assertNotContains(response, "Link to final PDF report")
     assertNotContains(response, "Link to final ODT report")
-
-
-def test_qa_process_opens_discussion(admin_client):
-    """
-    Test that the QA process page opens the discussion details element
-    by default.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response, '<details class="govuk-details" data-module="govuk-details" open>'
-    )
 
 
 def test_report_corespondence_shows_link_to_create_report(admin_client):
