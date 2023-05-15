@@ -27,11 +27,11 @@ from ...cases.models import (
     Case,
     CaseEvent,
     REPORT_APPROVED_STATUS_APPROVED,
-    REPORT_READY_TO_REVIEW,
     CASE_EVENT_CREATE_REPORT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
 )
+from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
 
 from ..models import (
@@ -243,7 +243,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -270,7 +270,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -291,7 +291,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     Test report next step for case report approved status is 'yes'
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     Audit.objects.create(case=case)
@@ -315,7 +315,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     Test report next step for published report is out of date
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     audit: Audit = Audit.objects.create(case=case)
@@ -342,7 +342,7 @@ def test_report_next_step_for_published_report(admin_client):
     Test report next step for published report
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     Audit.objects.create(case=case)
@@ -365,7 +365,7 @@ def test_report_next_step_default(admin_client):
     Test report next stepdefault
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status="in-progress",
     )
     Audit.objects.create(case=case)
@@ -542,7 +542,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.auditor = user
     case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     case.is_website_compliant = IS_WEBSITE_COMPLIANT_COMPLIANT
-    case.report_review_status = REPORT_READY_TO_REVIEW
+    case.report_review_status = BOOLEAN_TRUE
     case.save()
 
     response: HttpResponse = admin_client.get(

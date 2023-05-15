@@ -48,7 +48,7 @@ def test_edit_qa_comment_redirects_based_on_button_pressed(
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+        == f'{reverse(expected_redirect_path, kwargs={"pk": case.id})}?#qa-discussion'
     )
 
     content_type: ContentType = ContentType.objects.get_for_model(Comment)

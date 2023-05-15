@@ -87,7 +87,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Go to QA process').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA process`)
-    cy.get('[name="report_review_status"]').check('ready-to-review')
+    cy.get('[name="report_review_status"]').check('yes')
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save').click()

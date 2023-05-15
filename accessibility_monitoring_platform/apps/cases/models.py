@@ -162,14 +162,6 @@ RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     (RECOMMENDATION_DEFAULT, "Not selected"),
 ]
 
-REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
-REPORT_READY_TO_REVIEW = "ready-to-review"
-REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_READY_TO_REVIEW, "Yes"),
-    ("in-progress", "In progress"),
-    (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
-]
-
 REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
 REPORT_APPROVED_STATUS_APPROVED: str = "yes"
 REPORT_APPROVED_STATUS_CHOICES: List[Tuple[str, str]] = [
@@ -367,8 +359,8 @@ class Case(VersionModel):
     # QA process
     report_review_status = models.CharField(
         max_length=200,
-        choices=REPORT_REVIEW_STATUS_CHOICES,
-        default=REPORT_REVIEW_STATUS_DEFAULT,
+        choices=BOOLEAN_CHOICES,
+        default=BOOLEAN_FALSE,
     )
     reviewer = models.ForeignKey(
         User,
@@ -609,11 +601,11 @@ class Case(VersionModel):
             self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
             and self.accessibility_statement_state
             != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
-            and self.report_review_status != REPORT_READY_TO_REVIEW
+            and self.report_review_status != BOOLEAN_TRUE
         ):
             return "report-in-progress"
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return "qa-in-progress"
@@ -649,17 +641,17 @@ class Case(VersionModel):
     def set_qa_status(self) -> str:
         if (
             self.reviewer is None
-            and self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_UNASSIGNED
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_IN_QA
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_QA_APPROVED
