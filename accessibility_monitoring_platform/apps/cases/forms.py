@@ -35,13 +35,11 @@ from .models import (
     Contact,
     STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
-    PREFERRED_CHOICES,
     BOOLEAN_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
     PSB_LOCATION_CHOICES,
-    REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
 )
@@ -273,8 +271,8 @@ class CaseQAProcessUpdateForm(VersionForm):
     """
 
     report_review_status = AMPChoiceRadioField(
-        label="Report ready to be reviewed?",
-        choices=REPORT_REVIEW_STATUS_CHOICES,
+        label="Report ready for QA process?",
+        choices=BOOLEAN_CHOICES,
         help_text="This field affects the case status",
     )
     reviewer = AMPAuditorModelChoiceField(

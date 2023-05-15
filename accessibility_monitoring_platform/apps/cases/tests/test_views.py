@@ -53,7 +53,6 @@ from ..models import (
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_READY_TO_REVIEW,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -176,9 +175,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
-    Case.objects.create(
-        organisation_name="Included", report_review_status="ready-to-review"
-    )
+    Case.objects.create(organisation_name="Included", report_review_status="yes")
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=unassigned-qa-case'
@@ -2746,7 +2743,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
-            REPORT_READY_TO_REVIEW,
+            BOOLEAN_TRUE,
         ),
         (
             "cases:edit-qa-process",
