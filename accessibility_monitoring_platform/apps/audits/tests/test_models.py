@@ -199,6 +199,9 @@ def test_audit_failed_check_results_for_deleted_page_not_returned():
     and associated page has not been deleted.
     """
     audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
     page.is_deleted = True
     page.save()
@@ -213,6 +216,9 @@ def test_audit_failed_check_results_for_missing_page_not_returned():
     where retest page missing is not set.
     """
     audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
     page.retest_page_missing_date = date.today()
     page.save()
