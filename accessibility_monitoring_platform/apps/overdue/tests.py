@@ -11,13 +11,13 @@ from ..cases.models import (
     TEST_STATUS_COMPLETE,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
 )
 from ..cases.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
 )
+from ..common.models import BOOLEAN_TRUE
 from .utils import get_overdue_cases
 
 TODAY = date.today()
@@ -44,7 +44,7 @@ def create_case(user: User) -> Case:
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         reviewer=user,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_final_pdf_url="https://www.report-pdf.com",

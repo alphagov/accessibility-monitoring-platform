@@ -53,7 +53,6 @@ from ..models import (
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_READY_TO_REVIEW,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -176,9 +175,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
-    Case.objects.create(
-        organisation_name="Included", report_review_status="ready-to-review"
-    )
+    Case.objects.create(organisation_name="Included", report_review_status="yes")
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=unassigned-qa-case'
@@ -925,7 +922,7 @@ def test_add_qa_comment_redirects_to_qa_process(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?#qa-discussion'
     )
 
 
@@ -2589,23 +2586,6 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assertNotContains(response, "Link to final ODT report")
 
 
-def test_qa_process_opens_discussion(admin_client):
-    """
-    Test that the QA process page opens the discussion details element
-    by default.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response, '<details class="govuk-details" data-module="govuk-details" open>'
-    )
-
-
 def test_report_corespondence_shows_link_to_create_report(admin_client):
     """
     Test that the report correspondence page shows link to create report
@@ -2746,7 +2726,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
-            REPORT_READY_TO_REVIEW,
+            BOOLEAN_TRUE,
         ),
         (
             "cases:edit-qa-process",

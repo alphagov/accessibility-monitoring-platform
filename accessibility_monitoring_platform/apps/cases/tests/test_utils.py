@@ -29,7 +29,6 @@ from ..models import (
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_READY_FOR_FINAL_DECISION,
     CASE_EVENT_CASE_COMPLETED,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_NO_SEND,
 )
@@ -424,7 +423,7 @@ def test_download_cases():
             "",
             "",
             "",
-            "Not started",
+            "No",
             "",
             "Not started",
             "",
@@ -492,10 +491,10 @@ def test_download_cases():
     [
         ({}, None, CASE_EVENT_TYPE_CREATE, "Created case"),
         (
-            {"report_review_status": REPORT_READY_TO_REVIEW},
+            {"report_review_status": BOOLEAN_TRUE},
             {},
             CASE_EVENT_READY_FOR_QA,
-            "Report ready to be reviewed changed from 'Not started' to 'Yes'",
+            "Report ready to be reviewed changed from 'No' to 'Yes'",
         ),
         (
             {"report_approved_status": REPORT_APPROVED_STATUS_APPROVED},
