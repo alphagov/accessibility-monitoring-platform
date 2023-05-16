@@ -45,9 +45,9 @@
                         <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
                     </li>
                     <li>
-                        {% if number_of_notifications > 0 %}<b>{% endif %}
-                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Comments ({{ number_of_notifications }})</a>
-                        {% if number_of_notifications > 0 %}</b>{% endif %}
+                        {% if number_of_unread_notifications > 0 %}<b>{% endif %}
+                        <a class="govuk-link govuk-link--no-visited-state" href="{% url 'notifications:notifications-list' %}">Comments ({{ number_of_unread_notifications }})</a>
+                        {% if number_of_unread_notifications > 0 %}</b>{% endif %}
                     </li>
                     <li>
                         {% if number_of_reminders > 0 %}<b>{% endif %}

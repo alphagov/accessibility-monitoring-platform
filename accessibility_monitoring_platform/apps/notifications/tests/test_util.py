@@ -7,7 +7,11 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ..models import Notification, NotificationSetting
-from ..utils import read_notification, add_notification
+from ..utils import (
+    read_notification,
+    add_notification,
+    get_number_of_unread_notifications,
+)
 
 
 @pytest.mark.django_db
@@ -129,3 +133,18 @@ def test_creates_new_email_notification_model_when_null(mailoutbox, rf):
     assert notification_setting is not None
     assert notification_setting.user.email == user.email
     assert notification_setting.email_notifications_enabled is False
+
+
+@pytest.mark.django_db
+def test_get_number_of_unread_notifications():
+    """Check that the number of unread notifications is returned"""
+    user: User = User.objects.create()
+
+    notification: Notification = Notification.objects.create(user=user)
+
+    assert get_number_of_unread_notifications(user=user) == 1
+
+    notification.read = True
+    notification.save()
+
+    assert get_number_of_unread_notifications(user=user) == 0
