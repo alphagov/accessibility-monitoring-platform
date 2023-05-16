@@ -61,14 +61,14 @@ def test_add_comment_notification(rf):
 
 @pytest.mark.django_db
 def test_add_comment_notification_to_on_call_qa(rf):
-    """Test add comment notifications"""
+    """Test comment notifications are also sent to on-call QA auditor"""
     case: Case = Case.objects.create()
 
     first_user: User = User.objects.create(
         username="first", first_name="First", last_name="User"
     )
-    first_request: HttpRequest = rf.get("/")
-    first_request.user = first_user
+    request: HttpRequest = rf.get("/")
+    request.user = first_user
 
     platform: Platform = get_platform_settings()
     second_user: User = User.objects.create(
@@ -83,7 +83,7 @@ def test_add_comment_notification_to_on_call_qa(rf):
         body=COMMENT_BODY,
     )
 
-    assert add_comment_notification(request=first_request, comment=comment)
+    assert add_comment_notification(request=request, comment=comment)
     assert Notification.objects.count() == 1
 
     notification: Notification = Notification.objects.all().first()
