@@ -9,7 +9,7 @@ from ...cases.models import Case
 
 from ..utils import (
     group_cases_by_status,
-    group_cases_by_qa_status,
+    get_all_cases_in_qa,
     return_cases_requiring_user_review,
 )
 
@@ -64,11 +64,11 @@ MOCK_CASES: List[MockCase] = [
     ),
     MockCase(
         id=27,
-        qa_status="unassigned-qa-case",
+        status="qa-in-progress",
     ),
     MockCase(
         id=26,
-        qa_status="unassigned-qa-case",
+        status="qa-in-progress",
     ),
     MockCase(
         id=25,
@@ -276,6 +276,14 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
     ],
     "qa_in_progress": [
         MockCase(
+            id=26,
+            status="qa-in-progress",
+        ),
+        MockCase(
+            id=27,
+            status="qa-in-progress",
+        ),
+        MockCase(
             id=30,
             status="qa-in-progress",
         ),
@@ -293,14 +301,6 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
     "unknown": [
         MockCase(id=1),
         MockCase(id=2),
-        MockCase(
-            id=26,
-            qa_status="unassigned-qa-case",
-        ),
-        MockCase(
-            id=27,
-            qa_status="unassigned-qa-case",
-        ),
         MockCase(
             id=28,
             qa_status="in-qa",
@@ -334,18 +334,20 @@ EXPECTED_MOCK_CASES_BY_STATUS = {
     "completed": [],
 }
 
-EXPECTED_MOCK_CASES_BY_QA_STATUS = {
-    "ready_for_qa": [
-        MockCase(
-            id=26,
-            qa_status="unassigned-qa-case",
-        ),
-        MockCase(
-            id=27,
-            qa_status="unassigned-qa-case",
-        ),
-    ],
-}
+EXPECTED_MOCK_CASES_IN_QA = [
+    MockCase(
+        id=26,
+        status="qa-in-progress",
+    ),
+    MockCase(
+        id=27,
+        status="qa-in-progress",
+    ),
+    MockCase(
+        id=30,
+        status="qa-in-progress",
+    ),
+]
 
 
 def test_group_cases_by_status():
@@ -353,9 +355,9 @@ def test_group_cases_by_status():
     assert group_cases_by_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_STATUS  # type: ignore
 
 
-def test_group_cases_by_qa_status():
-    """Test cases are grouped by qa_status and sorted"""
-    assert group_cases_by_qa_status(cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_QA_STATUS  # type: ignore
+def test_get_all_cases_in_qa():
+    """Test cases in qa are sorted and returned"""
+    assert get_all_cases_in_qa(all_cases=MOCK_CASES) == EXPECTED_MOCK_CASES_IN_QA  # type: ignore
 
 
 def test_return_cases_requiring_user_review():
