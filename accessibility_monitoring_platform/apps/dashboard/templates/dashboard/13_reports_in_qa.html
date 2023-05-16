@@ -22,7 +22,11 @@
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">{{ case.get_qa_status_display }}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {{ case.auditor.get_full_name }}
+                        {% if case.auditor %}
+                            <a href="{% url 'cases:case-list' %}?auditor={{case.auditor.id}}" class="govuk-link">{{ case.auditor.get_full_name }}</a>
+                        {% else %}
+                            None
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

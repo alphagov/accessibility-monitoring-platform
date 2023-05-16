@@ -23,6 +23,7 @@ from ..common.models import (
 )
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
+STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
 STATUS_DEFAULT: str = "unassigned-case"
 STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
@@ -47,7 +48,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Report ready to QA",
     ),
     (
-        "qa-in-progress",
+        STATUS_QA_IN_PROGRESS,
         "QA in progress",
     ),
     (
@@ -608,7 +609,7 @@ class Case(VersionModel):
             self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "qa-in-progress"
+            return STATUS_QA_IN_PROGRESS
         elif (
             self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
             and self.report_sent_date is None
