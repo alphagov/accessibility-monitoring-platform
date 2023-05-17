@@ -42,6 +42,7 @@ from ..models import (
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 HOME_PAGE_URL: str = "https://example.com"
 CHECK_RESULTS_NOTES: str = "I am an error note"
+EXTRA_STATEMENT_WORDING: str = "Extra statement wording"
 
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
@@ -133,10 +134,12 @@ def test_publish_report_redirects(admin_client):
 @mock_s3
 def test_published_report_includes_errors(admin_client):
     """
-    Test that published report cotains the test results
+    Test that published report contains the test results
     """
     report: Report = create_report()
     audit: Audit = report.case.audit
+    audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
+    audit.save()
     page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
     )
@@ -164,6 +167,7 @@ def test_published_report_includes_errors(admin_client):
     assert HOME_PAGE_URL in s3_report.html
     assert WCAG_TYPE_AXE_NAME in s3_report.html
     assert CHECK_RESULTS_NOTES in s3_report.html
+    assert EXTRA_STATEMENT_WORDING in s3_report.html
 
 
 @mock_s3
