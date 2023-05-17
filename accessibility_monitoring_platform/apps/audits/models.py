@@ -529,6 +529,10 @@ class Audit(VersionModel):
     report_next_disproportionate_burden = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    accessibility_statement_report_text_wording = models.TextField(
+        default="",
+        blank=True,
+    )
     report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
@@ -762,6 +766,7 @@ class Audit(VersionModel):
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
                 page__not_found=BOOLEAN_FALSE,
+                page__retest_page_missing_date=None,
             )
             .annotate(
                 position_pdf_page_last=DjangoCase(

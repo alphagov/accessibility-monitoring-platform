@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.urls import reverse
 
+from ..common.models import Platform
+from ..common.utils import get_platform_settings
 from ..notifications.utils import add_notification
 
 from .models import Comment
@@ -43,6 +45,11 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     # Find the QA and add them to the set of ids
     if comment.case and comment.case.reviewer:
         user_ids.add(comment.case.reviewer.id)
+
+    # Add the on-call QA to the set of ids
+    platform: Platform = get_platform_settings()
+    if platform.active_qa_auditor:
+        user_ids.add(platform.active_qa_auditor.id)
 
     # Remove the commentor from the list of ids
     if request.user.id in user_ids:

@@ -227,6 +227,13 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: List[FieldLabelAndValue] = [
         external_url=True,
     ),
     FieldLabelAndValue(
+        value="",
+        label="Extra wording for report",
+        type="notes",
+        extra_label="",
+        external_url=True,
+    ),
+    FieldLabelAndValue(
         value="Errors were found",
         label="What to do next",
         type="text",
