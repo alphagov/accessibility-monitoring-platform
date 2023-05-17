@@ -42,7 +42,7 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Pages`)
     cy.get('[name="standard-1-not_found"]').check()
-    cy.get('[name="standard-2-url').type(newAccessibilityStatementURL)
+    cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Testing Home`)
