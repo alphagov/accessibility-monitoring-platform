@@ -93,9 +93,9 @@ from .utils import (
 STANDARD_PAGE_HEADERS: List[str] = [
     "Home",
     "Contact",
-    "Accessibility Statement",
     "A Form",
     "PDF",
+    "Accessibility Statement",
 ]
 
 

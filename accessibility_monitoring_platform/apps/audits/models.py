@@ -710,11 +710,13 @@ class Audit(VersionModel):
         return (
             self.page_audit.filter(is_deleted=False)
             .annotate(
-                position_pdfs_last=DjangoCase(
-                    When(page_type=PAGE_TYPE_PDF, then=1), default=0
+                position_pdfs_statements_last=DjangoCase(
+                    When(page_type=PAGE_TYPE_PDF, then=1),
+                    When(page_type=PAGE_TYPE_STATEMENT, then=2),
+                    default=0,
                 )
             )
-            .order_by("position_pdfs_last", "id")
+            .order_by("position_pdfs_statements_last", "id")
         )
 
     @property
