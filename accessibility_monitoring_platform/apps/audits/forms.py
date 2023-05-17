@@ -625,6 +625,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_report_text_wording = AMPTextField(
+        label="Extra wording for report"
+    )
     report_options_next = AMPChoiceRadioField(
         label="What to do next",
         choices=REPORT_OPTIONS_NEXT_CHOICES,
@@ -690,6 +693,7 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_template_update",
             "accessibility_statement_accessible",
             "accessibility_statement_prominent",
+            "accessibility_statement_report_text_wording",
             "report_options_next",
             "report_next_change_statement",
             "report_next_no_statement",

@@ -64,6 +64,15 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
         )
         for field_name, label in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
     ]
+    accessibility_statement_report_text_wording_row: FieldLabelAndValue = (
+        FieldLabelAndValue(
+            label=AuditReportOptionsUpdateForm.base_fields[
+                "accessibility_statement_report_text_wording"
+            ].label,
+            value=audit.accessibility_statement_report_text_wording,
+            type=FieldLabelAndValue.NOTES_TYPE,
+        )
+    )
     report_options_next_row: FieldLabelAndValue = FieldLabelAndValue(
         label=AuditReportOptionsUpdateForm.base_fields["report_options_next"].label,
         value=audit.get_report_options_next_display(),
@@ -83,7 +92,7 @@ def get_audit_report_options_rows(audit: Audit) -> List[FieldLabelAndValue]:
     return (
         [accessibility_statement_state_row]
         + accessibility_statement_issues_rows
-        + [report_options_next_row]
+        + [accessibility_statement_report_text_wording_row, report_options_next_row]
         + report_next_issues_rows
         + [report_options_notes]
     )
