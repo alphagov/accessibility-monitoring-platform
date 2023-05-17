@@ -2,7 +2,7 @@
 Tests for cases models
 """
 import pytest
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List
 from unittest.mock import patch, Mock
 
@@ -199,8 +199,28 @@ def test_audit_failed_check_results_for_deleted_page_not_returned():
     and associated page has not been deleted.
     """
     audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
     page.is_deleted = True
+    page.save()
+
+    assert len(audit.failed_check_results) == 2
+
+
+@pytest.mark.django_db
+def test_audit_failed_check_results_for_missing_page_not_returned():
+    """
+    Test failed_check_results attribute of audit returns only check results
+    where retest page missing is not set.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page.retest_page_missing_date = date.today()
     page.save()
 
     assert len(audit.failed_check_results) == 2
