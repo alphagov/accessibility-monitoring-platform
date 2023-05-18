@@ -1303,19 +1303,15 @@ def test_report_details_shows_link_to_create_report_when_no_report_exists_and_re
 @pytest.mark.parametrize(
     "audit_table_row",
     [
-        ("Link to report"),
+        ("Preview report"),
         ("Notes"),
         ("View final HTML report"),
         ("Report views"),
         ("Unique visitors to report"),
     ],
 )
-def test_report_shows_table_when_report_exists_and_report_is_platform(
-    admin_client, audit_table_row
-):
-    """
-    Test that audit details shows link to create when no audit exists
-    """
+def test_report_shows_expected_rows(admin_client, audit_table_row):
+    """Test that audit details shows expected rows"""
     case: Case = Case.objects.create()
     Audit.objects.create(case=case)
     Report.objects.create(case=case)
@@ -2312,7 +2308,7 @@ def test_platform_shows_notification_if_fully_compliant(
 @pytest.mark.parametrize(
     "report_methodology, report_link_label",
     [
-        (REPORT_METHODOLOGY_PLATFORM, "Link to report</th>"),
+        (REPORT_METHODOLOGY_PLATFORM, "Report publisher"),
         (REPORT_METHODOLOGY_ODT, "Link to report draft"),
     ],
 )
