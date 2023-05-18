@@ -119,11 +119,12 @@ def test_audit_every_pages_returns_all_pages():
 
 
 @pytest.mark.django_db
-def test_audit_every_pages_returns_pdf_last():
-    """PDF page returned last."""
+def test_audit_every_pages_returns_pdf_and_statement_last():
+    """Statement page returned last. PDF page second-last"""
     audit: Audit = create_audit_and_pages()
 
-    assert audit.every_page.last().page_type == PAGE_TYPE_PDF
+    assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
+    assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
 
 
 @pytest.mark.django_db
