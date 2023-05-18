@@ -30,7 +30,7 @@
                 <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
                     Group by {% if show_failures_by_page %}WCAG error{% else %}page{% endif %}
                 </a>
-                <h2 class="govuk-heading-m">Content</h2>
+                <h2 class="govuk-heading-l">Content</h2>
                 <ul class="govuk-list">
                     {% if show_failures_by_page %}
                         {% for page, failures in audit_failures_by_page.items %}
@@ -62,7 +62,7 @@
                         </a>
                     </li>
                 </ul>
-                <h2 class="govuk-heading-m">Overview</h2>
+                <h2 class="govuk-heading-l">Overview</h2>
                 <p class="govuk-body">
                     {% if case.audit.fixed_check_results %}
                         {{ case.audit.fixed_check_results.count|intcomma }}
@@ -80,7 +80,7 @@
                     {% endif %}
                     WCAG errors have been fixed
                 </p>
-                <p class="govuk-body">
+                <p class="govuk-body amp-margin-bottom-30">
                     {% if case.audit.fixed_accessibility_statement_checks_count %}
                         {{ case.audit.fixed_accessibility_statement_checks_count }}
                     {% else %}
@@ -127,7 +127,7 @@
                                 <p class="govuk-body-m">
                                     <b>Additional issues found on page</b>
                                 </p>
-                                <div class="govuk-body-m">
+                                <div class="govuk-body-m amp-margin-bottom-30">
                                     {% if page.retest_notes %}
                                         {{ page.retest_notes|markdown_to_html}}
                                     {% else %}
@@ -141,7 +141,7 @@
                     {% for wcag_definition, failures in audit_failures_by_wcag.items %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m">{{ wcag_definition.name }}</h2>
+                                <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-l">{{ wcag_definition.name }}</h2>
                                 <table class="govuk-table">
                                     <thead class="govuk-table__head">
                                         <tr class="govuk-table__row">
@@ -169,8 +169,8 @@
                     {% endfor %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            <h2 id="page-additional-issues" class="govuk-heading-m">Additional issues found by page</h2>
-                            <table class="govuk-table">
+                            <h2 id="page-additional-issues" class="govuk-heading-l">Additional issues found by page</h2>
+                            <table class="govuk-table amp-margin-bottom-30">
                                 <tbody class="govuk-table__body">
                                     {% for page in case.audit.testable_pages %}
                                         <tr class="govuk-table__row ">
@@ -186,7 +186,6 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 {% endif %}
