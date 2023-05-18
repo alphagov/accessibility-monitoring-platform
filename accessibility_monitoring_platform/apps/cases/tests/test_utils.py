@@ -29,7 +29,6 @@ from ..models import (
     CASE_EVENT_APPROVE_REPORT,
     CASE_EVENT_READY_FOR_FINAL_DECISION,
     CASE_EVENT_CASE_COMPLETED,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_NO_SEND,
 )
@@ -61,17 +60,16 @@ CONTACTS: List[Contact] = [
         name="Name 1",
         job_title="Job title 1",
         email="email1",
-        notes="notes1",
     ),
     Contact(
         name="Name 2",
         job_title="Job title 2",
         email="email2",
-        notes="notes2",
     ),
 ]
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
+CONTACT_NOTES: str = "Contact notes"
 
 
 @dataclass
@@ -253,10 +251,6 @@ def test_format_case_field(column, case_value, expected_formatted_value):
             ColumnAndFieldNames(column_name="Contact detail", field_name=None),
             "email1\nemail2",
         ),
-        (
-            ColumnAndFieldNames(column_name="Contact notes", field_name=None),
-            "notes1\n\nnotes2",
-        ),
     ],
 )
 def test_format_contacts(column, expected_formatted_value):
@@ -286,7 +280,8 @@ def test_replace_search_key_with_case_search(
 def test_download_feedback_survey_cases():
     """Test creation of CSV for feedback survey"""
     case: Case = Case.objects.create(
-        compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc)
+        compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        contact_notes=CONTACT_NOTES,
     )
     cases: List[Case] = [case]
 
@@ -307,7 +302,7 @@ def test_download_feedback_survey_cases():
         column.column_name
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
     ]
-    assert csv_body == [["1", "", "16/12/2022", "", "", ""]]
+    assert csv_body == [["1", "", "16/12/2022", "", CONTACT_NOTES, ""]]
 
 
 @pytest.mark.django_db
@@ -374,12 +369,11 @@ def test_download_equality_body_cases():
 def test_download_cases():
     """Test creation of CSV download of cases"""
     case: Case = Case.objects.create(
-        created=datetime(2022, 12, 16, tzinfo=timezone.utc)
+        created=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        contact_notes="Contact for CSV export",
     )
     cases: List[Case] = [case]
-    Contact.objects.create(
-        case=case, email="test@example.com", notes="Contact for CSV export"
-    )
+    Contact.objects.create(case=case, email="test@example.com")
 
     response: HttpResponse = download_cases(cases=cases, filename=CSV_EXPORT_FILENAME)
 
@@ -429,7 +423,7 @@ def test_download_cases():
             "",
             "",
             "",
-            "Not started",
+            "No",
             "",
             "Not started",
             "",
@@ -486,8 +480,8 @@ def test_download_cases():
             "",
             "",
             "Unknown",
-            "test@example.com",
             "Contact for CSV export",
+            "test@example.com",
         ]
     ]
 
@@ -497,10 +491,10 @@ def test_download_cases():
     [
         ({}, None, CASE_EVENT_TYPE_CREATE, "Created case"),
         (
-            {"report_review_status": REPORT_READY_TO_REVIEW},
+            {"report_review_status": BOOLEAN_TRUE},
             {},
             CASE_EVENT_READY_FOR_QA,
-            "Report ready to be reviewed changed from 'Not started' to 'Yes'",
+            "Report ready to be reviewed changed from 'No' to 'Yes'",
         ),
         (
             {"report_approved_status": REPORT_APPROVED_STATUS_APPROVED},

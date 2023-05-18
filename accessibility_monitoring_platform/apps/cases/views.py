@@ -48,6 +48,7 @@ from ..common.form_extract_utils import (
     FieldLabelAndValue,
 )
 from ..common.utils import amp_format_date
+from ..reports.utils import build_issues_tables
 from .models import (
     Case,
     Contact,
@@ -195,6 +196,7 @@ class CaseDetailView(DetailView):
         context["report_details_rows"] = get_case_rows(
             form=CaseReportDetailsUpdateForm()
         )
+        context["contact_rows"] = get_case_rows(form=CaseContactsUpdateForm())
         context["review_changes_rows"] = get_case_rows(
             form=CaseReviewChangesUpdateForm()
         )
@@ -426,12 +428,6 @@ class CaseQAProcessUpdateView(CaseUpdateView):
     form_class: Type[CaseQAProcessUpdateForm] = CaseQAProcessUpdateForm
     template_name: str = "cases/forms/qa_process.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        """Add flag to open qa discussion"""
-        context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["open_discussion"] = self.request.GET.get("discussion")
-        return context
-
     def get_form(self):
         """Hide fields if testing using platform"""
         form = super().get_form()
@@ -499,7 +495,7 @@ class QACommentCreateView(CreateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: Dict[str, int] = {"pk": self.case.id}  # type: ignore
-        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?discussion=open#qa-discussion"
+        return f"{reverse('cases:edit-qa-process', kwargs=case_pk)}?#qa-discussion"
 
 
 class CaseContactFormsetUpdateView(CaseUpdateView):
@@ -733,7 +729,9 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
-        context["case"] = get_object_or_404(Case, id=kwargs.get("pk"))
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        context["issues_tables"] = build_issues_tables(report=case.report)
         return context
 
 

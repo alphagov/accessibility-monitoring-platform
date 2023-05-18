@@ -29,7 +29,7 @@ from ...audits.models import (
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
 )
-from ...audits.tests.test_models import create_audit_and_check_results
+from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
 from ...comments.models import Comment
 from ...common.models import (
@@ -53,7 +53,6 @@ from ..models import (
     REPORT_APPROVED_STATUS_APPROVED,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_READY_TO_REVIEW,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
@@ -176,9 +175,7 @@ def test_case_detail_view_leaves_out_deleted_contact(admin_client):
 def test_case_list_view_filters_by_unassigned_qa_case(admin_client):
     """Test that Cases where Report is ready to QA can be filtered by status"""
     Case.objects.create(organisation_name="Excluded")
-    Case.objects.create(
-        organisation_name="Included", report_review_status="ready-to-review"
-    )
+    Case.objects.create(organisation_name="Included", report_review_status="yes")
 
     response: HttpResponse = admin_client.get(
         f'{reverse("cases:case-list")}?status=unassigned-qa-case'
@@ -333,27 +330,30 @@ def test_case_list_view_user_unassigned_filters(
     assertNotContains(response, "Excluded")
 
 
-def test_case_list_view_sent_to_enforcement_body_sent_date_filters(admin_client):
+@pytest.mark.parametrize(
+    "filter_field_name",
+    ["sent_to_enforcement_body_sent_date", "case_updated_date"],
+)
+def test_case_list_view_date_filters(filter_field_name, admin_client):
     """
-    Test that the case list view page can be filtered by date range on sent to
-    enforcement body sent date.
+    Test that the case list view page can be filtered by date range on a field.
     """
-    included_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")
+    included_case: Case = Case.objects.create(organisation_name="Included")
+    setattr(
+        included_case,
+        filter_field_name,
+        datetime(year=2021, month=6, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    excluded_sent_to_enforcement_body_sent_date: datetime = datetime(
-        year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")
+    included_case.save()
+    excluded_case: Case = Case.objects.create(organisation_name="Excluded")
+    setattr(
+        excluded_case,
+        filter_field_name,
+        datetime(year=2021, month=5, day=5, tzinfo=ZoneInfo("UTC")),
     )
-    Case.objects.create(
-        organisation_name="Included",
-        sent_to_enforcement_body_sent_date=included_sent_to_enforcement_body_sent_date,
-    )
-    Case.objects.create(
-        organisation_name="Excluded",
-        sent_to_enforcement_body_sent_date=excluded_sent_to_enforcement_body_sent_date,
-    )
+    excluded_case.save()
 
-    url_parameters = "date_type=sent_to_enforcement_body_sent_date&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
+    url_parameters = f"date_type={filter_field_name}&date_start_0=1&date_start_1=6&date_start_2=2021&date_end_0=10&date_end_1=6&date_end_2=2021"
     response: HttpResponse = admin_client.get(
         f"{reverse('cases:case-list')}?{url_parameters}"
     )
@@ -922,7 +922,7 @@ def test_add_qa_comment_redirects_to_qa_process(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open#qa-discussion'
+        == f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?#qa-discussion'
     )
 
 
@@ -996,35 +996,6 @@ def test_delete_contact(admin_client):
 
     contact_on_database = Contact.objects.get(pk=contact.id)
     assert contact_on_database.is_deleted is True
-
-
-def test_preferred_contact_not_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact?")
-
-
-def test_preferred_contact_displayed_on_form(admin_client):
-    """
-    Test that the preferred contact field is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact?")
 
 
 def test_link_to_accessibility_statement_displayed(admin_client):
@@ -1271,20 +1242,6 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert duplicate_cases[1] == organisation_name_case
 
 
-def test_preferred_contact_not_displayed(admin_client):
-    """
-    Test that the preferred contact is not displayed when there is only one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertNotContains(response, "Preferred contact")
-
-
 def test_audit_shows_link_to_create_audit_when_no_audit_exists_and_audit_is_platform(
     admin_client,
 ):
@@ -1367,21 +1324,6 @@ def test_report_shows_table_when_report_exists_and_report_is_platform(
     )
     assert response.status_code == 200
     assertContains(response, audit_table_row)
-
-
-def test_preferred_contact_displayed(admin_client):
-    """
-    Test that the preferred contact is displayed when there is more than one contact
-    """
-    case: Case = Case.objects.create()
-    Contact.objects.create(case=case)
-    Contact.objects.create(case=case)
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-detail", kwargs={"pk": case.id}),
-    )
-    assert response.status_code == 200
-    assertContains(response, "Preferred contact")
 
 
 @pytest.mark.parametrize(
@@ -2644,23 +2586,6 @@ def test_platform_qa_process_does_not_show_final_report_fields(admin_client):
     assertNotContains(response, "Link to final ODT report")
 
 
-def test_qa_process_opens_discussion(admin_client):
-    """
-    Test that the QA process page opens the discussion details element
-    by default.
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("cases:edit-qa-process", kwargs={"pk": case.id})}?discussion=open',
-    )
-
-    assert response.status_code == 200
-    assertContains(
-        response, '<details class="govuk-details" data-module="govuk-details" open>'
-    )
-
-
 def test_report_corespondence_shows_link_to_create_report(admin_client):
     """
     Test that the report correspondence page shows link to create report
@@ -2801,7 +2726,7 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
             "cases:edit-qa-process",
             "Report ready to be reviewed needs to be Yes",
             "report_review_status",
-            REPORT_READY_TO_REVIEW,
+            BOOLEAN_TRUE,
         ),
         (
             "cases:edit-qa-process",
@@ -3359,3 +3284,23 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View email template")
     assertContains(response, "No published report")
     assertContains(response, "View website")
+
+
+def test_email_template_contains_issues(admin_client):
+    """
+    Test email template contains issues.
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page.url = "https://example.com"
+    page.save()
+    Report.objects.create(case=audit.case)
+    url: str = reverse(
+        "cases:twelve-week-correspondence-email", kwargs={"pk": audit.case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, ERROR_NOTES)

@@ -326,7 +326,6 @@ class AuditStatement1UpdateForm(VersionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["add_contact_email"] = AMPCharFieldWide(label="Email")
-        self.fields["add_contact_notes"] = AMPTextField(label="Notes")
 
     class Meta:
         model = Audit
@@ -554,6 +553,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
             }
         ),
     )
+    accessibility_statement_deadline_not_complete_wording = AMPTextField(
+        label="Wording for missed deadline"
+    )
     accessibility_statement_deadline_not_sufficient = AMPChoiceCheckboxField(
         label="",
         choices=BOOLEAN_CHOICES,
@@ -564,6 +566,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
                 ]
             }
         ),
+    )
+    accessibility_statement_deadline_not_sufficient_wording = AMPTextField(
+        label="Wording for insufficient deadline"
     )
     accessibility_statement_out_of_date = AMPChoiceCheckboxField(
         label="",
@@ -619,6 +624,9 @@ class AuditReportOptionsUpdateForm(VersionForm):
                 ]
             }
         ),
+    )
+    accessibility_statement_report_text_wording = AMPTextField(
+        label="Extra wording for report"
     )
     report_options_next = AMPChoiceRadioField(
         label="What to do next",
@@ -677,12 +685,15 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "accessibility_statement_needs_more_re_disproportionate",
             "accessibility_statement_needs_more_re_accessibility",
             "accessibility_statement_deadline_not_complete",
+            "accessibility_statement_deadline_not_complete_wording",
             "accessibility_statement_deadline_not_sufficient",
+            "accessibility_statement_deadline_not_sufficient_wording",
             "accessibility_statement_out_of_date",
             "accessibility_statement_eass_link",
             "accessibility_statement_template_update",
             "accessibility_statement_accessible",
             "accessibility_statement_prominent",
+            "accessibility_statement_report_text_wording",
             "report_options_next",
             "report_next_change_statement",
             "report_next_no_statement",
@@ -996,6 +1007,21 @@ class AuditRetestStatement2UpdateForm(VersionForm):
             "audit_retest_access_requirements_state",
             "audit_retest_access_requirements_notes",
             "audit_retest_statement_2_complete_date",
+        ]
+
+
+class AuditRetestStatementComparisonUpdateForm(VersionForm):
+    """
+    Form for retesting statement comparison
+    """
+
+    audit_retest_statement_comparison_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_comparison_complete_date",
         ]
 
 

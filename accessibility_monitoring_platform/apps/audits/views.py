@@ -65,6 +65,7 @@ from .forms import (
     Audit12WeekStatementUpdateForm,
     AuditRetestStatement1UpdateForm,
     AuditRetestStatement2UpdateForm,
+    AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     CaseFinalStatementDecisionUpdateForm,
     WcagDefinitionSearchForm,
@@ -92,9 +93,9 @@ from .utils import (
 STANDARD_PAGE_HEADERS: List[str] = [
     "Home",
     "Contact",
-    "Accessibility Statement",
     "A Form",
     "PDF",
+    "Accessibility Statement",
 ]
 
 
@@ -253,6 +254,8 @@ class AuditCaseUpdateView(AuditUpdateView):
         if form.is_valid() and case_form.is_valid():
             form.save()
             case_form.save()
+            if "is_website_compliant" in case_form.changed_data:
+                report_data_updated(audit=self.object)
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
@@ -503,15 +506,13 @@ class AuditStatement1UpdateView(AuditUpdateView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        if (
-            "add_contact_email" in form.changed_data
-            or "add_contact_notes" in form.changed_data
-        ):
-            Contact.objects.create(
+        if "add_contact_email" in form.changed_data:
+            contact: Contact = Contact.objects.create(
                 case=self.object.case,
-                email=form.cleaned_data.get("add_contact_email", ""),
-                notes=form.cleaned_data.get("add_contact_notes", ""),
+                email=form.cleaned_data["add_contact_email"],
+                created_by=self.request.user,
             )
+            record_model_create_event(user=self.request.user, model_object=contact)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -859,6 +860,26 @@ class AuditRetestStatement2UpdateView(AuditUpdateView):
 
     form_class: Type[AuditRetestStatement2UpdateForm] = AuditRetestStatement2UpdateForm
     template_name: str = "audits/forms/retest_statement_2.html"
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        if "save_continue" in self.request.POST:
+            audit_pk: Dict[str, int] = {"pk": self.object.id}
+            return reverse(
+                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+            )
+        return super().get_success_url()
+
+
+class AuditRetestStatementComparisonUpdateView(AuditUpdateView):
+    """
+    View to retest statement comparison
+    """
+
+    form_class: Type[
+        AuditRetestStatementComparisonUpdateForm
+    ] = AuditRetestStatementComparisonUpdateForm
+    template_name: str = "audits/forms/retest_statement_comparison.html"
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

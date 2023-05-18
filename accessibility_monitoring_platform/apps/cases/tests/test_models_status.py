@@ -15,7 +15,6 @@ from ..models import (
     Case,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     CASE_COMPLETED_NO_SEND,
@@ -35,7 +34,7 @@ def check_for_status_specific_link(admin_client, case: Case, expected_link_label
 
 def test_case_status_deactivated(admin_client):
     """Test case status returns deactivated"""
-    case = Case.objects.create(
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         is_deactivated=True,
@@ -49,7 +48,7 @@ def test_case_status_deactivated(admin_client):
 
 def test_case_status_unassigned(admin_client):
     """Test case status returns unassigned-case"""
-    case = Case.objects.create(
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
     )
@@ -62,8 +61,8 @@ def test_case_status_unassigned(admin_client):
 
 def test_case_status_test_in_progress(admin_client):
     """Test case status returns test-in-progress"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -77,8 +76,8 @@ def test_case_status_test_in_progress(admin_client):
 
 def test_case_status_report_in_progress(admin_client):
     """Test case status returns report-in-progress"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -94,14 +93,14 @@ def test_case_status_report_in_progress(admin_client):
 
 def test_case_status_qa_in_progress(admin_client):
     """Test case status returns qa-in-progress"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     assert case.status == "qa-in-progress"
 
@@ -112,14 +111,14 @@ def test_case_status_qa_in_progress(admin_client):
 
 def test_case_status_report_ready_to_send(admin_client):
     """Test case status returns report-ready-to-send"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     assert case.status == "report-ready-to-send"
@@ -131,14 +130,14 @@ def test_case_status_report_ready_to_send(admin_client):
 
 def test_case_status_in_report_correspondence(admin_client):
     """Test case status returns in-report-correspondence"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
     )
@@ -151,14 +150,14 @@ def test_case_status_in_report_correspondence(admin_client):
 
 def test_case_status_in_probation_period(admin_client):
     """Test case status returns in-probation-period"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -172,14 +171,14 @@ def test_case_status_in_probation_period(admin_client):
 
 def test_case_status_in_12_week_correspondence(admin_client):
     """Test case status returns in-12-week-correspondence"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -194,14 +193,14 @@ def test_case_status_in_12_week_correspondence(admin_client):
 
 def test_case_status_reviewing_changes(admin_client):
     """Test case status returns reviewing-changes"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -217,14 +216,14 @@ def test_case_status_reviewing_changes(admin_client):
 
 def test_case_status_final_decision_due(admin_client):
     """Test case status returns final-decision-due"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -241,14 +240,14 @@ def test_case_status_final_decision_due(admin_client):
 
 def test_case_status_case_closed_waiting_to_be_sent(admin_client):
     """Test case status returns case-closed-waiting-to-be-sent"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -265,14 +264,14 @@ def test_case_status_case_closed_waiting_to_be_sent(admin_client):
 
 def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
     """Test case status returns case-closed-sent-to-equalities-body"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -290,14 +289,14 @@ def test_case_status_case_closed_sent_to_equality_bodies(admin_client):
 
 def test_case_status_in_correspondence_with_equalities_body(admin_client):
     """Test case status returns in-correspondence-with-equalities-body"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -316,14 +315,14 @@ def test_case_status_in_correspondence_with_equalities_body(admin_client):
 
 def test_case_status_equality_bodies_complete(admin_client):
     """Test case status returns complete"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -343,8 +342,8 @@ def test_case_status_equality_bodies_complete(admin_client):
 @pytest.mark.django_db
 def test_case_status_complete():
     """Test case status returns complete when case is exempt"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
@@ -358,14 +357,14 @@ def test_case_status_complete():
 @pytest.mark.django_db
 def test_case_qa_status_unassigned_qa_case():
     """Test case returns unassigned-qa-case for qa_status"""
-    user = User.objects.create()
-    case = Case.objects.create(
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     assert case.qa_status == "unassigned-qa-case"
 
@@ -373,15 +372,15 @@ def test_case_qa_status_unassigned_qa_case():
 @pytest.mark.django_db
 def test_case_qa_status_in_qa():
     """Test case returns in-qa for qa_status"""
-    user = User.objects.create(username="1")
-    user2 = User.objects.create(username="2")
-    case = Case.objects.create(
+    user: User = User.objects.create(username="1")
+    user2: User = User.objects.create(username="2")
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         reviewer=user2,
     )
     assert case.qa_status == "in-qa"
@@ -390,15 +389,15 @@ def test_case_qa_status_in_qa():
 @pytest.mark.django_db
 def test_case_qa_status_qa_approved():
     """Test case returns qa-approved for qa_status"""
-    user = User.objects.create(username="1")
-    user2 = User.objects.create(username="2")
-    case = Case.objects.create(
+    user: User = User.objects.create(username="1")
+    user2: User = User.objects.create(username="2")
+    case: Case = Case.objects.create(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         reviewer=user2,
     )

@@ -21,6 +21,9 @@
             {% endif %}
             {% include './nav_content.html' with id='edit-audit-retest-statement-1' anchor='audit-retest-statement-1' edit_name='audits:edit-audit-retest-statement-1' name='12-week accessibility statement Pt. 1' complete=audit.audit_retest_statement_1_complete_date %}
             {% include './nav_content.html' with id='edit-audit-retest-statement-2' anchor='audit-retest-statement-2' edit_name='audits:edit-audit-retest-statement-2' name='12-week accessibility statement Pt. 2' complete=audit.audit_retest_statement_2_complete_date %}
+            {% if audit.accessibility_statement_initially_found %}
+                {% include './nav_content.html' with id='edit-audit-retest-statement-comparison' anchor='audit-retest-statement-comparison' edit_name='audits:edit-audit-retest-statement-comparison' name='12-week accessibility statement comparison' complete=audit.audit_retest_statement_comparison_complete_date %}
+            {% endif %}
             {% include './nav_content.html' with id='edit-audit-retest-statement-decision' anchor='audit-retest-statement-decision' edit_name='audits:edit-audit-retest-statement-decision' name='12-week accessibility statement compliance decision' complete=audit.audit_retest_statement_decision_complete_date %}
         </ul>
         {% if not on_view_case %}

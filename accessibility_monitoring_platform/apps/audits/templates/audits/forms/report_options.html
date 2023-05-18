@@ -28,7 +28,6 @@
                 {% include "cases/helpers/edit_header.html" with page_heading='Report options' case=audit.case %}
             </div>
         </div>
-        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=audit.case %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-l">Report text</h2>
@@ -55,12 +54,29 @@
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_disproportionate %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_needs_more_re_accessibility %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_deadline_not_complete.value == 'yes' %}open{% endif %}>
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">Amend wording for missed deadline</span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_complete_wording %}
+                                </div>
+                            </details>
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient %}
+                            <details class="govuk-details" data-module="govuk-details" {% if form.accessibility_statement_deadline_not_sufficient.value == 'yes' %}open{% endif %}>
+                                <summary class="govuk-details__summary">
+                                    <span class="govuk-details__summary-text">Amend wording for insufficient deadline</span>
+                                </summary>
+                                <div class="govuk-details__text">
+                                    {% include 'common/amp_field.html' with field=form.accessibility_statement_deadline_not_sufficient_wording %}
+                                </div>
+                            </details>
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_out_of_date %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_eass_link %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_template_update %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_accessible %}
                             {% include 'common/amp_field.html' with field=form.accessibility_statement_prominent %}
+                            {% include 'common/amp_field.html' with field=form.accessibility_statement_report_text_wording %}
                             {% include 'common/amp_field.html' with field=form.report_options_next %}
                             <details class="govuk-details" data-module="govuk-details">
                                 <summary class="govuk-details__summary">

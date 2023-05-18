@@ -4,7 +4,7 @@ Utility functions used in dashboard
 
 from typing import Dict, List
 from django.contrib.auth.models import User
-from ..cases.models import Case, STATUS_READY_TO_QA
+from ..cases.models import Case, STATUS_QA_IN_PROGRESS
 
 
 def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
@@ -36,7 +36,7 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
         ),
         (
             "qa_in_progress",
-            "qa-in-progress",
+            STATUS_QA_IN_PROGRESS,
             "id",
         ),
         (
@@ -97,17 +97,13 @@ def group_cases_by_status(cases: List[Case]) -> Dict[str, List[Case]]:
     return cases_by_status
 
 
-def group_cases_by_qa_status(cases: List[Case]) -> Dict[str, List[Case]]:
-    """Group cases by qa_status values; Sort by a specific column"""
-    cases_by_status: Dict[str, List[Case]] = {}
-    for key, qa_status, field_to_sort_by in [
-        ("ready_for_qa", STATUS_READY_TO_QA, "id"),
-    ]:
-        cases_by_status[key] = sorted(
-            [case for case in cases if case.qa_status == qa_status],
-            key=lambda case, sort_key=field_to_sort_by: getattr(case, sort_key),
-        )
-    return cases_by_status
+def get_all_cases_in_qa(all_cases: List[Case]) -> List[Case]:
+    """Return all cases in QA"""
+    cases_in_qa = sorted(
+        [case for case in all_cases if case.status == STATUS_QA_IN_PROGRESS],
+        key=lambda case, sort_key="id": getattr(case, sort_key),
+    )
+    return cases_in_qa
 
 
 def return_cases_requiring_user_review(cases: List[Case], user: User) -> List[Case]:

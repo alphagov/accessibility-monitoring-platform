@@ -20,12 +20,12 @@ describe('View case', () => {
   })
 
   it('can search within case', () => {
-    cy.get('[name="search_in_case"]').clear().type('date')
+    cy.get('[name="search_in_case"]').clear().type('report sent')
     cy.get('#search-in-case').click()
-    cy.contains('Found 14 results for date')
-    cy.contains('Date of test')
+    cy.contains('Found 1 result for report sent')
+    cy.contains('Report sent')
     cy.get('#clear-search-in-case').click()
-    cy.contains('Found 14 results for date').should('not.exist')
+    cy.contains('Found 1 result for report sent').should('not.exist')
   })
 
   it('can edit case details', () => {
@@ -54,7 +54,7 @@ describe('View case', () => {
 
   it('can edit QA process', () => {
     cy.get('#edit-qa-process').click()
-    cy.get('[name="report_review_status"]').check('ready-to-review')
+    cy.get('[name="report_review_status"]').check('yes')
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="qa_process_complete_date"]').click()
     cy.contains('Save').click()

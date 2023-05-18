@@ -1,6 +1,24 @@
 <h3 class="govuk-heading-m amp-margin-bottom-5">Frequently used links</h3>
 <ul class="govuk-list">
     <li>
+        {% if case.audit %}
+            <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                View test
+            </a>
+        {% else %}
+            No test
+        {% endif %}
+    </li>
+    <li>
+        {% if case.audit %}
+            <a href="{% url 'audits:audit-retest-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                12-week retest
+            </a>
+        {% else %}
+            No 12-week retest
+        {% endif %}
+    </li>
+    <li>
         <a href="{% url 'cases:outstanding-issues' case.id %}?view=Page view" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
             View outstanding issues
         </a>

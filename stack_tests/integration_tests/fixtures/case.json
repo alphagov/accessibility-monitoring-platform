@@ -32,7 +32,7 @@
         "report_draft_url": "",
         "report_notes": "",
         "reporting_details_complete_date": null,
-        "report_review_status": "ready-to-review",
+        "report_review_status": "yes",
         "reviewer": 2,
         "report_approved_status": "yes",
         "report_final_pdf_url": "",

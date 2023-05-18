@@ -35,13 +35,11 @@ from .models import (
     Contact,
     STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
-    PREFERRED_CHOICES,
     BOOLEAN_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
     PSB_LOCATION_CHOICES,
-    REPORT_REVIEW_STATUS_CHOICES,
     REPORT_APPROVED_STATUS_CHOICES,
     RECOMMENDATION_CHOICES,
 )
@@ -66,6 +64,7 @@ ENFORCEMENT_BODY_FILTER_CHOICES = [(NO_FILTER, "All")] + ENFORCEMENT_BODY_CHOICE
 DATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     ("audit_case__date_of_test", "Date test started"),
     ("sent_to_enforcement_body_sent_date", "Date sent to EB"),
+    ("case_updated_date", "Case updated"),
 ]
 
 
@@ -272,8 +271,8 @@ class CaseQAProcessUpdateForm(VersionForm):
     """
 
     report_review_status = AMPChoiceRadioField(
-        label="Report ready to be reviewed?",
-        choices=REPORT_REVIEW_STATUS_CHOICES,
+        label="Report ready for QA process?",
+        choices=BOOLEAN_CHOICES,
         help_text="This field affects the case status",
     )
     reviewer = AMPAuditorModelChoiceField(
@@ -310,10 +309,6 @@ class CaseContactUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
-    preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=PREFERRED_CHOICES
-    )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = Case
@@ -321,8 +316,6 @@ class CaseContactUpdateForm(forms.ModelForm):
             "name",
             "job_title",
             "email",
-            "preferred",
-            "notes",
         ]
 
 
@@ -339,12 +332,14 @@ class CaseContactsUpdateForm(VersionForm):
     Form for updating test results
     """
 
+    contact_notes = AMPTextField(label="Contact detail notes")
     contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields = [
             "version",
+            "contact_notes",
             "contact_details_complete_date",
         ]
 

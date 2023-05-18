@@ -17,11 +17,11 @@ from ...cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     CASE_COMPLETED_NO_SEND,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
+from ...common.models import BOOLEAN_TRUE
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -85,7 +85,7 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -183,7 +183,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -201,7 +201,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),

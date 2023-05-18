@@ -3,7 +3,7 @@ Tests for audits views
 """
 import pytest
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pytest_django.asserts import assertContains, assertNotContains
 
@@ -405,6 +405,16 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
         (
             "audits:edit-audit-retest-statement-2",
+            "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+        (
+            "audits:edit-audit-retest-statement-comparison",
+            "save",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+        (
+            "audits:edit-audit-retest-statement-comparison",
             "save_continue",
             "audits:edit-audit-retest-statement-decision",
         ),
@@ -834,6 +844,47 @@ def test_website_decision_saved_on_case(admin_client):
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
 
 
+@pytest.mark.parametrize(
+    "field_name, new_value, report_content_update",
+    [
+        ("case-is_website_compliant", "not-compliant", True),
+        ("case-compliance_decision_notes", "blah", False),
+        ("audit_website_decision_complete_date", timezone.now(), False),
+    ],
+)
+def test_website_decision_field_updates_report_content(
+    field_name, new_value, report_content_update, admin_client
+):
+    """
+    Test that a report data updated time changes only when website compliance
+    changes
+    """
+    audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    assert audit.published_report_data_updated_time is None
+    context: Dict[str, Union[str, int]] = {
+        "version": audit.version,
+        "case-version": audit.case.version,
+        "case-is_website_compliant": audit.case.is_website_compliant,
+        "save": "Button value",
+    }
+    context[field_name] = new_value
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-website-decision", kwargs=audit_pk), context
+    )
+
+    assert response.status_code == 302
+
+    updated_audit: Audit = Audit.objects.get(id=audit.id)
+
+    if report_content_update:
+        assert updated_audit.published_report_data_updated_time is not None
+    else:
+        assert updated_audit.published_report_data_updated_time is None
+
+
 def test_statement_update_one_shows_statement_link(admin_client):
     """Test that an accessibility statement links shown if present"""
     audit: Audit = create_audit_and_pages()
@@ -1034,17 +1085,13 @@ def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "email, notes, new_contact_expected",
+    "email, new_contact_expected",
     [
-        ("", "", False),
-        ("email", "", True),
-        ("", "notes", True),
-        ("email", "notes", True),
+        ("", False),
+        ("email", True),
     ],
 )
-def test_statement_update_one_adds_contact(
-    email, notes, new_contact_expected, admin_client
-):
+def test_statement_update_one_adds_contact(email, new_contact_expected, admin_client):
     """Test that a contact can be added from the statement update one view"""
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
@@ -1054,7 +1101,6 @@ def test_statement_update_one_adds_contact(
         {
             "version": audit.version,
             "add_contact_email": email,
-            "add_contact_notes": notes,
             "save": "Button value",
         },
     )
@@ -1067,7 +1113,6 @@ def test_statement_update_one_adds_contact(
         assert len(contacts) == 1
         contact: Contact = contacts[0]
         assert contact.email == email
-        assert contact.notes == notes
     else:
         assert len(contacts) == 0
 
@@ -1111,7 +1156,6 @@ def test_report_options_field_updates_report_content(
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
-    assert audit.unpublished_report_data_updated_time is None
     assert audit.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
@@ -1122,6 +1166,8 @@ def test_report_options_field_updates_report_content(
             "report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
             "save": "Button value",
             field_name: new_value,
+            "accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+            "accessibility_statement_deadline_not_sufficient_wording": "it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
         },
     )
 
@@ -1130,10 +1176,8 @@ def test_report_options_field_updates_report_content(
     updated_audit: Audit = Audit.objects.get(id=audit.id)
 
     if report_content_update:
-        assert updated_audit.unpublished_report_data_updated_time is not None
         assert updated_audit.published_report_data_updated_time is not None
     else:
-        assert updated_audit.unpublished_report_data_updated_time is None
         assert updated_audit.published_report_data_updated_time is None
 
 

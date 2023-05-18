@@ -2,7 +2,7 @@
 Tests for cases models
 """
 import pytest
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List
 from unittest.mock import patch, Mock
 
@@ -43,6 +43,9 @@ DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
 DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
 INITIAL_NOTES: str = "Initial notes"
 FINAL_NOTES: str = "Final notes"
+INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
+INSUFFICIENT_DEADLINE_TEXT: str = "Insufficient deadline text"
+ERROR_NOTES: str = "Error notes"
 
 
 def create_audit_and_pages() -> Audit:
@@ -99,6 +102,7 @@ def create_audit_and_check_results() -> Audit:
                     check_result_state=check_result_state,
                     type=wcag_definition.type,
                     wcag_definition=wcag_definition,
+                    notes=ERROR_NOTES,
                 )
 
     return audit
@@ -115,11 +119,12 @@ def test_audit_every_pages_returns_all_pages():
 
 
 @pytest.mark.django_db
-def test_audit_every_pages_returns_pdf_last():
-    """PDF page returned last."""
+def test_audit_every_pages_returns_pdf_and_statement_last():
+    """Statement page returned last. PDF page second-last"""
     audit: Audit = create_audit_and_pages()
 
-    assert audit.every_page.last().page_type == PAGE_TYPE_PDF
+    assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
+    assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
 
 
 @pytest.mark.django_db
@@ -195,8 +200,28 @@ def test_audit_failed_check_results_for_deleted_page_not_returned():
     and associated page has not been deleted.
     """
     audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
     page.is_deleted = True
+    page.save()
+
+    assert len(audit.failed_check_results) == 2
+
+
+@pytest.mark.django_db
+def test_audit_failed_check_results_for_missing_page_not_returned():
+    """
+    Test failed_check_results attribute of audit returns only check results
+    where retest page missing is not set.
+    """
+    audit: Audit = create_audit_and_check_results()
+
+    assert len(audit.failed_check_results) == 3
+
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_PDF)
+    page.retest_page_missing_date = date.today()
     page.save()
 
     assert len(audit.failed_check_results) == 2
@@ -576,3 +601,24 @@ def test_audit_accessibility_statement_finally_invalid():
     audit.audit_retest_scope_state = SCOPE_STATE_VALID
 
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
+
+
+def test_report_accessibility_issues():
+    """Test the accessibility issues includes user-edited text"""
+    audit: Audit = Audit(
+        accessibility_statement_deadline_not_complete_wording=INCOMPLETE_DEADLINE_TEXT,
+        accessibility_statement_deadline_not_sufficient_wording=INSUFFICIENT_DEADLINE_TEXT,
+    )
+
+    assert audit.report_accessibility_issues == []
+
+    audit.accessibility_statement_deadline_not_complete = BOOLEAN_TRUE
+
+    assert audit.report_accessibility_issues == [INCOMPLETE_DEADLINE_TEXT]
+
+    audit.accessibility_statement_deadline_not_sufficient = BOOLEAN_TRUE
+
+    assert audit.report_accessibility_issues == [
+        INCOMPLETE_DEADLINE_TEXT,
+        INSUFFICIENT_DEADLINE_TEXT,
+    ]
