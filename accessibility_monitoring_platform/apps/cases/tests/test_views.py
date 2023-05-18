@@ -3184,7 +3184,7 @@ def test_outstanding_issues(admin_client):
     assertNotContains(response, "Group by Page")
     assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
     assertNotContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
     )
 
     response: HttpResponse = admin_client.get(f"{url}?view=WCAG+view")
@@ -3195,7 +3195,7 @@ def test_outstanding_issues(admin_client):
     assertContains(response, "Group by page")
     assertNotContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
     assertContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
     )
 
     response: HttpResponse = admin_client.get(f"{url}?view=Page+view")
@@ -3206,7 +3206,7 @@ def test_outstanding_issues(admin_client):
     assertNotContains(response, "Group by page")
     assertContains(response, """<h2 id="page-2" class="govuk-heading-l">Home</h2>""")
     assertNotContains(
-        response, """<h2 id="wcag-77" class="govuk-heading-m">Axe WCAG</h2>"""
+        response, """<h2 id="wcag-77" class="govuk-heading-l">Axe WCAG</h2>"""
     )
 
 
