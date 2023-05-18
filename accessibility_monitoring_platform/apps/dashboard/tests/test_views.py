@@ -42,20 +42,17 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
 
 
 @pytest.mark.parametrize(
-    "dashboard_view, expected_qa_column",
-    [
-        ("View+your+cases", "On call"),
-        ("View+all+cases", "Unassigned QA cases"),
-    ],
+    "dashboard_view",
+    ["View+your+cases", "View+all+cases"],
 )
-def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_client):
+def test_dashboard_shows_qa_auditors(dashboard_view, admin_client):
     """Tests if dashboard views are showing the expected QA auditors column"""
     response: HttpResponse = admin_client.get(
         f'{reverse("dashboard:home")}?view={dashboard_view}'
     )
 
     assert response.status_code == 200
-    assertContains(response, expected_qa_column)
+    assertContains(response, "On call")
 
 
 def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
