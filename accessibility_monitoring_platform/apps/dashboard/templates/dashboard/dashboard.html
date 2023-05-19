@@ -113,16 +113,10 @@
             </div>
             <div class="govuk-grid-column-one-quarter leftborder">
                 <div class="govuk-body-m">
-                    {% if show_all_cases %}
-                        Unassigned QA cases
-                    {% else %}
-                        On call
-                    {% endif%}
+                    On call
                 </div>
                 <div class="govuk-heading-xl amp-margin-bottom-0">
-                    {% if show_all_cases %}
-                        {{total_ready_to_qa_cases}}
-                    {% elif platform.active_qa_auditor %}
+                    {% if platform.active_qa_auditor %}
                         {{ platform.active_qa_auditor.first_name }}
                     {% else %}
                         None
