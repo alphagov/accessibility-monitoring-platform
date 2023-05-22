@@ -1,7 +1,7 @@
 """
 Tests for common views
 """
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 import pytest
 from unittest.mock import patch, Mock
 
@@ -20,8 +20,12 @@ from ...cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
 )
-from ...s3_read_write.models import S3Report
+from ...cases.views import calculate_report_followup_dates
+from ...notifications.models import Notification
+from ...overdue.tests import create_case
+from ...reminders.models import Reminder
 from ...reports.models import ReportVisitsMetrics
+from ...s3_read_write.models import S3Report
 
 from ..models import FrequentlyUsedLink, Platform
 from ..utils import get_platform_settings
@@ -974,3 +978,121 @@ def test_delete_frequently_used_link(admin_client):
 
     link_on_database = FrequentlyUsedLink.objects.get(pk=link.id)
     assert link_on_database.is_deleted is True
+
+
+@pytest.mark.django_db
+def test_navbar_comments_emboldened(admin_client, admin_user):
+    """
+    Test comment item in the top menu of all pages is rendered as bold when an
+    unread one is present.
+    """
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+            <a class="govuk-link govuk-link--no-visited-state" href="/notifications/notifications-list/">
+                Comments (0)
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    Notification.objects.create(user=admin_user, body="Notificiation body")
+
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+        <b>
+            <a class="govuk-link govuk-link--no-visited-state" href="/notifications/notifications-list/">
+                Comments (1)
+            </a>
+        </b>
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.django_db
+def test_navbar_reminders_emboldened(admin_client, admin_user):
+    """
+    Test reminders item in the top menu of all pages is rendered as bold when
+    one is due.
+    """
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+            <a class="govuk-link govuk-link--no-visited-state" href="/reminders/reminder-list/">
+                Reminders (0)
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    case: Case = Case.objects.create(auditor=admin_user)
+    today: date = date.today()
+    Reminder.objects.create(case=case, due_date=today)
+
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+        <b>
+            <a class="govuk-link govuk-link--no-visited-state" href="/reminders/reminder-list/">
+                Reminders (1)
+            </a>
+        </b>
+        </li>""",
+        html=True,
+    )
+
+
+@pytest.mark.django_db
+def test_navbar_overdue_emboldened(admin_client, admin_user):
+    """
+    Test overdue item in the top menu of all pages is rendered as bold when
+    the logged in user has a case with overdue correspondence.
+    """
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+            <a class="govuk-link govuk-link--no-visited-state" href="/overdue/overdue-list/">
+                Overdue (0)
+            </a>
+        </li>""",
+        html=True,
+    )
+
+    case: Case = create_case(user=admin_user)
+    today: date = date.today()
+    two_weeks_ago = today - timedelta(days=15)
+    case.report_sent_date = two_weeks_ago
+    case = calculate_report_followup_dates(case, case.report_sent_date)
+    case.save()
+
+    response: HttpResponse = admin_client.get(reverse("common:platform-history"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        """<li>
+        <b>
+            <a class="govuk-link govuk-link--no-visited-state" href="/overdue/overdue-list/">
+                Overdue (1)
+            </a>
+        </b>
+        </li>""",
+        html=True,
+    )

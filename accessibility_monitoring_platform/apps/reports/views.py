@@ -41,7 +41,7 @@ from .utils import (
 
 def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
     """
-    Create report If one already exists use that instead.
+    Create report. If one already exists use that instead.
 
     Args:
         request (HttpRequest): Django HttpRequest

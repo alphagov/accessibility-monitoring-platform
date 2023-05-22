@@ -1166,6 +1166,8 @@ def test_report_options_field_updates_report_content(
             "report_options_next": REPORT_OPTIONS_NEXT_DEFAULT,
             "save": "Button value",
             field_name: new_value,
+            "accessibility_statement_deadline_not_complete_wording": "it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+            "accessibility_statement_deadline_not_sufficient_wording": "it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
         },
     )
 

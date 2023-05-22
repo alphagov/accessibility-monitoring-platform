@@ -42,7 +42,7 @@ describe('Create case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Pages`)
     cy.get('[name="standard-1-not_found"]').check()
-    cy.get('[name="standard-2-url').type(newAccessibilityStatementURL)
+    cy.get('[name="standard-4-url').type(newAccessibilityStatementURL)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Testing Home`)
@@ -78,7 +78,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Go to QA process').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA process`)
-    cy.get('[name="report_review_status"]').check('ready-to-review')
+    cy.get('[name="report_review_status"]').check('yes')
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save').click()

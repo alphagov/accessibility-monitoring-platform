@@ -15,7 +15,7 @@ from ..cases.models import Case
 
 from .utils import (
     group_cases_by_status,
-    group_cases_by_qa_status,
+    get_all_cases_in_qa,
     return_cases_requiring_user_review,
 )
 
@@ -41,7 +41,6 @@ class DashboardView(TemplateView):
             cases: List[Case] = [case for case in all_cases if case.auditor == user]
 
         cases_by_status: Dict[str, List[Case]] = group_cases_by_status(cases=cases)
-        cases_by_status.update(group_cases_by_qa_status(cases=all_cases))
 
         cases_by_status["requires_your_review"] = return_cases_requiring_user_review(
             cases=all_cases,
@@ -72,12 +71,12 @@ class DashboardView(TemplateView):
                     [case for case in incomplete_cases if case.auditor == user]
                 ),
                 "total_unassigned_cases": len(unassigned_cases),
-                "total_ready_to_qa_cases": len(cases_by_status["ready_for_qa"]),
                 "today": date.today(),
                 "show_all_cases": show_all_cases,
                 "page_title": "All cases" if show_all_cases else "Your cases",
                 "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
                 "recent_changes_to_platform": get_recent_changes_to_platform(),
+                "all_cases_in_qa": get_all_cases_in_qa(all_cases=all_cases),
             }
         )
         return context

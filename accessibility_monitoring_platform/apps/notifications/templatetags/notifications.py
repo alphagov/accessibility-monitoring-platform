@@ -8,26 +8,6 @@ register = template.Library()
 
 
 @register.simple_tag()
-def notifications_count(request: HttpRequest) -> int:
-    """Returns the number of notifications for the user
-
-    Parameters
-    ----------
-    request : HttpRequest
-
-    Returns
-    -------
-    int
-        Number of notifications
-    """
-    count: QuerySet[Notification] = Notification.objects.filter(
-        user=request.user,
-        read=False,
-    )
-    return len(count)
-
-
-@register.simple_tag()
 def read_notification(request: HttpRequest) -> str:
     """Will read the path and user from the request and remove the notification
     if a notification exists

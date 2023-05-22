@@ -36,7 +36,6 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_field.html' with field=form.report_review_status %}
-                            {% include 'common/amp_field.html' with field=form.reviewer %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Link to report draft</b></label>
                                 <div class="govuk-hint">
@@ -44,7 +43,7 @@
                                 </div>
                             </div>
                             <h2 id="qa-discussion" class="govuk-heading-m">QA discussion</h2>
-                            <details class="govuk-details" data-module="govuk-details"{% if open_discussion %} open{% endif %}>
+                            <details class="govuk-details" data-module="govuk-details" open>
                                 <summary class="govuk-details__summary">
                                     <span class="govuk-details__summary-text">
                                         Show QA discussion ({{ case.qa_comments.count }} comment{% if case.qa_comments.count != 1 %}s{% endif %})
@@ -72,6 +71,7 @@
                                     {% endfor %}
                                 </div>
                             </details>
+                            {% include 'common/amp_field.html' with field=form.reviewer %}
                             {% include 'common/amp_field.html' with field=form.report_approved_status %}
                             {% if case.report_methodology == 'platform' and case.report %}
                                 <div class="govuk-form-group">

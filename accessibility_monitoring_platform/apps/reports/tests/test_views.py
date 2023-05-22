@@ -27,11 +27,11 @@ from ...cases.models import (
     Case,
     CaseEvent,
     REPORT_APPROVED_STATUS_APPROVED,
-    REPORT_READY_TO_REVIEW,
     CASE_EVENT_CREATE_REPORT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
 )
+from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
 
 from ..models import (
@@ -42,6 +42,7 @@ from ..models import (
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 HOME_PAGE_URL: str = "https://example.com"
 CHECK_RESULTS_NOTES: str = "I am an error note"
+EXTRA_STATEMENT_WORDING: str = "Extra statement wording"
 
 USER_NAME: str = "user1"
 USER_PASSWORD: str = "bar"
@@ -133,10 +134,12 @@ def test_publish_report_redirects(admin_client):
 @mock_s3
 def test_published_report_includes_errors(admin_client):
     """
-    Test that published report cotains the test results
+    Test that published report contains the test results
     """
     report: Report = create_report()
     audit: Audit = report.case.audit
+    audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
+    audit.save()
     page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
     )
@@ -164,6 +167,7 @@ def test_published_report_includes_errors(admin_client):
     assert HOME_PAGE_URL in s3_report.html
     assert WCAG_TYPE_AXE_NAME in s3_report.html
     assert CHECK_RESULTS_NOTES in s3_report.html
+    assert EXTRA_STATEMENT_WORDING in s3_report.html
 
 
 @mock_s3
@@ -243,7 +247,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -270,7 +274,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
@@ -291,7 +295,7 @@ def test_report_next_step_for_case_report_approved(admin_client):
     Test report next step for case report approved status is 'yes'
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     Audit.objects.create(case=case)
@@ -315,7 +319,7 @@ def test_report_next_step_for_published_report_out_of_date(admin_client):
     Test report next step for published report is out of date
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     audit: Audit = Audit.objects.create(case=case)
@@ -342,7 +346,7 @@ def test_report_next_step_for_published_report(admin_client):
     Test report next step for published report
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
     )
     Audit.objects.create(case=case)
@@ -365,7 +369,7 @@ def test_report_next_step_default(admin_client):
     Test report next stepdefault
     """
     case: Case = Case.objects.create(
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status="in-progress",
     )
     Audit.objects.create(case=case)
@@ -542,7 +546,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.auditor = user
     case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
     case.is_website_compliant = IS_WEBSITE_COMPLIANT_COMPLIANT
-    case.report_review_status = REPORT_READY_TO_REVIEW
+    case.report_review_status = BOOLEAN_TRUE
     case.save()
 
     response: HttpResponse = admin_client.get(

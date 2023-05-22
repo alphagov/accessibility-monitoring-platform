@@ -54,7 +54,7 @@ describe('View case', () => {
 
   it('can edit QA process', () => {
     cy.get('#edit-qa-process').click()
-    cy.get('[name="report_review_status"]').check('ready-to-review')
+    cy.get('[name="report_review_status"]').check('yes')
     cy.get('#id_reviewer').select('QA Auditor')
     cy.get('[name="qa_process_complete_date"]').click()
     cy.contains('Save').click()

@@ -510,8 +510,16 @@ class Audit(VersionModel):
     accessibility_statement_deadline_not_complete = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    accessibility_statement_deadline_not_complete_wording = models.TextField(
+        default="it includes a deadline of XXX for fixing XXX issues and this has not been completed",
+        blank=True,
+    )
     accessibility_statement_deadline_not_sufficient = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_deadline_not_sufficient_wording = models.TextField(
+        default="it includes a deadline of XXX for fixing XXX issues and this is not sufficient",
+        blank=True,
     )
     accessibility_statement_out_of_date = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
@@ -547,6 +555,10 @@ class Audit(VersionModel):
     )
     report_next_disproportionate_burden = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
+    accessibility_statement_report_text_wording = models.TextField(
+        default="",
+        blank=True,
     )
     report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
@@ -764,11 +776,20 @@ class Audit(VersionModel):
 
     @property
     def report_accessibility_issues(self) -> List[str]:
-        return [
-            value
-            for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items()
-            if getattr(self, key) == BOOLEAN_TRUE
-        ]
+        issues: List[str] = []
+        for key, value in REPORT_ACCESSIBILITY_ISSUE_TEXT.items():
+            if getattr(self, key) == BOOLEAN_TRUE:
+                if key == "accessibility_statement_deadline_not_complete":
+                    issues.append(
+                        self.accessibility_statement_deadline_not_complete_wording
+                    )
+                elif key == "accessibility_statement_deadline_not_sufficient":
+                    issues.append(
+                        self.accessibility_statement_deadline_not_sufficient_wording
+                    )
+                else:
+                    issues.append(value)
+        return issues
 
     @property
     def deleted_pages(self):
@@ -780,11 +801,13 @@ class Audit(VersionModel):
         return (
             self.page_audit.filter(is_deleted=False)
             .annotate(
-                position_pdfs_last=DjangoCase(
-                    When(page_type=PAGE_TYPE_PDF, then=1), default=0
+                position_pdfs_statements_last=DjangoCase(
+                    When(page_type=PAGE_TYPE_PDF, then=1),
+                    When(page_type=PAGE_TYPE_STATEMENT, then=2),
+                    default=0,
                 )
             )
-            .order_by("position_pdfs_last", "id")
+            .order_by("position_pdfs_statements_last", "id")
         )
 
     @property
@@ -836,6 +859,7 @@ class Audit(VersionModel):
                 check_result_state=CHECK_RESULT_ERROR,
                 page__is_deleted=False,
                 page__not_found=BOOLEAN_FALSE,
+                page__retest_page_missing_date=None,
             )
             .annotate(
                 position_pdf_page_last=DjangoCase(
