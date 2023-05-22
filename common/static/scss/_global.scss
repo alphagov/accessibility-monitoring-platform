@@ -440,6 +440,10 @@ img, .amp-max-width-100 {
 
 // For use in reports
 
+.amp-report-column-counter {
+    width: 7%;
+}
+
 .border-bottom-report::after {
     content: "";
     margin-left: 15px;
