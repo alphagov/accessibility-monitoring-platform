@@ -99,46 +99,57 @@
                     {% endif %}
 
                     <h2 class="govuk-heading-l">Accessibility statement</h2>
-                    {% if audit.statement_check_results %}
-                        <p class="govuk-body">As part of the regulations you must publish an accessibility statement.</p>
-
-                        {% if audit.failed_statement_check_results %}
-                            <p class="govuk-body">An accessibility statement for the website was found but we found the following issues.<p>
+                    <p class="govuk-body">As part of the regulations you must publish an accessibility statement.</p>
+                    {% if audit.accessibility_statement_found %}
+                        {% if audit.statement_check_results %}
+                            {% if audit.failed_statement_check_results %}
+                                <p class="govuk-body">An accessibility statement for the website was found but we found the following issues.<p>
+                                <table class="govuk-table">
+                                    <thead class="govuk-table__head">
+                                        <tr class="govuk-table__row">
+                                            <th scope="col" class="govuk-table__header amp-report-column-counter">#</th>
+                                            <th scope="col" class="govuk-table__header">Issue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="govuk-table__body">
+                                        {% for statement_check_result in audit.failed_statement_check_results %}
+                                            <tr class="govuk-table__row ">
+                                                <td class="govuk-table__cell">
+                                                    <span class="govuk-visually-hidden">Issue:</span> {{ forloop.counter }}
+                                                </td>
+                                                <td class="govuk-table__cell">
+                                                    {{ statement_check_result.statement_check.report_text }}
+                                                    {% if statement_check_result.report_comment  %}
+                                                        <br><br>Auditors comment:
+                                                        {{ statement_check_result.report_comment }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="govuk-body">
+                                    An accessibility statement for the website was found in the correct format.
+                                </p>
+                            {% endif %}
+                        {% else %}
+                            <table class="govuk-table">
+                                <tbody class="govuk-table__body">
+                                    {% for row in audit_statement_rows %}
+                                        {% include 'cases/helpers/detail_row.html' with row=row %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         {% endif %}
-
-                        <table class="govuk-table">
-                            <thead class="govuk-table__head">
-                                <tr class="govuk-table__row">
-                                    <th scope="col" class="govuk-table__header amp-report-column-counter">#</th>
-                                    <th scope="col" class="govuk-table__header">Issue</th>
-                                </tr>
-                            </thead>
-                            <tbody class="govuk-table__body">
-                                {% for statement_check_result in audit.failed_statement_check_results %}
-                                    <tr class="govuk-table__row ">
-                                        <td class="govuk-table__cell">
-                                            <span class="govuk-visually-hidden">Issue:</span> {{ forloop.counter }}
-                                        </td>
-                                        <td class="govuk-table__cell">
-                                            {{ statement_check_result.statement_check.report_text }}
-                                            {% if statement_check_result.report_comment  %}
-                                                <br><br>Auditors comment:
-                                                {{ statement_check_result.report_comment }}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
                     {% else %}
-                        <table class="govuk-table">
-                            <tbody class="govuk-table__body">
-                                {% for row in audit_statement_rows %}
-                                    {% include 'cases/helpers/detail_row.html' with row=row %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <p class="govuk-body">
+                            An accessibility page for the website could not be found or the page did
+                            not include a statement. Every public sector website must include an
+                            accessibility statement and it is against the law to not have one.
+                        </p>
                     {% endif %}
+
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             {% include 'common/amp_form_snippet.html' %}

@@ -159,44 +159,58 @@
 <p>
     As part of the regulations you must publish an accessibility statement.
 </p>
-{% if audit.statement_check_results %}
-    <p>
-        An accessibility statement for the website was found but we found the following issues.
-    </p>
-    <table id="statement-check-results">
-        <caption class="govuk-visually-hidden">Issues found on accessibility statment</caption>
-        <thead>
-            <tr>
-                <th class="amp-report-column-counter">#</th>
-                <th id="statement-issues">Issue</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in audit.failed_statement_check_results %}
-                <tr valign="top">
-                    <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
-                    <td headers="statement-issues">{{ row.statement_check.report_text }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% if audit.accessibility_statement_found %}
+    {% if audit.statement_check_results %}
+        {% if audit.failed_statement_check_results %}
+            <p>
+                An accessibility statement for the website was found but we found the following issues.
+            </p>
+            <table id="statement-check-results">
+                <caption class="govuk-visually-hidden">Issues found on accessibility statment</caption>
+                <thead>
+                    <tr>
+                        <th class="amp-report-column-counter">#</th>
+                        <th id="statement-issues">Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in audit.failed_statement_check_results %}
+                        <tr valign="top">
+                            <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
+                            <td headers="statement-issues">{{ row.statement_check.report_text }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>
+                An accessibility statement for the website was found in the correct format.
+            </p>
+        {% endif %}
+    {% else %}
+        <p>
+            {{ audit.get_accessibility_statement_state_display }}
+        </p>
+        {% if audit.report_accessibility_issues %}
+            <ul>
+                {% for issue in audit.report_accessibility_issues %}
+                    <li>
+                        {{ issue }}
+                        {% if issue == 'mandatory wording is missing' %}
+                            <p class="amp-margin-bottom-0">{{ audit.accessibility_statement_missing_mandatory_wording_notes }}</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {{ audit.accessibility_statement_report_text_wording|markdown_to_html }}
+    {% endif %}
 {% else %}
     <p>
-        {{ audit.get_accessibility_statement_state_display }}
+        An accessibility page for the website could not be found or the page did
+        not include a statement. Every public sector website must include an
+        accessibility statement and it is against the law to not have one.
     </p>
-    {% if audit.report_accessibility_issues %}
-        <ul>
-            {% for issue in audit.report_accessibility_issues %}
-                <li>
-                    {{ issue }}
-                    {% if issue == 'mandatory wording is missing' %}
-                        <p class="amp-margin-bottom-0">{{ audit.accessibility_statement_missing_mandatory_wording_notes }}</p>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    {{ audit.accessibility_statement_report_text_wording|markdown_to_html }}
 {% endif %}
 <p>
     More information about accessibility statements can be found at
