@@ -132,11 +132,13 @@ def test_publish_report_redirects(admin_client):
 
 
 @mock_s3
-def test_published_report_includes_errors(admin_client):
+def test_old_published_report_includes_errors(admin_client):
     """
     Test that published report contains the test results
     """
     report: Report = create_report()
+    report.report_version = "v1_1_0__20230421"
+    report.save()
     audit: Audit = report.case.audit
     audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
