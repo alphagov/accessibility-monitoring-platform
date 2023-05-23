@@ -286,6 +286,7 @@ STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_ENFORCEMENT, "Enforcement procedure"),
     (STATEMENT_CHECK_TYPE_OTHER, "Other"),
 ]
+STATEMENT_CHECK_STATEMENT_FOUND_ID: int = 2
 STATEMENT_CHECK_YES: str = "yes"
 STATEMENT_CHECK_NO: str = "no"
 STATEMENT_CHECK_NOT_TESTED: str = "not-tested"
@@ -925,6 +926,13 @@ class Audit(VersionModel):
     @property
     def overview_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
+
+    @property
+    def statement_check_result_statement_found(self) -> bool:
+        statement_found: CheckResult = self.overview_statement_check_results.get(
+            statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
+        )
+        return statement_found.statement_check_result == STATEMENT_CHECK_YES
 
     @property
     def website_statement_check_results(self) -> bool:

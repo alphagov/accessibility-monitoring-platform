@@ -441,7 +441,7 @@ img, .amp-max-width-100 {
 // For use in reports
 
 .amp-report-column-counter {
-    width: 7%;
+    white-space: nowrap;
 }
 
 .border-bottom-report::after {
