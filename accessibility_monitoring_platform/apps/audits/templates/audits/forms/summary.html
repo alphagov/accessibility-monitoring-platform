@@ -101,38 +101,15 @@
                     <h2 class="govuk-heading-l">Accessibility statement</h2>
                     <p class="govuk-body">As part of the regulations you must publish an accessibility statement.</p>
                     {% if audit.accessibility_statement_found %}
-                        {% if audit.statement_check_results %}
-                            {% if audit.failed_statement_check_results %}
-                                <p class="govuk-body">An accessibility statement for the website was found but we found the following issues.<p>
-                                <table class="govuk-table">
-                                    <thead class="govuk-table__head">
-                                        <tr class="govuk-table__row">
-                                            <th scope="col" class="govuk-table__header amp-report-column-counter">#</th>
-                                            <th scope="col" class="govuk-table__header">Issue</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="govuk-table__body">
-                                        {% for statement_check_result in audit.failed_statement_check_results %}
-                                            <tr class="govuk-table__row ">
-                                                <td class="govuk-table__cell">
-                                                    <span class="govuk-visually-hidden">Issue:</span> {{ forloop.counter }}
-                                                </td>
-                                                <td class="govuk-table__cell">
-                                                    {{ statement_check_result.statement_check.report_text }}
-                                                    {% if statement_check_result.report_comment  %}
-                                                        <br><br>Auditors comment:
-                                                        {{ statement_check_result.report_comment }}
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            {% else %}
-                                <p class="govuk-body">
-                                    An accessibility statement for the website was found in the correct format.
-                                </p>
-                            {% endif %}
+                        {% if audit.uses_statement_checks %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Statement overview' edit_link='audits:edit-statement-overview' check_results=audit.overview_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Accessibility statement information' edit_link='audits:edit-statement-website' check_results=audit.website_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Compliance status' edit_link='audits:edit-statement-compliance' check_results=audit.compliance_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Non accessible content' edit_link='audits:edit-statement-non-accessible' check_results=audit.non_accessible_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Statement preparation' edit_link='audits:edit-statement-preparation' check_results=audit.preparation_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Feedback and contact information' edit_link='audits:edit-statement-feedback' check_results=audit.feedback_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Enforcement procedure' edit_link='audits:edit-statement-enforcement' check_results=audit.enforcement_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Other' edit_link='audits:edit-statement-other' check_results=audit.other_statement_check_results %}
                         {% else %}
                             <table class="govuk-table">
                                 <tbody class="govuk-table__body">

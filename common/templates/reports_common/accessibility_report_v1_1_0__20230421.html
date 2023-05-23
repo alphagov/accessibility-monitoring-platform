@@ -160,7 +160,7 @@
     As part of the regulations you must publish an accessibility statement.
 </p>
 {% if audit.accessibility_statement_found %}
-    {% if audit.statement_check_results %}
+    {% if audit.uses_statement_checks %}
         {% if audit.failed_statement_check_results %}
             <p>
                 An accessibility statement for the website was found but we found the following issues.
@@ -174,10 +174,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in audit.failed_statement_check_results %}
+                    {% for statement_check_result in audit.failed_statement_check_results %}
                         <tr valign="top">
                             <td><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
-                            <td headers="statement-issues">{{ row.statement_check.report_text }}</td>
+                            <td headers="statement-issues" class="amp-notes">
+                                {{ statement_check_result.statement_check.report_text|markdown_to_html }}
+                                {% if statement_check_result.report_comment %}
+                                    {{ statement_check_result.report_comment|markdown_to_html }}
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
