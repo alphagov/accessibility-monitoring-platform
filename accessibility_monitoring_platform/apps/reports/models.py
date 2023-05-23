@@ -28,9 +28,9 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES_TABLE, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
-REPORT_VERSION_DEFAULT: str = "v1_1_0__20230421"
+REPORT_VERSION_DEFAULT: str = "v1_2_0_20230523"
 REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1"),
+    (REPORT_VERSION_DEFAULT, "Version 1.2"),
 ]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",

@@ -574,7 +574,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementOverviewUpdateForm
     ] = AuditStatementOverviewUpdateForm
-    template_name: str = "audits/forms/statement_overview.html"
+    template_name: str = "audits/statement_checks/statement_overview.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
 
     def get_success_url(self) -> str:
@@ -595,7 +595,7 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     """
 
     form_class: Type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
-    template_name: str = "audits/forms/statement_website.html"
+    template_name: str = "audits/statement_checks/statement_website.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
 
     def get_success_url(self) -> str:
@@ -614,7 +614,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementComplianceUpdateForm
     ] = AuditStatementComplianceUpdateForm
-    template_name: str = "audits/forms/statement_compliance.html"
+    template_name: str = "audits/statement_checks/statement_compliance.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
 
     def get_success_url(self) -> str:
@@ -633,7 +633,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementNonAccessibleUpdateForm
     ] = AuditStatementNonAccessibleUpdateForm
-    template_name: str = "audits/forms/statement_non_accessible.html"
+    template_name: str = "audits/statement_checks/statement_non_accessible.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
@@ -652,7 +652,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementPreparationUpdateForm
     ] = AuditStatementPreparationUpdateForm
-    template_name: str = "audits/forms/statement_preparation.html"
+    template_name: str = "audits/statement_checks/statement_preparation.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
 
     def get_success_url(self) -> str:
@@ -671,7 +671,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementFeedbackUpdateForm
     ] = AuditStatementFeedbackUpdateForm
-    template_name: str = "audits/forms/statement_feedback.html"
+    template_name: str = "audits/statement_checks/statement_feedback.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
 
     def get_success_url(self) -> str:
@@ -690,7 +690,7 @@ class AuditStatementEnforcementFormView(AuditStatementCheckingView):
     form_class: Type[
         AuditStatementEnforcementUpdateForm
     ] = AuditStatementEnforcementUpdateForm
-    template_name: str = "audits/forms/statement_enforcement.html"
+    template_name: str = "audits/statement_checks/statement_enforcement.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_ENFORCEMENT
 
     def get_success_url(self) -> str:
@@ -707,7 +707,7 @@ class AuditStatementOtherFormView(AuditStatementCheckingView):
     """
 
     form_class: Type[AuditStatementOtherUpdateForm] = AuditStatementOtherUpdateForm
-    template_name: str = "audits/forms/statement_other.html"
+    template_name: str = "audits/statement_checks/statement_other.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_OTHER
 
     def get_success_url(self) -> str:
