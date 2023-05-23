@@ -18,7 +18,7 @@ from ...audits.models import (
     CheckResult,
     Page,
     WcagDefinition,
-    PAGE_TYPE_HOME,
+    PAGE_TYPE_STATEMENT,
     TEST_TYPE_AXE,
     CHECK_RESULT_ERROR,
 )
@@ -141,7 +141,7 @@ def test_published_report_includes_errors(admin_client):
     audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
