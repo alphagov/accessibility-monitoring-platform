@@ -90,9 +90,6 @@ class IssueTable:
 def build_issues_tables(report: Report) -> List[IssueTable]:
     """
     Generate content of issues tables for report.
-
-    Args:
-        report (Report): Report for which content is generated.
     """
     issues_tables: List[IssueTable] = []
     if report.case.audit:
