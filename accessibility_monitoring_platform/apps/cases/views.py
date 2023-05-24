@@ -917,15 +917,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )
@@ -933,32 +925,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     return download_cases(cases=filter_cases(form=case_search_form))
 
 
-def export_single_case(
-    request: HttpRequest, pk: int  # pylint: disable=unused-argument
-) -> HttpResponse:
-    """
-    View to export a single case in csv format
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk: int
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
-
-
 def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases to send to an enforcement body
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases to send to an enforcement body"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )
@@ -967,15 +935,7 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
 
 
 def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases for feedback survey
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases for feedback survey"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )

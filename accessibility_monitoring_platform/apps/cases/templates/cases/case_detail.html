@@ -30,15 +30,6 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group amp-flex-end">
-                    <a
-                        href="{% url 'cases:case-export-single' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Export to CSV
-                    </a>
                     {% if case.is_deactivated %}
                         <a
                             href="{% url 'cases:reactivate-case' case.id %}"

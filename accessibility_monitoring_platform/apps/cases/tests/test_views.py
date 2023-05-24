@@ -485,18 +485,6 @@ def test_case_export_list_view_respects_filters(admin_client):
     assertNotContains(response, "Excluded")
 
 
-def test_case_export_single_view(admin_client):
-    """Test that the case export single view returns csv data"""
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.get(
-        reverse("cases:case-export-single", kwargs={"pk": case.id})
-    )
-
-    assert response.status_code == 200
-    assertContains(response, case_columns_to_export_str)
-
-
 def test_deactivate_case_view(admin_client):
     """Test that deactivate case view deactivates the case"""
     case: Case = Case.objects.create()
