@@ -33,14 +33,6 @@
         </tr>
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                Report draft
-            </th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {% include 'cases/helpers/report_link_draft.html' %}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
                 Comments
             </th>
             <td class="govuk-table__cell amp-width-one-half">
@@ -53,20 +45,6 @@
             </th>
             <td class="govuk-table__cell amp-width-one-half">
                 {{ case.get_report_approved_status_display }}
-            </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                Published report
-            </th>
-            <td class="govuk-table__cell amp-width-one-half">
-                {% if case.report.latest_s3_report %}
-                    <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                        View final HTML report
-                    </a>
-                {% else %}
-                    None
-                {% endif %}
             </td>
         </tr>
         {% if case.report_methodology != 'platform' %}
