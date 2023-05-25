@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-{% load notifications %}
-
 {% block title %}{{ case.organisation_name }} | QA process{% endblock %}
 
 {% block content %}
@@ -100,7 +98,6 @@
                         </div>
                     </div>
                 </form>
-                {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-process' %}
