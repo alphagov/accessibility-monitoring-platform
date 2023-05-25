@@ -130,17 +130,31 @@
                         {% if case.audit.failed_statement_check_results %}
                             An accessibility statement for the website was found
                             but we found the following issues.
-                            <ul>
-                                {% for statement_check_result in case.audit.failed_statement_check_results %}
-                                    <li>
-                                        {{ statement_check_result.statement_check.report_text }}
-                                        {% if statement_check_result.report_comment %}
-                                            <br>
-                                            {{ statement_check_result.report_comment }}
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            <table id="email-statement-issues-table">
+                                <thead>
+                                    <tr>
+                                        <th width=4%>#</th>
+                                        <th id="statement-issue" width=48%>Issue and description</th>
+                                        <th id="statement-12-week-update" width=48%>12-week update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for statement_check_result in case.audit.failed_statement_check_results %}
+                                        <tr valign="top">
+                                            <td width=4%>{{ forloop.counter }}</td>
+                                            <td headers="statement-issue" width=48%>
+                                                {{ statement_check_result.statement_check.report_text }}
+                                                {% if statement_check_result.report_comment %}
+                                                    <br>
+                                                    <br>
+                                                    {{ statement_check_result.report_comment }}
+                                                {% endif %}
+                                            </td>
+                                            <td headers="statement-12-week-update" width=48%></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         {% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
                             An accessibility statement for the website was found in the correct format.
                         {% else %}
