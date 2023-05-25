@@ -731,7 +731,8 @@ class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["issues_tables"] = build_issues_tables(report=case.report)
+        if case.report:
+            context["issues_tables"] = build_issues_tables(report=case.report)
         return context
 
 
