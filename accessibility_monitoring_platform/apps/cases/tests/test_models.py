@@ -6,7 +6,16 @@ from datetime import date, datetime, timedelta, timezone
 from typing import List
 from unittest.mock import patch, Mock
 
-from ...audits.models import Audit, CheckResult, Page, WcagDefinition, TEST_TYPE_AXE
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    TEST_TYPE_AXE,
+    CHECK_RESULT_ERROR,
+    RETEST_CHECK_RESULT_FIXED,
+    CONTENT_NOT_IN_SCOPE_VALID,
+)
 from ...comments.models import Comment
 from ...reminders.models import Reminder
 from ...reports.models import Report
@@ -573,3 +582,59 @@ def test_accessibility_statement_compliance_display(
     )
 
     assert case.accessibility_statement_compliance_display == expected_result
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_no_audit():
+    """Test that cases without audits return no test exists"""
+    case: Case = Case.objects.create()
+
+    assert case.overview_issues_website == "No test exists"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_no_audit():
+    """Test that cases without audits return no test exists"""
+    case: Case = Case.objects.create()
+
+    assert case.overview_issues_statement == "No test exists"
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_with_audit():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.overview_issues_website == "0 of 0 fixed"
+
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        type=TEST_TYPE_AXE,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    assert case.overview_issues_website == "0 of 1 fixed (0%)"
+
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    assert case.overview_issues_website == "1 of 1 fixed (100%)"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_with_audit():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.overview_issues_statement == "0 of 12 fixed (0%)"
+
+    audit.audit_retest_content_not_in_scope_state = CONTENT_NOT_IN_SCOPE_VALID
+    audit.save()
+
+    assert case.overview_issues_statement == "1 of 12 fixed (8%)"

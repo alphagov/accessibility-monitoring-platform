@@ -1050,6 +1050,35 @@ def test_updating_report_sent_date(admin_client):
     )
 
 
+def test_preferred_contact_not_displayed_on_form(admin_client):
+    """
+    Test that the preferred contact field is not displayed when there is only one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertNotContains(response, "Preferred contact?")
+
+
+def test_preferred_contact_displayed_on_form(admin_client):
+    """
+    Test that the preferred contact field is displayed when there is more than one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, "Preferred contact?")
+
+
 def test_report_followup_due_dates_not_changed(admin_client):
     """
     Test that populating the report sent date updates existing report followup due dates
@@ -3205,8 +3234,8 @@ def test_outstanding_issues_overview(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "0 of 3 (0%) WCAG errors have been fixed", html=True)
-    assertContains(response, "0 of 12 (0%) statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: 0 of 3 fixed (0%)", html=True)
+    assertContains(response, "Statement errors: 0 of 12 fixed (0%)", html=True)
 
 
 def test_outstanding_issues_overview_percentage(admin_client):
@@ -3227,8 +3256,8 @@ def test_outstanding_issues_overview_percentage(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "1 of 3 (33%) WCAG errors have been fixed", html=True)
-    assertContains(response, "1 of 12 (8%) statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: 1 of 3 fixed (33%)", html=True)
+    assertContains(response, "Statement errors: 1 of 12 fixed (8%)", html=True)
 
 
 def test_outstanding_issues_overview_percentages_new_case(admin_client):
@@ -3243,8 +3272,8 @@ def test_outstanding_issues_overview_percentages_new_case(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "0 of 0 WCAG errors have been fixed", html=True)
-    assertContains(response, "0 of 0 statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: No test exists", html=True)
+    assertContains(response, "Statement errors: No test exists", html=True)
 
 
 @pytest.mark.parametrize(

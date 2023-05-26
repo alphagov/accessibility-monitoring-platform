@@ -12,7 +12,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import extract_domain_from_url
+from ..common.utils import extract_domain_from_url, format_outstanding_issues
 from ..common.models import (
     BOOLEAN_FALSE,
     BOOLEAN_TRUE,
@@ -825,6 +825,24 @@ class Case(VersionModel):
         ):
             return self.get_accessibility_statement_state_display()
         return self.get_accessibility_statement_state_final_display()
+
+    @property
+    def overview_issues_website(self) -> str:
+        if self.audit is None:
+            return "No test exists"
+        return format_outstanding_issues(
+            failed_checks_count=self.audit.failed_check_results.count(),
+            fixed_checks_count=self.audit.fixed_check_results.count(),
+        )
+
+    @property
+    def overview_issues_statement(self) -> str:
+        if self.audit is None:
+            return "No test exists"
+        return format_outstanding_issues(
+            failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
+            fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
+        )
 
 
 class Contact(models.Model):
