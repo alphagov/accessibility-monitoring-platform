@@ -180,3 +180,13 @@ def checks_if_2fa_is_enabled(user: User) -> bool:
 def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
     """Check list of keys in dictionary for at least one truthy value"""
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
+
+
+def format_outstanding_issues(
+    failed_checks_count: int = 0, fixed_checks_count: int = 0
+) -> str:
+    """Return string showing how many outstanding issues there are"""
+    if failed_checks_count == 0:
+        return "0 of 0 fixed"
+    percentage: int = int(fixed_checks_count * 100 / failed_checks_count)
+    return f"{fixed_checks_count} of {failed_checks_count} fixed ({percentage}%)"

@@ -64,38 +64,10 @@
                 </ul>
                 <h2 class="govuk-heading-l">Overview</h2>
                 <p class="govuk-body">
-                    {% if case.audit.fixed_check_results %}
-                        {{ case.audit.fixed_check_results.count|intcomma }}
-                    {% else %}
-                        0
-                    {% endif %}
-                    of
-                    {% if case.audit.failed_check_results %}
-                        {{ case.audit.failed_check_results.count|intcomma }}
-                    {% else %}
-                        0
-                    {% endif %}
-                    {% if case.audit.failed_check_results %}
-                        ({% widthratio case.audit.fixed_check_results.count case.audit.failed_check_results.count 100 %}%)
-                    {% endif %}
-                    WCAG errors have been fixed
+                    WCAG errors: {{ case.overview_issues_website }}
                 </p>
                 <p class="govuk-body amp-margin-bottom-30">
-                    {% if case.audit.fixed_accessibility_statement_checks_count %}
-                        {{ case.audit.fixed_accessibility_statement_checks_count }}
-                    {% else %}
-                        0
-                    {% endif %}
-                    of
-                    {% if case.audit.accessibility_statement_initially_invalid_checks_count %}
-                        {{ case.audit.accessibility_statement_initially_invalid_checks_count }}
-                    {% else %}
-                        0
-                    {% endif %}
-                    {% if case.audit.accessibility_statement_initially_invalid_checks_count %}
-                        ({% widthratio case.audit.fixed_accessibility_statement_checks_count case.audit.accessibility_statement_initially_invalid_checks_count 100 %}%)
-                    {% endif %}
-                    statement errors have been fixed
+                    Statement errors: {{ case.overview_issues_statement }}
                 </p>
                 {% if show_failures_by_page %}
                     {% for page, failures in audit_failures_by_page.items %}
