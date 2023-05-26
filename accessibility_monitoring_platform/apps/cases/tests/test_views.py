@@ -3205,8 +3205,8 @@ def test_outstanding_issues_overview(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "0 of 3 (0%) WCAG errors have been fixed", html=True)
-    assertContains(response, "0 of 12 (0%) statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: 0 of 3 fixed (0%)", html=True)
+    assertContains(response, "Statement errors: 0 of 12 fixed (0%)", html=True)
 
 
 def test_outstanding_issues_overview_percentage(admin_client):
@@ -3227,8 +3227,8 @@ def test_outstanding_issues_overview_percentage(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "1 of 3 (33%) WCAG errors have been fixed", html=True)
-    assertContains(response, "1 of 12 (8%) statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: 1 of 3 fixed (33%)", html=True)
+    assertContains(response, "Statement errors: 1 of 12 fixed (8%)", html=True)
 
 
 def test_outstanding_issues_overview_percentages_new_case(admin_client):
@@ -3243,8 +3243,8 @@ def test_outstanding_issues_overview_percentages_new_case(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "0 of 0 WCAG errors have been fixed", html=True)
-    assertContains(response, "0 of 0 statement errors have been fixed", html=True)
+    assertContains(response, "WCAG errors: No test exists", html=True)
+    assertContains(response, "Statement errors: No test exists", html=True)
 
 
 @pytest.mark.parametrize(
