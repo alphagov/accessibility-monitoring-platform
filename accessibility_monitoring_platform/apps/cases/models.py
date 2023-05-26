@@ -839,6 +839,11 @@ class Case(VersionModel):
     def overview_issues_statement(self) -> str:
         if self.audit is None:
             return "No test exists"
+        if self.audit.uses_statement_checks:
+            format_outstanding_issues(
+                failed_checks_count=self.audit.failed_statement_check_results.count(),
+                fixed_checks_count=0,
+            )
         return format_outstanding_issues(
             failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
             fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
