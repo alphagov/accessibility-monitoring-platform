@@ -36,6 +36,7 @@ from .models import (
     STATUS_CHOICES,
     CASE_COMPLETED_CHOICES,
     BOOLEAN_CHOICES,
+    PREFERRED_CHOICES,
     TWELVE_WEEK_RESPONSE_CHOICES,
     ENFORCEMENT_BODY_CHOICES,
     ENFORCEMENT_BODY_PURSUING_CHOICES,
@@ -309,14 +310,13 @@ class CaseContactUpdateForm(forms.ModelForm):
     name = AMPCharFieldWide(label="Name")
     job_title = AMPCharFieldWide(label="Job title")
     email = AMPCharFieldWide(label="Email")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact?", choices=PREFERRED_CHOICES
+    )
 
     class Meta:
         model = Case
-        fields = [
-            "name",
-            "job_title",
-            "email",
-        ]
+        fields = ["name", "job_title", "email", "preferred"]
 
 
 CaseContactFormset: Any = forms.modelformset_factory(

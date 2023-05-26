@@ -1050,6 +1050,35 @@ def test_updating_report_sent_date(admin_client):
     )
 
 
+def test_preferred_contact_not_displayed_on_form(admin_client):
+    """
+    Test that the preferred contact field is not displayed when there is only one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertNotContains(response, "Preferred contact?")
+
+
+def test_preferred_contact_displayed_on_form(admin_client):
+    """
+    Test that the preferred contact field is displayed when there is more than one contact
+    """
+    case: Case = Case.objects.create()
+    Contact.objects.create(case=case)
+    Contact.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-contact-details", kwargs={"pk": case.id}),
+    )
+    assert response.status_code == 200
+    assertContains(response, "Preferred contact?")
+
+
 def test_report_followup_due_dates_not_changed(admin_client):
     """
     Test that populating the report sent date updates existing report followup due dates
