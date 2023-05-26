@@ -41,6 +41,7 @@ from ..utils import (
     undo_double_escapes,
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
+    format_outstanding_issues,
 )
 
 
@@ -317,8 +318,30 @@ def test_checks_if_2fa_is_enabled():
         ),
     ],
 )
-def test_check_dict_for_truthy_values(dictionary, keys_to_check, expected_result):
+def test_check_dict_for_truthy_values(
+    dictionary: Dict[str, bool], keys_to_check: List[str], expected_result: bool
+):
     """
     Test dictionary contains at least one truthy values for list of keys to check.
     """
     assert check_dict_for_truthy_values(dictionary, keys_to_check) == expected_result
+
+
+@pytest.mark.parametrize(
+    "failed_checks_count,fixed_checks_count,expected_result",
+    [
+        (0, 0, "0 of 0 fixed"),
+        (10, 5, "5 of 10 fixed (50%)"),
+        (9, 6, "6 of 9 fixed (66%)"),
+    ],
+)
+def test_format_outstanding_issues(
+    failed_checks_count: int, fixed_checks_count: int, expected_result: str
+):
+    assert (
+        format_outstanding_issues(
+            failed_checks_count=failed_checks_count,
+            fixed_checks_count=fixed_checks_count,
+        )
+        == expected_result
+    )
