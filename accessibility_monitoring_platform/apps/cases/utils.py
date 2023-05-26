@@ -181,7 +181,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance decision",
-        field_name="is_website_compliant",
+        field_name="website_compliance_state_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance notes",

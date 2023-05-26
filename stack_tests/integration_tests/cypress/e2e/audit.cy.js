@@ -47,7 +47,7 @@ describe('View test', () => {
 
   it('can edit website compliance decision', () => {
     cy.get('#edit-website-decision').click()
-    cy.get('[name="case-is_website_compliant"]').check('partially-compliant')
+    cy.get('[name="case-website_compliance_state_initial"]').check('partially-compliant')
     cy.get('[name="case-compliance_decision_notes"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_website_decision_complete_date"]').click()
     cy.contains('Save').click()
