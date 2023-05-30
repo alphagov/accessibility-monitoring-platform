@@ -1544,6 +1544,50 @@ def test_section_complete_check_displayed_in_steps_platform_methodology(
     )
 
 
+def test_test_results_page_shows_if_statement_exists(
+    admin_client,
+):
+    """
+    Test that the test results page shows if statement exists.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
+            <td class="govuk-table__cell amp-width-one-half">No</td>
+        </tr>""",
+        html=True,
+    )
+
+    Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url="https://example.com"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-test-results", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Statement exists</th>
+            <td class="govuk-table__cell amp-width-one-half">Yes</td>
+        </tr>""",
+        html=True,
+    )
+
+
 def test_twelve_week_retest_page_shows_link_to_create_test_page_if_none_found(
     admin_client,
 ):
@@ -1633,6 +1677,49 @@ def test_twelve_week_retest_page_shows_view_retest_button_if_retest_exists(
             data-module="govuk-button">
             View retest
         </a>""",
+        html=True,
+    )
+
+
+def test_twelve_week_retest_page_shows_if_statement_exists(
+    admin_client,
+):
+    """
+    Test that the twelve week retest page shows if statement exists.
+    """
+    case: Case = Case.objects.create(testing_methodology="platform")
+    audit: Audit = Audit.objects.create(case=case, retest_date=date.today())
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>
+            <td class="govuk-table__cell amp-width-one-half">No</td>
+        </tr>""",
+        html=True,
+    )
+
+    audit.twelve_week_accessibility_statement_url = "https://example.com"
+    audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:edit-twelve-week-retest", kwargs={"pk": case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """<tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>
+            <td class="govuk-table__cell amp-width-one-half">Yes</td>
+        </tr>""",
         html=True,
     )
 

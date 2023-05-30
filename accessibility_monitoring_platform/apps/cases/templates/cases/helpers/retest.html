@@ -23,7 +23,11 @@
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>
     <td class="govuk-table__cell amp-width-one-half">
-        {% if case.audit.accessibility_statement_initially_found %}Yes{% else %}No{% endif %}
+        {% if case.audit.accessibility_statement_initially_found or case.audit.twelve_week_accessibility_statement_found %}
+            Yes
+        {% else %}
+            No
+        {% endif %}
     </td>
 </tr>
 <tr class="govuk-table__row">
