@@ -9,6 +9,10 @@
     </td>
 </tr>
 <tr class="govuk-table__row">
+    <th scope="row" class="govuk-table__header amp-width-one-half">Website issues</th>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.overview_issues_website }}</td>
+</tr>
+<tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance decision</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.get_website_state_final_display }}</td>
 </tr>
@@ -17,10 +21,12 @@
     <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.website_state_notes_final|markdown_to_html }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance status</th>
-    <td class="govuk-table__cell amp-width-one-half">{{ case.get_accessibility_statement_state_final_display }}</td>
+    <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>
+    <td class="govuk-table__cell amp-width-one-half">
+        {% if case.audit.accessibility_statement_initially_found %}Yes{% else %}No{% endif %}
+    </td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">12-week accessibility statement compliance notes</th>
-    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.accessibility_statement_notes_final|markdown_to_html }}</td>
+    <th scope="row" class="govuk-table__header amp-width-one-half">Statement issues</th>
+    <td class="govuk-table__cell amp-width-one-half">{{ case.overview_issues_statement }}</td>
 </tr>
