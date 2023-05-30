@@ -66,6 +66,9 @@
                     {% for issues_table in issues_tables %}
                         {% if issues_table.rows %}
                             <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+                            <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+                            <br>
+                            <br>
                             <table id="email-issues-table-{{ forloop.counter }}">
                                 <thead>
                                     <tr>
