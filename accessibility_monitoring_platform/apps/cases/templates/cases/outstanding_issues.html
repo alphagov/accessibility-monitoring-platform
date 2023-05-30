@@ -27,9 +27,19 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
-                    Group by {% if show_failures_by_page %}WCAG error{% else %}page{% endif %}
-                </a>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full govuk-button-group">
+                        <a href="{% url 'cases:outstanding-issues' case.id %}?view={% if show_failures_by_page %}WCAG{% else %}Page{% endif %} view" rel="noreferrer noopener" class="govuk-button  govuk-button--secondary">
+                            Group by {% if show_failures_by_page %}WCAG error{% else %}page{% endif %}
+                        </a>
+                        <a
+                            href="{% url 'cases:outstanding-issues-email' case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View unfixed issues email template
+                        </a>
+                    </div>
+                </div>
                 <h2 class="govuk-heading-l">Content</h2>
                 <ul class="govuk-list">
                     {% if show_failures_by_page %}
