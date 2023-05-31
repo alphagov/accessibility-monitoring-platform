@@ -93,8 +93,6 @@
                     {% endfor %}
                     <h2>Your statement</h2>
                     {{ case.audit.get_accessibility_statement_state_display }}
-                    <br>
-                    <br>
                     {% if case.audit.accessibility_statement_state == 'found-but' %}
                         <ul>
                             {% for issue in case.audit.report_accessibility_issues %}
