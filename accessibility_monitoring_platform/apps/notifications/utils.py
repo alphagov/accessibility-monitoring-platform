@@ -89,3 +89,10 @@ def read_notification(request: HttpRequest) -> None:
     for notification in notifications:
         notification.read = True  # type: ignore
         notification.save()
+
+
+def get_number_of_unread_notifications(user: User) -> int:
+    """Return the number of unread notifications for the user"""
+    if user.id:
+        return Notification.objects.filter(user=user, read=False).count()
+    return 0

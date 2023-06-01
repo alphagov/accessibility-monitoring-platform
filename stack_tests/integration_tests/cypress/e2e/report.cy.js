@@ -1,6 +1,6 @@
 /* global cy before after Cypress */
 
-const metadataNote = 'Report metadata note content'
+const metadataNote = 'Report note content'
 const reportIntroduction = 'Alternate report introduction content'
 const reportHowAccessible = 'Alternate how accessible the website is content'
 const reportHowWeChecked = 'Alternate how we checked content'
@@ -17,85 +17,42 @@ describe('Report publisher', () => {
   })
 
   it('contains link to latest published HTML report', () => {
-    cy.contains('latest published HTML report')
+    cy.contains('final HTML report')
       .should('have.attr', 'href')
       .then((href) => {
         expect(href).to.include('/reports/96b1afce-a445-42c3-961c-7708aba196f3')
       })
   })
 
-  describe('Edit report', () => {
-    beforeEach(() => {
-      cy.contains('a', 'Edit report').click()
-    })
+  it('can edit report notes', () => {
+    cy.contains('Edit notes').click()
+    cy.title().should('eq', 'ExampleCorp | Report notes')
+    cy.get('[name="notes"]').clear().type(metadataNote)
+    cy.contains('Save and return to report publisher').click()
+    cy.contains(metadataNote)
+  })
 
-    after(() => {
-      cy.contains('a', 'Reset report').click()
-      cy.title().should('eq', 'ExampleCorp | Reset report')
-      cy.contains('a', 'Reset report').click()
-      cy.title().should('eq', 'ExampleCorp | Edit report')
-    })
+  it('can edit how accessible the website is', () => {
+    cy.contains('Edit test > Website compliance decision').click()
+    cy.title().should('eq', 'ExampleCorp | Website compliance decision')
+    cy.get('[name="case-is_website_compliant"]').check('not-compliant')
+    cy.contains('Save').click()
+    cy.visit('/reports/1/report-publisher')
+    cy.contains('Based on our testing, this site is not compliant')
+  })
 
-    it('can edit report metadata', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(0).click()
-      cy.title().should('eq', 'ExampleCorp | Report metadata')
-      cy.get('[name="notes"]').clear().type(metadataNote)
-      cy.contains('Save and return to report view').click()
-      cy.contains(metadataNote)
-    })
+  it('can edit pages we checked', () => {
+    cy.contains('Edit test > Pages').click()
+    cy.title().should('eq', 'ExampleCorp | Pages')
+  })
 
-    it('can edit report introduction', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(1).click()
-      cy.title().should('eq', 'ExampleCorp | Introduction')
-      cy.get('[name="content"]').clear().type(reportIntroduction)
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportIntroduction)
-    })
+  it('can edit home page issues', () => {
+    cy.contains('Edit test > Home').click()
+    cy.title().should('eq', 'ExampleCorp | Testing Home')
+  })
 
-    it('can edit how accessible the website is', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(2).click()
-      cy.title().should('eq', 'ExampleCorp | How accessible the website is')
-      cy.get('[name="content"]').clear().type(reportHowAccessible)
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportHowAccessible)
-    })
-
-    it('can edit how we checked', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(3).click()
-      cy.title().should('eq', 'ExampleCorp | How we checked')
-      cy.get('[name="content"]').clear().type(reportHowWeChecked)
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportHowWeChecked)
-    })
-
-    it('can edit pages we checked', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(4).click()
-      cy.title().should('eq', 'ExampleCorp | Pages we checked')
-      cy.get('[name="form-0-cell_content_1"]').clear().type(reportPagesWeChecked)
-      cy.contains('Move row up').click()
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportPagesWeChecked)
-    })
-
-    it('can edit the issues we found', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(5).click()
-      cy.title().should('eq', 'ExampleCorp | The issues we found')
-      cy.get('[name="content"]').clear().type(reportIssuesWeFound)
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportIssuesWeFound)
-    })
-
-    it('can edit home page issues', () => {
-      cy.get('a[data-cy="edit-report-link"]').eq(6).click()
-      cy.title().should('eq', 'ExampleCorp | Home page issues')
-      cy.get('[name="content"]').clear().type(reportHomePage)
-      cy.contains('Add row').click()
-      cy.get('[name="form-1-cell_content_1"]').clear().type(newIssueDescription)
-      cy.get('[name="form-1-cell_content_2"]').clear().type(newIssueWhereFound)
-      cy.contains('Save and return to report view').click()
-      cy.contains(reportHomePage)
-      cy.contains(newIssueDescription)
-      cy.contains(newIssueWhereFound)
-    })
+  it('can edit report options', () => {
+    cy.contains('Edit test > Report options').click()
+    cy.title().should('eq', 'ExampleCorp | Report options')
   })
 })

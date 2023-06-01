@@ -49,7 +49,6 @@
                     {% csrf_token %}
                     {{ contacts_formset.management_form }}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-                    {% include 'common/amp_field.html' with field=form.contact_notes %}
                     <table class="govuk-table">
                         <tbody class="govuk-table__body">
                         {% if contacts_formset.forms %}
@@ -93,6 +92,7 @@
                         class="govuk-button govuk-button--secondary"
                         data-module="govuk-button"
                     />
+                    {% include 'common/amp_field.html' with field=form.contact_notes %}
                     {% include 'common/amp_field.html' with field=form.contact_details_complete_date %}
                     <div class="govuk-button-group">
                         {% include 'cases/helpers/save_continue_cancel.html' %}

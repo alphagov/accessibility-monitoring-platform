@@ -12,7 +12,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import extract_domain_from_url
+from ..common.utils import extract_domain_from_url, format_outstanding_issues
 from ..common.models import (
     BOOLEAN_FALSE,
     BOOLEAN_TRUE,
@@ -23,6 +23,7 @@ from ..common.models import (
 )
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
+STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
 STATUS_DEFAULT: str = "unassigned-case"
 STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
@@ -47,7 +48,7 @@ STATUS_CHOICES: List[Tuple[str, str]] = [
         "Report ready to QA",
     ),
     (
-        "qa-in-progress",
+        STATUS_QA_IN_PROGRESS,
         "QA in progress",
     ),
     (
@@ -158,16 +159,8 @@ RECOMMENDATION_DEFAULT: str = "unknown"
 RECOMMENDATION_NO_ACTION: str = "no-further-action"
 RECOMMENDATION_CHOICES: List[Tuple[str, str]] = [
     (RECOMMENDATION_NO_ACTION, "No further action"),
-    ("other", "No recommendation made"),
+    ("other", "For enforcement consideration"),
     (RECOMMENDATION_DEFAULT, "Not selected"),
-]
-
-REPORT_REVIEW_STATUS_DEFAULT: str = "not-started"
-REPORT_READY_TO_REVIEW = "ready-to-review"
-REPORT_REVIEW_STATUS_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_READY_TO_REVIEW, "Yes"),
-    ("in-progress", "In progress"),
-    (REPORT_REVIEW_STATUS_DEFAULT, "Not started"),
 ]
 
 REPORT_APPROVED_STATUS_DEFAULT: str = "not-started"
@@ -335,6 +328,9 @@ class Case(VersionModel):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
@@ -367,8 +363,8 @@ class Case(VersionModel):
     # QA process
     report_review_status = models.CharField(
         max_length=200,
-        choices=REPORT_REVIEW_STATUS_CHOICES,
-        default=REPORT_REVIEW_STATUS_DEFAULT,
+        choices=BOOLEAN_CHOICES,
+        default=BOOLEAN_FALSE,
     )
     reviewer = models.ForeignKey(
         User,
@@ -609,14 +605,14 @@ class Case(VersionModel):
             self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
             and self.accessibility_statement_state
             != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
-            and self.report_review_status != REPORT_READY_TO_REVIEW
+            and self.report_review_status != BOOLEAN_TRUE
         ):
             return "report-in-progress"
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
-            return "qa-in-progress"
+            return STATUS_QA_IN_PROGRESS
         elif (
             self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
             and self.report_sent_date is None
@@ -649,17 +645,17 @@ class Case(VersionModel):
     def set_qa_status(self) -> str:
         if (
             self.reviewer is None
-            and self.report_review_status == REPORT_READY_TO_REVIEW
+            and self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_UNASSIGNED
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status != REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_IN_QA
         elif (
-            self.report_review_status == REPORT_READY_TO_REVIEW
+            self.report_review_status == BOOLEAN_TRUE
             and self.report_approved_status == REPORT_APPROVED_STATUS_APPROVED
         ):
             return QA_STATUS_QA_APPROVED
@@ -832,6 +828,24 @@ class Case(VersionModel):
         ):
             return self.get_accessibility_statement_state_display()
         return self.get_accessibility_statement_state_final_display()
+
+    @property
+    def overview_issues_website(self) -> str:
+        if self.audit is None:
+            return "No test exists"
+        return format_outstanding_issues(
+            failed_checks_count=self.audit.failed_check_results.count(),
+            fixed_checks_count=self.audit.fixed_check_results.count(),
+        )
+
+    @property
+    def overview_issues_statement(self) -> str:
+        if self.audit is None:
+            return "No test exists"
+        return format_outstanding_issues(
+            failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
+            fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
+        )
 
 
 class Contact(models.Model):

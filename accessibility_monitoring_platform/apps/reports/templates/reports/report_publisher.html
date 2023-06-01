@@ -35,49 +35,30 @@
                         Publish HTML report
                     </a>
                     <a
-                        href="{% url 'audits:audit-detail' report.case.audit.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
+                        href="{% url 'cases:edit-report-details' report.case.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
                     >
-                        Edit test
+                        Return to case &gt; Report details
                     </a>
-                    <a
-                        href="{% url 'reports:edit-report' report.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Edit report
-                    </a>
-                    <a
-                        href="{% url 'reports:report-confirm-refresh' report.id %}?return_to=report-publisher"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--warning"
-                        data-module="govuk-button"
-                    >
-                        Reset report
-                    </a>
+                    {% if report.case.published_report_url %}
+                        <a href="{{ report.case.published_report_url }}" class="govuk-link" target="_blank">
+                            View published report
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        {% include 'reports/helpers/pending_published_rebuild_notification.html' with case=report.case %}
-        {% include 'reports/helpers/pending_unpublished_rebuild_notification.html' with case=report.case %}
-        {% if report.case.report_review_status == 'not-started' %}
-            {% include 'reports/helpers/qa_process_notification.html' %}
-        {% elif report.case.report_approved_status != 'yes' %}
-            {% include 'reports/helpers/awaiting_approval_notification.html' %}
-        {% endif %}
-        {% if report.case.report_approved_status == 'yes' and not report.latest_s3_report %}
-            {% include 'reports/helpers/publish_notification.html' %}
-        {% endif %}
-        {% if report.latest_s3_report %}
-            {% include 'reports/helpers/s3_report_notification.html' %}
-        {% endif %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                {% include 'reports/helpers/nav_contents.html' %}
+            </div>
+            <div class="govuk-grid-column-one-half">
+                {% include 'reports/helpers/overview.html' %}
+            </div>
+        </div>
     </main>
-    {% include 'reports_common/accessibility_report_container.html' %}
+    <div id="report-start">
+        {% include 'reports_common/accessibility_report_container.html' %}
+    </div>
 </div>
 {% endblock %}

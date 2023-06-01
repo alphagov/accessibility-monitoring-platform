@@ -29,7 +29,7 @@ describe('View test', () => {
 
   it('can edit pages', () => {
     cy.get('#edit-audit-pages').click()
-    cy.get('[name="standard-2-url"]').clear().type(accessibilityStatementURL)
+    cy.get('[name="standard-4-url"]').clear().type(accessibilityStatementURL)
     cy.get('[name="audit_pages_complete_date"]').click()
     cy.contains('Save').click()
   })

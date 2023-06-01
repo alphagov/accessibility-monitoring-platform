@@ -17,11 +17,11 @@ from ...cases.models import (
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     IS_WEBSITE_COMPLIANT_COMPLIANT,
     CASE_COMPLETED_NO_SEND,
-    REPORT_READY_TO_REVIEW,
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_COMPLETED,
 )
+from ...common.models import BOOLEAN_TRUE
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -42,20 +42,17 @@ def test_dashboard_redirects_to_login_when_user_not_logged_in(client):
 
 
 @pytest.mark.parametrize(
-    "dashboard_view, expected_qa_column",
-    [
-        ("View+your+cases", "On call"),
-        ("View+all+cases", "Unassigned QA cases"),
-    ],
+    "dashboard_view",
+    ["View+your+cases", "View+all+cases"],
 )
-def test_dashboard_shows_qa_auditors(dashboard_view, expected_qa_column, admin_client):
+def test_dashboard_shows_qa_auditors(dashboard_view, admin_client):
     """Tests if dashboard views are showing the expected QA auditors column"""
     response: HttpResponse = admin_client.get(
         f'{reverse("dashboard:home")}?view={dashboard_view}'
     )
 
     assert response.status_code == 200
-    assertContains(response, expected_qa_column)
+    assertContains(response, "On call")
 
 
 def test_dashboard_shows_oldest_unassigned_cases_first(admin_client):
@@ -85,7 +82,7 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -183,7 +180,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),
@@ -201,7 +198,7 @@ def test_dashboard_shows_correct_number_of_active_cases(admin_client, admin_user
         auditor=admin_user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
         is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
-        report_review_status=REPORT_READY_TO_REVIEW,
+        report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         report_sent_date=datetime.now(),
         report_acknowledged_date=datetime.now(),

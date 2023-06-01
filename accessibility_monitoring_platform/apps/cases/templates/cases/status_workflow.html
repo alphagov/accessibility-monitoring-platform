@@ -58,7 +58,7 @@
                         <a href="{% url 'cases:edit-qa-process' case.id %}" class="govuk-link govuk-link--no-visited-state">
                             Report ready to be reviewed needs to be Yes
                         </a>
-                        {% if case.report_review_status == 'ready-to-review' %}&check;{% endif %}
+                        {% if case.report_review_status == 'yes' %}&check;{% endif %}
                     </li>
                 </ul>
 
