@@ -712,9 +712,7 @@ def record_case_event(
         )
 
 
-def build_edit_link_html(
-    case: Case, url_name: str = "cases:edit-report-followup-due-dates"
-) -> str:
+def build_edit_link_html(case: Case, url_name: str) -> str:
     """Return html of edit link for case"""
     case_pk: Dict[str, int] = {"pk": case.id}
     edit_url: str = reverse(url_name, kwargs=case_pk)
