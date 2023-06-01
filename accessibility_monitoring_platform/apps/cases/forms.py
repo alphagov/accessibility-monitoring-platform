@@ -430,7 +430,8 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     """
 
     twelve_week_update_requested_date = AMPDateField(
-        label="12-week update requested", help_text="This field affects the case status"
+        label="12-week update requested",
+        help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
     )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
