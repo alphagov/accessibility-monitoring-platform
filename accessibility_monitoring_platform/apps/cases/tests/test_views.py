@@ -2169,26 +2169,6 @@ def test_frequently_used_links_displayed_in_edit(
         )
 
 
-def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
-    """
-    Test that the case QA auditor is set to the current user when report is approved
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-        {
-            "report_approved_status": "yes",
-            "version": case.version,
-            "save": "Save and continue",
-        },
-    )
-
-    assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)
-    assert updated_case.reviewer == admin_user
-
-
 @pytest.mark.django_db
 def test_create_case_with_duplicates_shows_previous_url_field(admin_client):
     """
