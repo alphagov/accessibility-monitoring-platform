@@ -86,6 +86,7 @@ from .utils import (
     replace_search_key_with_case_search,
     download_cases,
     record_case_event,
+    build_edit_link_html,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -595,9 +596,9 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         """Populate help text with dates"""
         form = super().get_form()
         case: Case = form.instance
-        case_pk: Dict[str, int] = {"pk": case.id}
-        edit_url: str = reverse("cases:edit-report-followup-due-dates", kwargs=case_pk)
-        edit_link_html: str = f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance, url_name="cases:edit-report-followup-due-dates"
+        )
 
         form.fields[
             "report_followup_week_1_sent_date"
@@ -667,12 +668,10 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
-        case: Case = self.object
-        case_pk: Dict[str, int] = {"pk": case.id}
-        edit_url: str = reverse(
-            "cases:edit-twelve-week-correspondence-due-dates", kwargs=case_pk
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance,
+            url_name="cases:edit-twelve-week-correspondence-due-dates",
         )
-        edit_link_html: str = f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
         ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"

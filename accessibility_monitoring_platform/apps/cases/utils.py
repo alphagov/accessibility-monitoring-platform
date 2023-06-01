@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
+from django.urls import reverse
 
 from ..audits.models import Audit
 from ..common.utils import build_filters
@@ -709,3 +710,14 @@ def record_case_event(
             event_type=CASE_EVENT_CASE_COMPLETED,
             message=f"Case completed changed from '{old_status}' to '{new_status}'",
         )
+
+
+def build_edit_link_html(
+    case: Case, url_name: str = "cases:edit-report-followup-due-dates"
+) -> str:
+    """Return html of edit link for case"""
+    case_pk: Dict[str, int] = {"pk": case.id}
+    edit_url: str = reverse(url_name, kwargs=case_pk)
+    return (
+        f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
+    )
