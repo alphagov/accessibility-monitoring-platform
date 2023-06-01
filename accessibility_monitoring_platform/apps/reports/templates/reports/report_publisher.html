@@ -40,6 +40,11 @@
                     >
                         Return to case &gt; Report details
                     </a>
+                    {% if report.case.published_report_url %}
+                        <a href="{{ report.case.published_report_url }}" class="govuk-link" target="_blank">
+                            View published report
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
