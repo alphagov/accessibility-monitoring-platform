@@ -328,6 +328,9 @@ class Case(VersionModel):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)

@@ -174,6 +174,13 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     previous_case_url = AMPURLField(
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
@@ -225,6 +232,7 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "psb_location",
             "sector",
             "is_complaint",
+            "is_feedback_requested",
             "previous_case_url",
             "trello_url",
             "notes",
@@ -422,7 +430,8 @@ class CaseTwelveWeekCorrespondenceUpdateForm(VersionForm):
     """
 
     twelve_week_update_requested_date = AMPDateField(
-        label="12-week update requested", help_text="This field affects the case status"
+        label="12-week update requested",
+        help_text="Enter todays date if PSB sends an update before the deadline<br>This field affects the case status",
     )
     twelve_week_1_week_chaser_sent_date = AMPDateSentField(label="1-week followup")
     twelve_week_correspondence_acknowledged_date = AMPDateField(
