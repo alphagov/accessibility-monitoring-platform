@@ -9,7 +9,7 @@ from django.utils.text import slugify
 
 from ..cases.models import Case
 
-from ..audits.models import Audit, Page, WcagDefinition
+from ..audits.models import Audit, Page, WcagDefinition, CheckResult
 
 from .models import Report
 
@@ -87,32 +87,33 @@ class IssueTable:
         return f"issues-{slugify(self.page)}"
 
 
-def build_issues_tables(report: Report) -> List[IssueTable]:
+def build_issues_tables(
+    pages: List[Page], check_results_attr: str = "failed_check_results"
+) -> List[IssueTable]:
     """
     Generate content of issues tables for report.
     """
     issues_tables: List[IssueTable] = []
-    if report.case.audit:
-        used_wcag_definitions: Set[WcagDefinition] = set()
-        for page in report.case.audit.testable_pages:
-            issues_tables.append(
-                IssueTable(
-                    page=page,
-                    rows=build_issue_table_rows(
-                        page=page,
-                        used_wcag_definitions=used_wcag_definitions,
-                    ),
-                )
+    used_wcag_definitions: Set[WcagDefinition] = set()
+    for page in pages:
+        issues_tables.append(
+            IssueTable(
+                page=page,
+                rows=build_issue_table_rows(
+                    check_results=getattr(page, check_results_attr),
+                    used_wcag_definitions=used_wcag_definitions,
+                ),
             )
+        )
     return issues_tables
 
 
 def build_issue_table_rows(
-    page: Page, used_wcag_definitions: Set[WcagDefinition]
+    check_results: List[CheckResult], used_wcag_definitions: Set[WcagDefinition]
 ) -> List[TableRow]:
     """Build issue table row data for each failed check for a page in the report"""
     table_rows: List[TableRow] = []
-    for row_number, check_result in enumerate(page.failed_check_results, start=1):
+    for row_number, check_result in enumerate(check_results, start=1):
         first_use_of_wcag_definition: bool = (
             check_result.wcag_definition not in used_wcag_definitions
         )
@@ -143,9 +144,14 @@ def build_report_context(
     report: Report,
 ) -> Dict[str, Union[Report, List[IssueTable], Audit]]:
     """Return context used to render report"""
+    issues_tables: List[IssueTable] = (
+        build_issues_tables(pages=report.case.audit.testable_pages)
+        if report.case.audit is not None
+        else []
+    )
     return {
         "report": report,
-        "issues_tables": build_issues_tables(report=report),
+        "issues_tables": issues_tables,
         "audit": report.case.audit,
     }
 

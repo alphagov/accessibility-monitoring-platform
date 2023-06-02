@@ -717,14 +717,33 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/twelve_week_correspondence_email.html"
+    template_name: str = "cases/emails/twelve_week_correspondence.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["issues_tables"] = build_issues_tables(report=case.report)
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages
+            )
+        return context
+
+
+class CaseOutstandingIssuesEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/outstanding_issues.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages,
+                check_results_attr="unfixed_check_results",
+            )
         return context
 
 
