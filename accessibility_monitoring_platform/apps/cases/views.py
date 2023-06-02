@@ -326,13 +326,6 @@ class CaseUpdateView(UpdateView):
             old_case: Case = Case.objects.get(pk=self.object.id)
             record_case_event(user=user, new_case=self.object, old_case=old_case)
 
-            if (
-                old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status
-                == REPORT_APPROVED_STATUS_APPROVED
-            ):
-                self.object.reviewer = self.request.user
-
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
 
