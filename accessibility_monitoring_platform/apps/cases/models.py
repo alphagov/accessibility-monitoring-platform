@@ -388,6 +388,7 @@ class Case(VersionModel):
     contact_details_complete_date = models.DateField(null=True, blank=True)
 
     # Report correspondence page
+    seven_day_no_contact_email_sent_date = models.DateField(null=True, blank=True)
     report_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_1_sent_date = models.DateField(null=True, blank=True)
     report_followup_week_4_sent_date = models.DateField(null=True, blank=True)

@@ -219,6 +219,10 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         column_name="Contact details page complete",
         field_name="contact_details_complete_date",
     ),
+    ColumnAndFieldNames(
+        column_name="Seven day 'no contact details' email sent",
+        field_name="seven_day_no_contact_email_sent_date",
+    ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
         column_name="1-week followup sent date",
