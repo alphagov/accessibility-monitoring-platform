@@ -414,6 +414,9 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),
+    ColumnAndFieldNames(
+        column_name="Feedback survey sent?", field_name="is_feedback_requested"
+    ),
 ]
 
 
