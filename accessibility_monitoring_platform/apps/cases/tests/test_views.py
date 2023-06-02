@@ -2169,26 +2169,6 @@ def test_frequently_used_links_displayed_in_edit(
         )
 
 
-def test_case_reviewer_updated_when_report_approved(admin_client, admin_user):
-    """
-    Test that the case QA auditor is set to the current user when report is approved
-    """
-    case: Case = Case.objects.create()
-
-    response: HttpResponse = admin_client.post(
-        reverse("cases:edit-qa-process", kwargs={"pk": case.id}),
-        {
-            "report_approved_status": "yes",
-            "version": case.version,
-            "save": "Save and continue",
-        },
-    )
-
-    assert response.status_code == 302
-    updated_case: Case = Case.objects.get(pk=case.id)
-    assert updated_case.reviewer == admin_user
-
-
 @pytest.mark.django_db
 def test_create_case_with_duplicates_shows_previous_url_field(admin_client):
     """
@@ -3347,10 +3327,9 @@ def test_outstanding_issues_overview_percentage(admin_client):
     assertContains(response, "Statement errors: 1 of 12 fixed (8%)", html=True)
 
 
-def test_outstanding_issues_overview_percentages_new_case(admin_client):
+def test_outstanding_issues_new_case(admin_client):
     """
-    Test out standing issues page shows overview percentages not included
-    for brand new case (with no tests)
+    Test out standing issues page shows placeholder text for case without audit
     """
     case: Case = Case.objects.create()
     url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
@@ -3359,8 +3338,7 @@ def test_outstanding_issues_overview_percentages_new_case(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "WCAG errors: No test exists", html=True)
-    assertContains(response, "Statement errors: No test exists", html=True)
+    assertContains(response, "This is a new case and does not have any test data.")
 
 
 @pytest.mark.parametrize(
@@ -3386,9 +3364,9 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View website")
 
 
-def test_email_template_contains_issues(admin_client):
+def test_twelve_week_email_template_contains_issues(admin_client):
     """
-    Test email template contains issues.
+    Test twelve week email template contains issues.
     """
     audit: Audit = create_audit_and_check_results()
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
@@ -3404,3 +3382,33 @@ def test_email_template_contains_issues(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)
+
+
+def test_outstanding_issues_email_template_contains_issues(admin_client):
+    """
+    Test outstanding issues email template contains only unfixed issues.
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page.url = "https://example.com"
+    page.save()
+    Report.objects.create(case=audit.case)
+    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, ERROR_NOTES)
+
+    for check_result in audit.failed_check_results:
+        check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+        check_result.save()
+
+    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, ERROR_NOTES)

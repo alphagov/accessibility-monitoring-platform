@@ -333,11 +333,7 @@ class AccessibilityStatementCheck:
 
     @property
     def finally_fixed(self):
-        return (
-            self.valid_values
-            and self.initial_state not in self.valid_values
-            and self.final_state in self.valid_values
-        )
+        return self.initially_invalid and self.final_state in self.valid_values
 
     @property
     def finally_invalid(self):
