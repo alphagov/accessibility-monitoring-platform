@@ -328,9 +328,6 @@ class Case(VersionModel):
     is_complaint = models.CharField(
         max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
     )
-    is_feedback_requested = models.CharField(
-        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
-    )
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
     notes = models.TextField(default="", blank=True)
@@ -489,6 +486,9 @@ class Case(VersionModel):
     )
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
+    is_feedback_requested = models.CharField(
+        max_length=20, choices=BOOLEAN_CHOICES, default=BOOLEAN_DEFAULT
+    )
     enforcement_correspondence_complete_date = models.DateField(null=True, blank=True)
 
     # Deactivate case page
