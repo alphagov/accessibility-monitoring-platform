@@ -349,6 +349,9 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     Form for updating report correspondence details
     """
 
+    seven_day_no_contact_email_sent_date = AMPDateField(
+        label="Seven day 'no contact details' email sent",
+    )
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
@@ -365,6 +368,7 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "seven_day_no_contact_email_sent_date",
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",

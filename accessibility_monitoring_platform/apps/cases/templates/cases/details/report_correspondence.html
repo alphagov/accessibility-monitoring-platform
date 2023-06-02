@@ -22,6 +22,10 @@
             <td class="govuk-table__cell amp-width-one-half">{{ case.get_no_psb_contact_display }}</td>
         </tr>
         <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Seven day 'no contact details' email sent</th>
+            <td class="govuk-table__cell amp-width-one-half">{{ case.seven_day_no_contact_email_sent_date|amp_date }}</td>
+        </tr>
+        <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Report sent on</th>
             <td class="govuk-table__cell amp-width-one-half">{{ case.report_sent_date|amp_date }}</td>
         </tr>
