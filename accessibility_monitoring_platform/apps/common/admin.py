@@ -107,6 +107,14 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
         return False
 
 
+class ChangeToPlatformAdmin(admin.ModelAdmin):
+    """Django admin configuration for ChangeToPlatform model"""
+
+    search_fields = ["name", "notes"]
+    list_display = ["name", "created"]
+    date_hierarchy = "created"
+
+
 class UserCacheUniqueHashAdmin(admin.ModelAdmin):
     """Django admin configuration for IssueReport model"""
 
@@ -125,7 +133,7 @@ class FrequentlyUsedLinksAdmin(admin.ModelAdmin):
 admin.site.register(Event, EventAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
-admin.site.register(ChangeToPlatform)
+admin.site.register(ChangeToPlatform, ChangeToPlatformAdmin)
 admin.site.register(Sector)
 admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
 admin.site.register(FrequentlyUsedLink, FrequentlyUsedLinksAdmin)
