@@ -1151,16 +1151,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
 
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f"Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}",
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f"{amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}",
     )
     assertContains(
         response,
-        f'<span class="govuk-hint">Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</span>',
-        html=True,
+        f"Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}",
     )
 
 
@@ -2708,10 +2707,6 @@ def test_twelve_week_correspondence_psb_contact(admin_client):
     assertNotContains(
         response,
         "The public sector body has been as unresponsive to this case.",
-    )
-    assertContains(
-        response,
-        "Edit 12-week correspondence due dates",
     )
     assertContains(
         response,

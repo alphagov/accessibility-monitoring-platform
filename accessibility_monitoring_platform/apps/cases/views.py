@@ -86,6 +86,7 @@ from .utils import (
     replace_search_key_with_case_search,
     download_cases,
     record_case_event,
+    build_edit_link_html,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -588,12 +589,16 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         """Populate help text with dates"""
         form = super().get_form()
         case: Case = form.instance
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance, url_name="cases:edit-report-followup-due-dates"
+        )
+
         form.fields[
             "report_followup_week_1_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_1_due_date)} | {edit_link_html}"
         form.fields[
             "report_followup_week_4_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_4_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_4_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
@@ -656,11 +661,13 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance,
+            url_name="cases:edit-twelve-week-correspondence-due-dates",
+        )
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.twelve_week_1_week_chaser_due_date
-        )
+        ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
