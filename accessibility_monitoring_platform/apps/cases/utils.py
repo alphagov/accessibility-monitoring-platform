@@ -108,6 +108,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Previous Case No.", field_name="previous_case_number"
     ),
+    ColumnAndFieldNames(
+        column_name="No response to report",
+        field_name="no_psb_contact",
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
