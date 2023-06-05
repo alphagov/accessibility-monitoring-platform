@@ -48,6 +48,7 @@ from ..utils import (
     download_equality_body_cases,
     download_cases,
     record_case_event,
+    build_edit_link_html,
 )
 
 ORGANISATION_NAME: str = "Organisation name one"
@@ -600,3 +601,14 @@ def test_record_case_event_reviewer_change():
     case_event = case_events[0]
     assert case_event.event_type == CASE_EVENT_QA_AUDITOR
     assert case_event.message == "QA auditor changed from Old User to New User"
+
+
+@pytest.mark.django_db
+def test_build_edit_link_html():
+    """Test building of edit link html for a case"""
+    case: Case = Case.objects.create()
+
+    assert (
+        build_edit_link_html(case=case, url_name="cases:edit-test-results")
+        == "<a href='/cases/1/edit-test-results/' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
+    )
