@@ -29,14 +29,6 @@
                 {% include 'common/error_summary.html' %}
                 <p class="govuk-body-m">
                     <a
-                        href="{% url 'cases:edit-report-followup-due-dates' case.id %}"
-                        class="govuk-link govuk-link--no-visited-state"
-                    >
-                        Edit report followup due dates
-                    </a>
-                </p>
-                <p class="govuk-body-m">
-                    <a
                         href="{% url 'cases:edit-no-psb-response' case.id %}"
                         class="govuk-link govuk-link--no-visited-state"
                     >
@@ -70,6 +62,8 @@
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field_two_column.html' with field=form.seven_day_no_contact_email_sent_date %}
+                            <hr class="amp-width-100">
                             {% include 'common/amp_field_two_column.html' with field=form.report_sent_date %}
                             <hr class="amp-width-100">
                             {% if case.report and case.report_methodology == "platform" %}
@@ -104,7 +98,11 @@
                             <hr class="amp-width-100">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-one-half">
-                                    <label class="govuk-label"><b>12-week deadline</b></label>
+                                    <label class="govuk-label">
+                                        <b>12-week deadline</b> |
+                                        <a href="{% url 'cases:edit-report-followup-due-dates' case.id %}"
+                                            class="govuk-link govuk-link--no-visited-state">Edit</a>
+                                    </label>
                                 </div>
                                 <div class="govuk-grid-column-one-half">
                                     <span class="govuk-hint">

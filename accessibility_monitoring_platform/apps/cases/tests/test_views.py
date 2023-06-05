@@ -1151,16 +1151,15 @@ def test_case_report_correspondence_view_contains_followup_due_dates(admin_clien
 
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f"Due {amp_format_date(ONE_WEEK_FOLLOWUP_DUE_DATE)}",
     )
     assertContains(
         response,
-        f'<div class="govuk-hint">Due {amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}</div>',
+        f"{amp_format_date(FOUR_WEEK_FOLLOWUP_DUE_DATE)}",
     )
     assertContains(
         response,
-        f'<span class="govuk-hint">Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}</span>',
-        html=True,
+        f"Due {amp_format_date(TWELVE_WEEK_FOLLOWUP_DUE_DATE)}",
     )
 
 
@@ -2711,10 +2710,6 @@ def test_twelve_week_correspondence_psb_contact(admin_client):
     )
     assertContains(
         response,
-        "Edit 12-week correspondence due dates",
-    )
-    assertContains(
-        response,
         "12-week deadline",
     )
 
@@ -3327,10 +3322,9 @@ def test_outstanding_issues_overview_percentage(admin_client):
     assertContains(response, "Statement errors: 1 of 12 fixed (8%)", html=True)
 
 
-def test_outstanding_issues_overview_percentages_new_case(admin_client):
+def test_outstanding_issues_new_case(admin_client):
     """
-    Test out standing issues page shows overview percentages not included
-    for brand new case (with no tests)
+    Test out standing issues page shows placeholder text for case without audit
     """
     case: Case = Case.objects.create()
     url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
@@ -3339,8 +3333,7 @@ def test_outstanding_issues_overview_percentages_new_case(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "WCAG errors: No test exists", html=True)
-    assertContains(response, "Statement errors: No test exists", html=True)
+    assertContains(response, "This is a new case and does not have any test data.")
 
 
 @pytest.mark.parametrize(
@@ -3366,9 +3359,9 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View website")
 
 
-def test_email_template_contains_issues(admin_client):
+def test_twelve_week_email_template_contains_issues(admin_client):
     """
-    Test email template contains issues.
+    Test twelve week email template contains issues.
     """
     audit: Audit = create_audit_and_check_results()
     page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
@@ -3384,3 +3377,33 @@ def test_email_template_contains_issues(admin_client):
     assert response.status_code == 200
 
     assertContains(response, ERROR_NOTES)
+
+
+def test_outstanding_issues_email_template_contains_issues(admin_client):
+    """
+    Test outstanding issues email template contains only unfixed issues.
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_HOME)
+    page.url = "https://example.com"
+    page.save()
+    Report.objects.create(case=audit.case)
+    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, ERROR_NOTES)
+
+    for check_result in audit.failed_check_results:
+        check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+        check_result.save()
+
+    url: str = reverse("cases:outstanding-issues-email", kwargs={"pk": audit.case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, ERROR_NOTES)
