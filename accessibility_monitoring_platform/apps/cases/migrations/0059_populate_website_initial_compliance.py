@@ -31,7 +31,7 @@ def no_op(apps, schema_editor):  # pylint: disable=unused-argument
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0056_case_website_compliance_state_initial_and_more"),
+        ("cases", "0058_case_website_compliance_state_initial_and_more"),
     ]
 
     operations = [

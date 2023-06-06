@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0055_alter_case_report_review_status"),
+        ("cases", "0057_case_seven_day_no_contact_email_sent_date"),
     ]
 
     operations = [

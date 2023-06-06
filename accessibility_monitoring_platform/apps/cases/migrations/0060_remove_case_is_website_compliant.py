@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0057_populate_website_initial_compliance"),
+        ("cases", "0059_populate_website_initial_compliance"),
     ]
 
     operations = [
