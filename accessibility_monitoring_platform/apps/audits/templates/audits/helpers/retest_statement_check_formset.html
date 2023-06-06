@@ -3,7 +3,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
-            {% include 'audits/helpers/statement_check_result_field.html' with field=statement_check_result_form.retest_check_result %}
+            {% include 'audits/helpers/statement_check_result_field.html' with retest=True field=statement_check_result_form.retest_check_result %}
             {% include 'common/amp_field.html' with field=statement_check_result_form.retest_comment %}
         </div>
     </div>

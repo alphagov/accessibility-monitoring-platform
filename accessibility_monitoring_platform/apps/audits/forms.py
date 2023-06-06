@@ -1203,6 +1203,111 @@ class AuditRetestStatementOverviewUpdateForm(VersionForm):
         ]
 
 
+class AuditRetestStatementWebsiteUpdateForm(VersionForm):
+    """
+    Form for editing statement website
+    """
+
+    audit_retest_statement_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_website_complete_date",
+        ]
+
+
+class AuditRetestStatementComplianceUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance
+    """
+
+    audit_retest_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_compliance_complete_date",
+        ]
+
+
+class AuditRetestStatementNonAccessibleUpdateForm(VersionForm):
+    """
+    Form for editing statement non-accessible
+    """
+
+    audit_retest_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_non_accessible_complete_date",
+        ]
+
+
+class AuditRetestStatementPreparationUpdateForm(VersionForm):
+    """
+    Form for editing statement preparation
+    """
+
+    audit_retest_statement_preparation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_preparation_complete_date",
+        ]
+
+
+class AuditRetestStatementFeedbackUpdateForm(VersionForm):
+    """
+    Form for editing statement feedback
+    """
+
+    audit_retest_statement_feedback_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_feedback_complete_date",
+        ]
+
+
+class AuditRetestStatementEnforcementUpdateForm(VersionForm):
+    """
+    Form for editing statement enforcement
+    """
+
+    audit_retest_statement_enforcement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_enforcement_complete_date",
+        ]
+
+
+class AuditRetestStatementOtherUpdateForm(VersionForm):
+    """
+    Form for editing statement other
+    """
+
+    audit_retest_statement_other_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_other_complete_date",
+        ]
+
+
 class AuditRetestStatementComparisonUpdateForm(VersionForm):
     """
     Form for retesting statement comparison

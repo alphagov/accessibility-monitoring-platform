@@ -7,8 +7,21 @@
         </legend>
         <label class="govuk-label"><b>Success criteria</b></label>
         <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.success_criteria }}</p>
-        <label class="govuk-label"><b>Report text if no</b></label>
-        <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.report_text }}</p>
+        {% if retest %}
+            <label class="govuk-label"><b>Initial result</b></label>
+            <p class="govuk-body">{{ statement_check_result_form.instance.get_statement_check_result_display }}</p>
+            <label class="govuk-label"><b>Comments for report</b></label>
+            <p class="govuk-body">
+                {% if statement_check_result_form.instance.report_comment %}
+                    {{ statement_check_result_form.instance.report_comment }}
+                {% else %}
+                    None
+                {% endif %}
+            </p>
+        {% else %}
+            <label class="govuk-label"><b>Report text if no</b></label>
+            <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.report_text }}</p>
+        {% endif %}
         {% include 'common/field_errors.html' with errors=field.errors %}
         {{ field }}
     </fieldset>
