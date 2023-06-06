@@ -20,7 +20,7 @@ from django.views.generic.list import ListView
 from ..audits.models import Audit, CheckResult
 from ..cases.models import (
     Case,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     REPORT_METHODOLOGY_ODT,
@@ -393,7 +393,7 @@ class MetricsPolicyTemplateView(TemplateView):
         thirteen_month_website_initial_compliant: QuerySet[
             Audit
         ] = thirteen_month_retested_audits.filter(
-            case__is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT
+            case__website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
         )
         thirteen_month_statement_initial_compliant: QuerySet[
             Audit

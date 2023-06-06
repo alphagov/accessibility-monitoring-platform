@@ -419,7 +419,7 @@ def test_download_cases():
             "Not started",
             "Not selected",
             "",
-            "Not selected",
+            "Not known",
             "",
             "",
             "",
