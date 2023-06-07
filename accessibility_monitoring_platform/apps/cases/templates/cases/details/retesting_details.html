@@ -48,17 +48,21 @@ case.audit.id %}"{% endif %}>
                 {% include 'audits/details/retest_website_decision.html' with on_view_case=True %}
             </div>
         {% endif %}
-        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 1" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-retest-statement-1' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/retest_statement_1.html' with on_view_case=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 2" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/retest_statement_2.html' with on_view_case=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement comparison" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/retest_statement_comparison.html' with on_view_case=True in_accordion=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="12-week statement compliance decision" data-search-target-label="Edit 12-week test > 12-week statement compliance decision" data-search-target-url="{% url 'audits:edit-audit-retest-statement-decision' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/retest_statement_decision.html' with on_view_case=True %}
-        </div>
+        {% if audit.statement_check_results %}
+            {% include 'audits/details/retest_statement_check_results.html' with on_view_case=True %}
+        {% else %}
+            <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 1" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-retest-statement-1' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/retest_statement_1.html' with on_view_case=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement Pt. 2" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/retest_statement_2.html' with on_view_case=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="12-week accessibility statement comparison" data-search-target-label="Edit 12-week test > 12-week accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-retest-statement-2' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/retest_statement_comparison.html' with on_view_case=True in_accordion=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="12-week statement compliance decision" data-search-target-label="Edit 12-week test > 12-week statement compliance decision" data-search-target-url="{% url 'audits:edit-audit-retest-statement-decision' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/retest_statement_decision.html' with on_view_case=True %}
+            </div>
+        {% endif %}
     </div>
 </div>

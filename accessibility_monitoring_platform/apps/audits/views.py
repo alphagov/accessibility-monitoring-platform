@@ -1155,7 +1155,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementOverviewUpdateForm
     ] = AuditRetestStatementOverviewUpdateForm
-    template_name: str = "audits/forms/retest_statement_overview.html"
+    template_name: str = "audits/statement_checks/retest_statement_overview.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_OVERVIEW
 
     def get_success_url(self) -> str:
@@ -1177,7 +1177,7 @@ class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementWebsiteUpdateForm
     ] = AuditRetestStatementWebsiteUpdateForm
-    template_name: str = "audits/forms/retest_statement_website.html"
+    template_name: str = "audits/statement_checks/retest_statement_website.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_WEBSITE
 
     def get_success_url(self) -> str:
@@ -1199,7 +1199,7 @@ class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementComplianceUpdateForm
     ] = AuditRetestStatementComplianceUpdateForm
-    template_name: str = "audits/forms/retest_statement_compliance.html"
+    template_name: str = "audits/statement_checks/retest_statement_compliance.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_COMPLIANCE
 
     def get_success_url(self) -> str:
@@ -1221,7 +1221,7 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
     form_class: Type[
         AuditRetestStatementNonAccessibleUpdateForm
     ] = AuditRetestStatementNonAccessibleUpdateForm
-    template_name: str = "audits/forms/retest_statement_non_accessible.html"
+    template_name: str = "audits/statement_checks/retest_statement_non_accessible.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
 
     def get_success_url(self) -> str:
@@ -1243,7 +1243,7 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementPreparationUpdateForm
     ] = AuditRetestStatementPreparationUpdateForm
-    template_name: str = "audits/forms/retest_statement_preparation.html"
+    template_name: str = "audits/statement_checks/retest_statement_preparation.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_PREPARATION
 
     def get_success_url(self) -> str:
@@ -1265,7 +1265,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementFeedbackUpdateForm
     ] = AuditRetestStatementFeedbackUpdateForm
-    template_name: str = "audits/forms/retest_statement_feedback.html"
+    template_name: str = "audits/statement_checks/retest_statement_feedback.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
 
     def get_success_url(self) -> str:
@@ -1287,7 +1287,7 @@ class AuditRetestStatementEnforcementFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementEnforcementUpdateForm
     ] = AuditRetestStatementEnforcementUpdateForm
-    template_name: str = "audits/forms/retest_statement_enforcement.html"
+    template_name: str = "audits/statement_checks/retest_statement_enforcement.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_ENFORCEMENT
 
     def get_success_url(self) -> str:
@@ -1309,7 +1309,7 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
     form_class: Type[
         AuditRetestStatementOtherUpdateForm
     ] = AuditRetestStatementOtherUpdateForm
-    template_name: str = "audits/forms/retest_statement_other.html"
+    template_name: str = "audits/statement_checks/retest_statement_other.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_OTHER
 
     def get_success_url(self) -> str:
