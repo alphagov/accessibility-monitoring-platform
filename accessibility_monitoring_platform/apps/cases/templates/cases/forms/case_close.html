@@ -82,7 +82,7 @@
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance decision (found in
                                     <a href="{% url 'audits:audit-detail' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
-                                <div class="govuk-hint">{{ case.get_is_website_compliant_display }}</div>
+                                <div class="govuk-hint">{{ case.get_website_compliance_state_initial_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Initial compliance notes (found in

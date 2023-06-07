@@ -145,14 +145,12 @@ ACCESSIBILITY_STATEMENT_DECISION_CHOICES: List[Tuple[str, str]] = [
     (ACCESSIBILITY_STATEMENT_DECISION_DEFAULT, "Not selected"),
 ]
 
-IS_WEBSITE_COMPLIANT_DEFAULT: str = "unknown"
-IS_WEBSITE_COMPLIANT_COMPLIANT: str = "compliant"
-IS_WEBSITE_COMPLIANT_CHOICES: List[Tuple[str, str]] = [
-    (IS_WEBSITE_COMPLIANT_COMPLIANT, "Compliant"),
-    ("not-compliant", "Not compliant"),
+WEBSITE_INITIAL_COMPLIANCE_DEFAULT: str = "not-known"
+WEBSITE_INITIAL_COMPLIANCE_COMPLIANT: str = "compliant"
+WEBSITE_INITIAL_COMPLIANCE_CHOICES: List[Tuple[str, str]] = [
+    (WEBSITE_INITIAL_COMPLIANCE_COMPLIANT, "Fully compliant"),
     ("partially-compliant", "Partially compliant"),
-    ("other", "Other"),
-    (IS_WEBSITE_COMPLIANT_DEFAULT, "Not selected"),
+    (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "Not known"),
 ]
 
 RECOMMENDATION_DEFAULT: str = "unknown"
@@ -187,7 +185,7 @@ IS_DISPROPORTIONATE_CLAIMED_CHOICES: List[Tuple[str, str]] = [
 
 WEBSITE_STATE_FINAL_DEFAULT: str = "not-known"
 WEBSITE_STATE_FINAL_CHOICES: List[Tuple[str, str]] = [
-    ("compliant", "Compliant"),
+    ("compliant", "Fully compliant"),
     ("partially-compliant", "Partially compliant"),
     (WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
 ]
@@ -344,10 +342,10 @@ class Case(VersionModel):
         default=ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
     )
     accessibility_statement_notes = models.TextField(default="", blank=True)
-    is_website_compliant = models.CharField(
+    website_compliance_state_initial = models.CharField(
         max_length=20,
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
-        default=IS_WEBSITE_COMPLIANT_DEFAULT,
+        choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
+        default=WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
     )
     compliance_decision_notes = models.TextField(default="", blank=True)
     testing_details_complete_date = models.DateField(null=True, blank=True)
@@ -599,13 +597,13 @@ class Case(VersionModel):
         elif self.auditor is None:
             return "unassigned-case"
         elif (
-            self.is_website_compliant == IS_WEBSITE_COMPLIANT_DEFAULT
+            self.website_compliance_state_initial == WEBSITE_INITIAL_COMPLIANCE_DEFAULT
             or self.accessibility_statement_state
             == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         ):
             return "test-in-progress"
         elif (
-            self.is_website_compliant != IS_WEBSITE_COMPLIANT_DEFAULT
+            self.website_compliance_state_initial != WEBSITE_INITIAL_COMPLIANCE_DEFAULT
             and self.accessibility_statement_state
             != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
             and self.report_review_status != BOOLEAN_TRUE
@@ -820,7 +818,7 @@ class Case(VersionModel):
     @property
     def website_compliance_display(self):
         if self.website_state_final == WEBSITE_STATE_FINAL_DEFAULT:
-            return self.get_is_website_compliant_display()
+            return self.get_website_compliance_state_initial_display()
         return self.get_website_state_final_display()
 
     @property
