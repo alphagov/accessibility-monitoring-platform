@@ -148,6 +148,26 @@ def test_case_status_in_report_correspondence(admin_client):
     )
 
 
+def test_case_status_when_no_psb_contact(admin_client):
+    """Test case status returns final-decision-due"""
+    user: User = User.objects.create()
+    case: Case = Case.objects.create(
+        home_page_url="https://www.website.com",
+        organisation_name="org name",
+        auditor=user,
+        accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
+        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        report_review_status=BOOLEAN_TRUE,
+        report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
+        no_psb_contact=BOOLEAN_TRUE,
+    )
+    assert case.status == "final-decision-due"
+
+    check_for_status_specific_link(
+        admin_client, case=case, expected_link_label="Closing the case"
+    )
+
+
 def test_case_status_in_probation_period(admin_client):
     """Test case status returns in-probation-period"""
     user: User = User.objects.create()
