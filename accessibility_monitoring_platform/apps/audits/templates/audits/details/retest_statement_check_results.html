@@ -1,271 +1,271 @@
 <div{% if case.audit %} data-search-target-page-name="Statement overview" data-search-target-label="Edit 12-week test > Statement overview" data-search-target-url="{% url 'audits:edit-retest-statement-overview' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-overview" class="govuk-body-m">
-				<b>Statement overview</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Statement overview{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.overview_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-overview" class="govuk-body-m">
+                <b>Statement overview</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Statement overview{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.overview_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Accessibility statement for [website]" data-search-target-label="Edit 12-week test > Accessibility statement for [website]" data-search-target-url="{% url 'audits:edit-retest-statement-website' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-website" class="govuk-body-m">
-				<b>Accessibility statement for [website]</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Accessibility statement for [website]{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.website_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-website" class="govuk-body-m">
+                <b>Accessibility statement for [website]</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Accessibility statement for [website]{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.website_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Compliance status" data-search-target-label="Edit 12-week test > Compliance status" data-search-target-url="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-compliance" class="govuk-body-m">
-				<b>Compliance status</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Compliance status{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.compliance_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-compliance" class="govuk-body-m">
+                <b>Compliance status</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Compliance status{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.compliance_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Non accessible content overview" data-search-target-label="Edit 12-week test > Non accessible content overview" data-search-target-url="{% url 'audits:edit-retest-statement-non-accessible' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-non-accessible" class="govuk-body-m">
-				<b>Non accessible content overview</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Non accessible content overview{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.non_accessible_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-non-accessible" class="govuk-body-m">
+                <b>Non accessible content overview</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Non accessible content overview{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.non_accessible_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Preparation of this accessibility statement" data-search-target-label="Edit 12-week test > Preparation of this accessibility statement" data-search-target-url="{% url 'audits:edit-retest-statement-preparation' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-preparation" class="govuk-body-m">
-				<b>Preparation of this accessibility statement</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Preparation of this accessibility statement{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.preparation_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-preparation" class="govuk-body-m">
+                <b>Preparation of this accessibility statement</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Preparation of this accessibility statement{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.preparation_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Feedback and contact information" data-search-target-label="Edit 12-week test > Feedback and contact information" data-search-target-url="{% url 'audits:edit-retest-statement-feedback' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-feedback" class="govuk-body-m">
-				<b>Feedback and contact information</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Feedback and contact information{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.feedback_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-feedback" class="govuk-body-m">
+                <b>Feedback and contact information</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Feedback and contact information{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.feedback_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Enforcement procedure" data-search-target-label="Edit 12-week test > Enforcement procedure" data-search-target-url="{% url 'audits:edit-retest-statement-enforcement' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-enforcement" class="govuk-body-m">
-				<b>Enforcement procedure</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-enforcement' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Enforcement procedure{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.enforcement_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-enforcement" class="govuk-body-m">
+                <b>Enforcement procedure</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-enforcement' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Enforcement procedure{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.enforcement_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Other" data-search-target-label="Edit 12-week test > Other" data-search-target-url="{% url 'audits:edit-retest-statement-other' case.audit.id %}"{% endif %}>
-	<div class="govuk-grid-row">
-		<div class="govuk-grid-column-full">
-			<p id="retest-statement-other" class="govuk-body-m">
-				<b>Other</b>
-				|
-				<a href="{% url 'audits:edit-retest-statement-other' audit.id %}"
-					class="govuk-link govuk-link--no-visited-state"
-					rel="noreferrer noopener">
-					Edit{% if on_view_case %} test &gt; Other{% endif %}
-				</a>
-			</p>
-		</div>
-	</div>
-	<table class="govuk-table amp-accordion-table">
-		<tbody class="govuk-table__body">
-			{% for statement_check_result in audit.other_statement_check_results %}
-				<tr class="govuk-table__row ">
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.statement_check.label }}
-					</td>
-					<td class="govuk-table__cell amp-width-one-half">
-						{{ statement_check_result.get_retest_check_result_display }}
-						{% if statement_check_result.retest_comment  %}
-							<br><br>
-							{{ statement_check_result.retest_comment }}
-						{% endif %}
-					</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p id="retest-statement-other" class="govuk-body-m">
+                <b>Other</b>
+                |
+                <a href="{% url 'audits:edit-retest-statement-other' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    Edit{% if on_view_case %} test &gt; Other{% endif %}
+                </a>
+            </p>
+        </div>
+    </div>
+    <table class="govuk-table amp-accordion-table">
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in audit.other_statement_check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.statement_check.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        {{ statement_check_result.get_retest_check_result_display }}
+                        {% if statement_check_result.retest_comment  %}
+                            <br><br>
+                            {{ statement_check_result.retest_comment }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>

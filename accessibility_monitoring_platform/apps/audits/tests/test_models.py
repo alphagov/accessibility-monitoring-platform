@@ -2,9 +2,12 @@
 Tests for cases models
 """
 import pytest
+
 from datetime import date, datetime, timezone
 from typing import List
 from unittest.mock import patch, Mock
+
+from pytest_django.asserts import assertQuerysetEqual
 
 from django.db.models.query import QuerySet
 
@@ -34,6 +37,7 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
 )
 
@@ -69,14 +73,21 @@ def create_audit_and_pages() -> Audit:
     return audit
 
 
-def create_audit_and_statement_checks() -> Audit:
+def create_audit_and_statement_check_results() -> Audit:
     """Create an audit with all types of statement checks"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-    for statement_check in StatementCheck.objects.all():
-        StatementCheckResult.objects.create(
-            audit=audit, type=statement_check.type, statement_check=statement_check
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        statement_check_result: str = (
+            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
         )
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            statement_check_result=statement_check_result,
+        )
+
     return audit
 
 
@@ -619,11 +630,144 @@ def test_audit_accessibility_statement_finally_invalid():
 
 
 @pytest.mark.django_db
+def test_audit_statement_check_results():
+    """
+    Tests an audit.statement_check_results contains the matching statement check
+    results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
+        audit=audit
+    )
+
+    assertQuerysetEqual(audit.statement_check_results, statement_check_results)
+
+
+@pytest.mark.django_db
+def test_audit_uses_statement_checks():
+    """
+    Tests an audit.uses_statement_checks shows if statement check results exist
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.uses_statement_checks is False
+
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.uses_statement_checks is True
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("enforcement", "enforcement"),
+        ("other", "other"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_statement_check_results(type, attr):
+    """
+    Tests specific audit statement_check_results property contains the matching
+    statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
+        audit=audit, type=type
+    )
+
+    assertQuerysetEqual(
+        getattr(audit, f"{attr}_statement_check_results"),
+        statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_failed_statement_check_results():
+    """
+    Tests an audit.failed_statement_check_results contains the failed statement
+    check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, statement_check_result=STATEMENT_CHECK_NO
+        )
+    )
+
+    assertQuerysetEqual(
+        audit.failed_statement_check_results, failed_statement_check_results
+    )
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("enforcement", "enforcement"),
+        ("other", "other"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_failed_statement_check_results(type, attr):
+    """
+    Tests specific audit failed_statement_check_results property contains the
+    matching failed statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, type=type, statement_check_result=STATEMENT_CHECK_NO
+        )
+    )
+
+    assertQuerysetEqual(
+        getattr(audit, f"{attr}_failed_statement_check_results"),
+        failed_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_all_overview_statement_checks_have_passed():
+    """
+    Tests an audit.all_overview_statement_checks_have_passed shows if all
+    statement check results have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    failed_overview_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit,
+            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+            statement_check_result=STATEMENT_CHECK_NO,
+        )
+    )
+    for statement_check_result in failed_overview_statement_check_results:
+        statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is True
+
+
+@pytest.mark.django_db
 def test_all_overview_statement_checks_have_passed():
     """
     Tests an audit has all statement checks on overview set to yes.
     """
-    audit: Audit = create_audit_and_statement_checks()
+    audit: Audit = create_audit_and_statement_check_results()
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,

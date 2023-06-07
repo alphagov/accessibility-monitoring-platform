@@ -1317,9 +1317,7 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-audit-retest-statement-other", kwargs=audit_pk
-            )
+            return reverse("audits:edit-audit-retest-statement-other", kwargs=audit_pk)
         return super().get_success_url()
 
 

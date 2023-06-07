@@ -40,9 +40,9 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-							{% if audit.accessibility_statement_initially_found %}
-								{% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
-							{% endif %}
+                            {% if audit.accessibility_statement_initially_found %}
+                                {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
+                            {% endif %}
                         </div>
                     </div>
                     {% include 'audits/helpers/statement_check_formset.html' %}

@@ -193,7 +193,7 @@ QUESTIONS = [
 
 
 def populate_statement_checks(apps, schema_editor):  # pylint: disable=unused-argument
-    """Populate statement checks and update base template"""
+    """Populate statement checks"""
     # pylint: disable=invalid-name
     StatementCheck = apps.get_model("audits", "StatementCheck")
     for count, question in enumerate(QUESTIONS, start=1):
@@ -207,8 +207,11 @@ def populate_statement_checks(apps, schema_editor):  # pylint: disable=unused-ar
 
 
 def remove_statement_checks(apps, schema_editor):  # pylint: disable=unused-argument
-    """Delete all statement checks undo change to base template"""
+    """Delete all statement checks and results to undo change"""
     # pylint: disable=invalid-name
+    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
+    for statement_check_result in StatementCheckResult.objects.all():
+        statement_check_result.delete()
     StatementCheck = apps.get_model("audits", "StatementCheck")
     for statement_check in StatementCheck.objects.all():
         statement_check.delete()
