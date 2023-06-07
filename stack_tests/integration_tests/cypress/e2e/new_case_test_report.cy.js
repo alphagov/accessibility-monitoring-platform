@@ -54,7 +54,7 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and next page').click()
 
     cy.title().should('eq', `${newOrganisationName} | Website compliance decision`)
-    cy.get('[name="case-is_website_compliant"]').check('not-compliant')
+    cy.get('[name="case-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)

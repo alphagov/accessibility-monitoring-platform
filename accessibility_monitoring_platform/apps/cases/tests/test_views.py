@@ -51,7 +51,7 @@ from ..models import (
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
@@ -2370,7 +2370,7 @@ def test_platform_shows_notification_if_fully_compliant(
     notification to that effect on report details page.
     """
     case: Case = Case.objects.create(
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
 
@@ -2788,8 +2788,8 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
         (
             "cases:edit-test-results",
             "Initial website compliance decision is not filled in",
-            "is_website_compliant",
-            IS_WEBSITE_COMPLIANT_COMPLIANT,
+            "website_compliance_state_initial",
+            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         ),
         (
             "cases:edit-test-results",

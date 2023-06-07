@@ -29,7 +29,7 @@ from ...cases.models import (
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_EVENT_CREATE_REPORT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
@@ -248,7 +248,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -275,7 +275,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -547,7 +547,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.organisation_name = "org name"
     case.auditor = user
     case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-    case.is_website_compliant = IS_WEBSITE_COMPLIANT_COMPLIANT
+    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     case.report_review_status = BOOLEAN_TRUE
     case.save()
 

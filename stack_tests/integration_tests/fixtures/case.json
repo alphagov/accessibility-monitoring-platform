@@ -26,7 +26,7 @@
         "test_status": "not-started",
         "accessibility_statement_state": "unknown",
         "accessibility_statement_notes": "",
-        "is_website_compliant": "unknown",
+        "website_compliance_state_initial": "not-known",
         "compliance_decision_notes": "",
         "testing_details_complete_date": null,
         "report_draft_url": "",

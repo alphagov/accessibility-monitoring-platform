@@ -23,9 +23,9 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     Contact,
-    IS_WEBSITE_COMPLIANT_DEFAULT,
+    WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
     WEBSITE_STATE_FINAL_DEFAULT,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
 )
@@ -523,23 +523,29 @@ def test_contact_updated_updated():
 
 
 @pytest.mark.parametrize(
-    "is_website_compliant, website_state_final, expected_result",
+    "website_compliance_state_initial, website_state_final, expected_result",
     [
-        (IS_WEBSITE_COMPLIANT_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not selected"),
-        (IS_WEBSITE_COMPLIANT_DEFAULT, "compliant", "Compliant"),
-        (IS_WEBSITE_COMPLIANT_DEFAULT, "partially-compliant", "Partially compliant"),
-        (IS_WEBSITE_COMPLIANT_COMPLIANT, WEBSITE_STATE_FINAL_DEFAULT, "Compliant"),
-        ("not-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Not compliant"),
+        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
+        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "compliant", "Fully compliant"),
+        (
+            WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
+            "partially-compliant",
+            "Partially compliant",
+        ),
+        (
+            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+            WEBSITE_STATE_FINAL_DEFAULT,
+            "Fully compliant",
+        ),
         ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
-        ("other", WEBSITE_STATE_FINAL_DEFAULT, "Other"),
     ],
 )
 def test_website_compliance_display(
-    is_website_compliant, website_state_final, expected_result
+    website_compliance_state_initial, website_state_final, expected_result
 ):
     """Test website compliance is derived correctly"""
     case: Case = Case(
-        is_website_compliant=is_website_compliant,
+        website_compliance_state_initial=website_compliance_state_initial,
         website_state_final=website_state_final,
     )
 

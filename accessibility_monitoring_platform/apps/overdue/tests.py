@@ -10,7 +10,7 @@ from ..cases.models import (
     Case,
     TEST_STATUS_COMPLETE,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     REPORT_APPROVED_STATUS_APPROVED,
 )
 from ..cases.views import (
@@ -42,7 +42,7 @@ def create_case(user: User) -> Case:
         test_results_url="https://www.test-results.com",
         test_status=TEST_STATUS_COMPLETE,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_draft_url="https://www.report-draft.com",
         report_review_status=BOOLEAN_TRUE,
         reviewer=user,

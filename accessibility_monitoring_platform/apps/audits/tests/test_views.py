@@ -50,7 +50,7 @@ NEW_PAGE_NAME: str = "New page name"
 NEW_PAGE_URL: str = "https://example.com/extra"
 UPDATED_PAGE_NAME: str = "Updated page name"
 UPDATED_PAGE_URL: str = "https://example.com/updated"
-IS_WEBSITE_COMPLIANT: str = "partially-compliant"
+WEBSITE_COMPLIANCE_STATE_INITIAL: str = "partially-compliant"
 COMPLIANCE_DECISION_NOTES: str = "Website decision notes"
 ACCESSIBILITY_STATEMENT_STATE: str = "not-compliant"
 ACCESSIBILITY_STATEMENT_NOTES: str = "Accessibility statement notes"
@@ -831,7 +831,7 @@ def test_website_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-version": audit.case.version,
-            "case-is_website_compliant": IS_WEBSITE_COMPLIANT,
+            "case-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE_INITIAL,
             "case-compliance_decision_notes": COMPLIANCE_DECISION_NOTES,
         },
     )
@@ -840,14 +840,17 @@ def test_website_decision_saved_on_case(admin_client):
 
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
-    assert updated_case.is_website_compliant == IS_WEBSITE_COMPLIANT
+    assert (
+        updated_case.website_compliance_state_initial
+        == WEBSITE_COMPLIANCE_STATE_INITIAL
+    )
     assert updated_case.compliance_decision_notes == COMPLIANCE_DECISION_NOTES
 
 
 @pytest.mark.parametrize(
     "field_name, new_value, report_content_update",
     [
-        ("case-is_website_compliant", "not-compliant", True),
+        ("case-website_compliance_state_initial", "partially-compliant", True),
         ("case-compliance_decision_notes", "blah", False),
         ("audit_website_decision_complete_date", timezone.now(), False),
     ],
@@ -866,7 +869,7 @@ def test_website_decision_field_updates_report_content(
     context: Dict[str, Union[str, int]] = {
         "version": audit.version,
         "case-version": audit.case.version,
-        "case-is_website_compliant": audit.case.is_website_compliant,
+        "case-website_compliance_state_initial": audit.case.website_compliance_state_initial,
         "save": "Button value",
     }
     context[field_name] = new_value
@@ -1409,7 +1412,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
             "version": audit.version,
             "save": "Button value",
             "case-version": audit.case.version,
-            "case-website_state_final": IS_WEBSITE_COMPLIANT,
+            "case-website_state_final": WEBSITE_COMPLIANCE_STATE_INITIAL,
             "case-website_state_notes_final": COMPLIANCE_DECISION_NOTES,
         },
     )
@@ -1418,7 +1421,7 @@ def test_retest_website_decision_saved_on_case(admin_client):
 
     updated_case: Case = Case.objects.get(id=audit.case.id)
 
-    assert updated_case.website_state_final == IS_WEBSITE_COMPLIANT
+    assert updated_case.website_state_final == WEBSITE_COMPLIANCE_STATE_INITIAL
     assert updated_case.website_state_notes_final == COMPLIANCE_DECISION_NOTES
 
 

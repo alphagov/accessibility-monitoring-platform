@@ -99,14 +99,10 @@
 
 
                     <p>
-                        {% if audit.case.is_website_compliant == 'not-compliant' %}
-                            Based on our testing, this site is not compliant with WCAG 2.1 AA.
-                            This means there are some things which would cause significant barriers
-                            to users with certain accessibility needs.
-                        {% elif audit.case.is_website_compliant == 'partially-compliant' %}
+                        {% if audit.case.website_compliance_state_initial == 'partially-compliant' %}
                             Based on our testing, this site is partially compliant with WCAG 2.1 AA.
                             This means there are some things which are not fully accessible.
-                        {% elif audit.case.is_website_compliant == 'compliant' %}
+                        {% elif audit.case.website_compliance_state_initial == 'compliant' %}
                             Based on our testing, this site is compliant with WCAG 2.1 AA.
                             This means no serious or critical issues were found during our testing.
                             We run basic tests on a small part of your website so we can't say for

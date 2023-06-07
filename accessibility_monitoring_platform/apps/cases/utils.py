@@ -108,6 +108,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Previous Case No.", field_name="previous_case_number"
     ),
+    ColumnAndFieldNames(
+        column_name="No response to report",
+        field_name="no_psb_contact",
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
@@ -182,7 +186,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance decision",
-        field_name="is_website_compliant",
+        field_name="website_compliance_state_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance notes",
