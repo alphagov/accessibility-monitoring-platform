@@ -156,7 +156,7 @@ def test_case_status_when_no_psb_contact(admin_client):
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
         report_approved_status=REPORT_APPROVED_STATUS_APPROVED,
         no_psb_contact=BOOLEAN_TRUE,
