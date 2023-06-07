@@ -174,13 +174,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
     )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent?",
-        choices=BOOLEAN_CHOICES,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
-    )
     previous_case_url = AMPURLField(
         label="URL to previous case",
         help_text="If the website has been previously audited, include a link to the case below",
@@ -232,7 +225,6 @@ class CaseDetailUpdateForm(CaseCreateForm, VersionForm):
             "psb_location",
             "sector",
             "is_complaint",
-            "is_feedback_requested",
             "previous_case_url",
             "trello_url",
             "notes",
@@ -357,6 +349,9 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
     Form for updating report correspondence details
     """
 
+    seven_day_no_contact_email_sent_date = AMPDateField(
+        label="Seven day 'no contact details' email sent",
+    )
     report_sent_date = AMPDateField(
         label="Report sent on", help_text="This field affects the case status"
     )
@@ -373,6 +368,7 @@ class CaseReportCorrespondenceUpdateForm(VersionForm):
         model = Case
         fields = [
             "version",
+            "seven_day_no_contact_email_sent_date",
             "report_sent_date",
             "report_followup_week_1_sent_date",
             "report_followup_week_4_sent_date",
@@ -599,6 +595,13 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         label="Equality body correspondence notes"
     )
     enforcement_retest_document_url = AMPURLField(label="External retest document")
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=BOOLEAN_CHOICES,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     enforcement_correspondence_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -609,6 +612,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "enforcement_body_pursuing",
             "enforcement_body_correspondence_notes",
             "enforcement_retest_document_url",
+            "is_feedback_requested",
             "enforcement_correspondence_complete_date",
         ]
 

@@ -17,7 +17,6 @@ from ...audits.models import (
 from ...cases.models import Case
 
 from ..models import (
-    TEMPLATE_TYPE_ISSUES_TABLE,
     Report,
     ReportVisitsMetrics,
 )
@@ -62,7 +61,8 @@ def test_build_issue_table_rows():
     used_wcag_definitions: Set[WcagDefinition] = set()
 
     table_rows: List[TableRow] = build_issue_table_rows(
-        page=page, used_wcag_definitions=used_wcag_definitions
+        check_results=page.failed_check_results,
+        used_wcag_definitions=used_wcag_definitions,
     )
 
     assert len(table_rows) == 1
@@ -91,7 +91,7 @@ def test_report_boilerplate_shown_only_once():
         page_type=PAGE_TYPE_PDF,
         url=PDF_PAGE_URL,
     )
-    report: Report = Report.objects.create(case=case)
+    Report.objects.create(case=case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
         type=TEST_TYPE_PDF
     ).first()
@@ -108,7 +108,7 @@ def test_report_boilerplate_shown_only_once():
         check_result_state=CHECK_RESULT_ERROR,
     )
 
-    issues_tables: List[IssueTable] = build_issues_tables(report=report)
+    issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)
 
     table_rows: List[TableRow] = []
     for issues_table in issues_tables:
@@ -141,9 +141,9 @@ def test_generate_report_content_issues_tables():
         page_type=PAGE_TYPE_PDF,
         url="https://example.com/pdf",
     )
-    report: Report = Report.objects.create(case=case)
+    Report.objects.create(case=case)
 
-    issues_tables: List[IssueTable] = build_issues_tables(report=report)
+    issues_tables: List[IssueTable] = build_issues_tables(pages=audit.testable_pages)
 
     assert len(issues_tables) == 2
 

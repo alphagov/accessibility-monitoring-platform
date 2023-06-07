@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ case.organisation_name }} | Unfixed issues email template{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:outstanding-issues' case.id %}">Outstanding issues</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                Unfixed issues email template
+            </li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "cases/helpers/edit_header.html" with page_heading='Unfixed issues email template' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive">Warning</span>
+                        Ensure the information is correct before sending
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                    Copy email template
+                </button>
+                <a
+                    href="{% url 'cases:outstanding-issues' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to outstanding issues
+                </a>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div id="email-text" class="amp-report-wrapper">
+                    Dear <b>[NAMED CONTACT]</b>,
+                    <br>
+                    <br>
+                    We have completed the retest and some issues are still outstanding.
+                    Please review the issues listed below and provide an update.
+                    <br>
+                    <br>
+                    {% for issues_table in issues_tables %}
+                        {% if issues_table.rows %}
+                            <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>
+                            <a href="{{ issues_table.page.url }}">{{ issues_table.page.url }}</a>
+                            <br>
+                            <br>
+                            <table id="email-issues-table-{{ forloop.counter }}">
+                                <thead>
+                                    <tr>
+                                        <th width=1%>#</th>
+                                        <th id="issue-{{ forloop.counter }}" width=33%>Issue and description</th>
+                                        <th id="where-found-{{ forloop.counter }}" width=33%>Where the issue was found</th>
+                                        <th id="12-week-update-{{ forloop.counter }}" width=33%>Organisation 12-week update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in issues_table.rows %}
+                                        <tr valign="top">
+                                            <td width=1%>{{ forloop.counter }}</td>
+                                            <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_1|markdown_to_html }}</td>
+                                            <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ row.cell_content_2|markdown_to_html }}</td>
+                                            <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    {% endfor %}
+                    <h2>Your statement</h2>
+                    {{ case.audit.get_accessibility_statement_state_display }}
+                    {% if case.audit.accessibility_statement_state == 'found-but' %}
+                        <ul>
+                            {% for issue in case.audit.report_accessibility_issues %}
+                                <li>{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <br>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-row amp-margin-top-10">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <button class="copy-email-to-clipboard govuk-button govuk-button--secondary">
+                    Copy email template
+                </button>
+                <a
+                    href="{% url 'cases:outstanding-issues' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Return to outstanding issues
+                </a>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/cases_copy_email.js' %}"></script>
+</div>
+{% endblock %}

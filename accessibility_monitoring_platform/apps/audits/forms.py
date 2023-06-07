@@ -23,7 +23,7 @@ from ..cases.models import (
     Case,
     BOOLEAN_CHOICES,
     ACCESSIBILITY_STATEMENT_DECISION_CHOICES,
-    IS_WEBSITE_COMPLIANT_CHOICES,
+    WEBSITE_INITIAL_COMPLIANCE_CHOICES,
     WEBSITE_STATE_FINAL_CHOICES,
 )
 from .models import (
@@ -261,10 +261,10 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
     Form for editing website compliance decision
     """
 
-    is_website_compliant = AMPChoiceRadioField(
+    website_compliance_state_initial = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=IS_WEBSITE_COMPLIANT_CHOICES,
+        choices=WEBSITE_INITIAL_COMPLIANCE_CHOICES,
     )
     compliance_decision_notes = AMPTextField(label="Initial website compliance notes")
 
@@ -272,7 +272,7 @@ class CaseWebsiteDecisionUpdateForm(VersionForm):
         model = Case
         fields: List[str] = [
             "version",
-            "is_website_compliant",
+            "website_compliance_state_initial",
             "compliance_decision_notes",
         ]
 

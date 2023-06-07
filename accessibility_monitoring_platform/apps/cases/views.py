@@ -86,6 +86,7 @@ from .utils import (
     replace_search_key_with_case_search,
     download_cases,
     record_case_event,
+    build_edit_link_html,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -325,13 +326,6 @@ class CaseUpdateView(UpdateView):
             record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)
             record_case_event(user=user, new_case=self.object, old_case=old_case)
-
-            if (
-                old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status
-                == REPORT_APPROVED_STATUS_APPROVED
-            ):
-                self.object.reviewer = self.request.user
 
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
@@ -595,12 +589,16 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         """Populate help text with dates"""
         form = super().get_form()
         case: Case = form.instance
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance, url_name="cases:edit-report-followup-due-dates"
+        )
+
         form.fields[
             "report_followup_week_1_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_1_due_date)} | {edit_link_html}"
         form.fields[
             "report_followup_week_4_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_4_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_4_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
@@ -663,11 +661,13 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance,
+            url_name="cases:edit-twelve-week-correspondence-due-dates",
+        )
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.twelve_week_1_week_chaser_due_date
-        )
+        ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
@@ -724,14 +724,33 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/twelve_week_correspondence_email.html"
+    template_name: str = "cases/emails/twelve_week_correspondence.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["issues_tables"] = build_issues_tables(report=case.report)
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages
+            )
+        return context
+
+
+class CaseOutstandingIssuesEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/outstanding_issues.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages,
+                check_results_attr="unfixed_check_results",
+            )
         return context
 
 

@@ -93,7 +93,7 @@ EXPECTED_AUDIT_PDF_ROWS: List[FieldLabelAndValue] = [
 ]
 EXPECTED_WEBSITE_DECISION_ROWS: List[FieldLabelAndValue] = [
     FieldLabelAndValue(
-        value="Not selected",
+        value="Not known",
         label="Initial website compliance decision",
         type="text",
         extra_label="",

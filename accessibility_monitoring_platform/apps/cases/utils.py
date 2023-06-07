@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.http.request import QueryDict
+from django.urls import reverse
 
 from ..audits.models import Audit
 from ..common.utils import build_filters
@@ -107,6 +108,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Previous Case No.", field_name="previous_case_number"
     ),
+    ColumnAndFieldNames(
+        column_name="No response to report",
+        field_name="no_psb_contact",
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
@@ -181,7 +186,7 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance decision",
-        field_name="is_website_compliant",
+        field_name="website_compliance_state_initial",
     ),
     ColumnAndFieldNames(
         column_name="Initial website compliance notes",
@@ -218,6 +223,10 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Contact details page complete",
         field_name="contact_details_complete_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="Seven day 'no contact details' email sent",
+        field_name="seven_day_no_contact_email_sent_date",
     ),
     ColumnAndFieldNames(column_name="Report sent on", field_name="report_sent_date"),
     ColumnAndFieldNames(
@@ -414,6 +423,9 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
         field_name="recommendation_notes",
     ),
     ColumnAndFieldNames(column_name="Contact notes", field_name="contact_notes"),
+    ColumnAndFieldNames(
+        column_name="Feedback survey sent?", field_name="is_feedback_requested"
+    ),
 ]
 
 
@@ -709,3 +721,12 @@ def record_case_event(
             event_type=CASE_EVENT_CASE_COMPLETED,
             message=f"Case completed changed from '{old_status}' to '{new_status}'",
         )
+
+
+def build_edit_link_html(case: Case, url_name: str) -> str:
+    """Return html of edit link for case"""
+    case_pk: Dict[str, int] = {"pk": case.id}
+    edit_url: str = reverse(url_name, kwargs=case_pk)
+    return (
+        f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
+    )
