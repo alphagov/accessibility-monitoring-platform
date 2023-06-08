@@ -35,6 +35,7 @@ from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 
+from ..common.models import BOOLEAN_TRUE
 from ..common.utils import (
     extract_domain_from_url,
     get_id_from_button_name,
@@ -764,8 +765,11 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
+        case: Case = self.object
+        case_pk: Dict[str, int] = {"pk": case.id}
+        if case.no_psb_contact == BOOLEAN_TRUE:
+            return reverse("cases:edit-case-close", kwargs=case_pk)
+        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
