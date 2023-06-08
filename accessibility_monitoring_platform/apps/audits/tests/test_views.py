@@ -563,7 +563,7 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-retest-statement-overview",
             "save_continue",
-            "audits:edit-retest-statement-website",
+            "audits:edit-audit-retest-statement-comparison",
         ),
         (
             "audits:edit-retest-statement-website",
