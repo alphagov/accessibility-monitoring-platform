@@ -591,8 +591,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
             audit_pk: Dict[str, int] = {"pk": audit.id}
             if audit.all_overview_statement_checks_have_passed:
                 return reverse("audits:edit-statement-website", kwargs=audit_pk)
-            else:
-                return reverse("audits:edit-audit-summary", kwargs=audit_pk)
+            return reverse("audits:edit-audit-summary", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1163,9 +1162,9 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-website", kwargs=audit_pk
-            )
+            if audit.all_overview_statement_checks_have_passed:
+                return reverse("audits:edit-retest-statement-website", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1185,9 +1184,7 @@ class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-compliance", kwargs=audit_pk
-            )
+            return reverse("audits:edit-retest-statement-compliance", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1229,9 +1226,7 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-preparation", kwargs=audit_pk
-            )
+            return reverse("audits:edit-retest-statement-preparation", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1251,9 +1246,7 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-feedback", kwargs=audit_pk
-            )
+            return reverse("audits:edit-retest-statement-feedback", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1273,9 +1266,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-enforcement", kwargs=audit_pk
-            )
+            return reverse("audits:edit-retest-statement-enforcement", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1295,9 +1286,7 @@ class AuditRetestStatementEnforcementFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse(
-                "audits:edit-retest-statement-other", kwargs=audit_pk
-            )
+            return reverse("audits:edit-retest-statement-other", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1317,7 +1306,9 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
+            return reverse(
+                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+            )
         return super().get_success_url()
 
 

@@ -2018,3 +2018,31 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View website")
     assertContains(response, "Link to case view")
     assertContains(response, "Markdown cheatsheet")
+
+
+def test_statement_check_list_renders(admin_client):
+    """Test statement check list renders"""
+    response: HttpResponse = admin_client.get(reverse("audits:statement-check-list"))
+
+    assert response.status_code == 200
+
+    assertContains(response, "Statement issues editor")
+    assertContains(response, "Displaying 31 Statement checks.", html=True)
+
+
+def test_create_statement_check_redirects(admin_client):
+    """Test that statement check create redirects to list"""
+    response: HttpResponse = admin_client.post(
+        reverse("audits:statement-check-create"),
+        {
+            "label": "Test statement check",
+            "type": "overview",
+            "success_criteria": "Success criteria",
+            "report_text": "Report text",
+            "save": "Create",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse("audits:statement-check-list")
