@@ -590,8 +590,10 @@ class Case(VersionModel):
             return "in-correspondence-with-equalities-body"
         elif self.sent_to_enforcement_body_sent_date is not None:
             return "case-closed-sent-to-equalities-body"
-        elif self.no_psb_contact == "yes" or self.case_completed == "complete-send":
+        elif self.case_completed == "complete-send":
             return "case-closed-waiting-to-be-sent"
+        elif self.no_psb_contact == "yes":
+            return "final-decision-due"
         elif self.auditor is None:
             return "unassigned-case"
         elif (
