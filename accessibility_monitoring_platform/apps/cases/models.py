@@ -844,7 +844,7 @@ class Case(VersionModel):
         if self.audit is None:
             return "No test exists"
         if self.audit.uses_statement_checks:
-            format_outstanding_issues(
+            return format_outstanding_issues(
                 failed_checks_count=self.audit.failed_statement_check_results.count(),
                 fixed_checks_count=0,
             )

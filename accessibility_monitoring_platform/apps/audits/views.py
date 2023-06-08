@@ -1431,11 +1431,7 @@ class WcagDefinitionListView(ListView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["wcag_definition_search_form"] = self.wcag_definition_search_form
-
-        get_without_page: Dict[str, Union[str, List[object]]] = {
-            key: value for (key, value) in self.request.GET.items() if key != "page"
-        }
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["url_parameters"] = urllib.parse.urlencode(self.request.GET)
         return context
 
 
@@ -1542,11 +1538,7 @@ class StatementCheckListView(ListView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["statement_check_search_form"] = self.statement_check_search_form
-
-        get_without_page: Dict[str, Union[str, List[object]]] = {
-            key: value for (key, value) in self.request.GET.items() if key != "page"
-        }
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["url_parameters"] = urllib.parse.urlencode(self.request.GET)
         return context
 
 

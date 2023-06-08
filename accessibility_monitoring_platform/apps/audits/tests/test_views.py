@@ -2020,6 +2020,35 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Markdown cheatsheet")
 
 
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("audits:statement-check-create", "Create statement issue"),
+        ("audits:statement-check-list", "Statement issues editor"),
+    ],
+)
+def test_statement_check_page_loads(path_name, expected_content, admin_client):
+    """Test that the statement check-specific view page loads"""
+    response: HttpResponse = admin_client.get(reverse(path_name))
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+def test_statement_check_update_page_loads(admin_client):
+    """Test that the statement check update view page loads"""
+    kwargs: Dict[str, int] = {"pk": 1}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:statement-check-update", kwargs=kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Statement issue editor")
+
+
 def test_statement_check_list_renders(admin_client):
     """Test statement check list renders"""
     response: HttpResponse = admin_client.get(reverse("audits:statement-check-list"))
@@ -2028,6 +2057,23 @@ def test_statement_check_list_renders(admin_client):
 
     assertContains(response, "Statement issues editor")
     assertContains(response, "Displaying 31 Statement checks.", html=True)
+    assertContains(
+        response,
+        """<a href="/audits/1/edit-statement-check/"
+            class="govuk-link govuk-link--no-visited-state">
+            Edit</a>""",
+        html=True,
+    )
+
+
+def test_statement_check_list_search(admin_client):
+    """Test statement check list search"""
+    url: str = reverse("audits:statement-check-list")
+    response: HttpResponse = admin_client.get(f"{url}?statement_check_search=website")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Displaying 7 Statement checks.", html=True)
 
 
 def test_create_statement_check_redirects(admin_client):

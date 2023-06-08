@@ -15,6 +15,10 @@ from ...audits.models import (
     CHECK_RESULT_ERROR,
     RETEST_CHECK_RESULT_FIXED,
     CONTENT_NOT_IN_SCOPE_VALID,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_YES,
 )
 from ...comments.models import Comment
 from ...reminders.models import Reminder
@@ -644,3 +648,31 @@ def test_overview_issues_statement_with_audit():
     audit.save()
 
     assert case.overview_issues_statement == "1 of 12 fixed (8%)"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_with_statement_checks():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        statement_check_result: str = (
+            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+        )
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            statement_check_result=statement_check_result,
+        )
+
+    assert case.overview_issues_statement == "0 of 16 fixed (0%)"
+
+    for count, statement_check_result in enumerate(
+        audit.failed_statement_check_results
+    ):
+        if count % 2 == 0:
+            statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+            statement_check_result.save()
+
+    assert case.overview_issues_statement == "0 of 8 fixed (0%)"
