@@ -1164,7 +1164,7 @@ class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-comparison", kwargs=audit_pk
+                "audits:edit-retest-statement-website", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1186,7 +1186,7 @@ class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-website", kwargs=audit_pk
+                "audits:edit-retest-statement-compliance", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1208,7 +1208,7 @@ class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-compliance", kwargs=audit_pk
+                "audits:edit-retest-statement-non-accessible", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1230,7 +1230,7 @@ class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-non-accessible", kwargs=audit_pk
+                "audits:edit-retest-statement-preparation", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1252,7 +1252,7 @@ class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-preparation", kwargs=audit_pk
+                "audits:edit-retest-statement-feedback", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1274,7 +1274,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-feedback", kwargs=audit_pk
+                "audits:edit-retest-statement-enforcement", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1296,7 +1296,7 @@ class AuditRetestStatementEnforcementFormView(AuditRetestStatementCheckingView):
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
             return reverse(
-                "audits:edit-audit-retest-statement-enforcement", kwargs=audit_pk
+                "audits:edit-retest-statement-other", kwargs=audit_pk
             )
         return super().get_success_url()
 
@@ -1317,7 +1317,7 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-audit-retest-statement-other", kwargs=audit_pk)
+            return reverse("audits:edit-audit-retest-statement-comparison", kwargs=audit_pk)
         return super().get_success_url()
 
 

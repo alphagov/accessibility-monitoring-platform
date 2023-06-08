@@ -37,8 +37,13 @@ from ..models import (
     TEST_TYPE_PDF,
     ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     REPORT_OPTIONS_NEXT_DEFAULT,
+    StatementCheckResult,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_YES,
 )
 from ..utils import create_mandatory_pages_for_new_audit
+
+from .test_models import create_audit_and_statement_check_results
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
@@ -436,7 +441,9 @@ def test_audit_edit_redirects_based_on_button_pressed(
     expected_redirect_path_name,
     admin_client,
 ):
-    """Test that a successful audit update redirects based on the button pressed"""
+    """
+    Test that a successful audit update redirects based on the button pressed
+    """
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
@@ -452,6 +459,246 @@ def test_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        (
+            "audits:edit-website-decision",
+            "save_continue",
+            "audits:edit-statement-overview",
+        ),
+        (
+            "audits:edit-statement-overview",
+            "save",
+            "audits:edit-statement-overview",
+        ),
+        (
+            "audits:edit-statement-overview",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        (
+            "audits:edit-statement-website",
+            "save",
+            "audits:edit-statement-website",
+        ),
+        (
+            "audits:edit-statement-website",
+            "save_continue",
+            "audits:edit-statement-compliance",
+        ),
+        (
+            "audits:edit-statement-compliance",
+            "save",
+            "audits:edit-statement-compliance",
+        ),
+        (
+            "audits:edit-statement-compliance",
+            "save_continue",
+            "audits:edit-statement-non-accessible",
+        ),
+        (
+            "audits:edit-statement-non-accessible",
+            "save",
+            "audits:edit-statement-non-accessible",
+        ),
+        (
+            "audits:edit-statement-non-accessible",
+            "save_continue",
+            "audits:edit-statement-preparation",
+        ),
+        (
+            "audits:edit-statement-preparation",
+            "save",
+            "audits:edit-statement-preparation",
+        ),
+        (
+            "audits:edit-statement-preparation",
+            "save_continue",
+            "audits:edit-statement-feedback",
+        ),
+        (
+            "audits:edit-statement-feedback",
+            "save",
+            "audits:edit-statement-feedback",
+        ),
+        (
+            "audits:edit-statement-feedback",
+            "save_continue",
+            "audits:edit-statement-enforcement",
+        ),
+        (
+            "audits:edit-statement-enforcement",
+            "save",
+            "audits:edit-statement-enforcement",
+        ),
+        (
+            "audits:edit-statement-enforcement",
+            "save_continue",
+            "audits:edit-statement-other",
+        ),
+        (
+            "audits:edit-statement-other",
+            "save",
+            "audits:edit-statement-other",
+        ),
+        (
+            "audits:edit-statement-other",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save_continue",
+            "audits:edit-retest-statement-overview",
+        ),
+        (
+            "audits:edit-retest-statement-overview",
+            "save",
+            "audits:edit-retest-statement-overview",
+        ),
+        (
+            "audits:edit-retest-statement-overview",
+            "save_continue",
+            "audits:edit-retest-statement-website",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "save",
+            "audits:edit-retest-statement-website",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "save_continue",
+            "audits:edit-retest-statement-compliance",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "save",
+            "audits:edit-retest-statement-compliance",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "save_continue",
+            "audits:edit-retest-statement-non-accessible",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "save",
+            "audits:edit-retest-statement-non-accessible",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "save_continue",
+            "audits:edit-retest-statement-preparation",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "save",
+            "audits:edit-retest-statement-preparation",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "save_continue",
+            "audits:edit-retest-statement-feedback",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "save",
+            "audits:edit-retest-statement-feedback",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "save_continue",
+            "audits:edit-retest-statement-enforcement",
+        ),
+        (
+            "audits:edit-retest-statement-enforcement",
+            "save",
+            "audits:edit-retest-statement-enforcement",
+        ),
+        (
+            "audits:edit-retest-statement-enforcement",
+            "save_continue",
+            "audits:edit-retest-statement-other",
+        ),
+        (
+            "audits:edit-retest-statement-other",
+            "save",
+            "audits:edit-retest-statement-other",
+        ),
+        (
+            "audits:edit-retest-statement-other",
+            "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+    ],
+)
+def test_audit_statement_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit statement update redirects based on the button
+    pressed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "case-version": audit.case.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+def test_audit_edit_statement_overview_redirects_to_statement_website(
+    admin_client,
+):
+    """
+    Test that a successful audit statement overview update redirects to
+    statement website if the overiew checks have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    for statement_check_result in StatementCheckResult.objects.filter(
+        audit=audit, type=STATEMENT_CHECK_TYPE_OVERVIEW
+    ):
+        statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("audits:edit-statement-website", kwargs=audit_pk)
     assert response.url == expected_path
 
 
