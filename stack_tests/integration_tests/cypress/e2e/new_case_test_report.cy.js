@@ -58,6 +58,29 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)
+    cy.get('[name="form-0-statement_check_result"]').check('yes')
+    cy.get('[name="form-1-statement_check_result"]').check('yes')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Accessibility statement information`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Compliance status`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Non accessible content`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Feedback and contact information`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Other`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
@@ -133,6 +156,27 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement overview`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement website`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement compliance`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement non-accessible`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement feedback`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement enforcement`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement other`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)
