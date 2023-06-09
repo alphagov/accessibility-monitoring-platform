@@ -1,0 +1,32 @@
+<table class="govuk-table amp-accordion-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
+            <th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
+            <th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for statement_check_result in statement_check_results %}
+            <tr class="govuk-table__row ">
+                <td class="govuk-table__cell amp-width-one-third">
+                    {{ statement_check_result.statement_check.label }}
+                </td>
+                <td class="govuk-table__cell amp-width-one-third">
+                    {{ statement_check_result.get_statement_check_result_display }}
+                    {% if statement_check_result.report_comment  %}
+                        <br><br>
+                        {{ statement_check_result.report_comment }}
+                    {% endif %}
+                </td>
+                <td class="govuk-table__cell amp-width-one-third">
+                    {{ statement_check_result.get_retest_check_result_display }}
+                    {% if statement_check_result.retest_comment  %}
+                        <br><br>
+                        {{ statement_check_result.retest_comment }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -159,38 +159,7 @@
                                 </p>
                             </div>
                         </div>
-                        <table class="govuk-table amp-accordion-table">
-                            <thead class="govuk-table__head">
-                                <tr class="govuk-table__row">
-                                    <th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-                                    <th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-                                    <th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-                                </tr>
-                            </thead>
-                            <tbody class="govuk-table__body">
-                                {% for statement_check_result in audit.overview_statement_check_results %}
-                                    <tr class="govuk-table__row ">
-                                        <td class="govuk-table__cell amp-width-one-third">
-                                            {{ statement_check_result.statement_check.label }}
-                                        </td>
-                                        <td class="govuk-table__cell amp-width-one-third">
-                                            {{ statement_check_result.get_statement_check_result_display }}
-                                            {% if statement_check_result.report_comment  %}
-                                                <br><br>
-                                                {{ statement_check_result.report_comment }}
-                                            {% endif %}
-                                        </td>
-                                        <td class="govuk-table__cell amp-width-one-third">
-                                            {{ statement_check_result.get_retest_check_result_display }}
-                                            {% if statement_check_result.retest_comment  %}
-                                                <br><br>
-                                                {{ statement_check_result.retest_comment }}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.overview_statement_check_results %}
                     </div>
                 </div>
                 {% if audit.all_overview_statement_checks_have_passed %}
@@ -220,38 +189,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.website_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.website_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -280,38 +218,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.compliance_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.compliance_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -340,38 +247,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.non_accessible_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.non_accessible_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -400,38 +276,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.preparation_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.preparation_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -460,38 +305,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.feedback_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.feedback_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -520,38 +334,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.enforcement_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.enforcement_statement_check_results %}
                         </div>
                     </div>
                     <div class="govuk-accordion__section">
@@ -580,38 +363,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <table class="govuk-table amp-accordion-table">
-								<thead class="govuk-table__head">
-									<tr class="govuk-table__row">
-										<th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
-										<th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
-									</tr>
-								</thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check_result in audit.other_statement_check_results %}
-                                        <tr class="govuk-table__row ">
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.statement_check.label }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_statement_check_result_display }}
-                                                {% if statement_check_result.report_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.report_comment }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-third">
-                                                {{ statement_check_result.get_retest_check_result_display }}
-                                                {% if statement_check_result.retest_comment  %}
-                                                    <br><br>
-                                                    {{ statement_check_result.retest_comment }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.other_statement_check_results %}
                         </div>
                     </div>
                 {% endif %}
