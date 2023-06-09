@@ -39,6 +39,7 @@ from ..models import (
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_STATEMENT_FOUND_ID,
 )
 
 PAGE_NAME = "Page name"
@@ -151,6 +152,28 @@ def test_audit_every_pages_returns_pdf_and_statement_last():
 
     assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
     assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
+
+
+@pytest.mark.django_db
+def test_page_get_absolute_url():
+    """
+    Test Page.get_absolute_url is as expected
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.accessibility_statement_page
+
+    assert page.get_absolute_url() == f"/audits/pages/{page.id}/edit-audit-page-checks/"
+
+
+@pytest.mark.django_db
+def test_page_str():
+    """
+    Test Page.__str__ is as expected
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.accessibility_statement_page
+
+    assert page.__str__() == "Accessibility statement"
 
 
 @pytest.mark.django_db
@@ -629,6 +652,31 @@ def test_audit_accessibility_statement_finally_invalid():
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
 
 
+def test_statement_check_str():
+    """Tests an StatementCheck __str__ contains the expected string"""
+    statement_check: StatementCheck = StatementCheck(label="Label")
+
+    assert statement_check.__str__() == "Label (Other)"
+
+    statement_check.success_criteria = "Success criteria"
+
+    assert statement_check.__str__() == "Label: Success criteria (Other)"
+
+
+@pytest.mark.django_db
+def test_statement_check_results_str():
+    """Tests an StatementCheckResult __str__ contains the expected string"""
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_result: StatementCheckResult = (
+        audit.overview_statement_check_results.first()
+    )
+
+    assert (
+        statement_check_result.__str__()
+        == f"{audit} | {statement_check_result.statement_check}"
+    )
+
+
 @pytest.mark.django_db
 def test_audit_statement_check_results():
     """
@@ -736,6 +784,29 @@ def test_audit_specific_failed_statement_check_results(type, attr):
         getattr(audit, f"{attr}_failed_statement_check_results"),
         failed_statement_check_results,
     )
+
+
+@pytest.mark.django_db
+def test_audit_statement_check_result_statement_found():
+    """
+    Tests an audit.statement_check_result_statement_found shows if all
+    statement a statement page exists
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_result: StatementCheckResult = (
+        audit.overview_statement_check_results.get(
+            statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
+        )
+    )
+    statement_check_result.statement_check_result = STATEMENT_CHECK_NO
+    statement_check_result.save()
+
+    assert audit.statement_check_result_statement_found is False
+
+    statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    assert audit.statement_check_result_statement_found is True
 
 
 @pytest.mark.django_db

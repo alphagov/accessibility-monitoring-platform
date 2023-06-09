@@ -1568,5 +1568,5 @@ class StatementCheckUpdateView(UpdateView):
     context_object_name: str = "statement_check"
 
     def get_success_url(self) -> str:
-        """Return to list of WCAG definitions"""
-        return reverse("audits:wcag-definition-list")
+        """Return to list of statement checks"""
+        return reverse("audits:statement-check-list")

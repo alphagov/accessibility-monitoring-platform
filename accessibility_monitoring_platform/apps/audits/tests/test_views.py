@@ -37,6 +37,7 @@ from ..models import (
     TEST_TYPE_PDF,
     ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     REPORT_OPTIONS_NEXT_DEFAULT,
+    StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_YES,
@@ -302,6 +303,57 @@ def test_create_audit_creates_case_event(admin_client):
 def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     """Test that the audit-specific view page loads"""
     audit: Audit = create_audit_and_wcag()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        (
+            "audits:edit-retest-statement-overview",
+            "12-week accessibility statement overview",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "12-week accessibility statement website",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "12-week accessibility statement compliance",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "12-week accessibility statement non-accessible",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "12-week accessibility statement preparation",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "12-week accessibility statement feedback",
+        ),
+        (
+            "audits:edit-retest-statement-enforcement",
+            "12-week accessibility statement enforcement",
+        ),
+        (
+            "audits:edit-retest-statement-other",
+            "12-week accessibility statement other",
+        ),
+    ],
+)
+def test_audit_statement_check_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the audit with statement checks-specific view page loads"""
+    audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
@@ -2092,3 +2144,36 @@ def test_create_statement_check_redirects(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse("audits:statement-check-list")
+
+
+def test_update_statement_check_redirects(admin_client):
+    """Test that statement check update redirects to list"""
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    response: HttpResponse = admin_client.post(
+        reverse("audits:statement-check-update", kwargs={"pk": statement_check.id}),
+        {
+            "label": "Test statement check",
+            "type": "overview",
+            "success_criteria": "Success criteria",
+            "report_text": "Report text",
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse("audits:statement-check-list")
+
+
+def test_summary_page_view(admin_client):
+    """Test that summary page view renders"""
+    audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.create(audit=audit, is_deleted=True)
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('audits:edit-audit-summary', kwargs=audit_pk)}?view=Page+view",
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Test summary | Page view", html=True)

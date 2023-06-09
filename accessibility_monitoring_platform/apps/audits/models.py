@@ -1067,7 +1067,7 @@ class Page(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
-        return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
+        return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
 
     @property
     def all_check_results(self):

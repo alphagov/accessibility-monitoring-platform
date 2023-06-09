@@ -104,13 +104,13 @@ def get_page_title(path: str) -> str:  # noqa: C901
             case: Case = Case.objects.get(id=path.split("/")[2])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     elif path_without_id.startswith("/audits/[id]/"):
         try:
             audit: Audit = Audit.objects.get(id=path.split("/")[2])
             page_title: str = f"{audit.case.organisation_name} | {page_heading}"
         except Audit.DoesNotExist:
-            pass
+            page_title: str = f"Audit does not exist: {path}"
     elif path_without_id.startswith("/audits/pages/[id]/"):
         try:
             page: Page = Page.objects.get(id=path.split("/")[3])
@@ -118,17 +118,17 @@ def get_page_title(path: str) -> str:  # noqa: C901
                 f"{page.audit.case.organisation_name} | {page_heading} {page}"
             )
         except Page.DoesNotExist:
-            pass
+            page_title: str = f"Page does not exist: {path}"
     elif path_without_id == "/reminders/cases/[id]/reminder-create/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     elif path_without_id == "/audits/create-for-case/[id]/":
         try:
             case: Case = Case.objects.get(id=path.split("/")[3])
             page_title: str = f"{case.organisation_name} | {page_heading}"
         except Case.DoesNotExist:
-            pass
+            page_title: str = f"Case does not exist: {path}"
     return page_title

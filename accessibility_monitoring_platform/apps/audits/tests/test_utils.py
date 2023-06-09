@@ -687,6 +687,9 @@ def test_other_page_failed_check_results():
     extra_page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra"
     )
+    second_extra_page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra2"
+    )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_MANUAL
     )
@@ -710,7 +713,7 @@ def test_other_page_failed_check_results():
 
     assert len(home_page.failed_check_results) == 1
     assert wcag_definition_manual in failed_check_results
-    assert len(failed_check_results[wcag_definition_manual]) == 1
+    assert len(failed_check_results[wcag_definition_manual]) == 2
 
     assert (
         failed_check_results[wcag_definition_manual][0]
