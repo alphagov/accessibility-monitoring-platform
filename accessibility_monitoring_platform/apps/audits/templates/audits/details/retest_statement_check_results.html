@@ -12,7 +12,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.overview_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.overview_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Accessibility statement for [website]" data-search-target-label="Edit 12-week test > Accessibility statement for [website]" data-search-target-url="{% url 'audits:edit-retest-statement-website' case.audit.id %}"{% endif %}>
@@ -29,7 +29,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.website_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.website_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Compliance status" data-search-target-label="Edit 12-week test > Compliance status" data-search-target-url="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}"{% endif %}>
@@ -46,7 +46,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.compliance_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.compliance_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Non accessible content overview" data-search-target-label="Edit 12-week test > Non accessible content overview" data-search-target-url="{% url 'audits:edit-retest-statement-non-accessible' case.audit.id %}"{% endif %}>
@@ -63,7 +63,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.non_accessible_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.non_accessible_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Preparation of this accessibility statement" data-search-target-label="Edit 12-week test > Preparation of this accessibility statement" data-search-target-url="{% url 'audits:edit-retest-statement-preparation' case.audit.id %}"{% endif %}>
@@ -80,7 +80,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.preparation_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.preparation_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Feedback and contact information" data-search-target-label="Edit 12-week test > Feedback and contact information" data-search-target-url="{% url 'audits:edit-retest-statement-feedback' case.audit.id %}"{% endif %}>
@@ -97,7 +97,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.feedback_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.feedback_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Enforcement procedure" data-search-target-label="Edit 12-week test > Enforcement procedure" data-search-target-url="{% url 'audits:edit-retest-statement-enforcement' case.audit.id %}"{% endif %}>
@@ -114,7 +114,7 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.enforcement_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.enforcement_statement_check_results %}
 </div>
 
 <div{% if case.audit %} data-search-target-page-name="Other" data-search-target-label="Edit 12-week test > Other" data-search-target-url="{% url 'audits:edit-retest-statement-other' case.audit.id %}"{% endif %}>
@@ -131,5 +131,5 @@
             </p>
         </div>
     </div>
-    {% include 'audits/statement_checks/statement_comparison.html' with statement_check_results=audit.other_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.other_statement_check_results %}
 </div>

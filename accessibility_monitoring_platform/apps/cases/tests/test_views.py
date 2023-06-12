@@ -23,6 +23,8 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
+    StatementCheck,
+    StatementCheckResult,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
@@ -3352,6 +3354,37 @@ def test_outstanding_issues_new_case(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "This is a new case and does not have any test data.")
+
+
+def test_outstanding_issues_statement_checks(admin_client):
+    """
+    Test out standing issues page shows statement checks##
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Statement comparison")
+    assertNotContains(response, "Edit statement overview")
+
+    for statement_check in StatementCheck.objects.all():
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Statement comparison")
+    assertContains(response, "Edit statement overview")
 
 
 @pytest.mark.parametrize(

@@ -67,11 +67,54 @@
                                 </a>
                             </li>
                         {% endif %}
-                        <li>
-                            <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
-                                Statement comparison
-                            </a>
-                        </li>
+                        {% if case.audit.uses_statement_checks %}
+                            <li>
+                                <a href="#statement-overview" rel="noreferrer noopener" class="govuk-link">
+                                    Statement overview
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-website" rel="noreferrer noopener" class="govuk-link">
+                                    Statement information
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-compliance" rel="noreferrer noopener" class="govuk-link">
+                                    Compliance status
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-non-accessible" rel="noreferrer noopener" class="govuk-link">
+                                    Non-accessible content overview
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-preparation" rel="noreferrer noopener" class="govuk-link">
+                                    Preparation
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-feedback" rel="noreferrer noopener" class="govuk-link">
+                                    Feedback
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-enforcement" rel="noreferrer noopener" class="govuk-link">
+                                    Enforcement procedure
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#statement-other" rel="noreferrer noopener" class="govuk-link">
+                                    Other
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">
+                                    Statement comparison
+                                </a>
+                            </li>
+                        {% endif %}
                     </ul>
                     <h2 class="govuk-heading-l">Overview</h2>
                     <p class="govuk-body">
@@ -172,39 +215,43 @@
                             </div>
                         </div>
                     {% endif %}
-                    <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-full">
-                            <table class="govuk-table">
-                                <thead class="govuk-table__head">
-                                    <tr class="govuk-table__row">
-                                        <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
-                                        <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="govuk-table__body">
-                                    {% for statement_check in case.audit.finally_invalid_accessibility_statement_checks %}
-                                        <tr>
-                                            <td class="amp-width-one-half amp-padding-top-10">
-                                                <b>{{ statement_check.label }}</b>
-                                            </td>
-                                            <td class="amp-width-one-half amp-padding-top-10"></td>
-                                        </tr>
+                    {% if case.audit.uses_statement_checks %}
+                        {% include 'audits/helpers/statement_comparison.html' with audit=case.audit %}
+                    {% else %}
+                        <h2 id="statement-comparison" class="govuk-heading-l">Statement comparison</h2>
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <table class="govuk-table">
+                                    <thead class="govuk-table__head">
                                         <tr class="govuk-table__row">
-                                            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                                {{ statement_check.initial_state_display }}<br>
-                                                {{ statement_check.initial_notes|markdown_to_html }}
-                                            </td>
-                                            <td class="govuk-table__cell amp-width-one-half amp-notes">
-                                                {{ statement_check.final_state_display }}<br>
-                                                {{ statement_check.final_notes|markdown_to_html }}
-                                            </td>
+                                            <th scope="col" class="govuk-table__header amp-width-one-half">Original test</th>
+                                            <th scope="col" class="govuk-table__header amp-width-one-half">12-week retest</th>
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="govuk-table__body">
+                                        {% for statement_check in case.audit.finally_invalid_accessibility_statement_checks %}
+                                            <tr>
+                                                <td class="amp-width-one-half amp-padding-top-10">
+                                                    <b>{{ statement_check.label }}</b>
+                                                </td>
+                                                <td class="amp-width-one-half amp-padding-top-10"></td>
+                                            </tr>
+                                            <tr class="govuk-table__row">
+                                                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                                    {{ statement_check.initial_state_display }}<br>
+                                                    {{ statement_check.initial_notes|markdown_to_html }}
+                                                </td>
+                                                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                                    {{ statement_check.final_state_display }}<br>
+                                                    {{ statement_check.final_notes|markdown_to_html }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
                 <div class="govuk-grid-column-one-third">
                     {% include 'cases/helpers/nav_steps.html' %}
