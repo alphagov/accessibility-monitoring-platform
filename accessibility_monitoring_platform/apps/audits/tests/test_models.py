@@ -813,21 +813,32 @@ def test_audit_statement_check_result_statement_found():
 def test_audit_all_overview_statement_checks_have_passed():
     """
     Tests an audit.all_overview_statement_checks_have_passed shows if all
-    statement check results have passed
+    statement check results have passed on test or retest
     """
     audit: Audit = create_audit_and_statement_check_results()
 
     assert audit.all_overview_statement_checks_have_passed is False
 
-    failed_overview_statement_check_results: StatementCheckResult = (
+    overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
             type=STATEMENT_CHECK_TYPE_OVERVIEW,
-            statement_check_result=STATEMENT_CHECK_NO,
         )
     )
-    for statement_check_result in failed_overview_statement_check_results:
+    for statement_check_result in overview_statement_check_results:
         statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is True
+
+    for statement_check_result in overview_statement_check_results:
+        statement_check_result.statement_check_result = STATEMENT_CHECK_NO
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    for statement_check_result in overview_statement_check_results:
+        statement_check_result.retest_check_result = STATEMENT_CHECK_YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True

@@ -1019,10 +1019,14 @@ class Audit(VersionModel):
 
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
-        """Check all overview statement checks have passed"""
+        """Check all overview statement checks have passed test or retest"""
         return (
             self.overview_statement_check_results.exclude(
                 statement_check_result=STATEMENT_CHECK_YES
+            ).count()
+            == 0
+            or self.overview_statement_check_results.exclude(
+                retest_check_result=STATEMENT_CHECK_YES
             ).count()
             == 0
         )
