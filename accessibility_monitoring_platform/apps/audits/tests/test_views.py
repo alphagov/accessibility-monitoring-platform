@@ -2101,7 +2101,7 @@ def test_statement_check_list_search(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Displaying 9 Statement checks.", html=True)
+    assertContains(response, "Displaying 11 Statement checks.", html=True)
 
 
 def test_create_statement_check_redirects(admin_client):
