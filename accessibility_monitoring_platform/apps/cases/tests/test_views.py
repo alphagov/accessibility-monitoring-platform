@@ -788,7 +788,7 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-no-psb-response",
             "save_continue",
-            "cases:edit-twelve-week-correspondence",
+            "cases:edit-report-correspondence",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
@@ -1228,6 +1228,24 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
+
+
+def test_no_psb_response_redirects_to_case_close(admin_client):
+    """Test no PSB response redirects to case closing"""
+    case: Case = Case.objects.create(
+        no_psb_contact=BOOLEAN_TRUE,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-no-psb-response", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "no_psb_contact": "on",
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == f'{reverse("cases:edit-case-close", kwargs={"pk": case.id})}'
 
 
 @pytest.mark.parametrize(
