@@ -927,7 +927,7 @@ class Audit(VersionModel):
         statement_found: CheckResult = self.overview_statement_check_results.get(
             statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
         )
-        return statement_found.statement_check_result == STATEMENT_CHECK_YES
+        return statement_found.check_result_state == STATEMENT_CHECK_YES
 
     @property
     def website_statement_check_results(self) -> bool:
@@ -966,7 +966,7 @@ class Audit(VersionModel):
     @property
     def failed_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(
-            statement_check_result=STATEMENT_CHECK_NO
+            check_result_state=STATEMENT_CHECK_NO
         )
 
     @property
@@ -1022,11 +1022,11 @@ class Audit(VersionModel):
         """Check all overview statement checks have passed test or retest"""
         return (
             self.overview_statement_check_results.exclude(
-                statement_check_result=STATEMENT_CHECK_YES
+                check_result_state=STATEMENT_CHECK_YES
             ).count()
             == 0
             or self.overview_statement_check_results.exclude(
-                retest_check_result=STATEMENT_CHECK_YES
+                retest_state=STATEMENT_CHECK_YES
             ).count()
             == 0
         )
@@ -1219,13 +1219,13 @@ class StatementCheckResult(models.Model):
         choices=STATEMENT_CHECK_TYPE_CHOICES,
         default=STATEMENT_CHECK_TYPE_OTHER,
     )
-    statement_check_result = models.CharField(
+    check_result_state = models.CharField(
         max_length=10,
         choices=STATEMENT_CHECK_CHOICES,
         default=STATEMENT_CHECK_NOT_TESTED,
     )
     report_comment = models.TextField(default="", blank=True)
-    retest_check_result = models.CharField(
+    retest_state = models.CharField(
         max_length=10,
         choices=STATEMENT_CHECK_CHOICES,
         default=STATEMENT_CHECK_NOT_TESTED,

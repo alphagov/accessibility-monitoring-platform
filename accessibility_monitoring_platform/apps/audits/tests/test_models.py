@@ -79,14 +79,14 @@ def create_audit_and_statement_check_results() -> Audit:
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
-        statement_check_result: str = (
+        check_result_state: str = (
             STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            statement_check_result=statement_check_result,
+            check_result_state=check_result_state,
         )
 
     return audit
@@ -745,7 +745,7 @@ def test_audit_failed_statement_check_results():
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, statement_check_result=STATEMENT_CHECK_NO
+            audit=audit, check_result_state=STATEMENT_CHECK_NO
         )
     )
 
@@ -776,7 +776,7 @@ def test_audit_specific_failed_statement_check_results(type, attr):
     audit: Audit = create_audit_and_statement_check_results()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
-            audit=audit, type=type, statement_check_result=STATEMENT_CHECK_NO
+            audit=audit, type=type, check_result_state=STATEMENT_CHECK_NO
         )
     )
 
@@ -798,12 +798,12 @@ def test_audit_statement_check_result_statement_found():
             statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
         )
     )
-    statement_check_result.statement_check_result = STATEMENT_CHECK_NO
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
     statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is False
 
-    statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+    statement_check_result.check_result_state = STATEMENT_CHECK_YES
     statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is True
@@ -826,19 +826,19 @@ def test_audit_all_overview_statement_checks_have_passed():
         )
     )
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.statement_check_result = STATEMENT_CHECK_NO
+        statement_check_result.check_result_state = STATEMENT_CHECK_NO
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is False
 
     for statement_check_result in overview_statement_check_results:
-        statement_check_result.retest_check_result = STATEMENT_CHECK_YES
+        statement_check_result.retest_state = STATEMENT_CHECK_YES
         statement_check_result.save()
 
     assert audit.all_overview_statement_checks_have_passed is True
@@ -860,7 +860,7 @@ def test_all_overview_statement_checks_have_passed():
     assert audit.all_overview_statement_checks_have_passed is False
 
     for overview_statement_check_result in overview_statement_check_results:
-        overview_statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        overview_statement_check_result.check_result_state = STATEMENT_CHECK_YES
         overview_statement_check_result.save()
 
     audit_from_db: Audit = Audit.objects.get(id=audit.id)

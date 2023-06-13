@@ -733,7 +733,7 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     for statement_check_result in StatementCheckResult.objects.filter(
         audit=audit, type=STATEMENT_CHECK_TYPE_OVERVIEW
     ):
-        statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(

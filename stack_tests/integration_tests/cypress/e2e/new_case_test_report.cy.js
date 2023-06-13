@@ -58,8 +58,8 @@ describe('Create case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Statement overview`)
-    cy.get('[name="form-0-statement_check_result"]').check('yes')
-    cy.get('[name="form-1-statement_check_result"]').check('yes')
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-1-check_result_state"]').check('yes')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Accessibility statement information`)

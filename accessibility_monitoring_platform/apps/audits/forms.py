@@ -435,7 +435,7 @@ class StatementCheckResultForm(forms.ModelForm):
     Form for updating a single statement check
     """
 
-    statement_check_result = AMPChoiceRadioField(
+    check_result_state = AMPChoiceRadioField(
         label="",
         choices=STATEMENT_CHECK_CHOICES,
         widget=AMPRadioSelectWidget(),
@@ -445,7 +445,7 @@ class StatementCheckResultForm(forms.ModelForm):
     class Meta:
         model = StatementCheckResult
         fields = [
-            "statement_check_result",
+            "check_result_state",
             "report_comment",
         ]
 
@@ -1168,7 +1168,7 @@ class RetestStatementCheckResultForm(forms.ModelForm):
     Form for updating a single statement check retest
     """
 
-    retest_check_result = AMPChoiceRadioField(
+    retest_state = AMPChoiceRadioField(
         label="",
         choices=STATEMENT_CHECK_CHOICES,
         widget=AMPRadioSelectWidget(),
@@ -1178,7 +1178,7 @@ class RetestStatementCheckResultForm(forms.ModelForm):
     class Meta:
         model = StatementCheckResult
         fields = [
-            "retest_check_result",
+            "retest_state",
             "retest_comment",
         ]
 

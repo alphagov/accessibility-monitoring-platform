@@ -18,7 +18,7 @@
                     {{ statement_check_result.statement_check.label }}
                 </td>
                 <td class="govuk-table__cell amp-notes">
-                    <p>{{ statement_check_result.get_statement_check_result_display }}</p>
+                    <p>{{ statement_check_result.get_check_result_state_display }}</p>
                     {% if statement_check_result.report_comment  %}
                         {{ statement_check_result.report_comment|markdown_to_html }}
                     {% endif %}

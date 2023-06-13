@@ -92,8 +92,10 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
                     ("type", "is_deleted"),
                     ("audit",),
                     ("statement_check",),
-                    ("statement_check_result",),
+                    ("check_result_state",),
                     ("report_comment",),
+                    ("retest_state",),
+                    ("retest_comment",),
                 )
             },
         ),

@@ -656,14 +656,14 @@ def test_overview_issues_statement_with_statement_checks():
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
     for count, statement_check in enumerate(StatementCheck.objects.all()):
-        statement_check_result: str = (
+        check_result_state: str = (
             STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
         )
         StatementCheckResult.objects.create(
             audit=audit,
             type=statement_check.type,
             statement_check=statement_check,
-            statement_check_result=statement_check_result,
+            check_result_state=check_result_state,
         )
 
     assert case.overview_issues_statement == "0 of 16 fixed (0%)"
@@ -672,7 +672,7 @@ def test_overview_issues_statement_with_statement_checks():
         audit.failed_statement_check_results
     ):
         if count % 2 == 0:
-            statement_check_result.statement_check_result = STATEMENT_CHECK_YES
+            statement_check_result.check_result_state = STATEMENT_CHECK_YES
             statement_check_result.save()
 
     assert case.overview_issues_statement == "0 of 8 fixed (0%)"

@@ -6,7 +6,7 @@
                     {{ statement_check_result.statement_check.label }}
                 </td>
                 <td class="govuk-table__cell amp-width-one-half">
-                    {{ statement_check_result.get_statement_check_result_display }}
+                    {{ statement_check_result.get_check_result_state_display }}
                     {% if statement_check_result.report_comment  %}
                         <br><br>Auditors comment:
                         {{ statement_check_result.report_comment }}
