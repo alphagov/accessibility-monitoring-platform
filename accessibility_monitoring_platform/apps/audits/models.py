@@ -274,17 +274,15 @@ STATEMENT_CHECK_TYPE_COMPLIANCE: str = "compliance"
 STATEMENT_CHECK_TYPE_NON_ACCESSIBLE: str = "non-accessible"
 STATEMENT_CHECK_TYPE_PREPARATION: str = "preparation"
 STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
-STATEMENT_CHECK_TYPE_ENFORCEMENT: str = "enforcement"
 STATEMENT_CHECK_TYPE_OTHER: str = "other"
 STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
     (STATEMENT_CHECK_TYPE_WEBSITE, "Accessibility statement for [website.com]"),
     (STATEMENT_CHECK_TYPE_COMPLIANCE, "Compliance status"),
-    (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non accessible content overview"),
+    (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
     (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
-    (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and contact information"),
-    (STATEMENT_CHECK_TYPE_ENFORCEMENT, "Enforcement procedure"),
-    (STATEMENT_CHECK_TYPE_OTHER, "Other"),
+    (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
+    (STATEMENT_CHECK_TYPE_OTHER, "Other questions and warnings"),
 ]
 STATEMENT_CHECK_STATEMENT_FOUND_ID: int = 2
 STATEMENT_CHECK_YES: str = "yes"
@@ -580,9 +578,6 @@ class Audit(VersionModel):
     # Statement checking feedback
     audit_statement_feedback_complete_date = models.DateField(null=True, blank=True)
 
-    # Statement checking enforcement
-    audit_statement_enforcement_complete_date = models.DateField(null=True, blank=True)
-
     # Statement checking other
     audit_statement_other_complete_date = models.DateField(null=True, blank=True)
 
@@ -716,11 +711,6 @@ class Audit(VersionModel):
 
     # Retest statement checking feedback
     audit_retest_statement_feedback_complete_date = models.DateField(
-        null=True, blank=True
-    )
-
-    # Retest statement checking enforcement
-    audit_retest_statement_enforcement_complete_date = models.DateField(
         null=True, blank=True
     )
 
@@ -954,12 +944,6 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_FEEDBACK)
 
     @property
-    def enforcement_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_ENFORCEMENT
-        )
-
-    @property
     def other_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OTHER)
 
@@ -1003,12 +987,6 @@ class Audit(VersionModel):
     def feedback_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_FEEDBACK
-        )
-
-    @property
-    def enforcement_failed_statement_check_results(self) -> bool:
-        return self.failed_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_ENFORCEMENT
         )
 
     @property

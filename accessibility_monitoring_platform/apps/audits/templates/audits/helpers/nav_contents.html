@@ -21,13 +21,12 @@
                 {% if audit.all_overview_statement_checks_have_passed %}
                     <li>
                         <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                            {% include './nav_content.html' with id='edit-statement-website' anchor="statement-website" edit_name='audits:edit-statement-website' name='Accessibility statement information' complete=audit.audit_statement_website_complete_date %}
+                            {% include './nav_content.html' with id='edit-statement-website' anchor="statement-website" edit_name='audits:edit-statement-website' name='Statement information' complete=audit.audit_statement_website_complete_date %}
                             {% include './nav_content.html' with id='edit-statement-compliance' anchor="statement-compliance" edit_name='audits:edit-statement-compliance' name='Compliance status' complete=audit.audit_statement_compliance_complete_date %}
-                            {% include './nav_content.html' with id='edit-statement-non-accessible' anchor="statement-non-accessible" edit_name='audits:edit-statement-non-accessible' name='Non accessible content' complete=audit.audit_statement_non_accessible_complete_date %}
+                            {% include './nav_content.html' with id='edit-statement-non-accessible' anchor="statement-non-accessible" edit_name='audits:edit-statement-non-accessible' name='Non-accessible content' complete=audit.audit_statement_non_accessible_complete_date %}
                             {% include './nav_content.html' with id='edit-statement-preparation' anchor="statement-preparation" edit_name='audits:edit-statement-preparation' name='Statement preparation' complete=audit.audit_statement_preparation_complete_date %}
-                            {% include './nav_content.html' with id='edit-statement-feedback' anchor="statement-feedback" edit_name='audits:edit-statement-feedback' name='Feedback and contact information' complete=audit.audit_statement_feedback_complete_date %}
-                            {% include './nav_content.html' with id='edit-statement-enforcement' anchor="statement-enforcement" edit_name='audits:edit-statement-enforcement' name='Enforcement procedure' complete=audit.audit_statement_enforcement_complete_date %}
-                            {% include './nav_content.html' with id='edit-statement-other' anchor="statement-other" edit_name='audits:edit-statement-other' name='Other' complete=audit.audit_statement_other_complete_date %}
+                            {% include './nav_content.html' with id='edit-statement-feedback' anchor="statement-feedback" edit_name='audits:edit-statement-feedback' name='Feedback and enforcement procedure' complete=audit.audit_statement_feedback_complete_date %}
+                            {% include './nav_content.html' with id='edit-statement-other' anchor="statement-other" edit_name='audits:edit-statement-other' name='Other questions and warnings' complete=audit.audit_statement_other_complete_date %}
                         </ul>
                     </li>
                 {% endif %}

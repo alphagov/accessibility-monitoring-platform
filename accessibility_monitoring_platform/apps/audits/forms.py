@@ -549,21 +549,6 @@ class AuditStatementFeedbackUpdateForm(VersionForm):
         ]
 
 
-class AuditStatementEnforcementUpdateForm(VersionForm):
-    """
-    Form for editing statement enforcement
-    """
-
-    audit_statement_enforcement_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Case
-        fields: List[str] = [
-            "version",
-            "audit_statement_enforcement_complete_date",
-        ]
-
-
 class AuditStatementOtherUpdateForm(VersionForm):
     """
     Form for editing statement other
@@ -1275,21 +1260,6 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
         fields: List[str] = [
             "version",
             "audit_retest_statement_feedback_complete_date",
-        ]
-
-
-class AuditRetestStatementEnforcementUpdateForm(VersionForm):
-    """
-    Form for editing statement enforcement
-    """
-
-    audit_retest_statement_enforcement_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "version",
-            "audit_retest_statement_enforcement_complete_date",
         ]
 
 

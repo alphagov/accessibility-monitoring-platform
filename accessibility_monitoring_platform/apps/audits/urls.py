@@ -22,7 +22,6 @@ from .views import (
     AuditStatementNonAccessibleFormView,
     AuditStatementPreparationFormView,
     AuditStatementFeedbackFormView,
-    AuditStatementEnforcementFormView,
     AuditStatementOtherFormView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
@@ -41,7 +40,6 @@ from .views import (
     AuditRetestStatementNonAccessibleFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementFeedbackFormView,
-    AuditRetestStatementEnforcementFormView,
     AuditRetestStatementOtherFormView,
     AuditRetestStatementComparisonUpdateView,
     AuditRetestStatementDecisionUpdateView,
@@ -151,11 +149,6 @@ urlpatterns: List[URLPattern] = [
         name="edit-statement-feedback",
     ),
     path(
-        "<int:pk>/edit-statement-enforcement/",
-        login_required(AuditStatementEnforcementFormView.as_view()),
-        name="edit-statement-enforcement",
-    ),
-    path(
         "<int:pk>/edit-statement-other/",
         login_required(AuditStatementOtherFormView.as_view()),
         name="edit-statement-other",
@@ -249,11 +242,6 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/edit-retest-statement-feedback/",
         login_required(AuditRetestStatementFeedbackFormView.as_view()),
         name="edit-retest-statement-feedback",
-    ),
-    path(
-        "<int:pk>/edit-retest-statement-enforcement/",
-        login_required(AuditRetestStatementEnforcementFormView.as_view()),
-        name="edit-retest-statement-enforcement",
     ),
     path(
         "<int:pk>/edit-retest-statement-other/",

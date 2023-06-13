@@ -317,35 +317,31 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
     [
         (
             "audits:edit-retest-statement-overview",
-            "12-week accessibility statement overview",
+            "12-week statement overview",
         ),
         (
             "audits:edit-retest-statement-website",
-            "12-week accessibility statement website",
+            "12-week statement information",
         ),
         (
             "audits:edit-retest-statement-compliance",
-            "12-week accessibility statement compliance",
+            "12-week compliance status",
         ),
         (
             "audits:edit-retest-statement-non-accessible",
-            "12-week accessibility statement non-accessible",
+            "12-week non-accessible content",
         ),
         (
             "audits:edit-retest-statement-preparation",
-            "12-week accessibility statement preparation",
+            "12-week statement preparation",
         ),
         (
             "audits:edit-retest-statement-feedback",
-            "12-week accessibility statement feedback",
-        ),
-        (
-            "audits:edit-retest-statement-enforcement",
-            "12-week accessibility statement enforcement",
+            "12-week feedback and enforcement procedure",
         ),
         (
             "audits:edit-retest-statement-other",
-            "12-week accessibility statement other",
+            "12-week other questions and warnings",
         ),
     ],
 )
@@ -580,16 +576,6 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-feedback",
             "save_continue",
-            "audits:edit-statement-enforcement",
-        ),
-        (
-            "audits:edit-statement-enforcement",
-            "save",
-            "audits:edit-statement-enforcement",
-        ),
-        (
-            "audits:edit-statement-enforcement",
-            "save_continue",
             "audits:edit-statement-other",
         ),
         (
@@ -664,16 +650,6 @@ def test_audit_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-retest-statement-feedback",
-            "save_continue",
-            "audits:edit-retest-statement-enforcement",
-        ),
-        (
-            "audits:edit-retest-statement-enforcement",
-            "save",
-            "audits:edit-retest-statement-enforcement",
-        ),
-        (
-            "audits:edit-retest-statement-enforcement",
             "save_continue",
             "audits:edit-retest-statement-other",
         ),
@@ -2108,7 +2084,7 @@ def test_statement_check_list_renders(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Statement issues editor")
-    assertContains(response, "Displaying 31 Statement checks.", html=True)
+    assertContains(response, "Displaying 42 Statement checks.", html=True)
     assertContains(
         response,
         """<a href="/audits/1/edit-statement-check/"
@@ -2125,7 +2101,7 @@ def test_statement_check_list_search(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Displaying 7 Statement checks.", html=True)
+    assertContains(response, "Displaying 9 Statement checks.", html=True)
 
 
 def test_create_statement_check_redirects(admin_client):

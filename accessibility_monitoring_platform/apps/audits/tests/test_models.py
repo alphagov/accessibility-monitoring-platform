@@ -656,11 +656,14 @@ def test_statement_check_str():
     """Tests an StatementCheck __str__ contains the expected string"""
     statement_check: StatementCheck = StatementCheck(label="Label")
 
-    assert statement_check.__str__() == "Label (Other)"
+    assert statement_check.__str__() == "Label (Other questions and warnings)"
 
     statement_check.success_criteria = "Success criteria"
 
-    assert statement_check.__str__() == "Label: Success criteria (Other)"
+    assert (
+        statement_check.__str__()
+        == "Label: Success criteria (Other questions and warnings)"
+    )
 
 
 @pytest.mark.django_db
@@ -715,7 +718,6 @@ def test_audit_uses_statement_checks():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("enforcement", "enforcement"),
         ("other", "other"),
     ],
 )
@@ -763,7 +765,6 @@ def test_audit_failed_statement_check_results():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("enforcement", "enforcement"),
         ("other", "other"),
     ],
 )

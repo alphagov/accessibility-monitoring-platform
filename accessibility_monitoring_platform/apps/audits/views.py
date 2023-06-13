@@ -58,7 +58,6 @@ from .forms import (
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementPreparationUpdateForm,
     AuditStatementFeedbackUpdateForm,
-    AuditStatementEnforcementUpdateForm,
     AuditStatementOtherUpdateForm,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
@@ -80,7 +79,6 @@ from .forms import (
     AuditRetestStatementNonAccessibleUpdateForm,
     AuditRetestStatementPreparationUpdateForm,
     AuditRetestStatementFeedbackUpdateForm,
-    AuditRetestStatementEnforcementUpdateForm,
     AuditRetestStatementOtherUpdateForm,
     AuditRetestStatementComparisonUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
@@ -105,7 +103,6 @@ from .models import (
     STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
     STATEMENT_CHECK_TYPE_PREPARATION,
     STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_ENFORCEMENT,
     STATEMENT_CHECK_TYPE_OTHER,
 )
 from .utils import (
@@ -684,25 +681,6 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-statement-enforcement", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditStatementEnforcementFormView(AuditStatementCheckingView):
-    """
-    View to update statement enforcement check results
-    """
-
-    form_class: Type[
-        AuditStatementEnforcementUpdateForm
-    ] = AuditStatementEnforcementUpdateForm
-    template_name: str = "audits/statement_checks/statement_enforcement.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_ENFORCEMENT
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-statement-other", kwargs=audit_pk)
         return super().get_success_url()
 
@@ -1262,26 +1240,6 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
     ] = AuditRetestStatementFeedbackUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_feedback.html"
     statement_check_type: str = STATEMENT_CHECK_TYPE_FEEDBACK
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_continue" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-retest-statement-enforcement", kwargs=audit_pk)
-        return super().get_success_url()
-
-
-class AuditRetestStatementEnforcementFormView(AuditRetestStatementCheckingView):
-    """
-    View to update statement enforcement check results retest
-    """
-
-    form_class: Type[
-        AuditRetestStatementEnforcementUpdateForm
-    ] = AuditRetestStatementEnforcementUpdateForm
-    template_name: str = "audits/statement_checks/retest_statement_enforcement.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_ENFORCEMENT
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

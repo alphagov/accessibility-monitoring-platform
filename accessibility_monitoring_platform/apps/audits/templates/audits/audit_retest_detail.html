@@ -225,7 +225,7 @@
                         <div class="govuk-accordion__section-header">
                             <h2 id="retest-statement-non-accessible" class="govuk-accordion__section-heading">
                                 <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
-                                    Non accessible content overview
+                                    Non-accessible content
                                     {% if audit.audit_retest_statement_non_accessible_complete_date %}
                                         <span class="govuk-visually-hidden">complete</span>
                                         &check;
@@ -237,12 +237,12 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <p class="govuk-body-m">
-                                        <b>Non accessible content overview</b>
+                                        <b>Non-accessible content</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
                                             class="govuk-link govuk-link--no-visited-state"
                                             rel="noreferrer noopener">
-                                            Edit{% if on_view_case %} test &gt; Non accessible content overview{% endif %}
+                                            Edit{% if on_view_case %} test &gt; Non-accessible content{% endif %}
                                         </a>
                                     </p>
                                 </div>
@@ -283,7 +283,7 @@
                         <div class="govuk-accordion__section-header">
                             <h2 id="retest-statement-feedback" class="govuk-accordion__section-heading">
                                 <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
-                                    Feedback and contact information
+                                    Feedback and enforcement procedure
                                     {% if audit.audit_retest_statement_feedback_complete_date %}
                                         <span class="govuk-visually-hidden">complete</span>
                                         &check;
@@ -295,12 +295,12 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <p class="govuk-body-m">
-                                        <b>Feedback and contact information</b>
+                                        <b>Feedback and enforcement procedure</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
                                             class="govuk-link govuk-link--no-visited-state"
                                             rel="noreferrer noopener">
-                                            Edit{% if on_view_case %} test &gt; Feedback and contact information{% endif %}
+                                            Edit{% if on_view_case %} test &gt; Feedback and enforcement procedure{% endif %}
                                         </a>
                                     </p>
                                 </div>
@@ -310,38 +310,9 @@
                     </div>
                     <div class="govuk-accordion__section">
                         <div class="govuk-accordion__section-header">
-                            <h2 id="retest-statement-enforcement" class="govuk-accordion__section-heading">
-                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
-                                    Enforcement procedure
-                                    {% if audit.audit_retest_statement_enforcement_complete_date %}
-                                        <span class="govuk-visually-hidden">complete</span>
-                                        &check;
-                                    {% endif %}
-                                </span>
-                            </h2>
-                        </div>
-                        <div id="accordion-content-audit-statement-enforcement" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
-                            <div class="govuk-grid-row">
-                                <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
-                                        <b>Enforcement procedure</b>
-                                        |
-                                        <a href="{% url 'audits:edit-retest-statement-enforcement' audit.id %}"
-                                            class="govuk-link govuk-link--no-visited-state"
-                                            rel="noreferrer noopener">
-                                            Edit{% if on_view_case %} test &gt; Enforcement procedure{% endif %}
-                                        </a>
-                                    </p>
-                                </div>
-                            </div>
-                            {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.enforcement_statement_check_results %}
-                        </div>
-                    </div>
-                    <div class="govuk-accordion__section">
-                        <div class="govuk-accordion__section-header">
                             <h2 id="retest-statement-other" class="govuk-accordion__section-heading">
                                 <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
-                                    Other
+                                    Other questions and warnings
                                     {% if audit.audit_retest_statement_other_complete_date %}
                                         <span class="govuk-visually-hidden">complete</span>
                                         &check;
@@ -353,12 +324,12 @@
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <p class="govuk-body-m">
-                                        <b>Other</b>
+                                        <b>Other questions and warnings</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-other' audit.id %}"
                                             class="govuk-link govuk-link--no-visited-state"
                                             rel="noreferrer noopener">
-                                            Edit{% if on_view_case %} test &gt; Other{% endif %}
+                                            Edit{% if on_view_case %} test &gt; Other questions and warnings{% endif %}
                                         </a>
                                     </p>
                                 </div>

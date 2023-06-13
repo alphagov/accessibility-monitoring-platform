@@ -31,8 +31,6 @@ const loggedInUrls = [
   '/audits/1/edit-retest-statement-preparation/',
   '/audits/1/edit-statement-feedback/',
   '/audits/1/edit-retest-statement-feedback/',
-  '/audits/1/edit-statement-enforcement/',
-  '/audits/1/edit-retest-statement-enforcement/',
   '/audits/1/edit-statement-other/',
   '/audits/1/edit-retest-statement-other/',
   '/audits/create-for-case/1/',

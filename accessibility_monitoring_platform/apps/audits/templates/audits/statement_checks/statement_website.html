@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | Accessibility statement information{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Statement information{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,14 +20,14 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Accessibility statement information
+                Statement information
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Accessibility statement information</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement information</h1>
                 {% include "cases/helpers/case_title.html" with case=audit.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>

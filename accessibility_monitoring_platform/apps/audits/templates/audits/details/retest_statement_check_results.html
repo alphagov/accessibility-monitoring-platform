@@ -49,16 +49,16 @@
     {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.compliance_statement_check_results %}
 </div>
 
-<div{% if case.audit %} data-search-target-page-name="Non accessible content overview" data-search-target-label="Edit 12-week test > Non accessible content overview" data-search-target-url="{% url 'audits:edit-retest-statement-non-accessible' case.audit.id %}"{% endif %}>
+<div{% if case.audit %} data-search-target-page-name="Non-accessible content" data-search-target-label="Edit 12-week test > Non-accessible content" data-search-target-url="{% url 'audits:edit-retest-statement-non-accessible' case.audit.id %}"{% endif %}>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <p id="retest-statement-non-accessible" class="govuk-body-m">
-                <b>Non accessible content overview</b>
+                <b>Non-accessible content</b>
                 |
                 <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
-                    Edit{% if on_view_case %} test &gt; Non accessible content overview{% endif %}
+                    Edit{% if on_view_case %} test &gt; Non-accessible content{% endif %}
                 </a>
             </p>
         </div>
@@ -83,16 +83,16 @@
     {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.preparation_statement_check_results %}
 </div>
 
-<div{% if case.audit %} data-search-target-page-name="Feedback and contact information" data-search-target-label="Edit 12-week test > Feedback and contact information" data-search-target-url="{% url 'audits:edit-retest-statement-feedback' case.audit.id %}"{% endif %}>
+<div{% if case.audit %} data-search-target-page-name="Feedback and enforcement procedure" data-search-target-label="Edit 12-week test > Feedback and enforcement procedure" data-search-target-url="{% url 'audits:edit-retest-statement-feedback' case.audit.id %}"{% endif %}>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <p id="retest-statement-feedback" class="govuk-body-m">
-                <b>Feedback and contact information</b>
+                <b>Feedback and enforcement procedure</b>
                 |
                 <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
-                    Edit{% if on_view_case %} test &gt; Feedback and contact information{% endif %}
+                    Edit{% if on_view_case %} test &gt; Feedback and enforcement procedure{% endif %}
                 </a>
             </p>
         </div>
@@ -100,33 +100,16 @@
     {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.feedback_statement_check_results %}
 </div>
 
-<div{% if case.audit %} data-search-target-page-name="Enforcement procedure" data-search-target-label="Edit 12-week test > Enforcement procedure" data-search-target-url="{% url 'audits:edit-retest-statement-enforcement' case.audit.id %}"{% endif %}>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <p id="retest-statement-enforcement" class="govuk-body-m">
-                <b>Enforcement procedure</b>
-                |
-                <a href="{% url 'audits:edit-retest-statement-enforcement' audit.id %}"
-                    class="govuk-link govuk-link--no-visited-state"
-                    rel="noreferrer noopener">
-                    Edit{% if on_view_case %} test &gt; Enforcement procedure{% endif %}
-                </a>
-            </p>
-        </div>
-    </div>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.enforcement_statement_check_results %}
-</div>
-
-<div{% if case.audit %} data-search-target-page-name="Other" data-search-target-label="Edit 12-week test > Other" data-search-target-url="{% url 'audits:edit-retest-statement-other' case.audit.id %}"{% endif %}>
+<div{% if case.audit %} data-search-target-page-name="Other questions and warnings" data-search-target-label="Edit 12-week test > Other questions and warnings" data-search-target-url="{% url 'audits:edit-retest-statement-other' case.audit.id %}"{% endif %}>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <p id="retest-statement-other" class="govuk-body-m">
-                <b>Other</b>
+                <b>Other questions and warnings</b>
                 |
                 <a href="{% url 'audits:edit-retest-statement-other' audit.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
-                    Edit{% if on_view_case %} test &gt; Other{% endif %}
+                    Edit{% if on_view_case %} test &gt; Other questions and warnings{% endif %}
                 </a>
             </p>
         </div>
