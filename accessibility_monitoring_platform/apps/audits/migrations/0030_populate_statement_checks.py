@@ -40,6 +40,30 @@ QUESTIONS = [
         "report_text": "There is no scope included for the statement or is not clear enough.",
     },
     {
+        "type": "website",
+        "label": "Is the accessibility statement provided as a web page?",
+        "success_criteria": "The statement is a web page.",
+        "report_text": "Some users may have accessibility issues reading an accessibility statement that is not a standard HTML web page. It would be beneficial to publish as a web page.",
+    },
+    {
+        "type": "website",
+        "label": "Is the accessibility statement prominent on the home page or on every page of the site?",
+        "success_criteria": "The statement is not properly linked.",
+        "report_text": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as the regulations require.                                                                                                                                                ",
+    },
+    {
+        "type": "website",
+        "label": "Is the statement complete on one page?",
+        "success_criteria": "The statement is on one page and is not split over many pages.",
+        "report_text": "The statement should be easy to read and navigate. Splitting the statement over multiple pages could mean a user cannot find the information they were looking for.",
+    },
+    {
+        "type": "website",
+        "label": "Does the statement cover the entire website?",
+        "success_criteria": "The statement covers the entire website, no further accessibility statements are needed.",
+        "report_text": "The accessibility statement needs to cover the entire website. Either this statement needs to be extended or an additional statement needs to be published.",
+    },
+    {
         "type": "compliance",
         "label": "Is there a heading for compliance status?",
         "success_criteria": "There is a heading for compliance status",
@@ -230,30 +254,6 @@ QUESTIONS = [
         "label": "If NI: is there a link to ECNI?",
         "success_criteria": "There is a line about contacting ECNI and this is linked.",
         "report_text": "There must be a link to the ECNI website for complaints.",
-    },
-    {
-        "type": "other",
-        "label": "Is the accessibility statement provided as a web page?",
-        "success_criteria": "The statement is a web page.",
-        "report_text": "Some users may have accessibility issues reading an accessibility statement that is not a standard HTML web page. It would be beneficial to publish as a web page.",
-    },
-    {
-        "type": "other",
-        "label": "Is the accessibility statement prominent on the home page or on every page of the site?",
-        "success_criteria": "The statement is not properly linked.",
-        "report_text": "Your statement should be prominently placed on the homepage of the website or made available on every web page, for example in a static header or footer, as the regulations require.                                                                                                                                                ",
-    },
-    {
-        "type": "other",
-        "label": "Is the statement complete on one page?",
-        "success_criteria": "The statement is on one page and is not split over many pages.",
-        "report_text": "The statement should be easy to read and navigate. Splitting the statement over multiple pages could mean a user cannot find the information they were looking for.",
-    },
-    {
-        "type": "other",
-        "label": "Does the statement cover the entire website?",
-        "success_criteria": "The statement covers the entire website, no further accessibility statements are needed.",
-        "report_text": "The accessibility statement needs to cover the entire website. Either this statement needs to be extended or an additional statement needs to be published.",
     },
 ]
 
