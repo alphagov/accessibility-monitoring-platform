@@ -88,6 +88,10 @@ def create_audit_and_statement_check_results() -> Audit:
             statement_check=statement_check,
             check_result_state=check_result_state,
         )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
 
     return audit
 
@@ -678,6 +682,12 @@ def test_statement_check_results_str():
         == f"{audit} | {statement_check_result.statement_check}"
     )
 
+    custom_statement_check_result: StatementCheckResult = (
+        audit.custom_statement_check_results.first()
+    )
+
+    assert custom_statement_check_result.__str__() == f"{audit} | Custom"
+
 
 @pytest.mark.django_db
 def test_audit_statement_check_results():
@@ -717,7 +727,7 @@ def test_audit_uses_statement_checks():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("other", "other"),
+        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db

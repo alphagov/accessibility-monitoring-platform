@@ -58,7 +58,9 @@ from .forms import (
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementPreparationUpdateForm,
     AuditStatementFeedbackUpdateForm,
-    AuditStatementOtherUpdateForm,
+    AuditStatementCustomUpdateForm,
+    CustomStatementCheckResultFormset,
+    CustomStatementCheckResultFormsetOneExtra,
     AuditSummaryUpdateForm,
     AuditReportOptionsUpdateForm,
     AuditReportTextUpdateForm,
@@ -103,7 +105,8 @@ from .models import (
     STATEMENT_CHECK_TYPE_NON_ACCESSIBLE,
     STATEMENT_CHECK_TYPE_PREPARATION,
     STATEMENT_CHECK_TYPE_FEEDBACK,
-    STATEMENT_CHECK_TYPE_OTHER,
+    STATEMENT_CHECK_TYPE_CUSTOM,
+    STATEMENT_CHECK_NO,
 )
 from .utils import (
     create_or_update_check_results_for_page,
@@ -563,6 +566,10 @@ class AuditStatementCheckingView(AuditUpdateView):
         ]
         if statement_check_results_formset.is_valid():
             for statement_check_results_form in statement_check_results_formset.forms:
+                record_model_update_event(
+                    user=self.request.user,
+                    model_object=statement_check_results_form.instance,
+                )
                 statement_check_results_form.save()
         else:
             return super().form_invalid(form)
@@ -685,21 +692,92 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
         return super().get_success_url()
 
 
-class AuditStatementOtherFormView(AuditStatementCheckingView):
+class AuditStatementCustomFormsetView(AuditUpdateView):
     """
-    View to update statement other check results
+    View to add/update custom statement issues check results
     """
 
-    form_class: Type[AuditStatementOtherUpdateForm] = AuditStatementOtherUpdateForm
-    template_name: str = "audits/statement_checks/statement_other.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_OTHER
+    form_class: Type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
+    template_name: str = "audits/statement_checks/statement_custom.html"
+    statement_check_type: str = STATEMENT_CHECK_TYPE_CUSTOM
+
+    def get_context_data(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context data for template rendering"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            custom_formset = CustomStatementCheckResultFormset(self.request.POST)
+        else:
+            statement_check_results: QuerySet[
+                Contact
+            ] = self.object.custom_statement_check_results
+            if "add_custom" in self.request.GET:
+                custom_formset = CustomStatementCheckResultFormsetOneExtra(
+                    queryset=statement_check_results
+                )
+            else:
+                custom_formset = CustomStatementCheckResultFormset(
+                    queryset=statement_check_results
+                )
+        context["custom_formset"] = custom_formset
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: Dict[str, Any] = self.get_context_data()
+        custom_formset = context["custom_formset"]
+        audit: Audit = form.save(commit=False)
+        if custom_formset.is_valid():
+            custom_statement_check_results: List[
+                StatementCheckResult
+            ] = custom_formset.save(commit=False)
+            for custom_statement_check_result in custom_statement_check_results:
+                if not custom_statement_check_result.audit_id:
+                    custom_statement_check_result.audit = audit
+                    custom_statement_check_result.check_result_state = (
+                        STATEMENT_CHECK_NO
+                    )
+                    custom_statement_check_result.save()
+                    record_model_create_event(
+                        user=self.request.user,
+                        model_object=custom_statement_check_result,
+                    )
+                else:
+                    record_model_update_event(
+                        user=self.request.user,
+                        model_object=custom_statement_check_result,
+                    )
+                    custom_statement_check_result.save()
+        else:
+            return super().form_invalid(form)
+        custom_statement_check_result_id_to_delete: Optional[
+            int
+        ] = get_id_from_button_name(
+            button_name_prefix="remove_custom_",
+            querydict=self.request.POST,
+        )
+        if custom_statement_check_result_id_to_delete is not None:
+            custom_statement_check_result: StatementCheckResult = (
+                StatementCheckResult.objects.get(
+                    id=custom_statement_check_result_id_to_delete
+                )
+            )
+            custom_statement_check_result.is_deleted = True
+            record_model_update_event(
+                user=self.request.user, model_object=custom_statement_check_result
+            )
+            custom_statement_check_result.save()
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
+        audit_pk: Dict[str, int] = {"pk": self.object.id}
+        if "save" in self.request.POST:
+            return super().get_success_url()
         if "save_continue" in self.request.POST:
-            audit_pk: Dict[str, int] = {"pk": self.object.id}
             return reverse("audits:edit-audit-summary", kwargs=audit_pk)
-        return super().get_success_url()
+        elif "add_custom" in self.request.POST:
+            return f"{reverse('audits:edit-statement-custom', kwargs=audit_pk)}?add_custom=true#custom-None"
+        return f"{reverse('audits:edit-statement-custom', kwargs=audit_pk)}"
 
 
 class AuditStatement1UpdateView(AuditUpdateView):
@@ -1259,7 +1337,7 @@ class AuditRetestStatementOtherFormView(AuditRetestStatementCheckingView):
         AuditRetestStatementOtherUpdateForm
     ] = AuditRetestStatementOtherUpdateForm
     template_name: str = "audits/statement_checks/retest_statement_other.html"
-    statement_check_type: str = STATEMENT_CHECK_TYPE_OTHER
+    statement_check_type: str = STATEMENT_CHECK_TYPE_CUSTOM
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""

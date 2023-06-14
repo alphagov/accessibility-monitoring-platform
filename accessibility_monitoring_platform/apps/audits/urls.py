@@ -22,7 +22,7 @@ from .views import (
     AuditStatementNonAccessibleFormView,
     AuditStatementPreparationFormView,
     AuditStatementFeedbackFormView,
-    AuditStatementOtherFormView,
+    AuditStatementCustomFormsetView,
     AuditSummaryUpdateView,
     AuditReportOptionsUpdateView,
     AuditReportTextUpdateView,
@@ -150,7 +150,7 @@ urlpatterns: List[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-custom/",
-        login_required(AuditStatementOtherFormView.as_view()),
+        login_required(AuditStatementCustomFormsetView.as_view()),
         name="edit-statement-custom",
     ),
     path(

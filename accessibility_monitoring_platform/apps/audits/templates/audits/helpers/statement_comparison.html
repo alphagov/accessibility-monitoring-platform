@@ -40,7 +40,7 @@
         <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
             class="govuk-link govuk-link--no-visited-state">Edit Custom statement issues</a>
     </p>
-    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.other_statement_check_results %}
+    {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_statement_check_results %}
 {% else %}
     <div class="govuk-grid-row govuk-body amp-bottom-border">
         <div class="govuk-grid-column-one-half">

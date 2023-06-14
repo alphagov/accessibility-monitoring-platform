@@ -108,7 +108,7 @@
                             {% include 'audits/helpers/statement_summary.html' with title='Non-accessible content' edit_link='audits:edit-statement-non-accessible' check_results=audit.non_accessible_statement_check_results %}
                             {% include 'audits/helpers/statement_summary.html' with title='Statement preparation' edit_link='audits:edit-statement-preparation' check_results=audit.preparation_statement_check_results %}
                             {% include 'audits/helpers/statement_summary.html' with title='Feedback and enforcement procedure' edit_link='audits:edit-statement-feedback' check_results=audit.feedback_statement_check_results %}
-                            {% include 'audits/helpers/statement_summary.html' with title='Custom statement issues' edit_link='audits:edit-statement-custom' check_results=audit.other_statement_check_results %}
+                            {% include 'audits/helpers/statement_summary.html' with title='Custom statement issues' edit_link='audits:edit-statement-custom' check_results=audit.custom_statement_check_results %}
                         {% else %}
                             <table class="govuk-table">
                                 <tbody class="govuk-table__body">

@@ -274,7 +274,7 @@ STATEMENT_CHECK_TYPE_COMPLIANCE: str = "compliance"
 STATEMENT_CHECK_TYPE_NON_ACCESSIBLE: str = "non-accessible"
 STATEMENT_CHECK_TYPE_PREPARATION: str = "preparation"
 STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
-STATEMENT_CHECK_TYPE_OTHER: str = "other"
+STATEMENT_CHECK_TYPE_CUSTOM: str = "custom"
 STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
     (STATEMENT_CHECK_TYPE_WEBSITE, "Accessibility statement for [website.com]"),
@@ -282,7 +282,7 @@ STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
     (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
     (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
-    (STATEMENT_CHECK_TYPE_OTHER, "Custom statement issues"),
+    (STATEMENT_CHECK_TYPE_CUSTOM, "Custom statement issues"),
 ]
 STATEMENT_CHECK_STATEMENT_FOUND_ID: int = 2
 STATEMENT_CHECK_YES: str = "yes"
@@ -946,8 +946,8 @@ class Audit(VersionModel):
         return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_FEEDBACK)
 
     @property
-    def other_statement_check_results(self) -> bool:
-        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OTHER)
+    def custom_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_CUSTOM)
 
     @property
     def failed_statement_check_results(self) -> bool:
@@ -994,7 +994,7 @@ class Audit(VersionModel):
     @property
     def other_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
-            type=STATEMENT_CHECK_TYPE_OTHER
+            type=STATEMENT_CHECK_TYPE_CUSTOM
         )
 
     @property
@@ -1168,7 +1168,7 @@ class StatementCheck(models.Model):
     type = models.CharField(
         max_length=20,
         choices=STATEMENT_CHECK_TYPE_CHOICES,
-        default=STATEMENT_CHECK_TYPE_OTHER,
+        default=STATEMENT_CHECK_TYPE_CUSTOM,
     )
     label = models.TextField(default="", blank=True)
     success_criteria = models.TextField(default="", blank=True)
@@ -1193,11 +1193,13 @@ class StatementCheckResult(models.Model):
     """
 
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
-    statement_check = models.ForeignKey(StatementCheck, on_delete=models.PROTECT)
+    statement_check = models.ForeignKey(
+        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
     type = models.CharField(
         max_length=20,
         choices=STATEMENT_CHECK_TYPE_CHOICES,
-        default=STATEMENT_CHECK_TYPE_OTHER,
+        default=STATEMENT_CHECK_TYPE_CUSTOM,
     )
     check_result_state = models.CharField(
         max_length=10,
@@ -1205,6 +1207,7 @@ class StatementCheckResult(models.Model):
         default=STATEMENT_CHECK_NOT_TESTED,
     )
     report_comment = models.TextField(default="", blank=True)
+    auditor_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=10,
         choices=STATEMENT_CHECK_CHOICES,
@@ -1217,4 +1220,6 @@ class StatementCheckResult(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:
+        if self.statement_check is None:
+            return str(f"{self.audit} | Custom")
         return str(f"{self.audit} | {self.statement_check}")

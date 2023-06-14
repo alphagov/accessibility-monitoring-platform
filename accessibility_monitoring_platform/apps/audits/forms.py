@@ -549,9 +549,9 @@ class AuditStatementFeedbackUpdateForm(VersionForm):
         ]
 
 
-class AuditStatementOtherUpdateForm(VersionForm):
+class AuditStatementCustomUpdateForm(VersionForm):
     """
-    Form for editing statement other
+    Form for editing custom statement issues
     """
 
     audit_statement_custom_complete_date = AMPDatePageCompleteField()
@@ -562,6 +562,27 @@ class AuditStatementOtherUpdateForm(VersionForm):
             "version",
             "audit_statement_custom_complete_date",
         ]
+
+
+class CustomStatementCheckResultUpdateForm(forms.ModelForm):
+    """
+    Form for updating a custom statement check result
+    """
+
+    report_comment = AMPTextField(label="Comments for report")
+    auditor_notes = AMPTextField(label="Notes for auditor")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = ["report_comment", "auditor_notes"]
+
+
+CustomStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=0
+)
+CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
+    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=1
+)
 
 
 class CaseStatementDecisionUpdateForm(VersionForm):
