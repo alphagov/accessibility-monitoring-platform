@@ -40,6 +40,7 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_YES,
 )
 from ..utils import create_mandatory_pages_for_new_audit
@@ -90,6 +91,7 @@ TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT: str = (
 )
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
+CUSTOM_STATEMENT_ISSUE: str = "Custom statement issue"
 
 
 def create_audit() -> Audit:
@@ -1393,6 +1395,89 @@ def test_statement_update_one_adds_contact(email, new_contact_expected, admin_cl
         assert contact.email == email
     else:
         assert len(contacts) == 0
+
+
+def test_add_custom_statement_check_result_form_appears(admin_client):
+    """
+    Test that pressing the create issue button adds a new custom statement issue form
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "add_custom": "Create issue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "Custom issue #1")
+
+
+def test_add_custom_statement_check_result(admin_client):
+    """Test adding a custom statement issue"""
+    audit: Audit = create_audit_and_statement_check_results()
+    StatementCheckResult.objects.filter(
+        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+    ).delete()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-report_comment": CUSTOM_STATEMENT_ISSUE,
+            "form-0-auditor_notes": "",
+            "version": audit.version,
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+    )
+
+    assert custom_statement_check_result.report_comment == CUSTOM_STATEMENT_ISSUE
+
+
+def test_delete_custom_statement_check_result(admin_client):
+    """
+    Test that pressing the remove issue button deletes the custom statement issue
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_custom_{custom_statement_check_result.id}": "Remove issue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "No custom statement issues have been entered")
+
+    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
+        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+    )
+    assert result_on_database.is_deleted is True
 
 
 def test_statement_decision_saved_on_case(admin_client):
