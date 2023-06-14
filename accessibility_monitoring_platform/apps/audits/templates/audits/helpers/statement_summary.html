@@ -4,26 +4,30 @@
         Edit {{ title|lower }}
     </a>
 </p>
-<table class="govuk-table">
-    <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Question</th>
-            <th scope="col" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Result</th>
-        </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-        {% for statement_check_result in check_results %}
-            <tr class="govuk-table__row ">
-                <td class="govuk-table__cell">
-                    {{ statement_check_result.statement_check.label }}
-                </td>
-                <td class="govuk-table__cell amp-notes">
-                    <p>{{ statement_check_result.get_check_result_state_display }}</p>
-                    {% if statement_check_result.report_comment  %}
-                        {{ statement_check_result.report_comment|markdown_to_html }}
-                    {% endif %}
-                </td>
+{% if check_results %}
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Question</th>
+                <th scope="col" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Result</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for statement_check_result in check_results %}
+                <tr class="govuk-table__row ">
+                    <td class="govuk-table__cell">
+                        {{ statement_check_result.label }}
+                    </td>
+                    <td class="govuk-table__cell amp-notes">
+                        <p>{{ statement_check_result.get_check_result_state_display }}</p>
+                        {% if statement_check_result.report_comment  %}
+                            {{ statement_check_result.report_comment|markdown_to_html }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="govuk-body-m">No {{ title|lower }} entered</p>
+{% endif %}

@@ -148,7 +148,7 @@
                     <div id="accordion-content-audit-statement-overview" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <p class="govuk-body-m">
+                                <p id="retest-statement-overview" class="govuk-body-m">
                                     <b>Statement overview</b>
                                     |
                                     <a href="{% url 'audits:edit-retest-statement-overview' audit.id %}"
@@ -178,7 +178,7 @@
                         <div id="accordion-content-audit-statement-website" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-website" class="govuk-body-m">
                                         <b>Accessibility statement for [website]</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-website' audit.id %}"
@@ -207,7 +207,7 @@
                         <div id="accordion-content-audit-statement-compliance" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-compliance" class="govuk-body-m">
                                         <b>Compliance status</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-compliance' audit.id %}"
@@ -236,7 +236,7 @@
                         <div id="accordion-content-audit-statement-non-accessible" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-non-accessible" class="govuk-body-m">
                                         <b>Non-accessible content</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-non-accessible' audit.id %}"
@@ -265,7 +265,7 @@
                         <div id="accordion-content-audit-statement-preparation" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-preparation" class="govuk-body-m">
                                         <b>Preparation of this accessibility statement</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-preparation' audit.id %}"
@@ -294,7 +294,7 @@
                         <div id="accordion-content-audit-statement-feedback" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-feedback" class="govuk-body-m">
                                         <b>Feedback and enforcement procedure</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-feedback' audit.id %}"
@@ -323,7 +323,7 @@
                         <div id="accordion-content-audit-statement-custom" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <p class="govuk-body-m">
+                                    <p id="retest-statement-custom" class="govuk-body-m">
                                         <b>Custom statement issues</b>
                                         |
                                         <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
@@ -334,7 +334,11 @@
                                     </p>
                                 </div>
                             </div>
-                            {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_statement_check_results %}
+                            {% if audit.custom_statement_check_results %}
+                                {% include 'audits/statement_checks/statement_comparison_table.html' with statement_check_results=audit.custom_statement_check_results %}
+                            {% else %}
+                                <p class="govuk-body-m">No custom statement issues have been entered</p>
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}

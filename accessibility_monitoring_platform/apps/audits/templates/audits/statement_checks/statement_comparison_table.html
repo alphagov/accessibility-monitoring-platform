@@ -1,4 +1,4 @@
-<table class="govuk-table amp-accordion-table">
+<table class="govuk-table{% if on_view_case %} amp-accordion-table{% endif %}">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
@@ -10,7 +10,7 @@
         {% for statement_check_result in statement_check_results %}
             <tr class="govuk-table__row ">
                 <td class="govuk-table__cell amp-width-one-third">
-                    {{ statement_check_result.statement_check.label }}
+                    {{ statement_check_result.label }}
                 </td>
                 <td class="govuk-table__cell amp-width-one-third">
                     {{ statement_check_result.get_check_result_state_display }}

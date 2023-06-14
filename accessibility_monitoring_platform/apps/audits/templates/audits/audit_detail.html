@@ -343,7 +343,11 @@
                                     </p>
                                 </div>
                             </div>
-                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.custom_statement_check_results %}
+                            {% if audit.custom_statement_check_results %}
+                                {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.custom_statement_check_results %}
+                            {% else %}
+                                <p class="govuk-body-m">No custom statement issues have been entered</p>
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}

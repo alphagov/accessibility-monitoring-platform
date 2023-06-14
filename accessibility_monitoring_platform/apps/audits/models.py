@@ -1223,3 +1223,7 @@ class StatementCheckResult(models.Model):
         if self.statement_check is None:
             return str(f"{self.audit} | Custom")
         return str(f"{self.audit} | {self.statement_check}")
+
+    @property
+    def label(self):
+        return self.statement_check.label if self.statement_check else "Custom"
