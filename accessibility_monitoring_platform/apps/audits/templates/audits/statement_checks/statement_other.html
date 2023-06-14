@@ -4,7 +4,7 @@
 
 {% load static %}
 
-{% block title %}{{ audit.case.organisation_name }} | Other questions and warnings{% endblock %}
+{% block title %}{{ audit.case.organisation_name }} | Custom statement issues{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,21 +20,21 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
             </li>
             <li class="govuk-breadcrumbs__list-item">
-                Other questions and warnings
+                Custom statement issues
             </li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">Other questions and warnings</h1>
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Custom statement issues</h1>
                 {% include "cases/helpers/case_title.html" with case=audit.case %}
                 {% include "cases/helpers/messages.html" %}
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form method="post" action="{% url 'audits:edit-statement-other' audit.id %}">
+                <form method="post" action="{% url 'audits:edit-statement-custom' audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
@@ -48,7 +48,7 @@
                     {% include 'audits/helpers/statement_check_formset.html' %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.audit_statement_other_complete_date %}
+                            {% include 'common/amp_field.html' with field=form.audit_statement_custom_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             {% include 'audits/helpers/save_continue_cancel.html' %}
@@ -57,7 +57,7 @@
                 </form>
             </div>
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-other' %}
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-custom' %}
             </div>
         </div>
     </main>

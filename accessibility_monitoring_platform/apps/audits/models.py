@@ -282,7 +282,7 @@ STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
     (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
     (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
-    (STATEMENT_CHECK_TYPE_OTHER, "Other questions and warnings"),
+    (STATEMENT_CHECK_TYPE_OTHER, "Custom statement issues"),
 ]
 STATEMENT_CHECK_STATEMENT_FOUND_ID: int = 2
 STATEMENT_CHECK_YES: str = "yes"
@@ -579,7 +579,7 @@ class Audit(VersionModel):
     audit_statement_feedback_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking other
-    audit_statement_other_complete_date = models.DateField(null=True, blank=True)
+    audit_statement_custom_complete_date = models.DateField(null=True, blank=True)
 
     # Report text
     audit_report_text_complete_date = models.DateField(null=True, blank=True)
@@ -715,7 +715,9 @@ class Audit(VersionModel):
     )
 
     # Retest statement checking other
-    audit_retest_statement_other_complete_date = models.DateField(null=True, blank=True)
+    audit_retest_statement_custom_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest statement comparison
     audit_retest_statement_comparison_complete_date = models.DateField(

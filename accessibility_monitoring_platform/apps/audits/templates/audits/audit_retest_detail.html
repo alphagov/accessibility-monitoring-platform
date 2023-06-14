@@ -310,26 +310,26 @@
                     </div>
                     <div class="govuk-accordion__section">
                         <div class="govuk-accordion__section-header">
-                            <h2 id="retest-statement-other" class="govuk-accordion__section-heading">
+                            <h2 id="retest-statement-custom" class="govuk-accordion__section-heading">
                                 <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
-                                    Other questions and warnings
-                                    {% if audit.audit_retest_statement_other_complete_date %}
+                                    Custom statement issues
+                                    {% if audit.audit_retest_statement_custom_complete_date %}
                                         <span class="govuk-visually-hidden">complete</span>
                                         &check;
                                     {% endif %}
                                 </span>
                             </h2>
                         </div>
-                        <div id="accordion-content-audit-statement-other" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                        <div id="accordion-content-audit-statement-custom" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <p class="govuk-body-m">
-                                        <b>Other questions and warnings</b>
+                                        <b>Custom statement issues</b>
                                         |
-                                        <a href="{% url 'audits:edit-retest-statement-other' audit.id %}"
+                                        <a href="{% url 'audits:edit-retest-statement-custom' audit.id %}"
                                             class="govuk-link govuk-link--no-visited-state"
                                             rel="noreferrer noopener">
-                                            Edit{% if on_view_case %} test &gt; Other questions and warnings{% endif %}
+                                            Edit{% if on_view_case %} test &gt; Custom statement issues{% endif %}
                                         </a>
                                     </p>
                                 </div>

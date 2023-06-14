@@ -340,8 +340,8 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
             "12-week feedback and enforcement procedure",
         ),
         (
-            "audits:edit-retest-statement-other",
-            "12-week other questions and warnings",
+            "audits:edit-retest-statement-custom",
+            "12-week custom statement issues",
         ),
     ],
 )
@@ -576,15 +576,15 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-statement-feedback",
             "save_continue",
-            "audits:edit-statement-other",
+            "audits:edit-statement-custom",
         ),
         (
-            "audits:edit-statement-other",
+            "audits:edit-statement-custom",
             "save",
-            "audits:edit-statement-other",
+            "audits:edit-statement-custom",
         ),
         (
-            "audits:edit-statement-other",
+            "audits:edit-statement-custom",
             "save_continue",
             "audits:edit-audit-summary",
         ),
@@ -651,15 +651,15 @@ def test_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-retest-statement-feedback",
             "save_continue",
-            "audits:edit-retest-statement-other",
+            "audits:edit-retest-statement-custom",
         ),
         (
-            "audits:edit-retest-statement-other",
+            "audits:edit-retest-statement-custom",
             "save",
-            "audits:edit-retest-statement-other",
+            "audits:edit-retest-statement-custom",
         ),
         (
-            "audits:edit-retest-statement-other",
+            "audits:edit-retest-statement-custom",
             "save_continue",
             "audits:edit-audit-retest-statement-comparison",
         ),

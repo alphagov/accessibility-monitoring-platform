@@ -554,13 +554,13 @@ class AuditStatementOtherUpdateForm(VersionForm):
     Form for editing statement other
     """
 
-    audit_statement_other_complete_date = AMPDatePageCompleteField()
+    audit_statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Case
         fields: List[str] = [
             "version",
-            "audit_statement_other_complete_date",
+            "audit_statement_custom_complete_date",
         ]
 
 
@@ -1268,13 +1268,13 @@ class AuditRetestStatementOtherUpdateForm(VersionForm):
     Form for editing statement other
     """
 
-    audit_retest_statement_other_complete_date = AMPDatePageCompleteField()
+    audit_retest_statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: List[str] = [
             "version",
-            "audit_retest_statement_other_complete_date",
+            "audit_retest_statement_custom_complete_date",
         ]
 
 

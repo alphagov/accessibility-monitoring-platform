@@ -149,9 +149,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-statement-feedback",
     ),
     path(
-        "<int:pk>/edit-statement-other/",
+        "<int:pk>/edit-statement-custom/",
         login_required(AuditStatementOtherFormView.as_view()),
-        name="edit-statement-other",
+        name="edit-statement-custom",
     ),
     path(
         "<int:pk>/edit-audit-summary/",
@@ -244,9 +244,9 @@ urlpatterns: List[URLPattern] = [
         name="edit-retest-statement-feedback",
     ),
     path(
-        "<int:pk>/edit-retest-statement-other/",
+        "<int:pk>/edit-retest-statement-custom/",
         login_required(AuditRetestStatementOtherFormView.as_view()),
-        name="edit-retest-statement-other",
+        name="edit-retest-statement-custom",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-comparison/",

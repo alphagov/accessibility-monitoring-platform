@@ -100,16 +100,16 @@
     {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.feedback_statement_check_results %}
 </div>
 
-<div{% if case.audit %} data-search-target-page-name="Other questions and warnings" data-search-target-label="Edit test > Other questions and warnings" data-search-target-url="{% url 'audits:edit-statement-other' case.audit.id %}"{% endif %}>
+<div{% if case.audit %} data-search-target-page-name="Custom statement issues" data-search-target-label="Edit test > Custom statement issues" data-search-target-url="{% url 'audits:edit-statement-custom' case.audit.id %}"{% endif %}>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <p id="statement-other" class="govuk-body-m">
-                <b>Other questions and warnings</b>
+            <p id="statement-custom" class="govuk-body-m">
+                <b>Custom statement issues</b>
                 |
-                <a href="{% url 'audits:edit-statement-other' audit.id %}"
+                <a href="{% url 'audits:edit-statement-custom' audit.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
-                    Edit{% if on_view_case %} test &gt; Other questions and warnings{% endif %}
+                    Edit{% if on_view_case %} test &gt; Custom statement issues{% endif %}
                 </a>
             </p>
         </div>

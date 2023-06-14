@@ -656,13 +656,12 @@ def test_statement_check_str():
     """Tests an StatementCheck __str__ contains the expected string"""
     statement_check: StatementCheck = StatementCheck(label="Label")
 
-    assert statement_check.__str__() == "Label (Other questions and warnings)"
+    assert statement_check.__str__() == "Label (Custom statement issues)"
 
     statement_check.success_criteria = "Success criteria"
 
     assert (
-        statement_check.__str__()
-        == "Label: Success criteria (Other questions and warnings)"
+        statement_check.__str__() == "Label: Success criteria (Custom statement issues)"
     )
 
 

@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                                 "Preparation of this accessibility statement",
                             ),
                             ("feedback", "Feedback and enforcement procedure"),
-                            ("other", "Other questions and warnings"),
+                            ("other", "Custom statement issues"),
                         ],
                         default="other",
                         max_length=20,
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="audit",
-            name="audit_retest_statement_other_complete_date",
+            name="audit_retest_statement_custom_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
@@ -103,7 +103,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="audit",
-            name="audit_statement_other_complete_date",
+            name="audit_statement_custom_complete_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
@@ -146,7 +146,7 @@ class Migration(migrations.Migration):
                                 "Preparation of this accessibility statement",
                             ),
                             ("feedback", "Feedback and enforcement procedure"),
-                            ("other", "Other questions and warnings"),
+                            ("other", "Custom statement issues"),
                         ],
                         default="other",
                         max_length=20,

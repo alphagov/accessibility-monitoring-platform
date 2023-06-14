@@ -681,7 +681,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
         """Detect the submit button used and act accordingly"""
         if "save_continue" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-statement-other", kwargs=audit_pk)
+            return reverse("audits:edit-statement-custom", kwargs=audit_pk)
         return super().get_success_url()
 
 
@@ -1246,7 +1246,7 @@ class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
         if "save_continue" in self.request.POST:
             audit: Audit = self.object
             audit_pk: Dict[str, int] = {"pk": audit.id}
-            return reverse("audits:edit-retest-statement-other", kwargs=audit_pk)
+            return reverse("audits:edit-retest-statement-custom", kwargs=audit_pk)
         return super().get_success_url()
 
 
