@@ -11,7 +11,8 @@
 - [restore_db_aws.py](#restore_db_aws.py)
 - [set_aws_token.py](#set_aws_token.py)
 - [transfer_s3_contents.py](#transfer_s3_contents.py)
-- [Other commands](#Other commands)
+- [Other commands](#Other-commands)
+- [What to do when a Copilot deployment continually fails](#What-to-do-when-a-Copilot-deployment-continually-fails)
 
 ---
 
@@ -50,6 +51,8 @@ To build a new app from scratch, use `python aws_tools/aws_copilot_setup.py --bu
 To breakdown the same environment, use `python aws_tools/aws_copilot_setup.py --build-direction down`
 
 The script includes the commands to start a new Copilot app and may be helpful to learn how to create a new Copilot app step-by-step.
+
+N.B. Starting a new Copilot app can take over 60 minutes and breaking down a Copilot app can take up to 30 minutes.
 
 ---
 
@@ -106,3 +109,20 @@ Ensure `AWS_ACCESS_KEY_ID_S3_STORE` and `AWS_SECRET_ACCESS_KEY_S3_STORE` is set 
 `make build_viewer` builds viewer app local Docker image
 
 `make run_stack` starts local docker compose
+
+
+---
+
+## What to do when a Copilot deployment continually fails
+
+When a deployment fails, it will get stuck and will continually try. Exiting the process will not stop it, and Copilot will be inaccessible until it has exhausted retries.
+
+One way to gracefully stop the process is to reduce the `Desired tasks` from 1 to 0.
+
+To do this: 
+- Navigate to ECS in the AWS console. 
+- Open the Copilot cluster (e.g. amp-app-prod-env-Cluster-Ld6qaysMDEXk)
+- Select the service that is 'stuck.'
+- Click the `Update service` button in the top right corner
+- Change desired tasks from 1 to 0
+- Wait for the Copilot deployment to 'finish'
