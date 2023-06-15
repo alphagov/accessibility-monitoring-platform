@@ -1483,6 +1483,7 @@ class WcagDefinitionCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of WCAG definitions"""
+        record_model_create_event(user=self.request.user, model_object=self.object)
         return reverse("audits:wcag-definition-list")
 
 
@@ -1495,6 +1496,15 @@ class WcagDefinitionUpdateView(UpdateView):
     form_class: Type[WcagDefinitionCreateUpdateForm] = WcagDefinitionCreateUpdateForm
     template_name: str = "audits/forms/wcag_definition_update.html"
     context_object_name: str = "wcag_definition"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change of WCAG definition"""
+        if form.changed_data:
+            wcag_definition: WcagDefinition = form.save(commit=False)
+            record_model_update_event(
+                user=self.request.user, model_object=wcag_definition
+            )
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to list of WCAG definitions"""
@@ -1590,6 +1600,7 @@ class StatementCheckCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of statement checks"""
+        record_model_create_event(user=self.request.user, model_object=self.object)
         return reverse("audits:statement-check-list")
 
 
@@ -1602,6 +1613,13 @@ class StatementCheckUpdateView(UpdateView):
     form_class: Type[StatementCheckCreateUpdateForm] = StatementCheckCreateUpdateForm
     template_name: str = "audits/forms/statement_check_update.html"
     context_object_name: str = "statement_check"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change of statement check"""
+        if form.changed_data:
+            self.object: StatementCheck = form.save(commit=False)
+            record_model_update_event(user=self.request.user, model_object=self.object)
+        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to list of statement checks"""

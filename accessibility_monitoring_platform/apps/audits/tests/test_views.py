@@ -42,7 +42,6 @@ from ..models import (
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_YES,
-    STATEMENT_CHECK_NO,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 
@@ -91,6 +90,10 @@ TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT: str = (
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
 CUSTOM_STATEMENT_ISSUE: str = "Custom statement issue"
+STATEMENT_CHECK_LABEL: str = "Test statement check"
+STATEMENT_CHECK_TYPE: str = "custom"
+STATEMENT_CHECK_SUCCESS_CRITERIA: str = "Success criteria"
+STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
 
 
 def create_audit() -> Audit:
@@ -2259,41 +2262,71 @@ def test_statement_check_list_search(admin_client):
     assertContains(response, "Displaying 11 Statement checks.", html=True)
 
 
-def test_create_statement_check_redirects(admin_client):
-    """Test that statement check create redirects to list"""
+def test_create_statement_check_works(admin_client):
+    """
+    Test that a successful statement check create creates the new
+    statement check and redirects to list.
+    """
     response: HttpResponse = admin_client.post(
         reverse("audits:statement-check-create"),
         {
-            "label": "Test statement check",
-            "type": "overview",
-            "success_criteria": "Success criteria",
-            "report_text": "Report text",
-            "save": "Create",
-        },
-    )
-
-    assert response.status_code == 302
-
-    assert response.url == reverse("audits:statement-check-list")
-
-
-def test_update_statement_check_redirects(admin_client):
-    """Test that statement check update redirects to list"""
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    response: HttpResponse = admin_client.post(
-        reverse("audits:statement-check-update", kwargs={"pk": statement_check.id}),
-        {
-            "label": "Test statement check",
-            "type": "overview",
-            "success_criteria": "Success criteria",
-            "report_text": "Report text",
+            "label": STATEMENT_CHECK_LABEL,
+            "type": STATEMENT_CHECK_TYPE,
+            "success_criteria": STATEMENT_CHECK_SUCCESS_CRITERIA,
+            "report_text": STATEMENT_CHECK_REPORT_TEXT,
             "save": "Save",
         },
     )
 
     assert response.status_code == 302
-
     assert response.url == reverse("audits:statement-check-list")
+
+    statement_check_from_db: StatementCheck = StatementCheck.objects.get(
+        label=STATEMENT_CHECK_LABEL
+    )
+
+    assert statement_check_from_db.type == STATEMENT_CHECK_TYPE
+    assert statement_check_from_db.success_criteria == STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
+
+
+def test_update_statement_check_works(admin_client):
+    """
+    Test that a successful statement check update updates the statement check
+    and redirects to list.
+    """
+    statement_check: Optional[StatementCheck] = StatementCheck.objects.first()
+
+    assert statement_check.label != STATEMENT_CHECK_LABEL
+    assert statement_check.type != STATEMENT_CHECK_TYPE
+    assert statement_check.success_criteria != STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check.report_text != STATEMENT_CHECK_REPORT_TEXT
+
+    statement_check_id: int = statement_check.id
+    path_kwargs: Dict[str, int] = {"pk": statement_check_id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:statement-check-update", kwargs=path_kwargs),
+        {
+            "label": STATEMENT_CHECK_LABEL,
+            "type": STATEMENT_CHECK_TYPE,
+            "success_criteria": STATEMENT_CHECK_SUCCESS_CRITERIA,
+            "report_text": STATEMENT_CHECK_REPORT_TEXT,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("audits:statement-check-list")
+
+    statement_check_from_db: StatementCheck = StatementCheck.objects.get(
+        id=statement_check_id
+    )
+
+    assert statement_check_from_db.label == STATEMENT_CHECK_LABEL
+    assert statement_check_from_db.type == STATEMENT_CHECK_TYPE
+    assert statement_check_from_db.success_criteria == STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
 
 
 def test_summary_page_view(admin_client):
