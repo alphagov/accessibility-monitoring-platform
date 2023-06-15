@@ -15,8 +15,8 @@ services:
 
   web:
       build:
-          dockerfile: ./custom.Dockerfile
-      image: "144664177605.dkr.ecr.eu-west-2.amazonaws.com/amp/a11ymon-app"
+          dockerfile: ./amp_platform.Dockerfile
+      image: "amp_platform"
       ports:
           - "8001:8001"
       depends_on:
@@ -25,21 +25,20 @@ services:
       environment:
           - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001'
           - SECRET_KEY='123456789'
-          - DEBUG=TRUE
-          - INTEGRATION_TEST=TRUE
-          - PORT='8001'
-          - POSTGRES_NAME=postgres
-          - DB="{'username':'admin','password':'secret'}"
-          - POSTGRES_HOST=db
-          - POSTGRES_PORT=5432
+          - DEBUG=FALSE
+          - INTEGRATION_TEST=FALSE
+          - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
           - APP_PLATFORM=TRUE
+          - DB_NAME=bucketname
       healthcheck:
           test: curl --fail http://localhost:8001/healthcheck || exit 1
       stdin_open: true
       tty: true
 
   report_viewer:
-      image: "144664177605.dkr.ecr.eu-west-2.amazonaws.com/amp/a11ymon-app"
+      build:
+          dockerfile: ./amp_viewer.Dockerfile
+      image: "amp_viewer"
       ports:
           - "8002:8001"
       depends_on:
@@ -49,16 +48,11 @@ services:
       environment:
           - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
           - SECRET_KEY='123456789'
-          - DEBUG=TRUE
-          - INTEGRATION_TEST=TRUE
-          - PORT='8001'
-          - POSTGRES_NAME=postgres
-          - POSTGRES_USER=admin
-          - POSTGRES_PASSWORD=secret
-          - POSTGRES_HOST=db
-          - POSTGRES_PORT=5432
+          - DEBUG=FALSE
+          - INTEGRATION_TEST=FALSE
+          - 'MAINDBAPPAMPNEW3_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
           - APP_PLATFORM=FALSE
-
+          - DB_NAME=bucketname
   localstack:
     image: localstack/localstack
     hostname: localstack
