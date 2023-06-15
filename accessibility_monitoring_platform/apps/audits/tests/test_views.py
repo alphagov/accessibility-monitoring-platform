@@ -466,7 +466,7 @@ def test_audit_statement_check_specific_page_loads(
         (
             "audits:edit-audit-12-week-statement",
             "save_return",
-            "audits:edit-audit-retest-statement-1",
+            "audits:edit-retest-statement-overview",
         ),
         (
             "audits:edit-audit-retest-statement-2",
