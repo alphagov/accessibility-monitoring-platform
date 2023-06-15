@@ -83,7 +83,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
         "statement_check__report_text",
     ]
     list_display = ["statement_check", "audit", "is_deleted"]
-    list_filter = ["is_deleted"]
+    list_filter = ["is_deleted", "check_result_state", "retest_state"]
     fieldsets = (
         (
             None,
