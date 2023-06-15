@@ -3,9 +3,10 @@ Test report viewer
 """
 import pytest
 
+from datetime import date
 from typing import Dict, Optional, Union
-from unittest import mock
 import logging
+from unittest import mock
 
 from pytest_django.asserts import assertContains, assertNotContains
 from moto import mock_s3
@@ -31,6 +32,8 @@ from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 from accessibility_monitoring_platform.apps.reports.models import ReportFeedback
 
 from .middleware.report_views_middleware import ReportMetrics
+
+from .utils import show_warning
 
 
 @pytest.mark.django_db
@@ -363,3 +366,18 @@ def test_post_report_feedback_form(admin_client):
         response,
         """Thank you for your feedback""",
     )
+
+
+@pytest.mark.parametrize(
+    "today, expected_result",
+    [
+        (date(2023, 7, 2), False),
+        (date(2023, 7, 3), True),
+        (date(2023, 7, 14), True),
+        (date(2023, 7, 15), False),
+    ],
+)
+def test_show_warning(today, expected_result):
+    with mock.patch("report_viewer.apps.viewer.utils.date") as mock_date:
+        mock_date.today.return_value = today
+        assert show_warning() is expected_result

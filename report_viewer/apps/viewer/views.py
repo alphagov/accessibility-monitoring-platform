@@ -17,6 +17,8 @@ from accessibility_monitoring_platform.apps.s3_read_write.utils import (
 )
 from accessibility_monitoring_platform.apps.s3_read_write.models import S3Report
 
+from .utils import show_warning
+
 FORM_SUBMITTED_SUCCESSFULLY: str = "Form submitted successfully"
 
 logger = logging.getLogger(__name__)
@@ -70,6 +72,7 @@ class ViewReport(FormView):
                 "guid": self.kwargs["guid"],
                 "form_submitted": form_submitted_successfully,
                 "report_viewer": True,
+                "show_warning": show_warning(),
             }
         )
         return context
