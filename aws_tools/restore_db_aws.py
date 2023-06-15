@@ -25,8 +25,9 @@ copy_db = CopyDB(
     path=settings["path"],
 )
 
-copy_db.start()
+copy_db.start()  # Downloads DB from CF
 
+# Script below finds the Copilot S3 bucket
 s3 = boto3.client("s3")
 response = s3.list_buckets()
 all_buckets = [x["Name"] for x in response["Buckets"]]
@@ -38,6 +39,7 @@ if len(filtered_buckets) != 1:
 
 filtered_bucket = filtered_buckets[0]
 
+# Uploads the DB from CF
 response = s3.upload_file(
     settings["path"],
     filtered_bucket,
@@ -45,6 +47,7 @@ response = s3.upload_file(
 )
 print(">>> successfully uploaded db to s3")
 
+# Restores the DB from inside ECS
 db_restore_command = f"""python aws_tools/aws_upload_db_backup.py {settings["s3_db_filename"]}"""
 copilot_command = (
     """copilot svc exec """
@@ -54,6 +57,9 @@ copilot_command = (
     f"""--command "{db_restore_command}" """
 )
 
+# Triggers twice in case data is missed the first time
 os.system(copilot_command)
 os.system(copilot_command)
+
+# Cleanup
 os.remove(settings["path"])

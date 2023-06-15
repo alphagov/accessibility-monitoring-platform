@@ -152,7 +152,7 @@ if UNDER_TEST or INTEGRATION_TEST:
         "bucket_name": "bucketname",
         "deploy_env": "",
     }
-else:
+elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
     db_secrets: str = os.environ["DB_SECRET"]
     json_acceptable_string: str = db_secrets.replace("'", "\"")
     db_secrets_dict = json.loads(json_acceptable_string)

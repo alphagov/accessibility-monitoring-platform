@@ -28,7 +28,6 @@ services:
           - DEBUG=FALSE
           - INTEGRATION_TEST=FALSE
           - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
-          - APP_PLATFORM=TRUE
           - DB_NAME=bucketname
       healthcheck:
           test: curl --fail http://localhost:8001/healthcheck || exit 1
@@ -50,8 +49,7 @@ services:
           - SECRET_KEY='123456789'
           - DEBUG=FALSE
           - INTEGRATION_TEST=FALSE
-          - 'MAINDBAPPAMPNEW3_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
-          - APP_PLATFORM=FALSE
+          - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
           - DB_NAME=bucketname
   localstack:
     image: localstack/localstack
