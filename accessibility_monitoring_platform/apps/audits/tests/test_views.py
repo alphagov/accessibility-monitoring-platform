@@ -42,10 +42,9 @@ from ..models import (
     STATEMENT_CHECK_TYPE_OVERVIEW,
     STATEMENT_CHECK_TYPE_CUSTOM,
     STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_NO,
 )
 from ..utils import create_mandatory_pages_for_new_audit
-
-from .test_models import create_audit_and_statement_check_results
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
 WCAG_TYPE_MANUAL_NAME: str = "WCAG Manual name"
@@ -107,10 +106,26 @@ def create_audit_and_pages() -> Audit:
 
 
 def create_audit_and_wcag() -> Audit:
-    audit: Audit = create_audit()
+    audit: Audit = create_audit_and_pages()
     WcagDefinition.objects.all().delete()
     WcagDefinition.objects.create(id=1, type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
     WcagDefinition.objects.create(id=2, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    return audit
+
+
+def create_audit_and_statement_check_results() -> Audit:
+    """Create an audit with all types of statement checks"""
+    audit: Audit = create_audit_and_wcag()
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
     return audit
 
 
@@ -1327,17 +1342,72 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
 
 @pytest.mark.parametrize(
+    "url_name, field_label",
+    [
+        (
+            "audits:edit-retest-statement-overview",
+            "Is there an accessibility page?",
+        ),
+    ],
+)
+def test_statement_check_results_hidden_when_no_statement_page_on_retest(
+    url_name, field_label, admin_client
+):
+    """
+    Test that accessibility statement check results form fields shown only if
+    such a page is present.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, field_label)
+
+    page: Page = audit.accessibility_statement_page
+    page.url = ACCESSIBILITY_STATEMENT_URL
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertContains(response, field_label)
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, field_label)
+
+
+@pytest.mark.parametrize(
     "url_name",
     [
         "audits:edit-audit-retest-statement-1",
         "audits:edit-audit-retest-statement-2",
+        "audits:edit-retest-statement-overview",
     ],
 )
 def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     """
     Test that option to add 12-week accessibility statement shown.
     """
-    audit: Audit = create_audit_and_pages()
+    audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
@@ -1882,9 +1952,9 @@ def test_all_initial_statement_one_notes_included_on_retest(admin_client):
     audit.compliance_notes = "Initial compliance notes"
     audit.non_regulation_notes = "Initial non-regulation notes"
     audit.save()
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = ACCESSIBILITY_STATEMENT_URL
+    statement_page.save()
 
     audit_pk: int = audit.id
     path_kwargs: Dict[str, int] = {"pk": audit_pk}
@@ -1915,9 +1985,9 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     audit.method_notes = "Initial method notes"
     audit.access_requirements_notes = "Initial access requirements notes"
     audit.save()
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = ACCESSIBILITY_STATEMENT_URL
+    statement_page.save()
 
     audit_pk: int = audit.id
     path_kwargs: Dict[str, int] = {"pk": audit_pk}

@@ -92,7 +92,6 @@ def create_audit_and_statement_check_results() -> Audit:
         audit=audit,
         report_comment="Custom statement issue",
     )
-
     return audit
 
 

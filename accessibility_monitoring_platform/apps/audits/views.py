@@ -1136,7 +1136,7 @@ class Audit12WeekStatementUpdateView(AuditUpdateView):
         """Detect the submit button used and act accordingly"""
         if "save_return" in self.request.POST:
             audit_pk: Dict[str, int] = {"pk": self.object.id}
-            return reverse("audits:edit-audit-retest-statement-1", kwargs=audit_pk)
+            return reverse("audits:edit-retest-statement-overview", kwargs=audit_pk)
         return super().get_success_url()
 
 
