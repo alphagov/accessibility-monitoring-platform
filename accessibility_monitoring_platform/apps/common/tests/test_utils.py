@@ -349,45 +349,16 @@ def test_format_outstanding_issues(
 
 
 @pytest.mark.parametrize(
-    "total_checks,tests_passed,tests_failed,retests_passed,retests_failed,expected_result",
+    "tests_passed,tests_failed,retests_passed,retests_failed,expected_result",
     [
-        (42, 0, 0, 0, 0, "No test results"),
-        (
-            42,
-            2,
-            0,
-            0,
-            0,
-            "Test: 0 of 42 failed (0%), 40 not tested<br>No 12-week retest",
-        ),
-        (
-            42,
-            30,
-            10,
-            33,
-            7,
-            "Test: 10 of 42 failed (23%), 2 not tested<br>12-week retest: 7 of 42 failed (16%), 2 not retested",
-        ),
-        (
-            42,
-            30,
-            10,
-            40,
-            0,
-            "Test: 10 of 42 failed (23%), 2 not tested<br>12-week retest: 0 of 42 failed (0%), 2 not retested",
-        ),
-        (
-            42,
-            40,
-            0,
-            40,
-            0,
-            "Test: 0 of 42 failed (0%), 2 not tested<br>12-week retest: 0 of 42 failed (0%), 2 not retested",
-        ),
+        (0, 0, 0, 0, "No test results"),
+        (40, 0, 0, 0, "Fully compliant"),
+        (40, 0, 40, 0, "Fully compliant"),
+        (30, 10, 0, 0, "10 checks failed on test"),
+        (35, 5, 30, 10, "5 checks failed on test (10 on 12-week retest)"),
     ],
 )
 def test_format_statement_check_overview(
-    total_checks,
     tests_passed,
     tests_failed,
     retests_passed,
@@ -396,7 +367,6 @@ def test_format_statement_check_overview(
 ):
     assert (
         format_statement_check_overview(
-            total_checks=total_checks,
             tests_passed=tests_passed,
             tests_failed=tests_failed,
             retests_passed=retests_passed,

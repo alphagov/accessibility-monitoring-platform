@@ -193,35 +193,21 @@ def format_outstanding_issues(
 
 
 def format_statement_check_overview(
-    total_checks: int = 0,
     tests_passed: int = 0,
     tests_failed: int = 0,
     retests_passed: int = 0,
     retests_failed: int = 0,
 ) -> str:
-    """Return string showing how many statement checks have been made"""
+    """Return string showing how many statement checks have failed"""
     if tests_passed == 0 and tests_failed == 0:
         return "No test results"
 
-    result: str = "Test: "
-    percentage: int = int(tests_failed * 100 / total_checks)
-    result += f"{tests_failed} of {total_checks} failed ({percentage}%)"
+    if tests_passed > 0 and tests_failed == 0 and retests_failed == 0:
+        return "Fully compliant"
 
-    untested: int = total_checks - tests_passed - tests_failed
-    if untested > 0:
-        result += f", {untested} not tested"
+    result: str = f"{tests_failed} checks failed on test"
 
-    if retests_passed == 0 and retests_failed == 0:
-        result += "<br>No 12-week retest"
-        return result
-
-    percentage: int = int(retests_failed * 100 / total_checks)
-    result += (
-        f"<br>12-week retest: {retests_failed} of {total_checks} failed ({percentage}%)"
-    )
-
-    unretested: int = total_checks - retests_passed - retests_failed
-    if unretested > 0:
-        result += f", {unretested} not retested"
+    if retests_passed > 0 or retests_failed > 0:
+        result += f" ({retests_failed} on 12-week retest)"
 
     return result
