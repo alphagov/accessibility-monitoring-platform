@@ -1,8 +1,9 @@
 import boto3
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+from aws_secrets import get_s3_secret
 import os
 
-load_dotenv()
+# load_dotenv()
 
 
 settings = {
@@ -14,6 +15,12 @@ settings = {
     "copilot_env_name": "prod-env",
     "copilot_svc_name": "amp-svc",
 }
+
+paas_s3_secrets = get_s3_secret()
+PAAS_MIGRATION_ACCESS_KEY = paas_s3_secrets["PAAS_S3_ACCESS_KEY"]
+PAAS_MIGRATION_SECRET = paas_s3_secrets["PAAS_S3_SECRET_KEY"]
+PAAS_MIGRATION_REGION = paas_s3_secrets["PAAS_MIGRATION_REGION"]
+PAAS_MIGRATION_BUCKET = paas_s3_secrets["PAAS_MIGRATION_BUCKET"]
 
 
 def get_copilot_s3_bucket() -> str:
@@ -32,23 +39,23 @@ def get_copilot_s3_bucket() -> str:
 
 def get_list_of_objs_from_paas_s3():
     session = boto3.Session(
-        aws_access_key_id=os.getenv("PAAS_MIGRATION_ACCESS_KEY"),
-        aws_secret_access_key=os.getenv("PAAS_MIGRATION_SECRET"),
-        region_name="eu-west-2"
+        aws_access_key_id=PAAS_MIGRATION_ACCESS_KEY,
+        aws_secret_access_key=PAAS_MIGRATION_SECRET,
+        region_name=PAAS_MIGRATION_REGION
     )
     s3 = session.resource("s3")
-    my_bucket = s3.Bucket(os.getenv("PAAS_MIGRATION_BUCKET"))
+    my_bucket = s3.Bucket(PAAS_MIGRATION_BUCKET)
     return [x for x in my_bucket.objects.all()]
 
 
 def download_file(s3_path: str) -> str:
     session = boto3.Session(
-        aws_access_key_id=os.getenv("PAAS_MIGRATION_ACCESS_KEY"),
-        aws_secret_access_key=os.getenv("PAAS_MIGRATION_SECRET"),
-        region_name="eu-west-2"
+        aws_access_key_id=PAAS_MIGRATION_ACCESS_KEY,
+        aws_secret_access_key=PAAS_MIGRATION_SECRET,
+        region_name=PAAS_MIGRATION_REGION
     )
     s3 = session.resource("s3")
-    my_bucket = s3.Bucket(os.getenv("PAAS_MIGRATION_BUCKET"))
+    my_bucket = s3.Bucket(PAAS_MIGRATION_BUCKET)
     filename = s3_path.split("/")[-1]
     my_bucket.download_file(
         s3_path,

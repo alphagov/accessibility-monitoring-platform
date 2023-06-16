@@ -5,10 +5,11 @@ import time
 
 import boto3
 from django.core.management.utils import get_random_secret_key
-from dotenv import load_dotenv
+from aws_secrets import get_notify_secret
+# Opted to get the secrets from AWS secrets manager instead of storing them locally
+# from dotenv import load_dotenv
 
-
-load_dotenv()
+# load_dotenv()
 
 start = time.time()
 
@@ -28,8 +29,12 @@ SETTINGS = {
 }
 
 SECRET_KEY = get_random_secret_key()
-NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
-EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
+
+notify_secrets = get_notify_secret()
+# NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
+NOTIFY_API_KEY = notify_secrets["EMAIL_NOTIFY_API_KEY"]
+# EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
+EMAIL_NOTIFY_BASIC_TEMPLATE = notify_secrets["EMAIL_NOTIFY_BASIC_TEMPLATE"]
 
 
 def get_copilot_s3_bucket() -> str:
