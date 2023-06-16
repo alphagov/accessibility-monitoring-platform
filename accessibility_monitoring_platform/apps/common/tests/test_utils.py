@@ -42,6 +42,7 @@ from ..utils import (
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
     format_outstanding_issues,
+    format_statement_check_overview,
 )
 
 
@@ -342,6 +343,64 @@ def test_format_outstanding_issues(
         format_outstanding_issues(
             failed_checks_count=failed_checks_count,
             fixed_checks_count=fixed_checks_count,
+        )
+        == expected_result
+    )
+
+
+@pytest.mark.parametrize(
+    "total_checks,tests_passed,tests_failed,retests_passed,retests_failed,expected_result",
+    [
+        (42, 0, 0, 0, 0, "No test results"),
+        (
+            42,
+            2,
+            0,
+            0,
+            0,
+            "Test: 0 of 42 failed (0%), 40 not tested<br>No 12-week retest",
+        ),
+        (
+            42,
+            30,
+            10,
+            33,
+            7,
+            "Test: 10 of 42 failed (23%), 2 not tested<br>12-week retest: 7 of 42 failed (16%), 2 not retested",
+        ),
+        (
+            42,
+            30,
+            10,
+            40,
+            0,
+            "Test: 10 of 42 failed (23%), 2 not tested<br>12-week retest: 0 of 42 failed (0%), 2 not retested",
+        ),
+        (
+            42,
+            40,
+            0,
+            40,
+            0,
+            "Test: 0 of 42 failed (0%), 2 not tested<br>12-week retest: 0 of 42 failed (0%), 2 not retested",
+        ),
+    ],
+)
+def test_format_statement_check_overview(
+    total_checks,
+    tests_passed,
+    tests_failed,
+    retests_passed,
+    retests_failed,
+    expected_result,
+):
+    assert (
+        format_statement_check_overview(
+            total_checks=total_checks,
+            tests_passed=tests_passed,
+            tests_failed=tests_failed,
+            retests_passed=retests_passed,
+            retests_failed=retests_failed,
         )
         == expected_result
     )

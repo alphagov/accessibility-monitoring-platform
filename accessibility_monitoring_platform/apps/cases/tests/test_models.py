@@ -666,7 +666,10 @@ def test_overview_issues_statement_with_statement_checks():
             check_result_state=check_result_state,
         )
 
-    assert case.overview_issues_statement == "0 of 21 fixed (0%)"
+    assert (
+        case.overview_issues_statement
+        == "Test: 21 of 42 failed (50%)<br>No 12-week retest"
+    )
 
     for count, statement_check_result in enumerate(
         audit.failed_statement_check_results
@@ -675,4 +678,7 @@ def test_overview_issues_statement_with_statement_checks():
             statement_check_result.check_result_state = STATEMENT_CHECK_YES
             statement_check_result.save()
 
-    assert case.overview_issues_statement == "0 of 10 fixed (0%)"
+    assert (
+        case.overview_issues_statement
+        == "Test: 10 of 42 failed (23%)<br>No 12-week retest"
+    )

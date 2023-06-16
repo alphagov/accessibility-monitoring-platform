@@ -12,7 +12,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..common.utils import extract_domain_from_url, format_outstanding_issues
+from ..common.utils import (
+    extract_domain_from_url,
+    format_outstanding_issues,
+    format_statement_check_overview,
+)
 from ..common.models import (
     BOOLEAN_FALSE,
     BOOLEAN_TRUE,
@@ -844,9 +848,12 @@ class Case(VersionModel):
         if self.audit is None:
             return "No test exists"
         if self.audit.uses_statement_checks:
-            return format_outstanding_issues(
-                failed_checks_count=self.audit.failed_statement_check_results.count(),
-                fixed_checks_count=0,
+            return format_statement_check_overview(
+                total_checks=self.audit.statement_check_results.count(),
+                tests_passed=self.audit.passed_statement_check_results.count(),
+                tests_failed=self.audit.failed_statement_check_results.count(),
+                retests_passed=self.audit.passed_retest_statement_check_results.count(),
+                retests_failed=self.audit.failed_retest_statement_check_results.count(),
             )
         return format_outstanding_issues(
             failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
