@@ -37,6 +37,7 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_NOT_TESTED,
     STATEMENT_CHECK_NO,
     STATEMENT_CHECK_YES,
     STATEMENT_CHECK_STATEMENT_FOUND_ID,
@@ -744,6 +745,21 @@ def test_audit_specific_statement_check_results(type, attr):
         getattr(audit, f"{attr}_statement_check_results"),
         statement_check_results,
     )
+
+
+@pytest.mark.django_db
+def test_audit_overview_statement_checks_complete():
+    """Tests audit overview_statement_checks_complete property"""
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.overview_statement_checks_complete is True
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_NOT_TESTED
+        statement_check_result.save()
+        break
+
+    assert audit.overview_statement_checks_complete is False
 
 
 @pytest.mark.django_db

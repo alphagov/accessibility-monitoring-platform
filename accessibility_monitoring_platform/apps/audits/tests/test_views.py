@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Union
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
@@ -21,6 +22,7 @@ from ...cases.models import (
     REPORT_METHODOLOGY_ODT,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ..models import (
     PAGE_TYPE_PDF,
@@ -748,6 +750,50 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
 
     expected_path: str = reverse("audits:edit-statement-website", kwargs=audit_pk)
     assert response.url == expected_path
+
+
+def test_audit_edit_statement_overview_updates_case_status(
+    admin_client,
+):
+    """
+    Test that a successful audit statement overview update redirects to
+    statement website if the overiew checks have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    case: Case = audit.case
+    case.home_page_url = "https://www.website.com"
+    case.organisation_name = "org name"
+    user: User = User.objects.create()
+    case.auditor = user
+    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+    case.save()
+
+    assert audit.case.status == "test-in-progress"
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "1",
+            "form-0-check_result_state": "yes",
+            "form-0-report_comment": "",
+            "form-1-id": "2",
+            "form-1-check_result_state": "no",
+            "form-1-report_comment": "",
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    assert audit_from_db.case.status == "report-in-progress"
 
 
 def test_retest_date_change_creates_case_event(admin_client):
@@ -2297,6 +2343,7 @@ def test_update_statement_check_works(admin_client):
     """
     statement_check: Optional[StatementCheck] = StatementCheck.objects.first()
 
+    assert statement_check is not None
     assert statement_check.label != STATEMENT_CHECK_LABEL
     assert statement_check.type != STATEMENT_CHECK_TYPE
     assert statement_check.success_criteria != STATEMENT_CHECK_SUCCESS_CRITERIA

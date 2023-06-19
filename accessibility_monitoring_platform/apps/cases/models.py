@@ -602,14 +602,12 @@ class Case(VersionModel):
             return "unassigned-case"
         elif (
             self.website_compliance_state_initial == WEBSITE_INITIAL_COMPLIANCE_DEFAULT
-            or self.accessibility_statement_state
-            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            or self.statement_checks_still_initial
         ):
             return "test-in-progress"
         elif (
             self.website_compliance_state_initial != WEBSITE_INITIAL_COMPLIANCE_DEFAULT
-            and self.accessibility_statement_state
-            != ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
+            and not self.statement_checks_still_initial
             and self.report_review_status != BOOLEAN_TRUE
         ):
             return "report-in-progress"
@@ -857,6 +855,15 @@ class Case(VersionModel):
         return format_outstanding_issues(
             failed_checks_count=self.audit.accessibility_statement_initially_invalid_checks_count,
             fixed_checks_count=self.audit.fixed_accessibility_statement_checks_count,
+        )
+
+    @property
+    def statement_checks_still_initial(self):
+        if self.audit and self.audit.uses_statement_checks:
+            return not self.audit.overview_statement_checks_complete
+        return (
+            self.accessibility_statement_state
+            == ACCESSIBILITY_STATEMENT_DECISION_DEFAULT
         )
 
 
