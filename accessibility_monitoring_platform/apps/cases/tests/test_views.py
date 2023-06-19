@@ -30,6 +30,7 @@ from ...audits.models import (
     PAGE_TYPE_HOME,
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
+    STATEMENT_CHECK_YES,
 )
 from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
@@ -2935,6 +2936,62 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
             <a href="{link_url}"
                 class="govuk-link govuk-link--no-visited-state">
                 {label}</a>&check;</li>""",
+        html=True,
+    )
+
+
+def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
+    """
+    Test that the status workflow page provides a link to the statement overview
+    page when the case test uses statement checks. Checkmark set when overview
+    statement checks have been entered.
+    """
+    case: Case = Case.objects.create()
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk_kwargs: Dict[str, int] = {"pk": audit.id}
+
+    for statement_check in StatementCheck.objects.all():
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    overview_url: str = reverse(
+        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a></li>""",
+        html=True,
+    )
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a>&check;</li>""",
         html=True,
     )
 
