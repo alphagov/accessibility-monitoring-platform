@@ -96,6 +96,25 @@ def decode_csv_response(response: HttpResponse) -> Tuple[List[str], List[List[st
     return csv_header, csv_body
 
 
+def validate_csv_response(
+    csv_header: List[str],
+    csv_body: List[List[str]],
+    expected_header: List[str],
+    expected_first_data_row: List[str],
+):
+    """Validate csv header and body matches expected data"""
+    assert csv_header == expected_header
+
+    first_data_row: List[str] = csv_body[0]
+
+    for position in range(len(first_data_row)):
+        assert (
+            first_data_row[position] == expected_first_data_row[position]
+        ), f"Data mismatch on column {position}: {expected_header[position]}"
+
+    assert first_data_row == expected_first_data_row
+
+
 @pytest.mark.parametrize(
     "date_on_form, date_on_db, expected_date",
     [
@@ -299,11 +318,26 @@ def test_download_feedback_survey_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    assert csv_header == [
+    expected_header: List[str] = [
         column.column_name
         for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
     ]
-    assert csv_body == [["1", "", "16/12/2022", "", CONTACT_NOTES, "No", ""]]
+    expected_first_data_row: List[str] = [
+        "1",
+        "",
+        "16/12/2022",
+        "",
+        CONTACT_NOTES,
+        "No",
+        "",
+    ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
 
 
 @pytest.mark.django_db
@@ -328,43 +362,49 @@ def test_download_equality_body_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    assert csv_header == [
+    expected_header: List[str] = [
         column.column_name
         for column in COLUMNS_FOR_EQUALITY_BODY + EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY
     ]
-    assert csv_body == [
-        [
-            "EHRC",
-            "Simplified",
-            "1",
-            "",
-            "",
-            "",
-            "No",
-            "",
-            "Not selected",
-            "",
-            "",
-            "Not known",
-            "",
-            "Not selected",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "No",
-            "No claim",
-            "",
-            "No claim",
-            "Audit for CSV export",
-        ]
+
+    expected_first_data_row: List[str] = [
+        "EHRC",
+        "Simplified",
+        "1",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not selected",
+        "",
+        "",
+        "Not known",
+        "",
+        "Not selected",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "No claim",
+        "",
+        "No claim",
+        "Audit for CSV export",
     ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
 
 
 @pytest.mark.django_db
@@ -388,105 +428,111 @@ def test_download_cases():
 
     csv_header, csv_body = decode_csv_response(response)
 
-    assert csv_header == [
+    expected_header: List[str] = [
         column.column_name
         for column in CASE_COLUMNS_FOR_EXPORT + CONTACT_COLUMNS_FOR_EXPORT
     ]
 
-    assert csv_body == [
-        [
-            "1",
-            "1",
-            "",
-            "16/12/2022",
-            "Unassigned case",
-            "",
-            "Simplified",
-            "",
-            "",
-            "",
-            "Unknown",
-            "",
-            "EHRC",
-            "Platform",
-            "Platform (requires Platform in testing methodology)",
-            "No",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "Not started",
-            "Not selected",
-            "",
-            "Not known",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "No",
-            "",
-            "Not started",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "No",
-            "",
-            "",
-            "",
-            "",
-            "Not selected",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "No",
-            "",
-            "Not known",
-            "",
-            "",
-            "Not known",
-            "",
-            "",
-            "Not selected",
-            "",
-            "",
-            "Not selected",
-            "",
-            "",
-            "Case still in progress",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "No",
-            "",
-            "",
-            "False",
-            "",
-            "",
-            "Unknown",
-            "Contact for CSV export",
-            "test@example.com",
-        ]
+    expected_first_data_row: List[str] = [
+        "1",
+        "1",
+        "",
+        "16/12/2022",
+        "Unassigned case",
+        "",
+        "Simplified",
+        "",
+        "",
+        "",
+        "Unknown",
+        "",
+        "EHRC",
+        "Platform",
+        "Platform (requires Platform in testing methodology)",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Not started",
+        "Not selected",
+        "",
+        "Not known",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not started",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "Not selected",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not known",
+        "",
+        "",
+        "Not known",
+        "",
+        "",
+        "Not selected",
+        "",
+        "",
+        "Not selected",
+        "",
+        "",
+        "Case still in progress",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "",
+        "False",
+        "",
+        "",
+        "Unknown",
+        "Contact for CSV export",
+        "",
+        "test@example.com",
     ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
 
 
 @pytest.mark.parametrize(

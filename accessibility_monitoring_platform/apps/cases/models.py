@@ -483,6 +483,7 @@ class Case(VersionModel):
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         default=ENFORCEMENT_BODY_PURSUING_NO,
     )
+    enforcement_body_finished_date = models.DateField(null=True, blank=True)
     enforcement_body_correspondence_notes = models.TextField(default="", blank=True)
     enforcement_retest_document_url = models.TextField(default="", blank=True)
     is_feedback_requested = models.CharField(
