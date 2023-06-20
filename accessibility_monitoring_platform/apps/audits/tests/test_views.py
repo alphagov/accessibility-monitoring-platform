@@ -1767,7 +1767,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "View email template")
-    assertContains(response, "No published report")
+    assertContains(response, "No report has been published")
     assertContains(response, "View website")
     assertContains(response, "Link to case view")
     assertContains(response, "Markdown cheatsheet")
