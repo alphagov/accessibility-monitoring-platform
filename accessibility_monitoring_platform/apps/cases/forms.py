@@ -591,6 +591,9 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
         choices=ENFORCEMENT_BODY_PURSUING_CHOICES,
         help_text="This field affects the case status",
     )
+    enforcement_body_finished_date = AMPDateField(
+        label="Date equality body completed the case",
+    )
     enforcement_body_correspondence_notes = AMPTextField(
         label="Equality body correspondence notes"
     )
@@ -610,6 +613,7 @@ class CaseEnforcementBodyCorrespondenceUpdateForm(VersionForm):
             "version",
             "sent_to_enforcement_body_sent_date",
             "enforcement_body_pursuing",
+            "enforcement_body_finished_date",
             "enforcement_body_correspondence_notes",
             "enforcement_retest_document_url",
             "is_feedback_requested",
