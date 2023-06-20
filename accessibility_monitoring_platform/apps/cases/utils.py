@@ -406,6 +406,10 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ),
     ColumnAndFieldNames(column_name="QA status", field_name="qa_status"),
     ColumnAndFieldNames(column_name="Contact detail notes", field_name="contact_notes"),
+    ColumnAndFieldNames(
+        column_name="Date equality body completed the case",
+        field_name="enforcement_body_finished_date",
+    ),
 ]
 CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(column_name="Contact email", field_name="email"),
