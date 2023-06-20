@@ -217,6 +217,47 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
+def test_button_to_published_report_shown(admin_client):
+    """
+    Test button link to published report shown if published report exists
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "View final HTML report")
+    assertContains(response, "Republish HTML report")
+    assertNotContains(response, "Publish HTML report")
+
+
+def test_button_to_published_report_not_shown(admin_client):
+    """
+    Test button link to published report not shown if report not published
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "View final HTML report")
+    assertNotContains(response, "Republish HTML report")
+    assertContains(response, "Publish HTML report")
+
+
 def test_report_next_step_for_not_started(admin_client):
     """
     Test report next step for report review not started
