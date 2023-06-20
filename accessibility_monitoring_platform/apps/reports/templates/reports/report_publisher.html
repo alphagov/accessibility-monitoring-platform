@@ -26,13 +26,24 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <div class="govuk-button-group">
+                    {% if report.case.published_report_url %}
+                        <a href="{{ report.case.published_report_url }}"
+                            role="button"
+                            draggable="false"
+                            class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                            target="_blank"
+                        >
+                            View final HTML report
+                        </a>
+                    {% endif %}
                     <a href="{% url 'reports:report-confirm-publish' report.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button"
                         data-module="govuk-button"
                     >
-                        Publish HTML report
+                        {% if report.case.published_report_url %}Republish{% else %}Publish{% endif%} HTML report
                     </a>
                     <a
                         href="{% url 'cases:edit-report-details' report.case.id %}"
@@ -40,11 +51,6 @@
                     >
                         Return to case &gt; Report details
                     </a>
-                    {% if report.case.published_report_url %}
-                        <a href="{{ report.case.published_report_url }}" class="govuk-link" target="_blank">
-                            View published report
-                        </a>
-                    {% endif %}
                 </div>
             </div>
         </div>
