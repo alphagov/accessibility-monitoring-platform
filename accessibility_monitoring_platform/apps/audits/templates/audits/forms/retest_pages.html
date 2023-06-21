@@ -47,6 +47,12 @@
                                 Hide fixed errors
                             </a>
                         {% endif %}
+                        <a
+                            href="{% url 'cases:outstanding-issues-email' audit.case.id %}"
+                            class="govuk-link govuk-link--no-visited-state"
+                        >
+                            View unfixed issues email template
+                        </a>
                     </div>
                 </div>
                 {% include 'common/error_summary.html' %}
