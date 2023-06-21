@@ -925,10 +925,15 @@ class Audit(VersionModel):
 
     @property
     def statement_check_result_statement_found(self) -> bool:
-        statement_found: CheckResult = self.overview_statement_check_results.get(
-            statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
+        overview_statement_yes_count: CheckResult = (
+            self.overview_statement_check_results.filter(
+                check_result_state=STATEMENT_CHECK_YES
+            ).count()
         )
-        return statement_found.check_result_state == STATEMENT_CHECK_YES
+        return (
+            overview_statement_yes_count
+            == self.overview_statement_check_results.count()
+        )
 
     @property
     def website_statement_check_results(self) -> bool:

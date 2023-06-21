@@ -815,21 +815,15 @@ def test_audit_specific_failed_statement_check_results(type, attr):
 def test_audit_statement_check_result_statement_found():
     """
     Tests an audit.statement_check_result_statement_found shows if all
-    statement a statement page exists
+    overview statement checks have passed
     """
     audit: Audit = create_audit_and_statement_check_results()
-    statement_check_result: StatementCheckResult = (
-        audit.overview_statement_check_results.get(
-            statement_check__id=STATEMENT_CHECK_STATEMENT_FOUND_ID
-        )
-    )
-    statement_check_result.check_result_state = STATEMENT_CHECK_NO
-    statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is False
 
-    statement_check_result.check_result_state = STATEMENT_CHECK_YES
-    statement_check_result.save()
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
 
     assert audit.statement_check_result_statement_found is True
 
