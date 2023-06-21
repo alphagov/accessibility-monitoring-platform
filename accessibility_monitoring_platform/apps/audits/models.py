@@ -284,7 +284,6 @@ STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
     (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
     (STATEMENT_CHECK_TYPE_CUSTOM, "Custom statement issues"),
 ]
-STATEMENT_CHECK_STATEMENT_FOUND_ID: int = 2
 STATEMENT_CHECK_YES: str = "yes"
 STATEMENT_CHECK_NO: str = "no"
 STATEMENT_CHECK_NOT_TESTED: str = "not-tested"
