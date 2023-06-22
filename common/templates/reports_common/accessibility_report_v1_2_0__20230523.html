@@ -215,48 +215,10 @@
     websites are accessible.
 </p>
 <p>
-    {% if audit.report_options_next == 'errors' %}
-        You should fix the issues that were found and do your own accessibility
-        audit to check for issues that go beyond the scope of simple
-        accessibility testing.
-    {% else %}
-        You should do your own accessibility audit to check for issues that go beyond the scope of simple accessibility testing.
-    {% endif %}
+    You should fix any issues that were found and do your own accessibility
+    audit to check for issues that go beyond the scope of simple accessibility
+    testing.
 </p>
-{% if audit.report_next_change_statement == 'yes' %}
-    <p>
-        You need to review your accessibility statement to cover the issues
-        found in this report and any others found during your own audit.
-    </p>
-{% endif %}
-{% if audit.report_next_no_statement == 'yes' %}
-    <p>
-        You need to write and publish an accessibility statement that meets the required legislative format.
-    </p>
-{% endif %}
-{% if audit.report_next_statement_not_right == 'yes' %}
-    <p>
-        You need to review your accessibility statement to cover the issues
-        found in this report, including ones related to your accessibility
-        statement, and any other accessibility issues found during your own
-        site audit.
-    </p>
-{% endif %}
-
-{% if audit.report_next_statement_matches == 'yes' %}
-    <p>
-        You need to review your accessibility statement to cover any other
-        issues found during your own audit.
-    </p>
-{% endif %}
-
-{% if audit.report_next_disproportionate_burden == 'yes' %}
-    <p>
-        A disproportionate burden assessment must have been completed before
-        adding this section to your accessibility statement. You need to send
-        evidence of the assessment to us for review.
-    </p>
-{% endif %}
 
 <br />
 <h2 id="report-enforcement" class="amp-new-page">Enforcement</h2>
