@@ -1244,7 +1244,7 @@ class StatementCheckResult(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["statement_check__position", "id"]
 
     def __str__(self) -> str:
         if self.statement_check is None:
