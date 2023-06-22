@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
 BOOLEAN_DEFAULT: str = "no"
 BOOLEAN_FALSE: str = BOOLEAN_DEFAULT
@@ -120,6 +121,9 @@ class ChangeToPlatform(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def get_absolute_url(self) -> str:
+        return reverse("common:platform-history")
+
 
 class Event(models.Model):
     """
@@ -180,7 +184,7 @@ class Event(models.Model):
 
 class VersionModel(models.Model):
     """
-    Model subclassed to add versioning
+    Model subclass to add versioning
     """
 
     version = models.IntegerField(default=0)
