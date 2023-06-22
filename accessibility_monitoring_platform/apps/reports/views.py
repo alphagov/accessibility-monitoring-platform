@@ -55,7 +55,12 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         return redirect(
             reverse("reports:report-publisher", kwargs={"pk": case.report.id})
         )
-    report: Report = Report.objects.create(case=case)
+    if case.audit is not None and not case.audit.uses_statement_checks:
+        report: Report = Report.objects.create(
+            case=case, report_version="v1_1_0__20230421"
+        )
+    else:
+        report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)
     CaseEvent.objects.create(
         case=case,

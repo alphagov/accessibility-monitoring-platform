@@ -18,6 +18,7 @@ from ...audits.models import (
     CheckResult,
     Page,
     WcagDefinition,
+    StatementCheckResult,
     PAGE_TYPE_STATEMENT,
     TEST_TYPE_AXE,
     CHECK_RESULT_ERROR,
@@ -37,6 +38,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Report,
     ReportVisitsMetrics,
+    REPORT_VERSION_DEFAULT,
 )
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -57,6 +59,47 @@ def create_report() -> Report:
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
+
+
+def test_create_report_uses_older_template(admin_client):
+    """
+    Test that report create uses last pre-statement check report template if no
+    statement checks exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == "v1_1_0__20230421"
+
+
+def test_create_report_uses_latest_template(admin_client):
+    """
+    Test that report create uses latest report template if statement checks
+    exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    StatementCheckResult.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == REPORT_VERSION_DEFAULT
 
 
 def test_create_report_redirects(admin_client):
