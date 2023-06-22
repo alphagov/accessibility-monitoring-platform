@@ -18,6 +18,8 @@ from ..models import (
     CheckResult,
     Page,
     WcagDefinition,
+    StatementCheck,
+    StatementCheckResult,
     CHECK_RESULT_ERROR,
     PAGE_TYPE_HOME,
     PAGE_TYPE_CONTACT,
@@ -41,6 +43,7 @@ from ..utils import (
     report_data_updated,
     get_test_view_tables_context,
     get_retest_view_tables_context,
+    create_statement_checks_for_new_audit,
 )
 
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -684,6 +687,9 @@ def test_other_page_failed_check_results():
     extra_page: Page = Page.objects.create(
         audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra"
     )
+    second_extra_page: Page = Page.objects.create(
+        audit=audit, page_type=PAGE_TYPE_EXTRA, url="https://example.com/extra2"
+    )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=TEST_TYPE_MANUAL
     )
@@ -707,7 +713,7 @@ def test_other_page_failed_check_results():
 
     assert len(home_page.failed_check_results) == 1
     assert wcag_definition_manual in failed_check_results
-    assert len(failed_check_results[wcag_definition_manual]) == 1
+    assert len(failed_check_results[wcag_definition_manual]) == 2
 
     assert (
         failed_check_results[wcag_definition_manual][0]
@@ -781,4 +787,24 @@ def test_audit_retest_statement_decision_rows():
     assert (
         context["audit_retest_statement_decision_rows"]
         == EXPECTED_RETEST_STATEMENT_DECISION_ROWS
+    )
+
+
+@pytest.mark.django_db
+def test_create_statement_checks_for_new_audit():
+    """Test creation of statement check results for audit"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert StatementCheckResult.objects.filter(audit=audit).count() == 0
+
+    create_statement_checks_for_new_audit(audit=audit)
+
+    number_of_statement_checks: int = StatementCheck.objects.filter(
+        is_deleted=False
+    ).count()
+
+    assert (
+        StatementCheckResult.objects.filter(audit=audit).count()
+        == number_of_statement_checks
     )

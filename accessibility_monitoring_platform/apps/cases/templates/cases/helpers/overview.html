@@ -26,7 +26,7 @@
     <h2 class="govuk-heading-s amp-margin-bottom-5">Website issues</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_website }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Statement issues</h2>
-    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement }}</p>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Organisation</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.organisation_name }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">

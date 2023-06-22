@@ -268,6 +268,31 @@ ACCESSIBILITY_STATEMENT_CHECK_VALID_VALUES: Dict[str, str] = {
     "access_requirements": [ACCESS_REQUIREMENTS_VALID],
 }
 
+STATEMENT_CHECK_TYPE_OVERVIEW: str = "overview"
+STATEMENT_CHECK_TYPE_WEBSITE: str = "website"
+STATEMENT_CHECK_TYPE_COMPLIANCE: str = "compliance"
+STATEMENT_CHECK_TYPE_NON_ACCESSIBLE: str = "non-accessible"
+STATEMENT_CHECK_TYPE_PREPARATION: str = "preparation"
+STATEMENT_CHECK_TYPE_FEEDBACK: str = "feedback"
+STATEMENT_CHECK_TYPE_CUSTOM: str = "custom"
+STATEMENT_CHECK_TYPE_CHOICES: List[Tuple[str, str]] = [
+    (STATEMENT_CHECK_TYPE_OVERVIEW, "Statement overview"),
+    (STATEMENT_CHECK_TYPE_WEBSITE, "Accessibility statement for [website.com]"),
+    (STATEMENT_CHECK_TYPE_COMPLIANCE, "Compliance status"),
+    (STATEMENT_CHECK_TYPE_NON_ACCESSIBLE, "Non-accessible content"),
+    (STATEMENT_CHECK_TYPE_PREPARATION, "Preparation of this accessibility statement"),
+    (STATEMENT_CHECK_TYPE_FEEDBACK, "Feedback and enforcement procedure"),
+    (STATEMENT_CHECK_TYPE_CUSTOM, "Custom statement issues"),
+]
+STATEMENT_CHECK_YES: str = "yes"
+STATEMENT_CHECK_NO: str = "no"
+STATEMENT_CHECK_NOT_TESTED: str = "not-tested"
+STATEMENT_CHECK_CHOICES: List[Tuple[str, str]] = [
+    (STATEMENT_CHECK_YES, "Yes"),
+    (STATEMENT_CHECK_NO, "No"),
+    (STATEMENT_CHECK_NOT_TESTED, "Not tested"),
+]
+
 
 class AccessibilityStatementCheck:
     """Accessibility statement check"""
@@ -532,6 +557,29 @@ class Audit(VersionModel):
     report_options_notes = models.TextField(default="", blank=True)
     audit_report_options_complete_date = models.DateField(null=True, blank=True)
 
+    # Statement checking overview
+    audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking website
+    audit_statement_website_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking compliance
+    audit_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking non-accessible content
+    audit_statement_non_accessible_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Statement checking preparation
+    audit_statement_preparation_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking feedback
+    audit_statement_feedback_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking other
+    audit_statement_custom_complete_date = models.DateField(null=True, blank=True)
+
     # Report text
     audit_report_text_complete_date = models.DateField(null=True, blank=True)
 
@@ -635,6 +683,41 @@ class Audit(VersionModel):
     audit_retest_access_requirements_notes = models.TextField(default="", blank=True)
     audit_retest_statement_2_complete_date = models.DateField(null=True, blank=True)
 
+    # Retest statement checking overview
+    audit_retest_statement_overview_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking website
+    audit_retest_statement_website_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking compliance
+    audit_retest_statement_compliance_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking non-accessible content
+    audit_retest_statement_non_accessible_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking preparation
+    audit_retest_statement_preparation_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking feedback
+    audit_retest_statement_feedback_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Retest statement checking other
+    audit_retest_statement_custom_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
     # Retest statement comparison
     audit_retest_statement_comparison_complete_date = models.DateField(
         null=True, blank=True
@@ -729,8 +812,7 @@ class Audit(VersionModel):
 
     @property
     def accessibility_statement_initially_found(self):
-        page: Page = self.every_page.filter(page_type=PAGE_TYPE_STATEMENT).first()
-        return page is not None and page.url != "" and page.not_found == BOOLEAN_FALSE
+        return self.accessibility_statement_found
 
     @property
     def accessibility_statement_found(self):
@@ -819,6 +901,143 @@ class Audit(VersionModel):
             if statement_check.finally_invalid
         ]
 
+    @property
+    def statement_check_results(self) -> bool:
+        return self.statementcheckresult_set.filter(is_deleted=False)
+
+    @property
+    def uses_statement_checks(self) -> bool:
+        return self.statement_check_results.count() > 0
+
+    @property
+    def overview_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_OVERVIEW)
+
+    @property
+    def overview_statement_checks_complete(self) -> bool:
+        return (
+            self.overview_statement_check_results.filter(
+                check_result_state=STATEMENT_CHECK_NOT_TESTED
+            ).count()
+            == 0
+        )
+
+    @property
+    def statement_check_result_statement_found(self) -> bool:
+        overview_statement_yes_count: CheckResult = (
+            self.overview_statement_check_results.filter(
+                check_result_state=STATEMENT_CHECK_YES
+            ).count()
+        )
+        return (
+            overview_statement_yes_count
+            == self.overview_statement_check_results.count()
+        )
+
+    @property
+    def website_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_WEBSITE)
+
+    @property
+    def compliance_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_COMPLIANCE)
+
+    @property
+    def non_accessible_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_PREPARATION
+        )
+
+    @property
+    def feedback_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_FEEDBACK)
+
+    @property
+    def custom_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(type=STATEMENT_CHECK_TYPE_CUSTOM)
+
+    @property
+    def failed_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            check_result_state=STATEMENT_CHECK_NO
+        )
+
+    @property
+    def passed_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(
+            check_result_state=STATEMENT_CHECK_YES
+        )
+
+    @property
+    def overview_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_OVERVIEW
+        )
+
+    @property
+    def website_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_WEBSITE
+        )
+
+    @property
+    def compliance_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_COMPLIANCE
+        )
+
+    @property
+    def non_accessible_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_PREPARATION
+        )
+
+    @property
+    def feedback_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_FEEDBACK
+        )
+
+    @property
+    def other_failed_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.filter(
+            type=STATEMENT_CHECK_TYPE_CUSTOM
+        )
+
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed test or retest"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=STATEMENT_CHECK_YES
+            ).count()
+            == 0
+            or self.overview_statement_check_results.exclude(
+                retest_state=STATEMENT_CHECK_YES
+            ).count()
+            == 0
+        )
+
+    @property
+    def failed_retest_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_NO)
+
+    @property
+    def passed_retest_statement_check_results(self) -> bool:
+        return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_YES)
+
 
 class Page(models.Model):
     """
@@ -859,7 +1078,7 @@ class Page(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
-        return reverse("audits:edit-audit-page", kwargs={"pk": self.pk})
+        return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
 
     @property
     def all_check_results(self):
@@ -966,3 +1185,72 @@ class CheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
+
+
+class StatementCheck(models.Model):
+    """
+    Model for accessibilty statement-specific checks
+    """
+
+    type = models.CharField(
+        max_length=20,
+        choices=STATEMENT_CHECK_TYPE_CHOICES,
+        default=STATEMENT_CHECK_TYPE_CUSTOM,
+    )
+    label = models.TextField(default="", blank=True)
+    success_criteria = models.TextField(default="", blank=True)
+    report_text = models.TextField(default="", blank=True)
+    position = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["position", "id"]
+
+    def __str__(self) -> str:
+        if self.success_criteria:
+            return str(
+                f"{self.label}: {self.success_criteria} ({self.get_type_display()})"
+            )
+        return f"{self.label} ({self.get_type_display()})"
+
+
+class StatementCheckResult(models.Model):
+    """
+    Model for accessibility statement-specific check result
+    """
+
+    audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    statement_check = models.ForeignKey(
+        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=STATEMENT_CHECK_TYPE_CHOICES,
+        default=STATEMENT_CHECK_TYPE_CUSTOM,
+    )
+    check_result_state = models.CharField(
+        max_length=10,
+        choices=STATEMENT_CHECK_CHOICES,
+        default=STATEMENT_CHECK_NOT_TESTED,
+    )
+    report_comment = models.TextField(default="", blank=True)
+    auditor_notes = models.TextField(default="", blank=True)
+    retest_state = models.CharField(
+        max_length=10,
+        choices=STATEMENT_CHECK_CHOICES,
+        default=STATEMENT_CHECK_NOT_TESTED,
+    )
+    retest_comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self) -> str:
+        if self.statement_check is None:
+            return str(f"{self.audit} | Custom")
+        return str(f"{self.audit} | {self.statement_check}")
+
+    @property
+    def label(self):
+        return self.statement_check.label if self.statement_check else "Custom"

@@ -33,6 +33,8 @@ from .models import (
     Page,
     WcagDefinition,
     CheckResult,
+    StatementCheck,
+    StatementCheckResult,
     CHECK_RESULT_NOT_TESTED,
     REPORT_ACCESSIBILITY_ISSUE_TEXT,
     REPORT_NEXT_ISSUE_TEXT,
@@ -219,6 +221,18 @@ def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
             )
         else:
             Page.objects.create(audit=audit, page_type=page_type)
+
+
+def create_statement_checks_for_new_audit(audit: Audit) -> None:
+    """
+    Create statement check results for new audit.
+    """
+    for statement_check in StatementCheck.objects.filter(is_deleted=False):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
 
 
 def get_next_page_url(audit: Audit, current_page: Union[Page, None] = None) -> str:

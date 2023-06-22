@@ -18,7 +18,8 @@ from ...audits.models import (
     CheckResult,
     Page,
     WcagDefinition,
-    PAGE_TYPE_HOME,
+    StatementCheckResult,
+    PAGE_TYPE_STATEMENT,
     TEST_TYPE_AXE,
     CHECK_RESULT_ERROR,
 )
@@ -37,6 +38,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Report,
     ReportVisitsMetrics,
+    REPORT_VERSION_DEFAULT,
 )
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -57,6 +59,47 @@ def create_report() -> Report:
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
+
+
+def test_create_report_uses_older_template(admin_client):
+    """
+    Test that report create uses last pre-statement check report template if no
+    statement checks exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == "v1_1_0__20230421"
+
+
+def test_create_report_uses_latest_template(admin_client):
+    """
+    Test that report create uses latest report template if statement checks
+    exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    StatementCheckResult.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == REPORT_VERSION_DEFAULT
 
 
 def test_create_report_redirects(admin_client):
@@ -132,16 +175,18 @@ def test_publish_report_redirects(admin_client):
 
 
 @mock_s3
-def test_published_report_includes_errors(admin_client):
+def test_old_published_report_includes_errors(admin_client):
     """
     Test that published report contains the test results
     """
     report: Report = create_report()
+    report.report_version = "v1_1_0__20230421"
+    report.save()
     audit: Audit = report.case.audit
     audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME

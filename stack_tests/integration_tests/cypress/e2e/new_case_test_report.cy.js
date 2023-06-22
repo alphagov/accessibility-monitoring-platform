@@ -57,16 +57,27 @@ describe('Create case, tests and report', () => {
     cy.get('[name="case-website_compliance_state_initial"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement Pt. 1`)
+    cy.title().should('eq', `${newOrganisationName} | Statement overview`)
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-1-check_result_state"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement Pt. 2`)
+    cy.title().should('eq', `${newOrganisationName} | Statement information`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Accessibility statement compliance decision`)
+    cy.title().should('eq', `${newOrganisationName} | Compliance status`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report options`)
+    cy.title().should('eq', `${newOrganisationName} | Non-accessible content`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Test summary`)
@@ -141,10 +152,25 @@ describe('Create case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week website compliance decision`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement Pt. 1`)
+    cy.title().should('eq', `${newOrganisationName} | 12-week statement overview`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement Pt. 2`)
+    cy.title().should('eq', `${newOrganisationName} | 12-week statement information`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week compliance status`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week non-accessible content`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week feedback and enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | 12-week custom statement issues`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week accessibility statement comparison`)

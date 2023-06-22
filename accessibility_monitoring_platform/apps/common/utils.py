@@ -190,3 +190,24 @@ def format_outstanding_issues(
         return "0 of 0 fixed"
     percentage: int = int(fixed_checks_count * 100 / failed_checks_count)
     return f"{fixed_checks_count} of {failed_checks_count} fixed ({percentage}%)"
+
+
+def format_statement_check_overview(
+    tests_passed: int = 0,
+    tests_failed: int = 0,
+    retests_passed: int = 0,
+    retests_failed: int = 0,
+) -> str:
+    """Return string showing how many statement checks have failed"""
+    if tests_passed == 0 and tests_failed == 0:
+        return "No test results"
+
+    if tests_passed > 0 and tests_failed == 0 and retests_failed == 0:
+        return "Fully compliant"
+
+    result: str = f"{tests_failed} checks failed on test"
+
+    if retests_passed > 0 or retests_failed > 0:
+        result += f" ({retests_failed} on 12-week retest)"
+
+    return result

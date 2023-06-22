@@ -155,6 +155,10 @@ table#all-issues {
     display: none;
 }
 
+.amp-width-one-third {
+    width: 33%;
+}
+
 .amp-width-one-half {
     width: 50%;
 }
@@ -443,6 +447,10 @@ img, .amp-max-width-100 {
 }
 
 // For use in reports
+
+.amp-report-column-counter {
+    white-space: nowrap;
+}
 
 .border-bottom-report::after {
     content: "";
