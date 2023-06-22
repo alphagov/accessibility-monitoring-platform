@@ -125,7 +125,7 @@ QUESTIONS = [
     },
     {
         "type": "non-accessible",
-        "label": "Does the non-compliant content mention dates for fixes in the past?",
+        "label": "Are all dates for fixes in the future?",
         "success_criteria": "There are no dates in the past for fixes.",
         "report_text": "The non-compliant content includes dates for fixes that are in the past.",
     },
@@ -185,7 +185,7 @@ QUESTIONS = [
     },
     {
         "type": "preparation",
-        "label": "Is the statement review or preparation date within the last year?",
+        "label": "If there is a review date, is the statement review date within the last year?",
         "success_criteria": "The statement has not been reviewed in the last year.",
         "report_text": "The statement has not been reviewed in the last year and is out-of-date.",
     },
