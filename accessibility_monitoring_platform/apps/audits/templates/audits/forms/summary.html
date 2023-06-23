@@ -134,7 +134,7 @@
                                     data-module="govuk-button"
                                 />
                                 <a
-                                    href="{% url 'audits:audit-detail' audit.id %}"
+                                    href="{{ audit.get_absolute_url }}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     Cancel and return to test view

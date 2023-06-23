@@ -35,7 +35,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'cases:case-detail' case.id %}"
+                                href="{{ case.get_absolute_url }}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return to case view

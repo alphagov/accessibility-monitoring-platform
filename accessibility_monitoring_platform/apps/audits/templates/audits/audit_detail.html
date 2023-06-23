@@ -33,7 +33,7 @@
                     >
                         Edit test
                     </a>
-                    <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{{ audit.case.get_absolute_url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
                 </div>

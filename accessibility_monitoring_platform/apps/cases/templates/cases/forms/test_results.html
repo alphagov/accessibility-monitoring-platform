@@ -20,7 +20,7 @@
                         {% if case.audit %}
                             <div class="govuk-button-group">
                                 <a
-                                    href="{% url 'audits:audit-detail' case.audit.id %}"
+                                    href="{{ case.audit.get_absolute_url }}"
                                     role="button"
                                     draggable="false"
                                     class="govuk-button govuk-button--secondary"

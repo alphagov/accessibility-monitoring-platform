@@ -190,6 +190,7 @@ class ReportWrapperUpdateView(UpdateView):
 
     form_class: Type[ReportWrapperUpdateForm] = ReportWrapperUpdateForm
     template_name: str = "reports/forms/wrapper.html"
+    context_object_name: str = "report_wrapper"
     success_url: str = reverse_lazy("dashboard:home")
 
     def get_object(self, queryset=None):  # pylint: disable=unused-argument

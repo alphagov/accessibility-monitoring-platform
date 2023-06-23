@@ -75,7 +75,7 @@
                                     <div class="govuk-grid-column-one-quarter">
                                         <div class="govuk-button-group amp-flex-end">
                                             <a
-                                                href="{% url 'audits:statement-check-update' statement_check.id %}"
+                                                href="{{ statement_check.get_absolute_url }}"
                                                 class="govuk-link govuk-link--no-visited-state"
                                             >
                                                 Edit

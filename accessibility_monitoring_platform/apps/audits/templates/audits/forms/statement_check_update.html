@@ -26,7 +26,7 @@
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement issue editor</h1>
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:statement-check-update' statement_check.id %}">
+                <form method="post" action="{{ statement_check.get_absolute_url }}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
