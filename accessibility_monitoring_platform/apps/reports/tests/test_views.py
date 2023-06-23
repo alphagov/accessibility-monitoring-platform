@@ -150,6 +150,36 @@ def test_create_report_creates_case_event(admin_client):
     assert case_event.message == "Created report"
 
 
+def test_report_publish_links_to_correct_testing_ui(admin_client):
+    """
+    Test that older reports link to Report options page whereas reports using
+    statement content checks link to Statement overview.
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Edit test &gt; Report options")
+    assertNotContains(response, "Edit test &gt; Statement overview")
+
+    case: Case = report.case
+    StatementCheckResult.objects.create(audit=case.audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Edit test &gt; Report options")
+    assertContains(response, "Edit test &gt; Statement overview")
+
+
 @mock_s3
 def test_publish_report_redirects(admin_client):
     """
