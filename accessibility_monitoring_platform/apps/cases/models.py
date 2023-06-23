@@ -892,6 +892,9 @@ class Contact(models.Model):
     def __str__(self) -> str:
         return str(f"Contact {self.name} {self.email}")
 
+    def get_absolute_url(self) -> str:
+        return reverse("cases:edit-contact-details", kwargs={"pk": self.case.id})
+
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         if not self.id:

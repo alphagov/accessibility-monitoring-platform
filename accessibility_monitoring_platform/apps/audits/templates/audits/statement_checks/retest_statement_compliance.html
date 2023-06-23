@@ -6,22 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-retest-detail' audit.id %}">12-week test</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                12-week compliance status
-            </li>
-        </ol>
-    </div>
+    {% include 'audits/helpers/breadcrumb_audit_retest.html' with page_heading='12-week compliance status' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
