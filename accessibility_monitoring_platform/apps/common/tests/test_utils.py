@@ -42,6 +42,7 @@ from ..utils import (
     checks_if_2fa_is_enabled,
     check_dict_for_truthy_values,
     format_outstanding_issues,
+    format_statement_check_overview,
 )
 
 
@@ -342,6 +343,34 @@ def test_format_outstanding_issues(
         format_outstanding_issues(
             failed_checks_count=failed_checks_count,
             fixed_checks_count=fixed_checks_count,
+        )
+        == expected_result
+    )
+
+
+@pytest.mark.parametrize(
+    "tests_passed,tests_failed,retests_passed,retests_failed,expected_result",
+    [
+        (0, 0, 0, 0, "No test results"),
+        (40, 0, 0, 0, "Fully compliant"),
+        (40, 0, 40, 0, "Fully compliant"),
+        (30, 10, 0, 0, "10 checks failed on test"),
+        (35, 5, 30, 10, "5 checks failed on test (10 on 12-week retest)"),
+    ],
+)
+def test_format_statement_check_overview(
+    tests_passed,
+    tests_failed,
+    retests_passed,
+    retests_failed,
+    expected_result,
+):
+    assert (
+        format_statement_check_overview(
+            tests_passed=tests_passed,
+            tests_failed=tests_failed,
+            retests_passed=retests_passed,
+            retests_failed=retests_failed,
         )
         == expected_result
     )

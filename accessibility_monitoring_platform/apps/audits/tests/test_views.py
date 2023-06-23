@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Union
 
 from pytest_django.asserts import assertContains, assertNotContains
 
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
@@ -21,6 +22,7 @@ from ...cases.models import (
     REPORT_METHODOLOGY_ODT,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ..models import (
     PAGE_TYPE_PDF,
@@ -37,6 +39,11 @@ from ..models import (
     TEST_TYPE_PDF,
     ACCESSIBILITY_STATEMENT_STATE_DEFAULT,
     REPORT_OPTIONS_NEXT_DEFAULT,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_TYPE_CUSTOM,
+    STATEMENT_CHECK_YES,
 )
 from ..utils import create_mandatory_pages_for_new_audit
 
@@ -84,6 +91,11 @@ TWELVE_WEEK_STATEMENT_ON_RETEST_TEXT: str = (
 )
 MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
+CUSTOM_STATEMENT_ISSUE: str = "Custom statement issue"
+STATEMENT_CHECK_LABEL: str = "Test statement check"
+STATEMENT_CHECK_TYPE: str = "custom"
+STATEMENT_CHECK_SUCCESS_CRITERIA: str = "Success criteria"
+STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
 
 
 def create_audit() -> Audit:
@@ -99,10 +111,26 @@ def create_audit_and_pages() -> Audit:
 
 
 def create_audit_and_wcag() -> Audit:
-    audit: Audit = create_audit()
+    audit: Audit = create_audit_and_pages()
     WcagDefinition.objects.all().delete()
     WcagDefinition.objects.create(id=1, type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME)
     WcagDefinition.objects.create(id=2, type=TEST_TYPE_PDF, name=WCAG_TYPE_PDF_NAME)
+    return audit
+
+
+def create_audit_and_statement_check_results() -> Audit:
+    """Create an audit with all types of statement checks"""
+    audit: Audit = create_audit_and_wcag()
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
     return audit
 
 
@@ -307,6 +335,53 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
 
 
 @pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        (
+            "audits:edit-retest-statement-overview",
+            "12-week statement overview",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "12-week statement information",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "12-week compliance status",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "12-week non-accessible content",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "12-week statement preparation",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "12-week feedback and enforcement procedure",
+        ),
+        (
+            "audits:edit-retest-statement-custom",
+            "12-week custom statement issues",
+        ),
+    ],
+)
+def test_audit_statement_check_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the audit with statement checks-specific view page loads"""
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
@@ -396,7 +471,7 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         (
             "audits:edit-audit-12-week-statement",
             "save_return",
-            "audits:edit-audit-retest-statement-1",
+            "audits:edit-retest-statement-overview",
         ),
         (
             "audits:edit-audit-retest-statement-2",
@@ -436,7 +511,9 @@ def test_audit_edit_redirects_based_on_button_pressed(
     expected_redirect_path_name,
     admin_client,
 ):
-    """Test that a successful audit update redirects based on the button pressed"""
+    """
+    Test that a successful audit update redirects based on the button pressed
+    """
     audit: Audit = create_audit_and_wcag()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
@@ -453,6 +530,270 @@ def test_audit_edit_redirects_based_on_button_pressed(
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        (
+            "audits:edit-website-decision",
+            "save_continue",
+            "audits:edit-statement-overview",
+        ),
+        (
+            "audits:edit-statement-overview",
+            "save",
+            "audits:edit-statement-overview",
+        ),
+        (
+            "audits:edit-statement-overview",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        (
+            "audits:edit-statement-website",
+            "save",
+            "audits:edit-statement-website",
+        ),
+        (
+            "audits:edit-statement-website",
+            "save_continue",
+            "audits:edit-statement-compliance",
+        ),
+        (
+            "audits:edit-statement-compliance",
+            "save",
+            "audits:edit-statement-compliance",
+        ),
+        (
+            "audits:edit-statement-compliance",
+            "save_continue",
+            "audits:edit-statement-non-accessible",
+        ),
+        (
+            "audits:edit-statement-non-accessible",
+            "save",
+            "audits:edit-statement-non-accessible",
+        ),
+        (
+            "audits:edit-statement-non-accessible",
+            "save_continue",
+            "audits:edit-statement-preparation",
+        ),
+        (
+            "audits:edit-statement-preparation",
+            "save",
+            "audits:edit-statement-preparation",
+        ),
+        (
+            "audits:edit-statement-preparation",
+            "save_continue",
+            "audits:edit-statement-feedback",
+        ),
+        (
+            "audits:edit-statement-feedback",
+            "save",
+            "audits:edit-statement-feedback",
+        ),
+        (
+            "audits:edit-statement-feedback",
+            "save_continue",
+            "audits:edit-statement-custom",
+        ),
+        (
+            "audits:edit-statement-custom",
+            "save",
+            "audits:edit-statement-custom",
+        ),
+        (
+            "audits:edit-statement-custom",
+            "save_continue",
+            "audits:edit-audit-summary",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save_continue",
+            "audits:edit-retest-statement-overview",
+        ),
+        (
+            "audits:edit-retest-statement-overview",
+            "save",
+            "audits:edit-retest-statement-overview",
+        ),
+        (
+            "audits:edit-retest-statement-overview",
+            "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "save",
+            "audits:edit-retest-statement-website",
+        ),
+        (
+            "audits:edit-retest-statement-website",
+            "save_continue",
+            "audits:edit-retest-statement-compliance",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "save",
+            "audits:edit-retest-statement-compliance",
+        ),
+        (
+            "audits:edit-retest-statement-compliance",
+            "save_continue",
+            "audits:edit-retest-statement-non-accessible",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "save",
+            "audits:edit-retest-statement-non-accessible",
+        ),
+        (
+            "audits:edit-retest-statement-non-accessible",
+            "save_continue",
+            "audits:edit-retest-statement-preparation",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "save",
+            "audits:edit-retest-statement-preparation",
+        ),
+        (
+            "audits:edit-retest-statement-preparation",
+            "save_continue",
+            "audits:edit-retest-statement-feedback",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "save",
+            "audits:edit-retest-statement-feedback",
+        ),
+        (
+            "audits:edit-retest-statement-feedback",
+            "save_continue",
+            "audits:edit-retest-statement-custom",
+        ),
+        (
+            "audits:edit-retest-statement-custom",
+            "save",
+            "audits:edit-retest-statement-custom",
+        ),
+        (
+            "audits:edit-retest-statement-custom",
+            "save_continue",
+            "audits:edit-audit-retest-statement-comparison",
+        ),
+    ],
+)
+def test_audit_statement_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful audit statement update redirects based on the button
+    pressed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "case-version": audit.case.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+def test_audit_edit_statement_overview_redirects_to_statement_website(
+    admin_client,
+):
+    """
+    Test that a successful audit statement overview update redirects to
+    statement website if the overiew checks have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    for statement_check_result in StatementCheckResult.objects.filter(
+        audit=audit, type=STATEMENT_CHECK_TYPE_OVERVIEW
+    ):
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse("audits:edit-statement-website", kwargs=audit_pk)
+    assert response.url == expected_path
+
+
+def test_audit_edit_statement_overview_updates_case_status(
+    admin_client,
+):
+    """
+    Test that a successful audit statement overview update redirects to
+    statement website if the overiew checks have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    case: Case = audit.case
+    case.home_page_url = "https://www.website.com"
+    case.organisation_name = "org name"
+    user: User = User.objects.create()
+    case.auditor = user
+    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
+    case.save()
+
+    assert audit.case.status == "test-in-progress"
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        {
+            "version": audit.version,
+            "save": "Button value",
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "2",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "1",
+            "form-0-check_result_state": "yes",
+            "form-0-report_comment": "",
+            "form-1-id": "2",
+            "form-1-check_result_state": "no",
+            "form-1-report_comment": "",
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    assert audit_from_db.case.status == "report-in-progress"
 
 
 def test_retest_date_change_creates_case_event(admin_client):
@@ -1050,17 +1391,72 @@ def test_statement_details_hidden_when_no_statement_page_on_retest(
 
 
 @pytest.mark.parametrize(
+    "url_name, field_label",
+    [
+        (
+            "audits:edit-retest-statement-overview",
+            "Is there an accessibility page?",
+        ),
+    ],
+)
+def test_statement_check_results_hidden_when_no_statement_page_on_retest(
+    url_name, field_label, admin_client
+):
+    """
+    Test that accessibility statement check results form fields shown only if
+    such a page is present.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, field_label)
+
+    page: Page = audit.accessibility_statement_page
+    page.url = ACCESSIBILITY_STATEMENT_URL
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertContains(response, field_label)
+
+    page.not_found = BOOLEAN_TRUE
+    page.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs=audit_pk),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, NO_ACCESSIBILITY_STATEMENT_ON_RETEST, html=True)
+    assertNotContains(response, field_label)
+
+
+@pytest.mark.parametrize(
     "url_name",
     [
         "audits:edit-audit-retest-statement-1",
         "audits:edit-audit-retest-statement-2",
+        "audits:edit-retest-statement-overview",
     ],
 )
 def test_12_week_statement_page_shown_on_retest(url_name, admin_client):
     """
     Test that option to add 12-week accessibility statement shown.
     """
-    audit: Audit = create_audit_and_pages()
+    audit: Audit = create_audit_and_statement_check_results()
     audit_pk: Dict[str, int] = {"pk": audit.id}
 
     response: HttpResponse = admin_client.get(
@@ -1118,6 +1514,89 @@ def test_statement_update_one_adds_contact(email, new_contact_expected, admin_cl
         assert contact.email == email
     else:
         assert len(contacts) == 0
+
+
+def test_add_custom_statement_check_result_form_appears(admin_client):
+    """
+    Test that pressing the create issue button adds a new custom statement issue form
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            "add_custom": "Create issue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "Custom issue #1")
+
+
+def test_add_custom_statement_check_result(admin_client):
+    """Test adding a custom statement issue"""
+    audit: Audit = create_audit_and_statement_check_results()
+    StatementCheckResult.objects.filter(
+        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+    ).delete()
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-id": "",
+            "form-0-report_comment": CUSTOM_STATEMENT_ISSUE,
+            "form-0-auditor_notes": "",
+            "version": audit.version,
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+    )
+
+    assert custom_statement_check_result.report_comment == CUSTOM_STATEMENT_ISSUE
+
+
+def test_delete_custom_statement_check_result(admin_client):
+    """
+    Test that pressing the remove issue button deletes the custom statement issue
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM)
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-statement-custom", kwargs={"pk": audit.id}),
+        {
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "version": audit.version,
+            f"remove_custom_{custom_statement_check_result.id}": "Remove issue",
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+    assertContains(response, "No custom statement issues have been entered")
+
+    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
+        audit=audit, type=STATEMENT_CHECK_TYPE_CUSTOM
+    )
+    assert result_on_database.is_deleted is True
 
 
 def test_statement_decision_saved_on_case(admin_client):
@@ -1522,9 +2001,9 @@ def test_all_initial_statement_one_notes_included_on_retest(admin_client):
     audit.compliance_notes = "Initial compliance notes"
     audit.non_regulation_notes = "Initial non-regulation notes"
     audit.save()
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = ACCESSIBILITY_STATEMENT_URL
+    statement_page.save()
 
     audit_pk: int = audit.id
     path_kwargs: Dict[str, int] = {"pk": audit_pk}
@@ -1555,9 +2034,9 @@ def test_all_initial_statement_two_notes_included_on_retest(admin_client):
     audit.method_notes = "Initial method notes"
     audit.access_requirements_notes = "Initial access requirements notes"
     audit.save()
-    Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
-    )
+    statement_page: Page = Page.objects.get(audit=audit, page_type=PAGE_TYPE_STATEMENT)
+    statement_page.url = ACCESSIBILITY_STATEMENT_URL
+    statement_page.save()
 
     audit_pk: int = audit.id
     path_kwargs: Dict[str, int] = {"pk": audit_pk}
@@ -1771,3 +2250,141 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "View website")
     assertContains(response, "Link to case view")
     assertContains(response, "Markdown cheatsheet")
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("audits:statement-check-create", "Create statement issue"),
+        ("audits:statement-check-list", "Statement issues editor"),
+    ],
+)
+def test_statement_check_page_loads(path_name, expected_content, admin_client):
+    """Test that the statement check-specific view page loads"""
+    response: HttpResponse = admin_client.get(reverse(path_name))
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+def test_statement_check_update_page_loads(admin_client):
+    """Test that the statement check update view page loads"""
+    kwargs: Dict[str, int] = {"pk": 1}
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:statement-check-update", kwargs=kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Statement issue editor")
+
+
+def test_statement_check_list_renders(admin_client):
+    """Test statement check list renders"""
+    response: HttpResponse = admin_client.get(reverse("audits:statement-check-list"))
+
+    assert response.status_code == 200
+
+    assertContains(response, "Statement issues editor")
+    assertContains(response, "Displaying 42 Statement checks.", html=True)
+    assertContains(
+        response,
+        """<a href="/audits/1/edit-statement-check/"
+            class="govuk-link govuk-link--no-visited-state">
+            Edit</a>""",
+        html=True,
+    )
+
+
+def test_statement_check_list_search(admin_client):
+    """Test statement check list search"""
+    url: str = reverse("audits:statement-check-list")
+    response: HttpResponse = admin_client.get(f"{url}?statement_check_search=website")
+
+    assert response.status_code == 200
+
+    assertContains(response, "Displaying 11 Statement checks.", html=True)
+
+
+def test_create_statement_check_works(admin_client):
+    """
+    Test that a successful statement check create creates the new
+    statement check and redirects to list.
+    """
+    response: HttpResponse = admin_client.post(
+        reverse("audits:statement-check-create"),
+        {
+            "label": STATEMENT_CHECK_LABEL,
+            "type": STATEMENT_CHECK_TYPE,
+            "success_criteria": STATEMENT_CHECK_SUCCESS_CRITERIA,
+            "report_text": STATEMENT_CHECK_REPORT_TEXT,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("audits:statement-check-list")
+
+    statement_check_from_db: StatementCheck = StatementCheck.objects.get(
+        label=STATEMENT_CHECK_LABEL
+    )
+
+    assert statement_check_from_db.type == STATEMENT_CHECK_TYPE
+    assert statement_check_from_db.success_criteria == STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
+
+
+def test_update_statement_check_works(admin_client):
+    """
+    Test that a successful statement check update updates the statement check
+    and redirects to list.
+    """
+    statement_check: Optional[StatementCheck] = StatementCheck.objects.first()
+
+    assert statement_check is not None
+    assert statement_check.label != STATEMENT_CHECK_LABEL
+    assert statement_check.type != STATEMENT_CHECK_TYPE
+    assert statement_check.success_criteria != STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check.report_text != STATEMENT_CHECK_REPORT_TEXT
+
+    statement_check_id: int = statement_check.id
+    path_kwargs: Dict[str, int] = {"pk": statement_check_id}
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:statement-check-update", kwargs=path_kwargs),
+        {
+            "label": STATEMENT_CHECK_LABEL,
+            "type": STATEMENT_CHECK_TYPE,
+            "success_criteria": STATEMENT_CHECK_SUCCESS_CRITERIA,
+            "report_text": STATEMENT_CHECK_REPORT_TEXT,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("audits:statement-check-list")
+
+    statement_check_from_db: StatementCheck = StatementCheck.objects.get(
+        id=statement_check_id
+    )
+
+    assert statement_check_from_db.label == STATEMENT_CHECK_LABEL
+    assert statement_check_from_db.type == STATEMENT_CHECK_TYPE
+    assert statement_check_from_db.success_criteria == STATEMENT_CHECK_SUCCESS_CRITERIA
+    assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
+
+
+def test_summary_page_view(admin_client):
+    """Test that summary page view renders"""
+    audit: Audit = create_audit()
+    audit_pk: Dict[str, int] = {"pk": audit.id}
+    Page.objects.create(audit=audit, is_deleted=True)
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('audits:edit-audit-summary', kwargs=audit_pk)}?view=Page+view",
+    )
+
+    assert response.status_code == 200
+    assertContains(response, "Test summary | Page view", html=True)
