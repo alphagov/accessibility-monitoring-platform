@@ -393,6 +393,7 @@ def test_download_equality_body_cases():
         "",
         "",
         "No",
+        "n/a",
         "No claim",
         "",
         "No claim",
@@ -524,6 +525,7 @@ def test_download_cases():
         "Unknown",
         "Contact for CSV export",
         "",
+        "n/a",
         "test@example.com",
     ]
 
