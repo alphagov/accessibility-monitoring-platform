@@ -981,9 +981,21 @@ class Audit(VersionModel):
         )
 
     @property
+    def overview_outstanding_statement_check_results(self) -> bool:
+        return self.overview_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
+    @property
     def website_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_WEBSITE
+        )
+
+    @property
+    def website_outstanding_statement_check_results(self) -> bool:
+        return self.website_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
         )
 
     @property
@@ -993,9 +1005,21 @@ class Audit(VersionModel):
         )
 
     @property
+    def compliance_outstanding_statement_check_results(self) -> bool:
+        return self.compliance_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
+    @property
     def non_accessible_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_NON_ACCESSIBLE
+        )
+
+    @property
+    def non_accessible_outstanding_statement_check_results(self) -> bool:
+        return self.non_accessible_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
         )
 
     @property
@@ -1005,15 +1029,33 @@ class Audit(VersionModel):
         )
 
     @property
+    def preparation_outstanding_statement_check_results(self) -> bool:
+        return self.preparation_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
+    @property
     def feedback_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_FEEDBACK
         )
 
     @property
-    def other_failed_statement_check_results(self) -> bool:
+    def feedback_outstanding_statement_check_results(self) -> bool:
+        return self.feedback_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
+    @property
+    def custom_failed_statement_check_results(self) -> bool:
         return self.failed_statement_check_results.filter(
             type=STATEMENT_CHECK_TYPE_CUSTOM
+        )
+
+    @property
+    def custom_outstanding_statement_check_results(self) -> bool:
+        return self.custom_failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
         )
 
     @property
