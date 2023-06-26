@@ -8,12 +8,8 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Search
-            </li>
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Search</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -118,7 +114,7 @@
                                     <div class="govuk-grid-row">
                                         <div class="govuk-grid-column-full">
                                             <p class="govuk-body-l amp-margin-bottom-0">
-                                                <a href="{% url 'cases:case-detail' case.id %}"
+                                                <a href="{{ case.get_absolute_url }}"
                                                     class="govuk-link govuk-link--no-visited-state">
                                                     {{ case.organisation_name }}
                                                 </a>
@@ -177,7 +173,7 @@
                                                 {% endif %}
                                                 {% if case.testing_methodology == 'platform' and case.audit %}
                                                     <a
-                                                        href="{% url 'audits:audit-detail' case.audit.id %}"
+                                                        href="{{ case.audit.get_absolute_url }}"
                                                         class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
                                                     >
                                                         View test

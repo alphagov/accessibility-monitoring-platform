@@ -734,7 +734,7 @@ class Audit(VersionModel):
         return str(f"{self.case}" f" (Test {amp_format_date(self.date_of_test)})")
 
     def get_absolute_url(self) -> str:
-        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
+        return reverse("audits:audit-detail", kwargs={"pk": self.pk})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1132,6 +1132,9 @@ class WcagDefinition(models.Model):
             return str(f"{self.name}: {self.description} ({self.get_type_display()})")
         return f"{self.name} ({self.get_type_display()})"
 
+    def get_absolute_url(self) -> str:
+        return reverse("audits:wcag-definition-update", kwargs={"pk": self.pk})
+
 
 class CheckResult(models.Model):
     """
@@ -1212,6 +1215,9 @@ class StatementCheck(models.Model):
                 f"{self.label}: {self.success_criteria} ({self.get_type_display()})"
             )
         return f"{self.label} ({self.get_type_display()})"
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:statement-check-update", kwargs={"pk": self.pk})
 
 
 class StatementCheckResult(models.Model):
