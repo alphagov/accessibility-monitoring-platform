@@ -72,6 +72,9 @@ class IssueReport(models.Model):
     def __str__(self):
         return f"#{self.id} {self.page_title}"
 
+    def get_absolute_url(self) -> str:
+        return self.page_url
+
 
 class Platform(models.Model):
     """
@@ -217,3 +220,6 @@ class FrequentlyUsedLink(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.label}: {self.url}")
+
+    def get_absolute_url(self) -> str:
+        return self.url
