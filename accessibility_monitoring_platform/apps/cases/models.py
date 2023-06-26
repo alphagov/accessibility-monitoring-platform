@@ -834,6 +834,16 @@ class Case(VersionModel):
         return self.get_accessibility_statement_state_final_display()
 
     @property
+    def percentage_website_issues_fixed(self) -> int:
+        if self.audit is None:
+            return "n/a"
+        failed_checks_count: int = self.audit.failed_check_results.count()
+        if failed_checks_count == 0:
+            return "n/a"
+        fixed_checks_count: int = self.audit.fixed_check_results.count()
+        return int(fixed_checks_count * 100 / failed_checks_count)
+
+    @property
     def overview_issues_website(self) -> str:
         if self.audit is None:
             return "No test exists"
