@@ -788,7 +788,7 @@ def test_audit_failed_statement_check_results():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
-        ("other", "other"),
+        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -905,3 +905,45 @@ def test_report_accessibility_issues():
         INCOMPLETE_DEADLINE_TEXT,
         INSUFFICIENT_DEADLINE_TEXT,
     ]
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("custom", "custom"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_outstanding_statement_check_results(type, attr):
+    """
+    Tests specific audit outstanding_statement_check_results property contains
+    the expected statement check results.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+    attr_name: str = f"{attr}_outstanding_statement_check_results"
+
+    assert getattr(audit, attr_name).exists() is False
+
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.save()
+
+    assert getattr(audit, attr_name).exists() is True
+    assert getattr(audit, attr_name).first() == statement_check_result
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    assert getattr(audit, attr_name).exists() is False

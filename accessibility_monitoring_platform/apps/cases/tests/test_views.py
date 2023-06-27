@@ -31,6 +31,7 @@ from ...audits.models import (
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
     STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_NO,
 )
 from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
@@ -3413,35 +3414,54 @@ def test_outstanding_issues_new_case(admin_client):
     assertContains(response, "This is a new case and does not have any test data.")
 
 
-def test_outstanding_issues_statement_checks(admin_client):
-    """
-    Test out standing issues page shows statement checks##
-    """
+@pytest.mark.parametrize(
+    "type, label",
+    [
+        ("overview", "Statement overview"),
+        ("website", "Statement information"),
+        ("compliance", "Compliance status"),
+        ("non-accessible", "Non-accessible content overview"),
+        ("preparation", "Preparation"),
+        ("feedback", "Feedback"),
+        ("custom", "Custom statement issues"),
+    ],
+)
+def test_outstanding_issues_statement_checks(type, label, admin_client):
+    """Test that outstanding issues shows expected statement checks"""
     case: Case = Case.objects.create()
     audit: Audit = Audit.objects.create(case=case)
-
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+    edit_url: str = f"edit-retest-statement-{type}"
     url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
 
-    assertContains(response, "Statement comparison")
-    assertNotContains(response, "Edit statement overview")
-
-    for statement_check in StatementCheck.objects.all():
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.save()
 
     response: HttpResponse = admin_client.get(url)
 
     assert response.status_code == 200
+    assertContains(response, label)
+    assertContains(response, edit_url)
 
-    assertNotContains(response, "Statement comparison")
-    assertContains(response, "Edit statement overview")
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
 
 
 @pytest.mark.parametrize(

@@ -56,46 +56,55 @@
                             </li>
                         {% endif %}
                         {% if case.audit.uses_statement_checks %}
-                            <li>
-                                <a href="#statement-overview" rel="noreferrer noopener" class="govuk-link">
-                                    Statement overview
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-website" rel="noreferrer noopener" class="govuk-link">
-                                    Statement information
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-compliance" rel="noreferrer noopener" class="govuk-link">
-                                    Compliance status
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-non-accessible" rel="noreferrer noopener" class="govuk-link">
-                                    Non-accessible content overview
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-preparation" rel="noreferrer noopener" class="govuk-link">
-                                    Preparation
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-feedback" rel="noreferrer noopener" class="govuk-link">
-                                    Feedback
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-enforcement" rel="noreferrer noopener" class="govuk-link">
-                                    Enforcement procedure
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#statement-custom" rel="noreferrer noopener" class="govuk-link">
-                                    Other
-                                </a>
-                            </li>
+                            {% if case.audit.overview_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-overview" rel="noreferrer noopener" class="govuk-link">
+                                        Statement overview
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.website_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-website" rel="noreferrer noopener" class="govuk-link">
+                                        Statement information
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.compliance_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-compliance" rel="noreferrer noopener" class="govuk-link">
+                                        Compliance status
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.non_accessible_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-non-accessible" rel="noreferrer noopener" class="govuk-link">
+                                        Non-accessible content overview
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.preparation_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-preparation" rel="noreferrer noopener" class="govuk-link">
+                                        Preparation
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.feedback_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-feedback" rel="noreferrer noopener" class="govuk-link">
+                                        Feedback
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if case.audit.custom_outstanding_statement_check_results %}
+                                <li>
+                                    <a href="#statement-custom" rel="noreferrer noopener" class="govuk-link">
+                                        Custom statement issues
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% else %}
                             <li>
                                 <a href="#statement-comparison" rel="noreferrer noopener" class="govuk-link">

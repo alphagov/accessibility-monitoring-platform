@@ -630,6 +630,46 @@ def test_accessibility_statement_compliance_display(
 
 
 @pytest.mark.django_db
+def test_percentage_website_issues_fixed_no_audit():
+    """Test that cases without audits return n/a"""
+    case: Case = Case.objects.create()
+
+    assert case.percentage_website_issues_fixed == "n/a"
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_with_audit_no_issues():
+    """Test that case with audit but no issues returns n/a"""
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    assert case.percentage_website_issues_fixed == "n/a"
+
+
+@pytest.mark.django_db
+def test_percentage_website_issues_fixed_with_audit_and_issues():
+    """Test that case with audit and issues returns percentage"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        type=TEST_TYPE_AXE,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    assert case.percentage_website_issues_fixed == 0
+
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    assert case.percentage_website_issues_fixed == 100
+
+
+@pytest.mark.django_db
 def test_overview_issues_website_no_audit():
     """Test that cases without audits return no test exists"""
     case: Case = Case.objects.create()

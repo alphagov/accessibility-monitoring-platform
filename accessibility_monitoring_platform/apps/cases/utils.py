@@ -112,6 +112,10 @@ COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
         column_name="No response to report",
         field_name="no_psb_contact",
     ),
+    ColumnAndFieldNames(
+        column_name="% of issues fixed",
+        field_name="percentage_website_issues_fixed",
+    ),
 ]
 
 EXTRA_AUDIT_COLUMNS_FOR_EQUALITY_BODY: List[ColumnAndFieldNames] = [
@@ -409,6 +413,10 @@ CASE_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
     ColumnAndFieldNames(
         column_name="Date equality body completed the case",
         field_name="enforcement_body_finished_date",
+    ),
+    ColumnAndFieldNames(
+        column_name="% of issues fixed",
+        field_name="percentage_website_issues_fixed",
     ),
 ]
 CONTACT_COLUMNS_FOR_EXPORT: List[ColumnAndFieldNames] = [
