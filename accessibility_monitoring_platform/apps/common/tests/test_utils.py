@@ -44,6 +44,7 @@ from ..utils import (
     check_dict_for_truthy_values,
     format_outstanding_issues,
     format_statement_check_overview,
+    get_dict_without_page_items,
     get_url_parameters_for_pagination,
 )
 
@@ -376,6 +377,20 @@ def test_format_statement_check_overview(
         )
         == expected_result
     )
+
+
+@pytest.mark.parametrize(
+    "items, expected_result",
+    [
+        ([], {}),
+        ([("page", "1")], {}),
+        ([("a", "b")], {"a": "b"}),
+        ([("page", "1"), ("a", "b")], {"a": "b"}),
+    ],
+)
+def test_get_dict_without_page_items(items, expected_result):
+    """Test tuples beginning with 'page' are removed"""
+    assert get_dict_without_page_items(items) == expected_result
 
 
 @pytest.mark.parametrize(

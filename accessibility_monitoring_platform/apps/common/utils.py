@@ -6,6 +6,7 @@ import json
 from typing import (
     Any,
     Dict,
+    Iterable,
     List,
     Match,
     Optional,
@@ -215,9 +216,11 @@ def format_statement_check_overview(
     return result
 
 
+def get_dict_without_page_items(items: Iterable[Tuple[str, str]]) -> Dict[str, str]:
+    """Remove tuples beginning with 'page' from iterable"""
+    return {key: value for (key, value) in items if key != "page"}
+
+
 def get_url_parameters_for_pagination(request: HttpRequest):
     """Get URL parameters from GET removing existing 'page' parameter"""
-    get_without_page: Dict[str, Union[str, List[object]]] = {
-        key: value for (key, value) in request.GET.items() if key != "page"
-    }
-    return urllib.parse.urlencode(get_without_page)
+    return urllib.parse.urlencode(get_dict_without_page_items(request.GET.items()))

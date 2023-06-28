@@ -42,6 +42,7 @@ from ..common.utils import (
     record_model_create_event,
     check_dict_for_truthy_values,
     list_to_dictionary_of_lists,
+    get_dict_without_page_items,
     get_url_parameters_for_pagination,
 )
 from ..common.form_extract_utils import (
@@ -249,11 +250,9 @@ class CaseListView(ListView):
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
-        get_without_page: Dict[str, Union[str, List[object]]] = {
-            key: value for (key, value) in self.request.GET.items() if key != "page"
-        }
         context["advanced_search_open"] = check_dict_for_truthy_values(
-            dictionary=get_without_page, keys_to_check=TRUTHY_SEARCH_FIELDS
+            dictionary=get_dict_without_page_items(self.request.GET.items()),
+            keys_to_check=TRUTHY_SEARCH_FIELDS,
         )
         context["form"] = self.form
         context["url_parameters"] = get_url_parameters_for_pagination(
