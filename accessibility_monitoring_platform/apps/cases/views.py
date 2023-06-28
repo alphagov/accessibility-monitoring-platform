@@ -4,7 +4,6 @@ Views for cases app
 from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
-import urllib
 
 from django import forms
 from django.contrib import messages
@@ -43,6 +42,7 @@ from ..common.utils import (
     record_model_create_event,
     check_dict_for_truthy_values,
     list_to_dictionary_of_lists,
+    get_url_parameters_for_pagination,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -252,12 +252,13 @@ class CaseListView(ListView):
         get_without_page: Dict[str, Union[str, List[object]]] = {
             key: value for (key, value) in self.request.GET.items() if key != "page"
         }
-
         context["advanced_search_open"] = check_dict_for_truthy_values(
             dictionary=get_without_page, keys_to_check=TRUTHY_SEARCH_FIELDS
         )
         context["form"] = self.form
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["url_parameters"] = get_url_parameters_for_pagination(
+            request=self.request
+        )
         return context
 
 

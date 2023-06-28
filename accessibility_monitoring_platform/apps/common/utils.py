@@ -12,6 +12,7 @@ from typing import (
     Tuple,
     Union,
 )
+import urllib
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -19,6 +20,7 @@ from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -211,3 +213,11 @@ def format_statement_check_overview(
         result += f" ({retests_failed} on 12-week retest)"
 
     return result
+
+
+def get_url_parameters_for_pagination(request: HttpRequest):
+    """Get URL parameters from GET removing existing 'page' parameter"""
+    get_without_page: Dict[str, Union[str, List[object]]] = {
+        key: value for (key, value) in request.GET.items() if key != "page"
+    }
+    return urllib.parse.urlencode(get_without_page)

@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -43,6 +44,7 @@ from ..utils import (
     check_dict_for_truthy_values,
     format_outstanding_issues,
     format_statement_check_overview,
+    get_url_parameters_for_pagination,
 )
 
 
@@ -374,3 +376,18 @@ def test_format_statement_check_overview(
         )
         == expected_result
     )
+
+
+@pytest.mark.parametrize(
+    "get_parameters, expected_result",
+    [
+        ("", ""),
+        ("?a=b", "a=b"),
+        ("?page=1&a=b", "a=b"),
+        ("?page=2&statement_check_search=website", "statement_check_search=website"),
+    ],
+)
+def test_get_url_parameters_for_pagination(get_parameters, expected_result, rf):
+    """Test get_url_parameters_for_pagination"""
+    request: HttpRequest = rf.get(f"/{get_parameters}")
+    assert get_url_parameters_for_pagination(request=request) == expected_result
