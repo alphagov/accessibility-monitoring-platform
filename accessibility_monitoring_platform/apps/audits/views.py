@@ -4,7 +4,6 @@ Views for audits app (called tests by users)
 from datetime import date
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
-import urllib
 
 from django.db.models.query import Q, QuerySet
 from django.forms import Form
@@ -30,6 +29,7 @@ from ..common.utils import (
     list_to_dictionary_of_lists,
     get_id_from_button_name,
     amp_format_date,
+    get_url_parameters_for_pagination,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -1468,7 +1468,9 @@ class WcagDefinitionListView(ListView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["wcag_definition_search_form"] = self.wcag_definition_search_form
-        context["url_parameters"] = urllib.parse.urlencode(self.request.GET)
+        context["url_parameters"] = get_url_parameters_for_pagination(
+            request=self.request
+        )
         return context
 
 
@@ -1585,7 +1587,9 @@ class StatementCheckListView(ListView):
         """Get context data for template rendering"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         context["statement_check_search_form"] = self.statement_check_search_form
-        context["url_parameters"] = urllib.parse.urlencode(self.request.GET)
+        context["url_parameters"] = get_url_parameters_for_pagination(
+            request=self.request
+        )
         return context
 
 
