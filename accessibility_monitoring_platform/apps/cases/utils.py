@@ -522,7 +522,6 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         Case.objects.filter(search_query, **filters)
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
-        .all()
     )
 
 
