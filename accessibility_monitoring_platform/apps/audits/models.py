@@ -1073,6 +1073,12 @@ class Audit(VersionModel):
         )
 
     @property
+    def outstanding_statement_check_results(self) -> bool:
+        return self.failed_statement_check_results.exclude(
+            retest_state=STATEMENT_CHECK_YES
+        )
+
+    @property
     def failed_retest_statement_check_results(self) -> bool:
         return self.statement_check_results.filter(retest_state=STATEMENT_CHECK_NO)
 

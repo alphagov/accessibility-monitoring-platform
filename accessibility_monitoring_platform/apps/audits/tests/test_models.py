@@ -936,14 +936,17 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     attr_name: str = f"{attr}_outstanding_statement_check_results"
 
     assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
 
     statement_check_result.check_result_state = STATEMENT_CHECK_NO
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is True
     assert getattr(audit, attr_name).first() == statement_check_result
+    assert audit.outstanding_statement_check_results.count() == 1
 
     statement_check_result.retest_state = STATEMENT_CHECK_YES
     statement_check_result.save()
 
     assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0

@@ -30,6 +30,7 @@
                         </div>
                     </div>
                     <h2 class="govuk-heading-l">Content</h2>
+                    <h3 class="govuk-heading-m">{% if show_failures_by_page %}Pages{% else %}WCAG errors{% endif %}</h3>
                     <ul class="govuk-list">
                         {% if show_failures_by_page %}
                             {% for page, failures in audit_failures_by_page.items %}
@@ -55,6 +56,11 @@
                                 </a>
                             </li>
                         {% endif %}
+                        </ul>
+                        {% if not case.audit.uses_statement_checks or case.audit.outstanding_statement_check_results %}
+                            <h3 class="govuk-heading-m">Statement</h3>
+                        {% endif %}
+                        <ul class="govuk-list">
                         {% if case.audit.uses_statement_checks %}
                             {% if case.audit.overview_outstanding_statement_check_results %}
                                 <li>
