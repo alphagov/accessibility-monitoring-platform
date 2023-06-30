@@ -28,7 +28,8 @@ from ..common.models import (
 
 STATUS_READY_TO_QA: str = "unassigned-qa-case"
 STATUS_QA_IN_PROGRESS: str = "qa-in-progress"
-STATUS_DEFAULT: str = "unassigned-case"
+STATUS_UNASSIGNED: str = "unassigned-case"
+STATUS_DEFAULT: str = STATUS_UNASSIGNED
 STATUS_DEACTIVATED: str = "deactivated"
 STATUS_CHOICES: List[Tuple[str, str]] = [
     (

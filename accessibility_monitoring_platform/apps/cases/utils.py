@@ -24,6 +24,7 @@ from .models import (
     Case,
     CaseEvent,
     Contact,
+    STATUS_UNASSIGNED,
     STATUS_READY_TO_QA,
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_AUDITOR,
@@ -506,8 +507,18 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["reviewer_id"] = None
 
     if not sort_by:
-        sort_by = "-id"
-
+        unassigned: QuerySet[Case] = (
+            Case.objects.filter(search_query, **filters)
+            .order_by("id")
+            .select_related("auditor", "reviewer")
+            .filter(status=STATUS_UNASSIGNED)
+        )
+        assigned: QuerySet[Case] = (
+            Case.objects.filter(search_query, **filters)
+            .select_related("auditor", "reviewer")
+            .exclude(status=STATUS_UNASSIGNED)
+        )
+        return unassigned.union(assigned, all=True)
     return (
         Case.objects.filter(search_query, **filters)
         .order_by(sort_by)

@@ -50,7 +50,7 @@ status_choices.insert(0, ("", "All"))
 
 DEFAULT_SORT: str = ""
 SORT_CHOICES: List[Tuple[str, str]] = [
-    (DEFAULT_SORT, "Newest"),
+    (DEFAULT_SORT, "Unassigned first"),
     ("id", "Oldest"),
     ("organisation_name", "Alphabetic"),
 ]
