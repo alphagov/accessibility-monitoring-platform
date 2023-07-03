@@ -55,7 +55,12 @@ def create_report(request: HttpRequest, case_id: int) -> HttpResponse:
         return redirect(
             reverse("reports:report-publisher", kwargs={"pk": case.report.id})
         )
-    report: Report = Report.objects.create(case=case)
+    if case.audit is not None and not case.audit.uses_statement_checks:
+        report: Report = Report.objects.create(
+            case=case, report_version="v1_1_0__20230421"
+        )
+    else:
+        report: Report = Report.objects.create(case=case)
     record_model_create_event(user=request.user, model_object=report)
     CaseEvent.objects.create(
         case=case,
@@ -185,6 +190,7 @@ class ReportWrapperUpdateView(UpdateView):
 
     form_class: Type[ReportWrapperUpdateForm] = ReportWrapperUpdateForm
     template_name: str = "reports/forms/wrapper.html"
+    context_object_name: str = "report_wrapper"
     success_url: str = reverse_lazy("dashboard:home")
 
     def get_object(self, queryset=None):  # pylint: disable=unused-argument

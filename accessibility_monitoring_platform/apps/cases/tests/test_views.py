@@ -23,11 +23,15 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
+    StatementCheck,
+    StatementCheckResult,
     PAGE_TYPE_STATEMENT,
     PAGE_TYPE_CONTACT,
     PAGE_TYPE_HOME,
     RETEST_CHECK_RESULT_FIXED,
     SCOPE_STATE_VALID,
+    STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_NO,
 )
 from ...audits.tests.test_models import create_audit_and_check_results, ERROR_NOTES
 
@@ -51,7 +55,7 @@ from ..models import (
     CaseEvent,
     Contact,
     REPORT_APPROVED_STATUS_APPROVED,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     CASE_COMPLETED_SEND,
     ENFORCEMENT_BODY_PURSUING_YES_IN_PROGRESS,
@@ -788,7 +792,7 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "cases:edit-no-psb-response",
             "save_continue",
-            "cases:edit-twelve-week-correspondence",
+            "cases:edit-report-correspondence",
         ),
         ("cases:edit-twelve-week-retest", "save", "cases:edit-twelve-week-retest"),
         (
@@ -1228,6 +1232,24 @@ def test_unsetting_report_followup_sent_dates(admin_client):
 
     assert case_from_db.report_followup_week_1_sent_date is None
     assert case_from_db.report_followup_week_4_sent_date is None
+
+
+def test_no_psb_response_redirects_to_case_close(admin_client):
+    """Test no PSB response redirects to case closing"""
+    case: Case = Case.objects.create(
+        no_psb_contact=BOOLEAN_TRUE,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("cases:edit-no-psb-response", kwargs={"pk": case.id}),
+        {
+            "version": case.version,
+            "no_psb_contact": "on",
+            "save_continue": "Button value",
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == f'{reverse("cases:edit-case-close", kwargs={"pk": case.id})}'
 
 
 @pytest.mark.parametrize(
@@ -2370,7 +2392,7 @@ def test_platform_shows_notification_if_fully_compliant(
     notification to that effect on report details page.
     """
     case: Case = Case.objects.create(
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     )
 
@@ -2788,8 +2810,8 @@ def test_status_workflow_assign_an_auditor(admin_client, admin_user):
         (
             "cases:edit-test-results",
             "Initial website compliance decision is not filled in",
-            "is_website_compliant",
-            IS_WEBSITE_COMPLIANT_COMPLIANT,
+            "website_compliance_state_initial",
+            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         ),
         (
             "cases:edit-test-results",
@@ -2915,6 +2937,62 @@ def test_status_workflow_page(path_name, label, field_name, field_value, admin_c
             <a href="{link_url}"
                 class="govuk-link govuk-link--no-visited-state">
                 {label}</a>&check;</li>""",
+        html=True,
+    )
+
+
+def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
+    """
+    Test that the status workflow page provides a link to the statement overview
+    page when the case test uses statement checks. Checkmark set when overview
+    statement checks have been entered.
+    """
+    case: Case = Case.objects.create()
+    case_pk_kwargs: Dict[str, int] = {"pk": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    audit_pk_kwargs: Dict[str, int] = {"pk": audit.id}
+
+    for statement_check in StatementCheck.objects.all():
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    overview_url: str = reverse(
+        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+    )
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a></li>""",
+        html=True,
+    )
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("cases:status-workflow", kwargs=case_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"""<li>
+            <a href="{overview_url}" class="govuk-link govuk-link--no-visited-state">
+                Statement overview not filled in
+            </a>&check;</li>""",
         html=True,
     )
 
@@ -3337,6 +3415,56 @@ def test_outstanding_issues_new_case(admin_client):
 
 
 @pytest.mark.parametrize(
+    "type, label",
+    [
+        ("overview", "Statement overview"),
+        ("website", "Statement information"),
+        ("compliance", "Compliance status"),
+        ("non-accessible", "Non-accessible content overview"),
+        ("preparation", "Preparation"),
+        ("feedback", "Feedback"),
+        ("custom", "Custom statement issues"),
+    ],
+)
+def test_outstanding_issues_statement_checks(type, label, admin_client):
+    """Test that outstanding issues shows expected statement checks"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+    edit_url: str = f"edit-retest-statement-{type}"
+    url: str = reverse("cases:outstanding-issues", kwargs={"pk": case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
+
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertContains(response, label)
+    assertContains(response, edit_url)
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+    assertNotContains(response, label)
+    assertNotContains(response, edit_url)
+
+
+@pytest.mark.parametrize(
     "url_name",
     ["cases:case-detail", "cases:edit-case-details"],
 )
@@ -3355,7 +3483,7 @@ def test_frequently_used_links_displayed(url_name, admin_client):
     assertContains(response, "Frequently used links")
     assertContains(response, "View outstanding issues")
     assertContains(response, "View email template")
-    assertContains(response, "No published report")
+    assertContains(response, "No report has been published")
     assertContains(response, "View website")
 
 

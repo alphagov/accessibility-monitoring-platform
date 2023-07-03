@@ -6,15 +6,9 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                View test
-            </li>
+            {% include 'common/breadcrumb_home.html' %}
+            {% include 'cases/helpers/breadcrumb_case.html' with case=audit.case %}
+            <li class="govuk-breadcrumbs__list-item">View test</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -39,7 +33,7 @@
                     >
                         Edit test
                     </a>
-                    <a href="{% url 'cases:case-detail' audit.case.id %}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                    <a href="{{ audit.case.get_absolute_url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
                         View case
                     </a>
                 </div>
@@ -141,73 +135,286 @@
                 </div>
             </div>
 
-            <div class="govuk-accordion__section">
-                <div class="govuk-accordion__section-header">
-                    <h2 id="audit-statement-1" class="govuk-accordion__section-heading">
-                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-1">
-                            Accessibility statement Pt. 1
-                            {% if audit.audit_statement_1_complete_date %}
-                                <span class="govuk-visually-hidden">complete</span>
-                                &check;
+            {% if audit.statement_check_results %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="statement-overview" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                Statement overview
+                                {% if audit.audit_statement_overview_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-statement-overview" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                <p class="govuk-body-m">
+                                    <b>Statement overview</b>
+                                    |
+                                    <a href="{% url 'audits:edit-statement-overview' audit.id %}"
+                                        class="govuk-link govuk-link--no-visited-state"
+                                        rel="noreferrer noopener">
+                                        Edit{% if on_view_case %} test &gt; Statement overview{% endif %}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.overview_statement_check_results %}
+                    </div>
+                </div>
+                {% if audit.all_overview_statement_checks_have_passed %}
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-website" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Accessibility statement for [website]
+                                    {% if audit.audit_statement_website_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-website" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Accessibility statement for [website]</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-website' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Accessibility statement for [website]{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.website_statement_check_results %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-compliance" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Compliance status
+                                    {% if audit.audit_statement_compliance_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-compliance" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Compliance status</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-compliance' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Compliance status{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.compliance_statement_check_results %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-non-accessible" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Non-accessible content
+                                    {% if audit.audit_statement_non_accessible_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-non-accessible" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Non-accessible content</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-non-accessible' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Non-accessible content{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.non_accessible_statement_check_results %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-preparation" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Preparation of this accessibility statement
+                                    {% if audit.audit_statement_preparation_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-preparation" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Preparation of this accessibility statement</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-preparation' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Preparation of this accessibility statement{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.preparation_statement_check_results %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-feedback" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Feedback and enforcement procedure
+                                    {% if audit.audit_statement_feedback_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-feedback" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Feedback and enforcement procedure</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-feedback' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Feedback and enforcement procedure{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.feedback_statement_check_results %}
+                        </div>
+                    </div>
+                    <div class="govuk-accordion__section">
+                        <div class="govuk-accordion__section-header">
+                            <h2 id="statement-custom" class="govuk-accordion__section-heading">
+                                <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-checks">
+                                    Custom statement issues
+                                    {% if audit.audit_statement_custom_complete_date %}
+                                        <span class="govuk-visually-hidden">complete</span>
+                                        &check;
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                        <div id="accordion-content-audit-statement-custom" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-checks">
+                            <div class="govuk-grid-row">
+                                <div class="govuk-grid-column-full">
+                                    <p class="govuk-body-m">
+                                        <b>Custom statement issues</b>
+                                        |
+                                        <a href="{% url 'audits:edit-statement-custom' audit.id %}"
+                                            class="govuk-link govuk-link--no-visited-state"
+                                            rel="noreferrer noopener">
+                                            Edit{% if on_view_case %} test &gt; Custom statement issues{% endif %}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            {% if audit.custom_statement_check_results %}
+                                {% include 'audits/statement_checks/statement_checks_table.html' with statement_check_results=audit.custom_statement_check_results %}
+                            {% else %}
+                                <p class="govuk-body-m">No custom statement issues have been entered</p>
                             {% endif %}
-                        </span>
-                    </h2>
-                </div>
-                <div id="accordion-content-audit-statement-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-1">
-                    {% include 'audits/details/statement_1.html' %}
-                </div>
-            </div>
+                        </div>
+                    </div>
+                {% endif %}
 
-            <div class="govuk-accordion__section">
-                <div class="govuk-accordion__section-header">
-                    <h2 id="audit-statement-2" class="govuk-accordion__section-heading">
-                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-2">
-                            Accessibility statement Pt. 2
-                            {% if audit.audit_statement_2_complete_date %}
-                                <span class="govuk-visually-hidden">complete</span>
-                                &check;
-                            {% endif %}
-                        </span>
-                    </h2>
+            {% else %}
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="audit-statement-1" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-1">
+                                Accessibility statement Pt. 1
+                                {% if audit.audit_statement_1_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-statement-1" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-1">
+                        {% include 'audits/details/statement_1.html' %}
+                    </div>
                 </div>
-                <div id="accordion-content-audit-statement-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-2">
-                    {% include 'audits/details/statement_2.html' %}
-                </div>
-            </div>
 
-            <div class="govuk-accordion__section">
-                <div class="govuk-accordion__section-header">
-                    <h2 id="statement-decision" class="govuk-accordion__section-heading">
-                        <span class="govuk-accordion__section-button" id="accordion-heading-statement-decision">
-                            Accessibility statement compliance decision
-                            {% if audit.audit_statement_decision_complete_date %}
-                                <span class="govuk-visually-hidden">complete</span>
-                                &check;
-                            {% endif %}
-                        </span>
-                    </h2>
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="audit-statement-2" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-statement-2">
+                                Accessibility statement Pt. 2
+                                {% if audit.audit_statement_2_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-statement-2" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-statement-2">
+                        {% include 'audits/details/statement_2.html' %}
+                    </div>
                 </div>
-                <div id="accordion-content-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-statement-decision">
-                    {% include 'audits/details/statement_decision.html' %}
-                </div>
-            </div>
 
-            <div class="govuk-accordion__section">
-                <div class="govuk-accordion__section-header">
-                    <h2 id="audit-report-options" class="govuk-accordion__section-heading">
-                        <span class="govuk-accordion__section-button" id="accordion-heading-audit-report-options">
-                            Report options
-                            {% if audit.audit_report_options_complete_date %}
-                                <span class="govuk-visually-hidden">complete</span>
-                                &check;
-                            {% endif %}
-                        </span>
-                    </h2>
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="statement-decision" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-statement-decision">
+                                Accessibility statement compliance decision
+                                {% if audit.audit_statement_decision_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-statement-decision" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-statement-decision">
+                        {% include 'audits/details/statement_decision.html' %}
+                    </div>
                 </div>
-                <div id="accordion-content-audit-report-options" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-report-options">
-                    {% include 'audits/details/report_options.html' %}
+
+                <div class="govuk-accordion__section">
+                    <div class="govuk-accordion__section-header">
+                        <h2 id="audit-report-options" class="govuk-accordion__section-heading">
+                            <span class="govuk-accordion__section-button" id="accordion-heading-audit-report-options">
+                                Report options
+                                {% if audit.audit_report_options_complete_date %}
+                                    <span class="govuk-visually-hidden">complete</span>
+                                    &check;
+                                {% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="accordion-content-audit-report-options" class="govuk-accordion__section-content" role="region" aria-labelledby="accordion-heading-audit-report-options">
+                        {% include 'audits/details/report_options.html' %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
             {% if audit.case.report_methodology == 'odt' %}
                 <div class="govuk-accordion__section">
                     <div class="govuk-accordion__section-header">

@@ -18,7 +18,8 @@ from ...audits.models import (
     CheckResult,
     Page,
     WcagDefinition,
-    PAGE_TYPE_HOME,
+    StatementCheckResult,
+    PAGE_TYPE_STATEMENT,
     TEST_TYPE_AXE,
     CHECK_RESULT_ERROR,
 )
@@ -29,7 +30,7 @@ from ...cases.models import (
     REPORT_APPROVED_STATUS_APPROVED,
     CASE_EVENT_CREATE_REPORT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
 )
 from ...common.models import BOOLEAN_TRUE
 from ...s3_read_write.models import S3Report
@@ -37,6 +38,7 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Report,
     ReportVisitsMetrics,
+    REPORT_VERSION_DEFAULT,
 )
 
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -57,6 +59,47 @@ def create_report() -> Report:
     Audit.objects.create(case=case)
     report: Report = Report.objects.create(case=case)
     return report
+
+
+def test_create_report_uses_older_template(admin_client):
+    """
+    Test that report create uses last pre-statement check report template if no
+    statement checks exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    Audit.objects.create(case=case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == "v1_1_0__20230421"
+
+
+def test_create_report_uses_latest_template(admin_client):
+    """
+    Test that report create uses latest report template if statement checks
+    exist
+    """
+    case: Case = Case.objects.create()
+    path_kwargs: Dict[str, int] = {"case_id": case.id}
+    audit: Audit = Audit.objects.create(case=case)
+    StatementCheckResult.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-create", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 302
+
+    report: Report = Report.objects.get(case=case)
+
+    assert report.report_version == REPORT_VERSION_DEFAULT
 
 
 def test_create_report_redirects(admin_client):
@@ -107,6 +150,36 @@ def test_create_report_creates_case_event(admin_client):
     assert case_event.message == "Created report"
 
 
+def test_report_publish_links_to_correct_testing_ui(admin_client):
+    """
+    Test that older reports link to Report options page whereas reports using
+    statement content checks link to Statement overview.
+    """
+    report: Report = create_report()
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Edit test &gt; Report options")
+    assertNotContains(response, "Edit test &gt; Statement overview")
+
+    case: Case = report.case
+    StatementCheckResult.objects.create(audit=case.audit)
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Edit test &gt; Report options")
+    assertContains(response, "Edit test &gt; Statement overview")
+
+
 @mock_s3
 def test_publish_report_redirects(admin_client):
     """
@@ -132,16 +205,18 @@ def test_publish_report_redirects(admin_client):
 
 
 @mock_s3
-def test_published_report_includes_errors(admin_client):
+def test_old_published_report_includes_errors(admin_client):
     """
     Test that published report contains the test results
     """
     report: Report = create_report()
+    report.report_version = "v1_1_0__20230421"
+    report.save()
     audit: Audit = report.case.audit
     audit.accessibility_statement_report_text_wording = EXTRA_STATEMENT_WORDING
     audit.save()
     page: Page = Page.objects.create(
-        audit=audit, page_type=PAGE_TYPE_HOME, url=HOME_PAGE_URL
+        audit=audit, page_type=PAGE_TYPE_STATEMENT, url=HOME_PAGE_URL
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=TEST_TYPE_AXE, name=WCAG_TYPE_AXE_NAME
@@ -217,6 +292,47 @@ def test_report_specific_page_loads(path_name, expected_header, admin_client):
     assertContains(response, expected_header)
 
 
+def test_button_to_published_report_shown(admin_client):
+    """
+    Test button link to published report shown if published report exists
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    S3Report.objects.create(case=case, version=0, latest_published=True)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "View final HTML report")
+    assertContains(response, "Republish HTML report")
+    assertNotContains(response, "Publish HTML report")
+
+
+def test_button_to_published_report_not_shown(admin_client):
+    """
+    Test button link to published report not shown if report not published
+    """
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+    report: Report = Report.objects.create(case=case)
+    report_pk_kwargs: Dict[str, int] = {"pk": report.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse("reports:report-publisher", kwargs=report_pk_kwargs)
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "View final HTML report")
+    assertNotContains(response, "Republish HTML report")
+    assertContains(response, "Publish HTML report")
+
+
 def test_report_next_step_for_not_started(admin_client):
     """
     Test report next step for report review not started
@@ -246,7 +362,7 @@ def test_report_next_step_for_case_unassigned_qa(admin_client):
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -273,7 +389,7 @@ def test_report_next_step_for_case_qa_in_progress(admin_client):
         organisation_name="org name",
         auditor=user,
         accessibility_statement_state=ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-        is_website_compliant=IS_WEBSITE_COMPLIANT_COMPLIANT,
+        website_compliance_state_initial=WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
         report_review_status=BOOLEAN_TRUE,
     )
     Audit.objects.create(case=case)
@@ -545,7 +661,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     case.organisation_name = "org name"
     case.auditor = user
     case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
-    case.is_website_compliant = IS_WEBSITE_COMPLIANT_COMPLIANT
+    case.website_compliance_state_initial = WEBSITE_INITIAL_COMPLIANCE_COMPLIANT
     case.report_review_status = BOOLEAN_TRUE
     case.save()
 

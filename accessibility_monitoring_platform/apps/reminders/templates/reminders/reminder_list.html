@@ -6,12 +6,8 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Reminders ({{ number_of_reminders }})
-            </li>
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">Reminders ({{ number_of_reminders }})</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -38,7 +34,7 @@
                                 {% include "common/amp_date_tag.html" with date_to_tag=reminder.due_date tense=reminder.tense %}
                             </th>
                             <td class="govuk-table__cell amp-width-one-quarter">
-                                <a href="{% url 'cases:case-detail' reminder.case.id %}" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{{ reminder.case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">
                                     {{ reminder.case.organisation_name }}
                                 </a>
                             </td>

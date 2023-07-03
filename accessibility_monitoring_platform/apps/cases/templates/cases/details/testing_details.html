@@ -28,18 +28,22 @@
         <div{% if case.audit %} data-search-target-page-name="Website compliance decision" data-search-target-label="Edit test > Website compliance decision" data-search-target-url="{% url 'audits:edit-website-decision' case.audit.id %}"{% endif %}>
             {% include 'audits/details/website_decision.html' with on_view_case=True %}
         </div>
-        <div{% if case.audit %} data-search-target-page-name="Accessibility statement Pt. 1" data-search-target-label="Edit test > Accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-statement-1' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/statement_1.html' with on_view_case=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="Accessibility statement Pt. 2" data-search-target-label="Edit test > Accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-statement-2' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/statement_2.html' with on_view_case=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="Accessibility statement compliance decision" data-search-target-label="Edit test > Accessibility statement compliance decision" data-search-target-url="{% url 'audits:edit-statement-decision' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/statement_decision.html' with on_view_case=True %}
-        </div>
-        <div{% if case.audit %} data-search-target-page-name="Report options" data-search-target-label="Edit test > Report options" data-search-target-url="{% url 'audits:edit-audit-report-options' case.audit.id %}"{% endif %}>
-            {% include 'audits/details/report_options.html' with on_view_case=True %}
-        </div>
+        {% if audit.statement_check_results %}
+            {% include 'audits/details/statement_check_results.html' with on_view_case=True %}
+        {% else %}
+            <div{% if case.audit %} data-search-target-page-name="Accessibility statement Pt. 1" data-search-target-label="Edit test > Accessibility statement Pt. 1" data-search-target-url="{% url 'audits:edit-audit-statement-1' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/statement_1.html' with on_view_case=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="Accessibility statement Pt. 2" data-search-target-label="Edit test > Accessibility statement Pt. 2" data-search-target-url="{% url 'audits:edit-audit-statement-2' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/statement_2.html' with on_view_case=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="Accessibility statement compliance decision" data-search-target-label="Edit test > Accessibility statement compliance decision" data-search-target-url="{% url 'audits:edit-statement-decision' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/statement_decision.html' with on_view_case=True %}
+            </div>
+            <div{% if case.audit %} data-search-target-page-name="Report options" data-search-target-label="Edit test > Report options" data-search-target-url="{% url 'audits:edit-audit-report-options' case.audit.id %}"{% endif %}>
+                {% include 'audits/details/report_options.html' with on_view_case=True %}
+            </div>
+        {% endif%}
         {% if audit.case.report_methodology == 'odt' %}
             {% include 'audits/details/report_text.html' with on_view_case=True %}
         {% endif %}

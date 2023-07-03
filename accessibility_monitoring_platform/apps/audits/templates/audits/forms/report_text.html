@@ -8,22 +8,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' audit.case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'audits:audit-detail' audit.id %}">Test</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Report text
-            </li>
-        </ol>
-    </div>
+    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Report text' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -99,14 +84,10 @@
 
 
                     <p>
-                        {% if audit.case.is_website_compliant == 'not-compliant' %}
-                            Based on our testing, this site is not compliant with WCAG 2.1 AA.
-                            This means there are some things which would cause significant barriers
-                            to users with certain accessibility needs.
-                        {% elif audit.case.is_website_compliant == 'partially-compliant' %}
+                        {% if audit.case.website_compliance_state_initial == 'partially-compliant' %}
                             Based on our testing, this site is partially compliant with WCAG 2.1 AA.
                             This means there are some things which are not fully accessible.
-                        {% elif audit.case.is_website_compliant == 'compliant' %}
+                        {% elif audit.case.website_compliance_state_initial == 'compliant' %}
                             Based on our testing, this site is compliant with WCAG 2.1 AA.
                             This means no serious or critical issues were found during our testing.
                             We run basic tests on a small part of your website so we can't say for
@@ -358,7 +339,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:audit-detail' audit.id %}"
+                                href="{{ audit.get_absolute_url }}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return to test view
