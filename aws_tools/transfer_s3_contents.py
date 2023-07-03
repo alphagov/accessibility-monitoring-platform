@@ -1,10 +1,18 @@
 import boto3
+import argparse
 # from dotenv import load_dotenv
 from aws_secrets import get_s3_secret
 import os
 
 # load_dotenv()
 
+parser = argparse.ArgumentParser(
+    description="Just an example",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument("-e", "--environment", help="environment to work in - test or prod", required=True)
+args = parser.parse_args()
+config = vars(args)
 
 settings = {
     "space_name": "monitoring-platform-production",
@@ -12,7 +20,7 @@ settings = {
     "path": "./backup_for_AWS.sql",
     "s3_db_filename": "backup_for_AWS.sql",
     "copilot_app_name": "amp-app",
-    "copilot_env_name": "test-env",
+    "copilot_env_name": config['environment'],
     "copilot_svc_name": "amp-svc",
 }
 

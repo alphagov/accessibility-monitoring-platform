@@ -1,11 +1,21 @@
+import argparse
 import boto3
 import os
 import sys
-from aws_copilot_setup import check_if_logged_into_cf
+import subprocess
+# from aws_copilot_setup import check_if_logged_into_cf  <-- also imports command line arg requirements
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from deploy_feature_to_paas.app.copy_db import CopyDB
 
+
+parser = argparse.ArgumentParser(
+    description="Just an example",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument("-e", "--environment", help="environment to work in - test or prod", required=True)
+args = parser.parse_args()
+config = vars(args)
 
 settings = {
     "space_name": "monitoring-platform-production",
@@ -13,9 +23,22 @@ settings = {
     "path": "./backup_for_AWS.sql",
     "s3_db_filename": "backup_for_AWS.sql",
     "copilot_app_name": "amp-app",
-    "copilot_env_name": "test-env",
+    "copilot_env_name": config['environment'],
     "copilot_svc_name": "amp-svc",
 }
+
+# copoied from aws_copilot_setup.py - if you import it, it also pulls the requirements for arguments on the command line. 
+def check_if_logged_into_cf() -> None:
+    print(">>> Checking if logged into Cloud Foundry...")
+    command: str = "cf spaces"
+    process: subprocess.Popen = subprocess.Popen(
+        command.split(),
+        stdout=subprocess.PIPE,
+    )
+    output = process.communicate()
+    if "FAILED" in output[0].decode("utf-8"):
+        raise Exception("Not logged into Cloud Foundry. Ensure you are logged in before continuing")
+    print(">>> User is logged into CF")
 
 check_if_logged_into_cf()
 
@@ -63,3 +86,4 @@ os.system(copilot_command)
 
 # Cleanup
 os.remove(settings["path"])
+

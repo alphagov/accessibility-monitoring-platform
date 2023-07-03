@@ -37,7 +37,8 @@ AWS_TAGS_GLOBAL = {
 # if setting up an env other than test or prod, add an option here and call the script with "--environment [your-env-name]"
 AWS_TAGS_ENV = {
     "test": {"Environment": "Testing"},
-    "prod": {"Environment": "Production"}
+    "prod": {"Environment": "Production"},
+    "john": {"Environment": "John's sandpit"}
 }
 AWS_TAGS_SRV = {
     "platform": {"System": "Auditing Platform"},
@@ -122,8 +123,8 @@ def setup() -> None:
         os.system("copilot svc deploy --name amp-svc --env " + SETTINGS['copilot_env_name'] + " --resource-tags "  + convert_dict_to_string(AWS_TAGS_ENV[environment]))
     
     os.system("""copilot svc exec -a amp-app -e """ + SETTINGS['copilot_env_name'] + """ -n amp-svc --command "python aws_tools/aws_reset_db.py" """)
-    os.system("python aws_tools/restore_db_aws.py")
-    os.system("python aws_tools/transfer_s3_contents.py")
+    os.system("python aws_tools/restore_db_aws.py --environment " + SETTINGS["copilot_env_name"])
+    os.system("python aws_tools/transfer_s3_contents.py --environment " + SETTINGS["copilot_env_name"])
     end = time.time()
     print(f"Process took {end - start} seconds")
 
