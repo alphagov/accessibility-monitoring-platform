@@ -93,9 +93,8 @@ def convert_dict_to_string(dictionary):
 def setup() -> None:
     print(">>> Setting up new " + SETTINGS['copilot_env_name'] + " environment")
     os.system("copilot app init amp-app --domain aws.accessibility-monitoring.service.gov.uk --resource-tags " + convert_dict_to_string(AWS_TAGS_GLOBAL))
-    os.system("copilot env init --name " + SETTINGS['copilot_env_name'] + " --profile mfa --region eu-west-2 --default-config --resource-tags " + convert_dict_to_string(AWS_TAGS_ENV[environment]))
-    os.system("copilot env deploy --name " + SETTINGS['copilot_env_name'] + " --resource-tags " + convert_dict_to_string(AWS_TAGS_ENV[environment]))
-   
+    os.system("copilot env init --name " + SETTINGS['copilot_env_name'] + " --profile mfa --region eu-west-2 --default-config")
+    os.system("copilot env deploy --name " + SETTINGS['copilot_env_name'])
     os.system(
         f"copilot secret init "
         "--name SECRET_KEY "
@@ -116,11 +115,11 @@ def setup() -> None:
     )
     if config["service"] == "viewer" or config["service"] == "all":
         os.system("copilot svc init --name viewer-svc --svc-type \"Load Balanced Web Service\"")
-        os.system("copilot svc deploy --name viewer-svc --env " + SETTINGS['copilot_env_name'])
+        os.system("copilot svc deploy --name viewer-svc --env " + SETTINGS['copilot_env_name'] + " --resource-tags "  + convert_dict_to_string(AWS_TAGS_ENV[environment]))
 
     if config["service"] == "platform" or config["service"] == "all":
         os.system("copilot svc init --name amp-svc --svc-type \"Load Balanced Web Service\"")
-        os.system("copilot svc deploy --name amp-svc --env " + SETTINGS['copilot_env_name'])
+        os.system("copilot svc deploy --name amp-svc --env " + SETTINGS['copilot_env_name'] + " --resource-tags "  + convert_dict_to_string(AWS_TAGS_ENV[environment]))
     
     os.system("""copilot svc exec -a amp-app -e """ + SETTINGS['copilot_env_name'] + """ -n amp-svc --command "python aws_tools/aws_reset_db.py" """)
     os.system("python aws_tools/restore_db_aws.py")
@@ -130,6 +129,11 @@ def setup() -> None:
 
 
 def breakdown() -> None:
+    # Process to be coded:
+    # delete specified service(s)
+    # if no services remain, remove the bucket
+    # if no services remain, delete the environment
+
     bucket = get_copilot_s3_bucket()
     if (bucket != "There is no bucket"):
         session = boto3.Session()
