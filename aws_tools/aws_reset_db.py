@@ -2,6 +2,8 @@ import json
 import os
 
 POSTGRES_CRED = os.getenv("DB_SECRET")
+if POSTGRES_CRED is None:
+    raise TypeError("DB_SECRET is None")
 json_acceptable_string: str = POSTGRES_CRED.replace("'", "\"")
 db_secrets_dict = json.loads(json_acceptable_string)
 

@@ -13,7 +13,7 @@ settings = {
     "path": "./backup_for_AWS.sql",
     "s3_db_filename": "backup_for_AWS.sql",
     "copilot_app_name": "amp-app",
-    "copilot_env_name": "prod-env",
+    "copilot_env_name": "test-env",
     "copilot_svc_name": "amp-svc",
 }
 
