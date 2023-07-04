@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument("-e", "--environment", help="environment to work in - test or prod", required=True)
+parser.add_argument("-a", "--app", help="Copilot app name. Should be 'amp-app' unless you've gone seriouely off-piste.", default='amp-app')
 args = parser.parse_args()
 config = vars(args)
 
@@ -36,11 +37,13 @@ def get_copilot_s3_bucket() -> str:
     response = s3.list_buckets()
     all_buckets = [x["Name"] for x in response["Buckets"]]
 
-    target_bucket = f"""{settings["copilot_app_name"]}-{settings["copilot_env_name"]}"""
+    target_bucket = f"""{config["app"]}-{config["environment"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
-    if len(filtered_buckets) != 1:
-        raise Exception("Multiple buckets found - script can only handle one matching bucket")
+    if len(filtered_buckets) > 1:
+        raise Exception("Multiple buckets found (" + len(filtered_buckets) + ") matching '" + target_bucket + "' - script can only handle one matching bucket")
+    if len(filtered_buckets) == 0:
+        raise Exception("There is no bucket matching '" + target_bucket + "'")
 
     return filtered_buckets[0]
 

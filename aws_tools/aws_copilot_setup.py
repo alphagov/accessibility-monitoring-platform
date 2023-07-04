@@ -38,7 +38,7 @@ AWS_TAGS_GLOBAL = {
 AWS_TAGS_ENV = {
     "test": {"Environment": "Testing"},
     "prod": {"Environment": "Production"},
-    "john": {"Environment": "John's sandpit"}
+    "john": {"Environment": "JK"}
 }
 AWS_TAGS_SRV = {
     "platform": {"System": "Auditing Platform"},
@@ -63,7 +63,7 @@ def get_copilot_s3_bucket() -> str:
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
     if len(filtered_buckets) > 1:
-        raise Exception("Multiple buckets found - script can only handle one matching bucket")
+        raise Exception("Multiple buckets found (" + len(filtered_buckets) + ") matching '" + target_bucket + "' - script can only handle one matching bucket")
     if len(filtered_buckets) == 0:
         return "There is no bucket"
 
