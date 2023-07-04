@@ -201,6 +201,34 @@ def test_case_filtered_by_enforcement_body(
     assert filtered_cases[0].organisation_name == expected_name
 
 
+@pytest.mark.django_db
+def test_cases_ordered_to_put_unassigned_first():
+    """Test that case filtering returns unassigned cases first by default"""
+    first_created: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME_ECNI, enforcement_body="ecni"
+    )
+    second_created: Case = Case.objects.create(
+        organisation_name=ORGANISATION_NAME_EHRC, enforcement_body="ehrc"
+    )
+    form: MockForm = MockForm(cleaned_data={})
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 2
+    assert filtered_cases[0].organisation_name == second_created.organisation_name
+
+    auditor: User = User.objects.create(
+        username="new", first_name="New", last_name="User"
+    )
+    second_created.auditor = auditor
+    second_created.save()
+
+    filtered_cases: List[Case] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 2
+    assert filtered_cases[0].organisation_name == first_created.organisation_name
+
+
 def test_format_case_field_with_no_data():
     """
     Test that format_model_field returns empty string if no model instance

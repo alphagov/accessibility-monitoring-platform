@@ -10,7 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Case as DjangoCase, When
+
 from django.http import HttpResponse
 from django.http.request import QueryDict
 from django.urls import reverse
@@ -24,6 +25,7 @@ from .models import (
     Case,
     CaseEvent,
     Contact,
+    STATUS_UNASSIGNED,
     STATUS_READY_TO_QA,
     CASE_EVENT_TYPE_CREATE,
     CASE_EVENT_AUDITOR,
@@ -506,13 +508,20 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[Case]:  # noqa: C901
         filters["reviewer_id"] = None
 
     if not sort_by:
-        sort_by = "-id"
-
+        return (
+            Case.objects.filter(search_query, **filters)
+            .annotate(
+                position_unassigned_first=DjangoCase(
+                    When(status=STATUS_UNASSIGNED, then=0), default=1
+                )
+            )
+            .order_by("position_unassigned_first", "-id")
+            .select_related("auditor", "reviewer")
+        )
     return (
         Case.objects.filter(search_query, **filters)
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
-        .all()
     )
 
 
