@@ -6,10 +6,6 @@ import time
 import boto3
 from django.core.management.utils import get_random_secret_key
 from aws_secrets import get_notify_secret
-# Opted to get the secrets from AWS secrets manager instead of storing them locally
-# from dotenv import load_dotenv
-
-# load_dotenv()
 
 start = time.time()
 
@@ -24,16 +20,14 @@ args = parser.parse_args()
 config = vars(args)
 
 SETTINGS = {
-    "copilot_app_name": "amp-app",
+    "copilot_app_name": "amp-app-r",
     "copilot_env_name": "prod-env",
 }
 
 SECRET_KEY = get_random_secret_key()
 
 notify_secrets = get_notify_secret()
-# NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
 NOTIFY_API_KEY = notify_secrets["EMAIL_NOTIFY_API_KEY"]
-# EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
 EMAIL_NOTIFY_BASIC_TEMPLATE = notify_secrets["EMAIL_NOTIFY_BASIC_TEMPLATE"]
 
 
@@ -66,7 +60,9 @@ def check_if_logged_into_cf() -> None:
 
 def setup() -> None:
     print(">>> Setting up new environment")
-    os.system("copilot app init amp-app --domain aws.accessibility-monitoring.service.gov.uk")
+    os.system(
+        f"""copilot app init {SETTINGS["copilot_app_name"]} --domain aws.accessibility-monitoring.service.gov.uk"""
+    )
     os.system("copilot env init --name prod-env --profile mfa --region eu-west-2 --default-config")
     os.system("copilot env deploy --name prod-env")
     os.system(
@@ -91,7 +87,7 @@ def setup() -> None:
     os.system("copilot svc init --name amp-svc")
     os.system("copilot svc deploy --name viewer-svc --env prod-env")
     os.system("copilot svc deploy --name amp-svc --env prod-env")
-    os.system("""copilot svc exec -a amp-app -e prod-env -n amp-svc --command "python aws_tools/aws_reset_db.py" """)
+    os.system(f"""copilot svc exec -a {SETTINGS["copilot_app_name"]} -e prod-env -n amp-svc --command "python aws_tools/aws_reset_db.py" """)
     os.system("python aws_tools/restore_db_aws.py")
     os.system("python aws_tools/transfer_s3_contents.py")
     end = time.time()
@@ -124,12 +120,6 @@ def breakdown() -> None:
 
 if __name__ == "__main__":
     check_if_logged_into_cf()
-
-    if NOTIFY_API_KEY is None:
-        raise Exception("Missing NOTIFY_API_KEY in .env file")
-
-    if EMAIL_NOTIFY_BASIC_TEMPLATE is None:
-        raise Exception("Missing EMAIL_NOTIFY_BASIC_TEMPLATE in .env file")
 
     if config["build_direction"] == "up":
         setup()

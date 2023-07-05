@@ -17,13 +17,17 @@ http:
   healthcheck: 
     path: '/healthcheck/'
     healthy_threshold: 2
-    unhealthy_threshold: 2
+    unhealthy_threshold: 4
+    start_period: 600s
+    grace_period: 600s
+    interval: 120s
+    timeout: 60s
   success_codes: '200'
   healthy_threshold: 3
   unhealthy_threshold: 2
-  interval: 15s
-  timeout: 10s
-  grace_period: 60s
+  interval: 120s
+  timeout: 60s
+  grace_period: 600s
   alias: reports.aws.accessibility-monitoring.service.gov.uk
 
 # Configuration for your containers and service.
@@ -35,6 +39,7 @@ image:
 
 cpu: 256       # Number of CPU units for the task.
 memory: 512    # Amount of memory in MiB used by the task.
+platform: linux/x86_64  # See https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#platform
 count: 1       # Number of tasks that should be running in your service.
 exec: true     # Enable running commands in your container.
 
@@ -73,6 +78,7 @@ environments:
       ALLOWED_HOSTS: '* reports.aws.accessibility-monitoring.service.gov.uk reports.accessibility-monitoring.service.gov.uk'
 
 network:
+  connect: true # Enable Service Connect for intra-environment traffic between services.
   vpc:
     security_groups:
       - from_cfn: ${COPILOT_APPLICATION_NAME}-${COPILOT_ENVIRONMENT_NAME}-ampdbSecurityGroup

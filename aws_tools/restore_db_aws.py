@@ -12,7 +12,7 @@ settings = {
     "db_name": "monitoring-platform-default-db",
     "path": "./backup_for_AWS.sql",
     "s3_db_filename": "backup_for_AWS.sql",
-    "copilot_app_name": "amp-app",
+    "copilot_app_name": "amp-app-r",
     "copilot_env_name": "prod-env",
     "copilot_svc_name": "amp-svc",
 }
