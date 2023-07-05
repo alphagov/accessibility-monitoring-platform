@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% block title %}Update statement check{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">
+                Settings
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="{% url 'audits:statement-check-list' %}">
+                    Statement issues editor</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">{{ statement_check.label }}</li>
+        </ol>
+    </div>
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Statement issue editor</h1>
+                {% include 'common/error_summary.html' %}
+                <form method="post" action="{{ statement_check.get_absolute_url }}">
+                    {% csrf_token %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_form_snippet.html' %}
+                        </div>
+                    </div>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:statement-check-list' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to statement issues editor
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,24 +1,10 @@
 {% extends 'base.html' %}
 
-{% load notifications %}
-
 {% block title %}{{ case.organisation_name }} | QA process{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                QA process
-            </li>
-        </ol>
-    </div>
+    {% include 'cases/helpers/breadcrumbs.html' with page_heading='QA process' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -100,7 +86,6 @@
                         </div>
                     </div>
                 </form>
-                {% read_notification request=request %}
             </div>
             <div class="govuk-grid-column-one-third">
                 {% include 'cases/helpers/nav_steps.html' with current_page='cases:edit-qa-process' %}

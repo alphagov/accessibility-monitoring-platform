@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
 BOOLEAN_DEFAULT: str = "no"
 BOOLEAN_FALSE: str = BOOLEAN_DEFAULT
@@ -71,6 +72,9 @@ class IssueReport(models.Model):
     def __str__(self):
         return f"#{self.id} {self.page_title}"
 
+    def get_absolute_url(self) -> str:
+        return self.page_url
+
 
 class Platform(models.Model):
     """
@@ -119,6 +123,9 @@ class ChangeToPlatform(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+    def get_absolute_url(self) -> str:
+        return reverse("common:platform-history")
 
 
 class Event(models.Model):
@@ -180,7 +187,7 @@ class Event(models.Model):
 
 class VersionModel(models.Model):
     """
-    Model subclassed to add versioning
+    Model subclass to add versioning
     """
 
     version = models.IntegerField(default=0)
@@ -213,3 +220,6 @@ class FrequentlyUsedLink(models.Model):
 
     def __str__(self) -> str:
         return str(f"{self.label}: {self.url}")
+
+    def get_absolute_url(self) -> str:
+        return self.url

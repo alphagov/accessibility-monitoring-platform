@@ -32,7 +32,7 @@
 <p>
     You’ve been sent this report because
     <a href="{{ audit.case.home_page_url }}">{{ audit.case.home_page_url }}</a>
-    is one of the websites we’ve monitored. This document explains:
+    is one of the websites we’ve monitored. This report explains:
 </p>
 <ul>
     <li>which parts of your website we looked at</li>
@@ -55,14 +55,10 @@
     standard.
 </p>
 <p>
-    {% if audit.case.is_website_compliant == 'not-compliant' %}
-        Based on our testing, this site is not compliant with WCAG 2.1 AA.
-        This means there are some things which would cause significant barriers
-        to users with certain accessibility needs.
-    {% elif audit.case.is_website_compliant == 'partially-compliant' %}
+    {% if audit.case.website_compliance_state_initial == 'partially-compliant' %}
         Based on our testing, this site is partially compliant with WCAG 2.1 AA.
         This means there are some things which are not fully accessible.
-    {% elif audit.case.is_website_compliant == 'compliant' %}
+    {% elif audit.case.website_compliance_state_initial == 'compliant' %}
         Based on our testing, this site is compliant with WCAG 2.1 AA.
         This means no serious or critical issues were found during our testing.
         We run basic tests on a small part of your website so we can't say for

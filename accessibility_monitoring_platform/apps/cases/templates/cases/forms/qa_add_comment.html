@@ -6,18 +6,13 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            {% include 'cases/helpers/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-process' case.id %}">
+                    QA process</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-qa-process' case.id %}">QA process</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Add comment
-            </li>
+            <li class="govuk-breadcrumbs__list-item">Add comment</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">

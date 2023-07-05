@@ -13,6 +13,20 @@
         {{ case.home_page_url }}
         </a>
     </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Published report</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">
+        {% if case.report.latest_s3_report %}
+            <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                View final HTML report
+            </a>
+        {% else %}
+            No report has been published
+        {% endif %}
+    </p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Website issues</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_website }}</p>
+    <h2 class="govuk-heading-s amp-margin-bottom-5">Statement issues</h2>
+    <p class="govuk-body-m amp-margin-bottom-10">{{ case.overview_issues_statement|safe }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">Organisation</h2>
     <p class="govuk-body-m amp-margin-bottom-10">{{ case.organisation_name }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5">

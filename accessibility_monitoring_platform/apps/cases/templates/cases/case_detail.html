@@ -8,12 +8,8 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                View case
-            </li>
+            {% include 'common/breadcrumb_home.html' %}
+            <li class="govuk-breadcrumbs__list-item">View case</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -30,15 +26,6 @@
             </div>
             <div class="govuk-grid-column-one-half">
                 <div class="govuk-button-group amp-flex-end">
-                    <a
-                        href="{% url 'cases:case-export-single' case.id %}"
-                        role="button"
-                        draggable="false"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button"
-                    >
-                        Export to CSV
-                    </a>
                     {% if case.is_deactivated %}
                         <a
                             href="{% url 'cases:reactivate-case' case.id %}"
@@ -75,7 +62,7 @@
             </div>
         </div>
         {% include 'cases/details/search_in_case.html' %}
-        <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{% url 'cases:case-detail' case.id %}">
+        <div id="search-scope" data-search-target-page-name="View case" data-search-target-label="View case" data-search-target-url="{{ case.get_absolute_url }}">
             <div class="govuk-accordion" data-module="govuk-accordion" id="accordion">
                 <div class="govuk-accordion__section" data-search-target-page-name="Case details" data-search-target-label="Edit" data-search-target-url="{% url 'cases:edit-case-details' case.id %}">
                     <div class="govuk-accordion__section-header">
@@ -93,7 +80,7 @@
                         {% include 'cases/details/case_details.html' %}
                     </div>
                 </div>
-                <div class="govuk-accordion__section" {% if case.audit %}data-search-target-page-name="View test" data-search-target-label="View test" data-search-target-url="{% url 'audits:audit-detail' case.audit.id %}"{% endif %}>
+                <div class="govuk-accordion__section" {% if case.audit %}data-search-target-page-name="View test" data-search-target-label="View test" data-search-target-url="{{ case.audit.get_absolute_url }}"{% endif %}>
                     <div class="govuk-accordion__section-header">
                         <h2 id="test-results" class="govuk-accordion__section-heading">
                             <span class="govuk-accordion__section-button" id="accordion-heading-test-results">

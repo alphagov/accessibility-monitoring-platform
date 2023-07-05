@@ -6,7 +6,21 @@ from datetime import date, datetime, timedelta, timezone
 from typing import List
 from unittest.mock import patch, Mock
 
-from ...audits.models import Audit, CheckResult, Page, WcagDefinition, TEST_TYPE_AXE
+from ...audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    TEST_TYPE_AXE,
+    CHECK_RESULT_ERROR,
+    RETEST_CHECK_RESULT_FIXED,
+    CONTENT_NOT_IN_SCOPE_VALID,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_YES,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+)
 from ...comments.models import Comment
 from ...reminders.models import Reminder
 from ...reports.models import Report
@@ -14,9 +28,9 @@ from ...s3_read_write.models import S3Report
 from ..models import (
     Case,
     Contact,
-    IS_WEBSITE_COMPLIANT_DEFAULT,
+    WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
     WEBSITE_STATE_FINAL_DEFAULT,
-    IS_WEBSITE_COMPLIANT_COMPLIANT,
+    WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
     ACCESSIBILITY_STATEMENT_DECISION_DEFAULT,
 )
@@ -500,6 +514,40 @@ def test_case_last_edited_from_s3_report(last_edited_case: Case):
 
 
 @pytest.mark.django_db
+def test_case_statement_checks_still_initial():
+    """
+    Test statement state has not been determined. Either because the statement
+    state is still the default or, if statement checks exist, one of the
+    overview checks is still not tested.
+    """
+    case: Case = Case.objects.create()
+
+    assert case.statement_checks_still_initial is True
+
+    case.accessibility_statement_state = ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT
+
+    assert case.statement_checks_still_initial is False
+
+    audit: Audit = Audit.objects.create(case=case)
+    for statement_check in StatementCheck.objects.filter(
+        type=STATEMENT_CHECK_TYPE_OVERVIEW
+    ):
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+
+    assert case.statement_checks_still_initial is True
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert case.statement_checks_still_initial is False
+
+
+@pytest.mark.django_db
 def test_contact_updated_updated():
     """Test the contact updated field is updated"""
     case: Case = Case.objects.create()
@@ -514,23 +562,29 @@ def test_contact_updated_updated():
 
 
 @pytest.mark.parametrize(
-    "is_website_compliant, website_state_final, expected_result",
+    "website_compliance_state_initial, website_state_final, expected_result",
     [
-        (IS_WEBSITE_COMPLIANT_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not selected"),
-        (IS_WEBSITE_COMPLIANT_DEFAULT, "compliant", "Compliant"),
-        (IS_WEBSITE_COMPLIANT_DEFAULT, "partially-compliant", "Partially compliant"),
-        (IS_WEBSITE_COMPLIANT_COMPLIANT, WEBSITE_STATE_FINAL_DEFAULT, "Compliant"),
-        ("not-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Not compliant"),
+        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, WEBSITE_STATE_FINAL_DEFAULT, "Not known"),
+        (WEBSITE_INITIAL_COMPLIANCE_DEFAULT, "compliant", "Fully compliant"),
+        (
+            WEBSITE_INITIAL_COMPLIANCE_DEFAULT,
+            "partially-compliant",
+            "Partially compliant",
+        ),
+        (
+            WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
+            WEBSITE_STATE_FINAL_DEFAULT,
+            "Fully compliant",
+        ),
         ("partially-compliant", WEBSITE_STATE_FINAL_DEFAULT, "Partially compliant"),
-        ("other", WEBSITE_STATE_FINAL_DEFAULT, "Other"),
     ],
 )
 def test_website_compliance_display(
-    is_website_compliant, website_state_final, expected_result
+    website_compliance_state_initial, website_state_final, expected_result
 ):
     """Test website compliance is derived correctly"""
     case: Case = Case(
-        is_website_compliant=is_website_compliant,
+        website_compliance_state_initial=website_compliance_state_initial,
         website_state_final=website_state_final,
     )
 
@@ -573,3 +627,127 @@ def test_accessibility_statement_compliance_display(
     )
 
     assert case.accessibility_statement_compliance_display == expected_result
+
+
+@pytest.mark.django_db
+def test_percentage_website_issues_fixed_no_audit():
+    """Test that cases without audits return n/a"""
+    case: Case = Case.objects.create()
+
+    assert case.percentage_website_issues_fixed == "n/a"
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_with_audit_no_issues():
+    """Test that case with audit but no issues returns n/a"""
+    case: Case = Case.objects.create()
+    Audit.objects.create(case=case)
+
+    assert case.percentage_website_issues_fixed == "n/a"
+
+
+@pytest.mark.django_db
+def test_percentage_website_issues_fixed_with_audit_and_issues():
+    """Test that case with audit and issues returns percentage"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        type=TEST_TYPE_AXE,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    assert case.percentage_website_issues_fixed == 0
+
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    assert case.percentage_website_issues_fixed == 100
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_no_audit():
+    """Test that cases without audits return no test exists"""
+    case: Case = Case.objects.create()
+
+    assert case.overview_issues_website == "No test exists"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_no_audit():
+    """Test that cases without audits return no test exists"""
+    case: Case = Case.objects.create()
+
+    assert case.overview_issues_statement == "No test exists"
+
+
+@pytest.mark.django_db
+def test_overview_issues_website_with_audit():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.overview_issues_website == "0 of 0 fixed"
+
+    page: Page = Page.objects.create(audit=audit)
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(type=TEST_TYPE_AXE)
+    check_result: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        type=TEST_TYPE_AXE,
+        wcag_definition=wcag_definition,
+        check_result_state=CHECK_RESULT_ERROR,
+    )
+
+    assert case.overview_issues_website == "0 of 1 fixed (0%)"
+
+    check_result.retest_state = RETEST_CHECK_RESULT_FIXED
+    check_result.save()
+
+    assert case.overview_issues_website == "1 of 1 fixed (100%)"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_with_audit():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert case.overview_issues_statement == "0 of 12 fixed (0%)"
+
+    audit.audit_retest_content_not_in_scope_state = CONTENT_NOT_IN_SCOPE_VALID
+    audit.save()
+
+    assert case.overview_issues_statement == "1 of 12 fixed (8%)"
+
+
+@pytest.mark.django_db
+def test_overview_issues_statement_with_statement_checks():
+    """Test that case with audit returns overview"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        check_result_state: str = (
+            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+        )
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=check_result_state,
+        )
+
+    assert case.overview_issues_statement == "21 checks failed on test"
+
+    for count, statement_check_result in enumerate(
+        audit.failed_statement_check_results
+    ):
+        if count % 2 == 0:
+            statement_check_result.check_result_state = STATEMENT_CHECK_YES
+            statement_check_result.save()
+
+    assert case.overview_issues_statement == "10 checks failed on test"

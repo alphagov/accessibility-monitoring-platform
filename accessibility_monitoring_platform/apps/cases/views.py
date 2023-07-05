@@ -4,7 +4,6 @@ Views for cases app
 from datetime import date, timedelta
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Type, Union
-import urllib
 
 from django import forms
 from django.contrib import messages
@@ -35,6 +34,7 @@ from ..comments.forms import CommentCreateForm
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 
+from ..common.models import BOOLEAN_TRUE
 from ..common.utils import (
     extract_domain_from_url,
     get_id_from_button_name,
@@ -42,6 +42,8 @@ from ..common.utils import (
     record_model_create_event,
     check_dict_for_truthy_values,
     list_to_dictionary_of_lists,
+    get_dict_without_page_items,
+    get_url_parameters_for_pagination,
 )
 from ..common.form_extract_utils import (
     extract_form_labels_and_values,
@@ -86,6 +88,7 @@ from .utils import (
     replace_search_key_with_case_search,
     download_cases,
     record_case_event,
+    build_edit_link_html,
 )
 
 ONE_WEEK_IN_DAYS = 7
@@ -247,15 +250,14 @@ class CaseListView(ListView):
         """Add field values into context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
 
-        get_without_page: Dict[str, Union[str, List[object]]] = {
-            key: value for (key, value) in self.request.GET.items() if key != "page"
-        }
-
         context["advanced_search_open"] = check_dict_for_truthy_values(
-            dictionary=get_without_page, keys_to_check=TRUTHY_SEARCH_FIELDS
+            dictionary=get_dict_without_page_items(self.request.GET.items()),
+            keys_to_check=TRUTHY_SEARCH_FIELDS,
         )
         context["form"] = self.form
-        context["url_parameters"] = urllib.parse.urlencode(get_without_page)
+        context["url_parameters"] = get_url_parameters_for_pagination(
+            request=self.request
+        )
         return context
 
 
@@ -325,13 +327,6 @@ class CaseUpdateView(UpdateView):
             record_model_update_event(user=user, model_object=self.object)
             old_case: Case = Case.objects.get(pk=self.object.id)
             record_case_event(user=user, new_case=self.object, old_case=old_case)
-
-            if (
-                old_case.report_approved_status != self.object.report_approved_status
-                and self.object.report_approved_status
-                == REPORT_APPROVED_STATUS_APPROVED
-            ):
-                self.object.reviewer = self.request.user
 
             if "home_page_url" in form.changed_data:
                 self.object.domain = extract_domain_from_url(self.object.home_page_url)
@@ -595,12 +590,16 @@ class CaseReportCorrespondenceUpdateView(CaseUpdateView):
         """Populate help text with dates"""
         form = super().get_form()
         case: Case = form.instance
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance, url_name="cases:edit-report-followup-due-dates"
+        )
+
         form.fields[
             "report_followup_week_1_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_1_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_1_due_date)} | {edit_link_html}"
         form.fields[
             "report_followup_week_4_sent_date"
-        ].help_text = format_due_date_help_text(case.report_followup_week_4_due_date)
+        ].help_text = f"{format_due_date_help_text(case.report_followup_week_4_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseReportCorrespondenceUpdateForm):
@@ -663,11 +662,13 @@ class CaseTwelveWeekCorrespondenceUpdateView(CaseUpdateView):
     def get_form(self):
         """Populate help text with dates"""
         form = super().get_form()
+        edit_link_html: str = build_edit_link_html(
+            case=form.instance,
+            url_name="cases:edit-twelve-week-correspondence-due-dates",
+        )
         form.fields[
             "twelve_week_1_week_chaser_sent_date"
-        ].help_text = format_due_date_help_text(
-            form.instance.twelve_week_1_week_chaser_due_date
-        )
+        ].help_text = f"{format_due_date_help_text(form.instance.twelve_week_1_week_chaser_due_date)} | {edit_link_html}"
         return form
 
     def form_valid(self, form: CaseTwelveWeekCorrespondenceUpdateForm):
@@ -724,14 +725,33 @@ class CaseTwelveWeekCorrespondenceDueDatesUpdateView(CaseUpdateView):
 
 
 class CaseTwelveWeekCorrespondenceEmailTemplateView(TemplateView):
-    template_name: str = "cases/twelve_week_correspondence_email.html"
+    template_name: str = "cases/emails/twelve_week_correspondence.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add platform settings to context"""
         context: Dict[str, Any] = super().get_context_data(**kwargs)
         case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
         context["case"] = case
-        context["issues_tables"] = build_issues_tables(report=case.report)
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages
+            )
+        return context
+
+
+class CaseOutstandingIssuesEmailTemplateView(TemplateView):
+    template_name: str = "cases/emails/outstanding_issues.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """Add platform settings to context"""
+        context: Dict[str, Any] = super().get_context_data(**kwargs)
+        case: Case = get_object_or_404(Case, id=kwargs.get("pk"))
+        context["case"] = case
+        if case.audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=case.audit.testable_pages,
+                check_results_attr="unfixed_check_results",
+            )
         return context
 
 
@@ -745,8 +765,11 @@ class CaseNoPSBResponseUpdateView(CaseUpdateView):
 
     def get_success_url(self) -> str:
         """Work out url to redirect to on success"""
-        case_pk: Dict[str, int] = {"pk": self.object.id}
-        return reverse("cases:edit-twelve-week-correspondence", kwargs=case_pk)
+        case: Case = self.object
+        case_pk: Dict[str, int] = {"pk": case.id}
+        if case.no_psb_contact == BOOLEAN_TRUE:
+            return reverse("cases:edit-case-close", kwargs=case_pk)
+        return reverse("cases:edit-report-correspondence", kwargs=case_pk)
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
@@ -917,15 +940,7 @@ class CaseOutstandingIssuesDetailView(DetailView):
 
 
 def export_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )
@@ -933,32 +948,8 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     return download_cases(cases=filter_cases(form=case_search_form))
 
 
-def export_single_case(
-    request: HttpRequest, pk: int  # pylint: disable=unused-argument
-) -> HttpResponse:
-    """
-    View to export a single case in csv format
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        pk: int
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
-    return download_cases(cases=Case.objects.filter(id=pk), filename=f"case_{pk}.csv")
-
-
 def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases to send to an enforcement body
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases to send to an enforcement body"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )
@@ -967,15 +958,7 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
 
 
 def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
-    """
-    View to export cases for feedback survey
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """View to export cases for feedback survey"""
     case_search_form: CaseSearchForm = CaseSearchForm(
         replace_search_key_with_case_search(request.GET)
     )

@@ -6,12 +6,14 @@ import json
 from typing import (
     Any,
     Dict,
+    Iterable,
     List,
     Match,
     Optional,
     Tuple,
     Union,
 )
+import urllib
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -19,6 +21,7 @@ from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -180,3 +183,44 @@ def checks_if_2fa_is_enabled(user: User) -> bool:
 def check_dict_for_truthy_values(dictionary: Dict, keys_to_check: List[str]) -> bool:
     """Check list of keys in dictionary for at least one truthy value"""
     return len([True for field_name in keys_to_check if dictionary.get(field_name)]) > 0
+
+
+def format_outstanding_issues(
+    failed_checks_count: int = 0, fixed_checks_count: int = 0
+) -> str:
+    """Return string showing how many outstanding issues there are"""
+    if failed_checks_count == 0:
+        return "0 of 0 fixed"
+    percentage: int = int(fixed_checks_count * 100 / failed_checks_count)
+    return f"{fixed_checks_count} of {failed_checks_count} fixed ({percentage}%)"
+
+
+def format_statement_check_overview(
+    tests_passed: int = 0,
+    tests_failed: int = 0,
+    retests_passed: int = 0,
+    retests_failed: int = 0,
+) -> str:
+    """Return string showing how many statement checks have failed"""
+    if tests_passed == 0 and tests_failed == 0:
+        return "No test results"
+
+    if tests_passed > 0 and tests_failed == 0 and retests_failed == 0:
+        return "Fully compliant"
+
+    result: str = f"{tests_failed} checks failed on test"
+
+    if retests_passed > 0 or retests_failed > 0:
+        result += f" ({retests_failed} on 12-week retest)"
+
+    return result
+
+
+def get_dict_without_page_items(items: Iterable[Tuple[str, str]]) -> Dict[str, str]:
+    """Remove tuples beginning with 'page' from iterable"""
+    return {key: value for (key, value) in items if key != "page"}
+
+
+def get_url_parameters_for_pagination(request: HttpRequest):
+    """Get URL parameters from GET removing existing 'page' parameter"""
+    return urllib.parse.urlencode(get_dict_without_page_items(request.GET.items()))

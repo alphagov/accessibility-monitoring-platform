@@ -10,18 +10,13 @@
 <div class="govuk-width-container">
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
+            {% include 'common/breadcrumb_home.html' %}
+            {% include 'cases/helpers/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'dashboard:home' %}">Home</a>
+                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-twelve-week-correspondence' case.id %}">
+                    12-week correspondence</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-detail' case.id %}">Case</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:edit-twelve-week-correspondence' case.id %}">12-week correspondence</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                Email template
-            </li>
+            <li class="govuk-breadcrumbs__list-item">Email template</li>
         </ol>
     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
@@ -50,7 +45,7 @@
                     href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Return to  12-week correspondence
+                    Return to 12-week correspondence
                 </a>
             </div>
         </div>
@@ -86,15 +81,12 @@
                     <br>
                     <h2 class="amp-margin-bottom-0">What you need to do</h2>
                     Please provide an update on each issue raised in the accessibility report including:
-                    <br>
-                    <br>
                     <ul>
                         <li>Issues you have fixed</li>
                         <li>Issues you have been unable to fix</li>
                         <li>A timeline for fixing unresolved issues</li>
                         <li>Any other comments about the accessibility of your website</li>
                     </ul>
-                    <br>
                     The issues found in the report have been listed below.
                     You do not need to provide information from your own audit.
                     <br>
@@ -129,16 +121,56 @@
                         {% endif %}
                     {% endfor %}
                     <h2>Accessibility statement comments</h2>
-                    {{ case.audit.get_accessibility_statement_state_display }}
-                    <br>
-                    <br>
-                    {% if case.audit.accessibility_statement_state == 'found-but' %}
-                        <ul>
-                            {% for issue in case.audit.report_accessibility_issues %}
-                                <li>{{ issue }}</li>
-                            {% endfor %}
-                        </ul>
+                    {% if case.audit.uses_statement_checks %}
+                        {% if case.audit.failed_statement_check_results %}
+                            An accessibility statement for the website was found
+                            but we found the following issues.
+                            <br>
+                            <br>
+                            <table id="email-statement-issues-table">
+                                <thead>
+                                    <tr>
+                                        <th width=4%>#</th>
+                                        <th id="statement-issue" width=48%>Issue and description</th>
+                                        <th id="statement-12-week-update" width=48%>12-week update</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for statement_check_result in case.audit.failed_statement_check_results %}
+                                        <tr valign="top">
+                                            <td width=4%>{{ forloop.counter }}</td>
+                                            <td headers="statement-issue" width=48%>
+                                                {{ statement_check_result.statement_check.report_text }}
+                                                {% if statement_check_result.report_comment %}
+                                                    <br>
+                                                    <br>
+                                                    {{ statement_check_result.report_comment }}
+                                                {% endif %}
+                                            </td>
+                                            <td headers="statement-12-week-update" width=48%></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
+                            An accessibility statement for the website was found in the correct format.
+                        {% else %}
+                            An accessibility statement for the website was not found.
+                        {% endif %}
+                    {% else %}
+                        {{ case.audit.get_accessibility_statement_state_display }}
+                        <br>
+                        <br>
+                        {% if case.audit.accessibility_statement_state == 'found-but' %}
+                            <ul>
+                                {% for issue in case.audit.report_accessibility_issues %}
+                                    <li>{{ issue }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     {% endif %}
+                    <br>
+                    <br>
                     Please provide the update within 7 days.
                     <br>
                     <br>
@@ -168,7 +200,7 @@
                     href="{% url 'cases:edit-twelve-week-correspondence' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
-                    Return to  12-week correspondence
+                    Return to 12-week correspondence
                 </a>
             </div>
         </div>

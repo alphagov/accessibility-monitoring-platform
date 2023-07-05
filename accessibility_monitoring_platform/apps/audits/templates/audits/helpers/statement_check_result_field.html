@@ -1,0 +1,28 @@
+<div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
+    <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h2 id="{{ field.auto_id }}-label" for="{{ field.auto_id }}" class="govuk-heading-m  amp-margin-bottom-10">
+                {{ statement_check_result_form.instance.label }}
+            </h2>
+        </legend>
+        <label class="govuk-label"><b>Success criteria</b></label>
+        <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.success_criteria }}</p>
+        {% if retest %}
+            <label class="govuk-label"><b>Initial result</b></label>
+            <p class="govuk-body">{{ statement_check_result_form.instance.get_check_result_state_display }}</p>
+            <label class="govuk-label"><b>Comments for report</b></label>
+            <p class="govuk-body">
+                {% if statement_check_result_form.instance.report_comment %}
+                    {{ statement_check_result_form.instance.report_comment }}
+                {% else %}
+                    None
+                {% endif %}
+            </p>
+        {% else %}
+            <label class="govuk-label"><b>Report text if no</b></label>
+            <p class="govuk-body">{{ statement_check_result_form.instance.statement_check.report_text }}</p>
+        {% endif %}
+        {% include 'common/field_errors.html' with errors=field.errors %}
+        {{ field }}
+    </fieldset>
+</div>
