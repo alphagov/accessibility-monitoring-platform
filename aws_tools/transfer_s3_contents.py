@@ -1,20 +1,10 @@
 import boto3
-# from dotenv import load_dotenv
-from aws_secrets import get_s3_secret
 import os
+from aws_secrets import get_s3_secret
+from import_json import import_json_data
 
-# load_dotenv()
 
-
-settings = {
-    "space_name": "monitoring-platform-production",
-    "db_name": "monitoring-platform-default-db",
-    "path": "./backup_for_AWS.sql",
-    "s3_db_filename": "backup_for_AWS.sql",
-    "copilot_app_name": "amp-app-r",
-    "copilot_env_name": "prod-env",
-    "copilot_svc_name": "amp-svc",
-}
+SETTINGS = import_json_data()
 
 paas_s3_secrets = get_s3_secret()
 PAAS_MIGRATION_ACCESS_KEY = paas_s3_secrets["PAAS_S3_ACCESS_KEY"]
@@ -28,7 +18,7 @@ def get_copilot_s3_bucket() -> str:
     response = s3.list_buckets()
     all_buckets = [x["Name"] for x in response["Buckets"]]
 
-    target_bucket = f"""{settings["copilot_app_name"]}-{settings["copilot_env_name"]}"""
+    target_bucket = f"""{SETTINGS["copilot_app_name"]}-{SETTINGS["copilot_env_name"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
     if len(filtered_buckets) != 1:

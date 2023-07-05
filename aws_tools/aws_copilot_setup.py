@@ -6,6 +6,7 @@ import time
 import boto3
 from django.core.management.utils import get_random_secret_key
 from aws_secrets import get_notify_secret
+from import_json import import_json_data
 
 start = time.time()
 
@@ -19,16 +20,11 @@ parser.add_argument("-b", "--build-direction", help="build direction - up or dow
 args = parser.parse_args()
 config = vars(args)
 
-SETTINGS = {
-    "copilot_app_name": "amp-app-r",
-    "copilot_env_name": "prod-env",
-}
-
+SETTINGS = import_json_data()
 SECRET_KEY = get_random_secret_key()
-
-notify_secrets = get_notify_secret()
-NOTIFY_API_KEY = notify_secrets["EMAIL_NOTIFY_API_KEY"]
-EMAIL_NOTIFY_BASIC_TEMPLATE = notify_secrets["EMAIL_NOTIFY_BASIC_TEMPLATE"]
+NOTIFY_SECRETS = get_notify_secret()
+NOTIFY_API_KEY = NOTIFY_SECRETS["EMAIL_NOTIFY_API_KEY"]
+EMAIL_NOTIFY_BASIC_TEMPLATE = NOTIFY_SECRETS["EMAIL_NOTIFY_BASIC_TEMPLATE"]
 
 
 def get_copilot_s3_bucket() -> str:
@@ -38,6 +34,9 @@ def get_copilot_s3_bucket() -> str:
 
     target_bucket = f"""{SETTINGS["copilot_app_name"]}-{SETTINGS["copilot_env_name"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
+
+    if filtered_buckets is None:
+        raise Exception("No bucket found")
 
     if len(filtered_buckets) != 1:
         raise Exception("Multiple buckets found - script can only handle one matching bucket")
@@ -61,10 +60,10 @@ def check_if_logged_into_cf() -> None:
 def setup() -> None:
     print(">>> Setting up new environment")
     os.system(
-        f"""copilot app init {SETTINGS["copilot_app_name"]} --domain aws.accessibility-monitoring.service.gov.uk"""
+        f"""copilot app init {SETTINGS["copilot_app_name"]} --domain {SETTINGS["copilot-domain"]}"""
     )
-    os.system("copilot env init --name prod-env --profile mfa --region eu-west-2 --default-config")
-    os.system("copilot env deploy --name prod-env")
+    os.system(f"""copilot env init --name {SETTINGS["copilot_env_name"]} --profile mfa --region eu-west-2 --default-config""")
+    os.system(f"""copilot env deploy --name {SETTINGS["copilot_env_name"]}""")
     os.system(
         f"copilot secret init "
         "--name SECRET_KEY "
@@ -85,9 +84,15 @@ def setup() -> None:
     )
     os.system("copilot svc init --name viewer-svc")
     os.system("copilot svc init --name amp-svc")
-    os.system("copilot svc deploy --name viewer-svc --env prod-env")
-    os.system("copilot svc deploy --name amp-svc --env prod-env")
-    os.system(f"""copilot svc exec -a {SETTINGS["copilot_app_name"]} -e prod-env -n amp-svc --command "python aws_tools/aws_reset_db.py" """)
+    os.system(f"""copilot svc deploy --name viewer-svc --env {SETTINGS["copilot_env_name"]}""")
+    os.system(f"""copilot svc deploy --name amp-svc --env {SETTINGS["copilot_env_name"]}""")
+    os.system(
+        """copilot svc exec """
+        f"""-a {SETTINGS["copilot_app_name"]} """
+        f"""-e {SETTINGS["copilot_env_name"]} """
+        """-n amp-svc """
+        """--command "python aws_tools/aws_reset_db.py" """
+    )
     os.system("python aws_tools/restore_db_aws.py")
     os.system("python aws_tools/transfer_s3_contents.py")
     end = time.time()

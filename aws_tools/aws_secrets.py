@@ -61,4 +61,3 @@ def get_notify_secret():
     json_acceptable_string: str = secret.replace("'", "\"")
     secret_as_dict = json.loads(json_acceptable_string)
     return secret_as_dict
-
