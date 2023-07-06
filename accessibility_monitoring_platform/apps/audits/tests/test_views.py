@@ -19,6 +19,7 @@ from ...cases.models import (
     Case,
     CaseEvent,
     Contact,
+    REPORT_METHODOLOGY_PLATFORM,
     REPORT_METHODOLOGY_ODT,
     CASE_EVENT_CREATE_AUDIT,
     CASE_EVENT_START_RETEST,
@@ -1956,6 +1957,37 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "Statement missing during initial test")
+
+
+def test_report_text_shown_when_odt_report(admin_client):
+    """
+    Test that report text is shown when case is using report methodology of ODT
+    """
+    audit: Audit = create_audit_and_wcag()
+    case: Case = audit.case
+    case.report_methodology = REPORT_METHODOLOGY_ODT
+    case.save()
+
+    audit_pk: int = audit.id
+    path_kwargs: Dict[str, int] = {"pk": audit_pk}
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, "Report text")
+
+    case.report_methodology = REPORT_METHODOLOGY_PLATFORM
+    case.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:audit-detail", kwargs=path_kwargs),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(response, "Report text")
 
 
 def test_all_initial_statement_one_notes_included_on_retest(admin_client):
