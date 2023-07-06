@@ -1,6 +1,6 @@
 {
     "copilot_app_name": "amp-app-r",
-    "copilot_env_name": "test-env",
+    "copilot_env_name": "prod-env",
     "copilot_svc_exec_name": "amp-svc",
     "pass_space_name": "monitoring-platform-production",
     "pass_db_name": "monitoring-platform-default-db",
