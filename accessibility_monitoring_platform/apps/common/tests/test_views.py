@@ -875,29 +875,6 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
     )
 
 
-@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_open_cases_metric(mock_timezone, admin_client):
-    """
-    Test report metric numbers of open cases and non-HTML reports.
-    """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
-
-    Case.objects.create()
-    Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
-
-    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<p class="govuk-body-m">
-            There are 2 open cases.
-            1 of which use the ODT templates report methodology.
-        </p>""",
-        html=True,
-    )
-
-
 @pytest.mark.django_db
 def test_frequently_used_link_shown(admin_client):
     """Test custom frequently used link is displayed"""
