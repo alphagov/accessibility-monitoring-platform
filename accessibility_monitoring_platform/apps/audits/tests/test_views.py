@@ -299,7 +299,6 @@ def test_create_audit_creates_case_event(admin_client):
         ),
         ("audits:edit-audit-report-options", "Report options"),
         ("audits:edit-audit-summary", "Test summary"),
-        ("audits:edit-audit-report-text", "Report text"),
         ("audits:audit-retest-detail", "View 12-week test"),
         ("audits:edit-audit-retest-metadata", "12-week test metadata"),
         ("audits:edit-audit-retest-pages", "12-week pages comparison"),
@@ -423,10 +422,9 @@ def test_audit_statement_check_specific_page_loads(
         ("audits:edit-audit-summary", "save", "audits:edit-audit-summary"),
         (
             "audits:edit-audit-summary",
-            "save_continue",
-            "audits:edit-audit-report-text",
+            "save_exit",
+            "cases:edit-test-results",
         ),
-        ("audits:edit-audit-report-text", "save", "audits:edit-audit-report-text"),
         (
             "audits:edit-audit-retest-metadata",
             "save",
@@ -824,7 +822,7 @@ def test_retest_date_change_creates_case_event(admin_client):
 
 @pytest.mark.parametrize(
     "path_name",
-    ["audits:edit-audit-summary", "audits:edit-audit-report-text"],
+    ["audits:edit-audit-summary"],
 )
 def test_audit_edit_redirects_to_case(
     path_name,
@@ -1958,34 +1956,6 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "Statement missing during initial test")
-
-
-def test_report_text_shown_when_not_platform_report(admin_client):
-    """
-    Test that report text is shown when case is not using report methodology of platform
-    """
-    audit: Audit = create_audit_and_wcag()
-    case: Case = audit.case
-    case.report_methodology = REPORT_METHODOLOGY_ODT
-    case.save()
-
-    audit_pk: int = audit.id
-    path_kwargs: Dict[str, int] = {"pk": audit_pk}
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-report-text", kwargs=path_kwargs),
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Copy report to clipboard")
-    assertContains(
-        response, """<h1 class="govuk-heading-l">Report text</h1>""", html=True
-    )
-    assertContains(response, "This is the end of the testing process.")
-    assertNotContains(
-        response,
-        "Report text should not be used when the report methodology is set to Platform.",
-    )
 
 
 def test_all_initial_statement_one_notes_included_on_retest(admin_client):

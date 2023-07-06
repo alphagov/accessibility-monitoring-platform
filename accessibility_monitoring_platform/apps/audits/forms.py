@@ -864,21 +864,6 @@ class AuditReportOptionsUpdateForm(VersionForm):
         ]
 
 
-class AuditReportTextUpdateForm(VersionForm):
-    """
-    Form for editing report text
-    """
-
-    audit_report_text_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "version",
-            "audit_report_text_complete_date",
-        ]
-
-
 class AuditRetestMetadataUpdateForm(VersionForm):
     """
     Form for editing audit retest metadata

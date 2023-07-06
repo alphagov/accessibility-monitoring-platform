@@ -116,30 +116,26 @@
                             {% include 'common/amp_form_snippet.html' %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
-                            {% if audit.case.report_methodology == 'odt' %}
-                                {% include 'audits/helpers/save_continue_cancel.html' %}
-                            {% else %}
-                                <input
-                                    type="submit"
-                                    value="Save"
-                                    name="save"
-                                    class="govuk-button"
-                                    data-module="govuk-button"
-                                />
-                                <input
-                                    type="submit"
-                                    value="Save and exit"
-                                    name="save_exit"
-                                    class="govuk-button govuk-button--secondary"
-                                    data-module="govuk-button"
-                                />
-                                <a
-                                    href="{{ audit.get_absolute_url }}"
-                                    class="govuk-link govuk-link--no-visited-state"
-                                >
-                                    Cancel and return to test view
-                                </a>
-                            {% endif %}
+                            <input
+                                type="submit"
+                                value="Save"
+                                name="save"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="Save and exit"
+                                name="save_exit"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{{ audit.get_absolute_url }}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return to test view
+                            </a>
                         </div>
                     </div>
                 </form>
