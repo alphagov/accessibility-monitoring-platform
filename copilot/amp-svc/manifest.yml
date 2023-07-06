@@ -28,7 +28,6 @@ http:
   interval: 120s
   timeout: 60s
   grace_period: 600s
-  alias: platform.aws.accessibility-monitoring.service.gov.uk
 
 
 # Configuration for your containers and service.
@@ -55,11 +54,12 @@ variables:
   AWS_REGION: 'eu-west-2'
   DB_NAME:
     from_cfn: ${COPILOT_APPLICATION_NAME}-${COPILOT_ENVIRONMENT_NAME}-reportstorageBucketName
+  ALLOWED_HOSTS: '* platform.accessibility-monitoring.service.gov.uk platform.aws.accessibility-monitoring.service.gov.uk'
 
 environments:
   prod-env:
-    variables:
-      ALLOWED_HOSTS: '* platform.accessibility-monitoring.service.gov.uk platform.aws.accessibility-monitoring.service.gov.uk'
+    http:
+      alias: platform.aws.accessibility-monitoring.service.gov.uk
 
 network:
   connect: true # Enable Service Connect for intra-environment traffic between services.
