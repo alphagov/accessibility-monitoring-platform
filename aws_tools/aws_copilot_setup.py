@@ -1,6 +1,7 @@
 import argparse
 import os
 import subprocess
+import sys
 import time
 
 import boto3
@@ -16,6 +17,11 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument("-b", "--build-direction", help="build direction - up or down")
+parser.add_argument(
+    "-d",
+    "--deletion-mode",
+    help="deletion-mode - hard or soft. Hard deletes the app and soft deletes the environment."
+)
 parser.add_argument("-e", "--environment", help="environment to work in - test or prod", default="test")
 parser.add_argument("-s", "--service", help="which service - platform or viewer or all", default="all")
 
@@ -111,6 +117,19 @@ def setup() -> None:
 
 
 def breakdown() -> None:
+    if config["deletion_mode"] == "hard":
+        print("Script will delete entire application and all environments inside.")
+        print("Do you wish to proceed?")
+        while True:
+            x = input()
+            if x.lower() == "n" or x.lower() == "no":
+                print(">>> Cancelling deletion")
+                sys.exit()
+            elif x.lower() == "y" or x.lower() == "yes":
+                print(">>> Executing deletion")
+                break
+            print("Please input yes or no...")
+
     bucket = get_copilot_s3_bucket()
     session = boto3.Session()
     s3 = session.resource("s3")
@@ -129,7 +148,14 @@ def breakdown() -> None:
         )
         if n % 10 == 0:
             print(f"{n} of {total_objects} deleted...")
-    os.system("copilot app delete --yes")
+
+    if config["deletion_mode"] == "hard":
+        os.system("copilot app delete --yes")
+    else:
+        print(">>> Removing environment found in copilot_settings.json")
+        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name amp-svc --yes""")
+        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name viewer-svc --yes""")
+        os.system(f"""copilot env delete --name {SETTINGS['copilot_env_name']} --yes""")
     end = time.time()
     print(f"Process took {end - start} seconds")
 
