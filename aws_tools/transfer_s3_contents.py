@@ -2,7 +2,15 @@ import boto3
 import os
 from aws_secrets import get_s3_secret
 from import_json import import_json_data
+import argparse
 
+parser = argparse.ArgumentParser(
+    description="Just an example",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument("-e", "--environment", help="environment to work in - test or prod", default="test")
+args = parser.parse_args()
+config = vars(args)
 
 SETTINGS = import_json_data()
 
@@ -18,7 +26,7 @@ def get_copilot_s3_bucket() -> str:
     response = s3.list_buckets()
     all_buckets = [x["Name"] for x in response["Buckets"]]
 
-    target_bucket = f"""{SETTINGS["copilot_app_name"]}-{SETTINGS["copilot_env_name"]}"""
+    target_bucket = f"""{SETTINGS["global"]["copilot_app_name"]}-{SETTINGS["environment"][config['environment']]["copilot_env_name"]}"""
     filtered_buckets = [s for s in all_buckets if target_bucket in s]
 
     if len(filtered_buckets) != 1:

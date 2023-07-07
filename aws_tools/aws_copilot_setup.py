@@ -110,8 +110,8 @@ def setup() -> None:
         """-n amp-svc """
         """--command "python aws_tools/aws_reset_db.py" """
     )
-    os.system("python3 aws_tools/restore_db_aws.py")
-    os.system("python3 aws_tools/transfer_s3_contents.py")
+    os.system(f"python3 aws_tools/restore_db_aws.py -e {config['environment']}""")
+    os.system(f"""python3 aws_tools/transfer_s3_contents.py -e {config['environment']}""")
     end = time.time()
     print(f"Process took {end - start} seconds")
 
@@ -153,9 +153,9 @@ def breakdown() -> None:
         os.system("copilot app delete --yes")
     else:
         print(">>> Removing environment found in copilot_settings.json")
-        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name amp-svc --yes""")
-        os.system(f"""copilot svc delete --env {SETTINGS['copilot_env_name']} --name viewer-svc --yes""")
-        os.system(f"""copilot env delete --name {SETTINGS['copilot_env_name']} --yes""")
+        os.system(f"""copilot svc delete --env {SETTINGS['environment'][config['environment']]['copilot_env_name']} --name amp-svc --yes""")
+        os.system(f"""copilot svc delete --env {SETTINGS['environment'][config['environment']]['copilot_env_name']} --name viewer-svc --yes""")
+        os.system(f"""copilot env delete --name {SETTINGS['environment'][config['environment']]['copilot_env_name']} --yes""")
     end = time.time()
     print(f"Process took {end - start} seconds")
 
