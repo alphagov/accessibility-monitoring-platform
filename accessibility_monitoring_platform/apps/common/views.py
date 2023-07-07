@@ -23,8 +23,6 @@ from ..cases.models import (
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_METHODOLOGY_ODT,
-    CLOSED_CASE_STATUSES,
 )
 from ..s3_read_write.models import S3Report
 from ..reports.models import ReportVisitsMetrics
@@ -532,13 +530,6 @@ class MetricsReportTemplateView(TemplateView):
             if now.month > 1
             else datetime(now.year - 1, 12, 1, tzinfo=timezone.utc)
         )
-        open_cases: QuerySet[Case] = Case.objects.all().exclude(
-            status__in=CLOSED_CASE_STATUSES
-        )
-        number_open_cases: int = open_cases.count()
-        number_template_reports: int = open_cases.filter(
-            report_methodology=REPORT_METHODOLOGY_ODT
-        ).count()
 
         progress_metrics: List[Dict[str, Union[str, int]]] = [
             calculate_current_month_progress(
@@ -616,8 +607,6 @@ class MetricsReportTemplateView(TemplateView):
         ]
 
         extra_context: Dict[str, Any] = {
-            "number_open_cases": number_open_cases,
-            "number_template_reports": number_template_reports,
             "first_of_last_month": first_of_last_month,
             "progress_metrics": progress_metrics,
             "yearly_metrics": yearly_metrics,
