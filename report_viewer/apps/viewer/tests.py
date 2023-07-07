@@ -373,8 +373,8 @@ def test_post_report_feedback_form(admin_client):
     [
         (date(2023, 7, 2), False),
         (date(2023, 7, 3), True),
-        (date(2023, 7, 14), True),
-        (date(2023, 7, 15), False),
+        (date(2023, 7, 21), True),
+        (date(2023, 7, 22), False),
     ],
 )
 def test_show_warning(today, expected_result):
