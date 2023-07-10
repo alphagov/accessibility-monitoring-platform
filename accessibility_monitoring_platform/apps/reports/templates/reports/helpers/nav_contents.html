@@ -21,8 +21,13 @@
                     {% endfor %}
                 </ul>
             </li>
-            {% include './nav_content.html' with anchor='report-your-accessibility-statement' name='Your accessibility statement' edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
-            {% include './nav_content.html' with anchor='report-what-to-do-next' name='What to do next'  edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
+            {% if report.case.audit.uses_statement_checks %}
+                {% include './nav_content.html' with anchor='report-your-accessibility-statement' name='Your accessibility statement' edit_url='audits:edit-statement-overview' edit_label='Edit test &gt; Statement overview' %}
+                {% include './nav_content.html' with anchor='report-what-to-do-next' name='What to do next' %}
+            {% else %}
+                {% include './nav_content.html' with anchor='report-your-accessibility-statement' name='Your accessibility statement' edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
+                {% include './nav_content.html' with anchor='report-what-to-do-next' name='What to do next'  edit_url='audits:edit-audit-report-options' edit_label='Edit test &gt; Report options' %}
+            {% endif %}
             {% include './nav_content.html' with anchor='report-enforcement' name='Enforcement' %}
             {% include './nav_content.html' with anchor='report-contact-and-more-information' name='Contact and more information' %}
 

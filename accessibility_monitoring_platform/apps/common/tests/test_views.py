@@ -18,7 +18,6 @@ from ...cases.models import (
     WEBSITE_INITIAL_COMPLIANCE_COMPLIANT,
     RECOMMENDATION_NO_ACTION,
     ACCESSIBILITY_STATEMENT_DECISION_COMPLIANT,
-    REPORT_METHODOLOGY_ODT,
 )
 from ...cases.views import calculate_report_followup_dates
 from ...notifications.models import Notification
@@ -871,29 +870,6 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
         METRIC_YEARLY_TABLE.format(
             column_header="Report views", table_id="reports-views-over-the-last-year"
         ),
-        html=True,
-    )
-
-
-@patch("accessibility_monitoring_platform.apps.common.views.django_timezone")
-def test_report_open_cases_metric(mock_timezone, admin_client):
-    """
-    Test report metric numbers of open cases and non-HTML reports.
-    """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
-
-    Case.objects.create()
-    Case.objects.create(report_methodology=REPORT_METHODOLOGY_ODT)
-
-    response: HttpResponse = admin_client.get(reverse("common:metrics-report"))
-
-    assert response.status_code == 200
-    assertContains(
-        response,
-        """<p class="govuk-body-m">
-            There are 2 open cases.
-            1 of which use the ODT templates report methodology.
-        </p>""",
         html=True,
     )
 

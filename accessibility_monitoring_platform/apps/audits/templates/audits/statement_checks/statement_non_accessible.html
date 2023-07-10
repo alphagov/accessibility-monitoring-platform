@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load l10n %}
+
+{% load static %}
+
+{% block title %}{{ audit.case.organisation_name }} | Non-accessible content{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'audits/helpers/breadcrumb_audit.html' with page_heading='Non-accessible content' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">Non-accessible content</h1>
+                {% include "cases/helpers/case_title.html" with case=audit.case %}
+                {% include "cases/helpers/messages.html" %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <form method="post" action="{% url 'audits:edit-statement-non-accessible' audit.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% if audit.accessibility_statement_initially_found %}
+                                {% include 'audits/helpers/accessibility_statement_link.html' with twelve_week_test=0 %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% include 'audits/helpers/statement_check_formset.html' %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full">
+                            {% include 'common/amp_field.html' with field=form.audit_statement_non_accessible_complete_date %}
+                        </div>
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            {% include 'audits/helpers/save_continue_cancel.html' %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/nav_steps.html' with current_page='audits:edit-statement-non-accessible' %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+{% endblock %}

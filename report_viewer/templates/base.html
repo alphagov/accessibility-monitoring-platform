@@ -54,6 +54,17 @@
       </header>
 
       <div class="govuk-width-container">
+        {% if show_warning %}
+            <div class="govuk-warning-text amp-margin-top-30 amp-margin-bottom-0">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive">Warning</span>
+                    Maintenance will take place between Monday 10 July and Friday 21 July 2023.
+                    <br>
+                    Reports may be inaccessible during that time.
+                </strong>
+            </div>
+        {% endif %}
         {% block content %}
         {% endblock %}
       </div>

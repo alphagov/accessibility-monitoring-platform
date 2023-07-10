@@ -53,6 +53,10 @@ from .models import (
     REPORT_NEXT_ISSUE_TEXT,
     WcagDefinition,
     TEST_TYPE_CHOICES,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_CHOICES,
+    STATEMENT_CHECK_TYPE_CHOICES,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: List[Tuple[str, str]] = TEST_TYPE_CHOICES + [
@@ -426,6 +430,161 @@ class AuditStatementDecisionUpdateForm(VersionForm):
         ]
 
 
+class StatementCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single statement check
+    """
+
+    check_result_state = AMPChoiceRadioField(
+        label="",
+        choices=STATEMENT_CHECK_CHOICES,
+        widget=AMPRadioSelectWidget(),
+    )
+    report_comment = AMPTextField(label="Comments for report")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = [
+            "check_result_state",
+            "report_comment",
+        ]
+
+
+StatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, StatementCheckResultForm, extra=0
+)
+
+
+class AuditStatementOverviewUpdateForm(VersionForm):
+    """
+    Form for editing statement overview
+    """
+
+    accessibility_statement_backup_url = AMPURLField(
+        label="Link to saved accessibility statement",
+    )
+    audit_statement_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "accessibility_statement_backup_url",
+            "audit_statement_overview_complete_date",
+        ]
+
+
+class AuditStatementWebsiteUpdateForm(VersionForm):
+    """
+    Form for editing statement website
+    """
+
+    audit_statement_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_website_complete_date",
+        ]
+
+
+class AuditStatementComplianceUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance
+    """
+
+    audit_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_compliance_complete_date",
+        ]
+
+
+class AuditStatementNonAccessibleUpdateForm(VersionForm):
+    """
+    Form for editing statement non-accessible
+    """
+
+    audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_non_accessible_complete_date",
+        ]
+
+
+class AuditStatementPreparationUpdateForm(VersionForm):
+    """
+    Form for editing statement preparation
+    """
+
+    audit_statement_preparation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_preparation_complete_date",
+        ]
+
+
+class AuditStatementFeedbackUpdateForm(VersionForm):
+    """
+    Form for editing statement feedback
+    """
+
+    audit_statement_feedback_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_feedback_complete_date",
+        ]
+
+
+class AuditStatementCustomUpdateForm(VersionForm):
+    """
+    Form for editing custom statement issues
+    """
+
+    audit_statement_custom_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Case
+        fields: List[str] = [
+            "version",
+            "audit_statement_custom_complete_date",
+        ]
+
+
+class CustomStatementCheckResultUpdateForm(forms.ModelForm):
+    """
+    Form for updating a custom statement check result
+    """
+
+    report_comment = AMPTextField(label="Comments for report")
+    auditor_notes = AMPTextField(label="Notes for auditor")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = ["report_comment", "auditor_notes"]
+
+
+CustomStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=0
+)
+CustomStatementCheckResultFormsetOneExtra: Any = forms.modelformset_factory(
+    StatementCheckResult, CustomStatementCheckResultUpdateForm, extra=1
+)
+
+
 class CaseStatementDecisionUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision
@@ -702,21 +861,6 @@ class AuditReportOptionsUpdateForm(VersionForm):
             "report_next_disproportionate_burden",
             "report_options_notes",
             "audit_report_options_complete_date",
-        ]
-
-
-class AuditReportTextUpdateForm(VersionForm):
-    """
-    Form for editing report text
-    """
-
-    audit_report_text_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: List[str] = [
-            "version",
-            "audit_report_text_complete_date",
         ]
 
 
@@ -1010,6 +1154,136 @@ class AuditRetestStatement2UpdateForm(VersionForm):
         ]
 
 
+class RetestStatementCheckResultForm(forms.ModelForm):
+    """
+    Form for updating a single statement check retest
+    """
+
+    retest_state = AMPChoiceRadioField(
+        label="",
+        choices=STATEMENT_CHECK_CHOICES,
+        widget=AMPRadioSelectWidget(),
+    )
+    retest_comment = AMPTextField(label="Retest comments")
+
+    class Meta:
+        model = StatementCheckResult
+        fields = [
+            "retest_state",
+            "retest_comment",
+        ]
+
+
+RetestStatementCheckResultFormset: Any = forms.modelformset_factory(
+    StatementCheckResult, RetestStatementCheckResultForm, extra=0
+)
+
+
+class AuditRetestStatementOverviewUpdateForm(VersionForm):
+    """
+    Form for editing statement overview
+    """
+
+    audit_retest_statement_overview_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_overview_complete_date",
+        ]
+
+
+class AuditRetestStatementWebsiteUpdateForm(VersionForm):
+    """
+    Form for editing statement website
+    """
+
+    audit_retest_statement_website_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_website_complete_date",
+        ]
+
+
+class AuditRetestStatementComplianceUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance
+    """
+
+    audit_retest_statement_compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_compliance_complete_date",
+        ]
+
+
+class AuditRetestStatementNonAccessibleUpdateForm(VersionForm):
+    """
+    Form for editing statement non-accessible
+    """
+
+    audit_retest_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_non_accessible_complete_date",
+        ]
+
+
+class AuditRetestStatementPreparationUpdateForm(VersionForm):
+    """
+    Form for editing statement preparation
+    """
+
+    audit_retest_statement_preparation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_preparation_complete_date",
+        ]
+
+
+class AuditRetestStatementFeedbackUpdateForm(VersionForm):
+    """
+    Form for editing statement feedback
+    """
+
+    audit_retest_statement_feedback_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_feedback_complete_date",
+        ]
+
+
+class AuditRetestStatementOtherUpdateForm(VersionForm):
+    """
+    Form for editing statement other
+    """
+
+    audit_retest_statement_custom_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: List[str] = [
+            "version",
+            "audit_retest_statement_custom_complete_date",
+        ]
+
+
 class AuditRetestStatementComparisonUpdateForm(VersionForm):
     """
     Form for retesting statement comparison
@@ -1100,4 +1374,41 @@ class WcagDefinitionCreateUpdateForm(forms.ModelForm):
             "url_on_w3",
             "description",
             "report_boilerplate",
+        ]
+
+
+class StatementCheckSearchForm(forms.Form):
+    """
+    Form for searching for statement checks
+    """
+
+    statement_check_search = AMPCharFieldWide(
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input",
+                "placeholder": "Search term",
+            }
+        )
+    )
+
+
+class StatementCheckCreateUpdateForm(forms.ModelForm):
+    """
+    Form for creating statement check
+    """
+
+    label = AMPCharFieldWide(label="Name", required=True)
+    type = AMPChoiceField(
+        label="Statement section", choices=STATEMENT_CHECK_TYPE_CHOICES
+    )
+    success_criteria = AMPCharFieldWide(label="Success criteria")
+    report_text = AMPCharFieldWide(label="Report text")
+
+    class Meta:
+        model = StatementCheck
+        fields: List[str] = [
+            "label",
+            "type",
+            "success_criteria",
+            "report_text",
         ]

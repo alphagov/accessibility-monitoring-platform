@@ -2,9 +2,12 @@
 Tests for cases models
 """
 import pytest
+
 from datetime import date, datetime, timezone
 from typing import List
 from unittest.mock import patch, Mock
+
+from pytest_django.asserts import assertQuerysetEqual
 
 from django.db.models.query import QuerySet
 
@@ -31,6 +34,12 @@ from ..models import (
     RETEST_CHECK_RESULT_FIXED,
     ACCESSIBILITY_STATEMENT_CHECK_PREFIXES,
     SCOPE_STATE_VALID,
+    StatementCheck,
+    StatementCheckResult,
+    STATEMENT_CHECK_TYPE_OVERVIEW,
+    STATEMENT_CHECK_NOT_TESTED,
+    STATEMENT_CHECK_NO,
+    STATEMENT_CHECK_YES,
 )
 
 PAGE_NAME = "Page name"
@@ -62,6 +71,27 @@ def create_audit_and_pages() -> Audit:
     ]:
         Page.objects.create(audit=audit, page_type=page_type)
     Page.objects.create(audit=audit, page_type=PAGE_TYPE_EXTRA, is_deleted=True)
+    return audit
+
+
+def create_audit_and_statement_check_results() -> Audit:
+    """Create an audit with all types of statement checks"""
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    for count, statement_check in enumerate(StatementCheck.objects.all()):
+        check_result_state: str = (
+            STATEMENT_CHECK_NO if count % 2 == 0 else STATEMENT_CHECK_YES
+        )
+        StatementCheckResult.objects.create(
+            audit=audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=check_result_state,
+        )
+    StatementCheckResult.objects.create(
+        audit=audit,
+        report_comment="Custom statement issue",
+    )
     return audit
 
 
@@ -125,6 +155,28 @@ def test_audit_every_pages_returns_pdf_and_statement_last():
 
     assert audit.every_page.last().page_type == PAGE_TYPE_STATEMENT
     assert list(audit.every_page)[-2].page_type == PAGE_TYPE_PDF
+
+
+@pytest.mark.django_db
+def test_page_get_absolute_url():
+    """
+    Test Page.get_absolute_url is as expected
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.accessibility_statement_page
+
+    assert page.get_absolute_url() == f"/audits/pages/{page.id}/edit-audit-page-checks/"
+
+
+@pytest.mark.django_db
+def test_page_str():
+    """
+    Test Page.__str__ is as expected
+    """
+    audit: Audit = create_audit_and_pages()
+    page: Page = audit.accessibility_statement_page
+
+    assert page.__str__() == "Accessibility statement"
 
 
 @pytest.mark.django_db
@@ -603,6 +655,237 @@ def test_audit_accessibility_statement_finally_invalid():
     assert len(audit.finally_invalid_accessibility_statement_checks) == 11
 
 
+def test_statement_check_str():
+    """Tests an StatementCheck __str__ contains the expected string"""
+    statement_check: StatementCheck = StatementCheck(label="Label")
+
+    assert statement_check.__str__() == "Label (Custom statement issues)"
+
+    statement_check.success_criteria = "Success criteria"
+
+    assert (
+        statement_check.__str__() == "Label: Success criteria (Custom statement issues)"
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_results_str():
+    """Tests an StatementCheckResult __str__ contains the expected string"""
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_result: StatementCheckResult = (
+        audit.overview_statement_check_results.first()
+    )
+
+    assert (
+        statement_check_result.__str__()
+        == f"{audit} | {statement_check_result.statement_check}"
+    )
+
+    custom_statement_check_result: StatementCheckResult = (
+        audit.custom_statement_check_results.first()
+    )
+
+    assert custom_statement_check_result.__str__() == f"{audit} | Custom"
+
+
+@pytest.mark.django_db
+def test_audit_statement_check_results():
+    """
+    Tests an audit.statement_check_results contains the matching statement check
+    results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
+        audit=audit
+    )
+
+    assertQuerysetEqual(audit.statement_check_results, statement_check_results)
+
+
+@pytest.mark.django_db
+def test_audit_uses_statement_checks():
+    """
+    Tests an audit.uses_statement_checks shows if statement check results exist
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+
+    assert audit.uses_statement_checks is False
+
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.uses_statement_checks is True
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("custom", "custom"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_statement_check_results(type, attr):
+    """
+    Tests specific audit statement_check_results property contains the matching
+    statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
+        audit=audit, type=type
+    )
+
+    assertQuerysetEqual(
+        getattr(audit, f"{attr}_statement_check_results"),
+        statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_overview_statement_checks_complete():
+    """Tests audit overview_statement_checks_complete property"""
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.overview_statement_checks_complete is True
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_NOT_TESTED
+        statement_check_result.save()
+        break
+
+    assert audit.overview_statement_checks_complete is False
+
+
+@pytest.mark.django_db
+def test_audit_failed_statement_check_results():
+    """
+    Tests an audit.failed_statement_check_results contains the failed statement
+    check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, check_result_state=STATEMENT_CHECK_NO
+        )
+    )
+
+    assertQuerysetEqual(
+        audit.failed_statement_check_results, failed_statement_check_results
+    )
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("custom", "custom"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_failed_statement_check_results(type, attr):
+    """
+    Tests specific audit failed_statement_check_results property contains the
+    matching failed statement check results.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    failed_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit, type=type, check_result_state=STATEMENT_CHECK_NO
+        )
+    )
+
+    assertQuerysetEqual(
+        getattr(audit, f"{attr}_failed_statement_check_results"),
+        failed_statement_check_results,
+    )
+
+
+@pytest.mark.django_db
+def test_audit_statement_check_result_statement_found():
+    """
+    Tests an audit.statement_check_result_statement_found shows if all
+    overview statement checks have passed
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.statement_check_result_statement_found is False
+
+    for statement_check_result in audit.overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert audit.statement_check_result_statement_found is True
+
+
+@pytest.mark.django_db
+def test_audit_all_overview_statement_checks_have_passed():
+    """
+    Tests an audit.all_overview_statement_checks_have_passed shows if all
+    statement check results have passed on test or retest
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    overview_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit,
+            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+        )
+    )
+    for statement_check_result in overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is True
+
+    for statement_check_result in overview_statement_check_results:
+        statement_check_result.check_result_state = STATEMENT_CHECK_NO
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    for statement_check_result in overview_statement_check_results:
+        statement_check_result.retest_state = STATEMENT_CHECK_YES
+        statement_check_result.save()
+
+    assert audit.all_overview_statement_checks_have_passed is True
+
+
+@pytest.mark.django_db
+def test_all_overview_statement_checks_have_passed():
+    """
+    Tests an audit has all statement checks on overview set to yes.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+    overview_statement_check_results: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
+            audit=audit,
+            type=STATEMENT_CHECK_TYPE_OVERVIEW,
+        )
+    )
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+    for overview_statement_check_result in overview_statement_check_results:
+        overview_statement_check_result.check_result_state = STATEMENT_CHECK_YES
+        overview_statement_check_result.save()
+
+    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+
+    assert audit_from_db.all_overview_statement_checks_have_passed is True
+
+
 def test_report_accessibility_issues():
     """Test the accessibility issues includes user-edited text"""
     audit: Audit = Audit(
@@ -622,3 +905,48 @@ def test_report_accessibility_issues():
         INCOMPLETE_DEADLINE_TEXT,
         INSUFFICIENT_DEADLINE_TEXT,
     ]
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("custom", "custom"),
+    ],
+)
+@pytest.mark.django_db
+def test_audit_specific_outstanding_statement_check_results(type, attr):
+    """
+    Tests specific audit outstanding_statement_check_results property contains
+    the expected statement check results.
+    """
+    case: Case = Case.objects.create()
+    audit: Audit = Audit.objects.create(case=case)
+    statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        audit=audit,
+        type=type,
+        statement_check=statement_check,
+    )
+    attr_name: str = f"{attr}_outstanding_statement_check_results"
+
+    assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0
+
+    statement_check_result.check_result_state = STATEMENT_CHECK_NO
+    statement_check_result.save()
+
+    assert getattr(audit, attr_name).exists() is True
+    assert getattr(audit, attr_name).first() == statement_check_result
+    assert audit.outstanding_statement_check_results.count() == 1
+
+    statement_check_result.retest_state = STATEMENT_CHECK_YES
+    statement_check_result.save()
+
+    assert getattr(audit, attr_name).exists() is False
+    assert audit.outstanding_statement_check_results.count() == 0

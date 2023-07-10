@@ -1,4 +1,4 @@
-django
+django==4.1.10
 python-dotenv
 psycopg2
 notifications-python-client
@@ -11,7 +11,7 @@ xmltodict
 Markdown
 moto
 django-axes
-django-two-factor-auth==1.14.0
+django-two-factor-auth
 phonenumbers
 django-csp
 pytest-django

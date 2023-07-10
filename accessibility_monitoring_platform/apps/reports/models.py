@@ -28,9 +28,9 @@ TEMPLATE_TYPE_CHOICES: List[Tuple[str, str]] = [
     (TEMPLATE_TYPE_ISSUES_TABLE, "Contains Issues table"),
     (TEMPLATE_TYPE_HTML, "HTML"),
 ]
-REPORT_VERSION_DEFAULT: str = "v1_1_0__20230421"
+REPORT_VERSION_DEFAULT: str = "v1_2_0__20230523"
 REPORT_VERSION_CHOICES: List[Tuple[str, str]] = [
-    (REPORT_VERSION_DEFAULT, "Version 1"),
+    (REPORT_VERSION_DEFAULT, "Version 1.2"),
 ]
 WRAPPER_TEXT_FIELDS: List[str] = [
     "title",
@@ -60,6 +60,9 @@ class ReportWrapper(models.Model):
 
     def __str__(self) -> str:
         return str("Report wrapper text")
+
+    def get_absolute_url(self) -> str:
+        return reverse("reports:edit-report-wrapper")
 
 
 class Report(VersionModel):
@@ -138,6 +141,11 @@ class ReportVisitsMetrics(models.Model):
     guid = models.TextField(default="", blank=True)
     fingerprint_hash = models.IntegerField(default=0, blank=True)
     fingerprint_codename = models.TextField(default="", blank=True)
+
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "reports:report-metrics-view", kwargs={"pk": self.case.report.id}  # type: ignore
+        )
 
 
 class ReportFeedback(models.Model):
