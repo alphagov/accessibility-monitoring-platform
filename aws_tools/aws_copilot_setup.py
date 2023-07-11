@@ -118,7 +118,7 @@ def breakdown() -> None:
                 print(">>> Executing deletion")
                 break
             print("Please input yes or no...")
-
+ 
     bucket = get_copilot_s3_bucket()
     session = boto3.Session()
     s3 = session.resource("s3")
