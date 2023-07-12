@@ -21,9 +21,9 @@ SETTINGS = import_json_data()
 check_if_logged_into_cf()
 
 copy_db = CopyDB(
-    space_name=SETTINGS["pass_space_name"],
-    db_name=SETTINGS["pass_db_name"],
-    path=SETTINGS["path"],
+    space_name=SETTINGS["global"]["pass_space_name"],
+    db_name=SETTINGS["global"]["pass_db_name"],
+    path=SETTINGS["global"]["path"],
 )
 
 copy_db.start()  # Downloads DB from CF
@@ -42,14 +42,14 @@ filtered_bucket = filtered_buckets[0]
 
 # Uploads the DB from CF
 response = s3.upload_file(
-    SETTINGS["path"],
+    SETTINGS["global"]["path"],
     filtered_bucket,
-    SETTINGS["s3_db_filename"]
+    SETTINGS["global"]["s3_db_filename"]
 )
 print(">>> successfully uploaded db to s3")
 
 # Restores the DB from inside ECS
-db_restore_command = f"""python aws_tools/aws_upload_db_backup.py {SETTINGS["s3_db_filename"]}"""
+db_restore_command = f"""python aws_tools/aws_upload_db_backup.py {SETTINGS["global"]["s3_db_filename"]}"""
 copilot_command = (
     """copilot svc exec """
     f"""-a {SETTINGS["global"]["copilot_app_name"]} """
