@@ -63,6 +63,44 @@ def check_if_logged_into_cf() -> None:
     print(">>> User is logged into CF")
 
 
+def check_and_switch_app() -> None:
+    workspace_file = f"{os.getcwd()}/copilot/.workspace"
+    if os.path.exists(workspace_file) is False:
+        return
+
+    with open(workspace_file, encoding="UTF-8") as fp:
+        contents = fp.read()
+    contents_as_d = {}
+    for line in contents.split("\n"):
+        if ":" in line:
+            key = line.split(":")[0]
+            value = line.split(":")[1].strip()
+            contents_as_d[key] = value
+
+    if contents_as_d["application"] == SETTINGS["copilot_app_name"]:
+        return
+
+    print("The app name in copilot/.workspace is different to the copilot_settings.json")
+    print("Do you wish to change to the app name in copilot_settings.json? yes or no")
+    while True:
+        x = input()
+        if x.lower() == "n" or x.lower() == "no":
+            print(">>> Cancelling deploy")
+            print(">>> Change copilot_app_name in copilot_settings.json to the same name in .workspace")
+            sys.exit()
+        elif x.lower() == "y" or x.lower() == "yes":
+            print(f""">>> Replacing .workspace with {SETTINGS["copilot_app_name"]}""")
+            break
+        print("Please input yes or no...")
+
+    lines = [f"""application: {SETTINGS["copilot_app_name"]}""", ""]
+    with open(workspace_file, "w", encoding="UTF-8") as f:
+        for line in lines:
+            f.write(line)
+            f.write("\n")
+    return
+
+
 def setup() -> None:
     print(">>> Setting up new environment")
     os.system(
@@ -151,7 +189,7 @@ def breakdown() -> None:
 
 if __name__ == "__main__":
     check_if_logged_into_cf()
-
+    check_and_switch_app()
     if config["build_direction"] == "up":
         setup()
     elif config["build_direction"] == "down":
